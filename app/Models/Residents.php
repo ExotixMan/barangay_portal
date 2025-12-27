@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Residents extends Model
+class Residents extends Authenticatable
 {
+    use Notifiable;
+
+    protected $table = 'residents';
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'firstname', 
         'lastname', 
@@ -14,7 +20,11 @@ class Residents extends Model
         'birthdate',
         'contact', 
         'username', 
-        'password', 
-        'proof_file'
+        'password'
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 }

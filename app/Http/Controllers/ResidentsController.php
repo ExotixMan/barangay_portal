@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Residents;
+use PDO;
 
 class ResidentsController extends Controller
 {
@@ -23,33 +24,38 @@ class ResidentsController extends Controller
             'birthdate' => 'required|date',
             'contact' => 'required|string|max:11',
             'username' => 'required|string|unique:residents,username',
-            'password' => 'required|string|confirmed|min:8'
+            'password' => 'required|string|confirmed'
         ]);
 
         $data['password'] = Hash::make($data['password']);
 
         Residents::create($data);
 
-        dd('Test record saved!');
+        return redirect('login')->with('success', 'Account registered successfully!');
     }
 
-    public function login_res(Request $request){
-
-        $request->validate([
-            'username' => 'required',
-            'password' => 'required'
+    public function login_res(Request $request)
+    {
+        $credentials = $request->validate([
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
-        $user = Residents::where('username', '=', $request->username)->first();
-        if($user) {
-            if (Hash::check($request->password, $user->password)){
-                $request->session()->put('loginId', $user->id);
-                return view('barangay_system.index');
-            } else {
-                return redirect('login')->with('fail', 'Password not matches.');
-            }
-        } else {
-            return redirect('login')->with('fail', 'This email is not registered.');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/');
         }
+
+        return redirect('login')->with('fail', 'Invalid username or password.');
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->session()->forget('loginId');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 
 }
