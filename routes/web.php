@@ -14,6 +14,7 @@ use App\Http\Controllers\AIncidentReportsController;
 use App\Http\Controllers\AResidentsController;
 use App\Http\Controllers\IncidentReportController;
 use App\Http\Controllers\RequestsController;
+use App\Http\Controllers\AnnouncementController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -29,10 +30,12 @@ Route::get('/switch-language', function (Request $request) {
     return redirect()->back();
 })->name('switch.language');
 
-Route::get('/', function () {
-    App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.index');
-})->name('barangay_system.index');
+Route::get('/', function () { App::setLocale(Session::get('locale', config('app.locale'))); return view('barangay_system.index'); })->name('barangay_system.index');
+
+
+Route::view('/history', 'barangay_system.history')->name('history');
+Route::view('/barangay-map', 'barangay_system.map')->name('map');
+Route::get('/announcements', [AnnouncementController::class, 'index'])->name('barangay_system.announcement');
 
 //Resident Registration
 Route::get('/register', function() { return view('barangay_system.register'); })->name('register');
@@ -49,15 +52,15 @@ Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res
 Route::get('/services', [RequestsController::class, 'service'])->middleware('auth')->name('barangay_system.services');
 
 //Services - Indigency
-Route::get('/indigency', function() { return view('barangay_system.indigency'); })->name('indigency');
+Route::get('/indigency', function() { return view('barangay_system.indigency'); })->middleware('auth')->name('indigency');
 Route::post('/indigency', [RequestsController::class, 'requestStore'])->middleware('auth')->name('indigency.req');
 
 //Services - First-time Job Seeker
-Route::get('/jobseek', function() { return view('barangay_system.job_seeker'); })->name('jobseek');
+Route::get('/jobseek', function() { return view('barangay_system.job_seeker'); })->middleware('auth')->name('jobseek');
 Route::post('/jobseek', [RequestsController::class, 'requestStore'])->middleware('auth')->name('job_seeker.req');
 
 //Services - Barangay Clearance
-Route::get('/clearance', function() { return view('barangay_system.clearance'); })->name('clearance');
+Route::get('/clearance', function() { return view('barangay_system.clearance'); })->middleware('auth')->name('clearance');
 Route::post('/clearance', [RequestsController::class, 'requestStore'])->middleware('auth')->name('clearance.req');
 
 //Incident Report
@@ -67,6 +70,9 @@ Route::post('/incident', [IncidentReportController::class, 'incidentStore'])->mi
 //Admin Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index']);
 Route::get('/api/forecast-requests', [DashboardController::class, 'forecastRequests']);
+
+//Announcements
+Route::post('/announcements', [AnnouncementController::class, 'store']);
 
 //Admin Request Status
 Route::get('/request-status', [RequestStatusController::class, 'index'])->name('request.index');
@@ -79,7 +85,12 @@ Route::put('/request-update/{request_id}', [RequestStatusController::class, 'upd
 // Delete request
 Route::delete('/request-delete/{request_id}', [RequestStatusController::class, 'destroy'])->name('request.delete');
 // Notify resident
+
+//LARAVEL way
 Route::post('/request/send-email', [RequestStatusController::class, 'sendEmail'])->name('request.sendEmail');
+
+//BREVO way
+// Route::post('/request/send-email', [RequestStatusController::class, 'sendEmail'])->name('request.sendEmail');
 Route::post('/request/send-sms', [RequestStatusController::class, 'sendSMS'])->name('request.sendSMS');
 
 

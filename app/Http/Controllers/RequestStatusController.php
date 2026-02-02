@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Requests;
 use App\Models\RequestRecord;
 use Illuminate\Support\Facades\Http;
+use App\Mail\Notification;
+use Illuminate\Support\Facades\Mail;
 
 
 class RequestStatusController extends Controller
@@ -49,43 +51,61 @@ class RequestStatusController extends Controller
             ->with('success', 'Request deleted successfully');
     }
 
+    // public function sendEmail(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'name' => 'required|string',
+    //         'message' => 'required|string',
+    //     ]);
+
+    //     $response = Http::withHeaders([
+    //         'api-key' => config('services.brevo.key'),
+    //         'Content-Type' => 'application/json',
+    //         'Accept' => 'application/json',
+    //     ])->post('https://api.brevo.com/v3/smtp/email', [
+    //         'sender' => [
+    //             'email' => config('services.brevo.sender_email'),
+    //             'name' => config('services.brevo.sender_name'),
+    //         ],
+    //         'to' => [
+    //             [
+    //                 'email' => $request->email,
+    //                 'name' => $request->name,
+    //             ]
+    //         ],
+    //         'subject' => 'Barangay Request Update',
+    //         'htmlContent' => $request->message,
+    //     ]);
+
+    //     if ($response->failed()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'error' => $response->body()
+    //         ]);
+    //     }
+
+    //      if ($response->failed()) {
+    //         return back()->with('error', 'Email sending failed.');
+    //     }
+
+    //     return back()->with('success', 'Email sent successfully!');
+    // }
+
+    
     public function sendEmail(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'name' => 'required|string',
+        $validated = $request->validate([
+            'email'   => 'required|email',
+            'name'    => 'required|string',
             'message' => 'required|string',
         ]);
 
-        $response = Http::withHeaders([
-            'api-key' => config('services.brevo.key'),
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post('https://api.brevo.com/v3/smtp/email', [
-            'sender' => [
-                'email' => config('services.brevo.sender_email'),
-                'name' => config('services.brevo.sender_name'),
-            ],
-            'to' => [
-                [
-                    'email' => $request->email,
-                    'name' => $request->name,
-                ]
-            ],
-            'subject' => 'Barangay Request Update',
-            'htmlContent' => $request->message,
-        ]);
-
-        if ($response->failed()) {
-            return response()->json([
-                'success' => false,
-                'error' => $response->body()
-            ]);
-        }
-
-         if ($response->failed()) {
-            return back()->with('error', 'Email sending failed.');
-        }
+        Mail::to($validated['email'])
+            ->send(new Notification(
+                $validated['name'],
+                $validated['message']
+            ));
 
         return back()->with('success', 'Email sent successfully!');
     }
