@@ -13,7 +13,7 @@ return new class extends Migration
     {
        Schema::create('requests', function (Blueprint $table) {
             $table->id('request_id');
-            $table->id('resident_id');
+            $table->foreignId('resident_id')->constrained()->onDelete('cascade');
             $table->enum('request_type', ['clearance', 'first_time_job_seeker', 'indigency']);
             $table->string('full_name', 150);
             $table->string('complete_address', 255);
@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('proof_of_residency_path', 255)->nullable();
             $table->text('remarks')->nullable();
             $table->timestamp('date_submitted')->useCurrent();
-            $table->foreign('resident_id')->references('id')->on('residents')->onDelete('cascade');
         });
     }
 

@@ -1,0 +1,266 @@
+/* Chat Modal Styles */
+.chat-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.chat-modal.active {
+    display: flex;
+}
+
+.chat-modal-content {
+    background: white;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 800px;
+    height: 80vh;
+    max-height: 700px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.chat-modal-header {
+    background: linear-gradient(135deg, #C62828, #7a2323);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.chat-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chat-modal-body {
+    flex: 1;
+    padding: 0;
+    position: relative;
+}
+
+/* Iframe styling */
+#chatIframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0 0 15px 15px;
+}
+
+/* Floating Action Button with Speed Dial */
+.fab-container {
+    position: fixed;
+    bottom: 90px;
+    right: 21px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.fab-main {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #C62828, #d32f2f);
+    color: white;
+    border: 1px black solid;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(198, 40, 40, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    position: relative;
+}
+
+.fab-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 30px rgba(198, 40, 40, 0.6);
+}
+
+.fab-main.active {
+    transform: rotate(180deg);
+}
+
+#translateBtn {
+    font-size: 0.60rem;
+    font-weight: 700;
+    padding: 5px;
+}
+
+/* Speed Dial Buttons */
+.speed-dial {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.speed-dial.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.fab-action {
+    width: 45px;
+    height: 45px;
+    background: white;
+    color: #C62828;
+    border: 1px solid black;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;    
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    transition-delay: 0s;
+}
+
+.speed-dial.active .fab-action {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.speed-dial.active .fab-action:nth-child(1) {
+    transition-delay: 0.05s;
+}
+.speed-dial.active .fab-action:nth-child(2) {
+    transition-delay: 0.1s;
+}
+.speed-dial.active .fab-action:nth-child(3) {
+    transition-delay: 0.15s;
+}
+
+.fab-action:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.fab-action[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    right: 55px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1001;
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    background: #C62828;
+    color: white;
+    border: 1px black solid;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 200;
+    box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    background: #d32f2f;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(198, 40, 40, 0.4);
+}
+
+@media (max-width: 768px) {
+    .fab-container {
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chat-modal-content {
+        width: 100%;
+        height: 90vh;
+        border-radius: 0;
+    }
+    
+    .chat-modal-header {
+        padding: 15px;
+    }
+
+    .fab-container {
+        bottom: 90px;
+        right: 22px;
+    }
+    
+    .fab-main {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .fab-action {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+}

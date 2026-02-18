@@ -9,7 +9,7 @@ class DashboardController extends Controller
     //
     public function index()
     {
-        return view('barangay_system.dashboard');
+        return view('admin.dashboard');
     }
 
     public function forecastRequests()

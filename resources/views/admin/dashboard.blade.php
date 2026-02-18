@@ -48,7 +48,7 @@
         .logo {
         width: 50px;
         height: 50px;
-        background-image: url('image/logo.jpg');
+        background-image: url('Images/logo.jpg');
         background-size: cover;
         background-position: center;
         border-radius: 50%;
@@ -1071,7 +1071,7 @@
         fetchAndUpdate();
 
         // REAL-TIME AUTO REFRESH (10 seconds)
-        setInterval(fetchAndUpdate, 10000);
+        //setInterval(fetchAndUpdate, 10000);
     </script>
 </body>
 </html>

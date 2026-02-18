@@ -16,18 +16,18 @@ class RequestStatusController extends Controller
     public function index()
     {
         $requests = Requests::orderBy('date_submitted', 'desc')->get();
-        return view('barangay_system.requestdash', compact('requests'));
+        return view('admin.requestdash', compact('requests'));
     }
 
     public function show($request_id)
     {
         $request = RequestRecord::findOrFail($request_id);
-        return view('barangay_system.requestview', compact('request'));
+        return view('admin.requestview', compact('request'));
     }
     public function edit($request_id)
     {
         $request = RequestRecord::findOrFail($request_id);
-        return view('barangay_system.requestedit', compact('request'));
+        return view('admin.requestedit', compact('request'));
     }
 
     public function update(Request $request, $request_id)
@@ -114,32 +114,29 @@ class RequestStatusController extends Controller
     {
         $request->validate([
             'phone' => 'required|string',
-            'message' => 'required|string|max:160',
+            'message' => 'required|string',
         ]);
+
+        $apiKey = env('SMS_API_KEY');
+        $recipient = $request->phone;;
+        $message = $request->message;
 
         $response = Http::withHeaders([
-            'api-key' => config('services.brevo.key'),
+            'x-api-key' => $apiKey,
             'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post('https://api.brevo.com/v3/transactionalSMS/sms', [
-            'sender' => config('services.brevo.sms_sender'),
-            'recipient' => $request->phone,
-            'content' => $request->message,
-            'type' => 'transactional',
+        ])->post('https://sms-api-ph-gceo.onrender.com/send/sms', [
+            'recipient' => $recipient,
+            'message' => $message,
         ]);
 
-        if ($response->failed()) {
-            return response()->json([
-                'success' => false,
-                'error' => $response->body()
-            ]);
+        if ($response->successful()) {
+            $data = $response->json();
+            // Handle success
+            return $data;
+        } else {
+            // Handle error
+            return $response->body();
         }
-
-         if ($response->failed()) {
-            return back()->with('error', 'SMS sending failed.');
-        }
-
-        return back()->with('success', 'SMS sent successfully!');
     }
 
 }

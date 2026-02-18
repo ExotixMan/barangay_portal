@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
+
             $table->string('title');
+            $table->string('slug')->unique();
+
             $table->text('content');
+
             $table->enum('category', [
                 'important',
                 'events',
@@ -22,8 +26,18 @@ return new class extends Migration
                 'services',
                 'infrastructure'
             ]);
+
+            $table->string('image')->nullable();
+
             $table->boolean('is_featured')->default(false);
-            $table->timestamp('published_at')->nullable();
+
+            $table->integer('views')->default(0);
+
+            $table->date('published_at')->nullable();
+
+            $table->enum('status', ['draft','published','archived'])
+                ->default('published');
+
             $table->timestamps();
         });
     }

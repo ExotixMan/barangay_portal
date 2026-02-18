@@ -11,17 +11,17 @@ class AIncidentReportsController extends Controller
     //
     public function index(){
         $incidents = IncidentReport::orderBy('date_of_incident', 'desc')->get();
-        return view('barangay_system.aincidents',['incidents' => $incidents]);
+        return view('admin.aincidents',['incidents' => $incidents]);
     }
     public function show($incident_id)
     {
         $incident = IncidentReport::findOrFail($incident_id);
-        return view('barangay_system.aincidentsview', compact('incident'));
+        return view('admin.aincidentsview', compact('incident'));
     }
     public function edit($incident_id)
     {
         $incident = IncidentReport::findOrFail($incident_id);
-        return view('barangay_system.aincidentsedit', compact('incident'));
+        return view('admin.aincidentsedit', compact('incident'));
     }
 
     public function update(Request $request, $incident_id)

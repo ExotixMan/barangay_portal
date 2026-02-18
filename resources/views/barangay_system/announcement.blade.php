@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,91 +8,27 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/homepage_style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    
     <style>
-        /* =========================================== */
-        /* ANNOUNCEMENT PAGE STYLES */
-        /* =========================================== */
-
-        /* Announcement Hero */
-        .announcement-hero {
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.9), rgba(122, 35, 35, 0.9)), url('Images/announcement-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 120px 0 80px;
-            margin-top: 65px;
-            position: relative;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .announcement-hero .hero-content {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .announcement-hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .announcement-hero h1 i {
-            font-size: 2.5rem;
-            background: white;
-            color: #C62828;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .announcement-hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 40px;
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
-
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.1);
-            padding: 12px 24px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .stat i {
-            font-size: 1.2rem;
-            color: #FFCDD2;
-        }
-
-        /* Categories Section */
-        .categories-section {
-            padding: 80px 0 40px;
-            background: white;
+            color: #333;
+            scroll-behavior: smooth;
         }
 
         .section-header {
@@ -104,74 +40,39 @@
             font-size: 2.5rem;
             color: #C62828;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #C62828;
+            border-radius: 2px;
         }
 
         .section-header p {
             color: #666;
             font-size: 1.1rem;
             max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .category-btn {
-            background: #f8f9fa;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            padding: 20px 15px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #333;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .category-btn:hover {
-            background: #f0f0f0;
-            transform: translateY(-3px);
-            border-color: #ddd;
-        }
-
-        .category-btn.active {
-            background: #C62828;
-            color: white;
-            border-color: #C62828;
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
-        }
-
-        .category-btn i {
-            font-size: 1.5rem;
-        }
-
-        .category-btn .count {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .category-btn.active .count {
-            background: rgba(255, 255, 255, 0.3);
+            margin: 20px auto 0;
         }
 
         /* Featured Section */
         .featured-section {
             padding: 60px 0;
-            background: #f8f9fa;
+            background: white;
         }
 
         .carousel-container {
             position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .carousel {
@@ -206,7 +107,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
             color: white;
             padding: 40px;
             transform: translateY(0);
@@ -214,7 +115,7 @@
         }
 
         .carousel-item:hover .carousel-content {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
 
         .category-badge {
@@ -235,6 +136,7 @@
             margin-bottom: 15px;
             font-weight: 700;
             line-height: 1.2;
+            color: white;
         }
 
         .carousel-content p {
@@ -332,103 +234,27 @@
             transform: scale(1.2);
         }
 
-        .carousel-progress {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #C62828;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .auto-play {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #C62828;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
         /* Announcements Grid Section */
         .announcements-grid-section {
             padding: 80px 0;
-            background: white;
+            background: #f8f9fa;
         }
 
-        .announcements-grid-section .section-header {
-            text-align: left;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .announcements-grid-section .container {
+            background: white;
+            border-radius: 25px;
+            padding: 60px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
         }
 
         .header-left h2 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #C62828;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
-            justify-content: flex-start;
         }
 
         .result-count {
@@ -440,6 +266,7 @@
             display: flex;
             gap: 20px;
             align-items: center;
+            justify-content: flex-end;
         }
 
         .search-box {
@@ -496,9 +323,9 @@
             box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
         }
 
-        /* Announcements Grid */
+        /* Announcement Cards */
         .announcement-card {
-            background: #f8f9fa;
+            background: white;
             border-radius: 15px;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -506,11 +333,12 @@
             position: relative;
             margin-bottom: 30px;
             height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         .announcement-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 30px rgba(198, 40, 40, 0.15);
             border-color: #C62828;
         }
 
@@ -568,6 +396,16 @@
             color: #4CAF50;
         }
 
+        .announcement-category.services {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+        }
+
+        .announcement-category.infrastructure {
+            background: rgba(156, 39, 176, 0.1);
+            color: #9C27B0;
+        }
+
         .announcement-content h3 {
             font-size: 1.3rem;
             color: #333;
@@ -582,6 +420,7 @@
             line-height: 1.6;
             margin-bottom: 20px;
             display: -webkit-box;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -619,7 +458,7 @@
 
         .view-btn {
             padding: 8px 15px;
-            background: #C62828;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
             border: none;
             border-radius: 6px;
@@ -634,23 +473,36 @@
         }
 
         .view-btn:hover {
-            background: #d32f2f;
             transform: translateX(3px);
+            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
             color: white;
             text-decoration: none;
         }
 
+        .pagination .page-link {
+            border-radius: 8px;
+            margin: 0 4px;
+            color: #C62828;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #C62828;
+            color: white;
+            border-color: #C62828;
+        }
+
+
         /* Load More Button */
         .load-more-container {
             text-align: center;
-            margin: 40px 0;
+            margin: 40px 0 20px;
         }
 
         .load-more-btn {
-            padding: 15px 30px;
-            background: white;
-            border: 2px solid #C62828;
-            color: #C62828;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+            color: white;
+            border: none;
             border-radius: 30px;
             font-size: 1rem;
             font-weight: 600;
@@ -659,25 +511,18 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
+            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
         }
 
         .load-more-btn:hover {
-            background: #C62828;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.4);
         }
 
         .load-more-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
-        }
-
-        .load-more-btn:disabled:hover {
-            background: white;
-            color: #C62828;
-            box-shadow: none;
         }
 
         /* No Results Message */
@@ -710,10 +555,10 @@
 
         .reset-filters {
             padding: 12px 25px;
-            background: #C62828;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 30px;
             font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
@@ -724,9 +569,10 @@
         }
 
         .reset-filters:hover {
-            background: #d32f2f;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
         }
+
 
         /* Responsive Design */
         @media (max-width: 1200px) {
@@ -736,14 +582,6 @@
         }
 
         @media (max-width: 992px) {
-            .announcement-hero {
-                padding: 100px 0 60px;
-            }
-            
-            .announcement-hero h1 {
-                font-size: 2.5rem;
-            }
-            
             .carousel {
                 height: 350px;
             }
@@ -764,33 +602,13 @@
             .search-box {
                 width: 100%;
             }
+            
+            .announcements-grid-section .container {
+                padding: 40px 30px;
+            }
         }
 
         @media (max-width: 768px) {
-            .announcement-hero h1 {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .announcement-hero h1 i {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
-            }
-            
-            .hero-stats {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            
-            .stat {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-            }
-            
             .carousel {
                 height: 300px;
             }
@@ -808,25 +626,15 @@
                 gap: 20px;
                 align-items: flex-start;
             }
+            
+            .header-left h2 {
+                font-size: 1.8rem;
+            }
         }
 
         @media (max-width: 576px) {
-            .announcement-hero {
-                padding: 80px 0 40px;
-            }
-            
-            .announcement-hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .announcement-hero p {
-                font-size: 1rem;
-            }
-            
             .section-header h2 {
                 font-size: 2rem;
-                flex-direction: column;
-                gap: 10px;
             }
             
             .carousel {
@@ -848,13 +656,22 @@
                 align-items: flex-start;
                 gap: 5px;
             }
+            
+            .announcements-grid-section .container {
+                padding: 30px 20px;
+            }
+            
+            .header-right {
+                width: 100%;
+            }
+            
+            .sort-dropdown select {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Accessibility Skip Link -->
-    <a href="#main-content" class="skip-to-main">Skip to main content</a>
-    
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid nav-container">
@@ -862,8 +679,8 @@
             <div class="nav-logo">
                 <div class="logo"></div>
                 <div class="logo-text d-none d-md-block">
-                    <span class="logo-title">Barangay</span>
-                    <span class="logo-subtitle">Hulong Duhat Portal</span>
+                    <span class="logo-title d-block">Barangay</span>
+                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
                 </div>
                 <div class="logo-text d-md-none">
                     <span class="logo-subtitle">Hulong Duhat</span>
@@ -877,9 +694,9 @@
             
             <!-- Main Navigation -->
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="homepage.html"><i class="fas fa-home"></i> Home</a>
+                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
                     </li>
                     
                     <li class="nav-item dropdown">
@@ -887,10 +704,10 @@
                             <i class="fas fa-info-circle"></i> About
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="history.html"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="homepage.html#mission"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="map.html"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="homepage.html#officials"><i class="fas fa-users"></i> Barangay Officials</a></li>
+                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
+                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
+                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
+                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
                         </ul>
                     </li>
                     
@@ -899,9 +716,9 @@
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="barangay_clearance.html"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="certificate_residency.html"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="certificate_indigency.html"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
+                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
                         </ul>
                     </li>
                     
@@ -910,8 +727,8 @@
                             <i class="fas fa-users"></i> Community
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link active" href="announcement.html"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="homepage.html#events"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
+                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
                         </ul>
                     </li>
                     
@@ -920,17 +737,72 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="blotter_report.html"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="homepage.html#contact"><i class="fas fa-phone"></i> Contact</a>
+                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
                     </li>
                     
-                    <!-- Desktop Actions -->
+                    <!-- LogIn-LogOut Actions -->
                     <li class="nav-item d-none d-lg-block">
-                        <a href="user_login.html" class="login-btn ms-2"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                        @auth
+                            <div class="dropdown d-inline-block">
+                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
+                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
+                    </li>
+
+                    {{-- Mobile --}}
+                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
+                        @auth
+                            <div class="dropdown">
+                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
+                                </button>
+                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
+                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>
@@ -938,15 +810,15 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="announcement-hero">
+    <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1><i class="fas fa-bullhorn"></i> Community Announcements</h1>
+                <h1><i class="fas fa-bullhorn bigicon"></i> Community Announcements</h1>
                 <p>Stay updated with the latest news, events, and important information from Barangay Hulong Duhat</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-newspaper"></i>
-                        <span>24 Active Announcements</span>
+                        <span>{{ $announcements->total() }} Active Announcements</span>
                     </div>
                     <div class="stat">
                         <i class="fas fa-eye"></i>
@@ -961,122 +833,39 @@
         </div>
     </section>
 
+    @php use Illuminate\Support\Str; @endphp
     <!-- Main Content -->
     <main class="main-content" id="main-content">
-        <div class="container">
-            <!-- Announcement Categories -->
-            <section class="categories-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-tags"></i> Browse by Category</h2>
-                    <p>Filter announcements by type or importance</p>
-                </div>
-                
-                <div class="row">
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn active" data-category="all">
-                            <i class="fas fa-layer-group"></i>
-                            <span>All Announcements</span>
-                            <span class="count">24</span>
-                        </button>
-                    </div>
-                    
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn" data-category="important">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>Important</span>
-                            <span class="count">8</span>
-                        </button>
-                    </div>
-                    
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn" data-category="events">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Events</span>
-                            <span class="count">6</span>
-                        </button>
-                    </div>
-                    
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn" data-category="health">
-                            <i class="fas fa-heartbeat"></i>
-                            <span>Health & Safety</span>
-                            <span class="count">5</span>
-                        </button>
-                    </div>
-                    
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn" data-category="services">
-                            <i class="fas fa-concierge-bell"></i>
-                            <span>Services Update</span>
-                            <span class="count">3</span>
-                        </button>
-                    </div>
-                    
-                    <div class="col-6 col-md-4 col-lg-2 mb-3">
-                        <button class="category-btn" data-category="infrastructure">
-                            <i class="fas fa-hard-hat"></i>
-                            <span>Infrastructure</span>
-                            <span class="count">2</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </div>
-
         <!-- Featured Announcements Carousel -->
         <section class="featured-section">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-star"></i> Featured Announcements</h2>
+                    <h2>Featured Announcements</h2>
                     <p>Most important updates you need to know</p>
                 </div>
                 
                 <div class="carousel-container">
                     <div class="carousel" id="announcementCarousel">
-                        <!-- Carousel items will be dynamically added -->
-                        <div class="carousel-item active">
-                            <img src="https://via.placeholder.com/1200x400" alt="Featured announcement 1" class="carousel-image">
-                            <div class="carousel-content">
-                                <span class="category-badge">Important</span>
-                                <h3>Distribution of Ayuda for Senior Citizens</h3>
-                                <p>Important update about the upcoming distribution of ayuda for senior citizens in Barangay Hulong Duhat...</p>
-                                <div class="carousel-meta">
-                                    <div class="meta-item">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>July 09, 2025</span>
+
+                        @foreach($featured as $key => $item)
+                            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                <img src="{{ asset('announcement_pic/'.$item->image) }}" alt="{{ $item->title }}" class="carousel-image">
+                                <div class="carousel-content">
+                                    <span class="category-badge">{{ ucfirst($item->category) }}</span>
+                                    <h3>{{ $item->title }}</h3>
+                                    <p>{{ Str::limit($item->content,150) }}</p>
+                                    <div class="carousel-meta">
+                                        <div class="meta-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>{{ date('M d, Y', strtotime($item->published_at)) }}</span>
+                                        </div>
                                     </div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-user"></i>
-                                        <span>Barangay Admin</span>
-                                    </div>
+                                    <a href="{{ route('announcements.show',$item->slug) }}" class="read-more-btn">
+                                        Read More <i class="fas fa-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <a href="#" class="read-more-btn">
-                                    Read More <i class="fas fa-arrow-right"></i>
-                                </a>
                             </div>
-                        </div>
-                        
-                        <div class="carousel-item">
-                            <img src="https://via.placeholder.com/1200x400" alt="Featured announcement 2" class="carousel-image">
-                            <div class="carousel-content">
-                                <span class="category-badge">Events</span>
-                                <h3>Community General Assembly Meeting</h3>
-                                <p>Join us for the monthly community assembly to discuss important barangay matters and upcoming projects...</p>
-                                <div class="carousel-meta">
-                                    <div class="meta-item">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>July 15, 2025</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-user"></i>
-                                        <span>Barangay Chairman</span>
-                                    </div>
-                                </div>
-                                <a href="#" class="read-more-btn">
-                                    Read More <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                     
                     <!-- Carousel Controls -->
@@ -1086,138 +875,103 @@
                         </button>
                         
                         <div class="carousel-dots">
-                            <span class="carousel-dot active" data-index="0"></span>
-                            <span class="carousel-dot" data-index="1"></span>
-                            <span class="carousel-dot" data-index="2"></span>
+                            @foreach($featured as $key => $item)
+                                <span class="carousel-dot {{ $key==0?'active':'' }}" data-index="{{ $key }}">
+                                </span>
+                            @endforeach
                         </div>
                         
                         <button class="carousel-btn next" aria-label="Next announcement">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
-
-                    <div class="carousel-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="carouselProgress"></div>
-                        </div>
-                        <div class="auto-play">
-                            <span>Auto-play</span>
-                            <label class="switch">
-                                <input type="checkbox" id="autoPlayToggle" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <div class="container">
-            <!-- Announcements Grid -->
-            <section class="announcements-grid-section">
+        <!-- Announcements Grid -->
+        <section class="announcements-grid-section" id="announcements">
+            <div class="container">
                 <div class="row mb-4">
                     <div class="col-lg-6 mb-3 mb-lg-0">
                         <div class="header-left">
                             <h2><i class="fas fa-list-alt"></i> Latest Announcements</h2>
-                            <p class="result-count">Showing <span id="visibleCount">24</span> of 24 announcements</p>
                         </div>
                     </div>
                     
                     <div class="col-lg-6">
                         <div class="header-right">
-                            <div class="search-box mb-3">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="announcementSearch" placeholder="Search announcements...">
-                            </div>
-                            
-                            <div class="sort-dropdown">
-                                <select id="sortAnnouncements">
-                                    <option value="newest">Sort by: Newest First</option>
-                                    <option value="oldest">Oldest First</option>
-                                    <option value="important">Most Important</option>
-                                    <option value="title">Title (A-Z)</option>
-                                </select>
-                            </div>
+                            <form method="GET" action="{{ route('announcements') }}#announcements" class="d-flex gap-3 w-100">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input
+                                        type="text"
+                                        name="search"
+                                        value="{{ request('search') }}"
+                                        placeholder="Search announcements..."
+                                    >
+                                </div>
+
+                                <div class="sort-dropdown">
+                                    <select name="sort" onchange="this.form.submit()">
+                                        <option value="newest" {{ request('sort')=='newest'?'selected':'' }}>
+                                            Newest First
+                                        </option>
+
+                                        <option value="oldest" {{ request('sort')=='oldest'?'selected':'' }}>
+                                            Oldest First
+                                        </option>
+
+                                        <option value="important" {{ request('sort')=='important'?'selected':'' }}>
+                                            Most Important
+                                        </option>
+
+                                        <option value="title" {{ request('sort')=='title'?'selected':'' }}>
+                                            Title (A-Z)
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </form>
                         </div>
                     </div>
                 </div>
                 
                 <div class="row" id="announcementsGrid">
-                    <!-- Announcement Cards -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="announcement-card featured">
-                            <span class="featured-badge">Featured</span>
-                            <img src="https://via.placeholder.com/400x200" alt="Announcement 1" class="announcement-image">
-                            <div class="announcement-content">
-                                <span class="announcement-category important">Important</span>
-                                <h3>Distribution of Ayuda for Senior Citizens</h3>
-                                <p>Important update about the upcoming distribution of ayuda for senior citizens in Barangay Hulong Duhat...</p>
-                                <div class="announcement-meta">
-                                    <div class="meta-info">
-                                        <span class="meta-date">July 09, 2025</span>
-                                        <span class="meta-views"><i class="fas fa-eye"></i> 245</span>
+                    {{-- Announcement card --}}
+                    @foreach($announcements as $item)
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="announcement-card {{ $item->is_featured ? 'featured' : '' }}">
+                                @if($item->is_featured)
+                                    <span class="featured-badge">Featured</span>
+                                @endif
+                                <img src="{{ asset('announcement_pic/'.$item->image) }}" alt="{{ $item->title }}" class="announcement-image">
+                                <div class="announcement-content">
+                                    <span class="announcement-category {{ $item->category }}">{{ ucfirst($item->category) }}</span>
+                                    <h3>{{ $item->title }}</h3>
+                                    <p>{{ Str::limit($item->content,120) }}</p>
+                                    <div class="announcement-meta">
+                                        <div class="meta-info">
+                                            <span class="meta-date">{{ date('M d, Y', strtotime($item->published_at)) }}</span>
+                                            <span class="meta-views"><i class="fas fa-eye"></i> {{ $item->views }}</span>
+                                        </div>
+                                        <a href="{{ route('announcements.show',$item->slug) }}" class="view-btn">
+                                            View <i class="fas fa-arrow-right"></i>
+                                        </a>
                                     </div>
-                                    <a href="#" class="view-btn">
-                                        View <i class="fas fa-arrow-right"></i>
-                                    </a>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="announcement-card">
-                            <img src="https://via.placeholder.com/400x200" alt="Announcement 2" class="announcement-image">
-                            <div class="announcement-content">
-                                <span class="announcement-category events">Events</span>
-                                <h3>Community General Assembly Meeting</h3>
-                                <p>Join us for the monthly community assembly to discuss important barangay matters and upcoming projects...</p>
-                                <div class="announcement-meta">
-                                    <div class="meta-info">
-                                        <span class="meta-date">July 15, 2025</span>
-                                        <span class="meta-views"><i class="fas fa-eye"></i> 189</span>
-                                    </div>
-                                    <a href="#" class="view-btn">
-                                        View <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="announcement-card">
-                            <img src="https://via.placeholder.com/400x200" alt="Announcement 3" class="announcement-image">
-                            <div class="announcement-content">
-                                <span class="announcement-category health">Health & Safety</span>
-                                <h3>Free Medical Check-up Schedule</h3>
-                                <p>Free medical check-up for senior citizens and PWDs at the barangay health center every Wednesday...</p>
-                                <div class="announcement-meta">
-                                    <div class="meta-info">
-                                        <span class="meta-date">July 08, 2025</span>
-                                        <span class="meta-views"><i class="fas fa-eye"></i> 312</span>
-                                    </div>
-                                    <a href="#" class="view-btn">
-                                        View <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Add more announcement cards as needed -->
+                    @endforeach
                 </div>
                 
                 <!-- Load More Button -->
-                <div class="load-more-container">
-                    <button class="load-more-btn" id="loadMoreBtn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Load More Announcements</span>
-                    </button>
+                <div class="mt-4 d-flex justify-content-center">
+                    {{ $announcements->appends(request()->query())->fragment('announcements')->links() }}
                 </div>
-                
+
                 <!-- No Results Message -->
-                <div class="no-results" id="noResultsMessage" style="display: none;">
+                <div class="no-results" id="noResultsMessage">
                     <i class="fas fa-search"></i>
                     <h3>No announcements found</h3>
                     <p>Try adjusting your search or filter criteria</p>
@@ -1226,18 +980,62 @@
                         Reset All Filters
                     </button>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
+
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-modal-content">
+            <div class="chat-modal-header">
+                <div class="chat-modal-title">
+                    InfoHulo Assistant
+                </div>
+                <button class="chat-modal-close" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-modal-body">
+                <iframe
+                    id="chatIframe"
+                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
+                    frameborder="0"
+                    allow="clipboard-write"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button with Speed Dial -->
+    <div class="fab-container">
+        <div class="speed-dial" id="speedDial">
+            <button class="fab-action" id="translateBtn" title="Translate Text">
+                @if(app()->getLocale() == 'en')
+                    <span>Filipino</span>
+                @else
+                    <span>English</span>
+                @endif
+            </button>
+            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        </div>
+        <button class="fab-main" id="fabMain">
+            <i class="fas fa-gear"></i>
+        </button>
+    </div>
 
     <!-- Back to Top Button -->
     <button class="back-to-top" aria-label="Back to top">
         <i class="fas fa-chevron-up"></i>
     </button>
 
-    <!-- Footer Section - User-Friendly -->
+    <!-- Footer Section -->
     <footer>
-        <div class="container">
+        <div class="container footer-container">
             <div class="row">
                 <!-- Logo & Contact Info -->
                 <div class="col-lg-3 col-md-6 mb-4">
@@ -1287,23 +1085,17 @@
                     <div class="footer-section">
                         <h3>Quick Access</h3>
                         <div class="footer-links-list">
-                            <a href="homepage.html" class="footer-link">
+                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
                                 <i class="fas fa-home"></i> Home
                             </a>
-                            <a href="announcement.html" class="footer-link">
+                            <a href="{{ route('announcements') }}" class="footer-link">
                                 <i class="fas fa-bullhorn"></i> Announcements
                             </a>
-                            <a href="history.html" class="footer-link">
+                            <a href="{{ route('history') }}" class="footer-link">
                                 <i class="fas fa-history"></i> Barangay History
                             </a>
                             <a href="#" class="footer-link">
                                 <i class="fas fa-search"></i> Track Request
-                            </a>
-                            <a href="#" class="footer-link">
-                                <i class="fas fa-map-marked-alt"></i> Barangay Map
-                            </a>
-                            <a href="#" class="footer-link">
-                                <i class="fas fa-users"></i> Officials Directory
                             </a>
                         </div>
                     </div>
@@ -1314,20 +1106,17 @@
                     <div class="footer-section">
                         <h3>Services</h3>
                         <div class="footer-links-list">
-                            <a href="barangay_clearance.html" class="footer-link">
+                            <a href="{{ route('clearance') }}" class="footer-link">
                                 <i class="fas fa-certificate"></i> Barangay Clearance
                             </a>
-                            <a href="certificate_residency.html" class="footer-link">
+                            <a href="{{ route('residency') }}" class="footer-link">
                                 <i class="fas fa-house-user"></i> Certificate of Residency
                             </a>
-                            <a href="certificate_indigency.html" class="footer-link">
+                            <a href="{{ route('indigency') }}" class="footer-link">
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
-                            <a href="blotter_report.html" class="footer-link">
+                            <a href="{{ route('incident') }}" class="footer-link">
                                 <i class="fas fa-clipboard-list"></i> Blotter Report
-                            </a>
-                            <a href="user_login.html" class="footer-link">
-                                <i class="fas fa-sign-in-alt"></i> Login/Register
                             </a>
                         </div>
                     </div>
@@ -1338,7 +1127,7 @@
                     <div class="footer-section">
                         <h3>Emergency Contacts</h3>
                         <div class="emergency-contacts-simple">
-                            <div class="emergency-item critical">
+                            <div class="emergency-item">
                                 <i class="fas fa-ambulance"></i>
                                 <div class="emergency-details">
                                     <span class="emergency-label">Emergency</span>
@@ -1367,21 +1156,9 @@
         
         <!-- Footer Bottom -->
         <div class="footer-bottom">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <div class="copyright-info">
-                            <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 text-md-end">
-                        <div class="footer-bottom-actions">
-                            <a href="user_login.html" class="admin-login">
-                                <i class="fas fa-sign-in-alt"></i> Staff Login
-                            </a>
-                        </div>
-                    </div>
+            <div class="container footer-bottom-container">
+                <div class="copyright-info">
+                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -1389,325 +1166,57 @@
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Your existing JavaScript files -->
-    <script src="{{ asset('js/homepage_script.js') }}"></script>
-    {{-- <script src="{{ asset('js/announcement_script.js') }}"></script> --}}
-    
+
+    <script src="{{ asset('js/navbar.js') }}"></script>
+    <script src="{{ asset('js/floating-actions.js') }}"></script>
+
     <script>
-        // Announcement Page Script - Integrated
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===================================
-            // CAROUSEL FUNCTIONALITY
-            // ===================================
-            
-            let currentSlide = 0;
-            let autoPlayInterval;
-            let isAutoPlay = true;
-            const carouselItems = document.querySelectorAll('.carousel-item');
-            const dots = document.querySelectorAll('.carousel-dot');
-            const totalSlides = carouselItems.length;
-            const progressFill = document.getElementById('carouselProgress');
-            const autoPlayToggle = document.getElementById('autoPlayToggle');
-            
-            // Initialize carousel
-            function initCarousel() {
-                if (carouselItems.length === 0) return;
-                
-                updateCarousel();
-                startAutoPlay();
-                
-                // Progress bar update
-                if (progressFill) {
-                    setInterval(() => {
-                        if (isAutoPlay) {
-                            progressFill.style.width = `${(currentSlide + 1) / totalSlides * 100}%`;
-                        }
-                    }, 100);
-                }
-                
-                // Navigation buttons
-                document.querySelectorAll('.carousel-btn.prev').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        stopAutoPlay();
-                        goToSlide(currentSlide - 1);
-                        startAutoPlay();
-                    });
-                });
-                
-                document.querySelectorAll('.carousel-btn.next').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        stopAutoPlay();
-                        goToSlide(currentSlide + 1);
-                        startAutoPlay();
-                    });
-                });
-                
-                // Dots navigation
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => {
-                        stopAutoPlay();
-                        goToSlide(index);
-                        startAutoPlay();
-                    });
-                });
-                
-                // Auto-play toggle
-                if (autoPlayToggle) {
-                    autoPlayToggle.addEventListener('change', function() {
-                        isAutoPlay = this.checked;
-                        if (isAutoPlay) {
-                            startAutoPlay();
-                        } else {
-                            stopAutoPlay();
-                        }
-                    });
-                }
+        document.addEventListener("DOMContentLoaded", function () {
+            const items = document.querySelectorAll(".carousel-item");
+            const dots = document.querySelectorAll(".carousel-dot");
+            const prevBtn = document.querySelector(".carousel-btn.prev");
+            const nextBtn = document.querySelector(".carousel-btn.next");
+
+            let current = 0;
+            const total = items.length;
+
+            function showSlide(index) {
+
+                items.forEach(item => item.classList.remove("active"));
+                dots.forEach(dot => dot.classList.remove("active"));
+
+                items[index].classList.add("active");
+                dots[index].classList.add("active");
+
+                current = index;
             }
-            
-            function updateCarousel() {
-                carouselItems.forEach((item, index) => {
-                    item.classList.remove('active');
-                    if (index === currentSlide) {
-                        item.classList.add('active');
-                    }
-                });
-                
-                dots.forEach((dot, index) => {
-                    dot.classList.remove('active');
-                    if (index === currentSlide) {
-                        dot.classList.add('active');
-                    }
-                });
+
+            function nextSlide() {
+                current = (current + 1) % total;
+                showSlide(current);
             }
-            
-            function goToSlide(slideIndex) {
-                currentSlide = (slideIndex + totalSlides) % totalSlides;
-                updateCarousel();
+
+            function prevSlide() {
+                current = (current - 1 + total) % total;
+                showSlide(current);
             }
-            
-            function startAutoPlay() {
-                if (!isAutoPlay) return;
-                stopAutoPlay();
-                autoPlayInterval = setInterval(() => {
-                    goToSlide(currentSlide + 1);
-                }, 5000);
-            }
-            
-            function stopAutoPlay() {
-                if (autoPlayInterval) {
-                    clearInterval(autoPlayInterval);
-                }
-            }
-            
-            // ===================================
-            // FILTERING & SEARCH FUNCTIONALITY
-            // ===================================
-            
-            const categoryButtons = document.querySelectorAll('.category-btn');
-            const announcementCards = document.querySelectorAll('.announcement-card');
-            const searchInput = document.getElementById('announcementSearch');
-            const sortSelect = document.getElementById('sortAnnouncements');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const noResultsMessage = document.getElementById('noResultsMessage');
-            const resetFiltersBtn = document.getElementById('resetFilters');
-            const visibleCountSpan = document.getElementById('visibleCount');
-            
-            let visibleCards = 6;
-            const cardsPerLoad = 6;
-            let currentCategory = 'all';
-            let currentSearch = '';
-            
-            function filterAnnouncements() {
-                let visibleCount = 0;
-                
-                announcementCards.forEach((card, index) => {
-                    const cardCategory = card.querySelector('.announcement-category')?.className?.split(' ')[1] || '';
-                    const cardTitle = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                    const cardContent = card.querySelector('p')?.textContent.toLowerCase() || '';
-                    
-                    const matchesCategory = currentCategory === 'all' || cardCategory === currentCategory;
-                    const matchesSearch = currentSearch === '' || 
-                                         cardTitle.includes(currentSearch) || 
-                                         cardContent.includes(currentSearch);
-                    
-                    if (matchesCategory && matchesSearch && index < visibleCards) {
-                        card.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-                
-                if (visibleCountSpan) {
-                    visibleCountSpan.textContent = visibleCount;
-                }
-                
-                if (noResultsMessage) {
-                    if (visibleCount === 0) {
-                        noResultsMessage.style.display = 'block';
-                    } else {
-                        noResultsMessage.style.display = 'none';
-                    }
-                }
-                
-                if (loadMoreBtn) {
-                    const totalMatches = Array.from(announcementCards).filter(card => {
-                        const cardCategory = card.querySelector('.announcement-category')?.className?.split(' ')[1] || '';
-                        const cardTitle = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                        const cardContent = card.querySelector('p')?.textContent.toLowerCase() || '';
-                        
-                        const matchesCategory = currentCategory === 'all' || cardCategory === currentCategory;
-                        const matchesSearch = currentSearch === '' || 
-                                             cardTitle.includes(currentSearch) || 
-                                             cardContent.includes(currentSearch);
-                        
-                        return matchesCategory && matchesSearch;
-                    }).length;
-                    
-                    if (visibleCards >= totalMatches) {
-                        loadMoreBtn.style.display = 'none';
-                    } else {
-                        loadMoreBtn.style.display = 'block';
-                    }
-                }
-            }
-            
-            function sortAnnouncements() {
-                const sortBy = sortSelect?.value || 'newest';
-                const container = document.getElementById('announcementsGrid');
-                const cards = Array.from(announcementCards);
-                
-                cards.sort((a, b) => {
-                    const aDate = new Date(a.querySelector('.meta-date')?.textContent || 0);
-                    const bDate = new Date(b.querySelector('.meta-date')?.textContent || 0);
-                    const aTitle = a.querySelector('h3')?.textContent.toLowerCase() || '';
-                    const bTitle = b.querySelector('h3')?.textContent.toLowerCase() || '';
-                    const aImportant = a.querySelector('.announcement-category.important');
-                    const bImportant = b.querySelector('.announcement-category.important');
-                    
-                    switch(sortBy) {
-                        case 'newest':
-                            return bDate - aDate;
-                        case 'oldest':
-                            return aDate - bDate;
-                        case 'important':
-                            if (aImportant && !bImportant) return -1;
-                            if (!aImportant && bImportant) return 1;
-                            return bDate - aDate;
-                        case 'title':
-                            return aTitle.localeCompare(bTitle);
-                        default:
-                            return 0;
-                    }
-                });
-                
-                cards.forEach(card => {
-                    container.appendChild(card);
-                });
-            }
-            
-            categoryButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    categoryButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentCategory = this.dataset.category;
-                    visibleCards = cardsPerLoad;
-                    filterAnnouncements();
+
+            // Buttons
+            nextBtn.addEventListener("click", nextSlide);
+            prevBtn.addEventListener("click", prevSlide);
+
+            // Dots
+            dots.forEach((dot, index) => {
+                dot.addEventListener("click", () => {
+                    showSlide(index);
                 });
             });
-            
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    currentSearch = this.value.toLowerCase();
-                    visibleCards = cardsPerLoad;
-                    filterAnnouncements();
-                });
-            }
-            
-            if (sortSelect) {
-                sortSelect.addEventListener('change', function() {
-                    sortAnnouncements();
-                    filterAnnouncements();
-                });
-            }
-            
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', function() {
-                    visibleCards += cardsPerLoad;
-                    filterAnnouncements();
-                });
-            }
-            
-            if (resetFiltersBtn) {
-                resetFiltersBtn.addEventListener('click', function() {
-                    categoryButtons.forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.category === 'all') {
-                            btn.classList.add('active');
-                        }
-                    });
-                    
-                    currentCategory = 'all';
-                    currentSearch = '';
-                    
-                    if (searchInput) {
-                        searchInput.value = '';
-                    }
-                    
-                    if (sortSelect) {
-                        sortSelect.value = 'newest';
-                    }
-                    
-                    visibleCards = cardsPerLoad;
-                    sortAnnouncements();
-                    filterAnnouncements();
-                });
-            }
-            
-            // ===================================
-            // SCROLL EFFECTS
-            // ===================================
-            
-            const navbar = document.querySelector('.navbar');
-            const backToTopBtn = document.querySelector('.back-to-top');
-            
-            if (navbar) {
-                window.addEventListener('scroll', function() {
-                    if (window.scrollY > 50) {
-                        navbar.classList.add('scrolled');
-                    } else {
-                        navbar.classList.remove('scrolled');
-                    }
-                });
-            }
-            
-            if (backToTopBtn) {
-                window.addEventListener('scroll', function() {
-                    if (window.scrollY > 300) {
-                        backToTopBtn.classList.add('visible');
-                    } else {
-                        backToTopBtn.classList.remove('visible');
-                    }
-                });
-                
-                backToTopBtn.addEventListener('click', function() {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-            
-            // ===================================
-            // INITIALIZE
-            // ===================================
-            
-            initCarousel();
-            filterAnnouncements();
-            sortAnnouncements();
+
+            // Auto slide (optional)
+            setInterval(nextSlide, 6000);
+
         });
-    </script>
+        </script>
+
 </body>
 </html>

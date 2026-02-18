@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('incident_reports', function (Blueprint $table) {
             $table->id('incident_id');
-            $table->id('resident_id');
+            $table->foreignId('resident_id')->constrained()->onDelete('cascade');
             $table->string('full_name', 150);
             $table->string('address', 255);
             $table->string('location', 255);
@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('type_of_incident', 255);
             $table->string('description', 255)->nullable();
             $table->string('proof_of_incident', 255)->nullable();
-            $table->foreign('resident_id')->references('id')->on('residents')->onDelete('cascade');
         });
     }
 

@@ -10,17 +10,17 @@ class AResidentsController extends Controller
     //
     public function index(){
         $residents = Residents::all();
-        return view('barangay_system.aresidents',['residents' => $residents]);
+        return view('admin.aresidents',['residents' => $residents]);
     }
     public function show($resident_id)
     {
         $resident = Residents::findOrFail($resident_id);
-        return view('barangay_system.aresidentsview', compact('resident'));
+        return view('admin.aresidentsview', compact('resident'));
     }
     public function edit($resident_id)
     {
         $resident = Residents::findOrFail($resident_id);
-        return view('barangay_system.aresidentsedit', compact('resident'));
+        return view('admin.aresidentsedit', compact('resident'));
     }
 
     public function update(Request $request, $resident_id)

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     
     <style>
         * {
@@ -42,191 +46,9 @@
             top: 0;
         }
 
-        /* Custom CSS for maintaining your design */
-        /* =========================================== */
-        /* NAVBAR STYLES - FIXED HORIZONTAL LAYOUT */
-        /* =========================================== */
-
-        /* =============== MAIN NAVBAR =============== */
-        .navbar {
-            background: linear-gradient(135deg, #C62828, #7a2323);
-            box-shadow: 0 4px 20px rgba(198, 40, 40, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .navbar.scrolled {
-            background: rgba(198, 40, 40, 0.98);
-            backdrop-filter: blur(10px);
-        }
-
-        /* =============== NAVBAR CONTAINER =============== */
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 0 15px;
-        }
-
-        /* =============== LOGO SECTION =============== */
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .nav-logo .logo {
-            width: 45px;
-            height: 45px;
-            background: #fff url('Images/logo.jpg') center/cover no-repeat;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .logo-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.9);
-            letter-spacing: 0.5px;
-        }
-
-        .logo-subtitle {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
-            white-space: nowrap;
-        }
-
-        /* =============== NAVIGATION LINKS =============== */
-        .nav-link {
-            color: white !important;
-            font-weight: 500;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            position: relative;
-            padding: 8px 12px !important;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white !important;
-        }
-
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: white;
-        }
-
-        /* =============== DROPDOWN MENU =============== */
-        .dropdown-menu {
-            background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            border: 1px solid #eee;
-            min-width: 200px;
-        }
-
-        .dropdown-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            color: #555;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-link:hover {
-            background: #f8f9fa;
-            color: #C62828;
-            padding-left: 25px;
-        }
-
-        .login-btn {
-            background: white;
-            color: #C62828 !important;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover {
-            background: #f8f9fa;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255,255,255,0.2);
-        }
-
-        /* Back to Top Button */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: #C62828;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .back-to-top:hover {
-            background: #d32f2f;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.4);
-        }
-
         /* =========================================== */
         /* HISTORY PAGE STYLES - PROFESSIONAL & CLEAN */
         /* =========================================== */
-
-        /* Fix Horizontal Scroll */
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
 
         /* Hero Section */
         .history-hero {
@@ -238,7 +60,6 @@
             padding: 140px 0 80px;
             text-align: center;
             position: relative;
-            margin-top: 80px;
         }
 
         .history-hero-content {
@@ -547,12 +368,6 @@
             transition: all 0.3s ease;
         }
 
-        .heritage-card:hover {
-            background: white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-            transform: translateY(-10px);
-        }
-
         .heritage-icon {
             width: 70px;
             height: 70px;
@@ -718,284 +533,6 @@
         }
 
         /* =========================================== */
-        /* FOOTER STYLES */
-        /* =========================================== */
-        footer {
-            background: linear-gradient(135deg, #C62828, #7a2323);
-            color: #fff;
-            padding: 40px 0 0;
-            position: relative;
-        }
-
-        .footer-container {
-            display: grid;
-            gap: 25px;
-            padding: 0 25px 30px;
-        }
-
-        .footer-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .footer-section h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 0 0 12px;
-            color: #fff;
-            position: relative;
-            padding-bottom: 8px;
-        }
-
-        .footer-section h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 35px;
-            height: 2px;
-            background: rgba(255,255,255,0.8);
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 5px;
-        }
-
-        .logo-circle {
-            width: 45px;
-            height: 45px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .logo-circle i {
-            font-size: 1.4rem;
-            color: #C62828;
-        }
-
-        .logo-text h3 {
-            font-size: 1.3rem;
-            margin: 0 0 2px;
-            padding: 0;
-        }
-
-        .logo-text h3::after {
-            display: none;
-        }
-
-        .tagline {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.8);
-            font-weight: 500;
-        }
-
-        .contact-info-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .contact-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .contact-row i {
-            color: rgba(255,255,255,0.9);
-            width: 16px;
-            text-align: center;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
-
-        .contact-row span {
-            color: rgba(255,255,255,0.85);
-        }
-
-        .contact-row a {
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .contact-row a:hover {
-            color: white;
-            text-decoration: none;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .social-icons a {
-            width: 34px;
-            height: 34px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-icons a:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        .emergency-contacts-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .emergency-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .emergency-item:hover {
-            background: rgba(255,255,255,0.08);
-        }
-
-        .emergency-item.critical {
-            background: rgba(244, 67, 54, 0.1);
-        }
-
-        .emergency-item i {
-            font-size: 1.2rem;
-            color: white;
-            width: 24px;
-        }
-
-        .emergency-details {
-            flex: 1;
-        }
-
-        .emergency-label {
-            display: block;
-            font-size: 0.9rem;
-            color: #ffffff;
-            margin-bottom: 3px;
-            font-weight: 500;
-        }
-
-        .emergency-number {
-            color: #ffffff !important;
-            font-size: 17.6px;
-            font-weight: 700;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        .emergency-item.critical .emergency-number {
-            color: #ffffff !important;
-        }
-
-        .emergency-details small {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 0;
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .footer-bottom-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .copyright-info p {
-            color: rgba(255,255,255,0.8);
-            margin: 0;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .footer-bottom-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .admin-login {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: white;
-            text-decoration: none;
-            font-size: 0.85rem;
-            padding: 8px 15px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .admin-login:hover {
-            background: rgba(255,255,255,0.25);
-            color: white;
-            text-decoration: none;
-        }
-
-        .footer-links-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            padding: 8px 0;
-        }
-
-        .footer-link:hover {
-            color: white;
-            transform: translateX(5px);
-            text-decoration: none;
-        }
-
-        .footer-link i {
-            font-size: 0.9rem;
-            color: #FFCDD2;
-            width: 16px;
-        }
-
-        /* =========================================== */
         /* RESPONSIVE DESIGN */
         /* =========================================== */
 
@@ -1027,9 +564,7 @@
         }
 
         @media (max-width: 992px) {
-            .footer-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
+
         }
 
         @media (max-width: 768px) {
@@ -1064,18 +599,6 @@
             .timeline-content {
                 padding: 25px;
             }
-            
-            .footer-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .logo-subtitle {
-                font-size: 1rem;
-            }
-            
-            .logo-title {
-                display: none;
-            }
         }
 
         @media (max-width: 576px) {
@@ -1094,11 +617,6 @@
             
             .stat-number {
                 font-size: 2.5rem;
-            }
-            
-            .footer-bottom-container {
-                flex-direction: column;
-                text-align: center;
             }
         }
 
@@ -1124,9 +642,6 @@
     </style>
 </head>
 <body>
-    <!-- Accessibility Skip Link -->
-    <a href="#main-content" class="skip-to-main">Skip to main content</a>
-    
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid nav-container">
@@ -1134,8 +649,8 @@
             <div class="nav-logo">
                 <div class="logo"></div>
                 <div class="logo-text d-none d-md-block">
-                    <span class="logo-title">Barangay</span>
-                    <span class="logo-subtitle">Hulong Duhat Portal</span>
+                    <span class="logo-title d-block">Barangay</span>
+                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
                 </div>
                 <div class="logo-text d-md-none">
                     <span class="logo-subtitle">Hulong Duhat</span>
@@ -1149,7 +664,7 @@
             
             <!-- Main Navigation -->
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
                     </li>
@@ -1159,10 +674,10 @@
                             <i class="fas fa-info-circle"></i> About
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link active" href="history.html"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.index') }}#mission"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="map.html"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.index') }}#officials"><i class="fas fa-users"></i> Barangay Officials</a></li>
+                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
+                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
+                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
+                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
                         </ul>
                     </li>
                     
@@ -1171,9 +686,9 @@
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('clearance.req') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="certificate_residency.html"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency.req') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
+                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
                         </ul>
                     </li>
                     
@@ -1182,8 +697,8 @@
                             <i class="fas fa-users"></i> Community
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.announcement') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.index') }}#events"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
+                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
                         </ul>
                     </li>
                     
@@ -1192,17 +707,72 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}#contact"><i class="fas fa-phone"></i> Contact</a>
+                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
                     </li>
                     
-                    <!-- Desktop Actions -->
+                    <!-- LogIn-LogOut Actions -->
                     <li class="nav-item d-none d-lg-block">
-                        <a href="{{ route('login.res') }}" class="login-btn ms-2"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                        @auth
+                            <div class="dropdown d-inline-block">
+                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
+                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
+                    </li>
+
+                    {{-- Mobile --}}
+                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
+                        @auth
+                            <div class="dropdown">
+                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
+                                </button>
+                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
+                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>
@@ -1212,11 +782,6 @@
     <!-- Hero Section -->
     <section class="history-hero">
         <div class="history-hero-content">
-            <div class="breadcrumb">
-                <a href="{{ route('barangay_system.index') }}">Home</a>
-                <span>/</span>
-                <span>History</span>
-            </div>
             <h1>History of Barangay Hulong Duhat</h1>
             <p>Discover our journey from a small settlement to a thriving community</p>
         </div>
@@ -1230,9 +795,7 @@
                 <div class="content-grid">
                     <div class="text-content">
                         <h2>Our Beginnings</h2>
-                        <p>Barangay Hulong Duhat, named after the abundant Duhat trees along its riverbanks, has a rich history dating back to the early 20th century. What began as a small agricultural settlement has grown into one of Malabon's most vibrant communities.</p>
-                        <p>Through decades of development and community effort, we have preserved our heritage while embracing progress and modernization.</p>
-                        
+                        <p>{{ __('messages.history_info') }}</p>
                         <div class="key-facts">
                             <div class="fact-item">
                                 <i class="fas fa-calendar-alt"></i>
@@ -1440,6 +1003,51 @@
         </section>
     </main>
 
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-modal-content">
+            <div class="chat-modal-header">
+                <div class="chat-modal-title">
+                    InfoHulo Assistant
+                </div>
+                <button class="chat-modal-close" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-modal-body">
+                <!-- Option 1: Iframe Method -->
+                <iframe
+                    id="chatIframe"
+                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
+                    frameborder="0"
+                    allow="clipboard-write"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button with Speed Dial -->
+    <div class="fab-container">
+        <div class="speed-dial" id="speedDial">
+            <button class="fab-action" id="translateBtn" title="Translate Text">
+                @if(app()->getLocale() == 'en')
+                    <span>Filipino</span>
+                @else
+                    <span>English</span>
+                @endif
+            </button>
+            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        </div>
+        <button class="fab-main" id="fabMain">
+            <i class="fas fa-gear"></i>
+        </button>
+    </div>
+    
     <!-- Back to Top Button -->
     <button class="back-to-top" aria-label="Back to top">
         <i class="fas fa-chevron-up"></i>
@@ -1500,7 +1108,7 @@
                             <a href="{{ route('barangay_system.index') }}" class="footer-link">
                                 <i class="fas fa-home"></i> Home
                             </a>
-                            <a href="announcement.html" class="footer-link">
+                            <a href="{{ route('announcements') }}" class="footer-link">
                                 <i class="fas fa-bullhorn"></i> Announcements
                             </a>
                             <a href="{{ route('history') }}" class="footer-link">
@@ -1518,16 +1126,16 @@
                     <div class="footer-section">
                         <h3>Services</h3>
                         <div class="footer-links-list">
-                            <a href="{{ route('clearance.req')}}" class="footer-link">
+                            <a href="{{ route('clearance') }}" class="footer-link">
                                 <i class="fas fa-certificate"></i> Barangay Clearance
                             </a>
-                            <a href="certificate_residency.html" class="footer-link">
+                            <a href="{{ route('residency') }}" class="footer-link">
                                 <i class="fas fa-house-user"></i> Certificate of Residency
                             </a>
-                            <a href="{{ route('indigency.req')}}" class="footer-link">
+                            <a href="{{ route('indigency') }}" class="footer-link">
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
-                            <a href="{{ route('barangay_system.incident') }}" class="footer-link">
+                            <a href="{{ route('incident') }}" class="footer-link">
                                 <i class="fas fa-clipboard-list"></i> Blotter Report
                             </a>
                         </div>
@@ -1539,7 +1147,7 @@
                     <div class="footer-section">
                         <h3>Emergency Contacts</h3>
                         <div class="emergency-contacts-simple">
-                            <div class="emergency-item critical">
+                            <div class="emergency-item">
                                 <i class="fas fa-ambulance"></i>
                                 <div class="emergency-details">
                                     <span class="emergency-label">Emergency</span>
@@ -1572,12 +1180,6 @@
                 <div class="copyright-info">
                     <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
                 </div>
-                
-                <div class="footer-bottom-actions">
-                    <a href="{{ route('login.res') }}" class="admin-login">
-                        <i class="fas fa-sign-in-alt"></i> Staff Login
-                    </a>
-                </div>
             </div>
         </div>
     </footer>
@@ -1585,19 +1187,12 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/navbar.js') }}"></script>
+
     <script>
         // History Page JavaScript - Organized and Optimized
         document.addEventListener('DOMContentLoaded', function() {
-            // ===================================
-            // SCROLL EFFECTS
-            // ===================================
-            
-            // Navbar scroll effect and back to top button
-            initScrollEffects();
-            
-            // Back to top button click
-            initBackToTop();
-            
             // ===================================
             // ANIMATIONS
             // ===================================
@@ -1618,42 +1213,6 @@
         // ===================================
         // FUNCTION DEFINITIONS
         // ===================================
-
-        function initScrollEffects() {
-            const navbar = document.querySelector('.navbar');
-            const backToTopBtn = document.querySelector('.back-to-top');
-            
-            window.addEventListener('scroll', function() {
-                if (navbar) {
-                    if (window.scrollY > 50) {
-                        navbar.classList.add('scrolled');
-                    } else {
-                        navbar.classList.remove('scrolled');
-                    }
-                }
-                
-                if (backToTopBtn) {
-                    if (window.scrollY > 300) {
-                        backToTopBtn.classList.add('visible');
-                    } else {
-                        backToTopBtn.classList.remove('visible');
-                    }
-                }
-            });
-        }
-
-        function initBackToTop() {
-            const backToTopBtn = document.querySelector('.back-to-top');
-            
-            if (backToTopBtn) {
-                backToTopBtn.addEventListener('click', function() {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-        }
 
         function initTimelineEffects() {
             // Add hover effects to timeline items
@@ -1694,28 +1253,21 @@
             }, observerOptions);
             
             // Observe cards
-            document.querySelectorAll('.timeline-content, .heritage-card, .landmark-card, .stat-card, .fact-item').forEach(card => {
+            document.querySelectorAll('.timeline-content').forEach(card => {
                 observer.observe(card);
             });
             
             // Add CSS for animations
             const style = document.createElement('style');
             style.textContent = `
-                .timeline-content,
-                .heritage-card,
-                .landmark-card,
-                .stat-card,
-                .fact-item {
+                .timeline-content
+                {
                     opacity: 0;
                     transform: translateY(20px);
                     transition: opacity 0.6s ease, transform 0.6s ease;
                 }
                 
-                .timeline-content.animate-in,
-                .heritage-card.animate-in,
-                .landmark-card.animate-in,
-                .stat-card.animate-in,
-                .fact-item.animate-in {
+                .timeline-content.animate-in {
                     opacity: 1;
                     transform: translateY(0);
                 }
@@ -1723,40 +1275,12 @@
                 .timeline-content {
                     transition-delay: 0.1s;
                 }
-                
-                .heritage-card:nth-child(2) {
-                    transition-delay: 0.2s;
-                }
-                
-                .heritage-card:nth-child(3) {
-                    transition-delay: 0.3s;
-                }
-                
-                .landmark-card:nth-child(2) {
-                    transition-delay: 0.2s;
-                }
-                
-                .landmark-card:nth-child(3) {
-                    transition-delay: 0.3s;
-                }
-                
-                .stat-card:nth-child(2) {
-                    transition-delay: 0.1s;
-                }
-                
-                .stat-card:nth-child(3) {
-                    transition-delay: 0.2s;
-                }
-                
-                .stat-card:nth-child(4) {
-                    transition-delay: 0.3s;
-                }
             `;
             document.head.appendChild(style);
             
             // Initialize animations
             setTimeout(() => {
-                document.querySelectorAll('.timeline-content, .heritage-card, .landmark-card, .stat-card, .fact-item').forEach(card => {
+                document.querySelectorAll('.timeline-content').forEach(card => {
                     if (card.getBoundingClientRect().top < window.innerHeight) {
                         card.classList.add('animate-in');
                     }
@@ -1782,18 +1306,6 @@
                             top: offsetPosition,
                             behavior: 'smooth'
                         });
-                    }
-                });
-            });
-            
-            // Add keyboard navigation for cards
-            document.querySelectorAll('.heritage-card, .landmark-card, .stat-card, .fact-item').forEach(card => {
-                card.setAttribute('tabindex', '0');
-                
-                card.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        this.click();
                     }
                 });
             });

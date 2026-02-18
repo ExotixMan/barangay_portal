@@ -12,7 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class DocumentController extends Controller
 {
     public function document(){
-        return view('barangay_system.adocumentdoc');
+        return view('admin.adocumentdoc');
     }
 
     public function generate(Request $request)

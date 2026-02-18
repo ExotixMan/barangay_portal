@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+
+    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     
     <style>
         * {
@@ -24,165 +29,6 @@
             line-height: 1.6;
             color: #333;
             scroll-behavior: smooth;
-        }
-
-        /* Accessibility */
-        .skip-to-main {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #C62828;
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 9999;
-        }
-
-        .skip-to-main:focus {
-            top: 0;
-        }
-
-        /* Custom CSS for maintaining your design */
-        /* =========================================== */
-        /* NAVBAR STYLES - FIXED HORIZONTAL LAYOUT */
-        /* =========================================== */
-
-        /* =============== MAIN NAVBAR =============== */
-        .navbar {
-            background: linear-gradient(135deg, #C62828, #7a2323);
-            box-shadow: 0 4px 20px rgba(198, 40, 40, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .navbar.scrolled {
-            background: rgba(198, 40, 40, 0.98);
-            backdrop-filter: blur(10px);
-        }
-
-        /* =============== NAVBAR CONTAINER =============== */
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 0 15px;
-        }
-
-        /* =============== LOGO SECTION =============== */
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .nav-logo .logo {
-            width: 45px;
-            height: 45px;
-            background: #fff url('Images/logo.jpg') center/cover no-repeat;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .logo-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.9);
-            letter-spacing: 0.5px;
-        }
-
-        .logo-subtitle {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
-            white-space: nowrap;
-        }
-
-        /* =============== NAVIGATION LINKS =============== */
-        .nav-link {
-            color: white !important;
-            font-weight: 500;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            position: relative;
-            padding: 8px 12px !important;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white !important;
-        }
-
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: white;
-        }
-
-        /* =============== DROPDOWN MENU =============== */
-        .dropdown-menu {
-            background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            border: 1px solid #eee;
-            min-width: 200px;
-        }
-
-        .dropdown-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            color: #555;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-link:hover {
-            background: #f8f9fa;
-            color: #C62828;
-            padding-left: 25px;
-        }
-
-        .login-btn {
-            background: white;
-            color: #C62828 !important;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover {
-            background: #f8f9fa;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255,255,255,0.2);
         }
 
         /* Hero Section */
@@ -246,7 +92,6 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.4);
         }
 
         .get-started-btn:hover {
@@ -436,6 +281,17 @@
             font-size: 1.2rem;
         }
 
+        .snc-links {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 20px 0 0px 30px;
+        }
+
+        .section-links {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
         .section-btn {
             background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
@@ -471,33 +327,32 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            right: 0;
+            right: 0;   
             background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
-            padding: 15px 35px;
-            border-radius: 30px;
+            padding: 5px 35px;
+            border-radius: 0 0 20px 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
         }
 
+        .image-overlay p {
+            margin: 0;
+        }
+
         /* Services & Community Cards */
         .services-community {
-            background: #ffffff;
+            background: #C62828;
             padding: 100px 0;
         }
 
         .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
             margin-bottom: 30px;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
         }
 
         .service-card,
@@ -509,12 +364,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-
-        .service-card:hover,
-        .community-card:hover {
-            box-shadow: 0 15px 40px rgba(198, 40, 40, 0.12);
-            border-color: #C62828;
         }
 
         .card-header {
@@ -583,7 +432,7 @@
         .community-highlights {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 20px;
+            padding: 30px;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -612,11 +461,10 @@
             flex: 1;
         }
 
-        /* Announcements & Events */
+        /* Announcements & Events Section */
         .announcements-events {
             background: linear-gradient(135deg, #C62828 0%, #d32f2f 100%);
             padding: 100px 0;
-            color: white;
         }
 
         .announcements-events .container {
@@ -626,9 +474,14 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .section-header h2 {
+        .ann {
             color: #333;
-            font-size: 2.8rem;
+        }
+
+        .latann {
+            color: #C62828;
+            font-size: 2.5rem;
+            text-decoration: underline;
             margin: 0;
         }
 
@@ -658,12 +511,34 @@
             font-weight: 600;
         }
 
+        .announcement-carousel,
+        .events-carousel {
+            position: relative;
+        }
+
+        .announcement-carousel .carousel-inner,
+        .events-carousel .carousel-inner {
+            background: transparent;
+        }
+
+        .announcement-grid,
+        .events-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 550px;
+        }
+
         .announcement-item {
             border: 1px solid #eee;
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             transition: all 0.3s ease;
-            margin-bottom: 20px;
+            height: auto;
+            min-height: 160px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .announcement-item:hover {
@@ -675,7 +550,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .date {
@@ -708,15 +583,25 @@
 
         .announcement-item h3 {
             color: #333;
-            font-size: 1.3rem;
-            margin-bottom: 12px;
+            font-size: 1.2rem; /* Increased font size */
+            margin: 8px 0;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible;
+            text-overflow: clip;
+            line-height: 1.4;
         }
 
         .announcement-item p {
             color: #666;
             font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
+            margin: 0 0 10px 0;
+            display: block; /* Remove webkit clamping */
+            -webkit-line-clamp: unset;
+            -webkit-box-orient: unset;
+            overflow: visible;
+            line-height: 1.5;
+            height: auto; /* Remove fixed height */
+            max-height: none;
         }
 
         .read-more {
@@ -727,6 +612,7 @@
             align-items: center;
             gap: 8px;
             font-size: 0.9rem;
+            margin-top: 10px;
         }
 
         .read-more:hover {
@@ -735,15 +621,18 @@
             text-decoration: none;
         }
 
+        /* Fixed height for event items - Fully readable */
         .event-item {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: flex-start;
             border: 1px solid #eee;
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             transition: all 0.3s ease;
-            margin-bottom: 20px;
+            height: auto; /* Remove fixed height */
+            min-height: 160px; /* Set minimum height instead */
+            margin: 0;
         }
 
         .event-item:hover {
@@ -754,16 +643,16 @@
         .event-date {
             background: #C62828;
             color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             text-align: center;
-            min-width: 85px;
+            min-width: 85px; /* Slightly increased */
             flex-shrink: 0;
         }
 
         .event-date .month {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
             text-transform: uppercase;
         }
@@ -776,30 +665,49 @@
             margin-top: 5px;
         }
 
+        .event-details {
+            flex: 1;
+            overflow: visible; /* Allow content to be visible */
+        }
+
         .event-details h3 {
             color: #333;
-            font-size: 1.3rem;
-            margin-bottom: 12px;
-            font-weight: 600;
+            font-size: 1.2rem; /* Increased font size */
+            margin: 0 0 8px 0;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible;
+            text-overflow: clip;
+            line-height: 1.4;
         }
 
         .event-location,
         .event-time {
             font-size: 0.95rem;
             color: #666;
-            margin: 8px 0;
+            margin: 5px 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible;
+            text-overflow: clip;
+            line-height: 1.4;
+        }
+
+        .event-location i,
+        .event-time i {
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .event-status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 15px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .event-status.ongoing {
@@ -812,36 +720,43 @@
             color: #1565c0;
         }
 
+        /* Navigation Controls */
         .navigation-arrows {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
         }
 
         .dots {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: #ddd;
+            border: none;
             border-radius: 50%;
             cursor: pointer;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        .dot:hover {
+            background: #C62828;
+            transform: scale(1.2);
         }
 
         .dot.active {
             background: #C62828;
+            width: 25px;
+            border-radius: 10px;
         }
 
         .arrow-btn {
             background: #f8f9fa;
             color: #C62828;
-            border: none;
+            border: 1px solid #eee;
             width: 45px;
             height: 45px;
             border-radius: 50%;
@@ -857,6 +772,12 @@
             background: #C62828;
             color: white;
             transform: scale(1.1);
+            border-color: #C62828;
+        }
+
+        .arrow-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
         }
 
         /* Report & Contact Section */
@@ -909,319 +830,6 @@
             transition: all 0.3s ease;
         }
 
-        .report-type:hover {
-            background: #C62828;
-            color: white;
-            border-color: #C62828;
-        }
-
-        /* Back to Top Button */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: #C62828;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .back-to-top:hover {
-            background: #d32f2f;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.4);
-        }
-
-        /* Footer Styles */
-        footer {
-            background: linear-gradient(135deg, #C62828, #7a2323);
-            color: #fff;
-            padding: 40px 0 0;
-            position: relative;
-        }
-
-        .footer-container {
-            display: grid;
-            gap: 25px;
-            padding: 0 25px 30px;
-        }
-
-        .footer-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .footer-section h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 0 0 12px;
-            color: #fff;
-            position: relative;
-            padding-bottom: 8px;
-        }
-
-        .footer-section h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 35px;
-            height: 2px;
-            background: rgba(255,255,255,0.8);
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 5px;
-        }
-
-        .logo-circle {
-            width: 45px;
-            height: 45px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .logo-circle i {
-            font-size: 1.4rem;
-            color: #C62828;
-        }
-
-        .logo-text h3 {
-            font-size: 1.3rem;
-            margin: 0 0 2px;
-            padding: 0;
-        }
-
-        .logo-text h3::after {
-            display: none;
-        }
-
-        .tagline {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.8);
-            font-weight: 500;
-        }
-
-        .contact-info-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .contact-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .contact-row i {
-            color: rgba(255,255,255,0.9);
-            width: 16px;
-            text-align: center;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
-
-        .contact-row span {
-            color: rgba(255,255,255,0.85);
-        }
-
-        .contact-row a {
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .contact-row a:hover {
-            color: white;
-            text-decoration: none;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .social-icons a {
-            width: 34px;
-            height: 34px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-icons a:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        .emergency-contacts-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .emergency-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .emergency-item:hover {
-            background: rgba(255,255,255,0.08);
-        }
-
-        .emergency-item.critical {
-            background: rgba(244, 67, 54, 0.1);
-        }
-
-        .emergency-item i {
-            font-size: 1.2rem;
-            color: white;
-            width: 24px;
-        }
-
-        .emergency-details {
-            flex: 1;
-        }
-
-        .emergency-label {
-            display: block;
-            font-size: 0.9rem;
-            color: #ffffff;
-            margin-bottom: 3px;
-            font-weight: 500;
-        }
-
-        .emergency-number {
-            color: #ffffff !important;
-            font-size: 17.6px;
-            font-weight: 700;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        .emergency-item.critical .emergency-number {
-            color: #ffffff !important;
-        }
-
-        .emergency-details small {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 0;
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .footer-bottom-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .copyright-info p {
-            color: rgba(255,255,255,0.8);
-            margin: 0;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .footer-bottom-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .admin-login {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: white;
-            text-decoration: none;
-            font-size: 0.85rem;
-            padding: 8px 15px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .admin-login:hover {
-            background: rgba(255,255,255,0.25);
-            color: white;
-            text-decoration: none;
-        }
-
-        .footer-links-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            padding: 8px 0;
-        }
-
-        .footer-link:hover {
-            color: white;
-            transform: translateX(5px);
-            text-decoration: none;
-        }
-
-        .footer-link i {
-            font-size: 0.9rem;
-            color: #FFCDD2;
-            width: 16px;
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .hero-content h1 {
@@ -1242,14 +850,35 @@
             
             .about-section .container,
             .services-community .container,
-            .announcements-events .container,
+            .container,
             .report-contact .container {
                 padding: 30px 20px;
             }
+
+            .announcement-grid,
+            .events-grid {
+                min-height: auto;
+            }
             
-            .footer-bottom-container {
-                flex-direction: column;
-                text-align: center;
+            .announcement-item,
+            .event-item {
+                height: auto;
+                min-height: 140px;
+                padding: 15px;
+            }
+            
+            .event-date {
+                min-width: 75px;
+                padding: 12px;
+            }
+            
+            .event-date .day {
+                font-size: 1.8rem;
+            }
+            
+            .announcement-item h3,
+            .event-details h3 {
+                font-size: 1.1rem;
             }
         }
 
@@ -1282,9 +911,6 @@
     </style>
 </head>
 <body>
-    <!-- Accessibility Skip Link -->
-    <a href="#main-content" class="skip-to-main">Skip to main content</a>
-    
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid nav-container">
@@ -1292,8 +918,8 @@
             <div class="nav-logo">
                 <div class="logo"></div>
                 <div class="logo-text d-none d-md-block">
-                    <span class="logo-title">Barangay</span>
-                    <span class="logo-subtitle">Hulong Duhat Portal</span>
+                    <span class="logo-title d-block">Barangay</span>
+                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
                 </div>
                 <div class="logo-text d-md-none">
                     <span class="logo-subtitle">Hulong Duhat</span>
@@ -1307,7 +933,7 @@
             
             <!-- Main Navigation -->
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link active" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
                     </li>
@@ -1318,9 +944,9 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="#mission"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
+                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
                             <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="#officials"><i class="fas fa-users"></i> Barangay Officials</a></li>
+                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
                         </ul>
                     </li>
                     
@@ -1329,9 +955,9 @@
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('clearance.req') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="certificate_residency.html"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency.req') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
+                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
                         </ul>
                     </li>
                     
@@ -1340,8 +966,8 @@
                             <i class="fas fa-users"></i> Community
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="announcement.html"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="#events"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
+                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
                         </ul>
                     </li>
                     
@@ -1350,17 +976,72 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('barangay_system.incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact"><i class="fas fa-phone"></i> Contact</a>
+                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
                     </li>
                     
-                    <!-- Desktop Actions -->
+                    <!-- LogIn-LogOut Actions -->
                     <li class="nav-item d-none d-lg-block">
-                        <a href="{{ route('login.res') }}" class="login-btn ms-2"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                        @auth
+                            <div class="dropdown d-inline-block">
+                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
+                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
+                    </li>
+
+                    {{-- Mobile --}}
+                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
+                        @auth
+                            <div class="dropdown">
+                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
+                                </button>
+                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
+                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @else
+                            <a href="{{ route('login.res') }}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>
@@ -1374,7 +1055,7 @@
                 <h1 class="mb-4">Barangay Hulo Online Services</h1>
                 <p class="mb-5">Access barangay services anytime, anywhere. Fast, convenient, and secure.</p>
                 <div class="hero-actions mb-5">
-                    <a href="#main-content"><button class="get-started-btn"><i class="fas fa-rocket"></i> Get Started</button></a>
+                    <a href="#main-content"><button class="get-started-btn"><i class="fa-regular fa-hand-pointer"></i> Get Started</button></a>
                 </div>
                 
                 <!-- Quick Stats -->
@@ -1407,7 +1088,7 @@
                 <h2 class="section-title">Quick Access</h2>
                 <div class="row quick-access-grid">
                     <div class="col-12 col-md-6 col-lg-3">
-                        <a href="{{ route('clearance.req') }}" class="quick-card">
+                        <a href="{{ route('clearance') }}" class="quick-card">
                             <div class="quick-icon">
                                 <i class="fas fa-file-alt"></i>
                             </div>
@@ -1417,7 +1098,7 @@
                         </a>
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
-                        <a href="#" class="quick-card">
+                        <a href="{{ route('events_project') }}" class="quick-card">
                             <div class="quick-icon">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
@@ -1427,7 +1108,7 @@
                         </a>
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
-                        <a href="#" class="quick-card">
+                        <a href="{{ route('announcements') }}" class="quick-card">
                             <div class="quick-icon">
                                 <i class="fas fa-bullhorn"></i>
                             </div>
@@ -1437,7 +1118,7 @@
                         </a>
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
-                        <a href="#" class="quick-card">
+                        <a href="{{ route('incident') }}" class="quick-card">
                             <div class="quick-icon">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
@@ -1450,6 +1131,304 @@
             </div>
         </section>
 
+        <!-- Announcements & Events Section -->
+        <section class="announcements-events">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h2 class="section-header latann">Latest Updates</h2>
+                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <div class="announcements-card card-hover">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="m-0 ann"><i class="fas fa-bullhorn"></i> Announcements</h2>
+                                <div class="announcement-counter">9+ New</div>
+                            </div>
+                            
+                            <!-- Announcement Carousel with fixed height -->
+                            <div id="announcementCarousel" class="carousel slide announcement-carousel" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <!-- Page 1 -->
+                                    <div class="carousel-item active">
+                                        <div class="announcement-grid">
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 09, 2025</div>
+                                                    <span class="announcement-badge important">Important</span>
+                                                </div>
+                                                <h3>Distribution of Ayuda</h3>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 08, 2025</div>
+                                                    <span class="announcement-badge new">New</span>
+                                                </div>
+                                                <h3>Health Check-up Schedule</h3>
+                                                <p>Free medical check-up for senior citizens and PWDs at the barangay health center.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 07, 2025</div>
+                                                    <span class="announcement-badge update">Update</span>
+                                                </div>
+                                                <h3>Barangay Hall Renovation</h3>
+                                                <p>Temporary closure of some offices due to renovation. Please use online services.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Page 2 -->
+                                    <div class="carousel-item">
+                                        <div class="announcement-grid">
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 06, 2025</div>
+                                                    <span class="announcement-badge important">Important</span>
+                                                </div>
+                                                <h3>Voter's Registration</h3>
+                                                <p>COMELEC registration for upcoming barangay elections at the barangay hall.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 05, 2025</div>
+                                                    <span class="announcement-badge new">New</span>
+                                                </div>
+                                                <h3>Free Webinar for Seniors</h3>
+                                                <p>Online safety and digital literacy training for senior citizens.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 04, 2025</div>
+                                                    <span class="announcement-badge update">Update</span>
+                                                </div>
+                                                <h3>Water Interruption Advisory</h3>
+                                                <p>Scheduled water interruption in selected areas on July 10 from 8:00 AM to 5:00 PM.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Page 3 -->
+                                    <div class="carousel-item">
+                                        <div class="announcement-grid">
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 03, 2025</div>
+                                                    <span class="announcement-badge important">Important</span>
+                                                </div>
+                                                <h3>Tax Payment Deadline</h3>
+                                                <p>Last day for real property tax payment without penalties and interest charges.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 02, 2025</div>
+                                                    <span class="announcement-badge new">New</span>
+                                                </div>
+                                                <h3>Job Fair Announcement</h3>
+                                                <p>Local job fair with 20+ companies at Barangay Covered Court. Bring multiple resumes.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                            <div class="announcement-item">
+                                                <div class="announcement-header">
+                                                    <div class="date">July 01, 2025</div>
+                                                    <span class="announcement-badge update">Update</span>
+                                                </div>
+                                                <h3>New Online Services</h3>
+                                                <p>Additional online services now available for residents including online payments.</p>
+                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Carousel Controls -->
+                                <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
+                                    <div class="dots">
+                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
+                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
+                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="arrow-btn" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="arrow-btn" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="events-card card-hover">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="m-0 ann"><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+                                <div class="events-counter">9+ Events</div>
+                            </div>
+                            
+                            <!-- Events Carousel with fixed height -->
+                            <div id="eventsCarousel" class="carousel slide events-carousel" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <!-- Page 1 -->
+                                    <div class="carousel-item active">
+                                        <div class="events-grid">
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">09</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Distribution of Ayuda</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 10:30 am - 6:00pm</p>
+                                                    <span class="event-status ongoing">Ongoing</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">15</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Community Assembly</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Covered Court</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 9:00 am - 12:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">20</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Clean-up Drive</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hulo</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 7:00 am - 11:00am</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Page 2 -->
+                                    <div class="carousel-item">
+                                        <div class="events-grid">
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">22</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Health & Wellness Seminar</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Health Center</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 12:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">25</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Youth Sports Festival</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Sports Complex</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 5:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">July</span>
+                                                    <span class="day">28</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Senior Citizens Day</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 9:00 am - 3:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Page 3 -->
+                                    <div class="carousel-item">
+                                        <div class="events-grid">
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">Aug</span>
+                                                    <span class="day">01</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Blood Letting Activity</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 5:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">Aug</span>
+                                                    <span class="day">05</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Disaster Preparedness Drill</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Plaza</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 7:00 am - 11:00am</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-date">
+                                                    <span class="month">Aug</span>
+                                                    <span class="day">10</span>
+                                                </div>
+                                                <div class="event-details">
+                                                    <h3>Parents-Teachers Meeting</h3>
+                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Elementary School</p>
+                                                    <p class="event-time"><i class="fas fa-clock"></i> 2:00 pm - 5:00pm</p>
+                                                    <span class="event-status upcoming">Upcoming</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Carousel Controls -->
+                                <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
+                                    <div class="dots">
+                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
+                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
+                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="arrow-btn" type="button" data-bs-target="#eventsCarousel" data-bs-slide="prev">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="arrow-btn" type="button" data-bs-target="#eventsCarousel" data-bs-slide="next">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- About Section -->
         <section class="about-section">
             <div class="container">
@@ -1457,7 +1436,7 @@
                     <div class="col-lg-6 mb-4 mb-lg-0">
                         <div class="text-content">
                             <h2>About Barangay Hulo</h2>
-                            <p>Learn more about the history and culture of Barangay Hulo, including our mission and vision as a community. This section also introduces our barangay officials and their roles, so residents know who to approach for assistance.</p>
+                            <p>{{ __('messages.learn_more') }}</p>
                             <div class="feature-list">
                                 <div class="feature-item">
                                     <i class="fas fa-history"></i>
@@ -1472,7 +1451,7 @@
                                     <span>12 Dedicated Officials</span>
                                 </div>
                             </div>
-                            <a href="history.html" class="section-btn"><i class="fas fa-book-open"></i> Learn more about Barangay Hulo</a>
+                            <a href={{ route('history')}} class='section-links'><i class="fa-solid fa-up-right-from-square"></i> Learn more about Barangay Hulo</a>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -1497,14 +1476,14 @@
                                 <i class="fas fa-concierge-bell card-icon"></i>
                                 <h2>Services</h2>
                             </div>
-                            <p>Access a wide range of services without the need to personally visit the barangay hall. Residents can request official documents such as Barangay Clearance, Certificates (Residency, Indigency), and Business Permits.</p>
+                            <p>{{ __('messages.services_info') }}</p>
                             <ul class="service-list">
                                 <li><i class="fas fa-check-circle"></i> Online document requests</li>
                                 <li><i class="fas fa-check-circle"></i> Real-time status tracking</li>
                                 <li><i class="fas fa-check-circle"></i> Digital payment options</li>
                                 <li><i class="fas fa-check-circle"></i> Appointment scheduling</li>
                             </ul>
-                            <a href="{{ route('barangay_system.services') }}"><button class="section-btn w-100"><i class="fas fa-file-download"></i> Request Services</button></a>
+                            <a href="{{ route('barangay_system.services') }}" class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Request Services</a>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -1513,7 +1492,7 @@
                                 <i class="fas fa-users card-icon"></i>
                                 <h2>Community</h2>
                             </div>
-                            <p>Stay informed about what's happening in Barangay Hulo. This section features barangay announcements, important ordinances and resolutions, and updates on ongoing and upcoming projects.</p>
+                            <p>{{ __('messages.community_info') }}</p>
                             <div class="community-highlights">
                                 <div class="highlight">
                                     <i class="fas fa-calendar-day"></i>
@@ -1524,81 +1503,7 @@
                                     <span>3 Ongoing Projects</span>
                                 </div>
                             </div>
-                            <button class="section-btn w-100"><i class="fas fa-bell"></i> Stay Updated</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Announcements & Events Section -->
-        <section class="announcements-events">
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h2 class="section-header">Latest Updates</h2>
-                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <div class="announcements-card card-hover">
-                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0"><i class="fas fa-bullhorn"></i> Announcements</h2>
-                                <div class="announcement-counter">3 New</div>
-                            </div>
-                            <div class="announcement-list">
-                                <div class="announcement-item">
-                                    <div class="announcement-header">
-                                        <div class="date">July 09, 2025</div>
-                                        <span class="announcement-badge important">Important</span>
-                                    </div>
-                                    <h3>Distribution of Ayuda</h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="announcement-item">
-                                    <div class="announcement-header">
-                                        <div class="date">July 08, 2025</div>
-                                        <span class="announcement-badge new">New</span>
-                                    </div>
-                                    <h3>Health Check-up Schedule</h3>
-                                    <p>Free medical check-up for senior citizens and PWDs at the barangay health center.</p>
-                                    <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="events-card card-hover">
-                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0"><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
-                                <div class="events-counter">5 Events</div>
-                            </div>
-                            <div class="events-list">
-                                <div class="event-item">
-                                    <div class="event-date">
-                                        <span class="month">July</span>
-                                        <span class="day">09</span>
-                                    </div>
-                                    <div class="event-details">
-                                        <h3>Distribution of Ayuda</h3>
-                                        <p class="event-location"><i class="fas fa-map-marker-alt"></i> Hulong Duhat Barangay Hall</p>
-                                        <p class="event-time"><i class="fas fa-clock"></i> 10:30 am - 6:00pm</p>
-                                        <span class="event-status ongoing">Ongoing</span>
-                                    </div>
-                                </div>
-                                <div class="event-item">
-                                    <div class="event-date">
-                                        <span class="month">July</span>
-                                        <span class="day">15</span>
-                                    </div>
-                                    <div class="event-details">
-                                        <h3>Community General Assembly</h3>
-                                        <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Covered Court</p>
-                                        <p class="event-time"><i class="fas fa-clock"></i> 9:00 am - 12:00pm</p>
-                                        <span class="event-status upcoming">Upcoming</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <a href='announcements' class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Stay Updated</a>
                         </div>
                     </div>
                 </div>
@@ -1615,7 +1520,7 @@
                                 <i class="fas fa-exclamation-circle card-icon mb-3"></i>
                                 <h2>Report a Concern</h2>
                             </div>
-                            <p class="text-center">A safe and secure way for residents to submit complaints, incidents, or community concerns. Whether it's about safety, public order, or local issues.</p>
+                            <p class="text-center">{{ __('messages.incident_info') }}</p>
                             <div class="report-types">
                                 <span class="report-type">Noise Complaint</span>
                                 <span class="report-type">Street Lights</span>
@@ -1623,7 +1528,7 @@
                                 <span class="report-type">Safety Concern</span>
                             </div>
                             <div class="text-center">
-                                <a href="{{ route('barangay_system.incident') }}"><button class="section-btn"><i class="fas fa-paper-plane"></i> Report Now</button></a>
+                                <a href="{{ route('incident') }}"><button class="section-btn"><i class="fas fa-paper-plane"></i> Report Now</button></a>
                             </div>
                         </div>
                     </div>
@@ -1631,6 +1536,51 @@
             </div>
         </section>
     </main>
+
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-modal-content">
+            <div class="chat-modal-header">
+                <div class="chat-modal-title">
+                    InfoHulo Assistant
+                </div>
+                <button class="chat-modal-close" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-modal-body">
+                <!-- Option 1: Iframe Method -->
+                <iframe
+                    id="chatIframe"
+                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
+                    frameborder="0"
+                    allow="clipboard-write"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button with Speed Dial -->
+    <div class="fab-container">
+        <div class="speed-dial" id="speedDial">
+            <button class="fab-action" id="translateBtn" title="Translate Text">
+                @if(app()->getLocale() == 'en')
+                    <span>Filipino</span>
+                @else
+                    <span>English</span>
+                @endif
+            </button>
+            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        </div>
+        <button class="fab-main" id="fabMain">
+            <i class="fas fa-gear"></i>
+        </button>
+    </div>
 
     <!-- Back to Top Button -->
     <button class="back-to-top" aria-label="Back to top">
@@ -1689,13 +1639,13 @@
                     <div class="footer-section">
                         <h3>Quick Access</h3>
                         <div class="footer-links-list">
-                            <a href="homepage.html" class="footer-link">
+                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
                                 <i class="fas fa-home"></i> Home
                             </a>
-                            <a href="announcement.html" class="footer-link">
+                            <a href="{{ route('announcements') }}" class="footer-link">
                                 <i class="fas fa-bullhorn"></i> Announcements
                             </a>
-                            <a href="history.html" class="footer-link">
+                            <a href="{{ route('history') }}" class="footer-link">
                                 <i class="fas fa-history"></i> Barangay History
                             </a>
                             <a href="#" class="footer-link">
@@ -1710,16 +1660,16 @@
                     <div class="footer-section">
                         <h3>Services</h3>
                         <div class="footer-links-list">
-                            <a href="{{ route('clearance.req')}}" class="footer-link">
+                            <a href="{{ route('clearance') }}" class="footer-link">
                                 <i class="fas fa-certificate"></i> Barangay Clearance
                             </a>
-                            <a href="certificate_residency.html" class="footer-link">
+                            <a href="{{ route('residency') }}" class="footer-link">
                                 <i class="fas fa-house-user"></i> Certificate of Residency
                             </a>
-                            <a href="{{ route('indigency.req')}}" class="footer-link">
+                            <a href="{{ route('indigency') }}" class="footer-link">
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
-                            <a href="{{ route('barangay_system.incident') }}" class="footer-link">
+                            <a href="{{ route('incident') }}" class="footer-link">
                                 <i class="fas fa-clipboard-list"></i> Blotter Report
                             </a>
                         </div>
@@ -1731,7 +1681,7 @@
                     <div class="footer-section">
                         <h3>Emergency Contacts</h3>
                         <div class="emergency-contacts-simple">
-                            <div class="emergency-item critical">
+                            <div class="emergency-item">
                                 <i class="fas fa-ambulance"></i>
                                 <div class="emergency-details">
                                     <span class="emergency-label">Emergency</span>
@@ -1764,12 +1714,6 @@
                 <div class="copyright-info">
                     <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
                 </div>
-                
-                <div class="footer-bottom-actions">
-                    <a href="user_login.html" class="admin-login">
-                        <i class="fas fa-sign-in-alt"></i> Staff Login
-                    </a>
-                </div>
             </div>
         </div>
     </footer>
@@ -1777,109 +1721,47 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="{{ asset('js/navbar.js') }}"></script>
+    <script src="{{ asset('js/floating-actions.js') }}"></script>
+
     <script>
-        // Homepage Script - Organized and Optimized
         document.addEventListener('DOMContentLoaded', function() {
-            // ===================================
-            // SCROLL EFFECTS
-            // ===================================
-            
-            // Navbar scroll effect and back to top button
-            initScrollEffects();
-            
-            // Back to top button click
-            initBackToTop();
-            
-            // ===================================
-            // CAROUSEL FUNCTIONALITY
-            // ===================================
-            
-            // Announcement and events carousel
-            initCarousels();
-            
-            // ===================================
-            // CARD ANIMATIONS
-            // ===================================
-            
-            // Card hover effects
-            initCardEffects();
+            document.querySelectorAll('a[href^="#"]:not([data-bs-toggle])').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
         });
 
-        // ===================================
-        // FUNCTION DEFINITIONS
-        // ===================================
-
-        function initScrollEffects() {
-            const navbar = document.querySelector('.navbar');
-            const backToTopBtn = document.querySelector('.back-to-top');
-            
-            window.addEventListener('scroll', function() {
-                if (navbar) {
-                    if (window.scrollY > 50) {
-                        navbar.classList.add('scrolled');
-                    } else {
-                        navbar.classList.remove('scrolled');
-                    }
-                }
-                
-                if (backToTopBtn) {
-                    if (window.scrollY > 300) {
-                        backToTopBtn.classList.add('visible');
-                    } else {
-                        backToTopBtn.classList.remove('visible');
-                    }
-                }
-            });
-        }
-
-        function initBackToTop() {
-            const backToTopBtn = document.querySelector('.back-to-top');
-            
-            if (backToTopBtn) {
-                backToTopBtn.addEventListener('click', function() {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
+        document.addEventListener('DOMContentLoaded', function() {
+            var carousels = document.querySelectorAll('.carousel');
+            carousels.forEach(function(carousel) {
+                if (!carousel.classList.contains('carousel-initialized')) {
+                    carousel.classList.add('carousel-initialized');
+                    carousel.addEventListener('slide.bs.carousel', function(e) {
+                        console.log('Sliding to: ' + e.to);
                     });
-                });
-            }
-        }
-
-        function initCarousels() {
-            // Announcement carousel dots
-            const announcementDots = document.querySelectorAll('.announcements-card .dot');
-            
-            announcementDots.forEach((dot, index) => {
-                dot.addEventListener('click', function() {
-                    announcementDots.forEach(d => d.classList.remove('active'));
-                    this.classList.add('active');
-                });
+                    
+                    carousel.addEventListener('slid.bs.carousel', function(e) {
+                        var dots = this.querySelectorAll('.dot');
+                        dots.forEach(function(dot, index) {
+                            if (index === e.to) {
+                                dot.classList.add('active');
+                            } else {
+                                dot.classList.remove('active');
+                            }
+                        });
+                    });
+                }
             });
-            
-            // Event carousel dots
-            const eventDots = document.querySelectorAll('.events-card .dot');
-            
-            eventDots.forEach((dot, index) => {
-                dot.addEventListener('click', function() {
-                    eventDots.forEach(d => d.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
-
-        function initCardEffects() {
-            const cards = document.querySelectorAll('.card-hover');
-            
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-        }
+        });
     </script>
 </body>
 </html>

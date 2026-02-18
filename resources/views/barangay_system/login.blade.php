@@ -264,6 +264,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 12px;
             margin-bottom: 25px;
         }
 
@@ -434,7 +435,7 @@
                     <p>Sign in to your Barangay Hulo account</p>
                 </div>
                 
-                <form class="login-form" id="loginForm">
+                <div class="login-form" id="loginForm">
                     <div class="form-group">
                         <label for="username">Username or Email</label>
                         <div class="input-with-icon">
@@ -455,13 +456,8 @@
                             <input type="checkbox" id="remember">
                             <label for="remember">Remember me</label>
                         </div>
-                        <a href="#" class="forgot-password">Forgot Password?</a>
+                        <a href="{{ route('password.request') }}" class="forgot-password">Forgot Password?</a>
                     </div>
-                    
-                    <button type="submit" class="login-btn">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
-                    
                     <div class="divider">Or sign in with</div>
                     
                     <div class="social-login">
@@ -473,10 +469,14 @@
                         </div>
                     </div>
                     
+                    <div class="form-group">
+                        <button type="submit" class="login-btn">Login</button>
+                    </div>
+
                     <div class="register-link">
                         Don't have an account? <a href="#">Register here</a>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </form>

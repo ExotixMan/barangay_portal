@@ -8,7 +8,7 @@
                 <th><a href="">{{ __('messages.about') }}</a></th>
                 <th><a href="{{ route('barangay_system.services') }}">{{ __('messages.services') }}</a></th>
                 <th><a href= >{{ __('messages.community') }}</a></th>
-                <th><a href="{{ route('barangay_system.incident') }}">{{ __('messages.report') }}</a></th>
+                <th><a href="{{ route('incident') }}">{{ __('messages.report') }}</a></th>
                 <th><a href= >{{ __('messages.contact') }}</a></th>
                 <th><a href="{{ route('logout.res') }}">{{ __('messages.logout') }}</a></th>
             </tr>
