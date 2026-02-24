@@ -877,7 +877,6 @@ body {
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     margin-top: 30px;
-    display: none;
 }
 
 .application-status.active {
@@ -887,7 +886,6 @@ body {
 .status-content i {
     font-size: 4rem;
     color: #4CAF50;
-    margin-bottom: 20px;
 }
 
 .status-content h3 {
@@ -915,7 +913,7 @@ body {
 .btn-download,
 .btn-track,
 .btn-back-info {
-    padding: 12px 25px;
+    padding: 12px 24px;
     border: none;
     border-radius: 8px;
     font-size: 0.95rem;

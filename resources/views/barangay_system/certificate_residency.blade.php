@@ -675,7 +675,7 @@
                     <p>Click the button below to start your Certificate of Residency application</p>
                 </div>
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <a href="{{ route('residency_form')}}" class="btn-apply-now">
+                    <a href="{{ route('residency.form')}}" class="btn-apply-now">
                         <i class="fas fa-house-user"></i> Apply for Certificate Now
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">

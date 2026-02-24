@@ -560,25 +560,39 @@
         }
 
         .announcement-badge {
+            display: inline-block;
             padding: 4px 12px;
+            background: rgba(198, 40, 40, 0.1);
+            color: #C62828;
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 600;
+            margin-bottom: 15px;
         }
 
         .announcement-badge.important {
-            background: #ffebee;
-            color: #C62828;
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
         }
 
-        .announcement-badge.new {
-            background: #e8f5e9;
-            color: #2e7d32;
+        .announcement-badge.events {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
         }
 
-        .announcement-badge.update {
-            background: #e3f2fd;
-            color: #1565c0;
+        .announcement-badge.health {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .announcement-badge.services {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+        }
+
+        .announcement-badge.infrastructure {
+            background: rgba(156, 39, 176, 0.1);
+            color: #9C27B0;
         }
 
         .announcement-item h3 {
@@ -1132,6 +1146,8 @@
         </section>
 
         <!-- Announcements & Events Section -->
+        @php use Illuminate\Support\Str; @endphp
+
         <section class="announcements-events">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-5">
@@ -1143,118 +1159,57 @@
                         <div class="announcements-card card-hover">
                             <div class="card-header d-flex justify-content-between align-items-center mb-4">
                                 <h2 class="m-0 ann"><i class="fas fa-bullhorn"></i> Announcements</h2>
-                                <div class="announcement-counter">9+ New</div>
+                                <div class="announcement-counter">
+                                    @isset($announcements)
+                                        {{ count($announcements) }}+ New
+                                    @else
+                                        0 New
+                                    @endisset
+                                </div>
                             </div>
                             
                             <!-- Announcement Carousel with fixed height -->
                             <div id="announcementCarousel" class="carousel slide announcement-carousel" data-bs-ride="carousel">
                                 <div class="carousel-inner">
-                                    <!-- Page 1 -->
-                                    <div class="carousel-item active">
-                                        <div class="announcement-grid">
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 09, 2025</div>
-                                                    <span class="announcement-badge important">Important</span>
+                                    @isset($announcements)
+                                        @forelse($announcements->chunk(3) as $chunkIndex => $announcementChunk)
+                                            <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
+                                                <div class="announcement-grid">
+                                                    @foreach($announcementChunk as $item)
+                                                        <div class="announcement-item">
+                                                            <div class="announcement-header">
+                                                                <div class="date">{{ date('M d, Y', strtotime($item->published_at ?? $item->created_at ?? now())) }}</div>
+                                                                <span class="announcement-badge {{ $item->category ?? 'important' }}">
+                                                                    {{ ucfirst($item->category ?? 'Announcement') }}
+                                                                </span>
+                                                            </div>
+                                                            <h3>{{ $item->title ?? 'Barangay Announcement' }}</h3>
+                                                            <p>{{ Str::limit($item->content ?? $item->description ?? 'Stay tuned for important updates from your barangay.', 150) }}</p>
+                                                            <a href="{{ route('announcements.show', $item->id ?? '#') }}" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
-                                                <h3>Distribution of Ayuda</h3>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
                                             </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 08, 2025</div>
-                                                    <span class="announcement-badge new">New</span>
-                                                </div>
-                                                <h3>Health Check-up Schedule</h3>
-                                                <p>Free medical check-up for senior citizens and PWDs at the barangay health center.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 07, 2025</div>
-                                                    <span class="announcement-badge update">Update</span>
-                                                </div>
-                                                <h3>Barangay Hall Renovation</h3>
-                                                <p>Temporary closure of some offices due to renovation. Please use online services.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Page 2 -->
-                                    <div class="carousel-item">
-                                        <div class="announcement-grid">
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 06, 2025</div>
-                                                    <span class="announcement-badge important">Important</span>
-                                                </div>
-                                                <h3>Voter's Registration</h3>
-                                                <p>COMELEC registration for upcoming barangay elections at the barangay hall.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 05, 2025</div>
-                                                    <span class="announcement-badge new">New</span>
-                                                </div>
-                                                <h3>Free Webinar for Seniors</h3>
-                                                <p>Online safety and digital literacy training for senior citizens.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 04, 2025</div>
-                                                    <span class="announcement-badge update">Update</span>
-                                                </div>
-                                                <h3>Water Interruption Advisory</h3>
-                                                <p>Scheduled water interruption in selected areas on July 10 from 8:00 AM to 5:00 PM.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Page 3 -->
-                                    <div class="carousel-item">
-                                        <div class="announcement-grid">
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 03, 2025</div>
-                                                    <span class="announcement-badge important">Important</span>
-                                                </div>
-                                                <h3>Tax Payment Deadline</h3>
-                                                <p>Last day for real property tax payment without penalties and interest charges.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 02, 2025</div>
-                                                    <span class="announcement-badge new">New</span>
-                                                </div>
-                                                <h3>Job Fair Announcement</h3>
-                                                <p>Local job fair with 20+ companies at Barangay Covered Court. Bring multiple resumes.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                            <div class="announcement-item">
-                                                <div class="announcement-header">
-                                                    <div class="date">July 01, 2025</div>
-                                                    <span class="announcement-badge update">Update</span>
-                                                </div>
-                                                <h3>New Online Services</h3>
-                                                <p>Additional online services now available for residents including online payments.</p>
-                                                <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @empty
+                                            @include('partials.static-announcements')
+                                        @endforelse
+                                    @else
+                                        @include('partials.static-announcements')
+                                    @endisset
                                 </div>
                                 
                                 <!-- Carousel Controls -->
                                 <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
-                                    <div class="dots">
-                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
-                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
-                                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                    <div class="dots" id="announcementDots">
+                                        @isset($announcements)
+                                            @for($i = 0; $i < ceil(count($announcements) / 3); $i++)
+                                                <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="{{ $i }}" class="dot {{ $i == 0 ? 'active' : '' }}" aria-label="Page {{ $i + 1 }}"></button>
+                                            @endfor
+                                        @else
+                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
+                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
+                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                        @endisset
                                     </div>
                                     <div class="d-flex gap-2">
                                         <button class="arrow-btn" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
@@ -1268,6 +1223,7 @@
                             </div>
                         </div>
                     </div>
+
                     
                     <div class="col-lg-6">
                         <div class="events-card card-hover">

@@ -1297,7 +1297,7 @@
             const checkbox = document.getElementById('acknowledgeCheckbox');
             if (checkbox.checked) {
                 // Redirect to the application form
-                window.location.href = '{{ route('indigency_form') }}';
+                window.location.href = '{{ route('indigency.form') }}';
             }
         }
         

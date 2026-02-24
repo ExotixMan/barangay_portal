@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('type_of_incident', 255);
             $table->string('description', 255)->nullable();
             $table->string('proof_of_incident', 255)->nullable();
+            $table->string('status', 255);
         });
     }
 

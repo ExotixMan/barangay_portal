@@ -17,7 +17,7 @@
 <body>
     <!-- Back Button -->
     <div class="back-button-container container-fluid px-3 px-md-4">
-        <a href="{{ route('residency') }}" class="btn-back">
+        <a href="{{ route('residency.form') }}" class="btn-back">
             <i class="fas fa-arrow-left"></i> Back to Residency Info
         </a>
     </div>
@@ -31,7 +31,8 @@
     <!-- Application Form -->
     <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
         <div class="container form-container px-0">
-            <form id="requirementForm" class="requirement-form">
+            <form id="requirementForm" method="POST" action="{{ route('residency.store') }}" enctype="multipart/form-data" class="requirement-form">
+                @csrf
                 <!-- Progress Indicator -->
                 <div class="form-progress">
                     <div class="progress-steps">
@@ -66,7 +67,7 @@
                             <label for="firstName">
                                 <i class="fas fa-user"></i> First Name *
                             </label>
-                            <input type="text" id="firstName" name="firstName" required
+                            <input type="text" id="firstName" name="first_name" required
                                 placeholder="Enter your first name" class="form-control">
                             <div class="form-hint">As it appears on your ID</div>
                         </div>
@@ -75,7 +76,7 @@
                             <label for="middleName">
                                 <i class="fas fa-user"></i> Middle Name
                             </label>
-                            <input type="text" id="middleName" name="middleName"
+                            <input type="text" id="middleName" name="middle_name"
                                 placeholder="Enter your middle name" class="form-control">
                         </div>
 
@@ -83,7 +84,7 @@
                             <label for="lastName">
                                 <i class="fas fa-user"></i> Last Name *
                             </label>
-                            <input type="text" id="lastName" name="lastName" required
+                            <input type="text" id="lastName" name="last_name" required
                                 placeholder="Enter your last name" class="form-control">
                         </div>
 
@@ -126,7 +127,7 @@
                             <label for="civilStatus">
                                 <i class="fas fa-heart"></i> Civil Status *
                             </label>
-                            <select id="civilStatus" name="civilStatus" required class="form-control">
+                            <select id="civilStatus" name="civil_status" required class="form-control">
                                 <option value="">Select status</option>
                                 <option value="single">Single</option>
                                 <option value="married">Married</option>
@@ -140,13 +141,13 @@
                         <label for="birthPlace">
                             <i class="fas fa-map-marker-alt"></i> Place of Birth *
                         </label>
-                        <input type="text" id="birthPlace" name="birthPlace" required
+                        <input type="text" id="birthPlace" name="birth_place" required
                             placeholder="e.g., Manila, Philippines" class="form-control">
                     </div>
 
                     <div class="form-actions row g-2 btns">
                         <div class="col-12 col-md-auto">
-                            <a href="{{ route('residency') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <a href="{{ route('residency.form') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                         </div>
@@ -174,7 +175,7 @@
                             <label for="yearsResiding">
                                 <i class="fas fa-calendar-alt"></i> Length of Residency *
                             </label>
-                            <select id="yearsResiding" name="yearsResiding" required class="form-control">
+                            <select id="yearsResiding" name="years_residing" required class="form-control">
                                 <option value="">Select length</option>
                                 <option value="less1">Less than 1 year</option>
                                 <option value="1-3">1 - 3 years</option>
@@ -189,7 +190,7 @@
                             <label for="residencyType">
                                 <i class="fas fa-house-user"></i> Residential Status *
                             </label>
-                            <select id="residencyType" name="residencyType" required class="form-control">
+                            <select id="residencyType" name="residency_type" required class="form-control">
                                 <option value="">Select status</option>
                                 <option value="owner">Homeowner / Property Owner</option>
                                 <option value="renter">Renter / Tenant</option>
@@ -205,7 +206,7 @@
                             <label for="contactNumber">
                                 <i class="fas fa-phone"></i> Contact Number *
                             </label>
-                            <input type="tel" id="contactNumber" name="contactNumber" required
+                            <input type="tel" id="contactNumber" name="contact_number" required
                                 placeholder="09XX XXX XXXX" class="form-control">
                         </div>
 
@@ -221,7 +222,7 @@
                             <label for="householdMembers">
                                 <i class="fas fa-users"></i> Number of Household Members *
                             </label>
-                            <input type="number" id="householdMembers" name="householdMembers" required
+                            <input type="number" id="householdMembers" name="household_members" required
                                 min="1" max="20" placeholder="e.g., 4" class="form-control">
                         </div>
                     </div>
@@ -252,36 +253,23 @@
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop your proof of residency or <span>browse</span></p>
                                 <p class="small text-muted mt-2">Barangay ID, Voter's ID, Recent Utility Bill (Meralco, Maynilad), Cedula</p>
-                                <input type="file" id="primaryProof" name="primaryProof" accept=".jpg,.jpeg,.png,.pdf" hidden required>
+                                <input type="file" id="primaryProof" name="primary_proof" accept=".jpg,.jpeg,.png,.pdf" hidden required>
                             </div>
                             <div class="upload-preview mt-2" id="primaryProofPreview"></div>
                         </div>
 
                         <div class="upload-group col-12">
                             <label for="governmentId">
-                                <i class="fas fa-id-card"></i> Valid Government ID *
+                                <i class="fas fa-id-card"></i> Valid ID *
                                 <span class="upload-size">Max: 5MB (JPG, PNG, PDF)</span>
                             </label>
                             <div class="upload-area" id="governmentIdUpload">
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop your valid ID or <span>browse</span></p>
                                 <p class="small text-muted mt-2">UMID, Passport, Driver's License, PhilHealth ID, SSS ID, PRC ID, Postal ID, PhilSys National ID</p>
-                                <input type="file" id="governmentId" name="governmentId" accept=".jpg,.jpeg,.png,.pdf" hidden required>
+                                <input type="file" id="governmentId" name="government_id" accept=".jpg,.jpeg,.png,.pdf" hidden required>
                             </div>
                             <div class="upload-preview mt-2" id="governmentIdPreview"></div>
-                        </div>
-
-                        <div class="upload-group col-12">
-                            <label for="barangayClearance">
-                                <i class="fas fa-file-signature"></i> Previous Barangay Clearance (if renewing)
-                                <span class="upload-size">Optional - Max: 5MB</span>
-                            </label>
-                            <div class="upload-area" id="barangayClearanceUpload">
-                                <i class="fas fa-cloud-upload-alt mb-3"></i>
-                                <p class="mb-0">Upload previous clearance or <span>browse</span></p>
-                                <input type="file" id="barangayClearance" name="barangayClearance" accept=".jpg,.jpeg,.png,.pdf" hidden>
-                            </div>
-                            <div class="upload-preview mt-2" id="barangayClearancePreview"></div>
                         </div>
                     </div>
 
@@ -301,7 +289,7 @@
                             <option value="senior">Senior Citizen ID Application</option>
                             <option value="other">Other</option>
                         </select>
-                        <textarea id="purposeOther" name="purposeOther"
+                        <textarea id="purposeOther" name="purpose_other"
                             placeholder="Please specify other purpose..." rows="2"
                             style="display: none; margin-top: 10px;" class="form-control"></textarea>
                     </div>
@@ -440,7 +428,7 @@
                                     class="fas fa-arrow-left"></i> Previous</button>
                         </div>
                         <div class="col-6 col-md-auto ms-md-auto">
-                            <button type="submit" class="btn-submit" id="submitApplication">
+                            <button type="submit" class="btn-submit">
                                 <span class="btn-text">Submit Application</span>
                                 <div class="spinner">
                                     <div class="spinner-dot"></div>
@@ -452,33 +440,6 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Application Status -->
-            <div class="application-status" id="statusMessage" style="display: none;">
-                <div class="status-content">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Application Submitted Successfully!</h3>
-                    <p>Your application has been received. Your reference number is: <strong
-                            id="referenceNumber">CR-2025-001234</strong></p>
-                    <div class="status-actions row g-2 justify-content-center">
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-download w-100">
-                                <i class="fas fa-download"></i> Download Receipt
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-track w-100">
-                                <i class="fas fa-search"></i> Track Application
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <a href="{{ route('residency') }}" class="btn-back-info w-100" style="text-decoration: none;">
-                                <i class="fas fa-arrow-left"></i> Back to Info Page
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -500,9 +461,6 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
-            const submitButton = document.getElementById('submitApplication');
-            const statusMessage = document.getElementById('statusMessage');
-            const referenceNumber = document.getElementById('referenceNumber');
 
             let currentStep = 1;
             const totalSteps = 4;
@@ -539,24 +497,9 @@
                 });
             });
 
-            // Form submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Validate step 4 specific fields
-                if (validateStep(4)) {
-                    if (termsCheckbox.checked && privacyCheckbox.checked && pickupCheckbox.checked) {
-                        submitApplication();
-                    } else {
-                        alert('Please accept all terms and conditions to proceed.');
-                    }
-                }
-            });
-
             // File upload functionality
             setupFileUpload('primaryProofUpload', 'primaryProof', 'primaryProofPreview');
             setupFileUpload('governmentIdUpload', 'governmentId', 'governmentIdPreview');
-            setupFileUpload('barangayClearanceUpload', 'barangayClearance', 'barangayClearancePreview');
 
             // Functions
             function goToStep(stepId) {
@@ -921,7 +864,6 @@
                 
                 const primaryFile = document.getElementById('primaryProof').files[0];
                 const govIdFile = document.getElementById('governmentId').files[0];
-                const barangayFile = document.getElementById('barangayClearance').files[0];
                 
                 documentInfo.innerHTML = `
                     <div class="review-item">
@@ -960,174 +902,6 @@
                 return string.charAt(0).toUpperCase() + string.slice(1);
             }
 
-            function submitApplication() {
-                submitButton.classList.add('loading');
-                submitButton.disabled = true;
-                
-                // Simulate API call
-                setTimeout(() => {
-                    // Generate reference number
-                    const refNum = 'CR-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-                    referenceNumber.textContent = refNum;
-                    
-                    // Show success message
-                    form.style.display = 'none';
-                    statusMessage.style.display = 'block';
-                    
-                    // Scroll to status message
-                    statusMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Reset button state
-                    submitButton.classList.remove('loading');
-                    submitButton.disabled = false;
-                }, 2000);
-            }
-
-            // Download receipt button
-            const downloadButton = document.querySelector('.btn-download');
-            if (downloadButton) {
-                downloadButton.addEventListener('click', function() {
-                    const applicantName = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                    const referenceNum = document.getElementById('referenceNumber').textContent;
-                    const currentDate = new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                    
-                    // Create QR code data URL using Promise
-                    const qrData = `Reference: ${referenceNum}\nName: ${applicantName}\nDate: ${currentDate}\nStatus: Processing`;
-                    
-                    QRCode.toDataURL(qrData, { width: 150 })
-                        .then(qrDataUrl => {
-                            const printContent = `<!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Certificate of Residency Application Receipt</title>
-                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                                <style>
-                                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #C62828; padding-bottom: 20px; }
-                                    .header h1 { color: #C62828; margin-bottom: 10px; font-size: 24px; }
-                                    .header .subtitle { color: #666; font-size: 14px; }
-                                    .details { margin: 30px 0; }
-                                    .detail-row { display: flex; margin: 10px 0; padding: 5px 0; border-bottom: 1px solid #eee; }
-                                    .detail-label { font-weight: bold; color: #333; width: 180px; }
-                                    .detail-value { color: #666; flex: 1; }
-                                    .instructions { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; }
-                                    .instructions h3 { color: #C62828; margin-bottom: 15px; }
-                                    .step { margin: 10px 0; padding-left: 20px; }
-                                    .important-note { background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0; font-size: 14px; }
-                                    .footer { text-align: center; margin-top: 40px; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
-                                    .qr-code { text-align: center; margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
-                                    .qr-code img { width: 150px; height: 150px; margin: 10px 0; border: 1px solid #eee; padding: 10px; background: white; }
-                                    .qr-code p { color: #C62828; font-weight: 600; margin-bottom: 10px; }
-                                    @media print { 
-                                        body { margin: 20px; font-size: 12px; }
-                                        .no-print { display: none !important; }
-                                        .header h1 { font-size: 20px; }
-                                        .qr-code img { border: 1px solid #ccc; }
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <h1><i class="fas fa-map-marked-alt"></i> Certificate of Residency Application Receipt</h1>
-                                    <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
-                                </div>
-                                
-                                <div class="details">
-                                    <h3>Application Details</h3>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Reference Number:</div>
-                                        <div class="detail-value"><strong>${referenceNum}</strong></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Applicant Name:</div>
-                                        <div class="detail-value">${applicantName}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Date Submitted:</div>
-                                        <div class="detail-value">${currentDate}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Status:</div>
-                                        <div class="detail-value"><span style="color: #C62828; font-weight: 600;">Submitted for Processing</span></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Amount to Pay:</div>
-                                        <div class="detail-value"><strong>₱50.00</strong></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="qr-code">
-                                    <p><i class="fas fa-qrcode"></i> Scan to Verify Application Status</p>
-                                    <img src="${qrDataUrl}" alt="QR Code for ${referenceNum}">
-                                    <p style="font-size: 12px; color: #666; margin-top: 10px;">Reference: ${referenceNum}</p>
-                                </div>
-                                
-                                <div class="instructions">
-                                    <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
-                                    <div class="step"><strong>1.</strong> Wait for processing confirmation (1-3 business days)</div>
-                                    <div class="step"><strong>2.</strong> Visit Barangay Hall during office hours</div>
-                                    <div class="step"><strong>3.</strong> Present this receipt and valid ID</div>
-                                    <div class="step"><strong>4.</strong> Pay ₱50.00 at the cashier</div>
-                                    <div class="step"><strong>5.</strong> Receive your Certificate of Residency</div>
-                                    
-                                    <div class="important-note">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Important Note:</strong> Bring this receipt and the same valid ID you used during application when claiming your certificate. Payment must be made in cash at the barangay hall.
-                                    </div>
-                                    
-                                    <p><strong><i class="fas fa-map-marker-alt"></i> Barangay Hall Location:</strong><br>
-                                    1 M. Blas St, Malabon, Metro Manila<br>
-                                    <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
-                                    Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                    Saturday: 8:00 AM - 12:00 PM<br>
-                                    <strong><i class="fas fa-phone"></i> Contact:</strong> (02) 123-4567</p>
-                                </div>
-                                
-                                <div class="footer">
-                                    <p>This is an electronically generated receipt. No signature is required.</p>
-                                    <p>Barangay Hulong Duhat Online Services © ${new Date().getFullYear()}</p>
-                                </div>
-                                
-                                <div class="no-print" style="text-align: center; margin-top: 30px;">
-                                    <button onclick="window.print()" style="padding: 12px 25px; background: #C62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-print"></i> Print Receipt
-                                    </button>
-                                    <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-times"></i> Close Window
-                                    </button>
-                                </div>
-                            </body>
-                            </html>
-                            `;
-                            
-                            const printWindow = window.open('', '_blank', 'width=800,height=600');
-                            if (printWindow) {
-                                printWindow.document.write(printContent);
-                                printWindow.document.close();
-                            } else {
-                                alert('Please allow pop-ups to print the receipt');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error generating QR code:', error);
-                            alert('Error generating QR code. Please try again.');
-                        });
-                });
-            }
-            
-            // Track status button
-            const trackButton = document.querySelector('.btn-track');
-            if (trackButton) {
-                trackButton.addEventListener('click', function() {
-                    alert('Status tracking feature coming soon! Your application is currently being processed.');
-                });
-            }
-
-            // Initialize first step
             updateProgress();
         });
     </script>

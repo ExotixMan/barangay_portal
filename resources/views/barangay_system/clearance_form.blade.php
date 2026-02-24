@@ -32,7 +32,8 @@
     <!-- Application Form -->
     <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
         <div class="container form-container px-0">
-            <form id="requirementForm" class="requirement-form">
+            <form method="POST" action="{{ route('clearance.store') }}"  enctype="multipart/form-data" id="requirementForm" class="requirement-form">
+                @csrf
                 <div class="form-progress">
                     <div class="progress-steps">
                         <div class="step active" data-step="1">
@@ -62,7 +63,7 @@
                             <label for="firstName">
                                 <i class="fas fa-user"></i> First Name *
                             </label>
-                            <input type="text" id="firstName" name="firstName" required
+                            <input type="text" id="firstName" name="first_name" required
                                 placeholder="Enter your first name" class="form-control">
                             <div class="form-hint">As it appears on your ID</div>
                         </div>
@@ -71,7 +72,7 @@
                             <label for="middleName">
                                 <i class="fas fa-user"></i> Middle Name
                             </label>
-                            <input type="text" id="middleName" name="middleName"
+                            <input type="text" id="middleName" name="middle_name"
                                 placeholder="Enter your middle name" class="form-control">
                         </div>
 
@@ -79,7 +80,7 @@
                             <label for="lastName">
                                 <i class="fas fa-user"></i> Last Name *
                             </label>
-                            <input type="text" id="lastName" name="lastName" required
+                            <input type="text" id="lastName" name="last_name" required
                                 placeholder="Enter your last name" class="form-control">
                         </div>
 
@@ -134,7 +135,7 @@
                             <label for="contactNumber">
                                 <i class="fas fa-phone"></i> Contact Number *
                             </label>
-                            <input type="tel" id="contactNumber" name="contactNumber" required
+                            <input type="tel" id="contactNumber" name="contact_number" required
                                 placeholder="09XX XXX XXXX" class="form-control">
                         </div>
 
@@ -172,7 +173,7 @@
                             <div class="upload-area" id="validIdUpload">
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop your valid ID or <span>browse</span></p>
-                                <input type="file" id="validId" name="validId" accept=".jpg,.jpeg,.png,.pdf"
+                                <input type="file" id="validId" name="valid_id_path" accept=".jpg,.jpeg,.png,.pdf"
                                     hidden>
                             </div>
                             <div class="upload-preview mt-2" id="validIdPreview"></div>
@@ -194,7 +195,7 @@
                             <option value="school">School Requirement</option>
                             <option value="other">Other</option>
                         </select>
-                        <textarea id="purposeOther" name="purposeOther"
+                        <textarea id="purposeOther" name="purpose_other"
                             placeholder="Please specify other purpose..." rows="2"
                             style="display: none; margin-top: 10px;" class="form-control"></textarea>
                     </div>
@@ -328,7 +329,7 @@
                                     class="fas fa-arrow-left"></i> Previous</button>
                         </div>
                         <div class="col-6 col-md-auto ms-md-auto">
-                            <button type="submit" class="btn-submit" id="submitApplication">
+                            <button type="submit" class="btn-submit">
                                 <span class="btn-text">Submit Application</span>
                                 <div class="spinner">
                                     <div class="spinner-dot"></div>
@@ -340,33 +341,6 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Application Status -->
-            <div class="application-status" id="statusMessage" style="display: none;">
-                <div class="status-content">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Application Submitted Successfully!</h3>
-                    <p>Your application has been received. Your reference number is: <strong
-                            id="referenceNumber">BC-2025-001234</strong></p>
-                    <div class="status-actions row g-2 justify-content-center">
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-download w-100">
-                                <i class="fas fa-download"></i> Download Receipt
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-track w-100">
-                                <i class="fas fa-search"></i> Track Application
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <a href="{{ route('clearance') }}" class="btn-back-info w-100" style="text-decoration: none;">
-                                <i class="fas fa-arrow-left"></i> Back to Info Page
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -388,9 +362,6 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
-            const submitButton = document.getElementById('submitApplication');
-            const statusMessage = document.getElementById('statusMessage');
-            const referenceNumber = document.getElementById('referenceNumber');
 
             let currentStep = 1;
             const totalSteps = 3;
@@ -429,16 +400,18 @@
 
             // Form submission
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Validate step 3 specific fields
-                if (validateStep(3)) {
-                    if (termsCheckbox.checked && privacyCheckbox.checked && pickupCheckbox.checked) {
-                        submitApplication();
-                    } else {
-                        alert('Please accept all terms and conditions to proceed.');
-                    }
+
+                if (!validateStep(3)) {
+                    e.preventDefault();
+                    return;
                 }
+
+                if (!termsCheckbox.checked || !privacyCheckbox.checked || !pickupCheckbox.checked) {
+                    e.preventDefault();
+                    alert('Please accept all terms and conditions.');
+                    return;
+                }
+
             });
 
             // File upload functionality
@@ -787,173 +760,6 @@
             function capitalizeFirstLetter(string) {
                 if (!string) return '';
                 return string.charAt(0).toUpperCase() + string.slice(1);
-            }
-
-            function submitApplication() {
-                submitButton.classList.add('loading');
-                submitButton.disabled = true;
-                
-                // Simulate API call
-                setTimeout(() => {
-                    // Generate reference number
-                    const refNum = 'BC-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-                    referenceNumber.textContent = refNum;
-                    
-                    // Show success message
-                    form.style.display = 'none';
-                    statusMessage.style.display = 'block';
-                    
-                    // Scroll to status message
-                    statusMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Reset button state
-                    submitButton.classList.remove('loading');
-                    submitButton.disabled = false;
-                }, 2000);
-            }
-
-            // Download receipt button
-            const downloadButton = document.querySelector('.btn-download');
-            if (downloadButton) {
-                downloadButton.addEventListener('click', function() {
-                    const applicantName = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                    const referenceNum = document.getElementById('referenceNumber').textContent;
-                    const currentDate = new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                    
-                    // Create QR code data URL using Promise
-                    const qrData = `Reference: ${referenceNum}\nName: ${applicantName}\nDate: ${currentDate}\nStatus: Processing`;
-                    
-                    QRCode.toDataURL(qrData, { width: 150 })
-                        .then(qrDataUrl => {
-                            const printContent = `<!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Barangay Clearance Application Receipt</title>
-                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                                <style>
-                                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #C62828; padding-bottom: 20px; }
-                                    .header h1 { color: #C62828; margin-bottom: 10px; font-size: 24px; }
-                                    .header .subtitle { color: #666; font-size: 14px; }
-                                    .details { margin: 30px 0; }
-                                    .detail-row { display: flex; margin: 10px 0; padding: 5px 0; border-bottom: 1px solid #eee; }
-                                    .detail-label { font-weight: bold; color: #333; width: 180px; }
-                                    .detail-value { color: #666; flex: 1; }
-                                    .instructions { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; }
-                                    .instructions h3 { color: #C62828; margin-bottom: 15px; }
-                                    .step { margin: 10px 0; padding-left: 20px; }
-                                    .important-note { background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0; font-size: 14px; }
-                                    .footer { text-align: center; margin-top: 40px; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
-                                    .qr-code { text-align: center; margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
-                                    .qr-code img { width: 150px; height: 150px; margin: 10px 0; border: 1px solid #eee; padding: 10px; background: white; }
-                                    .qr-code p { color: #C62828; font-weight: 600; margin-bottom: 10px; }
-                                    @media print { 
-                                        body { margin: 20px; font-size: 12px; }
-                                        .no-print { display: none !important; }
-                                        .header h1 { font-size: 20px; }
-                                        .qr-code img { border: 1px solid #ccc; }
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <h1><i class="fas fa-file-signature"></i> Barangay Clearance Application Receipt</h1>
-                                    <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
-                                </div>
-                                
-                                <div class="details">
-                                    <h3>Application Details</h3>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Reference Number:</div>
-                                        <div class="detail-value"><strong>${referenceNum}</strong></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Applicant Name:</div>
-                                        <div class="detail-value">${applicantName}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Date Submitted:</div>
-                                        <div class="detail-value">${currentDate}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Status:</div>
-                                        <div class="detail-value"><span style="color: #C62828; font-weight: 600;">Submitted for Processing</span></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Amount to Pay:</div>
-                                        <div class="detail-value"><strong>₱100.00</strong></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="qr-code">
-                                    <p><i class="fas fa-qrcode"></i> Scan to Verify Application Status</p>
-                                    <img src="${qrDataUrl}" alt="QR Code for ${referenceNum}">
-                                    <p style="font-size: 12px; color: #666; margin-top: 10px;">Reference: ${referenceNum}</p>
-                                </div>
-                                
-                                <div class="instructions">
-                                    <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
-                                    <div class="step"><strong>1.</strong> Wait for processing confirmation (1-3 business days)</div>
-                                    <div class="step"><strong>2.</strong> Visit Barangay Hall during office hours</div>
-                                    <div class="step"><strong>3.</strong> Present this receipt and valid ID</div>
-                                    <div class="step"><strong>4.</strong> Pay ₱100.00 at the cashier</div>
-                                    <div class="step"><strong>5.</strong> Receive your barangay clearance</div>
-                                    
-                                    <div class="important-note">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Important Note:</strong> Bring this receipt and the same valid ID you used during application when claiming your clearance. Payment must be made in cash at the barangay hall.
-                                    </div>
-                                    
-                                    <p><strong><i class="fas fa-map-marker-alt"></i> Barangay Hall Location:</strong><br>
-                                    1 M. Blas St, Malabon, Metro Manila<br>
-                                    <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
-                                    Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                    Saturday: 8:00 AM - 12:00 PM<br>
-                                    <strong><i class="fas fa-phone"></i> Contact:</strong> (02) 123-4567</p>
-                                </div>
-                                
-                                <div class="footer">
-                                    <p>This is an electronically generated receipt. No signature is required.</p>
-                                    <p>Barangay Hulong Duhat Online Services © ${new Date().getFullYear()}</p>
-                                </div>
-                                
-                                <div class="no-print" style="text-align: center; margin-top: 30px;">
-                                    <button onclick="window.print()" style="padding: 12px 25px; background: #C62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-print"></i> Print Receipt
-                                    </button>
-                                    <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-times"></i> Close Window
-                                    </button>
-                                </div>
-                            </body>
-                            </html>
-                            `;
-                            
-                            const printWindow = window.open('', '_blank', 'width=800,height=600');
-                            if (printWindow) {
-                                printWindow.document.write(printContent);
-                                printWindow.document.close();
-                            } else {
-                                alert('Please allow pop-ups to print the receipt');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error generating QR code:', error);
-                            alert('Error generating QR code. Please try again.');
-                        });
-                });
-            }
-            
-            // Track status button
-            const trackButton = document.querySelector('.btn-track');
-            if (trackButton) {
-                trackButton.addEventListener('click', function() {
-                    alert('Status tracking feature coming soon! Your application is currently being processed.');
-                });
             }
 
             // Initialize first step

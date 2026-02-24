@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Blotter Report Application Form</title>
+    <title>Barangay Incident Report Application Form</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
     
     <style>
-        /* Additional styles for blotter-specific elements that maintain the residency format */
         .report-type-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -216,11 +215,17 @@
         
         input.error, select.error, textarea.error {
             border-color: #ff4444 !important;
+            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1) !important;
         }
         
         .upload-area.highlight {
             border-color: #C62828;
             background-color: rgba(198, 40, 40, 0.05);
+        }
+
+        .upload-area.error {
+            border-color: #ff4444 !important;
+            background-color: rgba(255, 68, 68, 0.05) !important;
         }
         
         @media (max-width: 768px) {
@@ -247,7 +252,8 @@
     <!-- Application Form -->
     <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
         <div class="container form-container px-0">
-            <form id="blotterForm" class="requirement-form">
+            <form id="blotterForm" method="POST" action="{{ route('incident.store') }}" enctype="multipart/form-data" class="requirement-form">
+                @csrf
                 <!-- Progress Indicator - Exactly matching residency -->
                 <div class="form-progress">
                     <div class="progress-steps">
@@ -351,7 +357,7 @@
                         <div class="form-hint">E.g., contacted authorities, secured the area, etc.</div>
                     </div>
 
-                    <div class="form-actions row g-2 btns">
+                    <div class="form-actions row g-2 btns" style="margin-top: 3px;">
                         <div class="col-12 col-md-auto">
                             <a href="{{ route('incident') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-times"></i> Cancel
@@ -677,32 +683,6 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Application Status - Matching residency exactly -->
-            <div class="application-status" id="statusMessage" style="display: none;">
-                <div class="status-content">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Blotter Report Submitted Successfully!</h3>
-                    <p>Your report has been received. Your reference number is: <strong id="referenceNumber">BL-2025-001234</strong></p>
-                    <div class="status-actions row g-2 justify-content-center">
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-download w-100" id="printReport">
-                                <i class="fas fa-print"></i> Print Report Summary
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-track w-100">
-                                <i class="fas fa-search"></i> Track Application
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <a href="{{ route('incident') }}" class="btn-back-info w-100" style="text-decoration: none;">
-                                <i class="fas fa-arrow-left"></i> Back to Info Page
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -720,8 +700,6 @@
             const nextButtons = document.querySelectorAll('.btn-next');
             const prevButtons = document.querySelectorAll('.btn-prev');
             const submitButton = document.getElementById('submitBlotter');
-            const statusMessage = document.getElementById('statusMessage');
-            const referenceNumber = document.getElementById('referenceNumber');
             const declareTruth = document.getElementById('declareTruth');
             const agreePrivacy = document.getElementById('agreePrivacy');
             const consentProcessing = document.getElementById('consentProcessing');
@@ -750,7 +728,9 @@
             if (addWitnessBtn) {
                 addWitnessBtn.addEventListener('click', function() {
                     witnessCount++;
+
                     const witnessId = `witness-${Date.now()}`;
+
                     const witnessHtml = `
                         <div class="witness-item" id="${witnessId}">
                             <div class="witness-header">
@@ -759,28 +739,29 @@
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
+
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Full Name</label>
-                                        <input type="text" class="form-control" placeholder="Enter witness full name">
-                                    </div>
+                                    <label>Full Name</label>
+                                    <input name="witnesses[][name]" type="text" class="form-control witness-name" placeholder="Full name of witness">
+                                    <div class="error-message"></div>
                                 </div>
+
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Contact Number</label>
-                                        <input type="tel" class="form-control" placeholder="09XX XXX XXXX">
-                                    </div>
+                                    <label>Contact Number</label>
+                                    <input name="witnesses[][contact]" type="text" class="form-control witness-contact" placeholder="09XX XXX XXXX">
+                                    <div class="error-message"></div>
                                 </div>
+
                                 <div class="col-12">
-                                    <div class="form-group">
-                                        <label>Witness Statement</label>
-                                        <textarea class="form-control" rows="2" placeholder="What did the witness see or hear?"></textarea>
-                                    </div>
+                                    <label>Witness Statement</label>
+                                    <textarea name="witnesses[][statement]" class="form-control witness-statement" placeholder="What did the witness see or hear?"></textarea>
+                                    <div class="error-message"></div>
                                 </div>
                             </div>
                         </div>
                     `;
+
                     witnessesList.insertAdjacentHTML('beforeend', witnessHtml);
                 });
             }
@@ -798,12 +779,12 @@
                 }
             };
 
-            // File upload functionality - matching residency format exactly
-            setupFileUpload('photoUpload', 'photos', 'photoPreview', true);
-            setupFileUpload('videoUpload', 'videos', 'videoPreview', true);
-            setupFileUpload('docUpload', 'documents', 'docPreview', true);
+            // File upload functionality - matching clearance form approach
+            setupFileUpload('photoUpload', 'photos', 'photoPreview', ['image/jpeg', 'image/jpg', 'image/png'], 10);
+            setupFileUpload('videoUpload', 'videos', 'videoPreview', ['video/mp4', 'video/avi', 'video/quicktime'], 50);
+            setupFileUpload('docUpload', 'documents', 'docPreview', ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], 5);
 
-            function setupFileUpload(uploadAreaId, fileInputId, previewId, isMultiple = false) {
+            function setupFileUpload(uploadAreaId, fileInputId, previewId, allowedTypes, maxSizeMB) {
                 const uploadArea = document.getElementById(uploadAreaId);
                 const fileInput = document.getElementById(fileInputId);
                 const previewArea = document.getElementById(previewId);
@@ -846,53 +827,129 @@
                     const dt = e.dataTransfer;
                     const files = dt.files;
                     if (files.length > 0) {
-                        fileInput.files = files;
-                        handleFiles(files, previewId);
+                        handleFiles(files);
                     }
                 }
                 
                 // Handle file selection
                 fileInput.addEventListener('change', function() {
                     if (this.files && this.files.length > 0) {
-                        handleFiles(this.files, previewId);
+                        handleFiles(this.files);
                     }
                 });
+                
+                function handleFiles(files) {
+                    // Reset upload area style
+                    uploadArea.classList.remove('error');
+                    
+                    // Validate each file
+                    let validFiles = [];
+                    let hasError = false;
+                    
+                    Array.from(files).forEach(file => {
+                        // Check file type
+                        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                        const validExtensions = {
+                            'image/jpeg': ['.jpg', '.jpeg'],
+                            'image/jpg': ['.jpg', '.jpeg'],
+                            'image/png': ['.png'],
+                            'video/mp4': ['.mp4'],
+                            'video/avi': ['.avi'],
+                            'video/quicktime': ['.mov'],
+                            'application/pdf': ['.pdf'],
+                            'application/msword': ['.doc'],
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+                        };
+                        
+                        let isValidType = false;
+                        for (let [mimeType, extensions] of Object.entries(validExtensions)) {
+                            if (allowedTypes.includes(mimeType) && extensions.includes(fileExtension)) {
+                                isValidType = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!isValidType) {
+                            alert(`Invalid file type for ${file.name}. Please upload valid file types.`);
+                            hasError = true;
+                            return;
+                        }
+                        
+                        // Check file size
+                        const maxSize = maxSizeMB * 1024 * 1024;
+                        if (file.size > maxSize) {
+                            alert(`${file.name} exceeds the maximum file size of ${maxSizeMB}MB.`);
+                            hasError = true;
+                            return;
+                        }
+                        
+                        validFiles.push(file);
+                    });
+                    
+                    if (hasError) {
+                        uploadArea.classList.add('error');
+                        return;
+                    }
+                    
+                    // Update preview
+                    previewArea.innerHTML = '';
+                    previewArea.classList.add('active');
+                    
+                    validFiles.forEach((file, index) => {
+                        const filePreview = document.createElement('div');
+                        filePreview.className = 'file-preview';
+                        
+                        // Determine icon based on file type
+                        let icon = 'fa-file';
+                        if (file.type.includes('image')) icon = 'fa-file-image';
+                        else if (file.type.includes('video')) icon = 'fa-file-video';
+                        else if (file.type.includes('pdf')) icon = 'fa-file-pdf';
+                        else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) icon = 'fa-file-word';
+                        
+                        filePreview.innerHTML = `
+                            <i class="fas ${icon}"></i>
+                            <div class="file-info">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                            <button type="button" class="remove-file" data-file-input="${fileInputId}" data-file-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        
+                        previewArea.appendChild(filePreview);
+                    });
+                    
+                    // Add event listeners to remove buttons
+                    previewArea.querySelectorAll('.remove-file').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            removeFile(fileInputId, previewId, uploadAreaId);
+                        });
+                    });
+                }
             }
 
-            function handleFiles(files, previewId) {
+            function removeFile(fileInputId, previewId, uploadAreaId) {
+                const fileInput = document.getElementById(fileInputId);
                 const previewArea = document.getElementById(previewId);
-                if (!previewArea) return;
+                const uploadArea = document.getElementById(uploadAreaId);
                 
+                fileInput.value = '';
                 previewArea.innerHTML = '';
-                previewArea.classList.add('active');
-                
-                Array.from(files).forEach((file, index) => {
-                    const filePreview = document.createElement('div');
-                    filePreview.className = 'file-preview';
-                    
-                    // Determine icon based on file type
-                    let icon = 'fa-file';
-                    if (file.type.includes('image')) icon = 'fa-file-image';
-                    else if (file.type.includes('video')) icon = 'fa-file-video';
-                    else if (file.type.includes('pdf')) icon = 'fa-file-pdf';
-                    else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) icon = 'fa-file-word';
-                    
-                    filePreview.innerHTML = `
-                        <i class="fas ${icon}"></i>
-                        <div class="file-info">
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-size">${formatFileSize(file.size)}</div>
-                        </div>
-                        <button type="button" class="remove-file" onclick="this.closest('.file-preview').remove()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                    
-                    previewArea.appendChild(filePreview);
-                });
+                previewArea.classList.remove('active');
+                uploadArea.classList.remove('error', 'highlight');
             }
 
-            // Navigation - exactly matching residency
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Navigation
             nextButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -909,6 +966,20 @@
                     const prevStep = this.getAttribute('data-prev');
                     goToStep(prevStep);
                 });
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                if (!validateStep(4)) {
+                    e.preventDefault();
+                    return;
+                }
+
+                if (!declareTruth.checked || !agreePrivacy.checked || !consentProcessing.checked) {
+                    e.preventDefault();
+                    alert('Please accept all terms and conditions.');
+                    return;
+                }
             });
 
             function goToStep(stepId) {
@@ -951,46 +1022,122 @@
                 allFields.forEach(field => {
                     field.classList.remove('error');
                     field.style.borderColor = '';
+                    field.style.boxShadow = '';
+                });
+                
+                // Reset upload area styles
+                const uploadAreas = currentStepElement.querySelectorAll('.upload-area');
+                uploadAreas.forEach(area => {
+                    area.classList.remove('error');
                 });
                 
                 // Validate required fields
                 const requiredFields = currentStepElement.querySelectorAll('[required]');
                 
                 requiredFields.forEach(field => {
-                    if (field.type === 'file') {
-                        if (!field.files || field.files.length === 0) {
+                    // Skip hidden fields
+                    if (field.style.display === 'none' || field.type === 'file') {
+                        return;
+                    }
+                    
+                    let fieldValue = field.value.trim();
+                    
+                    if (field.type === 'radio') {
+                        // For radio buttons, check if any in the group is checked
+                        const radioName = field.name;
+                        const radioChecked = document.querySelector(`input[name="${radioName}"]:checked`);
+                        if (!radioChecked) {
                             isValid = false;
-                            showFieldError(field, 'This file is required');
+                            const radioGroup = field.closest('.form-group');
+                            if (radioGroup) {
+                                showFieldError(radioGroup.querySelector('label'), 'Please select an option');
+                            }
                         }
-                    } else if (!field.value.trim()) {
+                        return;
+                    }
+                    
+                    if (!fieldValue) {
                         isValid = false;
                         showFieldError(field, 'This field is required');
+                        return;
+                    }
+                    
+                    // Validate email format
+                    if (field.type === 'email' && fieldValue) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(fieldValue)) {
+                            isValid = false;
+                            showFieldError(field, 'Please enter a valid email address');
+                        }
+                    }
+                    
+                    // Validate phone number
+                    if (field.id === 'complainantContact') {
+                        const phoneRegex = /^09\d{9}$/;
+                        const cleanedNumber = fieldValue.replace(/\s/g, '');
+                        if (!phoneRegex.test(cleanedNumber)) {
+                            isValid = false;
+                            showFieldError(field, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+                        }
+                    }
+                    
+                    // Validate date is not in future
+                    if (field.id === 'incidentDate') {
+                        const selectedDate = new Date(fieldValue);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (selectedDate > today) {
+                            isValid = false;
+                            showFieldError(field, 'Incident date cannot be in the future');
+                        }
                     }
                 });
                 
-                // Validate report type selection in step 1
+                // Validate witness fields
+                if (stepNumber === 2) {
+                    const witnessItems = document.querySelectorAll('.witness-item');
+                    
+                    witnessItems.forEach(item => {
+                        const nameInput = item.querySelector('.witness-name');
+                        const contactInput = item.querySelector('.witness-contact');
+                        const statementInput = item.querySelector('.witness-statement');
+                        
+                        const name = nameInput ? nameInput.value.trim() : '';
+                        const contact = contactInput ? contactInput.value.trim() : '';
+                        const statement = statementInput ? statementInput.value.trim() : '';
+                        
+                        // If any witness field is filled, validate all required
+                        if (name || contact || statement) {
+                            if (!name) {
+                                isValid = false;
+                                showFieldError(nameInput, 'Witness name is required if adding witness details');
+                            }
+                            
+                            if (contact) {
+                                const phoneRegex = /^09\d{9}$/;
+                                const cleanedNumber = contact.replace(/\s/g, '');
+                                if (!phoneRegex.test(cleanedNumber)) {
+                                    isValid = false;
+                                    showFieldError(contactInput, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+                                }
+                            }
+                            
+                            if (!statement) {
+                                isValid = false;
+                                showFieldError(statementInput, 'Witness statement is required if adding witness details');
+                            }
+                        }
+                    });
+                }
+                
+                // Validate radio buttons in step 1
                 if (stepNumber === 1) {
                     const reportTypeSelected = document.querySelector('input[name="reportType"]:checked');
                     if (!reportTypeSelected) {
                         isValid = false;
                         const reportTypeGrid = document.querySelector('.report-type-grid');
-                        const errorMsg = document.createElement('div');
-                        errorMsg.className = 'error-message';
-                        errorMsg.textContent = 'Please select a report type';
-                        reportTypeGrid.parentNode.appendChild(errorMsg);
-                    }
-                }
-                
-                // Validate phone number in step 2
-                if (stepNumber === 2) {
-                    const contactField = document.getElementById('complainantContact');
-                    if (contactField && contactField.value) {
-                        const phoneRegex = /^09\d{9}$/;
-                        const cleanedNumber = contactField.value.replace(/\s/g, '');
-                        if (!phoneRegex.test(cleanedNumber)) {
-                            isValid = false;
-                            showFieldError(contactField, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
-                        }
+                        showFieldError(reportTypeGrid, 'Please select a report type');
                     }
                 }
                 
@@ -1000,10 +1147,7 @@
                     if (!confidentialitySelected) {
                         isValid = false;
                         const confidentialityOptions = document.querySelector('.confidentiality-options');
-                        const errorMsg = document.createElement('div');
-                        errorMsg.className = 'error-message';
-                        errorMsg.textContent = 'Please select a confidentiality preference';
-                        confidentialityOptions.parentNode.appendChild(errorMsg);
+                        showFieldError(confidentialityOptions, 'Please select a confidentiality preference');
                     }
                 }
                 
@@ -1012,11 +1156,23 @@
 
             function showFieldError(field, message) {
                 field.classList.add('error');
+                field.style.borderColor = '#ff4444';
+                field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
                 
+                // Add error message
                 const errorMessage = document.createElement('div');
                 errorMessage.className = 'error-message';
+                errorMessage.style.color = '#ff4444';
+                errorMessage.style.fontSize = '0.85rem';
+                errorMessage.style.marginTop = '5px';
                 errorMessage.textContent = message;
-                field.parentNode.appendChild(errorMessage);
+                
+                // Insert error message after the field or its container
+                if (field.classList.contains('report-type-grid') || field.classList.contains('confidentiality-options')) {
+                    field.parentNode.appendChild(errorMessage);
+                } else if (field.parentNode) {
+                    field.parentNode.appendChild(errorMessage);
+                }
             }
 
             function updateReview() {
@@ -1036,6 +1192,10 @@
                     <div class="review-item">
                         <div class="review-label">Location</div>
                         <div class="review-value">${document.getElementById('incidentLocation').value}</div>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-label">Description</div>
+                        <div class="review-value">${document.getElementById('incidentDescription').value.substring(0, 100)}${document.getElementById('incidentDescription').value.length > 100 ? '...' : ''}</div>
                     </div>
                 `;
 
@@ -1082,7 +1242,22 @@
                         <div class="review-label">Documents</div>
                         <div class="review-value">${docCount} file(s) uploaded</div>
                     </div>
+                    <div class="review-item">
+                        <div class="review-label">Confidentiality</div>
+                        <div class="review-value">${getConfidentialityText()}</div>
+                    </div>
                 `;
+            }
+
+            function getConfidentialityText() {
+                const selected = document.querySelector('input[name="confidentiality"]:checked');
+                if (!selected) return 'Not selected';
+                
+                const value = selected.value;
+                if (value === 'public') return 'Public Report';
+                if (value === 'confidential') return 'Confidential Report';
+                if (value === 'anonymous') return 'Anonymous Report';
+                return value;
             }
 
             function formatDate(dateString) {
@@ -1094,185 +1269,6 @@
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                });
-            }
-
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-
-            // Form submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                if (validateStep(3)) {
-                    if (declareTruth.checked && agreePrivacy.checked && consentProcessing.checked) {
-                        submitApplication();
-                    } else {
-                        alert('Please accept all terms and conditions to proceed.');
-                    }
-                }
-            });
-
-            function submitApplication() {
-                submitButton.classList.add('loading');
-                submitButton.disabled = true;
-                
-                // Simulate API call
-                setTimeout(() => {
-                    // Generate reference number
-                    const refNum = 'BL-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-                    referenceNumber.textContent = refNum;
-                    
-                    // Show success message
-                    form.style.display = 'none';
-                    statusMessage.style.display = 'block';
-                    
-                    // Scroll to status message
-                    statusMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Reset button state
-                    submitButton.classList.remove('loading');
-                    submitButton.disabled = false;
-                }, 2000);
-            }
-
-            // Print report button - similar to residency receipt
-            const printButton = document.getElementById('printReport');
-            if (printButton) {
-                printButton.addEventListener('click', function() {
-                    const complainantName = document.getElementById('complainantName').value;
-                    const referenceNum = document.getElementById('referenceNumber').textContent;
-                    const currentDate = new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                    
-                    // Create QR code data
-                    const qrData = `Reference: ${referenceNum}\nComplainant: ${complainantName}\nDate: ${currentDate}\nType: Blotter Report`;
-                    
-                    QRCode.toDataURL(qrData, { width: 150 })
-                        .then(qrDataUrl => {
-                            const printContent = `<!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Blotter Report Application Receipt</title>
-                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                                <style>
-                                    body { font-family: 'Poppins', Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #C62828; padding-bottom: 20px; }
-                                    .header h1 { color: #C62828; margin-bottom: 10px; font-size: 24px; }
-                                    .header .subtitle { color: #666; font-size: 14px; }
-                                    .details { margin: 30px 0; }
-                                    .detail-row { display: flex; margin: 10px 0; padding: 5px 0; border-bottom: 1px solid #eee; }
-                                    .detail-label { font-weight: bold; color: #333; width: 180px; }
-                                    .detail-value { color: #666; flex: 1; }
-                                    .instructions { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; }
-                                    .instructions h3 { color: #C62828; margin-bottom: 15px; }
-                                    .step { margin: 10px 0; padding-left: 20px; }
-                                    .important-note { background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0; font-size: 14px; }
-                                    .footer { text-align: center; margin-top: 40px; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
-                                    .qr-code { text-align: center; margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
-                                    .qr-code img { width: 150px; height: 150px; margin: 10px 0; border: 1px solid #eee; padding: 10px; background: white; }
-                                    .qr-code p { color: #C62828; font-weight: 600; margin-bottom: 10px; }
-                                    @media print { 
-                                        body { margin: 20px; font-size: 12px; }
-                                        .no-print { display: none !important; }
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <h1><i class="fas fa-clipboard-list"></i> Barangay Blotter Report Receipt</h1>
-                                    <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
-                                </div>
-                                
-                                <div class="details">
-                                    <h3>Report Details</h3>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Reference Number:</div>
-                                        <div class="detail-value"><strong>${referenceNum}</strong></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Complainant Name:</div>
-                                        <div class="detail-value">${complainantName}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Date Submitted:</div>
-                                        <div class="detail-value">${currentDate}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Status:</div>
-                                        <div class="detail-value"><span style="color: #C62828; font-weight: 600;">Submitted for Investigation</span></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="qr-code">
-                                    <p><i class="fas fa-qrcode"></i> Scan to Verify Report Status</p>
-                                    <img src="${qrDataUrl}" alt="QR Code for ${referenceNum}">
-                                    <p style="font-size: 12px; color: #666; margin-top: 10px;">Reference: ${referenceNum}</p>
-                                </div>
-                                
-                                <div class="instructions">
-                                    <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
-                                    <div class="step"><strong>1.</strong> Barangay will review your report (1-2 business days)</div>
-                                    <div class="step"><strong>2.</strong> You may be contacted for additional information</div>
-                                    <div class="step"><strong>3.</strong> Check your email/phone for updates</div>
-                                    <div class="step"><strong>4.</strong> Visit barangay hall if summoned for hearing</div>
-                                    
-                                    <div class="important-note">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Important Note:</strong> Keep this receipt for reference. Present it when following up on your report.
-                                    </div>
-                                    
-                                    <p><strong><i class="fas fa-map-marker-alt"></i> Barangay Hall Location:</strong><br>
-                                    1 M. Blas St, Malabon, Metro Manila<br>
-                                    <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
-                                    Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                    Saturday: 8:00 AM - 12:00 PM</p>
-                                </div>
-                                
-                                <div class="footer">
-                                    <p>This is an electronically generated receipt. No signature is required.</p>
-                                    <p>Barangay Hulong Duhat Online Services © ${new Date().getFullYear()}</p>
-                                </div>
-                                
-                                <div class="no-print" style="text-align: center; margin-top: 30px;">
-                                    <button onclick="window.print()" style="padding: 12px 25px; background: #C62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-print"></i> Print Receipt
-                                    </button>
-                                    <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-times"></i> Close Window
-                                    </button>
-                                </div>
-                            </body>
-                            </html>`;
-                            
-                            const printWindow = window.open('', '_blank', 'width=800,height=600');
-                            if (printWindow) {
-                                printWindow.document.write(printContent);
-                                printWindow.document.close();
-                            } else {
-                                alert('Please allow pop-ups to print the receipt');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error generating QR code:', error);
-                            alert('Error generating QR code. Please try again.');
-                        });
-                });
-            }
-
-            // Track button
-            const trackButton = document.querySelector('.btn-track');
-            if (trackButton) {
-                trackButton.addEventListener('click', function() {
-                    alert('Status tracking feature coming soon! Your report is currently being processed.');
                 });
             }
 

@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\Admin\ClearanceController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
@@ -15,8 +15,13 @@ use App\Http\Controllers\AResidentsController;
 use App\Http\Controllers\IncidentReportController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\BarangayClearanceController;
+use App\Http\Controllers\BlotterController;
+use App\Http\Controllers\IndigencyController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ResidencyApplicationController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -38,10 +43,7 @@ Route::get('/switch-language', function (Request $request) {
 // ------------------------------
 // Public routes
 // ------------------------------
-Route::get('/', function () {
-    App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.index');
-})->name('barangay_system.index');
+Route::get('/', [ResidentsController::class,'index'])->name('barangay_system.index');
 
 // ------------------------------
 // About pages
@@ -107,6 +109,28 @@ Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkE
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 
+//OTP
+Route::get('/verify-otp', function () {
+    return view('barangay_system.verify_otp');
+})->name('otp.form');
+
+Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])
+    ->name('otp.verify');
+
+Route::get('/email/verify', function () {
+    return view('barangay_system.verify_email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/login')->with('success', 'Email verified successfully!');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Verification link resent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
 // ------------------------------
 // Authenticated routes
 // ------------------------------
@@ -120,24 +144,38 @@ Route::middleware('auth')->group(function () {
     Route::get('/services', [RequestsController::class, 'service'])->name('barangay_system.services');
 
     Route::get('/indigency', function () { return view('barangay_system.certificate_indigency'); })->name('indigency');
-    Route::get('/indigency-form', function () { return view('barangay_system.indigency_form'); })->name('indigency_form');
-    Route::post('/indigency', [RequestsController::class, 'requestStore'])->name('indigency.req');
-
-    Route::get('/jobseek', function () { return view('barangay_system.job_seeker'); })->name('jobseek');
-    Route::post('/jobseek', [RequestsController::class, 'requestStore'])->name('job_seeker.req');
+    Route::get('/indigency/form', [IndigencyController::class, 'index'])->name('indigency.form');
+    Route::post('/indigency/store', [IndigencyController::class, 'store'])->name('indigency.store');
 
     Route::get('/residency', function () { return view('barangay_system.certificate_residency'); })->name('residency');
-    Route::get('/residency-form', function () { return view('barangay_system.residency_form'); })->name('residency_form');
-    Route::post('/residency-form', [RequestsController::class, 'requestStore'])->name('residency.req');
+    Route::get('/residency/form', [ResidencyApplicationController::class, 'index'])->name('residency.form');
+    Route::post('/residency/store', [ResidencyApplicationController::class, 'store'])->name('residency.store');
 
     Route::get('/clearance', function () { return view('barangay_system.clearance'); })->name('clearance');
-    Route::get('/clearance-form', function () { return view('barangay_system.clearance_form'); })->name('clearance_form');
-    Route::post('/clearance-form', [RequestsController::class, 'requestStore'])->name('clearance.req');
+    Route::get('/clearance/form', [BarangayClearanceController::class, 'index'])->name('clearance.form');
+    Route::post('/clearance/store', [BarangayClearanceController::class, 'store'])->name('clearance.store');
 
     // Route::get('/incident', [IncidentReportController::class, 'incident'])->name('incident');
     Route::get('/incident', function () { return view('barangay_system.incident'); })->name('incident');
-    Route::get('/incident-form', function () { return view('barangay_system.incident_form'); })->name('incident_form');
-    Route::post('/incident-form', [IncidentReportController::class, 'incidentStore'])->name('incident.add');
+    Route::get('/incident/form', [BlotterController::class, 'index'])->name('incident.form');
+    Route::post('/incident/store', [BlotterController::class, 'store'])->name('incident.store');
+
+    //Success
+    Route::get('/receipt/{service}/{reference}', function($service, $reference_number) {
+        $route = session('route');
+        $applicant_name = session('applicant_name');
+        $date_submitted = session('date_submitted');
+        $status = session('status');
+        $amount = session('amount');
+        return view('barangay_system.success_form.successform', compact('service', 'reference_number', 'route', 'applicant_name', 'date_submitted', 'status', 'amount'));
+    })->name('success');
+
+    Route::get('/receipt/Incident Report/{reference}', function($reference_number) {
+        $complaint_name = session('complaint_name');
+        $date_submitted = session('date_submitted');
+        $status = session('status');
+        return view('barangay_system.success_form.incident_success', compact('reference_number', 'complaint_name', 'date_submitted', 'status'));
+    })->name('incident_success');
 
     // ------------------------------
     // Admin pages

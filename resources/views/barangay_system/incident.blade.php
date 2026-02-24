@@ -701,7 +701,7 @@
                         </div>
                         <h3>File New Report</h3>
                         <p>Report incidents, disputes, or concerns in our community</p>
-                        <a href="{{ route('incident_form') }}" class="card-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                        <a href="{{ route('incident.form') }}" class="card-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
                             <i class="fas fa-plus-circle"></i> Start New Report
                         </a>
                     </div>
@@ -800,7 +800,7 @@
                 </div>
 
                 <div class="apply-button-container">
-                    <a href="{{ route('incident_form') }}" class="btn-apply-now">
+                    <a href="{{ route('incident.form') }}" class="btn-apply-now">
                         <i class="fas fa-clipboard-list"></i> File Blotter Report Now
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
