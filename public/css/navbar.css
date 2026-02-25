@@ -73,12 +73,14 @@
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.15);
     color: white !important;
+    border-radius: 100px;
 }
 
 .nav-link.active {
     background: rgba(255, 255, 255, 0.15);
     border-bottom: 3px solid white;
     padding-bottom: 5px !important;
+    border-radius: 100px;
 }
 
 /* =============== DROPDOWN MENU =============== */

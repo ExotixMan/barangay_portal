@@ -1,3 +1,7 @@
+body:not(.back-to-top-visible) .fab-container {
+    bottom: 30px;
+}
+
 /* Chat Modal Styles */
 .chat-modal {
     display: none;
@@ -84,7 +88,7 @@
 .fab-container {
     position: fixed;
     bottom: 90px;
-    right: 21px;
+    right: 20px;
     z-index: 1000;
     display: flex;
     flex-direction: column;

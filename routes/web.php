@@ -21,6 +21,7 @@ use App\Http\Controllers\IndigencyController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ResidencyApplicationController;
+use App\Http\Controllers\EventProjectController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Route::get('/', function () {
@@ -65,7 +66,7 @@ Route::get('/barangay-map', function () {
 
 Route::get('/barangay-officials', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.barangay_officials');
+    return view('barangay_system.officials');
 })->name('officials');
 
 // ------------------------------
@@ -75,10 +76,7 @@ Route::get('/barangay-officials', function () {
 Route::get('/announcements', [AnnouncementController::class,'index'])->name('announcements');
 Route::get('/announcements/{slug}', [AnnouncementController::class,'show'])->name('announcements.show');
 
-Route::get('/events-project', function () {
-    App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.events');
-})->name('events_project');
+Route::get('/events-project', [EventProjectController::class, 'index'])->name('events_project');
 
 // ------------------------------
 // Other pages
@@ -141,7 +139,7 @@ Route::middleware('auth')->group(function () {
     // ------------------------------
     // Services pages
     // ------------------------------
-    Route::get('/services', [RequestsController::class, 'service'])->name('barangay_system.services');
+    Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
     Route::get('/indigency', function () { return view('barangay_system.certificate_indigency'); })->name('indigency');
     Route::get('/indigency/form', [IndigencyController::class, 'index'])->name('indigency.form');

@@ -3,6 +3,19 @@ initBackToTop();
 initFloatingActionButton();
 initChatModal();
 
+const backToTopBtn = document.getElementById('backToTop');
+const body = document.body;
+
+window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+        backToTopBtn.classList.add('visible');
+        body.classList.add('back-to-top-visible');
+    } else {
+        backToTopBtn.classList.remove('visible');
+        body.classList.remove('back-to-top-visible');
+    }
+});
+
 function initBackToTop() {
     const backToTopBtn = document.querySelector('.back-to-top');
     

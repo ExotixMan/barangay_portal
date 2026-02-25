@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Services</title>
+    <title>Barangay Hulong Duhat - Events & Projects</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
     <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
-    
+
     <style>
         * { 
             margin: 0; 
@@ -62,13 +62,48 @@
             margin: 30px auto 50px;
         }
 
-        /* Services Overview Section */
-        .services-overview {
-            padding: 80px 0;
+        /* Filter Section */
+        .filter-section {
+            padding: 40px 0;
             background: #f8f9fa;
         }
 
-        .service-card {
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: #C62828;
+            color: #C62828;
+        }
+
+        .filter-btn.active {
+            background: #C62828;
+            border-color: #C62828;
+            color: white;
+        }
+
+        /* Upcoming Events Section */
+        .upcoming-events {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .event-card {
             background: white;
             border-radius: 20px;
             overflow: hidden;
@@ -78,109 +113,110 @@
             display: flex;
             flex-direction: column;
             border: 1px solid #f0f0f0;
+            position: relative;
         }
 
-        .service-card:hover {
+        .event-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 40px rgba(198, 40, 40, 0.15);
             border-color: #C62828;
         }
 
-        .service-icon {
+        .event-date-badge {
             background: linear-gradient(135deg, #C62828, #d32f2f);
-            padding: 40px;
+            color: white;
+            padding: 25px;
             text-align: center;
         }
 
-        .service-icon i {
-            font-size: 4rem;
-            color: white;
+        .event-date-badge .month {
+            display: block;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
         }
 
-        .service-content {
-            padding: 30px;
+        .event-date-badge .day {
+            display: block;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 5px 0;
+        }
+
+        .event-date-badge .year {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .event-content {
+            padding: 25px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .service-content h3 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 15px;
+        .event-category {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
             font-weight: 600;
+            margin-bottom: 15px;
+            width: fit-content;
         }
 
-        .service-content p {
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 20px;
+        .event-category.upcoming {
+            background: #E3F2FD;
+            color: #1976D2;
         }
 
-        .service-details {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        .event-category.ongoing {
+            background: #FFF3E0;
+            color: #F57C00;
         }
 
-        .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8f9fa;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .detail-item i {
-            color: #C62828;
-        }
-
-        .service-uses {
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            flex: 1;
-        }
-
-        .service-uses h4 {
-            font-size: 1rem;
+        .event-content h3 {
+            font-size: 1.3rem;
             color: #333;
             margin-bottom: 12px;
             font-weight: 600;
         }
 
-        .service-uses ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .event-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
         }
 
-        .service-uses li {
+        .event-details {
+            margin-bottom: 20px;
+        }
+
+        .event-details .detail {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 6px 0;
+            margin-bottom: 8px;
             color: #555;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
-        .service-uses li i {
-            color: #4CAF50;
-            font-size: 0.85rem;
+        .event-details .detail i {
+            color: #C62828;
+            width: 18px;
         }
 
-        .service-btn {
+        .event-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
-            padding: 14px 28px;
+            padding: 12px 24px;
             border-radius: 25px;
             text-decoration: none;
             font-weight: 600;
@@ -189,224 +225,258 @@
             margin-top: auto;
         }
 
-        .service-btn:hover {
+        .event-btn:hover {
             background: linear-gradient(135deg, #a02020, #C62828);
             color: white;
             transform: translateX(5px);
             box-shadow: 0 5px 20px rgba(198, 40, 40, 0.3);
         }
 
-        /* How It Works Section */
-        .how-it-works {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            margin-top: 50px;
-        }
-
-        .step-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 35px 25px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .step-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.12);
-            border-color: #C62828;
-            background: white;
-        }
-
-        .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #C62828;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .step-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .step-card h3 {
-            font-size: 1.2rem;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .step-card p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* Additional Services Section */
-        .additional-services {
+        /* Ongoing Projects Section */
+        .ongoing-projects {
             padding: 80px 0;
             background: #f8f9fa;
         }
 
-        .additional-card {
+        .project-card {
             background: white;
-            border-radius: 15px;
-            padding: 35px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             border: 1px solid #f0f0f0;
             height: 100%;
-            display: flex;
-            flex-direction: column;
         }
 
-        .additional-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.12);
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(198, 40, 40, 0.12);
             border-color: #C62828;
         }
 
-        .additional-card .card-icon {
+        .project-status {
+            padding: 15px 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .project-status.ongoing {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .project-status.completed {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            color: white;
+        }
+
+        .project-content {
+            padding: 25px;
+        }
+
+        .project-content h3 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .project-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-info {
+            margin-bottom: 25px;
+        }
+
+        .project-info .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .project-info .info-item i {
+            color: #C62828;
+            width: 20px;
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar-custom {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* Completed Projects Section */
+        .completed-projects {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .completed-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid #f0f0f0;
+        }
+
+        .completed-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.15);
+            border-color: #4CAF50;
+        }
+
+        .completed-icon {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
             color: white;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
 
-        .additional-card h3 {
+        .completed-card h3 {
             font-size: 1.3rem;
             color: #333;
             margin-bottom: 15px;
             font-weight: 600;
         }
 
-        .additional-card p {
+        .completed-card p {
             color: #666;
             line-height: 1.6;
             margin-bottom: 20px;
-            flex: 1;
         }
 
-        .card-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #C62828;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
+        .completed-info {
+            color: #4CAF50;
+            font-weight: 500;
         }
 
-        .card-link:hover {
-            color: #a02020;
-            gap: 12px;
+        .completed-info i {
+            margin-right: 5px;
         }
 
-        /* CTA Section */
-        .services-cta {
+        /* Past Events Timeline */
+        .past-events {
             padding: 80px 0;
-            background: linear-gradient(135deg, #C62828, #7a2323);
-            color: white;
-        }
-
-        .cta-content {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .cta-content h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .cta-content p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 40px;
-        }
-
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 35px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-        }
-
-        .cta-btn.primary {
-            background: white;
-            color: #C62828;
-        }
-
-        .cta-btn.primary:hover {
             background: #f8f9fa;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .cta-btn.secondary {
-            background: transparent;
+        .events-timeline {
+            max-width: 800px;
+            margin: 50px auto 0;
+            position: relative;
+        }
+
+        .events-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #C62828;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-date {
+            width: 100px;
+            min-width: 100px;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
-            border: 2px solid white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
-        .cta-btn.secondary:hover {
+        .timeline-date .month {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timeline-date .day {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .timeline-content {
             background: white;
-            color: #C62828;
-            transform: translateY(-3px);
+            padding: 25px;
+            border-radius: 15px;
+            flex: 1;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
         }
 
-        /* =========================================== */
-        /* RESPONSIVE STYLES */
-        /* =========================================== */
+        .timeline-content h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .timeline-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .attendees {
+            color: #C62828;
+            font-weight: 500;
+        }
+
+        .attendees i {
+            margin-right: 5px;
+        }
 
         /* Tablet */
         @media (max-width: 991.98px) {
@@ -414,31 +484,46 @@
                 font-size: 2rem;
             }
 
-            .steps-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 30px;
+            .filter-tabs {
+                gap: 10px;
             }
 
-            .service-icon {
-                padding: 30px;
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
             }
 
-            .service-icon i {
-                font-size: 3rem;
+            .events-timeline::before {
+                left: 40px;
             }
 
-            .cta-content h2 {
-                font-size: 2rem;
+            .timeline-date {
+                width: 80px;
+                min-width: 80px;
+                padding: 12px;
+            }
+
+            .timeline-date .day {
+                font-size: 1.5rem;
             }
         }
 
         /* Mobile */
         @media (max-width: 767.98px) {
-            .services-overview,
-            .how-it-works,
-            .additional-services,
-            .services-faq,
-            .services-cta {
+            .filter-tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+
+            .upcoming-events,
+            .ongoing-projects,
+            .completed-projects,
+            .past-events,
+            .events-cta {
                 padding: 50px 0;
             }
 
@@ -452,57 +537,68 @@
                 padding: 0 15px;
             }
 
-            .steps-container {
-                grid-template-columns: 1fr;
-                gap: 40px;
+            .event-date-badge {
+                padding: 20px;
             }
 
-            .step-card {
-                padding: 30px 20px;
+            .event-date-badge .day {
+                font-size: 2.5rem;
             }
 
-            .service-content {
-                padding: 25px 20px;
+            .event-content {
+                padding: 20px;
             }
 
-            .service-content h3 {
-                font-size: 1.3rem;
+            .event-content h3 {
+                font-size: 1.2rem;
             }
 
-            .service-details {
-                flex-direction: column;
-                gap: 10px;
+            .project-content {
+                padding: 20px;
             }
 
-            .detail-item {
-                justify-content: center;
+            .project-content h3 {
+                font-size: 1.2rem;
             }
 
-            .service-uses {
+            .progress-section {
                 padding: 15px;
             }
 
-            .additional-card {
+            .completed-card {
                 padding: 25px 20px;
             }
 
-            .cta-content h2 {
-                font-size: 1.7rem;
+            .events-timeline::before {
+                display: none;
             }
 
-            .cta-content p {
-                font-size: 1rem;
-            }
-
-            .cta-buttons {
+            .timeline-item {
                 flex-direction: column;
                 gap: 15px;
             }
 
-            .cta-btn {
+            .timeline-date {
                 width: 100%;
+                display: flex;
+                align-items: center;
                 justify-content: center;
-                padding: 14px 30px;
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .timeline-date .month,
+            .timeline-date .day {
+                display: inline;
+                font-size: 1.2rem;
+            }
+
+            .timeline-content {
+                padding: 20px;
+            }
+
+            .timeline-content h3 {
+                font-size: 1.1rem;
             }
         }
 
@@ -512,59 +608,18 @@
                 font-size: 1.5rem;
             }
 
-            .service-icon {
-                padding: 25px;
+            .event-date-badge .day {
+                font-size: 2rem;
             }
 
-            .service-icon i {
-                font-size: 2.5rem;
-            }
-
-            .service-content h3 {
-                font-size: 1.2rem;
-            }
-
-            .service-btn {
+            .event-btn {
                 width: 100%;
             }
 
-            .step-icon {
+            .completed-icon {
                 width: 60px;
                 height: 60px;
                 font-size: 1.5rem;
-            }
-
-            .additional-card .card-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-        }
-
-        .container {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-        
-        /* Ensure images and icons don't overflow */
-        img, svg, i {
-            max-width: 100%;
-        }
-        
-        /* Fix for mobile dropdowns */
-        @media (max-width: 991.98px) {
-            .dropdown-menu-custom {
-                background: rgba(255, 255, 255, 0.95);
-                border: none;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-            
-            .navbar-custom {
-                padding: 10px 0;
-            }
-            
-            .nav-logo-custom {
-                margin-left: 10px;
             }
         }
     </style>
@@ -610,7 +665,7 @@
                     </li>
                     
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
@@ -623,7 +678,7 @@
                     </li>
                     
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-users"></i> Community
                         </a>
                         <ul class="dropdown-menu">
@@ -708,24 +763,23 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="d-flex flex-column flex-sm-row"><i class="fas fa-concierge-bell bigicon"></i> <span>Barangay Services</span></h1>
-                <p>Access a wide range of barangay services online. Request documents, track applications, and get assistance without leaving your home.</p>
+                <h1><i class="fas fa-calendar-alt"></i> Events & Projects</h1>
+                <p>Stay updated with community events, ongoing projects, and upcoming activities in Barangay Hulong Duhat.</p>
                 <div class="hero-stats">
                     <div class="stat">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Multiple Document Types</span>
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Upcoming Events</span>
                     </div>
                     <div class="stat">
-                        <i class="fas fa-clock"></i>
-                        <span>Fast Processing</span>
+                        <i class="fas fa-tasks"></i>
+                        <span>Ongoing Projects</span>
                     </div>
                     <div class="stat">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Secure & Verified</span>
+                        <i class="fas fa-check-double"></i>
+                        <span>Completed Initiatives</span>
                     </div>
                 </div>
             </div>
@@ -734,253 +788,144 @@
 
     <!-- Main Content -->
     <main class="main-content" id="main-content">
-        <!-- Services Overview Section -->
-        <section class="services-overview">
+        <!-- Upcoming Events Section - row/grid already uses Bootstrap, ensure container -->
+        <section class="upcoming-events">
             <div class="container">
-                <h2 class="section-title">Our Services</h2>
-                <p class="section-subtitle">Choose from our available barangay services below. Each service can be requested online for your convenience.</p>
+                <h2 class="section-title">Upcoming Events</h2>
+                <p class="section-subtitle">Mark your calendars for these upcoming community activities.</p>
                 
                 <div class="row g-4">
-                    <!-- Barangay Clearance -->
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-certificate"></i>
-                            </div>
-                            <div class="service-content">
-                                <h3>Barangay Clearance</h3>
-                                <p>Official document certifying that you are a person of good moral character and have no pending case or derogatory record in the barangay.</p>
-                                <div class="service-details">
-                                    <div class="detail-item">
-                                        <i class="fas fa-peso-sign"></i>
-                                        <span>Fee: ₱100.00</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-clock"></i>
-                                        <span>1-3 Business Days</span>
-                                    </div>
+                    @forelse($upcomingEvents as $event)
+                        <div class="col-lg-4 col-md-6">
+                            <div class="event-card">
+                                <div class="event-date-badge">
+                                    <span class="month">{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
+                                    <span class="day">{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</span>
+                                    <span class="year">{{ \Carbon\Carbon::parse($event->event_date)->format('Y') }}</span>
                                 </div>
-                                <div class="service-uses">
-                                    <h4>Common Uses:</h4>
-                                    <ul>
-                                        <li><i class="fas fa-check"></i> Employment requirements</li>
-                                        <li><i class="fas fa-check"></i> Business permit applications</li>
-                                        <li><i class="fas fa-check"></i> NBI clearance processing</li>
-                                        <li><i class="fas fa-check"></i> Loan applications</li>
-                                    </ul>
+                                <div class="event-content">
+                                    <span class="event-category upcoming">Upcoming</span>
+                                    <h3>{{ $event->title }}</h3>
+                                    <p>{{ $event->description }}</p>
+                                    <div class="details">
+                                        <div class="detail">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>{{ $event->location }}</span>
+                                        </div>
+                                        <div class="detail">
+                                            <i class="fas fa-clock"></i>
+                                            <span>{{ $event->start_time }} - {{ $event->end_time }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="event-btn">
+                                        <i class="fas fa-info-circle"></i> View Details
+                                    </a>
                                 </div>
-                                <a href="barangay_clearance.html" class="service-btn">
-                                    <i class="fas fa-arrow-right"></i> Request Now
-                                </a>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Certificate of Residency -->
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-house-user"></i>
-                            </div>
-                            <div class="service-content">
-                                <h3>Certificate of Residency</h3>
-                                <p>Official proof that you are a bonafide resident of Barangay Hulong Duhat, required for various government and private transactions.</p>
-                                <div class="service-details">
-                                    <div class="detail-item">
-                                        <i class="fas fa-peso-sign"></i>
-                                        <span>Fee: ₱50.00</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-clock"></i>
-                                        <span>1-2 Business Days</span>
-                                    </div>
-                                </div>
-                                <div class="service-uses">
-                                    <h4>Common Uses:</h4>
-                                    <ul>
-                                        <li><i class="fas fa-check"></i> Passport applications</li>
-                                        <li><i class="fas fa-check"></i> School enrollment</li>
-                                        <li><i class="fas fa-check"></i> Government ID applications</li>
-                                        <li><i class="fas fa-check"></i> Voter registration</li>
-                                    </ul>
-                                </div>
-                                <a href="certificate_residency.html" class="service-btn">
-                                    <i class="fas fa-arrow-right"></i> Request Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Certificate of Indigency -->
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-hands-helping"></i>
-                            </div>
-                            <div class="service-content">
-                                <h3>Certificate of Indigency</h3>
-                                <p>Document certifying that a resident belongs to the indigent sector and may qualify for government assistance programs and discounts.</p>
-                                <div class="service-details">
-                                    <div class="detail-item">
-                                        <i class="fas fa-peso-sign"></i>
-                                        <span>Fee: FREE</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-clock"></i>
-                                        <span>1-2 Business Days</span>
-                                    </div>
-                                </div>
-                                <div class="service-uses">
-                                    <h4>Common Uses:</h4>
-                                    <ul>
-                                        <li><i class="fas fa-check"></i> Medical assistance</li>
-                                        <li><i class="fas fa-check"></i> Educational scholarships</li>
-                                        <li><i class="fas fa-check"></i> Burial assistance</li>
-                                        <li><i class="fas fa-check"></i> Government aid programs</li>
-                                    </ul>
-                                </div>
-                                <a href="certificate_indigency.html" class="service-btn">
-                                    <i class="fas fa-arrow-right"></i> Request Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    @empty
+                        <p class="text-center">No upcoming events available.</p>
+                    @endforelse
                 </div>
             </div>
         </section>
 
-        <!-- How It Works Section -->
-        <section class="how-it-works">
+        <!-- Ongoing Projects Section - Bootstrap row/grid already applied -->
+        <section class="ongoing-projects">
             <div class="container">
-                <h2 class="section-title">How It Works</h2>
-                <p class="section-subtitle">Follow these simple steps to request any barangay document online.</p>
-                
-                <div class="steps-container">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <h3>Create Account</h3>
-                        <p>Register for an account using your valid information</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete the online application form accurately</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">
-                            <i class="fas fa-upload"></i>
-                        </div>
-                        <h3>Submit Requirements</h3>
-                        <p>Upload necessary documents and submit your request</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon">
-                            <i class="fas fa-file-download"></i>
-                        </div>
-                        <h3>Claim Document</h3>
-                        <p>Pick up or receive your document once approved</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Additional Services Section -->
-        <section class="additional-services">
-            <div class="container">
-                <h2 class="section-title">Other Services</h2>
-                <p class="section-subtitle">Explore other services available at Barangay Hulong Duhat.</p>
+                <h2 class="section-title">Ongoing Projects</h2>
+                <p class="section-subtitle">Current initiatives being implemented for our community's development.</p>
                 
                 <div class="row g-4">
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="additional-card">
-                            <div class="card-icon">
-                                <i class="fas fa-clipboard-list"></i>
+                    @foreach($ongoingProjects as $project)
+                        <div class="col-lg-6">
+                            <div class="project-card">
+                                <div class="project-status ongoing">
+                                    <i class="fas fa-spinner fa-spin"></i> Ongoing
+                                </div>
+                                <div class="project-content">
+                                    <h3>{{ $project->title }}</h3>
+                                    <p>{{ $project->description }}</p>
+                                    <div class="project-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>{{ $project->start_date }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>Expected Completion: {{ $project->expected_completion }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Location: {{ $project->location }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-section">
+                                        <div class="progress-header">
+                                            <span>Progress</span>
+                                            <span>{{ $project->progress }}%</span>
+                                        </div>
+                                        <div class="progress-bar-custom">
+                                            <div class="progress-fill" style="width: {{ $project->progress }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3>Blotter Report</h3>
-                            <p>File complaints, report incidents, or document disputes for official record and mediation.</p>
-                            <a href="blotter_report.html" class="card-link">
-                                Learn More <i class="fas fa-arrow-right"></i>
-                            </a>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="additional-card">
-                            <div class="card-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h3>Track Request</h3>
-                            <p>Check the status of your document request using your reference number.</p>
-                            <a href="#" class="card-link">
-                                Learn More <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="additional-card">
-                            <div class="card-icon">
-                                <i class="fas fa-question-circle"></i>
-                            </div>
-                            <h3>Help & Support</h3>
-                            <p>Need assistance? Contact our office or visit us for personalized help.</p>
-                            <a href="homepage.html#contact" class="card-link">
-                                Contact Us <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </section>
 
-        <!-- FAQ Section -->
-        <section class="faq-section">
+        <!-- Completed Projects Section -->
+        <section class="completed-projects">
             <div class="container">
-                <h2 class="section-title">Frequently Asked Questions</h2>
+                <h2 class="section-title">Completed Projects</h2>
+                <p class="section-subtitle">Successfully completed initiatives that have benefited our community.</p>
                 
-                <div class="faq-container">
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What are the requirements for requesting documents?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Basic requirements include a valid ID, proof of residency (utility bill or voter's ID), and a completed application form. Specific requirements may vary per document type.</p>
+                <div class="row g-4">
+                    @foreach($completedProjects as $project)
+                        <div class="col-lg-4 col-md-6">
+                            <div class="completed-card">
+                                <div class="completed-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h3>{{ $project->title }}</h3>
+                                <p>{{ $project->description }}</p>
+                                <div class="completed-info">
+                                    <span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How long does it take to process my request?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Processing times vary: Barangay Clearance takes 1-3 business days, while Certificate of Residency and Indigency typically take 1-2 business days.</p>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+
+        <!-- Past Events Section -->
+        <section class="past-events">
+            <div class="container">
+                <h2 class="section-title">Past Events</h2>
+                <p class="section-subtitle">A look back at our recent community events and activities.</p>
+                
+                <div class="events-timeline">
+                    @foreach($pastEvents as $event)
+                        <div class="timeline-item">
+                            <div class="timeline-date">
+                                <span class="month">{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
+                                <span class="day">{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h3>{{ $event->title }}</h3>
+                                <p>{{ $event->description }}</p>
+                                @if($event->attendees)
+                                    <span class="attendees">
+                                        <i class="fas fa-users"></i> {{ $event->attendees }} Attendees
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Can I request documents for someone else?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes, you can request on behalf of immediate family members. You'll need to provide an authorization letter and valid IDs of both parties.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What payment methods are accepted?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>We accept cash payments at the barangay hall. Online payment options through GCash and bank transfer are also available for select services.</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </section>
@@ -1166,6 +1111,7 @@
         </div>
     </footer>
 
+  
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

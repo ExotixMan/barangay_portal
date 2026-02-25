@@ -969,6 +969,8 @@
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
                             <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
                             <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
@@ -1041,8 +1043,7 @@
                                     <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
                                             <i class="fas fa-sign-out-alt"></i> Logout
                                         </a>
                                     </li>
@@ -1439,7 +1440,7 @@
                                 <li><i class="fas fa-check-circle"></i> Digital payment options</li>
                                 <li><i class="fas fa-check-circle"></i> Appointment scheduling</li>
                             </ul>
-                            <a href="{{ route('barangay_system.services') }}" class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Request Services</a>
+                            <a href="{{ route('services') }}" class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Request Services</a>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -1539,7 +1540,7 @@
     </div>
 
     <!-- Back to Top Button -->
-    <button class="back-to-top" aria-label="Back to top">
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
         <i class="fas fa-chevron-up"></i>
     </button>
 
