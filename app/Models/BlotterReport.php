@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlotterReport extends Model
 {
+    use SoftDeletes;
+
+    protected $table = 'blotter_reports';
+
     protected $fillable = [
         'reference_number',
         'report_type',
@@ -26,9 +31,13 @@ class BlotterReport extends Model
         'additional_info'
     ];
 
+    protected $casts = [
+        'incident_date' => 'date',
+    ];
+
     public function witnesses()
     {
-        return $this->hasMany(Witness::class);
+        return $this->hasMany(Witness::class, 'blotter_report_id');
     }
 
     public function files()

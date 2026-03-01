@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Announcement;
+use App\Models\Event;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 
@@ -18,6 +19,11 @@ class IndexController extends Controller
             ->take(6)
             ->get();
 
-        return view('barangay_system.index', compact('announcements'));
+        $events = Event::whereDate('event_date', '>=', now())
+            ->orderBy('event_date', 'asc')
+            ->take(9)
+            ->get();
+
+        return view('barangay_system.index', compact('announcements', 'events'));
     }
 }

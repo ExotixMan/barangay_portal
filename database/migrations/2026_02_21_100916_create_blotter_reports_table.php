@@ -42,6 +42,8 @@ return new class extends Migration
             //status
             $table->string('status')->default('processing');
 
+            $table->softDeletes();
+
             $table->timestamps();
         });
     }

@@ -36,7 +36,7 @@ class BarangayClearanceController extends Controller
             $vip_ext = $vip->getClientOriginalExtension();
             $vip_name = time() . '.' . $vip_ext;
             $vip->move(public_path('uploads/valid_id/clearance'), $vip_name);
-            $data['valid_id_path'] = 'uploads/valid_id/clearance' . $vip_name;
+            $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vip_name;
         }
 
         // Generate Reference Number

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class IndigencyApplication extends Model
 {
+
+    protected $table = 'indigency_applications';
+
     protected $fillable = [
         'reference_number',
         'first_name',

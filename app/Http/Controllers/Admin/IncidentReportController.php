@@ -1,51 +1,61 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\BlotterReport;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use App\Models\IncidentReport;
 
 class IncidentReportController extends Controller
 {
-    public function incident(){
-        $user = Auth::user();
-
-        $reports = IncidentReport::where('resident_id', $user->id)->get();
-
-        return view('barangay_system.incident', compact('reports'));
-    }
-
-    public function incidentStore(Request $request)
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $query = BlotterReport::query();
 
-        $data = $request->validate([
-            "full_name" => "required|string|max:150",
-            "address" => "required|string",
-            "location" => "required|string",              
-            "date_of_incident" => "required|date_format:Y-m-d\TH:i",         
-            "contact_number" => "required|string|max:11",
-            "type_of_incident" => "string|max:255", 
-            "description" => "string|max:255",      
-            "proof_of_incident" => "nullable|file"
-        ]);
-
-        $data['resident_id'] = $user->id;
-
-        //Proof Evidence
-        if ($request->hasFile('proof_of_incident')){
-            $poi = $request->file('proof_of_incident');
-            $poi_ext = $poi->getClientOriginalExtension();
-            $poi_name = time() . '.' . $poi_ext;
-            $poi->move(public_path('uploads/evidences'), $poi_name);
-            $data['proof_of_incident'] = 'uploads/evidences/' . $poi_name;
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('reference_number', 'like', "%{$request->search}%")
+                  ->orWhere('complainant_name', 'like', "%{$request->search}%")
+                  ->orWhere('respondent_name', 'like', "%{$request->search}%");
+            });
         }
 
-        IncidentReport::create($data);
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
 
-        return redirect('/')->with('success', 'Reported successfully!');
+        $incidents = BlotterReport::with('witnesses')->latest()->paginate(10);
+
+
+        return view('admin.admin_incident_report', compact('incidents'));
     }
 
+    public function approve($id)
+    {
+        $blotter = BlotterReport::findOrFail($id);
+        $blotter->update(['status' => 'approved']);
+
+        return back()->with('success', 'Blotter approved.');
+    }
+
+    public function reject($id)
+    {
+        $blotter = BlotterReport::findOrFail($id);
+        $blotter->update(['status' => 'rejected']);
+
+        return back()->with('success', 'Blotter rejected.');
+    }
+
+    public function destroy($id)
+    {
+        BlotterReport::destroy($id);
+        return back()->with('success', 'Blotter deleted.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        BlotterReport::whereIn('id', $request->ids)->delete();
+
+        return back()->with('success', 'Selected records deleted.');
+    }
 }

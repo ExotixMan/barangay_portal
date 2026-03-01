@@ -1139,8 +1139,52 @@
         </div>
     </div>
 
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-modal-content">
+            <div class="chat-modal-header">
+                <div class="chat-modal-title">
+                    InfoHulo Assistant
+                </div>
+                <button class="chat-modal-close" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-modal-body">
+                <!-- Option 1: Iframe Method -->
+                <iframe
+                    id="chatIframe"
+                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
+                    frameborder="0"
+                    allow="clipboard-write"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button with Speed Dial -->
+    <div class="fab-container">
+        <div class="speed-dial" id="speedDial">
+            <button class="fab-action" id="translateBtn" title="Translate Text">
+                @if(app()->getLocale() == 'en')
+                    <span>Filipino</span>
+                @else
+                    <span>English</span>
+                @endif
+            </button>
+            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        </div>
+        <button class="fab-main" id="fabMain">
+            <i class="fas fa-gear"></i>
+        </button>
+    </div>
+
     <!-- BACK TO TOP BUTTON -->
-    <button class="back-to-top" aria-label="Back to top">
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
         <i class="fas fa-chevron-up"></i>
     </button>
 

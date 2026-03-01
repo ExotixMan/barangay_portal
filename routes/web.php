@@ -1,27 +1,37 @@
 <?php
 
-use App\Http\Controllers\Admin\ClearanceController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\ResidentsController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\RequestStatusController;
+use App\Http\Controllers\Admin\ResidentController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ResidencyController;
+use App\Http\Controllers\Admin\IndigencyController;
+use App\Http\Controllers\Admin\ClearanceController;
+use App\Http\Controllers\Admin\IncidentReportController;
+use App\Http\Controllers\Admin\WitnessController;
+use App\Http\Controllers\Admin\AAnnouncementController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\ProjectController;
+
+use App\Http\Controllers\Admin\RequestStatusController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\AIncidentReportsController;
-use App\Http\Controllers\AResidentsController;
-use App\Http\Controllers\IncidentReportController;
+use App\Http\Controllers\Admin\AResidentsController;
+// use App\Http\Controllers\IncidentReportController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\BarangayClearanceController;
 use App\Http\Controllers\BlotterController;
-use App\Http\Controllers\IndigencyController;
+use App\Http\Controllers\IndigencyApplicationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ResidencyApplicationController;
 use App\Http\Controllers\EventProjectController;
+use App\Http\Controllers\IndexController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Route::get('/', function () {
@@ -44,7 +54,7 @@ Route::get('/switch-language', function (Request $request) {
 // ------------------------------
 // Public routes
 // ------------------------------
-Route::get('/', [ResidentsController::class,'index'])->name('barangay_system.index');
+Route::get('/', [IndexController::class,'index'])->name('barangay_system.index');
 
 // ------------------------------
 // About pages
@@ -142,8 +152,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
     Route::get('/indigency', function () { return view('barangay_system.certificate_indigency'); })->name('indigency');
-    Route::get('/indigency/form', [IndigencyController::class, 'index'])->name('indigency.form');
-    Route::post('/indigency/store', [IndigencyController::class, 'store'])->name('indigency.store');
+    Route::get('/indigency/form', [IndigencyApplicationController::class, 'index'])->name('indigency.form');
+    Route::post('/indigency/store', [IndigencyApplicationController::class, 'store'])->name('indigency.store');
 
     Route::get('/residency', function () { return view('barangay_system.certificate_residency'); })->name('residency');
     Route::get('/residency/form', [ResidencyApplicationController::class, 'index'])->name('residency.form');
@@ -178,12 +188,82 @@ Route::middleware('auth')->group(function () {
     // ------------------------------
     // Admin pages
     // ------------------------------
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/api/forecast-requests', [DashboardController::class, 'forecastRequests']);
 
-    Route::post('/announcements-dashboard', [AnnouncementController::class, 'store']);
+    // Residents
+    Route::get('/admin/residents', [ResidentController::class, 'index'])->name('residents.index');
+    Route::post('/admin/residents', [ResidentController::class, 'store'])->name('residents.store');
+    Route::put('/admin/residents/{resident}', [ResidentController::class, 'update'])->name('residents.update');
+    Route::delete('/admin/residents/{resident}', [ResidentController::class, 'destroy'])->name('residents.destroy');
 
-    // Request Status
+    Route::post('/admin/residents/bulk-delete', [ResidentController::class, 'bulkDelete'])->name('residents.bulkDelete');
+    Route::post('/admin/residents/export', [ResidentController::class, 'export'])->name('residents.export');
+    Route::post('/admin/residents/{id}/restore', [ResidentController::class, 'restore'])->name('residents.restore');
+
+    //Residency
+    // Route::get('/admin/residency', function () {
+    //     return view('admin.admin_residency');
+    // })->name('residencyadmin');
+    Route::get('/admin/residency', [ResidencyController::class, 'index'])->name('residency.index');
+    Route::post('residency/{id}/approve', [ResidencyController::class, 'approve'])->name('residency.approve');
+    Route::post('residency/{id}/reject', [ResidencyController::class, 'reject'])->name('residency.reject');
+    Route::post('residency/bulk-delete', [ResidencyController::class, 'bulkDelete'])->name('residency.bulkDelete');
+    Route::delete('/admin/residency/{id}', [ResidencyController::class, 'destroy'])->name('residency.destroy');
+
+    //Indigency
+    Route::get('/admin/indigency', [IndigencyController::class, 'index'])->name('indigency.index');
+    Route::post('/admin/indigency/{id}/approve', [IndigencyController::class, 'approve'])->name('indigency.approve');
+    Route::post('/admin/indigency/{id}/reject', [IndigencyController::class, 'reject'])->name('indigency.reject');
+    Route::post('/admin/indigency/bulk-delete', [IndigencyController::class, 'bulkDelete'])->name('indigency.bulkDelete');
+    Route::delete('/admin/indigency/{id}', [IndigencyController::class, 'destroy'])->name('indigency.destroy');
+
+    //Barangay Clearance
+    Route::get('/admin/barangay-clearance', [ClearanceController::class, 'index'])->name('clearance.index');
+    Route::post('/admin/barangay-clearance/{id}/approve', [ClearanceController::class, 'approve'])->name('clearance.approve');
+    Route::post('/admin/barangay-clearance/{id}/reject', [ClearanceController::class, 'reject'])->name('clearance.reject');
+    Route::post('/admin/barangay-clearance/bulk-delete', [ClearanceController::class, 'bulkDelete'])->name('clearance.bulkDelete');
+    Route::delete('/admin/barangay-clearance/{id}', [ClearanceController::class, 'destroy'])->name('clearance.destroy');
+
+    //Incident Report
+    Route::get('/admin/blotter', [IncidentReportController::class, 'index'])->name('blotter.index');
+    Route::get('/admin/blotter/{id}', [IncidentReportController::class, 'show'])->name('blotter.show');
+    Route::post('/admin/blotter/{id}/approve', [IncidentReportController::class, 'approve'])->name('blotter.approve');
+    Route::post('/admin/blotter/{id}/reject', [IncidentReportController::class, 'reject'])->name('blotter.reject');
+    Route::post('/admin/blotter/bulk-delete', [IncidentReportController::class, 'bulkDelete'])->name('blotter.bulkDelete');
+    Route::delete('/admin/blotter/{id}', [IncidentReportController::class, 'destroy'])->name('blotter.destroy');
+
+    //Witness
+    Route::post('/admin/blotter/{id}/witness', [WitnessController::class, 'store'])->name('witness.store');
+    Route::delete('/admin/witness/{id}', [WitnessController::class, 'destroy'])->name('witness.destroy');
+
+    //Announcements
+    Route::get('/admin/announcements', [AAnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/admin/announcements/create', [AAnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/admin/announcements/store', [AAnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/admin/announcements/{id}/edit', [AAnnouncementController::class, 'edit'])->name('announcements.edit');
+    Route::put('/admin/announcements/{id}', [AAnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/admin/announcements/{id}', [AAnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    Route::post('/admin/announcements/bulk-delete', [AAnnouncementController::class, 'bulkDelete'])->name('announcements.bulkDelete');
+    Route::post('/announcements/{id}/toggle-feature', [AAnnouncementController::class, 'toggleFeature'])->name('announcements.toggle-feature');
+
+    //Events
+    Route::resource('/admin/events', EventController::class)->names([
+            'index' => 'events.index',
+            'destroy' => 'events.destroy'
+        ]);
+    Route::post('/admin/events/bulk-delete', [EventController::class, 'bulkDelete'])->name('events.bulkDelete');
+
+    //Projects
+    Route::resource('/admin/projects', ProjectController::class)->names([
+            'index' => 'projects.index',
+            'destroy' => 'projects.destroy'
+        ]);;
+    Route::post('/admin/projects/bulk-delete', [ProjectController::class, 'bulkDelete'])->name('projects.bulkDelete');
+
+    // Route::post('/announcements-dashboard', [AnnouncementController::class, 'store']);
+
+    //Request Status
     Route::get('/request-status', [RequestStatusController::class, 'index'])->name('request.index');
     Route::get('/request-view/{request_id}', [RequestStatusController::class, 'show'])->name('request.view');
     Route::get('/request-edit/{request_id}', [RequestStatusController::class, 'edit'])->name('request.edit');
@@ -196,21 +276,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [DocumentController::class, 'document'])->name('barangay_system.docu');
     Route::get('/generate-document', [DocumentController::class, 'generate'])->name('generate.document');
 
-    // Residents
-    Route::get('/residents', [AResidentsController::class, 'index'])->name('resident.index');
-    Route::get('/resident-view/{resident_id}', [AResidentsController::class, 'show'])->name('resident.view');
-    Route::get('/resident-edit/{resident_id}', [AResidentsController::class, 'edit'])->name('resident.edit');
-    Route::put('/resident-update/{resident_id}', [AResidentsController::class, 'update'])->name('resident.update');
-    Route::delete('/resident-delete/{resident_id}', [AResidentsController::class, 'destroy'])->name('resident.delete');
+    // Route::get('/residentss', [AResidentsController::class, 'index'])->name('resident.index');
+    // Route::get('/residents-view/{resident_id}', [AResidentsController::class, 'show'])->name('resident.view');
+    // Route::get('/residents-edit/{resident_id}', [AResidentsController::class, 'edit'])->name('resident.edit');
+    // Route::put('/residents-update/{resident_id}', [AResidentsController::class, 'update'])->name('resident.update');
+    // Route::delete('/residents-delete/{resident_id}', [AResidentsController::class, 'destroy'])->name('resident.delete');
 
     // Incident Reports
-    Route::get('/incident-reports', [AIncidentReportsController::class, 'index'])->name('incident.index');
-    Route::get('/incident-view/{incident_id}', [AIncidentReportsController::class, 'show'])->name('incident.view');
-    Route::get('/incident-edit/{incident_id}', [AIncidentReportsController::class, 'edit'])->name('incident.edit');
-    Route::put('/incident-update/{incident_id}', [AIncidentReportsController::class, 'update'])->name('incident.update');
-    Route::delete('/incident-delete/{incident_id}', [AIncidentReportsController::class, 'destroy'])->name('incident.delete');
-    Route::post('/incident/send-email', [AIncidentReportsController::class, 'sendEmail'])->name('incident.sendEmail');
-    Route::post('/incident/send-sms', [AIncidentReportsController::class, 'sendSMS'])->name('incident.sendSMS');
+    // Route::get('/incident-reports', [AIncidentReportsController::class, 'index'])->name('incident.index');
+    // Route::get('/incident-view/{incident_id}', [AIncidentReportsController::class, 'show'])->name('incident.view');
+    // Route::get('/incident-edit/{incident_id}', [AIncidentReportsController::class, 'edit'])->name('incident.edit');
+    // Route::put('/incident-update/{incident_id}', [AIncidentReportsController::class, 'update'])->name('incident.update');
+    // Route::delete('/incident-delete/{incident_id}', [AIncidentReportsController::class, 'destroy'])->name('incident.delete');
+    // Route::post('/incident/send-email', [AIncidentReportsController::class, 'sendEmail'])->name('incident.sendEmail');
+    // Route::post('/incident/send-sms', [AIncidentReportsController::class, 'sendSMS'])->name('incident.sendSMS');
 
 
     Route::get('/switch-language', [LanguageController::class, 'change'])->name('switch.language');

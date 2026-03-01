@@ -43,7 +43,7 @@ class ResidencyApplicationController extends Controller
             $prip_ext = $prip->getClientOriginalExtension();
             $prip_name = time() . '.' . $prip_ext;
             $prip->move(public_path('uploads/proof_of_residency'), $prip_name);
-            $data['primary_proof'] = 'uploads/proof_of_residency' . $prip_name;
+            $data['primary_proof'] = 'uploads/proof_of_residency/' . $prip_name;
         }
 
         //Government ID
@@ -52,7 +52,7 @@ class ResidencyApplicationController extends Controller
             $gip_ext = $gip->getClientOriginalExtension();
             $gip_name = time() . '.' . $gip_ext;
             $gip->move(public_path('uploads/valid_id/residency'), $gip_name);
-            $data['government_id'] = 'uploads/valid_id/residency' . $gip_name;
+            $data['government_id'] = 'uploads/valid_id/residency/' . $gip_name;
         }
 
         // Generate reference number

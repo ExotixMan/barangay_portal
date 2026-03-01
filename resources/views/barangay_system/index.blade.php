@@ -1230,145 +1230,80 @@
                         <div class="events-card card-hover">
                             <div class="card-header d-flex justify-content-between align-items-center mb-4">
                                 <h2 class="m-0 ann"><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
-                                <div class="events-counter">9+ Events</div>
+                                <div class="events-counter">{{ $events->count() ?? 0 }}+ Events</div>
                             </div>
                             
                             <!-- Events Carousel with fixed height -->
                             <div id="eventsCarousel" class="carousel slide events-carousel" data-bs-ride="carousel">
                                 <div class="carousel-inner">
-                                    <!-- Page 1 -->
-                                    <div class="carousel-item active">
-                                        <div class="events-grid">
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">09</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Distribution of Ayuda</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 10:30 am - 6:00pm</p>
-                                                    <span class="event-status ongoing">Ongoing</span>
-                                                </div>
-                                            </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">15</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Community Assembly</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Covered Court</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 9:00 am - 12:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">20</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Clean-up Drive</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hulo</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 7:00 am - 11:00am</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Page 2 -->
-                                    <div class="carousel-item">
-                                        <div class="events-grid">
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">22</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Health & Wellness Seminar</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Health Center</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 12:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
+                                    @isset($events)
+                                        @forelse($events->chunk(3) as $chunkIndex => $eventChunk)
+                                            <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
+                                                <div class="events-grid">
+
+                                                    @foreach($eventChunk as $event)
+                                                        <div class="event-item">
+                                                            <div class="event-date">
+                                                                <span class="month">
+                                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M') }}
+                                                                </span>
+                                                                <span class="day">
+                                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('d') }}
+                                                                </span>
+                                                            </div>
+
+                                                            <div class="event-details">
+                                                                <h3>{{ $event->title }}</h3>
+
+                                                                <p class="event-location">
+                                                                    <i class="fas fa-map-marker-alt"></i>
+                                                                    {{ $event->location }}
+                                                                </p>
+
+                                                                <p class="event-time">
+                                                                    <i class="fas fa-clock"></i>
+                                                                    {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}
+                                                                    -
+                                                                    {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}
+                                                                </p>
+
+                                                                @php
+                                                                    $status = \Carbon\Carbon::parse($event->event_date)->isToday()
+                                                                        ? 'ongoing'
+                                                                        : 'upcoming';
+                                                                @endphp
+
+                                                                <span class="event-status {{ $status }}">
+                                                                    {{ ucfirst($status) }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+
                                                 </div>
                                             </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">25</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Youth Sports Festival</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Sports Complex</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 5:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
+                                        @empty
+                                            <div class="carousel-item active">
+                                                <div class="events-grid">
+                                                    <p class="text-center">No upcoming events available.</p>
                                                 </div>
                                             </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">July</span>
-                                                    <span class="day">28</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Senior Citizens Day</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 9:00 am - 3:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Page 3 -->
-                                    <div class="carousel-item">
-                                        <div class="events-grid">
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">Aug</span>
-                                                    <span class="day">01</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Blood Letting Activity</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Hall</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 8:00 am - 5:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">Aug</span>
-                                                    <span class="day">05</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Disaster Preparedness Drill</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Barangay Plaza</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 7:00 am - 11:00am</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                            <div class="event-item">
-                                                <div class="event-date">
-                                                    <span class="month">Aug</span>
-                                                    <span class="day">10</span>
-                                                </div>
-                                                <div class="event-details">
-                                                    <h3>Parents-Teachers Meeting</h3>
-                                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> Elementary School</p>
-                                                    <p class="event-time"><i class="fas fa-clock"></i> 2:00 pm - 5:00pm</p>
-                                                    <span class="event-status upcoming">Upcoming</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @endforelse
+                                    @endisset
                                 </div>
                                 
                                 <!-- Carousel Controls -->
                                 <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
                                     <div class="dots">
-                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
-                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
-                                        <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                        @isset($events)
+                                            @for($i = 0; $i < ceil(count($events) / 3); $i++)
+                                                <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="{{ $i }}" class="dot {{ $i == 0 ? 'active' : '' }}" aria-label="Page {{ $i + 1 }}"></button>
+                                            @endfor
+                                        @else
+                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
+                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
+                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
+                                        @endisset
                                     </div>
                                     <div class="d-flex gap-2">
                                         <button class="arrow-btn" type="button" data-bs-target="#eventsCarousel" data-bs-slide="prev">

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\IndigencyApplication;
 use Illuminate\Support\Str;
 
-class IndigencyController extends Controller
+class IndigencyApplicationController extends Controller
 {
     public function index()
     {
@@ -38,7 +38,7 @@ class IndigencyController extends Controller
             $vip_ext = $vip->getClientOriginalExtension();
             $vip_name = time() . '.' . $vip_ext;
             $vip->move(public_path('uploads/valid_id/indigency'), $vip_name);
-            $data['valid_id_path'] = 'uploads/valid_id/indigency' . $vip_name;
+            $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vip_name;
         }
 
         // Generate reference number

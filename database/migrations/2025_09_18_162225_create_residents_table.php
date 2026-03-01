@@ -21,6 +21,12 @@ return new class extends Migration
             $table->string('contact', 11);
             $table->string('username')->unique();
             $table->string('password');
+            $table->string('remember_token')->nullable();
+            $table->timestamp('email_verified_at');
+            $table->boolean('phone_verified')->default(false);
+            $table->string('phone_otp')->nullable();
+            $table->timestamp('phone_otp_expires_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

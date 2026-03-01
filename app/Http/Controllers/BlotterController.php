@@ -124,7 +124,7 @@ class BlotterController extends Controller
             ReportFile::create([
                 'blotter_report_id' => $report->id,
                 'file_type' => 'photo',
-                'file_path' => 'uploads/evidences/photos' . $name,
+                'file_path' => 'uploads/evidences/photos/' . $name,
             ]);
         }
 

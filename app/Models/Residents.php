@@ -6,10 +6,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, MustVerifyEmailTrait;
+    use Notifiable, MustVerifyEmailTrait, SoftDeletes; 
 
     protected $table = 'residents';
     protected $primaryKey = 'id';
@@ -34,6 +36,25 @@ class Residents extends Authenticatable implements MustVerifyEmail
         'phone_otp_expires_at' => 'datetime',
         'email_verified_at' => 'datetime',
     ];
+
+    public function getFullNameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function getAgeAttribute()
+    {
+        if (!$this->birthdate) {
+            return null;
+        }
+
+        return Carbon::parse($this->birthdate)->age;
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(ResidentActivity::class);
+    }
 
     protected $hidden = [
         'password',

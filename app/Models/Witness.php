@@ -12,4 +12,9 @@ class Witness extends Model
         'contact',
         'statement'
     ];
+
+    public function blotter()
+    {
+        return $this->belongsTo(BlotterReport::class, 'blotter_report_id');
+    }
 }
