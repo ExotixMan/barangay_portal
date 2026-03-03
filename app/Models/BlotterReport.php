@@ -28,7 +28,8 @@ class BlotterReport extends Model
         'respondent_address',
         'respondent_description',
         'confidentiality',
-        'additional_info'
+        'additional_info',
+        'status'
     ];
 
     protected $casts = [

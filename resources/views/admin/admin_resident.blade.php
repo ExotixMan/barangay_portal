@@ -789,26 +789,26 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Bulk Actions -->
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('residents.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
-
-                            <form id="exportForm" method="POST" action="{{ route('residents.export') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
-                                    <i class="fas fa-file-csv"></i>
-                                    <span class="d-none d-sm-inline">Export</span>
-                                </button>
-                            </form>
-                        </div>
                     </form>
+
+                    <!-- Bulk Actions -->
+                    <div class="mt-3 d-flex gap-2 justify-content-end">
+                        <form id="bulkForm" method="POST" action="{{ route('residents.bulkDelete') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
+                        </form>
+
+                        <form id="exportForm" method="POST" action="{{ route('residents.export') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
+                                <i class="fas fa-file-csv"></i>
+                                <span class="d-none d-sm-inline">Export</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -867,7 +867,7 @@
                                 @forelse($residents as $resident)
                                 <tr class="{{ $resident->deleted_at ? 'table-danger' : '' }}">
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $resident->id }}" form="bulkForm" class="resident-checkbox">
+                                        <input type="checkbox" value="{{ $resident->id }}" class="resident-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
@@ -1141,7 +1141,7 @@
             </div>
             @endforeach
 
-            <!-- Edit Resident Modals with Validation -->
+           <!-- Edit Resident Modals with Validation -->
             @foreach($residents as $resident)
             <div class="modal fade" id="editResidentModal{{ $resident->id }}" tabindex="-1" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1166,6 +1166,7 @@
                                         <input type="text"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') is-invalid @enderror @endif"
                                             name="firstname"
+                                            id="edit_firstname_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('firstname', $resident->firstname) : $resident->firstname }}"
                                             required>
                                         @if(session('form_type') == 'edit_' . $resident->id)
@@ -1180,6 +1181,7 @@
                                         <input type="text"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif"
                                             name="lastname"
+                                            id="edit_lastname_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('lastname', $resident->lastname) : $resident->lastname }}"
                                             required>
                                         @if(session('form_type') == 'edit_' . $resident->id)
@@ -1194,6 +1196,7 @@
                                         <input type="text"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('username') is-invalid @enderror @endif"
                                             name="username"
+                                            id="edit_username_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('username', $resident->username) : $resident->username }}"
                                             required>
                                         @if(session('form_type') == 'edit_' . $resident->id)
@@ -1208,6 +1211,7 @@
                                         <input type="email"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('email') is-invalid @enderror @endif"
                                             name="email"
+                                            id="edit_email_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('email', $resident->email) : $resident->email }}"
                                             required>
                                         @if(session('form_type') == 'edit_' . $resident->id)
@@ -1222,9 +1226,11 @@
                                         <input type="text"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('contact') is-invalid @enderror @endif"
                                             name="contact"
+                                            id="edit_contact_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('contact', $resident->contact) : $resident->contact }}"
                                             required
                                             maxlength="11">
+                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
                                         @if(session('form_type') == 'edit_' . $resident->id)
                                             @error('contact')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1237,6 +1243,7 @@
                                         <input type="date"
                                             class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif"
                                             name="birthdate"
+                                            id="edit_birthdate_{{ $resident->id }}"
                                             value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}"
                                             required
                                             max="{{ date('Y-m-d') }}">
@@ -1251,6 +1258,7 @@
                                         <label class="form-label">Complete Address <span class="text-danger">*</span></label>
                                         <textarea class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('address') is-invalid @enderror @endif"
                                                 name="address"
+                                                id="edit_address_{{ $resident->id }}"
                                                 rows="2"
                                                 required>{{ session('form_type') == 'edit_' . $resident->id ? old('address', $resident->address) : $resident->address }}</textarea>
                                         @if(session('form_type') == 'edit_' . $resident->id)
@@ -1269,7 +1277,7 @@
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
 
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
                                     <i class="fas fa-save me-2"></i>Update Resident
                                 </button>
                             </div>
@@ -1429,52 +1437,103 @@
     <script>
         // Bulk delete function
         function bulkDelete() {
-            const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
+
+            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
+
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one resident to delete.',
+                    text: 'Please select at least one application to delete.',
                     confirmButtonColor: '#d33'
                 });
+
                 return;
             }
-            
+
+            // SweetAlert Confirmation
             Swal.fire({
                 title: 'Confirm Bulk Delete',
-                text: `Are you sure you want to delete ${checkboxes.length} resident(s)?`,
+                text: `Are you sure you want to delete ${checkboxes.length} selected application(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete them!'
+                confirmButtonText: 'Yes, Delete'
             }).then((result) => {
+
                 if (result.isConfirmed) {
-                    document.getElementById('bulkForm').submit();
+
+                    // Attach selected IDs
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+
+                    bulkForm.submit();
                 }
+
             });
         }
 
         // Export CSV function
         function exportCSV() {
-            const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
+
+            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const exportForm = document.getElementById('exportForm');
+
+            // If nothing selected → Ask to export all
             if (checkboxes.length === 0) {
+
                 Swal.fire({
-                    icon: 'info',
+                    icon: 'question',
                     title: 'Export All?',
-                    text: 'No residents selected. Export all residents?',
+                    text: 'No applications selected. Export all records?',
                     showCancelButton: true,
                     confirmButtonColor: '#28a745',
                     cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, export all'
+                    confirmButtonText: 'Yes, Export All'
                 }).then((result) => {
+
                     if (result.isConfirmed) {
-                        document.getElementById('exportForm').submit();
+                        exportForm.submit();
                     }
+
                 });
-            } else {
-                document.getElementById('exportForm').submit();
+
+                return;
             }
+
+            // If selected → Confirm export selected
+            Swal.fire({
+                title: 'Export Selected?',
+                text: `Export ${checkboxes.length} selected application(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Export'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        exportForm.appendChild(input);
+                    });
+
+                    exportForm.submit();
+                }
+
+            });
         }
 
         // Select all checkboxes
@@ -1617,7 +1676,12 @@
                         if (this.value.length > 0 && !this.value.startsWith('09')) {
                             this.setCustomValidity('Contact number must start with 09');
                             this.classList.add('is-invalid');
-                        } else {
+                        }
+                        else if (this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                        }
+                        else {
                             this.setCustomValidity('');
                             this.classList.remove('is-invalid');
                         }
@@ -1641,6 +1705,152 @@
                 }
             }
         });
+        // Real-time validation for edit forms
+        @foreach($residents as $resident)
+        (function(editFormId) {
+            const editForm = document.getElementById('editResidentForm' + editFormId);
+            if (editForm) {
+                // Contact number validation
+                const contact = document.getElementById('edit_contact_' + editFormId);
+                if (contact) {
+                    contact.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 11) {
+                            this.value = this.value.slice(0, 11);
+                        }
+                        if (this.value.length > 0 && !this.value.startsWith('09')) {
+                            this.setCustomValidity('Contact number must start with 09');
+                            this.classList.add('is-invalid');
+                        }
+                        else if (this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                        } 
+                        else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Birthdate validation
+                const birthdate = document.getElementById('edit_birthdate_' + editFormId);
+                if (birthdate) {
+                    birthdate.addEventListener('change', function() {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            this.setCustomValidity('Birthdate cannot be in the future');
+                            this.classList.add('is-invalid');
+                            
+                            // Create or update feedback message
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Birthdate cannot be in the future';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Email format validation
+                const email = document.getElementById('edit_email_' + editFormId);
+                if (email) {
+                    email.addEventListener('input', function() {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailPattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Please enter a valid email address');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Please enter a valid email address';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Username validation (no special characters except underscore)
+                const username = document.getElementById('edit_username_' + editFormId);
+                if (username) {
+                    username.addEventListener('input', function() {
+                        const usernamePattern = /^[a-zA-Z0-9_]+$/;
+                        if (!usernamePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Username can only contain letters, numbers, and underscores');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Username can only contain letters, numbers, and underscores';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Name validation (no numbers or special characters)
+                const firstname = document.getElementById('edit_firstname_' + editFormId);
+                if (firstname) {
+                    firstname.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                const lastname = document.getElementById('edit_lastname_' + editFormId);
+                if (lastname) {
+                    lastname.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            }
+        })('{{ $resident->id }}');
+        @endforeach
     </script>
 
     <!-- SweetAlert2 for better alerts -->

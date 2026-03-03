@@ -14,7 +14,13 @@ class Event extends Model
         'end_time',
         'location',
         'type',
-        'attendees'
+        'attendees',
+        'image'
+    ];
+
+    protected $casts = [
+        'event_date' => 'date',
+        'attendees' => 'integer'
     ];
 
     protected $dates = ['event_date'];

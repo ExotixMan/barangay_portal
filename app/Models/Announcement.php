@@ -19,6 +19,12 @@ class Announcement extends Model
         'status',
     ];
 
+    protected $casts = [
+        'is_featured' => 'boolean',
+        'published_at' => 'datetime',
+        'views' => 'integer'
+    ];
+
     protected static function boot()
     {
         parent::boot();

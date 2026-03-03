@@ -26,11 +26,7 @@
             --warning-light: #fff4e5;
             --info: #0288d1;
             --info-light: #e5f4ff;
-            --secondary: #6c757d;
-            --secondary-light: #f8f9fa;
             --gray-bg: #f8f9fa;
-            --sidebar-width: 280px;
-            --sidebar-collapsed-width: 80px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
             --border-color: #e9ecef;
@@ -47,6 +43,47 @@
             background: var(--gray-bg);
             color: #1e293b;
             overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
         }
 
         /* Stats Cards */
@@ -110,25 +147,6 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
@@ -138,12 +156,12 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1000px;
+            min-width: 1200px;
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 900px;
+                min-width: 1000px;
             }
         }
 
@@ -183,7 +201,7 @@
         }
 
         .badge.bg-secondary-subtle {
-            background: var(--secondary-light) !important;
+            background: #f8f9fa !important;
             color: var(--secondary);
         }
 
@@ -335,6 +353,8 @@
 
         .modal-body {
             padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-footer {
@@ -548,6 +568,100 @@
             }
         }
 
+        /* File Upload Styling */
+        .form-control[type="file"] {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            margin-right: 1rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+        }
+
         /* Attendees Badge */
         .attendees-badge {
             background: var(--info-light);
@@ -666,13 +780,42 @@
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
 
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any() && !session('form_type'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $events->total() ?? 0 }}</div>
+                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
                             <small class="text-success mt-2 d-none d-sm-block">
                                 <i class="fas fa-calendar me-1"></i>All events
                             </small>
@@ -738,8 +881,8 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
-                                    <a href="{{ route('events.create') }}" class="btn btn-danger flex-fill flex-md-grow-0">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add</span>
+                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Event</span>
                                     </a>
                                     <a href="{{ route('events.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
@@ -755,7 +898,7 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by event title..." value="{{ request('search') }}">
+                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by event title, description, location..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -763,17 +906,17 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <select name="type" class="form-select">
-                                    <option value="">Type</option>
+                                    <option value="">All Types</option>
                                     <option value="upcoming" {{ request('type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
                                     <option value="past" {{ request('type') == 'past' ? 'selected' : '' }}>Past</option>
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-2">
+                            <div class="col-6 col-md-3">
                                 <select name="month" class="form-select">
-                                    <option value="">Month</option>
+                                    <option value="">All Months</option>
                                     <option value="01" {{ request('month') == '01' ? 'selected' : '' }}>January</option>
                                     <option value="02" {{ request('month') == '02' ? 'selected' : '' }}>February</option>
                                     <option value="03" {{ request('month') == '03' ? 'selected' : '' }}>March</option>
@@ -805,14 +948,6 @@
                                     <span class="d-none d-sm-inline">Bulk Delete</span>
                                 </button>
                             </form>
-
-                            {{-- <form id="exportForm" method="POST" action="{{ route('events.export') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
-                                    <i class="fas fa-file-csv"></i>
-                                    <span class="d-none d-sm-inline">Export</span>
-                                </button>
-                            </form> --}}
                         </div>
                     </form>
                 </div>
@@ -825,15 +960,65 @@
                         <table class="table align-middle mb-0" id="eventsTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40" class="ps-4">
+                                    <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">Title</th>
-                                    <th class="d-none d-md-table-cell">Date</th>
+                                    <th class="ps-0">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Title
+                                            @if(request('sort') == 'title')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-md-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'event_date', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Date
+                                            @if(request('sort') == 'event_date')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="d-none d-lg-table-cell">Time</th>
-                                    <th>Location</th>
-                                    <th class="d-none d-md-table-cell">Attendees</th>
-                                    <th>Type</th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'location', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Location
+                                            @if(request('sort') == 'location')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-md-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'attendees', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Attendees
+                                            @if(request('sort') == 'attendees')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'type', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Type
+                                            @if(request('sort') == 'type')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -842,12 +1027,16 @@
                                 @forelse($events as $event)
                                 <tr>
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $event->id }}" form="bulkForm" class="event-checkbox">
+                                        <input type="checkbox" value="{{ $event->id }}" class="event-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
                                             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-calendar-alt text-primary"></i>
+                                                @if($event->image)
+                                                    <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                                                @else
+                                                    <i class="fas fa-calendar-alt text-primary"></i>
+                                                @endif
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">{{ Str::limit($event->title, 30) }}</div>
@@ -885,26 +1074,29 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (Optional) -->
-                                            <a href="{{ route('events.show', $event->id) }}" class="btn btn-sm btn-outline-info d-none d-sm-inline-block" title="View">
+                                            <!-- View -->
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $event->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
-                                            </a>
-
-                                            <!-- Edit -->
-                                            <a href="{{ route('events.edit', $event->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            <!-- Duplicate (Optional) -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-block" onclick="duplicateEvent({{ $event->id }})" title="Duplicate">
-                                                <i class="fas fa-copy"></i>
                                             </button>
 
+                                            <!-- Edit -->
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}" title="Edit Event">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <!-- Duplicate -->
+                                            <form method="POST" action="{{ route('events.duplicate', $event->id) }}" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Duplicate" onclick="return confirm('Duplicate this event?')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </form>
+
                                             <!-- Delete -->
-                                            <form method="POST" action="{{ route('events.destroy', $event->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this event permanently?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this event?')" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -918,9 +1110,9 @@
                                             <i class="fas fa-calendar fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No events found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            <a href="{{ route('events.create') }}" class="btn btn-primary btn-sm">
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
                                                 <i class="fas fa-plus me-2"></i>Add New Event
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -945,8 +1137,302 @@
                 </div>
             </div>
 
-            <!-- Quick View Modal (Optional) -->
-            <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+            <!-- Add Event Modal with Validation -->
+            <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                New Event
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data" id="addEventForm">
+                            @csrf
+                            <input type="hidden" name="form_type" value="add">
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Event Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif" 
+                                                  name="description" rows="4" placeholder="Write event description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
+                                        @if(session('form_type') == 'add')
+                                            @error('description')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Date and Time -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Event Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('event_date') is-invalid @enderror @endif" 
+                                               name="event_date" value="{{ session('form_type') == 'add' ? old('event_date') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('event_date')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Start Time</label>
+                                        <input type="time" class="form-control @if(session('form_type') == 'add') @error('start_time') is-invalid @enderror @endif" 
+                                               name="start_time" value="{{ session('form_type') == 'add' ? old('start_time') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('start_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">End Time</label>
+                                        <input type="time" class="form-control @if(session('form_type') == 'add') @error('end_time') is-invalid @enderror @endif" 
+                                               name="end_time" value="{{ session('form_type') == 'add' ? old('end_time') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('end_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Location <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif" 
+                                               name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="Venue or address" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('location')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Attendees</label>
+                                        <input type="number" class="form-control @if(session('form_type') == 'add') @error('attendees') is-invalid @enderror @endif" 
+                                               name="attendees" value="{{ session('form_type') == 'add' ? old('attendees', 0) : 0 }}" min="0">
+                                        @if(session('form_type') == 'add')
+                                            @error('attendees')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Event Type <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('type') is-invalid @enderror @endif" 
+                                                name="type" required>
+                                            <option value="">Select type</option>
+                                            <option value="upcoming" {{ (session('form_type') == 'add' && old('type') == 'upcoming') ? 'selected' : '' }}>Upcoming</option>
+                                            <option value="past" {{ (session('form_type') == 'add' && old('type') == 'past') ? 'selected' : '' }}>Past</option>
+                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('type')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Image -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Event Image</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Event Banner/Image</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif" 
+                                               name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('image')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                        <div id="addImagePreview" class="mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                    <i class="fas fa-save me-2"></i>Save Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Event Modals with Validation -->
+            @foreach($events as $event)
+            <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>
+                                Edit Event
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Event Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'edit_' . $event->id ? old('title', $event->title) : $event->title }}" required>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('description') is-invalid @enderror @endif" 
+                                                  name="description" rows="4" required>{{ session('form_type') == 'edit_' . $event->id ? old('description', $event->description) : $event->description }}</textarea>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('description')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Date and Time -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Event Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('event_date') is-invalid @enderror @endif" 
+                                               name="event_date" value="{{ session('form_type') == 'edit_' . $event->id ? old('event_date', $event->event_date->format('Y-m-d')) : $event->event_date->format('Y-m-d') }}" required>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('event_date')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Start Time</label>
+                                        <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('start_time') is-invalid @enderror @endif" 
+                                               name="start_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('start_time', $event->start_time) : $event->start_time }}">
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('start_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">End Time</label>
+                                        <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('end_time') is-invalid @enderror @endif" 
+                                               name="end_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('end_time', $event->end_time) : $event->end_time }}">
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('end_time')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Location <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('location') is-invalid @enderror @endif" 
+                                               name="location" value="{{ session('form_type') == 'edit_' . $event->id ? old('location', $event->location) : $event->location }}" required>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('location')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Attendees</label>
+                                        <input type="number" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('attendees') is-invalid @enderror @endif" 
+                                               name="attendees" value="{{ session('form_type') == 'edit_' . $event->id ? old('attendees', $event->attendees) : $event->attendees }}" min="0">
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('attendees')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Event Type <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $event->id) @error('type') is-invalid @enderror @endif" 
+                                                name="type" required>
+                                            <option value="">Select type</option>
+                                            <option value="upcoming" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                            <option value="past" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'past' ? 'selected' : '' }}>Past</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('type')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Image -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Event Image</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Event Banner/Image (Leave empty to keep current)</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('image') is-invalid @enderror @endif" 
+                                               name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $event->id }}')">
+                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                        @if(session('form_type') == 'edit_' . $event->id)
+                                            @error('image')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                        <div id="editImagePreview{{ $event->id }}" class="mt-2">
+                                            @if($event->image)
+                                                <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
+                                                <small class="d-block text-muted">Current image</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            <!-- View Modals -->
+            @foreach($events as $event)
+            <div class="modal fade" id="viewModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -956,8 +1442,63 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body" id="quickViewContent">
-                            <!-- Content will be loaded dynamically -->
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                @if($event->image)
+                                <div class="col-12 text-center">
+                                    <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                </div>
+                                @endif
+                                
+                                <div class="col-12">
+                                    <h4 class="fw-bold">{{ $event->title }}</h4>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Date</label>
+                                    <p><i class="fas fa-calendar me-2 text-primary"></i>{{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</p>
+                                </div>
+                                
+                                @if($event->start_time && $event->end_time)
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Time</label>
+                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}</p>
+                                </div>
+                                @endif
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Location</label>
+                                    <p><i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ $event->location }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Attendees</label>
+                                    <p><span class="attendees-badge"><i class="fas fa-users me-1"></i>{{ number_format($event->attendees ?? 0) }}</span></p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Type</label>
+                                    <p>
+                                        @if($event->type == 'upcoming')
+                                            <span class="badge bg-success-subtle text-success">Upcoming</span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary">Past</span>
+                                        @endif
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Created At</label>
+                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ $event->created_at ? $event->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Description</label>
+                                    <div class="p-3 bg-light rounded">
+                                        {!! nl2br(e($event->description)) !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -967,7 +1508,39 @@
                     </div>
                 </div>
             </div>
-            
+            @endforeach
+
+            <!-- Global Image Zoom Modal -->
+            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img id="zoomedImage" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ($errors->any() && session('form_type') == 'add')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
+                    addModal.show();
+                });
+            </script>
+            @endif
+
+            @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
+                @php
+                    $editId = str_replace('edit_', '', session('form_type'));
+                @endphp
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var editModal = new bootstrap.Modal(document.getElementById('editEventModal{{ $editId }}'));
+                        editModal.show();
+                    });
+                </script>
+            @endif
         </main>
     </div>
 
@@ -978,19 +1551,55 @@
         // Bulk delete function
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.event-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
-                alert('Please select at least one event to delete.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Selection',
+                        text: 'Please select at least one event to delete.',
+                        confirmButtonColor: '#d33'
+                    });
+                } else {
+                    alert('Please select at least one event to delete.');
+                }
                 return;
             }
-            
-            if (confirm(`Are you sure you want to delete ${checkboxes.length} event(s)?`)) {
-                document.getElementById('bulkForm').submit();
-            }
-        }
 
-        // Export CSV function
-        function exportCSV() {
-            document.getElementById('exportForm').submit();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Confirm Bulk Delete',
+                    text: `Are you sure you want to delete ${checkboxes.length} selected event(s)?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, Delete'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        checkboxes.forEach(cb => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            bulkForm.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
+                });
+            } else {
+                if (confirm(`Are you sure you want to delete ${checkboxes.length} event(s)?`)) {
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+                    bulkForm.submit();
+                }
+            }
         }
 
         // Select all checkboxes
@@ -1003,32 +1612,46 @@
             });
         }
 
-        // Duplicate event function (optional)
-        function duplicateEvent(eventId) {
-            if (confirm('Duplicate this event?')) {
-                // Add your duplicate logic here
-                fetch(`/events/${eventId}/duplicate`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload();
+        // Confirm delete with SweetAlert
+        function confirmDelete(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: message || 'You won\'t be able to revert this!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
                     }
                 });
+            } else {
+                if (confirm(message || 'Are you sure?')) {
+                    form.submit();
+                }
             }
+            
+            return false;
         }
 
-        // Quick view function (optional)
-        function quickView(eventId) {
-            fetch(`/events/${eventId}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('quickViewContent').innerHTML = html;
-                    new bootstrap.Modal(document.getElementById('quickViewModal')).show();
-                });
+        // Preview image before upload
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
         }
 
         // Update select all checkbox when individual checkboxes change
@@ -1060,16 +1683,13 @@
                 });
             }
 
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        closeMobileSidebar();
-                    }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
                 });
-            });
-        });
+            }, 5000);
 
         // Auto-submit search after typing (optional)
         let searchTimeout;
@@ -1079,6 +1699,13 @@
                 document.getElementById('searchForm').submit();
             }, 500);
         });
+
+        function openZoomModal(imageUrl) {
+            const zoomImage = document.getElementById('zoomedImage');
+            zoomImage.src = imageUrl;
+            const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
+            zoomModal.show();
+        }
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

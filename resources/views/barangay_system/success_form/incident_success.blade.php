@@ -33,7 +33,7 @@
                 <div class="status-content">
                     <i class="fas fa-check-circle"></i>
                     <h3>Blotter Report Submitted Successfully!</h3>
-                    <p>Your report has been received. Your reference number is: <strong id="referenceNumber">{{ $reference_number }}</strong></p>
+                    <p>Your report has been received. Your reference number is: <strong id="referenceNumber">{{ $reference }}</strong></p>
                     <div class="status-actions row g-2 justify-content-center">
                         <div class="col-12 col-md-auto">
                             <button class="btn-download w-100" id="printReport">
@@ -71,7 +71,7 @@
             if (printButton) {
                 printButton.addEventListener('click', function() {
                     const complainantName = '{{ $complaint_name }}';
-                    const referenceNum = '{{ $reference_number }}';
+                    const referenceNum = '{{ $reference }}';
                     const currentDate = '{{ $date_submitted }}';
                     
                     // Create QR code data

@@ -1,0 +1,228 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Announcement;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+
+class AnnouncementController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Announcement::query();
+
+        // Search
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
+
+        // Status filter
+        if ($request->status && in_array($request->status, ['published', 'draft', 'archived'])) {
+            $query->where('status', $request->status);
+        }
+
+        // Category filter
+        if ($request->category) {
+            $query->where('category', $request->category);
+        }
+
+        // Featured filter
+        if ($request->has('featured') && $request->featured !== '') {
+            $query->where('is_featured', $request->featured);
+        }
+
+        // Stats
+        $total_count = Announcement::count();
+        $published_count = Announcement::where('status', 'published')->count();
+        $draft_count = Announcement::where('status', 'draft')->count();
+        $featured_count = Announcement::where('is_featured', true)->count();
+
+        // Sorting
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('direction', 'desc');
+        $allowedSorts = ['title', 'category', 'views', 'published_at', 'created_at', 'status'];
+        
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'created_at';
+        }
+
+        $query->orderBy($sort, $direction);
+
+        $announcements = $query->paginate(10)->withQueryString();
+
+        return view('admin.admin_announcement', compact(
+            'announcements', 
+            'total_count', 
+            'published_count', 
+            'draft_count', 
+            'featured_count'
+        ));
+    }
+
+    public function store(Request $request)
+    {
+        // Store form type in session
+        session()->flash('form_type', 'add');
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|in:important,events,health,services,other',
+            'is_featured' => 'nullable|boolean',
+            'status' => 'required|in:published,draft,archived',
+            'published_at' => 'nullable|date',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        try {
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/announcement_pic'), $imageName);
+                $data['image'] = 'announcement_pic/' . $imageName;
+            }
+
+            // Generate slug
+            $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
+
+            // Set published_at if status is published
+            if ($request->status == 'published' && !$request->published_at) {
+                $data['published_at'] = now();
+            }
+
+            // Set featured
+            $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
+
+            Announcement::create($data);
+
+            return redirect()->route('announcements.index')
+                ->with('success', 'Announcement created successfully.');
+
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Failed to create announcement. Please try again. ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Store form type in session
+        session()->flash('form_type', 'edit_' . $id);
+
+        $announcement = Announcement::findOrFail($id);
+
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|in:important,events,health,services,other',
+            'is_featured' => 'nullable|boolean',
+            'status' => 'required|in:published,draft,archived',
+            'published_at' => 'nullable|date',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        try {
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image
+                if ($announcement->image && file_exists(public_path($announcement->image))) {
+                    unlink(public_path($announcement->image));
+                }
+
+                $image = $request->file('image');
+                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('announcement_pic'), $imageName);
+                $data['image'] = 'announcement_pic/' . $imageName;
+            }
+
+            // Update slug only if title changed
+            if ($announcement->title != $request->title) {
+                $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
+            }
+
+            // Set published_at if status changed to published
+            if ($request->status == 'published' && !$request->published_at && $announcement->status != 'published') {
+                $data['published_at'] = now();
+            }
+
+            // Set featured
+            $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
+
+            $announcement->update($data);
+
+            return redirect()->route('announcements.index')
+                ->with('success', 'Announcement updated successfully.');
+
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Failed to update announcement. Please try again. ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        $announcement = Announcement::findOrFail($id);
+
+        // Delete image
+        if ($announcement->image && file_exists(public_path($announcement->image))) {
+            unlink(public_path($announcement->image));
+        }
+
+        $title = $announcement->title;
+        $announcement->delete();
+
+        return back()->with('success', 'Announcement "' . $title . '" deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:announcements,id'
+        ]);
+
+        $announcements = Announcement::whereIn('id', $request->ids)->get();
+
+        // Delete images
+        foreach ($announcements as $announcement) {
+            if ($announcement->image && file_exists(public_path($announcement->image))) {
+                unlink(public_path($announcement->image));
+            }
+        }
+
+        Announcement::whereIn('id', $request->ids)->delete();
+
+        return back()->with('success', count($request->ids) . ' selected announcement(s) deleted successfully.');
+    }
+
+    public function toggleFeature($id)
+    {
+        $announcement = Announcement::findOrFail($id);
+
+        $announcement->is_featured = !$announcement->is_featured;
+        $announcement->save();
+
+        $status = $announcement->is_featured ? 'featured' : 'unfeatured';
+
+        return back()->with('success', 'Announcement ' . $status . ' successfully.');
+    }
+
+    public function show($slug)
+    {
+        $announcement = Announcement::where('slug', $slug)->firstOrFail();
+        
+        // Increment views
+        $announcement->increment('views');
+
+        return view('announcements.show', compact('announcement'));
+    }
+}

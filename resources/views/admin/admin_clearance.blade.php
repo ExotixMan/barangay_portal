@@ -27,8 +27,6 @@
             --info: #0288d1;
             --info-light: #e5f4ff;
             --gray-bg: #f8f9fa;
-            --sidebar-width: 280px;
-            --sidebar-collapsed-width: 80px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
             --border-color: #e9ecef;
@@ -45,6 +43,47 @@
             background: var(--gray-bg);
             color: #1e293b;
             overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
         }
 
         /* Stats Cards */
@@ -108,25 +147,6 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
@@ -136,12 +156,12 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1000px;
+            min-width: 1200px;
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 900px;
+                min-width: 1100px;
             }
         }
 
@@ -368,6 +388,8 @@
 
         .modal-body {
             padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-body strong {
@@ -602,6 +624,91 @@
             font-size: 0.85rem;
             font-weight: 500;
         }
+
+        /* File Upload Styling */
+        .form-control[type="file"] {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            margin-right: 1rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
+        }
     </style>
 </head>
 <body>
@@ -702,13 +809,34 @@
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
 
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any() && !session('form_type'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $clearances->total() ?? 0 }}</div>
+                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
                             <small class="text-success mt-2 d-none d-sm-block">
                                 <i class="fas fa-arrow-up me-1"></i>All time
                             </small>
@@ -774,8 +902,8 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
-                                    <a href="" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add</span>
+                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Clearance Application</span>
                                     </a>
                                     <a href="{{ route('clearance.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
@@ -791,7 +919,7 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name or reference..." value="{{ request('search') }}">
+                                    <input type="text" name="search" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-@.]/g,'')" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name, reference, email..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -801,7 +929,7 @@
 
                             <div class="col-6 col-md-3">
                                 <select name="status" class="form-select">
-                                    <option value="">Status</option>
+                                    <option value="">All Status</option>
                                     <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
@@ -810,11 +938,15 @@
 
                             <div class="col-6 col-md-2">
                                 <select name="purpose" class="form-select">
-                                    <option value="">Purpose</option>
-                                    <option value="employment" {{ request('purpose') == 'employment' ? 'selected' : '' }}>Employment</option>
-                                    <option value="travel" {{ request('purpose') == 'travel' ? 'selected' : '' }}>Travel</option>
-                                    <option value="business" {{ request('purpose') == 'business' ? 'selected' : '' }}>Business</option>
+                                    <option value="">All Purposes</option>
+                                    <option value="employment"  {{ request('purpose') == 'employment' ? 'selected' : '' }}>Employment</option>
+                                    <option value="business" {{ request('purpose') == 'business' ? 'selected' : '' }}>Business Permit</option>
                                     <option value="scholarship" {{ request('purpose') == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
+                                    <option value="travel" {{ request('purpose') == 'travel' ? 'selected' : '' }}>Travel/Abroad</option>
+                                    <option value="bank" {{ request('purpose') == 'bank' ? 'selected' : '' }}>Bank Transaction</option>
+                                    <option value="government" {{ request('purpose') == 'government' ? 'selected' : '' }}>Government Transaction</option>
+                                    <option value="school" {{ request('purpose') == 'school' ? 'selected' : '' }}>School Requirement</option>
+                                    <option value="other" {{ request('purpose') == 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
                             </div>
 
@@ -824,18 +956,25 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Bulk Actions -->
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('clearance.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
-                        </div>
                     </form>
+
+                    <!-- Bulk Actions -->
+                    <div class="mt-3 d-flex gap-2 justify-content-end">
+                        <form id="bulkForm" method="POST" action="{{ route('clearance.bulkDelete') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
+                        </form>
+                        <form id="exportForm" method="POST" action="{{ route('clearance.export') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
+                                <i class="fas fa-file-csv"></i>
+                                <span class="d-none d-sm-inline">Export</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -846,11 +985,31 @@
                         <table class="table align-middle mb-0" id="clearanceTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40" class="ps-4">
+                                    <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">Reference #</th>
-                                    <th>Full Name</th>
+                                    <th class="ps-0">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Reference #
+                                            @if(request('sort') == 'created_at')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'first_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Full Name
+                                            @if(request('sort') == 'first_name')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="d-none d-lg-table-cell">Birthdate</th>
                                     <th class="d-none d-md-table-cell">Gender</th>
                                     <th>Purpose</th>
@@ -863,7 +1022,7 @@
                                 @forelse($clearances as $app)
                                 <tr>
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $app->id }}" form="bulkForm" class="application-checkbox">
+                                        <input type="checkbox" value="{{ $app->id }}" class="application-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <span class="fw-semibold">{{ $app->reference_number }}</span>
@@ -885,7 +1044,7 @@
                                     <td class="d-none d-md-table-cell">{{ ucfirst($app->gender) }}</td>
                                     <td>
                                         <span class="purpose-badge">
-                                            {{ $app->purpose }}
+                                            {{ ucfirst(str_replace('_', ' ', $app->purpose)) }}
                                             @if($app->purpose_other)
                                                 <small>({{ $app->purpose_other }})</small>
                                             @endif
@@ -902,24 +1061,84 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View ID -->
-                                            @if($app->valid_id_path)
-                                            <a href="{{ asset('storage/' . $app->valid_id_path) }}"
-                                               target="_blank"
-                                               class="btn btn-sm btn-outline-secondary"
-                                               title="View ID">
-                                                <i class="fas fa-id-card"></i>
-                                            </a>
-                                            @endif
-
                                             <!-- View Details -->
-                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View Details">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
+                                            <!-- Edit (only for processing) -->
+                                            @if($app->status == 'processing')
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editClearanceModal{{ $app->id }}" title="Edit Application">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            @endif
+
+                                            <!-- Document Actions Dropdown (only for approved) -->
+                                            @if($app->status == 'approved')
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <form method="GET" action="{{ route('clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                            <input type="hidden" name="id" value="{{ $app->id }}">
+                                                            <button type="submit" name="action" value="download" class="dropdown-item">
+                                                                <i class="fas fa-download me-2"></i>Download Word
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form method="GET" action="{{ route('clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                            <input type="hidden" name="id" value="{{ $app->id }}">
+                                                            <button type="submit" name="action" value="print" class="dropdown-item">
+                                                                <i class="fas fa-print me-2"></i>Print PDF
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            @endif
+
+                                            <!-- Communication Dropdown (only for approved) -->
+                                            @if($app->status == 'approved' || $app->status == 'rejected')
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
+                                                    <i class="fas fa-bell"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <form method="POST" action="{{ route('sendEmail') }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="email" value="{{ $app->email }}">
+                                                            <input type="hidden" name="name" value="{{ $app->first_name }} {{ $app->last_name }}">
+                                                            @if($app->status == 'approved')
+                                                            <input type="hidden" name="message" value="Your barangay clearance application (Ref: {{ $app->reference_number }}) has been APPROVED. You may claim your certificate at the barangay hall.">
+                                                            @elseif($app->status == 'rejected')
+                                                            <input type="hidden" name="message" value="Your barangay clearance application (Ref: {{ $app->reference_number }}) has been REJECTED. You may check your request at the website.">
+                                                            @endif
+                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send approval email to {{ $app->email }}?')">
+                                                                <i class="fas fa-envelope me-2"></i>Send Email
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form method="POST" action="{{ route('sendSMS') }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="phone" value="+63{{ ltrim($app->contact_number, '0') }}">
+                                                            <input type="hidden" name="message" value="Good news! Your clearance application {{ $app->reference_number }} has been APPROVED. Please visit the barangay hall to claim your certificate.">
+                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send approval SMS to {{ $app->contact_number }}?')">
+                                                                <i class="fas fa-sms me-2"></i>Send SMS
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            @endif
+
                                             <!-- Approve (only for processing) -->
                                             @if($app->status == 'processing')
-                                            <form method="POST" action="{{ route('clearance.approve', $app->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('clearance.approve', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Approve this application?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
                                                     <i class="fas fa-check"></i>
@@ -929,19 +1148,19 @@
 
                                             <!-- Reject (only for processing) -->
                                             @if($app->status == 'processing')
-                                            <form method="POST" action="{{ route('clearance.reject', $app->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('clearance.reject', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reject this application?')">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to reject this application?')" title="Reject">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </form>
                                             @endif
 
                                             <!-- Delete (always available) -->
-                                            <form method="POST" action="{{ route('clearance.destroy', $app->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this application?')" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -982,8 +1201,8 @@
                 </div>
             </div>
 
-            <!-- Add Application Modal -->
-            <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true">
+            <!-- Add Application Modal with Validation -->
+            <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -993,8 +1212,9 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('clearance.store') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('clearance_app.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
+                            <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Personal Information -->
@@ -1003,50 +1223,74 @@
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="first_name" required>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif" 
+                                               name="first_name" value="{{ session('form_type') == 'add' ? old('first_name') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('first_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" name="middle_name">
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif" 
+                                               name="middle_name" value="{{ session('form_type') == 'add' ? old('middle_name') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('middle_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="last_name" required>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif" 
+                                               name="last_name" value="{{ session('form_type') == 'add' ? old('last_name') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('last_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Suffix</label>
-                                        <select class="form-select" name="suffix">
+                                        <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                                name="suffix">
                                             <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
+                                            <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
+                                            <option value="Sr." {{ (session('form_type') == 'add' && old('suffix') == 'Sr.') ? 'selected' : '' }}>Sr.</option>
+                                            <option value="III" {{ (session('form_type') == 'add' && old('suffix') == 'III') ? 'selected' : '' }}>III</option>
+                                            <option value="IV" {{ (session('form_type') == 'add' && old('suffix') == 'IV') ? 'selected' : '' }}>IV</option>
                                         </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('suffix')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" name="birthdate" required>
+                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
+                                               name="birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ date('Y-m-d') }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('birthdate')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label">Birth Place</label>
-                                        <input type="text" class="form-control" name="birth_place">
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Gender</label>
-                                        <select class="form-select" name="gender">
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif" 
+                                                name="gender" required>
+                                            <option value="">Select gender</option>
+                                            <option value="male" {{ (session('form_type') == 'add' && old('gender') == 'male') ? 'selected' : '' }}>Male</option>
+                                            <option value="female" {{ (session('form_type') == 'add' && old('gender') == 'female') ? 'selected' : '' }}>Female</option>
+                                            <option value="other" {{ (session('form_type') == 'add' && old('gender') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Civil Status</label>
-                                        <select class="form-select" name="civil_status">
-                                            <option value="single">Single</option>
-                                            <option value="married">Married</option>
-                                            <option value="widowed">Widowed</option>
-                                            <option value="separated">Separated</option>
-                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('gender')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
 
                                     <!-- Contact Information -->
@@ -1054,16 +1298,35 @@
                                         <h6 class="fw-semibold text-primary">Contact Information</h6>
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" name="email" placeholder="email@example.com">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
+                                               name="email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" placeholder="email@example.com" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number</label>
-                                        <input type="text" class="form-control" name="contact_number" placeholder="09XXXXXXXXX">
+                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif" 
+                                               name="contact_number" value="{{ session('form_type') == 'add' ? old('contact_number') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('contact_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Address</label>
-                                        <textarea class="form-control" name="address" rows="2" placeholder="Complete address"></textarea>
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
+                                                  name="address" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
+                                        @if(session('form_type') == 'add')
+                                            @error('address')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
 
                                     <!-- Clearance Details -->
@@ -1072,26 +1335,44 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Purpose <span class="text-danger">*</span></label>
-                                        <select class="form-select" name="purpose" id="purpose" required>
-                                            <option value="employment">Employment</option>
-                                            <option value="travel">Travel</option>
-                                            <option value="business">Business</option>
-                                            <option value="scholarship">Scholarship</option>
-                                            <option value="local_employment">Local Employment</option>
-                                            <option value="overseas_employment">Overseas Employment</option>
-                                            <option value="school_requirements">School Requirements</option>
-                                            <option value="government_requirements">Government Requirements</option>
-                                            <option value="other">Other</option>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif" 
+                                                name="purpose" id="purpose" required>
+                                            <option value="">Select purpose</option>
+                                            <option value="employment" {{ (session('form_type') == 'add' && old('purpose') == 'employment') ? 'selected' : '' }}>Employment</option>
+                                            <option value="business" {{ (session('form_type') == 'add' && old('purpose') == 'business') ? 'selected' : '' }}>Business Permit</option>
+                                            <option value="scholarship" {{ (session('form_type') == 'add' && old('purpose') == 'scholarship') ? 'selected' : '' }}>Scholarship</option>
+                                            <option value="travel" {{ (session('form_type') == 'add' && old('purpose') == 'travel') ? 'selected' : '' }}>Travel/Abroad</option>
+                                            <option value="bank" {{ (session('form_type') == 'add' && old('purpose') == 'bank') ? 'selected' : '' }}>Bank Transaction</option>
+                                            <option value="government" {{ (session('form_type') == 'add' && old('purpose') == 'government') ? 'selected' : '' }}>Government Transaction</option>
+                                            <option value="school" {{ (session('form_type') == 'add' && old('purpose') == 'school') ? 'selected' : '' }}>School Requirement</option>
+                                            <option value="other" {{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('purpose')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
-                                    <div class="col-12" id="otherPurposeField" style="display: none;">
-                                        <label class="form-label">Specify Other Purpose</label>
-                                        <input type="text" class="form-control" name="purpose_other" placeholder="Please specify">
+                                    <div class="col-12" id="otherPurposeField" style="{{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'display:block;' : 'display:none;' }}">
+                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif" 
+                                               name="purpose_other" value="{{ session('form_type') == 'add' ? old('purpose_other') : '' }}" placeholder="Please specify">
+                                        @if(session('form_type') == 'add')
+                                            @error('purpose_other')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Valid ID <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control" name="valid_id_path" accept="image/*,.pdf" required>
-                                        <small class="text-muted">Upload valid government ID (Image or PDF)</small>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif" 
+                                               name="valid_id_path" accept="image/*,.pdf" required>
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('valid_id_path')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -1099,7 +1380,7 @@
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
@@ -1107,6 +1388,254 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Edit Application Modals with Validation -->
+            @foreach($clearances as $app)
+            <div class="modal fade" id="editClearanceModal{{ $app->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Edit Clearance Application - {{ $app->reference_number }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('clearance.update', $app->id) }}" enctype="multipart/form-data" id="editClearanceForm{{ $app->id }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Personal Information -->
+                                    <div class="col-12">
+                                        <h6 class="fw-semibold text-primary">Personal Information</h6>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('first_name') is-invalid @enderror @endif" 
+                                            name="first_name" id="edit_first_name_{{ $app->id }}" 
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('first_name', $app->first_name) : $app->first_name }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('first_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('middle_name') is-invalid @enderror @endif" 
+                                            name="middle_name" id="edit_middle_name_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('middle_name', $app->middle_name) : $app->middle_name }}">
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('middle_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('last_name') is-invalid @enderror @endif" 
+                                            name="last_name" id="edit_last_name_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('last_name', $app->last_name) : $app->last_name }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('last_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Suffix</label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('suffix') is-invalid @enderror @endif" 
+                                                name="suffix" id="edit_suffix_{{ $app->id }}">
+                                            <option value="">None</option>
+                                            <option value="Jr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                            <option value="Sr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                            <option value="III" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                            <option value="IV" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('suffix')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birthdate') is-invalid @enderror @endif" 
+                                            name="birthdate" id="edit_birthdate_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('birthdate', $app->birthdate) : $app->birthdate }}" 
+                                            required max="{{ date('Y-m-d') }}">
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('birthdate')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Birth Place</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birth_place') is-invalid @enderror @endif" 
+                                            name="birth_place" id="edit_birth_place_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('birth_place', $app->birth_place) : $app->birth_place }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('birth_place')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('gender') is-invalid @enderror @endif" 
+                                                name="gender" id="edit_gender_{{ $app->id }}" required>
+                                            <option value="">Select gender</option>
+                                            <option value="male" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                            <option value="female" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                            <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('gender')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('civil_status') is-invalid @enderror @endif" 
+                                                name="civil_status" id="edit_civil_status_{{ $app->id }}" required>
+                                            <option value="">Select status</option>
+                                            <option value="single" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                            <option value="married" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                            <option value="widowed" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                            <option value="separated" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('civil_status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Contact Information -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Contact Information</h6>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('email') is-invalid @enderror @endif" 
+                                            name="email" id="edit_email_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('email', $app->email) : $app->email }}" 
+                                            placeholder="email@example.com" required>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('contact_number') is-invalid @enderror @endif" 
+                                            name="contact_number" id="edit_contact_number_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('contact_number', $app->contact_number) : $app->contact_number }}" 
+                                            placeholder="09XXXXXXXXX" maxlength="11" required>
+                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('contact_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('address') is-invalid @enderror @endif" 
+                                                name="address" id="edit_address_{{ $app->id }}"
+                                                rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $app->id ? old('address', $app->address) : $app->address }}</textarea>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('address')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Clearance Details -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Clearance Details</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Purpose <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('purpose') is-invalid @enderror @endif" 
+                                                name="purpose" id="edit_purpose_{{ $app->id }}" required>
+                                            <option value="">Select purpose</option>
+                                            <option value="employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
+                                            <option value="travel" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'travel' ? 'selected' : '' }}>Travel</option>
+                                            <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business</option>
+                                            <option value="scholarship" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
+                                            <option value="local_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'local_employment' ? 'selected' : '' }}>Local Employment</option>
+                                            <option value="overseas_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'overseas_employment' ? 'selected' : '' }}>Overseas Employment</option>
+                                            <option value="school_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school_requirements' ? 'selected' : '' }}>School Requirements</option>
+                                            <option value="government_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government_requirements' ? 'selected' : '' }}>Government Requirements</option>
+                                            <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('purpose')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12" id="edit_otherPurposeField_{{ $app->id }}" style="{{ (session('form_type') == 'edit_' . $app->id && old('purpose', $app->purpose) == 'other') ? 'display:block;' : 'display:none;' }}">
+                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('purpose_other') is-invalid @enderror @endif" 
+                                            name="purpose_other" id="edit_purpose_other_{{ $app->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('purpose_other', $app->purpose_other) : $app->purpose_other }}" 
+                                            placeholder="Please specify">
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('purpose_other')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Documents -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Valid ID</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('valid_id_path') is-invalid @enderror @endif" 
+                                            name="valid_id_path" id="edit_valid_id_path_{{ $app->id }}" accept="image/*,.pdf">
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                        @if(session('form_type') == 'edit_' . $app->id)
+                                            @error('valid_id_path')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    
+                                    @if($app->valid_id_path)
+                                    <div class="col-12">
+                                        <small class="text-info">
+                                            <i class="fas fa-info-circle me-1"></i>Current file: {{ basename($app->valid_id_path) }}
+                                        </small>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $app->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Application
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endforeach
 
             <!-- View Modals -->
             @foreach($clearances as $app)
@@ -1163,7 +1692,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label text-muted">Purpose</label>
-                                    <p class="purpose-badge d-inline-block p-2">{{ $app->purpose }} {{ $app->purpose_other ? '(' . $app->purpose_other . ')' : '' }}</p>
+                                    <p class="purpose-badge d-inline-block p-2">{{ ucfirst(str_replace('_', ' ', $app->purpose)) }} {{ $app->purpose_other ? '(' . $app->purpose_other . ')' : '' }}</p>
                                 </div>
                                 @if($app->valid_id_path)
                                 <div class="col-12">
@@ -1202,7 +1731,38 @@
                 </div>
             </div>
             @endforeach
-            
+
+            <!-- Global Image Zoom Modal -->
+            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img id="zoomedImage" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ($errors->any() && session('form_type') == 'add')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
+                    addModal.show();
+                });
+            </script>
+            @endif
+
+            @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
+                @php
+                    $editId = str_replace('edit_', '', session('form_type'));
+                @endphp
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var editModal = new bootstrap.Modal(document.getElementById('editClearanceModal{{ $editId }}'));
+                        editModal.show();
+                    });
+                </script>
+            @endif
         </main>
     </div>
 
@@ -1212,20 +1772,103 @@
     <script>
         // Bulk delete function
         function bulkDelete() {
+
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
-                alert('Please select at least one application to delete.');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Selection',
+                    text: 'Please select at least one application to delete.',
+                    confirmButtonColor: '#d33'
+                });
+
                 return;
             }
-            
-            if (confirm(`Are you sure you want to delete ${checkboxes.length} application(s)?`)) {
-                document.getElementById('bulkForm').submit();
-            }
+
+            // SweetAlert Confirmation
+            Swal.fire({
+                title: 'Confirm Bulk Delete',
+                text: `Are you sure you want to delete ${checkboxes.length} selected application(s)?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Delete'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    // Attach selected IDs
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+
+                    bulkForm.submit();
+                }
+
+            });
         }
 
         // Export CSV function
         function exportCSV() {
-            document.getElementById('exportForm').submit();
+
+            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const exportForm = document.getElementById('exportForm');
+
+            // If nothing selected → Ask to export all
+            if (checkboxes.length === 0) {
+
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Export All?',
+                    text: 'No applications selected. Export all records?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, Export All'
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+                        exportForm.submit();
+                    }
+
+                });
+
+                return;
+            }
+
+            // If selected → Confirm export selected
+            Swal.fire({
+                title: 'Export Selected?',
+                text: `Export ${checkboxes.length} selected application(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Export'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        exportForm.appendChild(input);
+                    });
+
+                    exportForm.submit();
+                }
+
+            });
         }
 
         // Select all checkboxes
@@ -1236,6 +1879,28 @@
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+        }
+
+        // Confirm delete with SweetAlert
+        function confirmDelete(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message || 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            
+            return false;
         }
 
         // Show/hide other purpose field
@@ -1250,6 +1915,14 @@
 
         // Update select all checkbox when individual checkboxes change
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Swal if not loaded
+            if (typeof Swal === 'undefined') {
+                console.log('SweetAlert2 not loaded, using default confirm');
+                window.confirmDelete = function(event, message) {
+                    return confirm(message || 'Are you sure?');
+                };
+            }
+
             const checkboxes = document.querySelectorAll('.application-checkbox');
             const selectAllCheckbox = document.getElementById('selectAll');
             
@@ -1277,15 +1950,79 @@
                 });
             }
 
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        closeMobileSidebar();
-                    }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
                 });
-            });
+            }, 5000);
+
+            // Show modal if there are validation errors
+            @if ($errors->any() && session('form_type') == 'add')
+                var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
+                addModal.show();
+            @endif
+
+            // Real-time validation for add form
+            const addForm = document.getElementById('addApplicationForm');
+            if (addForm) {
+                // Contact number validation
+                const contact = document.querySelector('input[name="contact_number"]');
+                if (contact) {
+                    contact.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 11) {
+                            this.value = this.value.slice(0, 11);
+                        }
+                        if (this.value.length > 0 && !this.value.startsWith('09')) {
+                            this.setCustomValidity('Contact number must start with 09');
+                            this.classList.add('is-invalid');
+                        }
+                        else if (this.value.length > 0 && this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                        }
+                        else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Birthdate validation
+                const birthdate = document.querySelector('input[name="birthdate"]');
+                if (birthdate) {
+                    birthdate.addEventListener('change', function() {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            this.setCustomValidity('Birthdate cannot be in the future');
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // File size validation
+                const fileInputs = addForm.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                            if (fileSize > 5) {
+                                this.setCustomValidity('File size must not exceed 5MB');
+                                this.classList.add('is-invalid');
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                });
+            }
         });
 
         // Auto-submit search after typing (optional)
@@ -1296,6 +2033,191 @@
                 document.getElementById('searchForm').submit();
             }, 500);
         });
+
+        function openZoomModal(imageUrl) {
+            const zoomImage = document.getElementById('zoomedImage');
+            zoomImage.src = imageUrl;
+
+            const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
+            zoomModal.show();
+        }
+
+        // Real-time validation for edit forms
+        @foreach($clearances as $app)
+        (function(editId) {
+            const editForm = document.getElementById('editClearanceForm' + editId);
+            if (editForm) {
+                // Purpose other field toggle
+                const purposeSelect = document.getElementById('edit_purpose_' + editId);
+                const otherField = document.getElementById('edit_otherPurposeField_' + editId);
+                if (purposeSelect && otherField) {
+                    purposeSelect.addEventListener('change', function() {
+                        if (this.value === 'other') {
+                            otherField.style.display = 'block';
+                        } else {
+                            otherField.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Contact number validation
+                const contact = document.getElementById('edit_contact_number_' + editId);
+                if (contact) {
+                    contact.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 11) {
+                            this.value = this.value.slice(0, 11);
+                        }
+                        if (this.value.length > 0 && !this.value.startsWith('09')) {
+                            this.setCustomValidity('Contact number must start with 09');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Contact number must start with 09';
+                        }
+                        else if (this.value.length > 0 && this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Contact number must be exactly 11 digits';
+                        }
+                        else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Birthdate validation
+                const birthdate = document.getElementById('edit_birthdate_' + editId);
+                if (birthdate) {
+                    birthdate.addEventListener('change', function() {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            this.setCustomValidity('Birthdate cannot be in the future');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Birthdate cannot be in the future';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Email validation
+                const email = document.getElementById('edit_email_' + editId);
+                if (email) {
+                    email.addEventListener('input', function() {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailPattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Please enter a valid email address');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Please enter a valid email address';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // File size validation
+                const validId = document.getElementById('edit_valid_id_path_' + editId);
+                if (validId) {
+                    validId.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                            if (fileSize > 5) {
+                                this.setCustomValidity('File size must not exceed 5MB');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'File size must not exceed 5MB';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                }
+
+                // Name validation (letters, spaces, hyphens only)
+                const firstName = document.getElementById('edit_first_name_' + editId);
+                if (firstName) {
+                    firstName.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                const lastName = document.getElementById('edit_last_name_' + editId);
+                if (lastName) {
+                    lastName.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            }
+        })('{{ $app->id }}');
+        @endforeach
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

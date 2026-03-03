@@ -27,8 +27,6 @@
             --info: #0288d1;
             --info-light: #e5f4ff;
             --gray-bg: #f8f9fa;
-            --sidebar-width: 280px;
-            --sidebar-collapsed-width: 80px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
             --border-color: #e9ecef;
@@ -45,6 +43,47 @@
             background: var(--gray-bg);
             color: #1e293b;
             overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
         }
 
         /* Stats Cards */
@@ -108,25 +147,6 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
@@ -188,6 +208,14 @@
         .badge.bg-warning-subtle {
             background: var(--warning-light) !important;
             color: var(--warning);
+        }
+
+        .income-badge {
+            background: var(--info-light);
+            color: var(--info);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
         }
 
         /* Button Styling - Mobile Optimized */
@@ -281,16 +309,6 @@
         .btn-danger:hover {
             background: var(--primary-dark);
             border-color: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            border-color: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            border-color: #5a6268;
         }
 
         /* Card Styling */
@@ -595,14 +613,89 @@
             }
         }
 
-        /* Income Badge */
-        .income-badge {
-            background: var(--info-light);
-            color: var(--info);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
+        /* File Upload Styling */
+        .form-control[type="file"] {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            margin-right: 1rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
         }
     </style>
 </head>
@@ -704,13 +797,34 @@
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
 
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any() && !session('form_type'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $indigency->total() ?? 0 }}</div>
+                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
                             <small class="text-success mt-2 d-none d-sm-block">
                                 <i class="fas fa-arrow-up me-1"></i>All time
                             </small>
@@ -723,8 +837,8 @@
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="stat-label text-muted mb-1">Pending</div>
-                            <div class="stat-number">{{ $pending_count ?? 0 }}</div>
+                            <div class="stat-label text-muted mb-1">Processing</div>
+                            <div class="stat-number">{{ $processing_count ?? 0 }}</div>
                             <small class="text-warning mt-2 d-none d-sm-block">
                                 <i class="fas fa-clock me-1"></i>Needs review
                             </small>
@@ -776,8 +890,8 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
-                                    <a href="" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add</span>
+                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Indigency Application</span>
                                     </a>
                                     <a href="{{ route('indigency.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
@@ -793,7 +907,7 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name or reference..." value="{{ request('search') }}">
+                                    <input type="text" name="search" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-@.]/g,'')" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name, reference, email..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -801,21 +915,23 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <select name="status" class="form-select">
-                                    <option value="">Status</option>
-                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="">All Status</option>
+                                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-2">
-                                <select name="income_range" class="form-select">
-                                    <option value="">Income</option>
-                                    <option value="below_5000" {{ request('income_range') == 'below_5000' ? 'selected' : '' }}>Below ₱5,000</option>
-                                    <option value="5000_10000" {{ request('income_range') == '5000_10000' ? 'selected' : '' }}>₱5,000-₱10,000</option>
-                                    <option value="above_10000" {{ request('income_range') == 'above_10000' ? 'selected' : '' }}>Above ₱10,000</option>
+                            <div class="col-6 col-md-3">
+                                <select name="monthly_income" class="form-select">
+                                    <option value="">All Income</option>
+                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
+                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
+                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
+                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                    <option value="no income" {{ request('monthly_income') == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                 </select>
                             </div>
 
@@ -825,18 +941,25 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Bulk Actions -->
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('indigency.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
-                        </div>
                     </form>
+
+                    <!-- Bulk Actions -->
+                    <div class="mt-3 d-flex gap-2 justify-content-end">
+                        <form id="bulkForm" method="POST" action="{{ route('indigency.bulkDelete') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
+                        </form>
+                        <form id="exportForm" method="POST" action="{{ route('indigency.export') }}" style="display: inline;">
+                            @csrf
+                            <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
+                                <i class="fas fa-file-csv"></i>
+                                <span class="d-none d-sm-inline">Export</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -847,15 +970,55 @@
                         <table class="table align-middle mb-0" id="indigencyTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40" class="ps-4">
+                                    <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">Reference #</th>
-                                    <th>Full Name</th>
+                                    <th class="ps-0">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Reference #
+                                            @if(request('sort') == 'created_at')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'first_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Full Name
+                                            @if(request('sort') == 'first_name')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="d-none d-lg-table-cell">Birthdate</th>
                                     <th class="d-none d-md-table-cell">Gender</th>
-                                    <th>Monthly Income</th>
-                                    <th class="d-none d-md-table-cell">Household</th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'monthly_income', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Monthly Income
+                                            @if(request('sort') == 'monthly_income')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-md-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'household_members', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Household
+                                            @if(request('sort') == 'household_members')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th>Status</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
@@ -865,7 +1028,7 @@
                                 @forelse($indigency as $ind)
                                 <tr>
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $ind->id }}" form="bulkForm" class="application-checkbox">
+                                        <input type="checkbox" value="{{ $ind->id }}" class="application-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <span class="fw-semibold">{{ $ind->reference_number }}</span>
@@ -886,7 +1049,7 @@
                                     <td class="d-none d-lg-table-cell">{{ \Carbon\Carbon::parse($ind->birthdate)->format('M d, Y') }}</td>
                                     <td class="d-none d-md-table-cell">{{ ucfirst($ind->gender) }}</td>
                                     <td>
-                                        <span class="income-badge">₱{{ $ind->monthly_income }}</span>
+                                        <span class="income-badge">{{ $ind->monthly_income }}</span>
                                     </td>
                                     <td class="d-none d-md-table-cell">
                                         <span class="badge bg-light text-dark">{{ $ind->household_members }}</span>
@@ -897,20 +1060,89 @@
                                         @elseif($ind->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @else
-                                            <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                            <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-
-                                            <!-- View Details -->
-                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ind->id }}" title="View Details">
+                                            <!-- View -->
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ind->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Approve (only for pending) -->
-                                            @if($ind->status == 'pending')
-                                            <form method="POST" action="{{ route('indigency.approve', $ind->id) }}" style="display: inline;">
+                                            <!-- Edit (only for processing) -->
+                                            @if($ind->status == 'processing')
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editIndigencyModal{{ $ind->id }}" title="Edit Application">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            @endif
+
+                                            <!-- Document Actions Dropdown (only for approved) -->
+                                            @if($ind->status == 'approved')
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <form method="GET" action="{{ route('indigency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                            <input type="hidden" name="id" value="{{ $ind->id }}">
+                                                            <button type="submit" name="action" value="download" class="dropdown-item">
+                                                                <i class="fas fa-download me-2"></i>Download Word
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form method="GET" action="{{ route('indigency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                            <input type="hidden" name="id" value="{{ $ind->id }}">
+                                                            <button type="submit" name="action" value="print" class="dropdown-item">
+                                                                <i class="fas fa-print me-2"></i>Print PDF
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            @endif
+
+                                            <!-- Communication Dropdown (only for approved) -->
+                                            @if($ind->status == 'approved' || $ind->status == 'rejected')
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
+                                                    <i class="fas fa-bell"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <form method="POST" action="{{ route('sendEmail') }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="email" value="{{ $ind->email }}">
+                                                            <input type="hidden" name="name" value="{{ $ind->first_name }} {{ $ind->last_name }}">
+                                                            @if($ind->status == 'approved')
+                                                            <input type="hidden" name="message" value="Your indigency application (Ref: {{ $ind->reference_number }}) has been APPROVED. You may claim your certificate at the barangay hall.">
+                                                            @elseif($ind->status == 'rejected')
+                                                            <input type="hidden" name="message" value="Your indigency application (Ref: {{ $ind->reference_number }}) has been REJECTED. You may check your request at the website.">
+                                                            @endif
+                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send approval email to {{ $ind->email }}?')">
+                                                                <i class="fas fa-envelope me-2"></i>Send Email
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form method="POST" action="{{ route('sendSMS') }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="phone" value="+63{{ ltrim($ind->contact_number, '0') }}">
+                                                            <input type="hidden" name="message" value="Good news! Your indigency application {{ $ind->reference_number }} has been APPROVED. Please visit the barangay hall to claim your certificate.">
+                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send approval SMS to {{ $ind->contact_number }}?')">
+                                                                <i class="fas fa-sms me-2"></i>Send SMS
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            @endif
+
+                                            <!-- Approve (only for processing) -->
+                                            @if($ind->status == 'processing')
+                                            <form method="POST" action="{{ route('indigency.approve', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Approve this application?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
                                                     <i class="fas fa-check"></i>
@@ -918,21 +1150,21 @@
                                             </form>
                                             @endif
 
-                                            <!-- Reject (only for pending) -->
-                                            @if($ind->status == 'pending')
-                                            <form method="POST" action="{{ route('indigency.reject', $ind->id) }}" style="display: inline;">
+                                            <!-- Reject (only for processing) -->
+                                            @if($ind->status == 'processing')
+                                            <form method="POST" action="{{ route('indigency.reject', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reject this application?')">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to reject this application?')" title="Reject">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </form>
                                             @endif
 
                                             <!-- Delete (always available) -->
-                                            <form method="POST" action="{{ route('indigency.destroy', $ind->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('indigency.destroy', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this application?')" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -973,9 +1205,9 @@
                 </div>
             </div>
 
-            <!-- Add Application Modal -->
-            <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
+            <!-- Add Application Modal with Validation -->
+            <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
@@ -984,8 +1216,9 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('indigency.store') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('indigency_app.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
+                            <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Personal Information -->
@@ -994,67 +1227,136 @@
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="first_name" required>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif" 
+                                               name="first_name" value="{{ session('form_type') == 'add' ? old('first_name') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('first_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" name="middle_name">
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif" 
+                                               name="middle_name" value="{{ session('form_type') == 'add' ? old('middle_name') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('middle_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="last_name" required>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif" 
+                                               name="last_name" value="{{ session('form_type') == 'add' ? old('last_name') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('last_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Suffix</label>
-                                        <select class="form-select" name="suffix">
+                                        <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                                name="suffix">
                                             <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
+                                            <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
+                                            <option value="Sr." {{ (session('form_type') == 'add' && old('suffix') == 'Sr.') ? 'selected' : '' }}>Sr.</option>
+                                            <option value="III" {{ (session('form_type') == 'add' && old('suffix') == 'III') ? 'selected' : '' }}>III</option>
+                                            <option value="IV" {{ (session('form_type') == 'add' && old('suffix') == 'IV') ? 'selected' : '' }}>IV</option>
                                         </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('suffix')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" name="birthdate" required>
+                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
+                                               name="birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ date('Y-m-d') }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('birthdate')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
-                                    <div class="col-12 col-md-4">
+                                    {{-- <div class="col-12 col-md-4">
                                         <label class="form-label">Birth Place</label>
-                                        <input type="text" class="form-control" name="birth_place">
-                                    </div>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('birth_place') is-invalid @enderror @endif" 
+                                               name="birth_place" value="{{ session('form_type') == 'add' ? old('birth_place') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('birth_place')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div> --}}
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label">Gender</label>
-                                        <select class="form-select" name="gender">
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif" 
+                                                name="gender" required>
+                                            <option value="">Select gender</option>
+                                            <option value="male" {{ (session('form_type') == 'add' && old('gender') == 'male') ? 'selected' : '' }}>Male</option>
+                                            <option value="female" {{ (session('form_type') == 'add' && old('gender') == 'female') ? 'selected' : '' }}>Female</option>
+                                            <option value="other" {{ (session('form_type') == 'add' && old('gender') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('gender')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Civil Status</label>
-                                        <select class="form-select" name="civil_status">
-                                            <option value="single">Single</option>
-                                            <option value="married">Married</option>
-                                            <option value="widowed">Widowed</option>
-                                            <option value="separated">Separated</option>
+                                    {{-- <div class="col-12 col-md-4">
+                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('civil_status') is-invalid @enderror @endif" 
+                                                name="civil_status" required>
+                                            <option value="">Select status</option>
+                                            <option value="single" {{ (session('form_type') == 'add' && old('civil_status') == 'single') ? 'selected' : '' }}>Single</option>
+                                            <option value="married" {{ (session('form_type') == 'add' && old('civil_status') == 'married') ? 'selected' : '' }}>Married</option>
+                                            <option value="widowed" {{ (session('form_type') == 'add' && old('civil_status') == 'widowed') ? 'selected' : '' }}>Widowed</option>
+                                            <option value="separated" {{ (session('form_type') == 'add' && old('civil_status') == 'separated') ? 'selected' : '' }}>Separated</option>
                                         </select>
-                                    </div>
+                                        @if(session('form_type') == 'add')
+                                            @error('civil_status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div> --}}
 
                                     <!-- Contact Information -->
                                     <div class="col-12 mt-3">
                                         <h6 class="fw-semibold text-primary">Contact Information</h6>
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" name="email" placeholder="email@example.com">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
+                                               name="email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" placeholder="email@example.com" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number</label>
-                                        <input type="text" class="form-control" name="contact_number" placeholder="09XXXXXXXXX">
+                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif" 
+                                               name="contact_number" value="{{ session('form_type') == 'add' ? old('contact_number') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('contact_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Address</label>
-                                        <textarea class="form-control" name="address" rows="2" placeholder="Complete address"></textarea>
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
+                                                  name="address" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
+                                        @if(session('form_type') == 'add')
+                                            @error('address')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
 
                                     <!-- Indigency Details -->
@@ -1063,30 +1365,77 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Monthly Income <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" name="monthly_income" placeholder="0.00" step="0.01" required>
+                                        <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
+                                               name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
+                                               <option value="">Select income bracket</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below ₱5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                                <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
+                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('monthly_income')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">Household Members</label>
-                                        <input type="number" class="form-control" name="household_members">
+                                        <label class="form-label">Household Members <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control @if(session('form_type') == 'add') @error('household_members') is-invalid @enderror @endif" 
+                                               name="household_members" value="{{ session('form_type') == 'add' ? old('household_members') : '' }}" min="1" max="20" placeholder="e.g., 4" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('household_members')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
+
+                                    <!-- Purpose -->
                                     <div class="col-12">
-                                        <label class="form-label">Purpose</label>
-                                        <select class="form-select" name="purpose" id="purpose">
-                                            <option value="medical">Medical Assistance</option>
-                                            <option value="financial">Financial Assistance</option>
-                                            <option value="scholarship">Scholarship</option>
-                                            <option value="employment">Employment</option>
-                                            <option value="other">Other</option>
+                                        <label class="form-label">Purpose <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif" 
+                                                name="purpose" id="purpose" required>
+                                            <option value="">Select purpose</option>
+                                            <option value="medical" {{ (session('form_type') == 'add' && old('purpose') == 'medical') ? 'selected' : '' }}>Medical / Hospital assistance</option>
+                                            <option value="scholarship" {{ (session('form_type') == 'add' && old('purpose') == 'scholarship') ? 'selected' : '' }}>Scholarship / Financial aid</option>
+                                            <option value="government" {{ (session('form_type') == 'add' && old('purpose') == 'government') ? 'selected' : '' }}>Government program (4Ps, AICS)</option>
+                                            <option value="legal" {{ (session('form_type') == 'add' && old('purpose') == 'legal') ? 'selected' : '' }}>Legal assistance (PAO, etc.)</option>
+                                            <option value="employment" {{ (session('form_type') == 'add' && old('purpose') == 'employment') ? 'selected' : '' }}>Employment requirement (low income proof)</option>
+                                            <option value="burial" {{ (session('form_type') == 'add' && old('purpose') == 'burial') ? 'selected' : '' }}>Burial assistance</option>
+                                            <option value="other" {{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('purpose')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
-                                    <div class="col-12" id="otherPurposeField" style="display: none;">
-                                        <label class="form-label">Specify Other Purpose</label>
-                                        <input type="text" class="form-control" name="purpose_other" placeholder="Please specify">
+                                    <div class="col-12" id="otherPurposeField" style="{{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'display:block;' : 'display:none;' }}">
+                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif" 
+                                               name="purpose_other" value="{{ session('form_type') == 'add' ? old('purpose_other') : '' }}" placeholder="Please specify">
+                                        @if(session('form_type') == 'add')
+                                            @error('purpose_other')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Documents -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Required Documents</h6>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Valid ID <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control" name="valid_id_path" accept="image/*,.pdf" required>
-                                        <small class="text-muted">Upload valid government ID (Image or PDF)</small>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif" 
+                                               name="valid_id_path" accept="image/*,.pdf" required>
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('valid_id_path')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -1094,7 +1443,7 @@
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
@@ -1102,6 +1451,281 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Edit Application Modals with Validation -->
+            @foreach($indigency as $ind)
+            <div class="modal fade" id="editIndigencyModal{{ $ind->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Edit Indigency Application - {{ $ind->reference_number }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('indigency.update', $ind->id) }}" enctype="multipart/form-data" id="editIndigencyForm{{ $ind->id }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="form_type" value="edit_{{ $ind->id }}">
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Personal Information -->
+                                    <div class="col-12">
+                                        <h6 class="fw-semibold text-primary">Personal Information</h6>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('first_name') is-invalid @enderror @endif" 
+                                            name="first_name" id="edit_first_name_{{ $ind->id }}" 
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('first_name', $ind->first_name) : $ind->first_name }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('first_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('middle_name') is-invalid @enderror @endif" 
+                                            name="middle_name" id="edit_middle_name_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('middle_name', $ind->middle_name) : $ind->middle_name }}">
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('middle_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('last_name') is-invalid @enderror @endif" 
+                                            name="last_name" id="edit_last_name_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('last_name', $ind->last_name) : $ind->last_name }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('last_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Suffix</label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('suffix') is-invalid @enderror @endif" 
+                                                name="suffix" id="edit_suffix_{{ $ind->id }}">
+                                            <option value="">None</option>
+                                            <option value="Jr." {{ (session('form_type') == 'edit_' . $ind->id ? old('suffix', $ind->suffix) : $ind->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                            <option value="Sr." {{ (session('form_type') == 'edit_' . $ind->id ? old('suffix', $ind->suffix) : $ind->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                            <option value="III" {{ (session('form_type') == 'edit_' . $ind->id ? old('suffix', $ind->suffix) : $ind->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                            <option value="IV" {{ (session('form_type') == 'edit_' . $ind->id ? old('suffix', $ind->suffix) : $ind->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('suffix')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birthdate') is-invalid @enderror @endif" 
+                                            name="birthdate" id="edit_birthdate_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('birthdate', $ind->birthdate) : $ind->birthdate }}" 
+                                            required max="{{ date('Y-m-d') }}">
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('birthdate')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    {{-- <div class="col-12 col-md-4">
+                                        <label class="form-label">Birth Place</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birth_place') is-invalid @enderror @endif" 
+                                            name="birth_place" id="edit_birth_place_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('birth_place', $ind->birth_place) : $ind->birth_place }}" 
+                                            required>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('birth_place')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div> --}}
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('gender') is-invalid @enderror @endif" 
+                                                name="gender" id="edit_gender_{{ $ind->id }}" required>
+                                            <option value="">Select gender</option>
+                                            <option value="male" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                            <option value="female" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                            <option value="other" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('gender')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    {{-- <div class="col-12 col-md-4">
+                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('civil_status') is-invalid @enderror @endif" 
+                                                name="civil_status" id="edit_civil_status_{{ $ind->id }}" required>
+                                            <option value="">Select status</option>
+                                            <option value="single" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                            <option value="married" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                            <option value="widowed" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                            <option value="separated" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('civil_status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div> --}}
+
+                                    <!-- Contact Information -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Contact Information</h6>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('email') is-invalid @enderror @endif" 
+                                            name="email" id="edit_email_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('email', $ind->email) : $ind->email }}" 
+                                            placeholder="email@example.com" required>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('contact_number') is-invalid @enderror @endif" 
+                                            name="contact_number" id="edit_contact_number_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('contact_number', $ind->contact_number) : $ind->contact_number }}" 
+                                            placeholder="09XXXXXXXXX" maxlength="11" required>
+                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('contact_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('address') is-invalid @enderror @endif" 
+                                                name="address" id="edit_address_{{ $ind->id }}"
+                                                rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $ind->id ? old('address', $ind->address) : $ind->address }}</textarea>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('address')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Indigency Details -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Indigency Details</h6>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Monthly Income <span class="text-danger">*</span></label>
+                                        <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif" 
+                                            name="monthly_income" id="edit_monthly_income_{{ $ind->id }}" required>
+                                            <option value="">Select income bracket</option>
+                                            <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
+                                            <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
+                                            <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
+                                            <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                            <option value="no income" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income)  == 'no income' ? 'selected' : '' }}>No fixed income</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('monthly_income')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Household Members <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('household_members') is-invalid @enderror @endif" 
+                                            name="household_members" id="edit_household_members_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('household_members', $ind->household_members) : $ind->household_members }}" 
+                                            min="1" max="20" required>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('household_members')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Purpose -->
+                                    <div class="col-12">
+                                        <label class="form-label">Purpose <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('purpose') is-invalid @enderror @endif" 
+                                                name="purpose" id="edit_purpose_{{ $ind->id }}" required>
+                                            <option value="">Select purpose</option>
+                                            <option value="medical" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'medical' ? 'selected' : '' }}>Medical Assistance</option>
+                                            <option value="financial" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'financial' ? 'selected' : '' }}>Financial Assistance</option>
+                                            <option value="scholarship" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
+                                            <option value="employment" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
+                                            <option value="other" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('purpose')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12" id="edit_otherPurposeField_{{ $ind->id }}" style="{{ (session('form_type') == 'edit_' . $ind->id && old('purpose', $ind->purpose) == 'other') ? 'display:block;' : 'display:none;' }}">
+                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('purpose_other') is-invalid @enderror @endif" 
+                                            name="purpose_other" id="edit_purpose_other_{{ $ind->id }}"
+                                            value="{{ session('form_type') == 'edit_' . $ind->id ? old('purpose_other', $ind->purpose_other) : $ind->purpose_other }}" 
+                                            placeholder="Please specify">
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('purpose_other')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Documents -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Valid ID</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('valid_id_path') is-invalid @enderror @endif" 
+                                            name="valid_id_path" id="edit_valid_id_path_{{ $ind->id }}" accept="image/*,.pdf">
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                        @if(session('form_type') == 'edit_' . $ind->id)
+                                            @error('valid_id_path')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    
+                                    @if($ind->valid_id_path)
+                                    <div class="col-12">
+                                        <small class="text-info">
+                                            <i class="fas fa-info-circle me-1"></i>Current file: {{ basename($ind->valid_id_path) }}
+                                        </small>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $ind->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Application
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endforeach
 
             <!-- View Modals -->
             @foreach($indigency as $ind)
@@ -1129,12 +1753,8 @@
                                     <p>{{ \Carbon\Carbon::parse($ind->birthdate)->format('F d, Y') }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-muted">Birth Place</label>
-                                    <p>{{ $ind->birth_place ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Gender / Civil Status</label>
-                                    <p>{{ ucfirst($ind->gender) }} / {{ ucfirst($ind->civil_status) }}</p>
+                                    <label class="form-label text-muted">Gender</label>
+                                    <p>{{ ucfirst($ind->gender) }}</p>
                                 </div>
 
                                 <div class="col-12 mt-2">
@@ -1158,7 +1778,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-muted">Monthly Income</label>
-                                    <p class="fw-semibold text-info">₱{{ $ind->monthly_income,  }}</p>
+                                    <p class="fw-semibold text-info">{{ $ind->monthly_income }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-muted">Household Members</label>
@@ -1172,7 +1792,7 @@
                                 <div class="col-12">
                                     <label class="form-label text-muted">Valid ID</label>
                                     <div>
-                                        <button target="_blank" class="btn btn-sm btn-outline-primary" onclick="openZoomModal('{{ asset($ind->valid_id_path) }}')">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openZoomModal('{{ asset($ind->valid_id_path) }}')">
                                             <i class="fas fa-id-card me-2"></i>View ID Document
                                         </button>
                                     </div>
@@ -1186,7 +1806,7 @@
                                         @elseif($ind->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @else
-                                            <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                            <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
                                     </p>
                                 </div>
@@ -1205,7 +1825,7 @@
                 </div>
             </div>
             @endforeach
-            
+
             <!-- Global Image Zoom Modal -->
             <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1217,6 +1837,26 @@
                 </div>
             </div>
 
+            @if ($errors->any() && session('form_type') == 'add')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
+                    addModal.show();
+                });
+            </script>
+            @endif
+
+            @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
+                @php
+                    $editId = str_replace('edit_', '', session('form_type'));
+                @endphp
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var editModal = new bootstrap.Modal(document.getElementById('editIndigencyModal{{ $editId }}'));
+                        editModal.show();
+                    });
+                </script>
+            @endif
         </main>
     </div>
 
@@ -1226,20 +1866,103 @@
     <script>
         // Bulk delete function
         function bulkDelete() {
+
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
-                alert('Please select at least one application to delete.');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Selection',
+                    text: 'Please select at least one application to delete.',
+                    confirmButtonColor: '#d33'
+                });
+
                 return;
             }
-            
-            if (confirm(`Are you sure you want to delete ${checkboxes.length} application(s)?`)) {
-                document.getElementById('bulkForm').submit();
-            }
+
+            // SweetAlert Confirmation
+            Swal.fire({
+                title: 'Confirm Bulk Delete',
+                text: `Are you sure you want to delete ${checkboxes.length} selected application(s)?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Delete'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    // Attach selected IDs
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+
+                    bulkForm.submit();
+                }
+
+            });
         }
 
         // Export CSV function
         function exportCSV() {
-            document.getElementById('exportForm').submit();
+
+            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const exportForm = document.getElementById('exportForm');
+
+            // If nothing selected → Ask to export all
+            if (checkboxes.length === 0) {
+
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Export All?',
+                    text: 'No applications selected. Export all records?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, Export All'
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+                        exportForm.submit();
+                    }
+
+                });
+
+                return;
+            }
+
+            // If selected → Confirm export selected
+            Swal.fire({
+                title: 'Export Selected?',
+                text: `Export ${checkboxes.length} selected application(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Export'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        exportForm.appendChild(input);
+                    });
+
+                    exportForm.submit();
+                }
+
+            });
         }
 
         // Select all checkboxes
@@ -1250,6 +1973,28 @@
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+        }
+
+        // Confirm delete with SweetAlert
+        function confirmDelete(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message || 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            
+            return false;
         }
 
         // Show/hide other purpose field
@@ -1264,6 +2009,14 @@
 
         // Update select all checkbox when individual checkboxes change
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Swal if not loaded
+            if (typeof Swal === 'undefined') {
+                console.log('SweetAlert2 not loaded, using default confirm');
+                window.confirmDelete = function(event, message) {
+                    return confirm(message || 'Are you sure?');
+                };
+            }
+
             const checkboxes = document.querySelectorAll('.application-checkbox');
             const selectAllCheckbox = document.getElementById('selectAll');
             
@@ -1291,15 +2044,112 @@
                 });
             }
 
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        closeMobileSidebar();
-                    }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
                 });
-            });
+            }, 5000);
+
+            // Show modal if there are validation errors
+            @if ($errors->any() && session('form_type') == 'add')
+                var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
+                addModal.show();
+            @endif
+
+            // Real-time validation for add form
+            const addForm = document.getElementById('addApplicationForm');
+            if (addForm) {
+                // Contact number validation
+                const contact = document.querySelector('input[name="contact_number"]');
+                if (contact) {
+                    contact.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 11) {
+                            this.value = this.value.slice(0, 11);
+                        }
+                        if (this.value.length > 0 && !this.value.startsWith('09')) {
+                            this.setCustomValidity('Contact number must start with 09');
+                            this.classList.add('is-invalid');
+                        }
+                        else if (this.value.length > 0 && this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                        }
+                        else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Birthdate validation
+                const birthdate = document.querySelector('input[name="birthdate"]');
+                if (birthdate) {
+                    birthdate.addEventListener('change', function() {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            this.setCustomValidity('Birthdate cannot be in the future');
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Monthly income validation
+                const income = document.querySelector('input[name="monthly_income"]');
+                if (income) {
+                    income.addEventListener('input', function() {
+                        const val = parseFloat(this.value);
+                        if (val < 0) {
+                            this.setCustomValidity('Monthly income cannot be negative');
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Household members validation
+                const household = document.querySelector('input[name="household_members"]');
+                if (household) {
+                    household.addEventListener('input', function() {
+                        const val = parseInt(this.value);
+                        if (val < 1) {
+                            this.setCustomValidity('Household members must be at least 1');
+                            this.classList.add('is-invalid');
+                        } else if (val > 20) {
+                            this.setCustomValidity('Household members cannot exceed 20');
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // File size validation
+                const fileInputs = addForm.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                            if (fileSize > 5) {
+                                this.setCustomValidity('File size must not exceed 5MB');
+                                this.classList.add('is-invalid');
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                });
+            }
         });
 
         // Auto-submit search after typing (optional)
@@ -1318,6 +2168,240 @@
             const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
             zoomModal.show();
         }
+
+        // Real-time validation for edit forms
+        @foreach($indigency as $ind)
+        (function(editId) {
+            const editForm = document.getElementById('editIndigencyForm' + editId);
+            if (editForm) {
+                // Purpose other field toggle
+                const purposeSelect = document.getElementById('edit_purpose_' + editId);
+                const otherField = document.getElementById('edit_otherPurposeField_' + editId);
+                if (purposeSelect && otherField) {
+                    purposeSelect.addEventListener('change', function() {
+                        if (this.value === 'other') {
+                            otherField.style.display = 'block';
+                        } else {
+                            otherField.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Contact number validation
+                const contact = document.getElementById('edit_contact_number_' + editId);
+                if (contact) {
+                    contact.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 11) {
+                            this.value = this.value.slice(0, 11);
+                        }
+                        if (this.value.length > 0 && !this.value.startsWith('09')) {
+                            this.setCustomValidity('Contact number must start with 09');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Contact number must start with 09';
+                        }
+                        else if (this.value.length > 0 && this.value.length !== 11) {
+                            this.setCustomValidity('Contact number must be exactly 11 digits');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Contact number must be exactly 11 digits';
+                        }
+                        else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Birthdate validation
+                const birthdate = document.getElementById('edit_birthdate_' + editId);
+                if (birthdate) {
+                    birthdate.addEventListener('change', function() {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            this.setCustomValidity('Birthdate cannot be in the future');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Birthdate cannot be in the future';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Email validation
+                const email = document.getElementById('edit_email_' + editId);
+                if (email) {
+                    email.addEventListener('input', function() {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailPattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Please enter a valid email address');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Please enter a valid email address';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Monthly income validation
+                const income = document.getElementById('edit_monthly_income_' + editId);
+                if (income) {
+                    income.addEventListener('input', function() {
+                        const val = parseFloat(this.value);
+                        if (val < 0) {
+                            this.setCustomValidity('Monthly income cannot be negative');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Monthly income cannot be negative';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Household members validation
+                const household = document.getElementById('edit_household_members_' + editId);
+                if (household) {
+                    household.addEventListener('input', function() {
+                        const val = parseInt(this.value);
+                        if (val < 1) {
+                            this.setCustomValidity('Household members must be at least 1');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Household members must be at least 1';
+                        } else if (val > 20) {
+                            this.setCustomValidity('Household members cannot exceed 20');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Household members cannot exceed 20';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // File size validation
+                const validId = document.getElementById('edit_valid_id_path_' + editId);
+                if (validId) {
+                    validId.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                            if (fileSize > 5) {
+                                this.setCustomValidity('File size must not exceed 5MB');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'File size must not exceed 5MB';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                }
+
+                // Name validation (letters, spaces, hyphens only)
+                const firstName = document.getElementById('edit_first_name_' + editId);
+                if (firstName) {
+                    firstName.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                const lastName = document.getElementById('edit_last_name_' + editId);
+                if (lastName) {
+                    lastName.addEventListener('input', function() {
+                        const namePattern = /^[a-zA-Z\s\-]+$/;
+                        if (!namePattern.test(this.value) && this.value.length > 0) {
+                            this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
+                            this.classList.add('is-invalid');
+                            
+                            let feedback = this.nextElementSibling;
+                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                this.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
+                        } else {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            }
+        })('{{ $ind->id }}');
+        @endforeach
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

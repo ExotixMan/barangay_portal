@@ -472,7 +472,7 @@
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop photos or <span>browse</span></p>
                                 <p class="small text-muted mt-2">Take photos of the scene, damages, or any visual evidence</p>
-                                <input type="file" id="photos" name="photos" accept=".jpg,.jpeg,.png" multiple hidden>
+                                <input type="file" id="photos" name="photos[]" accept=".jpg,.jpeg,.png" multiple hidden>
                             </div>
                             <div class="upload-preview mt-2" id="photoPreview"></div>
                         </div>
@@ -487,7 +487,7 @@
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop videos or <span>browse</span></p>
                                 <p class="small text-muted mt-2">CCTV footage, phone videos, or any video recordings</p>
-                                <input type="file" id="videos" name="videos" accept=".mp4,.avi,.mov" multiple hidden>
+                                <input type="file" id="videos" name="videos[]" accept=".mp4,.avi,.mov" multiple hidden>
                             </div>
                             <div class="upload-preview mt-2" id="videoPreview"></div>
                         </div>
@@ -502,7 +502,7 @@
                                 <i class="fas fa-cloud-upload-alt mb-3"></i>
                                 <p class="mb-0">Drag & drop documents or <span>browse</span></p>
                                 <p class="small text-muted mt-2">Medical reports, written statements, receipts, etc.</p>
-                                <input type="file" id="documents" name="documents" accept=".pdf,.doc,.docx" multiple hidden>
+                                <input type="file" id="documents" name="documents[]" accept=".pdf,.doc,.docx" multiple hidden>
                             </div>
                             <div class="upload-preview mt-2" id="docPreview"></div>
                         </div>
@@ -520,21 +520,21 @@
                         <label><i class="fas fa-user-shield"></i> Confidentiality Preference *</label>
                         <div class="confidentiality-options">
                             <label class="confidentiality-option">
-                                <input type="radio" name="confidentiality" value="public" required>
+                                <input type="radio" name="confidentiality" value="low" required>
                                 <div class="option-content">
                                     <h4><i class="fas fa-eye"></i> Public Report</h4>
                                     <p>Report can be viewed by barangay officials and may be discussed in hearings. Standard processing applies.</p>
                                 </div>
                             </label>
                             <label class="confidentiality-option">
-                                <input type="radio" name="confidentiality" value="confidential">
+                                <input type="radio" name="confidentiality" value="medium">
                                 <div class="option-content">
                                     <h4><i class="fas fa-user-secret"></i> Confidential Report</h4>
                                     <p>Limited access to specific barangay officials only. Your identity will be protected.</p>
                                 </div>
                             </label>
                             <label class="confidentiality-option">
-                                <input type="radio" name="confidentiality" value="anonymous">
+                                <input type="radio" name="confidentiality" value="high">
                                 <div class="option-content">
                                     <h4><i class="fas fa-mask"></i> Anonymous Report</h4>
                                     <p>Report submitted without personal identification. Note: May limit investigation capabilities.</p>

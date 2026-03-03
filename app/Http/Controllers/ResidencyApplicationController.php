@@ -56,7 +56,7 @@ class ResidencyApplicationController extends Controller
         }
 
         // Generate reference number
-        $data['reference_number'] = 'RES-' . date('Y') . '-' . strtoupper(Str::random(6));
+        $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
 
         ResidencyApplication::create($data);
 

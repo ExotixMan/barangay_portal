@@ -81,20 +81,24 @@ function handleSidebarClick(event) {
 // Handle link clicks
 function handleLinkClick(event, element) {
     event.preventDefault();
-    event.stopPropagation();
     
-    if (!isMobile() && sidebar.classList.contains('collapsed')) {
-        toggleSidebarCollapse();
-        return;
+    const href = element.getAttribute('href');
+    
+    if (href && href !== '#') {
+        // Use Laravel's URL generator or just navigate
+        window.location.href = href;
     }
     
-    // On mobile, close sidebar after clicking
-    if (isMobile()) {
+    // Update active states
+    document.querySelectorAll('.sidebar a').forEach(link => {
+        link.classList.remove('active');
+    });
+    element.classList.add('active');
+    
+    // Close mobile sidebar
+    if (window.innerWidth <= 768) {
         closeMobileSidebar();
     }
-    
-    // Add your navigation logic here
-    console.log('Navigate to:', element.querySelector('span').textContent);
 }
 
 // Handle dropdown clicks

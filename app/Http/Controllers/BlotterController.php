@@ -25,13 +25,13 @@ class BlotterController extends Controller
             'incidentLocation' => 'required|string|max:255',
             'incidentDescription' => 'required|string',
             'complainantName' => 'required|string|max:255',
-            'complainantContact' => 'required|string|max:20',
+            'complainantContact' => 'required|string|max:11',
             'complainantAddress' => 'required|string|max:255',
             'complainantEmail' => 'nullable|email',
 
             // RESPONDENT OPTIONAL
             'respondentName' => 'nullable|string|max:255',
-            'respondentContact' => 'nullable|string|max:20',
+            'respondentContact' => 'nullable|string|max:11',
             'respondentAddress' => 'nullable|string|max:255',
             'respondentDescription' => 'nullable|string',
 
@@ -111,55 +111,65 @@ class BlotterController extends Controller
 
     private function uploadFiles($request, $report)
     {
-        // PHOTO
+        // PHOTOS
         if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
 
-            $photo = $request->file('photos');
+                $ext = $photo->getClientOriginalExtension();
+                $name = time() . '_' . uniqid() . '_photo.' . $ext;
 
-            $ext = $photo->getClientOriginalExtension();
-            $name = time() . '_photo.' . $ext;
+                $photo->move(public_path('uploads/evidences/photos'), $name);
 
-            $photo->move(public_path('uploads/evidences/photos'), $name);
-
-            ReportFile::create([
-                'blotter_report_id' => $report->id,
-                'file_type' => 'photo',
-                'file_path' => 'uploads/evidences/photos/' . $name,
-            ]);
+                ReportFile::create([
+                    'blotter_report_id' => $report->id,
+                    'file_type' => 'photo',
+                    'file_path' => 'uploads/evidences/photos/' . $name,
+                ]);
+            }
         }
 
-        // VIDEO
+        // VIDEOS
         if ($request->hasFile('videos')) {
+            foreach ($request->file('videos') as $video) {
 
-            $video = $request->file('videos');
+                $ext = $video->getClientOriginalExtension();
+                $name = time() . '_' . uniqid() . '_video.' . $ext;
 
-            $ext = $video->getClientOriginalExtension();
-            $name = time() . '_video.' . $ext;
+                $video->move(public_path('uploads/evidences/videos'), $name);
 
-            $video->move(public_path('uploads/evidences/videos'), $name);
-
-            ReportFile::create([
-                'blotter_report_id' => $report->id,
-                'file_type' => 'video',
-                'file_path' => 'uploads/evidences/videos/' . $name,
-            ]);
+                ReportFile::create([
+                    'blotter_report_id' => $report->id,
+                    'file_type' => 'video',
+                    'file_path' => 'uploads/evidences/videos/' . $name,
+                ]);
+            }
         }
 
-        // DOCUMENT
+        // DOCUMENTS
         if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $doc) {
 
-            $doc = $request->file('documents');
+                $ext = $doc->getClientOriginalExtension();
+                $name = time() . '_' . uniqid() . '_document.' . $ext;
 
-            $ext = $doc->getClientOriginalExtension();
-            $name = time() . '_document.' . $ext;
+                $doc->move(public_path('uploads/evidences/documents'), $name);
 
-            $doc->move(public_path('uploads/evidences/documents/'), $name);
-
-            ReportFile::create([
-                'blotter_report_id' => $report->id,
-                'file_type' => 'document',
-                'file_path' => 'uploads/evidences/documents/' . $name,
-            ]);
+                ReportFile::create([
+                    'blotter_report_id' => $report->id,
+                    'file_type' => 'document',
+                    'file_path' => 'uploads/evidences/documents/' . $name,
+                ]);
+            }
         }
+    }
+
+    public function success($reference)
+    {
+        return view('barangay_system.success_form.incident_success', [
+            'reference' => $reference,
+            'complaint_name' => session('complaint_name'),
+            'date_submitted' => session('date_submitted'),
+            'status' => session('status'),
+        ]);
     }
 }

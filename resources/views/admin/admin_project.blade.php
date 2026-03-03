@@ -29,8 +29,6 @@
             --secondary: #6c757d;
             --secondary-light: #f8f9fa;
             --gray-bg: #f8f9fa;
-            --sidebar-width: 280px;
-            --sidebar-collapsed-width: 80px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
             --border-color: #e9ecef;
@@ -47,6 +45,47 @@
             background: var(--gray-bg);
             color: #1e293b;
             overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
         }
 
         /* Stats Cards */
@@ -110,25 +149,6 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
@@ -185,6 +205,16 @@
         .badge.bg-warning-subtle {
             background: var(--warning-light) !important;
             color: var(--warning);
+        }
+
+        .badge.bg-info-subtle {
+            background: var(--info-light) !important;
+            color: var(--info);
+        }
+
+        .badge.bg-secondary-subtle {
+            background: var(--secondary-light) !important;
+            color: var(--secondary);
         }
 
         /* Progress Bar Styling */
@@ -366,6 +396,8 @@
 
         .modal-body {
             padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-footer {
@@ -599,6 +631,45 @@
             font-size: 0.8rem;
             font-weight: 500;
         }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
+        }
     </style>
 </head>
 <body>
@@ -699,13 +770,42 @@
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
 
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any() && !session('form_type'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $projects->total() ?? 0 }}</div>
+                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
                             <small class="text-success mt-2 d-none d-sm-block">
                                 <i class="fas fa-project-diagram me-1"></i>All projects
                             </small>
@@ -771,8 +871,8 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
-                                    <a href="{{ route('projects.create') }}" class="btn btn-danger flex-fill flex-md-grow-0">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add</span>
+                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Project</span>
                                     </a>
                                     <a href="{{ route('projects.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
@@ -788,7 +888,7 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by project title..." value="{{ request('search') }}">
+                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by project title, description, location..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -796,17 +896,17 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <select name="status" class="form-select">
-                                    <option value="">Status</option>
+                                    <option value="">All Status</option>
                                     <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
                                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-2">
+                            <div class="col-6 col-md-3">
                                 <select name="progress" class="form-select">
-                                    <option value="">Progress</option>
+                                    <option value="">All Progress</option>
                                     <option value="0-25" {{ request('progress') == '0-25' ? 'selected' : '' }}>0-25%</option>
                                     <option value="26-50" {{ request('progress') == '26-50' ? 'selected' : '' }}>26-50%</option>
                                     <option value="51-75" {{ request('progress') == '51-75' ? 'selected' : '' }}>51-75%</option>
@@ -830,14 +930,6 @@
                                     <span class="d-none d-sm-inline">Bulk Delete</span>
                                 </button>
                             </form>
-
-                            {{-- <form id="exportForm" method="POST" action="{{ route('projects.export') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
-                                    <i class="fas fa-file-csv"></i>
-                                    <span class="d-none d-sm-inline">Export</span>
-                                </button>
-                            </form> --}}
                         </div>
                     </form>
                 </div>
@@ -850,15 +942,75 @@
                         <table class="table align-middle mb-0" id="projectsTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40" class="ps-4">
+                                    <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">Title</th>
-                                    <th class="d-none d-md-table-cell">Location</th>
-                                    <th class="d-none d-lg-table-cell">Start Date</th>
-                                    <th class="d-none d-lg-table-cell">Expected Completion</th>
-                                    <th>Status</th>
-                                    <th width="200">Progress</th>
+                                    <th class="ps-0">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Title
+                                            @if(request('sort') == 'title')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-md-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'location', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Location
+                                            @if(request('sort') == 'location')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-lg-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'start_date', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Start Date
+                                            @if(request('sort') == 'start_date')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-lg-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'expected_completion', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Expected Completion
+                                            @if(request('sort') == 'expected_completion')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Status
+                                            @if(request('sort') == 'status')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th width="200">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'progress', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Progress
+                                            @if(request('sort') == 'progress')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -867,7 +1019,7 @@
                                 @forelse($projects as $project)
                                 <tr>
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $project->id }}" form="bulkForm" class="project-checkbox">
+                                        <input type="checkbox" value="{{ $project->id }}" class="project-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
@@ -883,7 +1035,7 @@
                                     <td class="d-none d-md-table-cell">
                                         <span class="location-badge">
                                             <i class="fas fa-map-marker-alt me-1"></i>
-                                            {{ $project->location ?? '—' }}
+                                            {{ Str::limit($project->location, 20) ?? '—' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
@@ -899,6 +1051,9 @@
                                                 ? \Carbon\Carbon::parse($project->expected_completion)->format('M d, Y')
                                                 : '—' }}
                                         </span>
+                                        @if($project->is_overdue)
+                                            <span class="badge bg-danger-subtle text-danger ms-1">Overdue</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($project->status == 'ongoing')
@@ -924,26 +1079,28 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (Optional) -->
-                                            <button type="button" class="btn btn-sm btn-outline-info d-none d-sm-inline-block" onclick="quickView({{ $project->id }})" title="View Details">
+                                            <!-- View -->
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $project->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
                                             <!-- Edit -->
-                                            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProjectModal{{ $project->id }}" title="Edit Project">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            <!-- Update Progress (Optional) -->
-                                            <button type="button" class="btn btn-sm btn-outline-warning d-none d-sm-inline-block" onclick="updateProgress({{ $project->id }})" title="Update Progress">
-                                                <i class="fas fa-chart-line"></i>
                                             </button>
 
+                                            <!-- Update Progress (only for ongoing) -->
+                                            @if($project->status == 'ongoing')
+                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="updateProgress({{ $project->id }}, {{ $project->progress }})" title="Update Progress">
+                                                <i class="fas fa-chart-line"></i>
+                                            </button>
+                                            @endif
+
                                             <!-- Delete -->
-                                            <form method="POST" action="{{ route('projects.destroy', $project->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('projects.destroy', $project->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this project permanently?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this project?')" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -957,9 +1114,9 @@
                                             <i class="fas fa-project-diagram fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No projects found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            <a href="{{ route('projects.create') }}" class="btn btn-primary btn-sm">
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                                                 <i class="fas fa-plus me-2"></i>Add New Project
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -984,19 +1141,333 @@
                 </div>
             </div>
 
-            <!-- Quick View Modal -->
-            <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+            <!-- Add Project Modal with Validation -->
+            <div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-project-diagram me-2"></i>
+                                <i class="fas fa-hard-hat me-2"></i>
+                                New Project
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('projects.store') }}" id="addProjectForm">
+                            @csrf
+                            <input type="hidden" name="form_type" value="add">
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Project Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif" 
+                                                  name="description" rows="4" placeholder="Write project description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
+                                        @if(session('form_type') == 'add')
+                                            @error('description')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Dates -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('start_date') is-invalid @enderror @endif" 
+                                               name="start_date" value="{{ session('form_type') == 'add' ? old('start_date') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('start_date')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Expected Completion</label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('expected_completion') is-invalid @enderror @endif" 
+                                               name="expected_completion" value="{{ session('form_type') == 'add' ? old('expected_completion') : '' }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('expected_completion')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif" 
+                                               name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="Project location/address">
+                                        @if(session('form_type') == 'add')
+                                            @error('location')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Status and Progress -->
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" 
+                                                name="status" required>
+                                            <option value="">Select status</option>
+                                            <option value="ongoing" {{ (session('form_type') == 'add' && old('status') == 'ongoing') ? 'selected' : '' }}>Ongoing</option>
+                                            <option value="completed" {{ (session('form_type') == 'add' && old('status') == 'completed') ? 'selected' : '' }}>Completed</option>
+                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
+                                        <input type="range" class="form-range" name="progress" id="addProgressRange" min="0" max="100" step="1" value="{{ old('progress', 0) }}">
+                                        <div class="text-center mt-2">
+                                            <span class="badge bg-primary" id="addProgressValue">0%</span>
+                                        </div>
+                                        <input type="hidden" name="progress" id="addProgressHidden" value="{{ old('progress', 0) }}">
+                                        @if(session('form_type') == 'add')
+                                            @error('progress')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                    <i class="fas fa-save me-2"></i>Save Project
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Project Modals with Validation -->
+            @foreach($projects as $project)
+            <div class="modal fade" id="editProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>
+                                Edit Project
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Project Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'edit_' . $project->id ? old('title', $project->title) : $project->title }}" required>
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('description') is-invalid @enderror @endif" 
+                                                  name="description" rows="4" required>{{ session('form_type') == 'edit_' . $project->id ? old('description', $project->description) : $project->description }}</textarea>
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('description')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Dates -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('start_date') is-invalid @enderror @endif" 
+                                               name="start_date" value="{{ session('form_type') == 'edit_' . $project->id ? old('start_date', $project->start_date ? $project->start_date->format('Y-m-d') : '') : ($project->start_date ? $project->start_date->format('Y-m-d') : '') }}">
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('start_date')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Expected Completion</label>
+                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('expected_completion') is-invalid @enderror @endif" 
+                                               name="expected_completion" value="{{ session('form_type') == 'edit_' . $project->id ? old('expected_completion', $project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') : ($project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') }}">
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('expected_completion')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('location') is-invalid @enderror @endif" 
+                                               name="location" value="{{ session('form_type') == 'edit_' . $project->id ? old('location', $project->location) : $project->location }}">
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('location')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Status and Progress -->
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $project->id) @error('status') is-invalid @enderror @endif" 
+                                                name="status" id="edit_status_{{ $project->id }}" required>
+                                            <option value="">Select status</option>
+                                            <option value="ongoing" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                            <option value="completed" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
+                                        <input type="range" class="form-range" id="editProgressRange{{ $project->id }}" min="0" max="100" step="1" value="{{ $project->progress }}">
+                                        <div class="text-center mt-2">
+                                            <span class="badge bg-primary" id="editProgressValue{{ $project->id }}">{{ $project->progress }}%</span>
+                                        </div>
+                                        <input type="hidden" name="progress" id="editProgressHidden{{ $project->id }}" value="{{ $project->progress }}">
+                                        @if(session('form_type') == 'edit_' . $project->id)
+                                            @error('progress')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Project
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            <!-- View Modals -->
+            @foreach($projects as $project)
+            <div class="modal fade" id="viewModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-hard-hat me-2"></i>
                                 Project Details
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body" id="quickViewContent">
-                            <!-- Content will be loaded dynamically -->
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <h4 class="fw-bold">{{ $project->title }}</h4>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Status</label>
+                                    <p>
+                                        @if($project->status == 'ongoing')
+                                            <span class="badge bg-warning-subtle text-warning">Ongoing</span>
+                                        @else
+                                            <span class="badge bg-success-subtle text-success">Completed</span>
+                                        @endif
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Progress</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 20px;">
+                                            <div class="progress-bar {{ $project->status == 'completed' ? 'bg-success' : '' }}"
+                                                role="progressbar"
+                                                style="width: {{ $project->progress }}%;">
+                                                {{ $project->progress }}%
+                                            </div>
+                                        </div>
+                                        <span class="fw-semibold">{{ $project->progress }}%</span>
+                                    </div>
+                                </div>
+
+                                @if($project->location)
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Location</label>
+                                    <p><i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ $project->location }}</p>
+                                </div>
+                                @endif
+
+                                @if($project->start_date)
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Start Date</label>
+                                    <p><i class="fas fa-calendar me-2 text-primary"></i>{{ $project->start_date->format('F d, Y') }}</p>
+                                </div>
+                                @endif
+
+                                @if($project->expected_completion)
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Expected Completion</label>
+                                    <p>
+                                        <i class="fas fa-calendar-check me-2 text-primary"></i>
+                                        {{ $project->expected_completion->format('F d, Y') }}
+                                        @if($project->is_overdue)
+                                            <span class="badge bg-danger-subtle text-danger ms-2">Overdue</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                @endif
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Created At</label>
+                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ $project->created_at ? $project->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Last Updated</label>
+                                    <p><i class="fas fa-sync me-2 text-primary"></i>{{ $project->updated_at ? $project->updated_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Description</label>
+                                    <div class="p-3 bg-light rounded">
+                                        {!! nl2br(e($project->description)) !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -1006,6 +1477,7 @@
                     </div>
                 </div>
             </div>
+            @endforeach
 
             <!-- Update Progress Modal -->
             <div class="modal fade" id="updateProgressModal" tabindex="-1" aria-hidden="true">
@@ -1024,14 +1496,15 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label class="form-label">Progress Percentage</label>
-                                    <input type="range" class="form-range" name="progress" min="0" max="100" step="1" id="progressRange">
+                                    <input type="range" class="form-range" name="progress" id="progressRange" min="0" max="100" step="1">
                                     <div class="text-center mt-2">
                                         <span class="badge bg-primary" id="progressValue">0%</span>
                                     </div>
+                                    <input type="hidden" name="progress" id="progressHidden">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Status</label>
-                                    <select class="form-select" name="status">
+                                    <select class="form-select" name="status" id="progressStatus">
                                         <option value="ongoing">Ongoing</option>
                                         <option value="completed">Completed</option>
                                     </select>
@@ -1049,7 +1522,27 @@
                     </div>
                 </div>
             </div>
-            
+
+            @if ($errors->any() && session('form_type') == 'add')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var addModal = new bootstrap.Modal(document.getElementById('addProjectModal'));
+                    addModal.show();
+                });
+            </script>
+            @endif
+
+            @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
+                @php
+                    $editId = str_replace('edit_', '', session('form_type'));
+                @endphp
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var editModal = new bootstrap.Modal(document.getElementById('editProjectModal{{ $editId }}'));
+                        editModal.show();
+                    });
+                </script>
+            @endif
         </main>
     </div>
 
@@ -1060,20 +1553,56 @@
         // Bulk delete function
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.project-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
-                alert('Please select at least one project to delete.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Selection',
+                        text: 'Please select at least one project to delete.',
+                        confirmButtonColor: '#d33'
+                    });
+                } else {
+                    alert('Please select at least one project to delete.');
+                }
                 return;
             }
-            
-            if (confirm(`Are you sure you want to delete ${checkboxes.length} project(s)?`)) {
-                document.getElementById('bulkForm').submit();
-            }
-        }
 
-        // Export CSV function
-        function exportCSV() {
-            document.getElementById('exportForm').submit();
-        }
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Confirm Bulk Delete',
+                    text: `Are you sure you want to delete ${checkboxes.length} selected project(s)?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, Delete'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        checkboxes.forEach(cb => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            bulkForm.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
+                });
+            } else {
+                if (confirm(`Are you sure you want to delete ${checkboxes.length} project(s)?`)) {
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            bulkForm.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
+                }
+            }
 
         // Select all checkboxes
         function toggleSelectAll() {
@@ -1085,30 +1614,78 @@
             });
         }
 
-        // Quick view function
-        function quickView(projectId) {
-            fetch(`/projects/${projectId}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('quickViewContent').innerHTML = html;
-                    new bootstrap.Modal(document.getElementById('quickViewModal')).show();
+        // Confirm delete with SweetAlert
+        function confirmDelete(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: message || 'You won\'t be able to revert this!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
                 });
+            } else {
+                if (confirm(message || 'Are you sure?')) {
+                    form.submit();
+                }
+            }
+            
+            return false;
         }
 
         // Update progress function
-        function updateProgress(projectId) {
+        function updateProgress(projectId, currentProgress) {
             const modal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
             const form = document.getElementById('updateProgressForm');
+            const range = document.getElementById('progressRange');
+            const value = document.getElementById('progressValue');
+            const hidden = document.getElementById('progressHidden');
+            const statusSelect = document.getElementById('progressStatus');
+            
             form.action = `/projects/${projectId}/progress`;
+            range.value = currentProgress;
+            value.textContent = currentProgress + '%';
+            hidden.value = currentProgress;
+            
+            if (currentProgress == 100) {
+                statusSelect.value = 'completed';
+            } else {
+                statusSelect.value = 'ongoing';
+            }
+            
             modal.show();
         }
 
-        // Update progress range display
-        document.getElementById('progressRange')?.addEventListener('input', function() {
-            document.getElementById('progressValue').textContent = this.value + '%';
+        // Update progress range display for add modal
+        document.getElementById('addProgressRange')?.addEventListener('input', function() {
+            document.getElementById('addProgressValue').textContent = this.value + '%';
+            document.getElementById('addProgressHidden').value = this.value;
             
             // Auto-select status based on progress
             const statusSelect = document.querySelector('select[name="status"]');
+            if (this.value == 100) {
+                statusSelect.value = 'completed';
+            } else {
+                statusSelect.value = 'ongoing';
+            }
+        });
+
+        // Update progress range display for progress modal
+        document.getElementById('progressRange')?.addEventListener('input', function() {
+            document.getElementById('progressValue').textContent = this.value + '%';
+            document.getElementById('progressHidden').value = this.value;
+            
+            // Auto-select status based on progress
+            const statusSelect = document.getElementById('progressStatus');
             if (this.value == 100) {
                 statusSelect.value = 'completed';
             } else {
@@ -1145,15 +1722,13 @@
                 });
             }
 
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        closeMobileSidebar();
-                    }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
                 });
-            });
+            }, 5000);
 
             // Initialize progress bars with gradient
             const progressBars = document.querySelectorAll('.progress-bar');
@@ -1162,6 +1737,30 @@
                     bar.style.background = 'var(--primary-gradient)';
                 }
             });
+
+            // Setup edit modal progress listeners
+            @foreach($projects as $project)
+            (function(projectId) {
+                const range = document.getElementById('editProgressRange' + projectId);
+                const value = document.getElementById('editProgressValue' + projectId);
+                const hidden = document.getElementById('editProgressHidden' + projectId);
+                const statusSelect = document.getElementById('edit_status_' + projectId);
+                
+                if (range && value && hidden && statusSelect) {
+                    range.addEventListener('input', function() {
+                        value.textContent = this.value + '%';
+                        hidden.value = this.value;
+                        
+                        // Auto-select status based on progress
+                        if (this.value == 100) {
+                            statusSelect.value = 'completed';
+                        } else {
+                            statusSelect.value = 'ongoing';
+                        }
+                    });
+                }
+            })('{{ $project->id }}');
+            @endforeach
         });
 
         // Auto-submit search after typing (optional)

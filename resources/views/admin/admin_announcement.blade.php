@@ -26,11 +26,7 @@
             --warning-light: #fff4e5;
             --info: #0288d1;
             --info-light: #e5f4ff;
-            --secondary: #6c757d;
-            --secondary-light: #f8f9fa;
             --gray-bg: #f8f9fa;
-            --sidebar-width: 280px;
-            --sidebar-collapsed-width: 80px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
             --border-color: #e9ecef;
@@ -47,6 +43,47 @@
             background: var(--gray-bg);
             color: #1e293b;
             overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
         }
 
         /* Stats Cards */
@@ -110,25 +147,6 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile Overlay */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
@@ -138,12 +156,12 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1000px;
+            min-width: 1200px;
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 900px;
+                min-width: 1000px;
             }
         }
 
@@ -193,7 +211,7 @@
         }
 
         .badge.bg-secondary-subtle {
-            background: var(--secondary-light) !important;
+            background: #f8f9fa !important;
             color: var(--secondary);
         }
 
@@ -345,6 +363,8 @@
 
         .modal-body {
             padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-footer {
@@ -558,14 +578,98 @@
             }
         }
 
-        /* Views Badge */
-        .views-badge {
-            background: var(--info-light);
-            color: var(--info);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
+        /* File Upload Styling */
+        .form-control[type="file"] {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            margin-right: 1rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -667,13 +771,42 @@
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
 
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any() && !session('form_type'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $announcements->total() ?? 0 }}</div>
+                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
                             <small class="text-success mt-2 d-none d-sm-block">
                                 <i class="fas fa-arrow-up me-1"></i>All time
                             </small>
@@ -739,8 +872,8 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
-                                    <a href="{{ route('announcements.create') }}" class="btn btn-danger flex-fill flex-md-grow-0">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add</span>
+                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Announcement</span>
                                     </a>
                                     <a href="{{ route('announcements.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
@@ -756,7 +889,7 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by title..." value="{{ request('search') }}">
+                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by title, content..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -764,18 +897,18 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <select name="status" class="form-select">
-                                    <option value="">Status</option>
+                                    <option value="">All Status</option>
                                     <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
                                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                                     <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-2">
+                            <div class="col-6 col-md-3">
                                 <select name="category" class="form-select">
-                                    <option value="">Category</option>
+                                    <option value="">All Categories</option>
                                     <option value="important" {{ request('category') == 'important' ? 'selected' : '' }}>Important</option>
                                     <option value="events" {{ request('category') == 'events' ? 'selected' : '' }}>Events</option>
                                     <option value="health" {{ request('category') == 'health' ? 'selected' : '' }}>Health</option>
@@ -784,9 +917,11 @@
                             </div>
 
                             <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-filter me-2"></i>Apply
-                                </button>
+                                <select name="featured" class="form-select">
+                                    <option value="">Featured</option>
+                                    <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Featured Only</option>
+                                    <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Not Featured</option>
+                                </select>
                             </div>
                         </div>
 
@@ -811,15 +946,65 @@
                         <table class="table align-middle mb-0" id="announcementsTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40" class="ps-4">
+                                    <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">Title</th>
-                                    <th>Category</th>
+                                    <th class="ps-0">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Title
+                                            @if(request('sort') == 'title')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'category', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Category
+                                            @if(request('sort') == 'category')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="d-none d-md-table-cell">Featured</th>
-                                    <th class="d-none d-md-table-cell">Views</th>
-                                    <th class="d-none d-lg-table-cell">Published At</th>
-                                    <th>Status</th>
+                                    <th class="d-none d-md-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'views', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Views
+                                            @if(request('sort') == 'views')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="d-none d-lg-table-cell">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'published_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Published At
+                                            @if(request('sort') == 'published_at')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        class="text-decoration-none text-dark">
+                                            Status
+                                            @if(request('sort') == 'status')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -828,16 +1013,20 @@
                                 @forelse($announcements as $ann)
                                 <tr>
                                     <td class="ps-4">
-                                        <input type="checkbox" name="ids[]" value="{{ $ann->id }}" form="bulkForm" class="announcement-checkbox">
+                                        <input type="checkbox" value="{{ $ann->id }}" class="announcement-checkbox">
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
                                             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-bullhorn text-primary"></i>
+                                                @if($ann->image)
+                                                    <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                                                @else
+                                                    <i class="fas fa-bullhorn text-primary"></i>
+                                                @endif
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">{{ Str::limit($ann->title, 40) }}</div>
-                                                <small class="text-muted d-md-none">{{ \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') }}</small>
+                                                <small class="text-muted d-lg-none">{{ \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') }}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -854,7 +1043,7 @@
                                         @endif
                                     </td>
                                     <td class="d-none d-md-table-cell">
-                                        <span class="views-badge">
+                                        <span class="badge bg-light text-dark">
                                             <i class="fas fa-eye me-1"></i>{{ number_format($ann->views) }}
                                         </span>
                                     </td>
@@ -865,38 +1054,38 @@
                                         @if($ann->status == 'published')
                                             <span class="badge bg-success-subtle text-success">Published</span>
                                         @elseif($ann->status == 'draft')
-                                            <span class="badge bg-secondary-subtle text-secondary">Draft</span>
+                                            <span class="badge bg-warning-subtle text-warning">Draft</span>
                                         @else
-                                            <span class="badge bg-dark-subtle text-dark">Archived</span>
+                                            <span class="badge bg-secondary-subtle text-secondary">Archived</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
                                             <!-- View -->
-                                            <a href="{{ route('announcements.show', $ann->slug) }}" target="_blank" class="btn btn-sm btn-outline-info" title="View">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ann->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
-                                            </a>
+                                            </button>
 
                                             <!-- Edit -->
-                                            <a href="{{ route('announcements.edit', $ann->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ $ann->id }}" title="Edit Announcement">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
+                                            </button>
 
                                             <!-- Feature/Unfeature -->
                                             @if($ann->status == 'published')
                                                 <form method="POST" action="{{ route('announcements.toggle-feature', $ann->id) }}" style="display: inline;">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ $ann->is_featured ? 'Remove Featured' : 'Mark as Featured' }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ $ann->is_featured ? 'Remove Featured' : 'Mark as Featured' }}" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
                                                         <i class="fas fa-star{{ $ann->is_featured ? '' : '-o' }}"></i>
                                                     </button>
                                                 </form>
                                             @endif
 
                                             <!-- Delete -->
-                                            <form method="POST" action="{{ route('announcements.destroy', $ann->id) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this announcement permanently?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this announcement?')" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -910,9 +1099,9 @@
                                             <i class="fas fa-bullhorn fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No announcements found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            <a href="{{ route('announcements.create') }}" class="btn btn-primary btn-sm">
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -937,19 +1126,342 @@
                 </div>
             </div>
 
-            <!-- Quick View Modal (Optional) -->
-            <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+            <!-- Add Announcement Modal with Validation -->
+            <div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
                                 <i class="fas fa-bullhorn me-2"></i>
-                                Announcement Preview
+                                New Announcement
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body" id="quickViewContent">
-                            <!-- Content will be loaded dynamically -->
+                        <form method="POST" action="{{ route('announcements.store') }}" enctype="multipart/form-data" id="addAnnouncementForm">
+                            @csrf
+                            <input type="hidden" name="form_type" value="add">
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                        @if(session('form_type') == 'add')
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Content <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'add') @error('content') is-invalid @enderror @endif" 
+                                                  name="content" rows="6" placeholder="Write your announcement content here..." required>{{ session('form_type') == 'add' ? old('content') : '' }}</textarea>
+                                        @if(session('form_type') == 'add')
+                                            @error('content')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('category') is-invalid @enderror @endif" 
+                                                name="category" required>
+                                            <option value="">Select category</option>
+                                            <option value="important" {{ (session('form_type') == 'add' && old('category') == 'important') ? 'selected' : '' }}>Important</option>
+                                            <option value="events" {{ (session('form_type') == 'add' && old('category') == 'events') ? 'selected' : '' }}>Events</option>
+                                            <option value="health" {{ (session('form_type') == 'add' && old('category') == 'health') ? 'selected' : '' }}>Health</option>
+                                            <option value="services" {{ (session('form_type') == 'add' && old('category') == 'services') ? 'selected' : '' }}>Services</option>
+                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('category')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" 
+                                                name="status" required>
+                                            <option value="">Select status</option>
+                                            <option value="published" {{ (session('form_type') == 'add' && old('status') == 'published') ? 'selected' : '' }}>Published</option>
+                                            <option value="draft" {{ (session('form_type') == 'add' && old('status') == 'draft') ? 'selected' : '' }}>Draft</option>
+                                            <option value="archived" {{ (session('form_type') == 'add' && old('status') == 'archived') ? 'selected' : '' }}>Archived</option>
+                                        </select>
+                                        @if(session('form_type') == 'add')
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Published Date</label>
+                                        <input type="datetime-local" class="form-control @if(session('form_type') == 'add') @error('published_at') is-invalid @enderror @endif" 
+                                               name="published_at" value="{{ session('form_type') == 'add' ? old('published_at') : '' }}">
+                                        <small class="text-muted">Leave empty for immediate publishing</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('published_at')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Featured</label>
+                                        <div class="form-check mt-2">
+                                            <input type="checkbox" class="form-check-input @if(session('form_type') == 'add') @error('is_featured') is-invalid @enderror @endif" 
+                                                   name="is_featured" id="is_featured" value="1" {{ (session('form_type') == 'add' && old('is_featured')) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="is_featured">Mark as featured announcement</label>
+                                        </div>
+                                        @if(session('form_type') == 'add')
+                                            @error('is_featured')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Image -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Announcement Image</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Featured Image</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif" 
+                                               name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('image')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                        <div id="addImagePreview" class="mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                    <i class="fas fa-save me-2"></i>Save Announcement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Announcement Modals with Validation -->
+            @foreach($announcements as $ann)
+            <div class="modal fade" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>
+                                Edit Announcement
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('announcements.update', $ann->id) }}" enctype="multipart/form-data" id="editAnnouncementForm{{ $ann->id }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="form_type" value="edit_{{ $ann->id }}">
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <!-- Basic Information -->
+                                    <div class="col-12">
+                                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif" 
+                                               name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('title')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Content <span class="text-danger">*</span></label>
+                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif" 
+                                                  name="content" rows="6" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('content')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('category') is-invalid @enderror @endif" 
+                                                name="category" required>
+                                            <option value="">Select category</option>
+                                            <option value="important" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'important' ? 'selected' : '' }}>Important</option>
+                                            <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
+                                            <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
+                                            <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('category')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('status') is-invalid @enderror @endif" 
+                                                name="status" required>
+                                            <option value="">Select status</option>
+                                            <option value="published" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'published' ? 'selected' : '' }}>Published</option>
+                                            <option value="draft" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                            <option value="archived" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'archived' ? 'selected' : '' }}>Archived</option>
+                                        </select>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Published Date</label>
+                                        <input type="datetime-local" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('published_at') is-invalid @enderror @endif" 
+                                               name="published_at" value="{{ session('form_type') == 'edit_' . $ann->id ? old('published_at', $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') : ($ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') }}">
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('published_at')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Featured</label>
+                                        <div class="form-check mt-2">
+                                            <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif" 
+                                                   name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1" 
+                                                   {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="edit_is_featured_{{ $ann->id }}">Mark as featured announcement</label>
+                                        </div>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('is_featured')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <!-- Image -->
+                                    <div class="col-12 mt-3">
+                                        <h6 class="fw-semibold text-primary">Announcement Image</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Featured Image (Leave empty to keep current)</label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif" 
+                                               name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
+                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                        @if(session('form_type') == 'edit_' . $ann->id)
+                                            @error('image')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                        <div id="editImagePreview{{ $ann->id }}" class="mt-2">
+                                            @if($ann->image)
+                                                <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview">
+                                                <small class="d-block text-muted">Current image</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $ann->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Announcement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            <!-- View Modals -->
+            @foreach($announcements as $ann)
+            <div class="modal fade" id="viewModal{{ $ann->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-bullhorn me-2"></i>
+                                Announcement Details
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                @if($ann->image)
+                                <div class="col-12 text-center">
+                                    <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                </div>
+                                @endif
+                                
+                                <div class="col-12">
+                                    <h4 class="fw-bold">{{ $ann->title }}</h4>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Category</label>
+                                    <p><span class="badge bg-info-subtle text-info">{{ ucfirst($ann->category) }}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Status</label>
+                                    <p>
+                                        @if($ann->status == 'published')
+                                            <span class="badge bg-success-subtle text-success">Published</span>
+                                        @elseif($ann->status == 'draft')
+                                            <span class="badge bg-warning-subtle text-warning">Draft</span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary">Archived</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Featured</label>
+                                    <p>
+                                        @if($ann->is_featured)
+                                            <span class="badge bg-warning-subtle text-warning">Featured</span>
+                                        @else
+                                            <span class="text-muted">No</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Views</label>
+                                    <p><span class="badge bg-light text-dark">{{ number_format($ann->views) }}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Published At</label>
+                                    <p>{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('F d, Y h:i A') : 'Not published' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Created At</label>
+                                    <p>{{ $ann->created_at ? $ann->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Content</label>
+                                    <div class="p-3 bg-light rounded">
+                                        {!! nl2br(e($ann->content)) !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -959,7 +1471,39 @@
                     </div>
                 </div>
             </div>
-            
+            @endforeach
+
+            <!-- Global Image Zoom Modal -->
+            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img id="zoomedImage" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ($errors->any() && session('form_type') == 'add')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var addModal = new bootstrap.Modal(document.getElementById('addAnnouncementModal'));
+                    addModal.show();
+                });
+            </script>
+            @endif
+
+            @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
+                @php
+                    $editId = str_replace('edit_', '', session('form_type'));
+                @endphp
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var editModal = new bootstrap.Modal(document.getElementById('editAnnouncementModal{{ $editId }}'));
+                        editModal.show();
+                    });
+                </script>
+            @endif
         </main>
     </div>
 
@@ -970,19 +1514,55 @@
         // Bulk delete function
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.announcement-checkbox:checked');
+            const bulkForm = document.getElementById('bulkForm');
+
             if (checkboxes.length === 0) {
-                alert('Please select at least one announcement to delete.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Selection',
+                        text: 'Please select at least one announcement to delete.',
+                        confirmButtonColor: '#d33'
+                    });
+                } else {
+                    alert('Please select at least one announcement to delete.');
+                }
                 return;
             }
-            
-            if (confirm(`Are you sure you want to delete ${checkboxes.length} announcement(s)?`)) {
-                document.getElementById('bulkForm').submit();
-            }
-        }
 
-        // Export CSV function
-        function exportCSV() {
-            document.getElementById('exportForm').submit();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Confirm Bulk Delete',
+                    text: `Are you sure you want to delete ${checkboxes.length} selected announcement(s)?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, Delete'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        checkboxes.forEach(cb => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            bulkForm.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
+                });
+            } else {
+                if (confirm(`Are you sure you want to delete ${checkboxes.length} announcement(s)?`)) {
+                    checkboxes.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = cb.value;
+                        bulkForm.appendChild(input);
+                    });
+                    bulkForm.submit();
+                }
+            }
         }
 
         // Select all checkboxes
@@ -993,6 +1573,48 @@
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+        }
+
+        // Confirm delete with SweetAlert
+        function confirmDelete(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: message || 'You won\'t be able to revert this!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(message || 'Are you sure?')) {
+                    form.submit();
+                }
+            }
+            
+            return false;
+        }
+
+        // Preview image before upload
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
         }
 
         // Update select all checkbox when individual checkboxes change
@@ -1024,15 +1646,13 @@
                 });
             }
 
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        closeMobileSidebar();
-                    }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
                 });
-            });
+            }, 5000);
         });
 
         // Auto-submit search after typing (optional)
@@ -1044,14 +1664,11 @@
             }, 500);
         });
 
-        // Quick view function (optional)
-        function quickView(slug) {
-            fetch(`/announcements/${slug}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('quickViewContent').innerHTML = html;
-                    new bootstrap.Modal(document.getElementById('quickViewModal')).show();
-                });
+        function openZoomModal(imageUrl) {
+            const zoomImage = document.getElementById('zoomedImage');
+            zoomImage.src = imageUrl;
+            const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
+            zoomModal.show();
         }
     </script>
 
