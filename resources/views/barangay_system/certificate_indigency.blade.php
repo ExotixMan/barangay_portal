@@ -714,6 +714,8 @@
                             <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
                             <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
                             <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
                         </ul>
                     </li>
                     
@@ -1249,7 +1251,7 @@
                             <a href="{{ route('history') }}" class="footer-link">
                                 <i class="fas fa-history"></i> Barangay History
                             </a>
-                            <a href="#" class="footer-link">
+                            <a href="{{ route('track_request') }}" class="footer-link">
                                 <i class="fas fa-search"></i> Track Request
                             </a>
                         </div>

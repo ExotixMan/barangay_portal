@@ -37,6 +37,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ResidencyApplicationController;
 use App\Http\Controllers\EventProjectController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\TrackRequestController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use Illuminate\Support\Facades\Auth;
@@ -88,6 +89,13 @@ Route::get('/contacts', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
     return view('barangay_system.contacts');
 })->name('contacts');
+
+Route::get('/track-request', function () {
+    App::setLocale(Session::get('locale', config('app.locale')));
+    return view('barangay_system.track_request');
+})->name('track_request');
+Route::post('/track-request', [TrackRequestController::class, 'track'])
+    ->name('track.request.search');
 
 // Authentication routes (public)
 Route::get('/login', function () {

@@ -436,6 +436,8 @@
                             <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
                             <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
                             <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
                         </ul>
                     </li>
                     
@@ -473,7 +475,6 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -502,7 +503,6 @@
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
@@ -854,7 +854,7 @@
                             <a href="{{ route('history') }}" class="footer-link">
                                 <i class="fas fa-history"></i> Barangay History
                             </a>
-                            <a href="#" class="footer-link">
+                            <a href="{{ route('track_request')}}" class="footer-link">
                                 <i class="fas fa-search"></i> Track Request
                             </a>
                         </div>

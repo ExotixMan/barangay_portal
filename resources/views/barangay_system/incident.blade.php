@@ -412,6 +412,102 @@
             background: #b71c1c;
         }
 
+        /* Process Steps - FULL WIDTH FIX */
+        .process-steps {
+            padding: 80px 0;
+            background: #f8f9fa;
+            position: relative;
+            width: 100%;
+        }
+
+        /* This centers the content */
+        .process-steps-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #C62828;
+        }
+
+        .process-steps .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 35px 25px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.15);
+            border-color: #C62828;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #C62828;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .step-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .step-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .action-cards-grid {
@@ -474,6 +570,10 @@
         }
 
         @media (max-width: 576px) {
+            .process-steps{
+                padding: 60px 0;
+            }
+
             .action-card {
                 padding: 25px 20px;
             }
@@ -577,6 +677,8 @@
                             <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
                             <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
                             <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
                         </ul>
                     </li>
                     
@@ -614,7 +716,6 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -643,7 +744,6 @@
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
@@ -693,49 +793,42 @@
 
     <!-- Main Content -->
     <main class="main-content" id="main-content">
-        <!-- Quick Action Cards -->
-        <section class="action-cards-section">
-            <div class="container">
-                <div class="action-cards-grid">
-                    <div class="action-card">
-                        <div class="card-icon">
-                            <i class="fas fa-file-alt"></i>
+        <!-- Process Steps -->
+        <section class="process-steps">
+            <div class="process-steps-content">
+                <h2 class="section-title">How to File a Incident Report</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">
+                            <i class="fas fa-user-edit"></i>
                         </div>
-                        <h3>File New Report</h3>
-                        <p>Report incidents, disputes, or concerns in our community</p>
-                        <a href="{{ route('incident.form') }}" class="card-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                            <i class="fas fa-plus-circle"></i> Start New Report
-                        </a>
+                        <h3>Fill Out Form</h3>
+                        <p>Complete the online incident report form with accurate incident details</p>
                     </div>
-                    <div class="action-card">
-                        <div class="card-icon">
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h3>Upload Evidence</h3>
+                        <p>Submit supporting documents, photos, or videos if available</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">
                             <i class="fas fa-search"></i>
                         </div>
-                        <h3>Track Report Status</h3>
-                        <p>Check the status of your submitted blotter reports</p>
-                        <button class="card-btn" id="trackReportBtn">
-                            <i class="fas fa-search"></i> Track Status
-                        </button>
+                        <h3>Review & Investigation</h3>
+                        <p>Barangay officials review your report and conduct initial investigation</p>
                     </div>
-                    <div class="action-card">
-                        <div class="card-icon">
-                            <i class="fas fa-history"></i>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">
+                            <i class="fas fa-gavel"></i>
                         </div>
-                        <h3>View History</h3>
-                        <p>Access your previous blotter reports and resolutions</p>
-                        <button class="card-btn" id="viewHistoryBtn">
-                            <i class="fas fa-history"></i> View History
-                        </button>
-                    </div>
-                    <div class="action-card">
-                        <div class="card-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <h3>Emergency Contact</h3>
-                        <p>Immediate assistance for urgent situations</p>
-                        <button class="card-btn emergency" id="emergencyBtn">
-                            <i class="fas fa-phone-alt"></i> Call Emergency
-                        </button>
+                        <h3>Action & Resolution</h3>
+                        <p>Receive updates on actions taken and case resolution</p>
                     </div>
                 </div>
             </div>
@@ -808,93 +901,6 @@
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Response Time: Within 24 Hours
                     </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Track Report Section -->
-        <section class="track-section" id="trackSection">
-            <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-search"></i> Track Report Status</h2>
-                    <p>Enter your reference number to check the status of your blotter report</p>
-                </div>
-                
-                <div class="track-form">
-                    <div class="track-input-group">
-                        <div class="input-with-icon">
-                            <i class="fas fa-hashtag"></i>
-                            <input type="text" id="trackReference" placeholder="Enter reference number (e.g., BL-2024-001234)">
-                        </div>
-                        <button class="track-btn" id="checkStatusBtn">
-                            <i class="fas fa-search"></i> Check Status
-                        </button>
-                    </div>
-                    
-                    <div class="track-result" id="trackResult">
-                        <!-- Results will be displayed here -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Report History Section -->
-        <section class="history-section" id="historySection">
-            <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-history"></i> Report History</h2>
-                    <p>View your previous blotter reports and their status</p>
-                </div>
-                
-                <div class="history-filters">
-                    <div class="filter-group">
-                        <label for="filterStatus"><i class="fas fa-filter"></i> Filter by Status</label>
-                        <select id="filterStatus">
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="investigating">Under Investigation</option>
-                            <option value="mediation">In Mediation</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="closed">Closed</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="filterDate"><i class="fas fa-calendar"></i> Filter by Date</label>
-                        <select id="filterDate">
-                            <option value="all">All Time</option>
-                            <option value="week">Last 7 Days</option>
-                            <option value="month">Last 30 Days</option>
-                            <option value="quarter">Last 3 Months</option>
-                            <option value="year">Last Year</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="reports-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Reference No.</th>
-                                <th>Date Filed</th>
-                                <th>Incident Type</th>
-                                <th>Status</th>
-                                <th>Last Update</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reportsTableBody">
-                            <!-- Reports will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="no-reports" id="noReportsMessage" style="display: none;">
-                    <i class="fas fa-clipboard"></i>
-                    <h3>No Reports Found</h3>
-                    <p>You haven't filed any blotter reports yet.</p>
-                    <button class="btn-new-report" id="startNewFromHistory">
-                        <i class="fas fa-plus"></i> File New Report
-                    </button>
                 </div>
             </div>
         </section>
@@ -1155,76 +1161,5 @@
     <script src="{{ asset('js/floating-actions.js') }}"></script>
     <script src="{{ asset('js/faq.js') }}"></script>
 
-    <script>
-        // // Track Report Button
-        // document.getElementById('trackReportBtn').addEventListener('click', function() {
-        //     document.getElementById('trackSection').style.display = 'block';
-        //     document.getElementById('historySection').style.display = 'none';
-        //     document.getElementById('applySection').style.display = 'none';
-            
-        //     // Smooth scroll to track section
-        //     document.getElementById('trackSection').scrollIntoView({ behavior: 'smooth' });
-        // });
-
-        // // View History Button
-        // document.getElementById('viewHistoryBtn').addEventListener('click', function() {
-        //     document.getElementById('historySection').style.display = 'block';
-        //     document.getElementById('trackSection').style.display = 'none';
-        //     document.getElementById('applySection').style.display = 'none';
-            
-        //     // Smooth scroll to history section
-        //     document.getElementById('historySection').scrollIntoView({ behavior: 'smooth' });
-        // });
-
-        // // Emergency Button  
-        // document.getElementById('emergencyBtn').addEventListener('click', function() {
-        //     if (confirm('For emergency situations, please call 911 immediately.\n\nClick OK to call 911.')) {
-        //         window.location.href = 'tel:911';
-        //     }
-        // });
-
-        // // Start New Report from History
-        // document.getElementById('startNewFromHistory').addEventListener('click', function() {
-        //     window.location.href = 'blotter_report_form.html';
-        // });
-
-        // Check Status Button
-        document.getElementById('checkStatusBtn').addEventListener('click', function() {
-            const reference = document.getElementById('trackReference').value.trim();
-            
-            if (!reference) {
-                alert('Please enter a reference number');
-                return;
-            }
-            
-            // Simulate status check
-            const trackResult = document.getElementById('trackResult');
-            trackResult.style.display = 'block';
-            trackResult.innerHTML = `
-                <div class="stat-box" style="margin-top: 20px;">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>Report Status: ${reference}</h3>
-                        <div class="stat-number">Under Investigation</div>
-                        <p class="stat-trend">Last updated: ${new Date().toLocaleDateString()}</p>
-                        <p style="margin-top: 10px; color: #666;">Your report is currently being reviewed by barangay officials.</p>
-                    </div>
-                </div>
-            `;
-        });
-
-        // Filter functionality (simulated)
-        document.getElementById('filterStatus').addEventListener('change', function() {
-            // In a real application, this would filter the table
-            console.log('Filter by status:', this.value);
-        });
-
-        document.getElementById('filterDate').addEventListener('change', function() {
-            // In a real application, this would filter the table
-            console.log('Filter by date:', this.value);
-        });
-    </script>
 </body>
 </html>
