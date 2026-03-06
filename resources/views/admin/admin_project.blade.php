@@ -474,10 +474,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -676,7 +690,7 @@
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -689,62 +703,108 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
         <!-- Registry Dropdown -->
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
         <!-- Records Dropdown -->
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
         <!-- Community Dropdown -->
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
+        
     </div>
 
     <!-- Main Content -->
@@ -760,10 +820,30 @@
                     Projects
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -862,7 +942,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('projects.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.projects.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -871,10 +951,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_projects')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Project</span>
                                     </a>
-                                    <a href="{{ route('projects.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.projects.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -922,8 +1004,9 @@
                         </div>
 
                         <!-- Bulk Actions -->
+                        @if(auth('admin')->user()->hasPermission('delete_projects'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('projects.bulkDelete') }}" style="display: inline;">
+                            <form id="bulkForm" method="POST" action="{{ route('admin.projects.bulkDelete') }}" style="display: inline;">
                                 @csrf
                                 <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                     <i class="fas fa-trash-alt"></i>
@@ -931,6 +1014,7 @@
                                 </button>
                             </form>
                         </div>
+                        @endif
                     </form>
                 </div>
             </div>
@@ -1079,31 +1163,35 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View -->
+                                            <!-- View (everyone with view_projects can view) -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $project->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit -->
+                                            <!-- Edit (requires update_projects permission) -->
+                                            @admin_can('update_projects')
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProjectModal{{ $project->id }}" title="Edit Project">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            @endadmin_can
 
-                                            <!-- Update Progress (only for ongoing) -->
-                                            @if($project->status == 'ongoing')
+                                            <!-- Update Progress (only for ongoing and if user has update_project_progress permission) -->
+                                            @if($project->status == 'ongoing' && auth('admin')->user()->hasPermission('update_project_progress'))
                                             <button type="button" class="btn btn-sm btn-outline-warning" onclick="updateProgress({{ $project->id }}, {{ $project->progress }})" title="Update Progress">
                                                 <i class="fas fa-chart-line"></i>
                                             </button>
                                             @endif
 
-                                            <!-- Delete -->
-                                            <form method="POST" action="{{ route('projects.destroy', $project->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this project permanently?')">
+                                            <!-- Delete (requires delete_projects permission) -->
+                                            @admin_can('delete_projects')
+                                            <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this project permanently?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1114,9 +1202,11 @@
                                             <i class="fas fa-project-diagram fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No projects found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_projects')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                                                 <i class="fas fa-plus me-2"></i>Add New Project
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1141,7 +1231,8 @@
                 </div>
             </div>
 
-            <!-- Add Project Modal with Validation -->
+            <!-- Add Project Modal with Validation - Only if user has create_projects permission -->
+            @admin_can('create_projects')
             <div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -1152,7 +1243,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('projects.store') }}" id="addProjectForm">
+                        <form method="POST" action="{{ route('admin.projects.store') }}" id="addProjectForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1258,130 +1349,133 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Edit Project Modals with Validation -->
-            @foreach($projects as $project)
-            <div class="modal fade" id="editProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-edit me-2"></i>
-                                Edit Project
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{{ route('projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
+            <!-- Edit Project Modals with Validation - Only if user has update_projects permission -->
+            @if(auth('admin')->user()->hasPermission('update_projects'))
+                @foreach($projects as $project)
+                <div class="modal fade" id="editProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Edit Project
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Project Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'edit_' . $project->id ? old('title', $project->title) : $project->title }}" required>
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('description') is-invalid @enderror @endif" 
-                                                  name="description" rows="4" required>{{ session('form_type') == 'edit_' . $project->id ? old('description', $project->description) : $project->description }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('description')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Dates -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Start Date</label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('start_date') is-invalid @enderror @endif" 
-                                               name="start_date" value="{{ session('form_type') == 'edit_' . $project->id ? old('start_date', $project->start_date ? $project->start_date->format('Y-m-d') : '') : ($project->start_date ? $project->start_date->format('Y-m-d') : '') }}">
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('start_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Expected Completion</label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('expected_completion') is-invalid @enderror @endif" 
-                                               name="expected_completion" value="{{ session('form_type') == 'edit_' . $project->id ? old('expected_completion', $project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') : ($project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') }}">
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('expected_completion')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Location -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Location</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('location') is-invalid @enderror @endif" 
-                                               name="location" value="{{ session('form_type') == 'edit_' . $project->id ? old('location', $project->location) : $project->location }}">
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('location')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Status and Progress -->
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $project->id) @error('status') is-invalid @enderror @endif" 
-                                                name="status" id="edit_status_{{ $project->id }}" required>
-                                            <option value="">Select status</option>
-                                            <option value="ongoing" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
-                                            <option value="completed" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'completed' ? 'selected' : '' }}>Completed</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('status')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                                        <input type="range" class="form-range" id="editProgressRange{{ $project->id }}" min="0" max="100" step="1" value="{{ $project->progress }}">
-                                        <div class="text-center mt-2">
-                                            <span class="badge bg-primary" id="editProgressValue{{ $project->id }}">{{ $project->progress }}%</span>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <!-- Basic Information -->
+                                        <div class="col-12">
+                                            <label class="form-label">Project Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('title') is-invalid @enderror @endif" 
+                                                   name="title" value="{{ session('form_type') == 'edit_' . $project->id ? old('title', $project->title) : $project->title }}" required>
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
                                         </div>
-                                        <input type="hidden" name="progress" id="editProgressHidden{{ $project->id }}" value="{{ $project->progress }}">
-                                        @if(session('form_type') == 'edit_' . $project->id)
-                                            @error('progress')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+
+                                        <div class="col-12">
+                                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('description') is-invalid @enderror @endif" 
+                                                      name="description" rows="4" required>{{ session('form_type') == 'edit_' . $project->id ? old('description', $project->description) : $project->description }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('description')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Dates -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Start Date</label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('start_date') is-invalid @enderror @endif" 
+                                                   name="start_date" value="{{ session('form_type') == 'edit_' . $project->id ? old('start_date', $project->start_date ? $project->start_date->format('Y-m-d') : '') : ($project->start_date ? $project->start_date->format('Y-m-d') : '') }}">
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('start_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Expected Completion</label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('expected_completion') is-invalid @enderror @endif" 
+                                                   name="expected_completion" value="{{ session('form_type') == 'edit_' . $project->id ? old('expected_completion', $project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') : ($project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') }}">
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('expected_completion')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Location -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Location</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('location') is-invalid @enderror @endif" 
+                                                   name="location" value="{{ session('form_type') == 'edit_' . $project->id ? old('location', $project->location) : $project->location }}">
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('location')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Status and Progress -->
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $project->id) @error('status') is-invalid @enderror @endif" 
+                                                    name="status" id="edit_status_{{ $project->id }}" required>
+                                                <option value="">Select status</option>
+                                                <option value="ongoing" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                                <option value="completed" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('status')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
+                                            <input type="range" class="form-range" id="editProgressRange{{ $project->id }}" min="0" max="100" step="1" value="{{ $project->progress }}">
+                                            <div class="text-center mt-2">
+                                                <span class="badge bg-primary" id="editProgressValue{{ $project->id }}">{{ $project->progress }}%</span>
+                                            </div>
+                                            <input type="hidden" name="progress" id="editProgressHidden{{ $project->id }}" value="{{ $project->progress }}">
+                                            @if(session('form_type') == 'edit_' . $project->id)
+                                                @error('progress')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Project
-                                </button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Project
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Modals -->
+            <!-- View Modals (always visible since they just show data) -->
             @foreach($projects as $project)
             <div class="modal fade" id="viewModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1479,7 +1573,8 @@
             </div>
             @endforeach
 
-            <!-- Update Progress Modal -->
+            <!-- Update Progress Modal - Only if user has update_project_progress permission -->
+            @if(auth('admin')->user()->hasPermission('update_project_progress'))
             <div class="modal fade" id="updateProgressModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
@@ -1522,6 +1617,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             @if ($errors->any() && session('form_type') == 'add')
             <script>
@@ -1644,6 +1740,7 @@
 
         // Update progress function
         function updateProgress(projectId, currentProgress) {
+            @if(auth('admin')->user()->hasPermission('update_project_progress'))
             const modal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
             const form = document.getElementById('updateProgressForm');
             const range = document.getElementById('progressRange');
@@ -1663,6 +1760,7 @@
             }
             
             modal.show();
+            @endif
         }
 
         // Update progress range display for add modal
@@ -1739,28 +1837,30 @@
             });
 
             // Setup edit modal progress listeners
-            @foreach($projects as $project)
-            (function(projectId) {
-                const range = document.getElementById('editProgressRange' + projectId);
-                const value = document.getElementById('editProgressValue' + projectId);
-                const hidden = document.getElementById('editProgressHidden' + projectId);
-                const statusSelect = document.getElementById('edit_status_' + projectId);
-                
-                if (range && value && hidden && statusSelect) {
-                    range.addEventListener('input', function() {
-                        value.textContent = this.value + '%';
-                        hidden.value = this.value;
-                        
-                        // Auto-select status based on progress
-                        if (this.value == 100) {
-                            statusSelect.value = 'completed';
-                        } else {
-                            statusSelect.value = 'ongoing';
-                        }
-                    });
-                }
-            })('{{ $project->id }}');
-            @endforeach
+            @if(auth('admin')->user()->hasPermission('update_projects'))
+                @foreach($projects as $project)
+                (function(projectId) {
+                    const range = document.getElementById('editProgressRange' + projectId);
+                    const value = document.getElementById('editProgressValue' + projectId);
+                    const hidden = document.getElementById('editProgressHidden' + projectId);
+                    const statusSelect = document.getElementById('edit_status_' + projectId);
+                    
+                    if (range && value && hidden && statusSelect) {
+                        range.addEventListener('input', function() {
+                            value.textContent = this.value + '%';
+                            hidden.value = this.value;
+                            
+                            // Auto-select status based on progress
+                            if (this.value == 100) {
+                                statusSelect.value = 'completed';
+                            } else {
+                                statusSelect.value = 'ongoing';
+                            }
+                        });
+                    }
+                })('{{ $project->id }}');
+                @endforeach
+            @endif
         });
 
         // Auto-submit search after typing (optional)

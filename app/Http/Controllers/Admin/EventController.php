@@ -100,7 +100,7 @@ class EventController extends Controller
 
             Event::create($data);
 
-            return redirect()->route('events.index')
+            return redirect()->route('admin.events.index')
                 ->with('success', 'Event created successfully.');
 
         } catch (\Exception $e) {

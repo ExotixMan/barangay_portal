@@ -478,10 +478,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -709,13 +723,43 @@
         .dropdown-item button:hover {
             background: none;
         }
+        
+        /* Permission denied message */
+        .permission-denied {
+            background: white;
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .permission-denied i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        .permission-denied h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .permission-denied p {
+            color: #6c757d;
+            max-width: 400px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -728,62 +772,125 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        {{-- Dashboard Link --}}
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
-        <!-- Registry Dropdown -->
+        {{-- Registry Dropdown --}}
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-user"></i> <span>Residents</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-alt"></i> <span>Residency Applications</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-invoice"></i> <span>Indigency</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
-        <!-- Records Dropdown -->
+        {{-- Records Dropdown --}}
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" class="active" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-contract"></i> <span>Clearances</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-book"></i> <span>Incident Reports</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
-        <!-- Community Dropdown -->
+        {{-- Community Dropdown --}}
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-calendar"></i> <span>Events</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-project-diagram"></i> <span>Projects</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        {{-- Users Link --}}
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
-            <span>Users</span>
+            <span>Users & Roles</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -799,10 +906,30 @@
                     Clearance Applications
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -893,7 +1020,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('clearance.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.clearance.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -902,10 +1029,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_clearance')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Clearance Application</span>
                                     </a>
-                                    <a href="{{ route('clearance.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.clearance.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -958,23 +1087,30 @@
                         </div>
                     </form>
 
-                    <!-- Bulk Actions -->
+                    <!-- Bulk Actions - Only show if user has delete permission -->
+                    @if(auth('admin')->user()->hasPermission('delete_clearance') || auth('admin')->user()->hasPermission('export_clearance'))
                     <div class="mt-3 d-flex gap-2 justify-content-end">
-                        <form id="bulkForm" method="POST" action="{{ route('clearance.bulkDelete') }}" style="display: inline;">
+                        @admin_can('delete_clearance')
+                        <form id="bulkForm" method="POST" action="{{ route('admin.clearance.bulkDelete') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                 <i class="fas fa-trash-alt"></i>
                                 <span class="d-none d-sm-inline">Bulk Delete</span>
                             </button>
                         </form>
-                        <form id="exportForm" method="POST" action="{{ route('clearance.export') }}" style="display: inline;">
+                        @endadmin_can
+                        
+                        @admin_can('export_clearance')
+                        <form id="exportForm" method="POST" action="{{ route('admin.clearance.export') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
                                 <i class="fas fa-file-csv"></i>
                                 <span class="d-none d-sm-inline">Export</span>
                             </button>
                         </form>
+                        @endadmin_can
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -1061,27 +1197,27 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View Details -->
+                                            <!-- View Details (everyone with view_clearance can view) -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit (only for processing) -->
-                                            @if($app->status == 'processing')
+                                            <!-- Edit (only for processing and if user has update_clearance permission) -->
+                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('update_clearance'))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editClearanceModal{{ $app->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
 
-                                            <!-- Document Actions Dropdown (only for approved) -->
-                                            @if($app->status == 'approved')
+                                            <!-- Document Actions Dropdown (only for approved and if user has generate_clearance_document permission) -->
+                                            @if($app->status == 'approved' && auth('admin')->user()->hasPermission('generate_clearance_document'))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
                                                     <i class="fas fa-file-alt"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <form method="GET" action="{{ route('clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.clearance.document') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="download" class="dropdown-item">
                                                                 <i class="fas fa-download me-2"></i>Download Word
@@ -1089,7 +1225,7 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form method="GET" action="{{ route('clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.clearance.document') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="print" class="dropdown-item">
                                                                 <i class="fas fa-print me-2"></i>Print PDF
@@ -1100,15 +1236,17 @@
                                             </div>
                                             @endif
 
-                                            <!-- Communication Dropdown (only for approved) -->
-                                            @if($app->status == 'approved' || $app->status == 'rejected')
+                                            <!-- Communication Dropdown (only for approved/rejected and if user has notification permissions) -->
+                                            @if(($app->status == 'approved' || $app->status == 'rejected') && 
+                                                (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
+                                                    @if(auth('admin')->user()->hasPermission('send_email'))
                                                     <li>
-                                                        <form method="POST" action="{{ route('sendEmail') }}" class="dropdown-item p-0">
+                                                        <form method="POST" action="{{ route('admin.notifications.sendEmail') }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="email" value="{{ $app->email }}">
                                                             <input type="hidden" name="name" value="{{ $app->first_name }} {{ $app->last_name }}">
@@ -1122,8 +1260,11 @@
                                                             </button>
                                                         </form>
                                                     </li>
+                                                    @endif
+                                                    
+                                                    @if(auth('admin')->user()->hasPermission('send_sms'))
                                                     <li>
-                                                        <form method="POST" action="{{ route('sendSMS') }}" class="dropdown-item p-0">
+                                                        <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="phone" value="+63{{ ltrim($app->contact_number, '0') }}">
                                                             <input type="hidden" name="message" value="Good news! Your clearance application {{ $app->reference_number }} has been APPROVED. Please visit the barangay hall to claim your certificate.">
@@ -1132,13 +1273,14 @@
                                                             </button>
                                                         </form>
                                                     </li>
+                                                    @endif
                                                 </ul>
                                             </div>
                                             @endif
 
-                                            <!-- Approve (only for processing) -->
-                                            @if($app->status == 'processing')
-                                            <form method="POST" action="{{ route('clearance.approve', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Approve this application?')">
+                                            <!-- Approve (only for processing and if user has approve_clearance permission) -->
+                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('approve_clearance'))
+                                            <form method="POST" action="{{ route('admin.clearance.approve', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Approve this application?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
                                                     <i class="fas fa-check"></i>
@@ -1146,9 +1288,9 @@
                                             </form>
                                             @endif
 
-                                            <!-- Reject (only for processing) -->
-                                            @if($app->status == 'processing')
-                                            <form method="POST" action="{{ route('clearance.reject', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reject this application?')">
+                                            <!-- Reject (only for processing and if user has reject_clearance permission) -->
+                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('reject_clearance'))
+                                            <form method="POST" action="{{ route('admin.clearance.reject', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reject this application?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
                                                     <i class="fas fa-times"></i>
@@ -1156,14 +1298,16 @@
                                             </form>
                                             @endif
 
-                                            <!-- Delete (always available) -->
-                                            <form method="POST" action="{{ route('clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
+                                            <!-- Delete (always available if user has delete_clearance permission) -->
+                                            @if(auth('admin')->user()->hasPermission('delete_clearance'))
+                                            <form method="POST" action="{{ route('admin.clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -1174,9 +1318,11 @@
                                             <i class="fas fa-file-contract fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No clearance applications found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_clearance')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1201,7 +1347,8 @@
                 </div>
             </div>
 
-            <!-- Add Application Modal with Validation -->
+            <!-- Add Application Modal with Validation - Only show if user has create_clearance permission -->
+            @admin_can('create_clearance')
             <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -1212,7 +1359,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('clearance_app.store') }}" enctype="multipart/form-data" id="addApplicationForm">
+                        <form method="POST" action="{{ route('admin.clearance.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1388,256 +1535,259 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Edit Application Modals with Validation -->
-            @foreach($clearances as $app)
-            <div class="modal fade" id="editClearanceModal{{ $app->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-user-edit me-2"></i>
-                                Edit Clearance Application - {{ $app->reference_number }}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{{ route('clearance.update', $app->id) }}" enctype="multipart/form-data" id="editClearanceForm{{ $app->id }}">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
+            <!-- Edit Application Modals with Validation - Only show for users with update_clearance permission -->
+            @if(auth('admin')->user()->hasPermission('update_clearance'))
+                @foreach($clearances as $app)
+                <div class="modal fade" id="editClearanceModal{{ $app->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-user-edit me-2"></i>
+                                    Edit Clearance Application - {{ $app->reference_number }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.clearance.update', $app->id) }}" enctype="multipart/form-data" id="editClearanceForm{{ $app->id }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <!-- Personal Information -->
-                                    <div class="col-12">
-                                        <h6 class="fw-semibold text-primary">Personal Information</h6>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('first_name') is-invalid @enderror @endif" 
-                                            name="first_name" id="edit_first_name_{{ $app->id }}" 
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('first_name', $app->first_name) : $app->first_name }}" 
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('first_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('middle_name') is-invalid @enderror @endif" 
-                                            name="middle_name" id="edit_middle_name_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('middle_name', $app->middle_name) : $app->middle_name }}">
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('middle_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('last_name') is-invalid @enderror @endif" 
-                                            name="last_name" id="edit_last_name_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('last_name', $app->last_name) : $app->last_name }}" 
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('last_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Suffix</label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('suffix') is-invalid @enderror @endif" 
-                                                name="suffix" id="edit_suffix_{{ $app->id }}">
-                                            <option value="">None</option>
-                                            <option value="Jr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                            <option value="Sr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                            <option value="III" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'III' ? 'selected' : '' }}>III</option>
-                                            <option value="IV" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('suffix')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birthdate') is-invalid @enderror @endif" 
-                                            name="birthdate" id="edit_birthdate_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('birthdate', $app->birthdate) : $app->birthdate }}" 
-                                            required max="{{ date('Y-m-d') }}">
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('birthdate')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Birth Place</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birth_place') is-invalid @enderror @endif" 
-                                            name="birth_place" id="edit_birth_place_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('birth_place', $app->birth_place) : $app->birth_place }}" 
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('birth_place')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('gender') is-invalid @enderror @endif" 
-                                                name="gender" id="edit_gender_{{ $app->id }}" required>
-                                            <option value="">Select gender</option>
-                                            <option value="male" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                                            <option value="female" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'female' ? 'selected' : '' }}>Female</option>
-                                            <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('gender')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('civil_status') is-invalid @enderror @endif" 
-                                                name="civil_status" id="edit_civil_status_{{ $app->id }}" required>
-                                            <option value="">Select status</option>
-                                            <option value="single" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
-                                            <option value="married" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
-                                            <option value="widowed" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
-                                            <option value="separated" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('civil_status')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <!-- Personal Information -->
+                                        <div class="col-12">
+                                            <h6 class="fw-semibold text-primary">Personal Information</h6>
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('first_name') is-invalid @enderror @endif" 
+                                                name="first_name" id="edit_first_name_{{ $app->id }}" 
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('first_name', $app->first_name) : $app->first_name }}" 
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('first_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Middle Name</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('middle_name') is-invalid @enderror @endif" 
+                                                name="middle_name" id="edit_middle_name_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('middle_name', $app->middle_name) : $app->middle_name }}">
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('middle_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('last_name') is-invalid @enderror @endif" 
+                                                name="last_name" id="edit_last_name_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('last_name', $app->last_name) : $app->last_name }}" 
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('last_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Suffix</label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('suffix') is-invalid @enderror @endif" 
+                                                    name="suffix" id="edit_suffix_{{ $app->id }}">
+                                                <option value="">None</option>
+                                                <option value="Jr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                <option value="Sr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                <option value="III" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                                <option value="IV" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('suffix')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birthdate') is-invalid @enderror @endif" 
+                                                name="birthdate" id="edit_birthdate_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('birthdate', $app->birthdate) : $app->birthdate }}" 
+                                                required max="{{ date('Y-m-d') }}">
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('birthdate')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Birth Place</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birth_place') is-invalid @enderror @endif" 
+                                                name="birth_place" id="edit_birth_place_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('birth_place', $app->birth_place) : $app->birth_place }}" 
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('birth_place')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('gender') is-invalid @enderror @endif" 
+                                                    name="gender" id="edit_gender_{{ $app->id }}" required>
+                                                <option value="">Select gender</option>
+                                                <option value="male" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                                <option value="female" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                                <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('gender', $app->gender) : $app->gender) == 'other' ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('gender')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('civil_status') is-invalid @enderror @endif" 
+                                                    name="civil_status" id="edit_civil_status_{{ $app->id }}" required>
+                                                <option value="">Select status</option>
+                                                <option value="single" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                                <option value="married" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                                <option value="widowed" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                                <option value="separated" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('civil_status')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <!-- Contact Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Contact Information</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('email') is-invalid @enderror @endif" 
-                                            name="email" id="edit_email_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('email', $app->email) : $app->email }}" 
-                                            placeholder="email@example.com" required>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('contact_number') is-invalid @enderror @endif" 
-                                            name="contact_number" id="edit_contact_number_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('contact_number', $app->contact_number) : $app->contact_number }}" 
-                                            placeholder="09XXXXXXXXX" maxlength="11" required>
-                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('contact_number')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('address') is-invalid @enderror @endif" 
-                                                name="address" id="edit_address_{{ $app->id }}"
-                                                rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $app->id ? old('address', $app->address) : $app->address }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('address')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <!-- Contact Information -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Contact Information</h6>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('email') is-invalid @enderror @endif" 
+                                                name="email" id="edit_email_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('email', $app->email) : $app->email }}" 
+                                                placeholder="email@example.com" required>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('email')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('contact_number') is-invalid @enderror @endif" 
+                                                name="contact_number" id="edit_contact_number_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('contact_number', $app->contact_number) : $app->contact_number }}" 
+                                                placeholder="09XXXXXXXXX" maxlength="11" required>
+                                            <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('contact_number')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('address') is-invalid @enderror @endif" 
+                                                    name="address" id="edit_address_{{ $app->id }}"
+                                                    rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $app->id ? old('address', $app->address) : $app->address }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('address')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <!-- Clearance Details -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Clearance Details</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Purpose <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('purpose') is-invalid @enderror @endif" 
-                                                name="purpose" id="edit_purpose_{{ $app->id }}" required>
-                                            <option value="">Select purpose</option>
-                                            <option value="employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
-                                            <option value="travel" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'travel' ? 'selected' : '' }}>Travel</option>
-                                            <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business</option>
-                                            <option value="scholarship" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
-                                            <option value="local_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'local_employment' ? 'selected' : '' }}>Local Employment</option>
-                                            <option value="overseas_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'overseas_employment' ? 'selected' : '' }}>Overseas Employment</option>
-                                            <option value="school_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school_requirements' ? 'selected' : '' }}>School Requirements</option>
-                                            <option value="government_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government_requirements' ? 'selected' : '' }}>Government Requirements</option>
-                                            <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('purpose')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12" id="edit_otherPurposeField_{{ $app->id }}" style="{{ (session('form_type') == 'edit_' . $app->id && old('purpose', $app->purpose) == 'other') ? 'display:block;' : 'display:none;' }}">
-                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('purpose_other') is-invalid @enderror @endif" 
-                                            name="purpose_other" id="edit_purpose_other_{{ $app->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $app->id ? old('purpose_other', $app->purpose_other) : $app->purpose_other }}" 
-                                            placeholder="Please specify">
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('purpose_other')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <!-- Clearance Details -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Clearance Details</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Purpose <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('purpose') is-invalid @enderror @endif" 
+                                                    name="purpose" id="edit_purpose_{{ $app->id }}" required>
+                                                <option value="">Select purpose</option>
+                                                <option value="employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
+                                                <option value="travel" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'travel' ? 'selected' : '' }}>Travel</option>
+                                                <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business</option>
+                                                <option value="scholarship" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
+                                                <option value="local_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'local_employment' ? 'selected' : '' }}>Local Employment</option>
+                                                <option value="overseas_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'overseas_employment' ? 'selected' : '' }}>Overseas Employment</option>
+                                                <option value="school_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school_requirements' ? 'selected' : '' }}>School Requirements</option>
+                                                <option value="government_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government_requirements' ? 'selected' : '' }}>Government Requirements</option>
+                                                <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'other' ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('purpose')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12" id="edit_otherPurposeField_{{ $app->id }}" style="{{ (session('form_type') == 'edit_' . $app->id && old('purpose', $app->purpose) == 'other') ? 'display:block;' : 'display:none;' }}">
+                                            <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('purpose_other') is-invalid @enderror @endif" 
+                                                name="purpose_other" id="edit_purpose_other_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('purpose_other', $app->purpose_other) : $app->purpose_other }}" 
+                                                placeholder="Please specify">
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('purpose_other')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <!-- Documents -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Valid ID</label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('valid_id_path') is-invalid @enderror @endif" 
-                                            name="valid_id_path" id="edit_valid_id_path_{{ $app->id }}" accept="image/*,.pdf">
-                                        <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
-                                        @if(session('form_type') == 'edit_' . $app->id)
-                                            @error('valid_id_path')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                        <!-- Documents -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Valid ID</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('valid_id_path') is-invalid @enderror @endif" 
+                                                name="valid_id_path" id="edit_valid_id_path_{{ $app->id }}" accept="image/*,.pdf">
+                                            <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('valid_id_path')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        
+                                        @if($app->valid_id_path)
+                                        <div class="col-12">
+                                            <small class="text-info">
+                                                <i class="fas fa-info-circle me-1"></i>Current file: {{ basename($app->valid_id_path) }}
+                                            </small>
+                                        </div>
                                         @endif
                                     </div>
-                                    
-                                    @if($app->valid_id_path)
-                                    <div class="col-12">
-                                        <small class="text-info">
-                                            <i class="fas fa-info-circle me-1"></i>Current file: {{ basename($app->valid_id_path) }}
-                                        </small>
-                                    </div>
-                                    @endif
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $app->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Application
-                                </button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $app->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Application
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Modals -->
+            <!-- View Modals (always visible since they just show data) -->
             @foreach($clearances as $app)
             <div class="modal fade" id="viewModal{{ $app->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -2043,117 +2193,34 @@
         }
 
         // Real-time validation for edit forms
-        @foreach($clearances as $app)
-        (function(editId) {
-            const editForm = document.getElementById('editClearanceForm' + editId);
-            if (editForm) {
-                // Purpose other field toggle
-                const purposeSelect = document.getElementById('edit_purpose_' + editId);
-                const otherField = document.getElementById('edit_otherPurposeField_' + editId);
-                if (purposeSelect && otherField) {
-                    purposeSelect.addEventListener('change', function() {
-                        if (this.value === 'other') {
-                            otherField.style.display = 'block';
-                        } else {
-                            otherField.style.display = 'none';
-                        }
-                    });
-                }
-
-                // Contact number validation
-                const contact = document.getElementById('edit_contact_number_' + editId);
-                if (contact) {
-                    contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+        @if(auth('admin')->user()->hasPermission('update_clearance'))
+            @foreach($clearances as $app)
+            (function(editId) {
+                const editForm = document.getElementById('editClearanceForm' + editId);
+                if (editForm) {
+                    // Purpose other field toggle
+                    const purposeSelect = document.getElementById('edit_purpose_' + editId);
+                    const otherField = document.getElementById('edit_otherPurposeField_' + editId);
+                    if (purposeSelect && otherField) {
+                        purposeSelect.addEventListener('change', function() {
+                            if (this.value === 'other') {
+                                otherField.style.display = 'block';
+                            } else {
+                                otherField.style.display = 'none';
                             }
-                            feedback.textContent = 'Contact number must start with 09';
-                        }
-                        else if (this.value.length > 0 && this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
-                            }
-                            feedback.textContent = 'Contact number must be exactly 11 digits';
-                        }
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                // Birthdate validation
-                const birthdate = document.getElementById('edit_birthdate_' + editId);
-                if (birthdate) {
-                    birthdate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Birthdate cannot be in the future');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Contact number validation
+                    const contact = document.getElementById('edit_contact_number_' + editId);
+                    if (contact) {
+                        contact.addEventListener('input', function() {
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                            if (this.value.length > 11) {
+                                this.value = this.value.slice(0, 11);
                             }
-                            feedback.textContent = 'Birthdate cannot be in the future';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Email validation
-                const email = document.getElementById('edit_email_' + editId);
-                if (email) {
-                    email.addEventListener('input', function() {
-                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailPattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Please enter a valid email address');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
-                            }
-                            feedback.textContent = 'Please enter a valid email address';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // File size validation
-                const validId = document.getElementById('edit_valid_id_path_' + editId);
-                if (validId) {
-                    validId.addEventListener('change', function() {
-                        if (this.files && this.files[0]) {
-                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
-                            if (fileSize > 5) {
-                                this.setCustomValidity('File size must not exceed 5MB');
+                            if (this.value.length > 0 && !this.value.startsWith('09')) {
+                                this.setCustomValidity('Contact number must start with 09');
                                 this.classList.add('is-invalid');
                                 
                                 let feedback = this.nextElementSibling;
@@ -2162,62 +2229,147 @@
                                     feedback.className = 'invalid-feedback';
                                     this.parentNode.appendChild(feedback);
                                 }
-                                feedback.textContent = 'File size must not exceed 5MB';
+                                feedback.textContent = 'Contact number must start with 09';
+                            }
+                            else if (this.value.length > 0 && this.value.length !== 11) {
+                                this.setCustomValidity('Contact number must be exactly 11 digits');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Contact number must be exactly 11 digits';
+                            }
+                            else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
+
+                    // Birthdate validation
+                    const birthdate = document.getElementById('edit_birthdate_' + editId);
+                    if (birthdate) {
+                        birthdate.addEventListener('change', function() {
+                            const selectedDate = new Date(this.value);
+                            const today = new Date();
+                            if (selectedDate > today) {
+                                this.setCustomValidity('Birthdate cannot be in the future');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Birthdate cannot be in the future';
                             } else {
                                 this.setCustomValidity('');
                                 this.classList.remove('is-invalid');
                             }
-                        }
-                    });
-                }
+                        });
+                    }
 
-                // Name validation (letters, spaces, hyphens only)
-                const firstName = document.getElementById('edit_first_name_' + editId);
-                if (firstName) {
-                    firstName.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Email validation
+                    const email = document.getElementById('edit_email_' + editId);
+                    if (email) {
+                        email.addEventListener('input', function() {
+                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailPattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Please enter a valid email address');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Please enter a valid email address';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                const lastName = document.getElementById('edit_last_name_' + editId);
-                if (lastName) {
-                    lastName.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // File size validation
+                    const validId = document.getElementById('edit_valid_id_path_' + editId);
+                    if (validId) {
+                        validId.addEventListener('change', function() {
+                            if (this.files && this.files[0]) {
+                                const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                                if (fileSize > 5) {
+                                    this.setCustomValidity('File size must not exceed 5MB');
+                                    this.classList.add('is-invalid');
+                                    
+                                    let feedback = this.nextElementSibling;
+                                    if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                        feedback = document.createElement('div');
+                                        feedback.className = 'invalid-feedback';
+                                        this.parentNode.appendChild(feedback);
+                                    }
+                                    feedback.textContent = 'File size must not exceed 5MB';
+                                } else {
+                                    this.setCustomValidity('');
+                                    this.classList.remove('is-invalid');
+                                }
                             }
-                            feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
+                        });
+                    }
+
+                    // Name validation (letters, spaces, hyphens only)
+                    const firstName = document.getElementById('edit_first_name_' + editId);
+                    if (firstName) {
+                        firstName.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
+
+                    const lastName = document.getElementById('edit_last_name_' + editId);
+                    if (lastName) {
+                        lastName.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
                 }
-            }
-        })('{{ $app->id }}');
-        @endforeach
+            })('{{ $app->id }}');
+            @endforeach
+        @endif
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

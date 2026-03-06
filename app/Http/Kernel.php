@@ -10,6 +10,12 @@ class Kernel extends HttpKernel
         // global middleware
     ];
 
+    protected $routeMiddleware = [
+        // ... other middleware
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
+    ];
+
     protected $middlewareGroups = [
         'web' => [
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
@@ -21,6 +27,7 @@ class Kernel extends HttpKernel
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+
     ];
 
     // ...

@@ -414,10 +414,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -551,7 +565,7 @@
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -564,62 +578,108 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
         <!-- Registry Dropdown -->
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
         <!-- Records Dropdown -->
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
         <!-- Community Dropdown -->
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
+
     </div>
 
     <!-- Main Content -->
@@ -635,10 +695,30 @@
                     Residents
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -732,7 +812,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('residents.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.residents.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -741,10 +821,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_residents')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addResidentModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Resident</span>
                                     </a>
-                                    <a href="{{ route('residents.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.residents.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -792,23 +874,29 @@
                     </form>
 
                     <!-- Bulk Actions -->
+                    @if(auth('admin')->user()->hasAnyPermission(['delete_residents', 'bulk_delete_residents', 'export_residents']))
                     <div class="mt-3 d-flex gap-2 justify-content-end">
-                        <form id="bulkForm" method="POST" action="{{ route('residents.bulkDelete') }}" style="display: inline;">
+                        @if(auth('admin')->user()->hasAnyPermission(['delete_residents', 'bulk_delete_residents']))
+                        <form id="bulkForm" method="POST" action="{{ route('admin.residents.bulkDelete') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                 <i class="fas fa-trash-alt"></i>
                                 <span class="d-none d-sm-inline">Bulk Delete</span>
                             </button>
                         </form>
+                        @endif
 
-                        <form id="exportForm" method="POST" action="{{ route('residents.export') }}" style="display: inline;">
+                        @admin_can('export_residents')
+                        <form id="exportForm" method="POST" action="{{ route('admin.residents.export') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
                                 <i class="fas fa-file-csv"></i>
                                 <span class="d-none d-sm-inline">Export</span>
                             </button>
                         </form>
+                        @endadmin_can
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -903,30 +991,37 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
+                                            <!-- View (everyone with view_residents can view) -->
                                             <button type="button" class="btn btn-sm btn-outline-info d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View">
                                                 <i class="fa-regular fa-eye"></i>
                                             </button>
 
-                                            @if(!$resident->deleted_at)
+                                            <!-- Edit (only for non-deleted and if user has update_residents permission) -->
+                                            @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('update_residents'))
                                             <button type="button" class="btn btn-sm btn-outline-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
 
+                                            <!-- Activity (always visible) -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#activityModal{{ $resident->id }}" title="Activity">
                                                 <i class="fas fa-history"></i>
                                             </button>
 
-                                            @if(!$resident->deleted_at)
-                                                <form method="POST" action="{{ route('residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Are you sure you want to delete this resident?')">
+                                            <!-- Delete (for non-deleted and if user has delete_residents permission) -->
+                                            @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
+                                                <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Are you sure you want to delete this resident?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
-                                            @else
-                                                <form method="POST" action="{{ route('residents.restore', $resident->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this resident?')">
+                                            @endif
+
+                                            <!-- Restore (for deleted and if user has restore_residents permission) -->
+                                            @if($resident->deleted_at && auth('admin')->user()->hasPermission('restore_residents'))
+                                                <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this resident?')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
                                                         <i class="fas fa-undo"></i>
@@ -943,9 +1038,11 @@
                                             <i class="fas fa-users fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No residents found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_residents')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addResidentModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -968,7 +1065,8 @@
                 </div>
             </div>
 
-            <!-- Add Resident Modal with Validation -->
+            <!-- Add Resident Modal with Validation - Only if user has create_residents permission -->
+            @admin_can('create_residents')
             <div class="modal fade" id="addResidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -979,7 +1077,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('residents.store') }}" id="addResidentForm">
+                        <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1099,8 +1197,9 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Activity Log Modals -->
+            <!-- Activity Log Modals (always visible) -->
             @foreach($residents as $resident)
             <div class="modal fade" id="activityModal{{ $resident->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -1141,153 +1240,155 @@
             </div>
             @endforeach
 
-           <!-- Edit Resident Modals with Validation -->
-            @foreach($residents as $resident)
-            <div class="modal fade" id="editResidentModal{{ $resident->id }}" tabindex="-1" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-user-edit me-2"></i>
-                                Edit Resident - {{ $resident->full_name }}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
+           <!-- Edit Resident Modals with Validation - Only if user has update_residents permission -->
+            @if(auth('admin')->user()->hasPermission('update_residents'))
+                @foreach($residents as $resident)
+                <div class="modal fade" id="editResidentModal{{ $resident->id }}" tabindex="-1" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-user-edit me-2"></i>
+                                    Edit Resident - {{ $resident->full_name }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
 
-                        <form method="POST" action="{{ route('residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
+                            <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') is-invalid @enderror @endif"
-                                            name="firstname"
-                                            id="edit_firstname_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('firstname', $resident->firstname) : $resident->firstname }}"
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('firstname')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') is-invalid @enderror @endif"
+                                                name="firstname"
+                                                id="edit_firstname_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('firstname', $resident->firstname) : $resident->firstname }}"
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('firstname')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif"
-                                            name="lastname"
-                                            id="edit_lastname_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('lastname', $resident->lastname) : $resident->lastname }}"
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('lastname')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif"
+                                                name="lastname"
+                                                id="edit_lastname_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('lastname', $resident->lastname) : $resident->lastname }}"
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('lastname')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Username <span class="text-danger">*</span></label>
-                                        <input type="text"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('username') is-invalid @enderror @endif"
-                                            name="username"
-                                            id="edit_username_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('username', $resident->username) : $resident->username }}"
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('username')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('username') is-invalid @enderror @endif"
+                                                name="username"
+                                                id="edit_username_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('username', $resident->username) : $resident->username }}"
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('username')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('email') is-invalid @enderror @endif"
-                                            name="email"
-                                            id="edit_email_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('email', $resident->email) : $resident->email }}"
-                                            required>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <input type="email"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('email') is-invalid @enderror @endif"
+                                                name="email"
+                                                id="edit_email_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('email', $resident->email) : $resident->email }}"
+                                                required>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('email')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('contact') is-invalid @enderror @endif"
-                                            name="contact"
-                                            id="edit_contact_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('contact', $resident->contact) : $resident->contact }}"
-                                            required
-                                            maxlength="11">
-                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('contact')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('contact') is-invalid @enderror @endif"
+                                                name="contact"
+                                                id="edit_contact_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('contact', $resident->contact) : $resident->contact }}"
+                                                required
+                                                maxlength="11">
+                                            <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('contact')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date"
-                                            class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif"
-                                            name="birthdate"
-                                            id="edit_birthdate_{{ $resident->id }}"
-                                            value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}"
-                                            required
-                                            max="{{ date('Y-m-d') }}">
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('birthdate')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                            <input type="date"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif"
+                                                name="birthdate"
+                                                id="edit_birthdate_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}"
+                                                required
+                                                max="{{ date('Y-m-d') }}">
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('birthdate')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <div class="col-12">
-                                        <label class="form-label">Complete Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('address') is-invalid @enderror @endif"
-                                                name="address"
-                                                id="edit_address_{{ $resident->id }}"
-                                                rows="2"
-                                                required>{{ session('form_type') == 'edit_' . $resident->id ? old('address', $resident->address) : $resident->address }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $resident->id)
-                                            @error('address')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                        <div class="col-12">
+                                            <label class="form-label">Complete Address <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('address') is-invalid @enderror @endif"
+                                                    name="address"
+                                                    id="edit_address_{{ $resident->id }}"
+                                                    rows="2"
+                                                    required>{{ session('form_type') == 'edit_' . $resident->id ? old('address', $resident->address) : $resident->address }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('address')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="modal-footer">
-                                <button type="button"
-                                        class="btn btn-outline-secondary"
-                                        data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
 
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Resident
-                                </button>
-                            </div>
-                        </form>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Resident
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Resident Modals -->
+            <!-- View Resident Modals (always visible) -->
             @foreach($residents as $resident)
             <div class="modal fade" id="viewResidentModal{{ $resident->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1438,7 +1539,7 @@
         // Bulk delete function
         function bulkDelete() {
 
-            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
 
             if (checkboxes.length === 0) {
@@ -1446,7 +1547,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one application to delete.',
+                    text: 'Please select at least one resident to delete.',
                     confirmButtonColor: '#d33'
                 });
 
@@ -1456,7 +1557,7 @@
             // SweetAlert Confirmation
             Swal.fire({
                 title: 'Confirm Bulk Delete',
-                text: `Are you sure you want to delete ${checkboxes.length} selected application(s)?`,
+                text: `Are you sure you want to delete ${checkboxes.length} selected resident(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -1484,7 +1585,7 @@
         // Export CSV function
         function exportCSV() {
 
-            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+            const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
             // If nothing selected → Ask to export all
@@ -1493,7 +1594,7 @@
                 Swal.fire({
                     icon: 'question',
                     title: 'Export All?',
-                    text: 'No applications selected. Export all records?',
+                    text: 'No residents selected. Export all records?',
                     showCancelButton: true,
                     confirmButtonColor: '#28a745',
                     cancelButtonColor: '#6c757d',
@@ -1512,7 +1613,7 @@
             // If selected → Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
-                text: `Export ${checkboxes.length} selected application(s)?`,
+                text: `Export ${checkboxes.length} selected resident(s)?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#28a745',
@@ -1706,151 +1807,153 @@
             }
         });
         // Real-time validation for edit forms
-        @foreach($residents as $resident)
-        (function(editFormId) {
-            const editForm = document.getElementById('editResidentForm' + editFormId);
-            if (editForm) {
-                // Contact number validation
-                const contact = document.getElementById('edit_contact_' + editFormId);
-                if (contact) {
-                    contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                        }
-                        else if (this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                        } 
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Birthdate validation
-                const birthdate = document.getElementById('edit_birthdate_' + editFormId);
-                if (birthdate) {
-                    birthdate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Birthdate cannot be in the future');
-                            this.classList.add('is-invalid');
-                            
-                            // Create or update feedback message
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+        @if(auth('admin')->user()->hasPermission('update_residents'))
+            @foreach($residents as $resident)
+            (function(editFormId) {
+                const editForm = document.getElementById('editResidentForm' + editFormId);
+                if (editForm) {
+                    // Contact number validation
+                    const contact = document.getElementById('edit_contact_' + editFormId);
+                    if (contact) {
+                        contact.addEventListener('input', function() {
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                            if (this.value.length > 11) {
+                                this.value = this.value.slice(0, 11);
                             }
-                            feedback.textContent = 'Birthdate cannot be in the future';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Email format validation
-                const email = document.getElementById('edit_email_' + editFormId);
-                if (email) {
-                    email.addEventListener('input', function() {
-                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailPattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Please enter a valid email address');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                            if (this.value.length > 0 && !this.value.startsWith('09')) {
+                                this.setCustomValidity('Contact number must start with 09');
+                                this.classList.add('is-invalid');
                             }
-                            feedback.textContent = 'Please enter a valid email address';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Username validation (no special characters except underscore)
-                const username = document.getElementById('edit_username_' + editFormId);
-                if (username) {
-                    username.addEventListener('input', function() {
-                        const usernamePattern = /^[a-zA-Z0-9_]+$/;
-                        if (!usernamePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Username can only contain letters, numbers, and underscores');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                            else if (this.value.length !== 11) {
+                                this.setCustomValidity('Contact number must be exactly 11 digits');
+                                this.classList.add('is-invalid');
+                            } 
+                            else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Username can only contain letters, numbers, and underscores';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                // Name validation (no numbers or special characters)
-                const firstname = document.getElementById('edit_firstname_' + editFormId);
-                if (firstname) {
-                    firstname.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Birthdate validation
+                    const birthdate = document.getElementById('edit_birthdate_' + editFormId);
+                    if (birthdate) {
+                        birthdate.addEventListener('change', function() {
+                            const selectedDate = new Date(this.value);
+                            const today = new Date();
+                            if (selectedDate > today) {
+                                this.setCustomValidity('Birthdate cannot be in the future');
+                                this.classList.add('is-invalid');
+                                
+                                // Create or update feedback message
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Birthdate cannot be in the future';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                const lastname = document.getElementById('edit_lastname_' + editFormId);
-                if (lastname) {
-                    lastname.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Email format validation
+                    const email = document.getElementById('edit_email_' + editFormId);
+                    if (email) {
+                        email.addEventListener('input', function() {
+                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailPattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Please enter a valid email address');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Please enter a valid email address';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
+                        });
+                    }
+
+                    // Username validation (no special characters except underscore)
+                    const username = document.getElementById('edit_username_' + editFormId);
+                    if (username) {
+                        username.addEventListener('input', function() {
+                            const usernamePattern = /^[a-zA-Z0-9_]+$/;
+                            if (!usernamePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Username can only contain letters, numbers, and underscores');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Username can only contain letters, numbers, and underscores';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
+
+                    // Name validation (no numbers or special characters)
+                    const firstname = document.getElementById('edit_firstname_' + editFormId);
+                    if (firstname) {
+                        firstname.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
+
+                    const lastname = document.getElementById('edit_lastname_' + editFormId);
+                    if (lastname) {
+                        lastname.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
                 }
-            }
-        })('{{ $resident->id }}');
-        @endforeach
+            })('{{ $resident->id }}');
+            @endforeach
+        @endif
     </script>
 
     <!-- SweetAlert2 for better alerts -->

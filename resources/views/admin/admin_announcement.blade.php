@@ -288,6 +288,17 @@
             border-color: #ced4da;
         }
 
+        .btn-outline-warning {
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: white;
+        }
+
         /* Card Styling */
         .card {
             border-radius: 16px;
@@ -441,10 +452,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -677,7 +702,7 @@
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -690,62 +715,107 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
         <!-- Registry Dropdown -->
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
         <!-- Records Dropdown -->
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
         <!-- Community Dropdown -->
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -761,10 +831,30 @@
                     Announcements
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -863,7 +953,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('announcements.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.announcements.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -872,10 +962,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_announcements')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Announcement</span>
                                     </a>
-                                    <a href="{{ route('announcements.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.announcements.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -926,8 +1018,9 @@
                         </div>
 
                         <!-- Bulk Actions -->
+                        @if(auth('admin')->user()->hasPermission('delete_announcements'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('announcements.bulkDelete') }}" style="display: inline;">
+                            <form id="bulkForm" method="POST" action="{{ route('admin.announcements.bulkDelete') }}" style="display: inline;">
                                 @csrf
                                 <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                     <i class="fas fa-trash-alt"></i>
@@ -935,6 +1028,7 @@
                                 </button>
                             </form>
                         </div>
+                        @endif
                     </form>
                 </div>
             </div>
@@ -1061,19 +1155,21 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View -->
+                                            <!-- View (everyone with view_announcements can view) -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ann->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit -->
+                                            <!-- Edit (requires update_announcements permission) -->
+                                            @admin_can('update_announcements')
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ $ann->id }}" title="Edit Announcement">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            @endadmin_can
 
-                                            <!-- Feature/Unfeature -->
-                                            @if($ann->status == 'published')
-                                                <form method="POST" action="{{ route('announcements.toggle-feature', $ann->id) }}" style="display: inline;">
+                                            <!-- Feature/Unfeature (requires feature_announcements permission) -->
+                                            @if($ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
+                                                <form method="POST" action="{{ route('admin.announcements.toggle-feature', $ann->id) }}" style="display: inline;">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ $ann->is_featured ? 'Remove Featured' : 'Mark as Featured' }}" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
                                                         <i class="fas fa-star{{ $ann->is_featured ? '' : '-o' }}"></i>
@@ -1081,14 +1177,16 @@
                                                 </form>
                                             @endif
 
-                                            <!-- Delete -->
-                                            <form method="POST" action="{{ route('announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this announcement permanently?')">
+                                            <!-- Delete (requires delete_announcements permission) -->
+                                            @admin_can('delete_announcements')
+                                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this announcement permanently?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1099,9 +1197,11 @@
                                             <i class="fas fa-bullhorn fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No announcements found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_announcements')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1126,7 +1226,8 @@
                 </div>
             </div>
 
-            <!-- Add Announcement Modal with Validation -->
+            <!-- Add Announcement Modal with Validation - Only if user has create_announcements permission -->
+            @admin_can('create_announcements')
             <div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -1137,7 +1238,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('announcements.store') }}" enctype="multipart/form-data" id="addAnnouncementForm">
+                        <form method="POST" action="{{ route('admin.announcements.store') }}" enctype="multipart/form-data" id="addAnnouncementForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1254,146 +1355,149 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Edit Announcement Modals with Validation -->
-            @foreach($announcements as $ann)
-            <div class="modal fade" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-edit me-2"></i>
-                                Edit Announcement
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{{ route('announcements.update', $ann->id) }}" enctype="multipart/form-data" id="editAnnouncementForm{{ $ann->id }}">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $ann->id }}">
+            <!-- Edit Announcement Modals with Validation - Only if user has update_announcements permission -->
+            @if(auth('admin')->user()->hasPermission('update_announcements'))
+                @foreach($announcements as $ann)
+                <div class="modal fade" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Edit Announcement
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" enctype="multipart/form-data" id="editAnnouncementForm{{ $ann->id }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $ann->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Content <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif" 
-                                                  name="content" rows="6" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('content')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Category <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('category') is-invalid @enderror @endif" 
-                                                name="category" required>
-                                            <option value="">Select category</option>
-                                            <option value="important" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'important' ? 'selected' : '' }}>Important</option>
-                                            <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
-                                            <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
-                                            <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('category')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('status') is-invalid @enderror @endif" 
-                                                name="status" required>
-                                            <option value="">Select status</option>
-                                            <option value="published" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'published' ? 'selected' : '' }}>Published</option>
-                                            <option value="draft" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                            <option value="archived" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'archived' ? 'selected' : '' }}>Archived</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('status')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Published Date</label>
-                                        <input type="datetime-local" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('published_at') is-invalid @enderror @endif" 
-                                               name="published_at" value="{{ session('form_type') == 'edit_' . $ann->id ? old('published_at', $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') : ($ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') }}">
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('published_at')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Featured</label>
-                                        <div class="form-check mt-2">
-                                            <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif" 
-                                                   name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1" 
-                                                   {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="edit_is_featured_{{ $ann->id }}">Mark as featured announcement</label>
-                                        </div>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('is_featured')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Image -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Announcement Image</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Featured Image (Leave empty to keep current)</label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif" 
-                                               name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
-                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                        @if(session('form_type') == 'edit_' . $ann->id)
-                                            @error('image')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                        <div id="editImagePreview{{ $ann->id }}" class="mt-2">
-                                            @if($ann->image)
-                                                <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview">
-                                                <small class="d-block text-muted">Current image</small>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <!-- Basic Information -->
+                                        <div class="col-12">
+                                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif" 
+                                                   name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             @endif
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Content <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif" 
+                                                      name="content" rows="6" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('content')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('category') is-invalid @enderror @endif" 
+                                                    name="category" required>
+                                                <option value="">Select category</option>
+                                                <option value="important" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'important' ? 'selected' : '' }}>Important</option>
+                                                <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
+                                                <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
+                                                <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('category')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('status') is-invalid @enderror @endif" 
+                                                    name="status" required>
+                                                <option value="">Select status</option>
+                                                <option value="published" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'published' ? 'selected' : '' }}>Published</option>
+                                                <option value="draft" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                <option value="archived" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'archived' ? 'selected' : '' }}>Archived</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('status')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Published Date</label>
+                                            <input type="datetime-local" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('published_at') is-invalid @enderror @endif" 
+                                                   name="published_at" value="{{ session('form_type') == 'edit_' . $ann->id ? old('published_at', $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') : ($ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') }}">
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('published_at')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Featured</label>
+                                            <div class="form-check mt-2">
+                                                <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif" 
+                                                       name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1" 
+                                                       {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="edit_is_featured_{{ $ann->id }}">Mark as featured announcement</label>
+                                            </div>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('is_featured')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Image -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Announcement Image</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Featured Image (Leave empty to keep current)</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif" 
+                                                   name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
+                                            <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                            @if(session('form_type') == 'edit_' . $ann->id)
+                                                @error('image')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                            <div id="editImagePreview{{ $ann->id }}" class="mt-2">
+                                                @if($ann->image)
+                                                    <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview">
+                                                    <small class="d-block text-muted">Current image</small>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $ann->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Announcement
-                                </button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $ann->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Announcement
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Modals -->
+            <!-- View Modals (always visible since they just show data) -->
             @foreach($announcements as $ann)
             <div class="modal fade" id="viewModal{{ $ann->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1555,15 +1659,15 @@
                 if (confirm(`Are you sure you want to delete ${checkboxes.length} announcement(s)?`)) {
                     checkboxes.forEach(cb => {
                         const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'ids[]';
-                        input.value = cb.value;
-                        bulkForm.appendChild(input);
-                    });
-                    bulkForm.submit();
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            bulkForm.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
                 }
             }
-        }
 
         // Select all checkboxes
         function toggleSelectAll() {

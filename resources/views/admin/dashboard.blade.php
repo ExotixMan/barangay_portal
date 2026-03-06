@@ -183,6 +183,27 @@
             color: var(--primary);
             font-size: 1.3rem;
         }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1e293b;
+            z-index: 1;
+        }
+
+        .profile-badge i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        #userDropdown{
+            color: var(--primary);
+        }
         
         @media (max-width: 768px) {
             .stat-number {
@@ -215,13 +236,44 @@
             border-radius: 4px;
             font-size: 0.85rem;
         }
+        
+        /* Permission-based visibility */
+        .permission-hidden {
+            display: none !important;
+        }
+        
+        /* Role badges */
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* No permission message */
+        .no-permission-card {
+            background: #f8f9fa;
+            border: 1px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .no-permission-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
     </style>
 </head>
 <body>
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -234,62 +286,125 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="active" onclick="handleLinkClick(event, this)">
+        {{-- Dashboard Link --}}
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
-        <!-- Registry Dropdown -->
+        {{-- Registry Dropdown --}}
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-user"></i> <span>Residents</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-alt"></i> <span>Residency Applications</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-invoice"></i> <span>Indigency</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
-        <!-- Records Dropdown -->
+        {{-- Records Dropdown --}}
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-file-contract"></i> <span>Clearances</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-book"></i> <span>Incident Reports</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
-        <!-- Community Dropdown -->
+        {{-- Community Dropdown --}}
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" class="" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-calendar"></i> <span>Events</span>
+            </a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)">
+                <i class="fas fa-project-diagram"></i> <span>Projects</span>
+            </a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        {{-- Users Link --}}
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -302,15 +417,50 @@
                 </button>
                 <h1 class="page-title">Barangay Dashboard</h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
         <!-- Content Area -->
         <main class="p-3 p-lg-4">
-            <!-- Stats Cards -->
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            {{-- Stats Cards (always visible - they contain no sensitive data) --}}
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-sm-6 col-xl-3">
                     <div class="stat-card">
@@ -358,7 +508,8 @@
                 </div>
             </div>
 
-            <!-- Quick Overview Charts -->
+            {{-- Quick Overview Charts - Only show if user has permission --}}
+            @if(auth('admin')->user()->hasAnyPermission(['view_dashboard', 'view_forecast']))
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-lg-6">
                     <div class="chart-card">
@@ -386,17 +537,21 @@
                     </div>
                 </div>
             </div>
+            @endif
 
-            <!-- Applications Forecast Section -->
+            {{-- Applications Forecast Section - Only with view_forecast permission --}}
+            @admin_can('view_forecast')
             <div class="section-header">
                 <i class="fas fa-file-signature"></i>
                 <h3>Applications Forecast (Next 30 Days)</h3>
                 <span class="summary-badge ms-auto">Predictions based on historical data</span>
             </div>
             <div id="applicationsForecast" class="row g-3 g-lg-4 mb-4"></div>
+            @endadmin_can
 
-            <!-- Blotter Reports & Announcements -->
+            {{-- Blotter Reports & Announcements - Conditional sections --}}
             <div class="row g-3 g-lg-4 mb-4">
+                @admin_can('view_blotter')
                 <div class="col-lg-6">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -410,7 +565,9 @@
                         <div class="mt-3 small text-muted" id="blotterSummary"></div>
                     </div>
                 </div>
+                @endadmin_can
 
+                @admin_can('view_announcements')
                 <div class="col-lg-6">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -424,14 +581,17 @@
                         <div class="mt-3 small text-muted" id="announcementsSummary"></div>
                     </div>
                 </div>
+                @endadmin_can
             </div>
 
-            <!-- Community Insights Section -->
+            {{-- Community Insights Section - Show only if user has any community permission --}}
+            @if(auth('admin')->user()->hasAnyPermission(['view_events', 'view_projects', 'view_residents']))
             <div class="section-header">
                 <i class="fas fa-users"></i>
                 <h3>Community Insights</h3>
             </div>
             <div class="row g-3 g-lg-4">
+                @admin_can('view_events')
                 <div class="col-md-4">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -444,7 +604,9 @@
                         <div class="mt-2 text-center" id="eventsSummary"></div>
                     </div>
                 </div>
+                @endadmin_can
 
+                @admin_can('view_projects')
                 <div class="col-md-4">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -457,7 +619,9 @@
                         <div class="mt-2 text-center" id="projectsSummary"></div>
                     </div>
                 </div>
+                @endadmin_can
 
+                @admin_can('view_residents')
                 <div class="col-md-4">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -470,10 +634,24 @@
                         <div class="mt-2 text-center" id="ageSummary"></div>
                     </div>
                 </div>
+                @endadmin_can
             </div>
+            @endif
 
-            <!-- Dynamic Forecast Charts Container -->
+            {{-- Dynamic Forecast Charts Container - Only with view_forecast permission --}}
+            @admin_can('view_forecast')
             <div id="autoForecastCharts" class="row g-3 g-lg-4 mt-2"></div>
+            @endadmin_can
+            
+            {{-- No Permission Message - Show if user has no dashboard permissions --}}
+            @unless(auth('admin')->user()->hasAnyPermission(['view_dashboard', 'view_forecast', 'view_blotter', 'view_announcements', 'view_events', 'view_projects', 'view_residents']))
+            <div class="no-permission-card">
+                <i class="fas fa-lock"></i>
+                <h4>No Dashboard Access</h4>
+                <p>You don't have permission to view any dashboard data.</p>
+                <p class="small">Contact your administrator if you need access.</p>
+            </div>
+            @endunless
         </main>
     </div>
 
@@ -486,7 +664,7 @@
 
         async function loadForecastData() {
             try {
-                const response = await fetch("{{ route('dashboard.forecast') }}");
+                const response = await fetch("{{ route('admin.dashboard.forecast') }}");
                 const data = await response.json();
 
                 if (data.error) {
@@ -496,11 +674,38 @@
 
                 forecastData = data;
                 
-                // Update Stats
+                // Update Stats (always update - these are safe)
                 updateStats(data);
                 
-                // Build all charts
-                buildAllCharts(data);
+                // Build charts based on permissions (using Blade to determine which JS to run)
+                @if(auth('admin')->user()->hasPermission('view_forecast'))
+                    buildApplicationsCharts(data.applications);
+                @endif
+
+                @if(auth('admin')->user()->hasPermission('view_blotter'))
+                    buildBlotterChart(data.blotter_reports);
+                @endif
+
+                @if(auth('admin')->user()->hasPermission('view_announcements'))
+                    buildAnnouncementsChart(data.announcements);
+                @endif
+
+                @if(auth('admin')->user()->hasPermission('view_events'))
+                    buildEventsChart(data.events);
+                @endif
+
+                @if(auth('admin')->user()->hasPermission('view_projects'))
+                    buildProjectsChart(data.projects);
+                @endif
+
+                @if(auth('admin')->user()->hasPermission('view_residents'))
+                    buildAgeChart(data.residents?.age_distribution);
+                @endif
+
+                @if(auth('admin')->user()->hasAnyPermission(['view_dashboard', 'view_forecast']))
+                    buildRequestTypeChart(data);
+                    buildDailyRequestsChart(data);
+                @endif
 
             } catch (error) {
                 console.error("Error loading forecast:", error);
@@ -509,8 +714,10 @@
 
         function updateStats(data) {
             // Update stat cards with meaningful labels
-            document.getElementById('totalResidents').innerText = 
-                data.residents?.total_residents?.toLocaleString() || '0';
+            const totalResidentsEl = document.getElementById('totalResidents');
+            if (totalResidentsEl) {
+                totalResidentsEl.innerText = data.residents?.total_residents?.toLocaleString() || '0';
+            }
 
             // Calculate total pending from all applications
             const pendingRequests = 
@@ -518,46 +725,33 @@
                 (data.applications?.indigency_applications?.status_distribution?.processing || 0) +
                 (data.applications?.residency_applications?.status_distribution?.processing || 0);
             
-            document.getElementById('pendingRequests').innerText = pendingRequests;
+            const pendingEl = document.getElementById('pendingRequests');
+            if (pendingEl) {
+                pendingEl.innerText = pendingRequests;
+            }
 
-            document.getElementById('openReports').innerText = 
-                data.blotter_reports?.analytics?.status_distribution?.processing || 0;
+            const openReportsEl = document.getElementById('openReports');
+            if (openReportsEl) {
+                openReportsEl.innerText = data.blotter_reports?.analytics?.status_distribution?.processing || 0;
+            }
 
-            document.getElementById('upcomingEvents').innerText = 
-                data.events?.upcoming_vs_past?.upcoming || 0;
-        }
-
-        function buildAllCharts(data) {
-            // Build Applications Forecast
-            buildApplicationsCharts(data.applications);
-            
-            // Build Blotter Forecast
-            buildBlotterChart(data.blotter_reports);
-            
-            // Build Announcements Forecast
-            buildAnnouncementsChart(data.announcements);
-            
-            // Build Community Insights
-            buildEventsChart(data.events);
-            buildProjectsChart(data.projects);
-            buildAgeChart(data.residents?.age_distribution);
-            
-            // Build existing charts
-            buildRequestTypeChart(data);
-            buildDailyRequestsChart(data);
+            const upcomingEventsEl = document.getElementById('upcomingEvents');
+            if (upcomingEventsEl) {
+                upcomingEventsEl.innerText = data.events?.upcoming_vs_past?.upcoming || 0;
+            }
         }
 
         function buildApplicationsCharts(applications) {
             const container = document.getElementById('applicationsForecast');
+            if (!container || !applications) return;
+            
             container.innerHTML = '';
-
-            if (!applications) return;
 
             // Create a card for each application type
             Object.entries(applications).forEach(([key, value]) => {
                 if (value.daily_forecast) {
                     const forecast = value.daily_forecast;
-                    const dates = Object.keys(forecast).slice(0, 15); // Show first 15 days for readability
+                    const dates = Object.keys(forecast).slice(0, 15);
                     const values = Object.values(forecast).slice(0, 15);
                     
                     // Calculate summary
@@ -604,47 +798,49 @@
                     
                     // Create chart
                     setTimeout(() => {
-                        const ctx = document.getElementById(`chart-${key}`).getContext('2d');
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: dates.map(d => d.split(',')[0]), // Show only month and day
-                                datasets: [{
-                                    label: 'Forecast',
-                                    data: values,
-                                    borderColor: '#d32f2f',
-                                    backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                                    borderWidth: 2,
-                                    pointRadius: 3,
-                                    pointHoverRadius: 5,
-                                    tension: 0.4,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { display: false },
-                                    tooltip: { 
-                                        backgroundColor: 'rgba(0,0,0,0.8)',
-                                        titleColor: '#fff',
-                                        bodyColor: '#fff'
-                                    }
+                        const ctx = document.getElementById(`chart-${key}`)?.getContext('2d');
+                        if (ctx) {
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: dates.map(d => d.split(',')[0]),
+                                    datasets: [{
+                                        label: 'Forecast',
+                                        data: values,
+                                        borderColor: '#d32f2f',
+                                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointHoverRadius: 5,
+                                        tension: 0.4,
+                                        fill: true
+                                    }]
                                 },
-                                scales: {
-                                    x: { 
-                                        grid: { display: false },
-                                        ticks: { maxRotation: 45, minRotation: 45 }
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: { 
+                                            backgroundColor: 'rgba(0,0,0,0.8)',
+                                            titleColor: '#fff',
+                                            bodyColor: '#fff'
+                                        }
                                     },
-                                    y: { 
-                                        beginAtZero: true,
-                                        grid: { color: '#f0f0f0' },
-                                        ticks: { stepSize: 1 }
+                                    scales: {
+                                        x: { 
+                                            grid: { display: false },
+                                            ticks: { maxRotation: 45, minRotation: 45 }
+                                        },
+                                        y: { 
+                                            beginAtZero: true,
+                                            grid: { color: '#f0f0f0' },
+                                            ticks: { stepSize: 1 }
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }, 100);
                 }
             });
@@ -657,7 +853,8 @@
             const dates = Object.keys(forecast).slice(0, 20);
             const values = Object.values(forecast).slice(0, 20);
             
-            const ctx = document.getElementById('blotterForecastChart').getContext('2d');
+            const ctx = document.getElementById('blotterForecastChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'line',
@@ -700,8 +897,11 @@
             // Update summary
             const total = Object.values(forecast).reduce((a, b) => a + b, 0).toFixed(1);
             const avg = (total / Object.keys(forecast).length).toFixed(1);
-            document.getElementById('blotterSummary').innerHTML = 
-                `<i class="fas fa-chart-line me-1"></i> Expected total: ${total} incidents | Daily average: ${avg}`;
+            const summaryEl = document.getElementById('blotterSummary');
+            if (summaryEl) {
+                summaryEl.innerHTML = 
+                    `<i class="fas fa-chart-line me-1"></i> Expected total: ${total} incidents | Daily average: ${avg}`;
+            }
         }
 
         function buildAnnouncementsChart(announcements) {
@@ -711,7 +911,8 @@
             const dates = Object.keys(forecast).slice(0, 20);
             const values = Object.values(forecast).slice(0, 20);
             
-            const ctx = document.getElementById('announcementsForecastChart').getContext('2d');
+            const ctx = document.getElementById('announcementsForecastChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'line',
@@ -752,14 +953,18 @@
             
             // Update summary
             const total = Object.values(forecast).reduce((a, b) => a + b, 0).toFixed(1);
-            document.getElementById('announcementsSummary').innerHTML = 
-                `<i class="fas fa-info-circle me-1"></i> Expected total: ${total} announcements over 30 days`;
+            const summaryEl = document.getElementById('announcementsSummary');
+            if (summaryEl) {
+                summaryEl.innerHTML = 
+                    `<i class="fas fa-info-circle me-1"></i> Expected total: ${total} announcements over 30 days`;
+            }
         }
 
         function buildEventsChart(events) {
             if (!events) return;
             
-            const ctx = document.getElementById('eventsChart').getContext('2d');
+            const ctx = document.getElementById('eventsChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'doughnut',
@@ -782,15 +987,19 @@
                 }
             });
             
-            document.getElementById('eventsSummary').innerHTML = 
-                `<span class="badge bg-success">${events.upcoming_vs_past?.upcoming || 0} upcoming</span> ` +
-                `<span class="badge bg-secondary">${events.total_events || 0} total</span>`;
+            const summaryEl = document.getElementById('eventsSummary');
+            if (summaryEl) {
+                summaryEl.innerHTML = 
+                    `<span class="badge bg-success">${events.upcoming_vs_past?.upcoming || 0} upcoming</span> ` +
+                    `<span class="badge bg-secondary">${events.total_events || 0} total</span>`;
+            }
         }
 
         function buildProjectsChart(projects) {
             if (!projects?.status_distribution) return;
             
-            const ctx = document.getElementById('projectsChart').getContext('2d');
+            const ctx = document.getElementById('projectsChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'doughnut',
@@ -812,8 +1021,11 @@
                 }
             });
             
-            document.getElementById('projectsSummary').innerHTML = 
-                `Average progress: ${projects.average_progress || 0}% <i class="fas fa-arrow-up text-success"></i>`;
+            const summaryEl = document.getElementById('projectsSummary');
+            if (summaryEl) {
+                summaryEl.innerHTML = 
+                    `Average progress: ${projects.average_progress || 0}% <i class="fas fa-arrow-up text-success"></i>`;
+            }
         }
 
         function buildAgeChart(ageDist) {
@@ -837,7 +1049,8 @@
                 else ranges['60+'] += count;
             });
             
-            const ctx = document.getElementById('ageChart').getContext('2d');
+            const ctx = document.getElementById('ageChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'bar',
@@ -867,8 +1080,11 @@
             });
             
             const total = Object.values(ageDist).reduce((a, b) => a + b, 0);
-            document.getElementById('ageSummary').innerHTML = 
-                `Total residents: ${total} | Senior (60+): ${ranges['60+']}`;
+            const summaryEl = document.getElementById('ageSummary');
+            if (summaryEl) {
+                summaryEl.innerHTML = 
+                    `Total residents: ${total} | Senior (60+): ${ranges['60+']}`;
+            }
         }
 
         function buildRequestTypeChart(data) {
@@ -885,7 +1101,8 @@
                 types['Residency'] = Object.values(data.applications.residency_applications.status_distribution).reduce((a, b) => a + b, 0);
             }
             
-            const ctx = document.getElementById('requestsTypeChart').getContext('2d');
+            const ctx = document.getElementById('requestsTypeChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'doughnut',
@@ -913,7 +1130,8 @@
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             const requests = [12, 19, 15, 17, 24, 8, 5];
             
-            const ctx = document.getElementById('dailyRequestsChart').getContext('2d');
+            const ctx = document.getElementById('dailyRequestsChart')?.getContext('2d');
+            if (!ctx) return;
             
             new Chart(ctx, {
                 type: 'bar',

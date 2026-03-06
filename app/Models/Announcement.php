@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 class Announcement extends Model
 {
+
     protected $fillable = [
         'title',
         'slug',

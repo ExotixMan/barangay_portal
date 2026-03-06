@@ -497,10 +497,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -744,7 +758,7 @@
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -757,62 +771,108 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
         <!-- Registry Dropdown -->
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
         <!-- Records Dropdown -->
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
         <!-- Community Dropdown -->
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
+
     </div>
 
     <!-- Main Content -->
@@ -828,10 +888,30 @@
                     Incident Reports
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -922,7 +1002,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('blotter.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.blotter.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -931,10 +1011,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_blotter')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Incident Report</span>
                                     </a>
-                                    <a href="{{ route('blotter.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.blotter.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -985,22 +1067,29 @@
                     </form>
 
                     <!-- Bulk Actions -->
+                    @if(auth('admin')->user()->hasAnyPermission(['delete_blotter', 'export_blotter']))
                     <div class="mt-3 d-flex gap-2 justify-content-end">
-                        <form id="bulkForm" method="POST" action="{{ route('blotter.bulkDelete') }}" style="display: inline;">
+                        @admin_can('delete_blotter')
+                        <form id="bulkForm" method="POST" action="{{ route('admin.blotter.bulkDelete') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                 <i class="fas fa-trash-alt"></i>
                                 <span class="d-none d-sm-inline">Bulk Delete</span>
                             </button>
                         </form>
-                        <form id="exportForm" method="POST" action="{{ route('blotter.export') }}" style="display: inline;">
+                        @endadmin_can
+                        
+                        @admin_can('export_blotter')
+                        <form id="exportForm" method="POST" action="{{ route('admin.blotter.export') }}" style="display: inline;">
                             @csrf
                             <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
                                 <i class="fas fa-file-csv"></i>
                                 <span class="d-none d-sm-inline">Export</span>
                             </button>
                         </form>
+                        @endadmin_can
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -1132,26 +1221,28 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View Button -->
+                                            <!-- View Button (everyone with view_blotter can view) -->
                                             <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ $blotter->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
                                             @if(!$blotter->deleted_at)
-                                                @if($blotter->status == 'processing')
+                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('update_blotter'))
                                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editIncidentModal{{ $blotter->id }}" title="Edit Report">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 @endif
 
-                                                @if($blotter->status == 'resolved' || $blotter->status == 'dropped')
+                                                @if(($blotter->status == 'resolved' || $blotter->status == 'dropped') && 
+                                                    (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                         <i class="fas fa-bell"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
+                                                        @if(auth('admin')->user()->hasPermission('send_email'))
                                                         <li>
-                                                            <form method="POST" action="{{ route('sendEmail') }}" class="dropdown-item p-0">
+                                                            <form method="POST" action="{{ route('admin.notifications.sendEmail') }}" class="dropdown-item p-0">
                                                                 @csrf
                                                                 <input type="hidden" name="email" value="{{ $blotter->complainant_email ?? '' }}">
                                                                 <input type="hidden" name="name" value="{{ $blotter->complainant_name }}">
@@ -1165,8 +1256,11 @@
                                                                 </button>
                                                             </form>
                                                         </li>
+                                                        @endif
+                                                        
+                                                        @if(auth('admin')->user()->hasPermission('send_sms'))
                                                         <li>
-                                                            <form method="POST" action="{{ route('sendSMS') }}" class="dropdown-item p-0">
+                                                            <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                                 @csrf
                                                                 <input type="hidden" name="phone" value="+63{{ ltrim($blotter->complainant_contact ?? '', '0') }}">
                                                                 @if($blotter->status == 'resolved')
@@ -1179,12 +1273,13 @@
                                                                 </button>
                                                             </form>
                                                         </li>
+                                                        @endif
                                                     </ul>
                                                 </div>
                                                 @endif
 
-                                                @if($blotter->status == 'processing')
-                                                <form method="POST" action="{{ route('blotter.approve', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Resolve this incident report?')">
+                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('approve_blotter'))
+                                                <form method="POST" action="{{ route('admin.blotter.approve', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Resolve this incident report?')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
                                                         <i class="fas fa-check"></i>
@@ -1192,8 +1287,8 @@
                                                 </form>
                                                 @endif
                                                 
-                                                @if($blotter->status == 'processing')
-                                                <form method="POST" action="{{ route('blotter.reject', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Drop this case?')">
+                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('reject_blotter'))
+                                                <form method="POST" action="{{ route('admin.blotter.reject', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Drop this case?')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Drop Case">
                                                         <i class="fas fa-times"></i>
@@ -1201,30 +1296,25 @@
                                                 </form>
                                                 @endif
                                                 
-                                                <form method="POST" action="{{ route('blotter.destroy', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this incident report? It can be restored later.')">
+                                                @if(auth('admin')->user()->hasPermission('delete_blotter'))
+                                                <form method="POST" action="{{ route('admin.blotter.destroy', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this incident report? It can be restored later.')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
+                                                @endif
                                             @else
                                                 <!-- Restore Button for deleted records -->
-                                                <form method="POST" action="{{ route('blotter.restore', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this incident report?')">
+                                                @if(auth('admin')->user()->hasPermission('restore_blotter'))
+                                                <form method="POST" action="{{ route('admin.blotter.restore', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this incident report?')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
                                                         <i class="fas fa-undo"></i>
                                                     </button>
                                                 </form>
-
-                                                {{-- <!-- Permanent Delete Button (optional) -->
-                                                <form method="POST" action="{{ route('blotter.forceDelete', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Permanently delete this incident report? This action cannot be undone!')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Permanently Delete">
-                                                        <i class="fas fa-times-circle"></i>
-                                                    </button>
-                                                </form> --}}
+                                                @endif
                                             @endif
                                         </div>
                                     </td>
@@ -1236,9 +1326,11 @@
                                             <i class="fas fa-book fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No incident reports found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_blotter')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1263,7 +1355,8 @@
                 </div>
             </div>
 
-            <!-- Add Incident Modal with Witnesses and Evidence -->
+            <!-- Add Incident Modal with Witnesses and Evidence - Only if user has create_blotter permission -->
+            @admin_can('create_blotter')
             <div class="modal fade" id="addIncidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -1274,7 +1367,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('blotter.store') }}" id="addIncidentForm" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.blotter.store') }}" id="addIncidentForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1457,6 +1550,7 @@
                                     </div>
 
                                     <!-- Witnesses Section -->
+                                    @if(auth('admin')->user()->hasPermission('add_witness'))
                                     <div class="col-12 mt-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
@@ -1470,6 +1564,7 @@
                                             <!-- Witness fields will be added here dynamically -->
                                         </div>
                                     </div>
+                                    @endif
 
                                     <!-- Evidence Section -->
                                     <div class="col-12 mt-3">
@@ -1540,346 +1635,355 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Edit Incident Modals with Validation -->
-            @foreach($incidents as $blotter)
-            <div class="modal fade" id="editIncidentModal{{ $blotter->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-user-edit me-2"></i>
-                                Edit Incident Report - {{ $blotter->reference_number }}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{{ route('blotter.update', $blotter->id) }}" id="editIncidentForm{{ $blotter->id }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $blotter->id }}">
+            <!-- Edit Incident Modals with Validation - Only if user has update_blotter permission -->
+            @if(auth('admin')->user()->hasPermission('update_blotter'))
+                @foreach($incidents as $blotter)
+                <div class="modal fade" id="editIncidentModal{{ $blotter->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-user-edit me-2"></i>
+                                    Edit Incident Report - {{ $blotter->reference_number }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="editIncidentForm{{ $blotter->id }}" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $blotter->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <!-- Incident Details -->
-                                    <div class="col-12">
-                                        <h6 class="fw-semibold text-primary">Incident Details</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Report Type <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $blotter->id) @error('reportType') is-invalid @enderror @endif" 
-                                                name="reportType" required>
-                                            <option value="">Select type</option>
-                                            <option value="dispute" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'dispute' ? 'selected' : '' }}>Community Dispute</option>
-                                            <option value="security" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'security' ? 'selected' : '' }}>Security Concern</option>
-                                            <option value="public" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'public' ? 'selected' : '' }}>Public Safety</option>
-                                            <option value="other" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'other' ? 'selected' : '' }}>Other Concern</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('reportType')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Confidentiality <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $blotter->id) @error('confidentiality') is-invalid @enderror @endif" 
-                                                name="confidentiality" required>
-                                            <option value="">Select confidentiality</option>
-                                            <option value="low" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'low' ? 'selected' : '' }}>Public Report</option>
-                                            <option value="medium" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'medium' ? 'selected' : '' }}>Confidential Report</option>
-                                            <option value="high" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'high' ? 'selected' : '' }}>Anonymous Report</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('confidentiality')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Incident Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDate') is-invalid @enderror @endif" 
-                                            name="incidentDate" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDate', $blotter->incident_date) : $blotter->incident_date }}" required max="{{ date('Y-m-d') }}">
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('incidentDate')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Incident Time <span class="text-danger">*</span></label>
-                                        <input type="time" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentTime') is-invalid @enderror @endif" 
-                                            name="incidentTime" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentTime', $blotter->incident_time) : $blotter->incident_time }}" required>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('incidentTime')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Location <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentLocation') is-invalid @enderror @endif" 
-                                            name="incidentLocation" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentLocation', $blotter->location) : $blotter->location }}" placeholder="Incident location" required>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('incidentLocation')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDescription') is-invalid @enderror @endif" 
-                                                name="incidentDescription" rows="3" placeholder="Describe the incident..." required>{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDescription', $blotter->description) : $blotter->description }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('incidentDescription')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Immediate Action Taken</label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('immediateAction') is-invalid @enderror @endif" 
-                                                name="immediateAction" rows="2" placeholder="Any immediate action taken...">{{ session('form_type') == 'edit_' . $blotter->id ? old('immediateAction', $blotter->immediate_action) : $blotter->immediate_action }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('immediateAction')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Complainant Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Complainant Information</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantName') is-invalid @enderror @endif" 
-                                            name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" required>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('complainantName')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantContact') is-invalid @enderror @endif" 
-                                            name="complainantContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantContact', $blotter->complainant_contact) : $blotter->complainant_contact }}" placeholder="09XXXXXXXXX" maxlength="11" required>
-                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('complainantContact')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantAddress') is-invalid @enderror @endif" 
-                                                name="complainantAddress" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantAddress', $blotter->complainant_address) : $blotter->complainant_address }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('complainantAddress')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantEmail') is-invalid @enderror @endif" 
-                                            name="complainantEmail" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantEmail', $blotter->complainant_email) : $blotter->complainant_email }}" placeholder="email@example.com">
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('complainantEmail')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Respondent Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Respondent Information (Optional)</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Respondent Name</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentName') is-invalid @enderror @endif" 
-                                            name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name">
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('respondentName')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Respondent Contact</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentContact') is-invalid @enderror @endif" 
-                                            name="respondentContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentContact', $blotter->respondent_contact) : $blotter->respondent_contact }}" placeholder="09XXXXXXXXX" maxlength="11">
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('respondentContact')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Respondent Address</label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentAddress') is-invalid @enderror @endif" 
-                                                name="respondentAddress" rows="2" placeholder="Complete address">{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentAddress', $blotter->respondent_address) : $blotter->respondent_address }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('respondentAddress')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Respondent Description</label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentDescription') is-invalid @enderror @endif" 
-                                                name="respondentDescription" rows="2" placeholder="Description of respondent (if any)">{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentDescription', $blotter->respondent_description) : $blotter->respondent_description }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('respondentDescription')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Witnesses Section -->
-                                    <div class="col-12 mt-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEditWitnessField({{ $blotter->id }})">
-                                                <i class="fas fa-plus me-1"></i>Add Witness
-                                            </button>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <!-- Incident Details -->
+                                        <div class="col-12">
+                                            <h6 class="fw-semibold text-primary">Incident Details</h6>
                                         </div>
-                                        <small class="text-muted d-block mb-3">Add witnesses to support this incident report</small>
-                                        
-                                        <div id="edit-witnesses-container-{{ $blotter->id }}">
-                                            @if($blotter->witnesses && $blotter->witnesses->count() > 0)
-                                                @foreach($blotter->witnesses as $index => $witness)
-                                                <div class="witness-card mb-3" id="edit-witness-{{ $blotter->id }}-{{ $index }}">
-                                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                                        <h6 class="fw-semibold">Witness</h6>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEditWitnessField({{ $blotter->id }}, {{ $index }})">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </div>
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">Witness Name</label>
-                                                            <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">Contact Number</label>
-                                                            <input type="text" class="form-control" name="witnesses[{{ $index }}][contact]" value="{{ $witness->contact }}" placeholder="09XXXXXXXXX" maxlength="11">
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <label class="form-label">Witness Statement</label>
-                                                            <textarea class="form-control" name="witnesses[{{ $index }}][statement]" rows="2" placeholder="What did the witness see/hear?">{{ $witness->statement }}</textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @endforeach
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Report Type <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $blotter->id) @error('reportType') is-invalid @enderror @endif" 
+                                                    name="reportType" required>
+                                                <option value="">Select type</option>
+                                                <option value="dispute" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'dispute' ? 'selected' : '' }}>Community Dispute</option>
+                                                <option value="security" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'security' ? 'selected' : '' }}>Security Concern</option>
+                                                <option value="public" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'public' ? 'selected' : '' }}>Public Safety</option>
+                                                <option value="other" {{ (session('form_type') == 'edit_' . $blotter->id ? old('reportType', $blotter->report_type) : $blotter->report_type) == 'other' ? 'selected' : '' }}>Other Concern</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('reportType')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             @endif
                                         </div>
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Confidentiality <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $blotter->id) @error('confidentiality') is-invalid @enderror @endif" 
+                                                    name="confidentiality" required>
+                                                <option value="">Select confidentiality</option>
+                                                <option value="low" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'low' ? 'selected' : '' }}>Public Report</option>
+                                                <option value="medium" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'medium' ? 'selected' : '' }}>Confidential Report</option>
+                                                <option value="high" {{ (session('form_type') == 'edit_' . $blotter->id ? old('confidentiality', $blotter->confidentiality) : $blotter->confidentiality) == 'high' ? 'selected' : '' }}>Anonymous Report</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('confidentiality')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Incident Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDate') is-invalid @enderror @endif" 
+                                                name="incidentDate" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDate', $blotter->incident_date) : $blotter->incident_date }}" required max="{{ date('Y-m-d') }}">
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('incidentDate')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Incident Time <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentTime') is-invalid @enderror @endif" 
+                                                name="incidentTime" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentTime', $blotter->incident_time) : $blotter->incident_time }}" required>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('incidentTime')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Location <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentLocation') is-invalid @enderror @endif" 
+                                                name="incidentLocation" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentLocation', $blotter->location) : $blotter->location }}" placeholder="Incident location" required>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('incidentLocation')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDescription') is-invalid @enderror @endif" 
+                                                    name="incidentDescription" rows="3" placeholder="Describe the incident..." required>{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDescription', $blotter->description) : $blotter->description }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('incidentDescription')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Immediate Action Taken</label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('immediateAction') is-invalid @enderror @endif" 
+                                                    name="immediateAction" rows="2" placeholder="Any immediate action taken...">{{ session('form_type') == 'edit_' . $blotter->id ? old('immediateAction', $blotter->immediate_action) : $blotter->immediate_action }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('immediateAction')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <!-- Evidence Section -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary mb-3">Evidence Upload</h6>
-                                        
-                                        <!-- Display Existing Files (using files relationship, not evidence) -->
-                                        @if($blotter->files && $blotter->files->count() > 0)
-                                        <div class="mb-3">
-                                            <label class="form-label">Existing Files</label>
-                                            <div class="row g-2">
-                                                @foreach($blotter->files as $file)
-                                                <div class="col-md-4">
-                                                    <div class="border rounded p-2 position-relative">
-                                                        @php
-                                                            $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
-                                                            $fileUrl = asset($file->file_path);
-                                                        @endphp
-                                                        
-                                                        @if(in_array($extension, ['jpg', 'jpeg', 'png', 'gif']))
-                                                            <img src="{{ $fileUrl }}" class="img-fluid rounded" style="max-height: 100px;" onclick="openZoomModal('{{ $fileUrl }}')">
-                                                        @else
-                                                            <i class="fas fa-file fa-3x text-muted"></i>
-                                                        @endif
-                                                        
-                                                        <div class="mt-1 small">
-                                                            <span class="text-truncate d-block">{{ basename($file->file_path) }}</span>
-                                                            <span class="badge bg-info">{{ $file->file_type }}</span>
+                                        <!-- Complainant Information -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Complainant Information</h6>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantName') is-invalid @enderror @endif" 
+                                                name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" required>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('complainantName')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantContact') is-invalid @enderror @endif" 
+                                                name="complainantContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantContact', $blotter->complainant_contact) : $blotter->complainant_contact }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                            <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('complainantContact')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantAddress') is-invalid @enderror @endif" 
+                                                    name="complainantAddress" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantAddress', $blotter->complainant_address) : $blotter->complainant_address }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('complainantAddress')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Email (Optional)</label>
+                                            <input type="email" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantEmail') is-invalid @enderror @endif" 
+                                                name="complainantEmail" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantEmail', $blotter->complainant_email) : $blotter->complainant_email }}" placeholder="email@example.com">
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('complainantEmail')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Respondent Information -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Respondent Information (Optional)</h6>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Respondent Name</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentName') is-invalid @enderror @endif" 
+                                                name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name">
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('respondentName')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Respondent Contact</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentContact') is-invalid @enderror @endif" 
+                                                name="respondentContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentContact', $blotter->respondent_contact) : $blotter->respondent_contact }}" placeholder="09XXXXXXXXX" maxlength="11">
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('respondentContact')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Respondent Address</label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentAddress') is-invalid @enderror @endif" 
+                                                    name="respondentAddress" rows="2" placeholder="Complete address">{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentAddress', $blotter->respondent_address) : $blotter->respondent_address }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('respondentAddress')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Respondent Description</label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentDescription') is-invalid @enderror @endif" 
+                                                    name="respondentDescription" rows="2" placeholder="Description of respondent (if any)">{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentDescription', $blotter->respondent_description) : $blotter->respondent_description }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $blotter->id)
+                                                @error('respondentDescription')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Witnesses Section -->
+                                        @if(auth('admin')->user()->hasPermission('add_witness'))
+                                        <div class="col-12 mt-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEditWitnessField({{ $blotter->id }})">
+                                                    <i class="fas fa-plus me-1"></i>Add Witness
+                                                </button>
+                                            </div>
+                                            <small class="text-muted d-block mb-3">Add witnesses to support this incident report</small>
+                                            
+                                            <div id="edit-witnesses-container-{{ $blotter->id }}">
+                                                @if($blotter->witnesses && $blotter->witnesses->count() > 0)
+                                                    @foreach($blotter->witnesses as $index => $witness)
+                                                    <div class="witness-card mb-3" id="edit-witness-{{ $blotter->id }}-{{ $index }}">
+                                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                                            <h6 class="fw-semibold">Witness</h6>
+                                                            @if(auth('admin')->user()->hasPermission('delete_witness'))
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEditWitnessField({{ $blotter->id }}, {{ $index }})">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                            @endif
                                                         </div>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0" onclick="removeFile({{ $file->id }})">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Witness Name</label>
+                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Contact Number</label>
+                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][contact]" value="{{ $witness->contact }}" placeholder="09XXXXXXXXX" maxlength="11">
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="form-label">Witness Statement</label>
+                                                                <textarea class="form-control" name="witnesses[{{ $index }}][statement]" rows="2" placeholder="What did the witness see/hear?">{{ $witness->statement }}</textarea>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                @endforeach
+                                                    @endforeach
+                                                @endif
                                             </div>
                                         </div>
                                         @endif
 
-                                        <!-- Upload New Files - Use array syntax for multiple files -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Photos (Max: 10MB each, JPG/PNG only)</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('photos.*') is-invalid @enderror @endif" 
-                                                name="photos[]" multiple accept="image/jpeg,image/jpg,image/png">
-                                            <small class="text-muted">You can select multiple photos</small>
+                                        <!-- Evidence Section -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary mb-3">Evidence Upload</h6>
+                                            
+                                            <!-- Display Existing Files (using files relationship, not evidence) -->
+                                            @if($blotter->files && $blotter->files->count() > 0)
+                                            <div class="mb-3">
+                                                <label class="form-label">Existing Files</label>
+                                                <div class="row g-2">
+                                                    @foreach($blotter->files as $file)
+                                                    <div class="col-md-4">
+                                                        <div class="border rounded p-2 position-relative">
+                                                            @php
+                                                                $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
+                                                                $fileUrl = asset($file->file_path);
+                                                            @endphp
+                                                            
+                                                            @if(in_array($extension, ['jpg', 'jpeg', 'png', 'gif']))
+                                                                <img src="{{ $fileUrl }}" class="img-fluid rounded" style="max-height: 100px;" onclick="openZoomModal('{{ $fileUrl }}')">
+                                                            @else
+                                                                <i class="fas fa-file fa-3x text-muted"></i>
+                                                            @endif
+                                                            
+                                                            <div class="mt-1 small">
+                                                                <span class="text-truncate d-block">{{ basename($file->file_path) }}</span>
+                                                                <span class="badge bg-info">{{ $file->file_type }}</span>
+                                                            </div>
+                                                            @if(auth('admin')->user()->hasPermission('delete_evidence'))
+                                                            <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0" onclick="removeFile({{ $file->id }})">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            @endif
+
+                                            <!-- Upload New Files - Use array syntax for multiple files -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Photos (Max: 10MB each, JPG/PNG only)</label>
+                                                <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('photos.*') is-invalid @enderror @endif" 
+                                                    name="photos[]" multiple accept="image/jpeg,image/jpg,image/png">
+                                                <small class="text-muted">You can select multiple photos</small>
+                                                @if(session('form_type') == 'edit_' . $blotter->id)
+                                                    @error('photos.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Videos (Max: 50MB each, MP4/AVI/MOV only)</label>
+                                                <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('videos.*') is-invalid @enderror @endif" 
+                                                    name="videos[]" multiple accept="video/mp4,video/avi,video/quicktime">
+                                                <small class="text-muted">You can select multiple videos</small>
+                                                @if(session('form_type') == 'edit_' . $blotter->id)
+                                                    @error('videos.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Documents (Max: 5MB each, PDF/DOC/DOCX only)</label>
+                                                <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('documents.*') is-invalid @enderror @endif" 
+                                                    name="documents[]" multiple accept=".pdf,.doc,.docx">
+                                                <small class="text-muted">You can select multiple documents</small>
+                                                @if(session('form_type') == 'edit_' . $blotter->id)
+                                                    @error('documents.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional Information -->
+                                        <div class="col-12 mt-3">
+                                            <label class="form-label">Additional Information (Optional)</label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('additionalInfo') is-invalid @enderror @endif" 
+                                                    name="additionalInfo" rows="2" placeholder="Any additional information...">{{ session('form_type') == 'edit_' . $blotter->id ? old('additionalInfo', $blotter->additional_info) : $blotter->additional_info }}</textarea>
                                             @if(session('form_type') == 'edit_' . $blotter->id)
-                                                @error('photos.*')
+                                                @error('additionalInfo')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             @endif
                                         </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Videos (Max: 50MB each, MP4/AVI/MOV only)</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('videos.*') is-invalid @enderror @endif" 
-                                                name="videos[]" multiple accept="video/mp4,video/avi,video/quicktime">
-                                            <small class="text-muted">You can select multiple videos</small>
-                                            @if(session('form_type') == 'edit_' . $blotter->id)
-                                                @error('videos.*')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Documents (Max: 5MB each, PDF/DOC/DOCX only)</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('documents.*') is-invalid @enderror @endif" 
-                                                name="documents[]" multiple accept=".pdf,.doc,.docx">
-                                            <small class="text-muted">You can select multiple documents</small>
-                                            @if(session('form_type') == 'edit_' . $blotter->id)
-                                                @error('documents.*')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Additional Information -->
-                                    <div class="col-12 mt-3">
-                                        <label class="form-label">Additional Information (Optional)</label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('additionalInfo') is-invalid @enderror @endif" 
-                                                name="additionalInfo" rows="2" placeholder="Any additional information...">{{ session('form_type') == 'edit_' . $blotter->id ? old('additionalInfo', $blotter->additional_info) : $blotter->additional_info }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $blotter->id)
-                                            @error('additionalInfo')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $blotter->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Report
-                                </button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $blotter->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Modals -->
+            <!-- View Modals (always visible since they just show data) -->
             @foreach($incidents as $blotter)
             <div class="modal fade" id="viewModal{{ $blotter->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -2490,143 +2594,145 @@
         });
 
         // Real-time validation for edit forms
-        @foreach($incidents as $blotter)
-        (function(editId) {
-            const editForm = document.getElementById('editIncidentForm' + editId);
-            if (editForm) {
-                // Contact number validation
-                const contact = document.getElementById('edit_complainant_contact_' + editId);
-                if (contact) {
-                    contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+        @if(auth('admin')->user()->hasPermission('update_blotter'))
+            @foreach($incidents as $blotter)
+            (function(editId) {
+                const editForm = document.getElementById('editIncidentForm' + editId);
+                if (editForm) {
+                    // Contact number validation
+                    const contact = document.getElementById('edit_complainant_contact_' + editId);
+                    if (contact) {
+                        contact.addEventListener('input', function() {
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                            if (this.value.length > 11) {
+                                this.value = this.value.slice(0, 11);
                             }
-                            feedback.textContent = 'Contact number must start with 09';
-                        }
-                        else if (this.value.length > 0 && this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                            if (this.value.length > 0 && !this.value.startsWith('09')) {
+                                this.setCustomValidity('Contact number must start with 09');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Contact number must start with 09';
                             }
-                            feedback.textContent = 'Contact number must be exactly 11 digits';
-                        }
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                            else if (this.value.length > 0 && this.value.length !== 11) {
+                                this.setCustomValidity('Contact number must be exactly 11 digits');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Contact number must be exactly 11 digits';
+                            }
+                            else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    }
 
-                // Incident date validation
-                const incidentDate = document.getElementById('edit_incident_date_' + editId);
-                if (incidentDate) {
-                    incidentDate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Incident date cannot be in the future');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Incident date validation
+                    const incidentDate = document.getElementById('edit_incident_date_' + editId);
+                    if (incidentDate) {
+                        incidentDate.addEventListener('change', function() {
+                            const selectedDate = new Date(this.value);
+                            const today = new Date();
+                            if (selectedDate > today) {
+                                this.setCustomValidity('Incident date cannot be in the future');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Incident date cannot be in the future';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Incident date cannot be in the future';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                // Email validation
-                const email = document.getElementById('edit_complainant_email_' + editId);
-                if (email) {
-                    email.addEventListener('input', function() {
-                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailPattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Please enter a valid email address');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Email validation
+                    const email = document.getElementById('edit_complainant_email_' + editId);
+                    if (email) {
+                        email.addEventListener('input', function() {
+                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailPattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Please enter a valid email address');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Please enter a valid email address';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Please enter a valid email address';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                // Name validation
-                const complainantName = document.getElementById('edit_complainant_name_' + editId);
-                if (complainantName) {
-                    complainantName.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    // Name validation
+                    const complainantName = document.getElementById('edit_complainant_name_' + editId);
+                    if (complainantName) {
+                        complainantName.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                        });
+                    }
 
-                const respondentName = document.getElementById('edit_respondent_name_' + editId);
-                if (respondentName) {
-                    respondentName.addEventListener('input', function() {
-                        const namePattern = /^[a-zA-Z\s\-]+$/;
-                        if (!namePattern.test(this.value) && this.value.length > 0) {
-                            this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
-                            this.classList.add('is-invalid');
-                            
-                            let feedback = this.nextElementSibling;
-                            if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                this.parentNode.appendChild(feedback);
+                    const respondentName = document.getElementById('edit_respondent_name_' + editId);
+                    if (respondentName) {
+                        respondentName.addEventListener('input', function() {
+                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            if (!namePattern.test(this.value) && this.value.length > 0) {
+                                this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
+                                this.classList.add('is-invalid');
+                                
+                                let feedback = this.nextElementSibling;
+                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                                    feedback = document.createElement('div');
+                                    feedback.className = 'invalid-feedback';
+                                    this.parentNode.appendChild(feedback);
+                                }
+                                feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
+                            } else {
+                                this.setCustomValidity('');
+                                this.classList.remove('is-invalid');
                             }
-                            feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
+                        });
+                    }
                 }
-            }
-        })('{{ $blotter->id }}');
-        @endforeach
+            })('{{ $blotter->id }}');
+            @endforeach
+        @endif
 
         // Add these functions to handle edit modal witnesses
         let editWitnessCount = {};

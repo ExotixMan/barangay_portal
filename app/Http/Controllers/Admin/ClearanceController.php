@@ -10,11 +10,35 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClearanceController extends Controller
 {
     public function index(Request $request)
     {
+        // FIX 1: Use Gate::allows() instead of $this->authorize()
+        /** @var AdminUser|null $user */
+        // DEBUGGING
+        $user = Auth::guard('admin')->user();
+        
+        $debug = [
+            'user_exists' => $user ? 'Yes' : 'No',
+            'user_id' => $user?->id,
+            'user_name' => $user?->full_name,
+            'user_class' => $user ? get_class($user) : 'N/A',
+            'role_exists' => $user && $user->role ? 'Yes' : 'No',
+            'role_name' => $user?->role?->name,
+            'is_super_admin_method' => $user && method_exists($user, 'isSuperAdmin') ? ($user->isSuperAdmin() ? 'Yes' : 'No') : 'Method not found',
+            'role_name_check' => $user && $user->role && $user->role->name === 'super_admin' ? 'Yes' : 'No',
+            'has_permission_method' => $user && method_exists($user, 'hasPermission') ? 'Yes' : 'No',
+            'permission_check' => $user && method_exists($user, 'hasPermission') ? ($user->hasPermission('view_clearance') ? 'Yes' : 'No') : 'N/A',
+            'all_methods' => $user ? get_class_methods($user) : [],
+        ];
+        
+        // Log or dump the debug info
+        logger('Permission Debug:', $debug);
+
         $query = BarangayClearance::query();
 
         $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
@@ -56,7 +80,6 @@ class ClearanceController extends Controller
 
         $clearances = $query->latest()->paginate(20);
         
-
         return view('admin.admin_clearance', compact('clearances', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }
 

@@ -43,7 +43,7 @@ class AnnouncementController extends Controller
         $total_count = Announcement::count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
-        $featured_count = Announcement::where('is_featured', true)->count();
+        $featured_count = Announcement::where('is_featured', 'true')->count();
 
         // Sorting
         $sort = $request->get('sort', 'created_at');

@@ -38,7 +38,7 @@ class BlotterReport extends Model
 
     public function witnesses()
     {
-        return $this->hasMany(Witness::class, 'blotter_report_id');
+        return $this->hasMany(Witness::class);
     }
 
     public function files()

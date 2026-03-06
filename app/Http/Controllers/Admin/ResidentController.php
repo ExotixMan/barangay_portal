@@ -69,6 +69,7 @@ class ResidentController extends Controller
             $query->orderBy($sort, $direction);
         }
 
+
         $residents = $query->paginate(20);
 
         /* ==============================
@@ -184,24 +185,22 @@ class ResidentController extends Controller
 
     public function destroy(Residents $resident)
     {
-        $resident->delete();
+        $resident->delete(); // Soft delete
         $this->log($resident, 'Soft Deleted');
-
-        return redirect()->route('residents.index')
-        ->with('success', 'Resident deleted successfully.');
+        $message = 'Resident moved to trash.';
+    
+        return redirect()->back()->with('success', $message);
     }
 
     public function restore($id)
     {
         $resident = Residents::withTrashed()->findOrFail($id);
-
         $resident->restore();
-
         $this->log($resident, 'Restored');
-
-        return back()->with('success', 'Resident restored.');
+        
+        return redirect()->back()->with('success', 'Resident restored successfully.');
     }
-
+    
     public function bulkDelete(Request $request)
     {
 
@@ -222,6 +221,7 @@ class ResidentController extends Controller
 
     public function export(Request $request)
     {
+
         $request->validate([
             'ids' => 'nullable|array',
             'ids.*' => 'exists:residents,id'

@@ -431,10 +431,24 @@
             border-radius: 40px;
             font-weight: 500;
             color: #1e293b;
+            z-index: 1;
         }
 
         .profile-badge i {
             font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
             color: var(--primary);
         }
 
@@ -686,7 +700,7 @@
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
@@ -699,62 +713,108 @@
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
         </div>
 
-        <a href="{{ route('dashboard.index') }}" class="" onclick="handleLinkClick(event, this)">
+        @admin_can('view_dashboard')
+        <a href="{{ route('admin.dashboard.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
+        @endadmin_can
 
         <div class="menu-section">Administrative</div>
         
         <!-- Registry Dropdown -->
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents', 'view_residency', 'view_indigency'
+            ]);
+        @endphp
+        
+        @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="registrySubmenu">
-            <a href="{{ route('residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            <a href="{{ route('residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            <a href="{{ route('indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @admin_can('view_residents')
+            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
+            @endadmin_can
+            
+            @admin_can('view_residency')
+            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
+            @endadmin_can
+            
+            @admin_can('view_indigency')
+            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Legal</div>
         
         <!-- Records Dropdown -->
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance', 'view_blotter'
+            ]);
+        @endphp
+        
+        @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu" id="recordsSubmenu">
-            <a href="{{ route('clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            <a href="{{ route('blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @admin_can('view_clearance')
+            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
+            @endadmin_can
+            
+            @admin_can('view_blotter')
+            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">Community</div>
         
         <!-- Community Dropdown -->
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements', 'view_events', 'view_projects'
+            ]);
+        @endphp
+        
+        @if($hasCommunityAccess)
         <div class="dropdown-btn active" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
         </div>
         <div class="submenu show" id="communitySubmenu">
-            <a href="{{ route('announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            <a href="{{ route('events.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            <a href="{{ route('projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @admin_can('view_announcements')
+            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
+            @endadmin_can
+            
+            @admin_can('view_events')
+            <a href="{{ route('admin.events.index') }}" class="active" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
+            @endadmin_can
+            
+            @admin_can('view_projects')
+            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
+            @endadmin_can
         </div>
+        @endif
 
         <div class="menu-section">System</div>
         
-        <a href="#" onclick="handleLinkClick(event, this)">
+        @admin_can('view_users')
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>
-        <a href="#" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
+        @endadmin_can
+    
     </div>
 
     <!-- Main Content -->
@@ -770,10 +830,30 @@
                     Events
                 </h1>
             </div>
-            <div class="profile-badge">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-                <i class="fas fa-chevron-down ms-1 d-none d-sm-inline" style="font-size: 0.8rem;"></i>
+            <div class="profile-badge dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fs-4 me-2"></i>
+                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
+                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                        <span class="dropdown-item-text">
+                            <small class="text-muted">Logged in as</small><br>
+                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </header>
 
@@ -872,7 +952,7 @@
             <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('events.index') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.events.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
@@ -881,10 +961,12 @@
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
+                                    @admin_can('create_events')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addEventModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Event</span>
                                     </a>
-                                    <a href="{{ route('events.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    @endadmin_can
+                                    <a href="{{ route('admin.events.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -940,8 +1022,9 @@
                         </div>
 
                         <!-- Bulk Actions -->
+                        @if(auth('admin')->user()->hasPermission('delete_events'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('events.bulkDelete') }}" style="display: inline;">
+                            <form id="bulkForm" method="POST" action="{{ route('admin.events.bulkDelete') }}" style="display: inline;">
                                 @csrf
                                 <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
                                     <i class="fas fa-trash-alt"></i>
@@ -949,6 +1032,7 @@
                                 </button>
                             </form>
                         </div>
+                        @endif
                     </form>
                 </div>
             </div>
@@ -1074,32 +1158,38 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View -->
+                                            <!-- View (everyone with view_events can view) -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $event->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit -->
+                                            <!-- Edit (requires update_events permission) -->
+                                            @admin_can('update_events')
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}" title="Edit Event">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            @endadmin_can
 
-                                            <!-- Duplicate -->
-                                            <form method="POST" action="{{ route('events.duplicate', $event->id) }}" style="display: inline;">
+                                            <!-- Duplicate (requires duplicate_events permission) -->
+                                            @admin_can('duplicate_events')
+                                            <form method="POST" action="{{ route('admin.events.duplicate', $event->id) }}" style="display: inline;">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-secondary" title="Duplicate" onclick="return confirm('Duplicate this event?')">
                                                     <i class="fas fa-copy"></i>
                                                 </button>
                                             </form>
+                                            @endadmin_can
 
-                                            <!-- Delete -->
-                                            <form method="POST" action="{{ route('events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this event permanently?')">
+                                            <!-- Delete (requires delete_events permission) -->
+                                            @admin_can('delete_events')
+                                            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this event permanently?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1110,9 +1200,11 @@
                                             <i class="fas fa-calendar fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No events found</h5>
                                             <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            @admin_can('create_events')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
                                                 <i class="fas fa-plus me-2"></i>Add New Event
                                             </button>
+                                            @endadmin_can
                                         </div>
                                     </td>
                                 </tr>
@@ -1137,7 +1229,8 @@
                 </div>
             </div>
 
-            <!-- Add Event Modal with Validation -->
+            <!-- Add Event Modal with Validation - Only if user has create_events permission -->
+            @admin_can('create_events')
             <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -1148,7 +1241,7 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data" id="addEventForm">
+                        <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data" id="addEventForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
                             <div class="modal-body">
@@ -1278,159 +1371,162 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
 
-            <!-- Edit Event Modals with Validation -->
-            @foreach($events as $event)
-            <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-edit me-2"></i>
-                                Edit Event
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{{ route('events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
+            <!-- Edit Event Modals with Validation - Only if user has update_events permission -->
+            @if(auth('admin')->user()->hasPermission('update_events'))
+                @foreach($events as $event)
+                <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Edit Event
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
 
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Event Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'edit_' . $event->id ? old('title', $event->title) : $event->title }}" required>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('description') is-invalid @enderror @endif" 
-                                                  name="description" rows="4" required>{{ session('form_type') == 'edit_' . $event->id ? old('description', $event->description) : $event->description }}</textarea>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('description')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Date and Time -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Event Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('event_date') is-invalid @enderror @endif" 
-                                               name="event_date" value="{{ session('form_type') == 'edit_' . $event->id ? old('event_date', $event->event_date->format('Y-m-d')) : $event->event_date->format('Y-m-d') }}" required>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('event_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Start Time</label>
-                                        <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('start_time') is-invalid @enderror @endif" 
-                                               name="start_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('start_time', $event->start_time) : $event->start_time }}">
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('start_time')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">End Time</label>
-                                        <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('end_time') is-invalid @enderror @endif" 
-                                               name="end_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('end_time', $event->end_time) : $event->end_time }}">
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('end_time')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Location -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Location <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('location') is-invalid @enderror @endif" 
-                                               name="location" value="{{ session('form_type') == 'edit_' . $event->id ? old('location', $event->location) : $event->location }}" required>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('location')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Attendees</label>
-                                        <input type="number" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('attendees') is-invalid @enderror @endif" 
-                                               name="attendees" value="{{ session('form_type') == 'edit_' . $event->id ? old('attendees', $event->attendees) : $event->attendees }}" min="0">
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('attendees')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Event Type <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'edit_' . $event->id) @error('type') is-invalid @enderror @endif" 
-                                                name="type" required>
-                                            <option value="">Select type</option>
-                                            <option value="upcoming" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                                            <option value="past" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'past' ? 'selected' : '' }}>Past</option>
-                                        </select>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('type')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Image -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Event Image</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Event Banner/Image (Leave empty to keep current)</label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('image') is-invalid @enderror @endif" 
-                                               name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $event->id }}')">
-                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                        @if(session('form_type') == 'edit_' . $event->id)
-                                            @error('image')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                        <div id="editImagePreview{{ $event->id }}" class="mt-2">
-                                            @if($event->image)
-                                                <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
-                                                <small class="d-block text-muted">Current image</small>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <!-- Basic Information -->
+                                        <div class="col-12">
+                                            <label class="form-label">Event Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('title') is-invalid @enderror @endif" 
+                                                   name="title" value="{{ session('form_type') == 'edit_' . $event->id ? old('title', $event->title) : $event->title }}" required>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             @endif
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('description') is-invalid @enderror @endif" 
+                                                      name="description" rows="4" required>{{ session('form_type') == 'edit_' . $event->id ? old('description', $event->description) : $event->description }}</textarea>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('description')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Date and Time -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Event Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('event_date') is-invalid @enderror @endif" 
+                                                   name="event_date" value="{{ session('form_type') == 'edit_' . $event->id ? old('event_date', $event->event_date->format('Y-m-d')) : $event->event_date->format('Y-m-d') }}" required>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('event_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Start Time</label>
+                                            <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('start_time') is-invalid @enderror @endif" 
+                                                   name="start_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('start_time', $event->start_time) : $event->start_time }}">
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('start_time')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">End Time</label>
+                                            <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('end_time') is-invalid @enderror @endif" 
+                                                   name="end_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('end_time', $event->end_time) : $event->end_time }}">
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('end_time')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Location -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Location <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('location') is-invalid @enderror @endif" 
+                                                   name="location" value="{{ session('form_type') == 'edit_' . $event->id ? old('location', $event->location) : $event->location }}" required>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('location')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Attendees</label>
+                                            <input type="number" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('attendees') is-invalid @enderror @endif" 
+                                                   name="attendees" value="{{ session('form_type') == 'edit_' . $event->id ? old('attendees', $event->attendees) : $event->attendees }}" min="0">
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('attendees')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Event Type <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $event->id) @error('type') is-invalid @enderror @endif" 
+                                                    name="type" required>
+                                                <option value="">Select type</option>
+                                                <option value="upcoming" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                                <option value="past" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'past' ? 'selected' : '' }}>Past</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('type')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <!-- Image -->
+                                        <div class="col-12 mt-3">
+                                            <h6 class="fw-semibold text-primary">Event Image</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Event Banner/Image (Leave empty to keep current)</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('image') is-invalid @enderror @endif" 
+                                                   name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $event->id }}')">
+                                            <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
+                                            @if(session('form_type') == 'edit_' . $event->id)
+                                                @error('image')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                            <div id="editImagePreview{{ $event->id }}" class="mt-2">
+                                                @if($event->image)
+                                                    <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
+                                                    <small class="d-block text-muted">Current image</small>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
-                                    <i class="fas fa-save me-2"></i>Update Event
-                                </button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
+                                        <i class="fas fa-save me-2"></i>Update Event
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @endif
 
-            <!-- View Modals -->
+            <!-- View Modals (always visible since they just show data) -->
             @foreach($events as $event)
             <div class="modal fade" id="viewModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
