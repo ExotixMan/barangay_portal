@@ -63,7 +63,7 @@ class AdminPermissionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'permissions', 'role_id' => $roleId])
+            return redirect()->route('admin.users.index', ['tab' => 'permissions', 'role_id' => $roleId])
                 ->with('success', 'Role permissions updated successfully.');
 
         } catch (\Exception $e) {
@@ -192,7 +192,7 @@ class AdminPermissionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'permissions'])
+            return redirect()->route('admin.users.index', ['tab' => 'permissions'])
                 ->with('success', 'Permissions reset to default successfully.');
 
         } catch (\Exception $e) {

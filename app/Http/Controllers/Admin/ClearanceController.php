@@ -17,31 +17,9 @@ class ClearanceController extends Controller
 {
     public function index(Request $request)
     {
-        // FIX 1: Use Gate::allows() instead of $this->authorize()
-        /** @var AdminUser|null $user */
-        // DEBUGGING
-        $user = Auth::guard('admin')->user();
-        
-        $debug = [
-            'user_exists' => $user ? 'Yes' : 'No',
-            'user_id' => $user?->id,
-            'user_name' => $user?->full_name,
-            'user_class' => $user ? get_class($user) : 'N/A',
-            'role_exists' => $user && $user->role ? 'Yes' : 'No',
-            'role_name' => $user?->role?->name,
-            'is_super_admin_method' => $user && method_exists($user, 'isSuperAdmin') ? ($user->isSuperAdmin() ? 'Yes' : 'No') : 'Method not found',
-            'role_name_check' => $user && $user->role && $user->role->name === 'super_admin' ? 'Yes' : 'No',
-            'has_permission_method' => $user && method_exists($user, 'hasPermission') ? 'Yes' : 'No',
-            'permission_check' => $user && method_exists($user, 'hasPermission') ? ($user->hasPermission('view_clearance') ? 'Yes' : 'No') : 'N/A',
-            'all_methods' => $user ? get_class_methods($user) : [],
-        ];
-        
-        // Log or dump the debug info
-        logger('Permission Debug:', $debug);
-
         $query = BarangayClearance::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
         // Search
         if ($search) {
@@ -57,12 +35,12 @@ class ClearanceController extends Controller
         if ($request->status) {
             $query->where('status', $request->status);
         }
-        // Filter by Income
+        // Filter by Purpose
         if ($request->purpose && in_array($request->purpose, ['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])) {
             $query->where('purpose', $request->purpose);
         }
 
-        $total_count = BarangayClearance::all()->count();
+        $total_count = BarangayClearance::count(); // FIXED: removed all() since count() works directly
         $processing_count = BarangayClearance::where('status', 'processing')->count();
         $approved_count   = BarangayClearance::where('status', 'approved')->count();
         $rejected_count   = BarangayClearance::where('status', 'rejected')->count();
@@ -83,7 +61,7 @@ class ClearanceController extends Controller
         return view('admin.admin_clearance', compact('clearances', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }
 
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'first_name' => 'required|string|max:255',
@@ -100,7 +78,7 @@ class ClearanceController extends Controller
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
         ]);
 
-        try{
+        try {
             //Valid ID
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
@@ -118,7 +96,8 @@ class ClearanceController extends Controller
 
             BarangayClearance::create($data);
 
-            return back()->with('success', 'Clearance added successfully.');
+            return redirect()->route('admin.clearance.index') // FIXED: added redirect with proper route
+                ->with('success', 'Clearance added successfully.');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -179,7 +158,7 @@ class ClearanceController extends Controller
 
         $applications = $query->get();
 
-        $filename = 'barangay_clearances.csv';
+        $filename = 'barangay_clearances_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -280,9 +259,9 @@ class ClearanceController extends Controller
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Barangay Clearance');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_ad)->format('F d, Y'));
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
 
-        $fileName = 'barangay_clearance' . $record->reference_number . '.docx';
+        $fileName = 'barangay_clearance_' . $record->reference_number . '.docx'; // FIXED: added underscore
         $outputDir = storage_path('app/generated');
         if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 

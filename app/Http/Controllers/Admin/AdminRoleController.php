@@ -24,11 +24,11 @@ class AdminRoleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:roles|max:255',
+            'name' => 'required|string|unique:admin_roles,name|max:255',
             'display_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'permissions.*' => 'exists:admin_permissions,id',
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +54,7 @@ class AdminRoleController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'create_role',
                 'module' => 'roles',
                 'details' => ['role_id' => $role->id, 'role_name' => $role->name],
@@ -64,7 +64,7 @@ class AdminRoleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'roles'])
+            return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role created successfully.');
 
         } catch (\Exception $e) {
@@ -86,7 +86,7 @@ class AdminRoleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:roles,name,' . $id,
+            'name' => 'required|string|max:255|unique:admin_roles,name,' . $id,
             'display_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'permissions' => 'array',
@@ -112,7 +112,7 @@ class AdminRoleController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'update_role',
                 'module' => 'roles',
                 'details' => ['role_id' => $role->id],
@@ -122,7 +122,7 @@ class AdminRoleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'roles'])
+            return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role updated successfully.');
 
         } catch (\Exception $e) {
@@ -153,7 +153,7 @@ class AdminRoleController extends Controller
         try {
             // Log before deletion
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'delete_role',
                 'module' => 'roles',
                 'details' => ['role_id' => $role->id, 'role_name' => $role->name],
@@ -165,7 +165,7 @@ class AdminRoleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'roles'])
+            return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role deleted successfully.');
 
         } catch (\Exception $e) {
@@ -197,7 +197,7 @@ class AdminRoleController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'add_user_to_role',
                 'module' => 'roles',
                 'details' => [
@@ -212,7 +212,7 @@ class AdminRoleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'roles'])
+            return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'User added to role successfully.');
 
         } catch (\Exception $e) {
@@ -236,7 +236,7 @@ class AdminRoleController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'remove_user_from_role',
                 'module' => 'roles',
                 'details' => [
@@ -251,7 +251,7 @@ class AdminRoleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index', ['tab' => 'roles'])
+            return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'User removed from role successfully.');
 
         } catch (\Exception $e) {

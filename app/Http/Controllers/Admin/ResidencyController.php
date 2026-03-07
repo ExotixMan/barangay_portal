@@ -20,7 +20,7 @@ class ResidencyController extends Controller
     {
         $query = Residency::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
         // Search
         if ($search) {
@@ -42,7 +42,7 @@ class ResidencyController extends Controller
             $query->where('residency_type', $request->residency_type);
         }
 
-        $total_count = Residency::all()->count();
+        $total_count = Residency::count(); // FIXED: removed all()
         $processing_count = Residency::where('status', 'processing')->count();
         $approved_count   = Residency::where('status', 'approved')->count();
         $rejected_count   = Residency::where('status', 'rejected')->count();
@@ -70,8 +70,6 @@ class ResidencyController extends Controller
         } else {
             $query->orderBy($sort, $direction);
         }
-
-        $query->orderBy($sort, $direction);
 
         $applications = $query->latest()->paginate(20);
 
@@ -130,9 +128,10 @@ class ResidencyController extends Controller
             // Set default status
             $data['status'] = 'processing';
 
-            ResidencyApplication::create($data);
+            Residency::create($data); // FIXED: using Residency model
 
-            return back()->with('success', 'Residency added successfully.');
+            return redirect()->route('admin.residency.index') // FIXED: added redirect with proper route
+                ->with('success', 'Residency added successfully.');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -227,7 +226,7 @@ class ResidencyController extends Controller
 
             $application->save();
 
-            return redirect()->route('residency.index')
+            return redirect()->route('admin.residency.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Residency application #' . $application->reference_number . ' updated successfully.');
 
         } catch (\Exception $e) {
@@ -303,55 +302,57 @@ class ResidencyController extends Controller
 
         if ($request->ids) {
             $query->whereIn('id', $request->ids);
+        } else {
+            $query->whereIn('id', Residency::pluck('id')); // FIXED: simplified
         }
 
         $applications = $query->get();
 
-        $applications = Residency::whereIn('id', $request->ids ?? Residency::pluck('id'))->get();
+        $filename = 'residency_applications_' . now()->format('Y-m-d_His') . '.csv';
 
-        $csv = "ID,Reference Number,Full Name,First Name,Middle Name,Last Name,Suffix,Birthdate,Gender,Civil Status,Birth Place,Address,Years Residing,Residency Type,Contact Number,Email,Household Members,Purpose,Purpose Other,Status,Created At,Updated At\n";
-
-        foreach ($applications as $app) {
-            $full_name = trim($app->first_name . ' ' . $app->middle_name . ' ' . $app->last_name . ' ' . $app->suffix);
-
-            $yearsDisplay = '';
-            switch ($app->years_residing) {
-                case 'less1': $yearsDisplay = 'Less than 1 year'; break;
-                case '1-3': $yearsDisplay = '1-3 years'; break;
-                case '3-5': $yearsDisplay = '3-5 years'; break;
-                case '5-10': $yearsDisplay = '5-10 years'; break;
-                case '10-20': $yearsDisplay = '10-20 years'; break;
-                case '20+': $yearsDisplay = '20+ years'; break;
-                default: $yearsDisplay = $app->years_residing;
-            }
-            $csv .= "{$app->id},";
-            $csv .= "{$app->reference_number},";
-            $csv .= "{$full_name},";
-            $csv .= "{$app->first_name},";
-            $csv .= "{$app->middle_name},";
-            $csv .= "{$app->last_name},";
-            $csv .= "{$app->suffix},";
-            $csv .= "{$app->birthdate},";
-            $csv .= "{$app->gender},";
-            $csv .= "{$app->civil_status},";
-            $csv .= "{$app->birth_place},";
-            $csv .= "{$app->address},";
-            $csv .= "{$yearsDisplay},";
-            $csv .= "{$app->residency_type},";
-            $csv .= "{$app->contact_number},";
-            $csv .= "{$app->email},";
-            $csv .= "{$app->household_members},";
-            $csv .= "{$app->purpose},";
-            $csv .= "{$app->purpose_other},";
-            $csv .= "{$app->status},";
-            $csv .= "{$app->created_at},";
-            $csv .= "{$app->updated_at}\n";
-        }
-
-        return Response::make($csv, 200, [
+        $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=residency_applications.csv',
-        ]);
+            'Content-Disposition' => "attachment; filename=$filename",
+        ];
+
+        $callback = function () use ($applications) {
+            $file = fopen('php://output', 'w');
+            fwrite($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'ID','Reference Number','Full Name','First Name','Middle Name','Last Name','Suffix',
+                'Birthdate','Gender','Civil Status','Birth Place','Address','Years Residing',
+                'Residency Type','Contact Number','Email','Household Members','Purpose','Purpose Other',
+                'Status','Created At','Updated At'
+            ]);
+
+            foreach ($applications as $app) {
+                $full_name = trim($app->first_name . ' ' . $app->middle_name . ' ' . $app->last_name . ' ' . $app->suffix);
+
+                $yearsDisplay = '';
+                switch ($app->years_residing) {
+                    case 'less1': $yearsDisplay = 'Less than 1 year'; break;
+                    case '1-3': $yearsDisplay = '1-3 years'; break;
+                    case '3-5': $yearsDisplay = '3-5 years'; break;
+                    case '5-10': $yearsDisplay = '5-10 years'; break;
+                    case '10-20': $yearsDisplay = '10-20 years'; break;
+                    case '20+': $yearsDisplay = '20+ years'; break;
+                    default: $yearsDisplay = $app->years_residing;
+                }
+                
+                fputcsv($file, [
+                    $app->id, $app->reference_number, $full_name, $app->first_name, $app->middle_name,
+                    $app->last_name, $app->suffix, $app->birthdate, $app->gender, $app->civil_status,
+                    $app->birth_place, $app->address, $yearsDisplay, $app->residency_type,
+                    $app->contact_number, $app->email, $app->household_members, $app->purpose,
+                    $app->purpose_other, $app->status, $app->created_at, $app->updated_at
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function destroy($id)
@@ -390,9 +391,9 @@ class ResidencyController extends Controller
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certificate of Residency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_ad)->format('F d, Y'));
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
 
-        $fileName = 'certificate_' . $record->id . '.docx';
+        $fileName = 'certificate_' . $record->reference_number . '.docx'; // FIXED: use reference_number
         $outputDir = storage_path('app/generated');
         if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 
@@ -414,5 +415,4 @@ class ResidencyController extends Controller
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
     }
-
 }

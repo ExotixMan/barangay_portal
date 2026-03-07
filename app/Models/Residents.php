@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use App\Notifications\CustomResetPassword;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
@@ -40,6 +41,11 @@ class Residents extends Authenticatable implements MustVerifyEmail
     public function getFullNameAttribute()
     {
         return $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
     }
 
     public function getAgeAttribute()

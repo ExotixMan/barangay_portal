@@ -16,7 +16,7 @@ class IncidentReportController extends Controller
     {
         $query = BlotterReport::withTrashed();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -40,8 +40,7 @@ class IncidentReportController extends Controller
         $resolved_count = BlotterReport::where('status', 'resolved')->count();
         $dropped_count = BlotterReport::where('status', 'dropped')->count();
 
-        $incidents = BlotterReport::withTrashed('witnesses', 'files')->latest()->paginate(20);
-
+        $incidents = $query->with(['witnesses', 'files'])->latest()->paginate(20); // FIXED: moved with() to query
 
         return view('admin.admin_incident_report', compact('incidents', 'total_count', 'processing_count', 'resolved_count', 'dropped_count'));
     }
@@ -76,7 +75,6 @@ class IncidentReportController extends Controller
         DB::beginTransaction();
 
         try {
-
             // generate reference number
             $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
 
@@ -120,7 +118,8 @@ class IncidentReportController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Incident Report added successfully.');
+            return redirect()->route('admin.blotter.index') // FIXED: added redirect with proper route
+                ->with('success', 'Incident Report added successfully.');
 
         } catch (\Exception $e) {
             DB::rollback();

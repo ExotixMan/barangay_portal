@@ -14,10 +14,9 @@ class ResidentController extends Controller
 {
     public function index(Request $request)
     {
-
         $query = Residents::withTrashed();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -69,14 +68,13 @@ class ResidentController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-
         $residents = $query->paginate(20);
 
         /* ==============================
         DASHBOARD STATISTICS
         ============================== */
 
-        //TOTAL (excluding deleted)
+        //TOTAL (including deleted)
         $totalResidents = Residents::withTrashed()->count();
 
         // Get last month date
@@ -98,18 +96,19 @@ class ResidentController extends Controller
         $growthPercentage = 0;
 
         if ($totalLastMonth > 0) {
-            $growthPercentage =
-                (($totalThisMonth - $totalLastMonth) / $totalLastMonth) * 100;
+            $growthPercentage = (($totalThisMonth - $totalLastMonth) / $totalLastMonth) * 100;
         }
 
         //ACTIVE (not soft deleted)
         $activeResidents = Residents::whereNull('deleted_at')->count();
 
         //ACTIVE PERCENTAGE
-        $activePercentage = $totalResidents > 0 ? ($activeResidents / $totalResidents) * 100: 0;
+        $activePercentage = $totalResidents > 0 ? ($activeResidents / $totalResidents) * 100 : 0;
 
         //NEW THIS MONTH
-        $newResidents = Residents::whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count();
+        $newResidents = Residents::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
 
         //YESTERDAY COUNT
         $yesterdayCount = Residents::whereDate('created_at', Carbon::yesterday())->count();
@@ -118,7 +117,7 @@ class ResidentController extends Controller
         $seniorResidents = Residents::whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60")->count();
 
         //SENIOR PERCENTAGE
-        $seniorPercentage = $totalResidents > 0 ? ($seniorResidents / $totalResidents) * 100: 0;
+        $seniorPercentage = $totalResidents > 0 ? ($seniorResidents / $totalResidents) * 100 : 0;
 
         return view('admin.admin_resident', compact('residents', 'totalResidents', 'growthPercentage', 'activeResidents', 'activePercentage', 'newResidents', 'yesterdayCount', 'seniorResidents', 'seniorPercentage'));
     }
@@ -152,11 +151,14 @@ class ResidentController extends Controller
 
         $this->log($resident, 'Created');
 
-        return back()->with('success', 'Resident added successfully.');
+        return redirect()->route('admin.residents.index') // FIXED: added redirect with proper route
+            ->with('success', 'Resident added successfully.');
     }
 
-    public function update(Request $request, Residents $resident)
+    public function update(Request $request, $id) // FIXED: changed parameter to $id
     {
+        $resident = Residents::findOrFail($id);
+        
         // Store form type in session with resident ID
         session()->flash('form_type', 'edit_' . $resident->id);
 
@@ -183,8 +185,9 @@ class ResidentController extends Controller
         return back()->with('success', 'Resident updated successfully');
     }
 
-    public function destroy(Residents $resident)
+    public function destroy($id) // FIXED: changed parameter to $id
     {
+        $resident = Residents::findOrFail($id);
         $resident->delete(); // Soft delete
         $this->log($resident, 'Soft Deleted');
         $message = 'Resident moved to trash.';
@@ -203,7 +206,6 @@ class ResidentController extends Controller
     
     public function bulkDelete(Request $request)
     {
-
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'exists:residents,id'
@@ -221,7 +223,6 @@ class ResidentController extends Controller
 
     public function export(Request $request)
     {
-
         $request->validate([
             'ids' => 'nullable|array',
             'ids.*' => 'exists:residents,id'
@@ -231,22 +232,37 @@ class ResidentController extends Controller
 
         if ($request->ids) {
             $query->whereIn('id', $request->ids);
+        } else {
+            $query->whereIn('id', Residents::pluck('id')); // FIXED: simplified
         }
 
         $residents = $query->get();
 
-        $residents = Residents::whereIn('id', $request->ids ?? Residents::pluck('id'))->get();
+        $filename = 'residents_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
 
-        $csv = "ID,Name,Email,Contact,Address\n";
-
-        foreach ($residents as $r) {
-            $csv .= "{$r->id},{$r->full_name},{$r->email},{$r->contact},{$r->address}\n";
-        }
-
-        return Response::make($csv, 200, [
+        $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=residents.csv',
-        ]);
+            'Content-Disposition' => "attachment; filename=$filename",
+        ];
+
+        $callback = function () use ($residents) {
+            $file = fopen('php://output', 'w');
+            fwrite($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['ID', 'Name', 'Email', 'Contact', 'Address', 'Username', 'Birthdate', 'Created At']);
+
+            foreach ($residents as $r) {
+                $full_name = $r->firstname . ' ' . $r->lastname;
+                fputcsv($file, [
+                    $r->id, $full_name, $r->email, $r->contact, $r->address, 
+                    $r->username, $r->birthdate, $r->created_at
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     private function log($resident, $action)

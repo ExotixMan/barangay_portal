@@ -35,7 +35,7 @@ class NotificationController extends Controller
         ]);
 
         $apiKey = env('SMS_API_KEY');
-        $recipient = $request->phone;;
+        $recipient = $request->phone;
         $message = $request->message;
 
         $response = Http::withHeaders([
@@ -48,11 +48,9 @@ class NotificationController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            // Handle success
-            return $data;
+            return back()->with('success', 'SMS sent successfully!'); // FIXED: return proper response
         } else {
-            // Handle error
-            return $response->body();
+            return back()->with('error', 'Failed to send SMS: ' . $response->body()); // FIXED: return proper response
         }
     }
 }

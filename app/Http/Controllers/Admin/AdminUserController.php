@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -95,7 +96,7 @@ class AdminUserController extends Controller
             'username' => 'required|string|unique:admin_users,username|min:3|max:255',
             'password' => 'required|string|min:8',
             'contact_number' => 'nullable|string|max:11',
-            'role_id' => 'required|exists:admin_roles,id',
+            'role_id' => 'required|exists:admin_roles,id', // FIXED: changed from 'roles' to 'admin_roles'
             'department' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive,suspended',
         ]);
@@ -111,6 +112,7 @@ class AdminUserController extends Controller
 
         try {
             $user = AdminUser::create([
+                'user_id' => 'USR-' . date('Y') . str_pad(AdminUser::count() + 1, 5, '0', STR_PAD_LEFT), // FIXED: Added user_id generation
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
@@ -124,27 +126,26 @@ class AdminUserController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'create_user',
-                'module' => 'users',
-                'details' => ['user_id' => $user->id, 'user_name' => $user->full_name],
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'CREATE',
+                'module' => 'Users',
+                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name . ' ' . $user->last_name]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
 
             // Send welcome email if checked
             if ($request->has('send_welcome_email')) {
-                // sMail::to($user->email)->send(new WelcomeEmail($user, $request->password));
+                // Mail::to($user->email)->send(new WelcomeEmail($user, $request->password));
             }
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User created successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // dd($e->getMessage());
             return redirect()->back()
                 ->with('error', 'Failed to create user. ' . $e->getMessage())
                 ->withInput();
@@ -158,10 +159,10 @@ class AdminUserController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'username' => 'required|string|unique:users,username,' . $id . '|min:3|max:255',
+            'email' => 'required|email|unique:admin_users,email,' . $id, // FIXED: changed from 'users' to 'admin_users'
+            'username' => 'required|string|unique:admin_users,username,' . $id . '|min:3|max:255', // FIXED: changed from 'users' to 'admin_users'
             'contact_number' => 'nullable|string|max:11',
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'required|exists:admin_roles,id', // FIXED: changed from 'roles' to 'admin_roles'
             'department' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,suspended',
         ]);
@@ -191,20 +192,20 @@ class AdminUserController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'update_user',
-                'module' => 'users',
-                'details' => [
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'UPDATE',
+                'module' => 'Users',
+                'details' => json_encode([
                     'user_id' => $user->id,
                     'changes' => array_diff_assoc($user->toArray(), $oldData)
-                ],
+                ]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User updated successfully.');
 
         } catch (\Exception $e) {
@@ -221,13 +222,13 @@ class AdminUserController extends Controller
 
         // Prevent deleting super admin
         if ($user->role && $user->role->name === 'super_admin') {
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('error', 'Cannot delete super admin user.');
         }
 
         // Prevent deleting yourself
-        if ($user->id === Auth::id()) {
-            return redirect()->route('users.index')
+        if ($user->id === Auth::guard('admin')->id()) { // FIXED: Added guard
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('error', 'You cannot delete your own account.');
         }
 
@@ -236,10 +237,10 @@ class AdminUserController extends Controller
         try {
             // Log before deletion
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'delete_user',
-                'module' => 'users',
-                'details' => ['user_id' => $user->id, 'user_name' => $user->full_name],
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'DELETE',
+                'module' => 'Users',
+                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name . ' ' . $user->last_name]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
@@ -248,12 +249,12 @@ class AdminUserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User deleted successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('error', 'Failed to delete user.');
         }
     }
@@ -284,22 +285,22 @@ class AdminUserController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'reset_password',
-                'module' => 'users',
-                'details' => ['user_id' => $user->id],
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'RESET_PASSWORD',
+                'module' => 'Users',
+                'details' => json_encode(['user_id' => $user->id]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'Password reset successfully. New password: ' . $newPassword);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('error', 'Failed to reset password.');
         }
     }
@@ -310,7 +311,7 @@ class AdminUserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'permissions.*' => 'exists:admin_permissions,id', // FIXED: changed from 'permissions' to 'admin_permissions'
         ]);
 
         if ($validator->fails()) {
@@ -327,25 +328,25 @@ class AdminUserController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'update_user_permissions',
-                'module' => 'users',
-                'details' => [
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'UPDATE_PERMISSIONS',
+                'module' => 'Users',
+                'details' => json_encode([
                     'user_id' => $user->id,
                     'permissions' => $request->permissions
-                ],
+                ]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User permissions updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('error', 'Failed to update permissions.');
         }
     }
@@ -355,7 +356,7 @@ class AdminUserController extends Controller
         $validator = Validator::make($request->all(), [
             'action' => 'required|in:delete,activate,deactivate,suspend',
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id',
+            'user_ids.*' => 'exists:admin_users,id', // FIXED: changed from 'users' to 'admin_users'
         ]);
 
         if ($validator->fails()) {
@@ -372,7 +373,7 @@ class AdminUserController extends Controller
                     // Filter out super admins and current user
                     $users->whereDoesntHave('role', function($q) {
                         $q->where('name', 'super_admin');
-                    })->where('id', '!=', Auth::id())->delete();
+                    })->where('id', '!=', Auth::guard('admin')->id())->delete(); // FIXED: Added guard
                     break;
                     
                 case 'activate':
@@ -390,10 +391,10 @@ class AdminUserController extends Controller
 
             // Log bulk action
             AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'bulk_' . $request->action,
-                'module' => 'users',
-                'details' => ['user_ids' => $request->user_ids],
+                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'action' => 'BULK_' . strtoupper($request->action),
+                'module' => 'Users',
+                'details' => json_encode(['user_ids' => $request->user_ids, 'action' => $request->action]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);

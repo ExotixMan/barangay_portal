@@ -9,6 +9,8 @@ class AdminActivityLog extends Model
 {
     use HasFactory;
 
+    protected $table = 'admin_activity_logs';
+
     protected $fillable = [
         'user_id',
         'action',
@@ -25,7 +27,7 @@ class AdminActivityLog extends Model
     // Relationships
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(AdminUser::class, 'user_id');
     }
 
     // Scopes
@@ -42,5 +44,26 @@ class AdminActivityLog extends Model
     public function scopeByAction($query, $action)
     {
         return $query->where('action', $action);
+    }
+
+    // Accessors
+    public function getFormattedDetailsAttribute()
+    {
+        if (is_array($this->details)) {
+            return json_encode($this->details, JSON_PRETTY_PRINT);
+        }
+        return $this->details;
+    }
+
+    public function getActionBadgeClassAttribute()
+    {
+        return match($this->action) {
+            'LOGIN', 'LOGOUT' => 'bg-info',
+            'CREATE' => 'bg-success',
+            'UPDATE' => 'bg-warning',
+            'DELETE' => 'bg-danger',
+            'REDIRECT' => 'bg-secondary',
+            default => 'bg-primary'
+        };
     }
 }

@@ -113,10 +113,10 @@ Route::get('/register', function () {
 Route::post('/register', [ResidentsController::class, 'register_res'])->name('register.res');
 
 // Forgot / Reset Password (public)
-Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('resident.password.request');
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('resident.password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('resident.password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('resident.password.update');
 
 // OTP (public)
 Route::get('/verify-otp', function () {

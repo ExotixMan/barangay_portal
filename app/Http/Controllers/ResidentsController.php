@@ -44,7 +44,7 @@ class ResidentsController extends Controller
         
         $data['phone_otp'] = Hash::make($otp);
         $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
-        $data['phone_verified'] = false;
+        $data['phone_verified'] = 'false';
 
         $resident = Residents::create($data);
 

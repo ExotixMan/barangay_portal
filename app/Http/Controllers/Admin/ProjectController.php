@@ -102,7 +102,7 @@ class ProjectController extends Controller
         try {
             Project::create($data);
 
-            return redirect()->route('projects.index')
+            return redirect()->route('admin.projects.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Project created successfully.');
 
         } catch (\Exception $e) {
@@ -136,7 +136,7 @@ class ProjectController extends Controller
 
             $project->update($data);
 
-            return redirect()->route('projects.index')
+            return redirect()->route('admin.projects.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Project updated successfully.');
 
         } catch (\Exception $e) {

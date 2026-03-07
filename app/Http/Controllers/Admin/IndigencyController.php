@@ -17,7 +17,7 @@ class IndigencyController extends Controller
     {
         $query = IndigencyApplication::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search);
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
         // Search
         if ($search) {
@@ -38,7 +38,7 @@ class IndigencyController extends Controller
             $query->where('monthly_income', $request->monthly_income);
         }
 
-        $total_count = IndigencyApplication::all()->count();
+        $total_count = IndigencyApplication::count(); // FIXED: removed all()
         $processing_count = IndigencyApplication::where('status', 'processing')->count();
         $approved_count   = IndigencyApplication::where('status', 'approved')->count();
         $rejected_count   = IndigencyApplication::where('status', 'rejected')->count();
@@ -65,8 +65,6 @@ class IndigencyController extends Controller
         } else {
             $query->orderBy($sort, $direction);
         }
-
-        $query->orderBy($sort, $direction);
 
         $indigency = $query->latest()->paginate(20);
 
@@ -112,7 +110,8 @@ class IndigencyController extends Controller
 
             IndigencyApplication::create($data);
 
-            return back()->with('success', 'Indigency added successfully.');
+            return redirect()->route('admin.indigency.index') // FIXED: added redirect with proper route
+                ->with('success', 'Indigency added successfully.');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -173,7 +172,7 @@ class IndigencyController extends Controller
 
         $applications = $query->get();
 
-        $filename = 'indigency_applications.csv';
+        $filename = 'indigency_applications_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -287,7 +286,7 @@ class IndigencyController extends Controller
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certification of Indigency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_ad)->format('F d, Y'));
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
 
         $fileName = 'certification_of_indigency_' . $record->reference_number . '.docx';
         $outputDir = storage_path('app/generated');

@@ -1,191 +1,251 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Login - {{ config('app.name', 'Laravel') }}</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin / MA Login - {{ config('app.name', 'Laravel') }}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+        .login-card {
+            position: relative;
+            max-width: 480px;
+            width: 100%;
+            padding: 100px 40px 40px 40px;
+            margin: 0 20px;
+            border: 2px solid #e3342f;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .login-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+        }
+        .avatar {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #e3342f;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Nunito', sans-serif;
+            color: #fff;
+            font-size: 48px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
-        
-        .login-card {
+        .card-header {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        .input-group-text {
+            background-color: #e3342f;
+            color: #fff;
             border: none;
-            border-radius: 1rem;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            width: 50px;
+            justify-content: center;
+        }
+        .form-control {
+            border-left: none;
+            padding: 0.75rem 1rem;
+        }
+        .form-control:focus {
+            border-color: #e3342f;
+            box-shadow: 0 0 0 0.2rem rgba(227, 52, 47, 0.25);
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .remember-forgot {
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 25px;
             width: 100%;
         }
-        
-        .login-header {
-            background: linear-gradient(45deg, #4e73df, #224abe);
-            color: white;
-            border-radius: 1rem 1rem 0 0;
-            padding: 2rem;
-            text-align: center;
+        .remember-forgot a {
+            font-size: 0.9rem;
+            color: #e3342f;
+            text-decoration: none;
         }
-        
-        .login-header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .remember-forgot a:hover {
+            text-decoration: underline;
         }
-        
-        .login-header p {
-            margin-bottom: 0;
-            opacity: 0.9;
-        }
-        
-        .login-body {
-            padding: 2.5rem;
-            background: white;
-            border-radius: 0 0 1rem 1rem;
-        }
-        
-        .form-control {
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d3e2;
-        }
-        
-        .form-control:focus {
-            border-color: #4e73df;
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-        
-        .btn-login {
-            background: linear-gradient(45deg, #4e73df, #224abe);
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
+        .btn-primary {
+            background-color: #e3342f;
+            border-color: #e3342f;
             font-weight: 600;
+            padding: 0.75rem;
             letter-spacing: 0.5px;
-            transition: all 0.3s;
         }
-        
-        .btn-login:hover {
+        .btn-primary:hover {
+            background-color: #cc1f1a;
+            border-color: #cc1f1a;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+            box-shadow: 0 5px 15px rgba(227, 52, 47, 0.4);
         }
-        
+        .btn-primary:focus {
+            box-shadow: 0 0 0 .2rem rgba(227, 52, 47, 0.5);
+        }
         .alert {
-            border-radius: 0.5rem;
+            border-radius: 8px;
             border: none;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
         }
-        
-        .input-icon {
-            position: relative;
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #e3342f;
         }
-        
-        .input-icon i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #b7b9cc;
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
         }
-        
-        .input-icon input {
-            padding-left: 2.5rem;
+        .invalid-feedback {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #e3342f;
+        }
+        .form-check-input:checked {
+            background-color: #e3342f;
+            border-color: #e3342f;
+        }
+        hr {
+            margin: 1.5rem 0;
+            opacity: 0.2;
+        }
+        .secure-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        .secure-text i {
+            color: #e3342f;
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-header">
-            <h1><i class="fas fa-shield-alt me-2"></i>Admin Login</h1>
-            <p>Enter your credentials to access the admin panel</p>
-        </div>
-        
-        <div class="login-body">
-            @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    {{ $errors->first('email') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            
-            @if(session('status'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    {{ session('status') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            
-            <form method="POST" action="{{ route('admin.login.submit') }}">
-                @csrf
-                
-                <div class="mb-4">
-                    <label for="email" class="form-label fw-bold">Email Address</label>
-                    <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                               id="email" name="email" value="{{ old('email') }}" 
-                               placeholder="admin@example.com" required autofocus>
-                    </div>
-                    @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
-                
-                <div class="mb-4">
-                    <label for="password" class="form-label fw-bold">Password</label>
-                    <div class="input-icon">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                               id="password" name="password" placeholder="••••••••" required>
-                    </div>
-                    @error('password')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
-                
-                <div class="mb-4 d-flex justify-content-between align-items-center">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" 
-                               id="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="remember">
-                            Remember Me
-                        </label>
-                    </div>
-                    
-                    @if (Route::has('admin.password.request'))
-                        <a href="{{ route('admin.password.request') }}" class="text-decoration-none">
-                            Forgot Password?
-                        </a>
-                    @endif
-                </div>
-                
-                <button type="submit" class="btn btn-login text-white w-100">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login to Dashboard
-                </button>
-            </form>
-            
-            <hr class="my-4">
-            
-            <div class="text-center text-muted small">
-                <i class="fas fa-lock me-1"></i>
-                Secure Admin Access Only
-            </div>
-        </div>
+
+<div class="login-card">
+    <div class="avatar">
+        <i class="bi bi-shield-lock-fill"></i>
+    </div>
+    <div class="card-header">
+        ADMIN LOGIN
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="card-body">
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ $errors->first('email') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        
+        @if(session('status'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ session('status') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        
+        <form method="POST" action="{{ route('admin.login.submit') }}">
+            @csrf
+            
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                <input type="email" 
+                       class="form-control form-control-lg @error('email') is-invalid @enderror" 
+                       id="email" 
+                       name="email" 
+                       value="{{ old('email') }}" 
+                       placeholder="Email Address" 
+                       required 
+                       autofocus>
+            </div>
+            @error('email')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+            
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                <input type="password" 
+                       class="form-control form-control-lg @error('password') is-invalid @enderror" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Password" 
+                       required>
+            </div>
+            @error('password')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+            
+            <div class="remember-forgot">
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="checkbox" name="remember" 
+                           id="remember" {{ old('remember') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="remember">
+                        Remember me
+                    </label>
+                </div>
+                
+                @if (Route::has('admin.password.request'))
+                    <a href="{{ route('admin.password.request') }}" id="forgotLink">
+                        Forgot Password?
+                    </a>
+                @endif
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login to Dashboard
+                </button>
+            </div>
+            
+            <hr>
+            
+            <div class="secure-text">
+                <i class="bi bi-shield-check"></i>
+                Secure Admin Access Only
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

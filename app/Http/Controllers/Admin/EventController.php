@@ -144,7 +144,7 @@ class EventController extends Controller
 
             $event->update($data);
 
-            return redirect()->route('events.index')
+            return redirect()->route('admin.events.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Event updated successfully.');
 
         } catch (\Exception $e) {

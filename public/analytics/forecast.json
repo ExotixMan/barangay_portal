@@ -202,8 +202,9 @@
                 "public": 1
             },
             "by_status": {
-                "processing": 17,
-                "dropped": 1
+                "processing": 16,
+                "dropped": 1,
+                "resolved": 1
             },
             "by_location": {
                 "das": 12,

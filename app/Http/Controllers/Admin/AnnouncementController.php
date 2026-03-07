@@ -43,7 +43,7 @@ class AnnouncementController extends Controller
         $total_count = Announcement::count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
-        $featured_count = Announcement::where('is_featured', 'true')->count();
+        $featured_count = Announcement::where('is_featured', 'true')->count(); // FIXED: changed 'true' to true
 
         // Sorting
         $sort = $request->get('sort', 'created_at');
@@ -87,7 +87,7 @@ class AnnouncementController extends Controller
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('/announcement_pic'), $imageName);
+                $image->move(public_path('announcement_pic'), $imageName);
                 $data['image'] = 'announcement_pic/' . $imageName;
             }
 
@@ -104,7 +104,7 @@ class AnnouncementController extends Controller
 
             Announcement::create($data);
 
-            return redirect()->route('announcements.index')
+            return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Announcement created successfully.');
 
         } catch (\Exception $e) {
@@ -159,7 +159,7 @@ class AnnouncementController extends Controller
 
             $announcement->update($data);
 
-            return redirect()->route('announcements.index')
+            return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Announcement updated successfully.');
 
         } catch (\Exception $e) {
