@@ -10,6 +10,13 @@ class BarangayClearanceController extends Controller
 {
     public function index()
     {
+        if (session('submitted_application')) {
+            return redirect()->route('success', [
+                'service' => 'Clearance',
+                'reference' => session('reference_number')
+            ]);
+        }
+
         return view('barangay_system.clearance_form');
     }
 
@@ -51,10 +58,13 @@ class BarangayClearanceController extends Controller
         $date_submitted = now()->format('F d, Y');
 
         session([
+            'route' => 'clearance',
             'applicant_name' => $applicant_name,
             'date_submitted' => $date_submitted,
             'status' => 'Submitted for Processing',
-            'amount' => 100
+            'amount' => 100,
+            'reference_number' => $data['reference_number'],
+            'submitted_application' => true
         ]);
 
         return redirect()->route('success', [

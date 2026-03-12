@@ -16,12 +16,6 @@
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 </head>
 <body>
-    <div class="back-button-container container-fluid px-3 px-md-4">
-        <a href="{{ route('incident') }}" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Back to Blotter Info
-        </a>
-    </div>
-
     <div class="form-page-header container-fluid px-3 px-md-4">
         <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Blotter Report Application</h1>
     </div>
@@ -41,9 +35,9 @@
                             </button>
                         </div>
                         <div class="col-12 col-md-auto">
-                            <button class="btn-track w-100">
+                            <a href="{{ route('track_request') }}" class="btn-track w-100" style="text-decoration: none;">
                                 <i class="fas fa-search"></i> Track Application
-                            </button>
+                            </a>
                         </div>
                         <div class="col-12 col-md-auto">
                             <a href="{{ route('incident') }}" class="btn-back-info w-100" style="text-decoration: none;">
@@ -62,6 +56,10 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
     <script>
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
         document.addEventListener('DOMContentLoaded', function() {
             const statusMessage = document.getElementById('statusMessage');
             const referenceNumber = document.getElementById('referenceNumber');

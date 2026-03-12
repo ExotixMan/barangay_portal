@@ -42,9 +42,10 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use Illuminate\Support\Facades\Auth;
 
-// ------------------------------
+
+
 // Language switch (public)
-// ------------------------------
+
 Route::get('/switch-language', function (Request $request) {
     $lang = $request->query('lang');
     if (in_array($lang, ['en', 'tl'])) {
@@ -53,9 +54,10 @@ Route::get('/switch-language', function (Request $request) {
     return redirect()->back();
 })->name('switch.language');
 
-// ------------------------------
-// Public routes (NO PERMISSION NEEDED)
-// ------------------------------
+
+
+// Public routes
+
 Route::get('/', [IndexController::class,'index'])->name('barangay_system.index');
 
 // About pages (public)
@@ -103,6 +105,8 @@ Route::get('/login', function () {
     return view('barangay_system.login');
 })->name('login');
 
+Route::get('/login', [ResidentsController::class, 'showLogin'])->name('login');
+
 Route::post('/login', [ResidentsController::class, 'login_res'])->name('login.res');
 
 Route::get('/register', function () {
@@ -140,32 +144,67 @@ Route::post('/email/verification-notification', function (Request $request) {
     return back()->with('success', 'Verification link resent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
-// ------------------------------
+
+
 // Authenticated resident routes
-// ------------------------------
+
 Route::middleware('auth')->group(function () {
-    Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res');
+    Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');;
 
     // Services pages
     Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
     // Indigency applications
-    Route::get('/indigency', function () { return view('barangay_system.certificate_indigency'); })->name('indigency');
+    Route::get('/indigency', function () {
+        
+        session()->forget([
+            'submitted_application',
+            'reference_number'
+        ]);
+    
+        return view('barangay_system.certificate_indigency'); 
+         
+    })->name('indigency');
     Route::get('/indigency/form', [IndigencyApplicationController::class, 'index'])->name('indigency.form');
     Route::post('/indigency/store', [IndigencyApplicationController::class, 'store'])->name('indigency.store');
 
     // Residency applications
-    Route::get('/residency', function () { return view('barangay_system.certificate_residency'); })->name('residency');
+    Route::get('/residency', function () {
+         
+        session()->forget([
+            'submitted_application',
+            'reference_number'
+        ]);
+    
+        return view('barangay_system.certificate_residency'); 
+    
+    })->name('residency');
     Route::get('/residency/form', [ResidencyApplicationController::class, 'index'])->name('residency.form');
     Route::post('/residency/store', [ResidencyApplicationController::class, 'store'])->name('residency.store');
 
     // Clearance applications
-    Route::get('/clearance', function () { return view('barangay_system.clearance'); })->name('clearance');
+    Route::get('/clearance', function () { 
+
+        session()->forget([
+            'submitted_application',
+            'reference_number'
+        ]);
+
+        return view('barangay_system.clearance'); 
+    })->name('clearance');
     Route::get('/clearance/form', [BarangayClearanceController::class, 'index'])->name('clearance.form');
     Route::post('/clearance/store', [BarangayClearanceController::class, 'store'])->name('clearance.store');
 
     // Incident/Blotter reports
-    Route::get('/incident', function () { return view('barangay_system.incident'); })->name('incident');
+    Route::get('/incident', function () {
+        
+        session()->forget([
+            'submitted_application',
+            'reference_number'
+        ]);
+
+        return view('barangay_system.incident'); 
+    })->name('incident');
     Route::get('/incident/form', [BlotterController::class, 'index'])->name('incident.form');
     Route::post('/incident/store', [BlotterController::class, 'store'])->name('incident.store');
     Route::get('/incidentreport/{reference}', [BlotterController::class, 'success'])->name('incident_success');
@@ -181,18 +220,17 @@ Route::middleware('auth')->group(function () {
     })->name('success');
 });
 
-// ------------------------------
-// ADMIN ROUTES WITH PERMISSION CHECKS
-// ------------------------------
+
+// ADMIN ROUTES
 
 // Admin login routes (public)
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
+Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm']);
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 });
 
-Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
     
     // Dashboard - requires view_dashboard permission
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -358,113 +396,4 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
         Route::post('/role/{roleId}', [AdminPermissionController::class, 'updateRolePermissions'])->middleware('permission:update_permissions')->name('update-role');
         Route::post('/reset-defaults', [AdminPermissionController::class, 'resetToDefault'])->middleware('permission:reset_permission_defaults')->name('reset-defaults');
     });
-});
-
-// Debug routes (keep these at the bottom)
-Route::get('/debug-admin-user-methods', function() {
-    /** @var AdminUser|null $user */
-    $user = Auth::guard('admin')->user();
-    
-    if (!$user) {
-        return response()->json([
-            'error' => 'No admin user logged in',
-            'login_url' => route('admin.login')
-        ]);
-    }
-    
-    // Get all methods available on this user object
-    $methods = get_class_methods($user);
-    
-    // Filter permission-related methods
-    $permissionMethods = array_filter($methods, function($method) {
-        return strpos($method, 'permission') !== false || 
-               strpos($method, 'Permission') !== false ||
-               strpos($method, 'role') !== false ||
-               strpos($method, 'is') !== false ||
-               strpos($method, 'has') !== false;
-    });
-    
-    // Test specific methods
-    $testResults = [];
-    $methodsToTest = [
-        'hasPermission',
-        'hasAnyPermission',
-        'hasAllPermissions',
-        'hasModuleAccess',
-        'getAllPermissions',
-        'getPermissionNames',
-        'isSuperAdmin',
-        'getRoleName',
-        'getRoleDisplayName'
-    ];
-    
-    foreach ($methodsToTest as $method) {
-        $testResults[$method] = [
-            'exists' => method_exists($user, $method),
-            'callable' => is_callable([$user, $method]) ? 'Yes' : 'No',
-        ];
-        
-        // Try to call the method if it exists
-        if (method_exists($user, $method)) {
-            try {
-                if ($method === 'hasPermission') {
-                    $testResults[$method]['result'] = $user->$method('view_dashboard');
-                } 
-                elseif ($method === 'hasAnyPermission') {
-                    $testResults[$method]['result'] = $user->$method(['view_dashboard', 'view_residents']);
-                } 
-                elseif ($method === 'hasAllPermissions') {
-                    $testResults[$method]['result'] = $user->$method(['view_dashboard']);
-                } 
-                elseif ($method === 'hasModuleAccess') {
-                    $testResults[$method]['result'] = $user->$method('Dashboard');
-                } 
-                elseif ($method === 'getAllPermissions') {
-                    $perms = $user->$method();
-                    $testResults[$method]['result'] = $perms->count() . ' permissions';
-                    $testResults[$method]['sample'] = $perms->take(3)->pluck('name')->toArray();
-                } 
-                elseif ($method === 'getPermissionNames') {
-                    $perms = $user->$method();
-                    $testResults[$method]['result'] = $perms->take(5)->toArray();
-                } 
-                else {
-                    $testResults[$method]['result'] = $user->$method();
-                }
-            } catch (\Exception $e) {
-                $testResults[$method]['error'] = $e->getMessage();
-            }
-        }
-    }
-    
-    return response()->json([
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->full_name,
-            'email' => $user->email,
-            'role_id' => $user->role_id,
-            'role_name' => $user->role?->name,
-            'is_super_admin' => $user->isSuperAdmin(),
-            'class' => get_class($user),
-            'traits' => class_uses($user),
-        ],
-        'all_methods' => $methods,
-        'permission_methods' => array_values($permissionMethods),
-        'test_results' => $testResults,
-    ]);
-})->middleware('admin.auth');
-
-Route::get('/debug-route-clearance', function() {
-    $route = Route::getRoutes()->getByName('admin.clearance.index');
-    
-    if (!$route) {
-        return 'Route not found';
-    }
-    
-    return [
-        'uri' => $route->uri(),
-        'name' => $route->getName(),
-        'middleware' => $route->middleware(),
-        'action' => $route->getActionName(),
-    ];
 });

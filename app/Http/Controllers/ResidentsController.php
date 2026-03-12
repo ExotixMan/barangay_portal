@@ -15,6 +15,14 @@ use Carbon\Carbon;
 
 class ResidentsController extends Controller
 {
+    public function showLogin(){
+        if (Auth::check()) {
+            return redirect()->intended(route('barangay_system.index'));
+        }
+
+        return view('barangay_system.login');
+    }
+
     public function index(){
         App::setLocale(Session::get('locale', config('app.locale')));
 
@@ -82,7 +90,7 @@ class ResidentsController extends Controller
 
         if (!Auth::attempt($credentials)) {
             return redirect('login')
-                ->with('fail', 'Invalid username or password.');
+                ->with('error', 'Invalid username or password.');
         }
 
         $request->session()->regenerate();
@@ -91,7 +99,7 @@ class ResidentsController extends Controller
 
         if (is_null($resident->email_verified_at)) {
             return redirect()->route('verification.notice')
-                ->with('fail', 'Please verify your email first.');
+                ->with('error', 'Please verify your email first.');
         }
 
         // if (!$resident->phone_verified) {

@@ -1,4 +1,4 @@
-
+// Existing code remains the same until the dark mode section
 initBackToTop();
 initFloatingActionButton();
 initChatModal();
@@ -28,6 +28,7 @@ function initBackToTop() {
         });
     }
 }
+
 function initFloatingActionButton() {
     const fabMain = document.getElementById('fabMain');
     const speedDial = document.getElementById('speedDial');
@@ -36,12 +37,23 @@ function initFloatingActionButton() {
     const chatBtn = document.getElementById('chatBtn');
     
     let isSpeedDialOpen = false;
-    let isDarkMode = false;
+    
+    // Check initial dark mode state from localStorage
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (darkModeBtn) {
+        if (isDarkMode) {
+            darkModeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            darkModeBtn.title = 'Toggle Light Mode';
+        } else {
+            darkModeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            darkModeBtn.title = 'Toggle Dark Mode';
+        }
+    }
     
     // Toggle speed dial
     if (fabMain && speedDial) {
         fabMain.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent event bubbling
+            event.stopPropagation();
             isSpeedDialOpen = !isSpeedDialOpen;
             
             if (isSpeedDialOpen) {
@@ -56,34 +68,28 @@ function initFloatingActionButton() {
         });
     }
     
-    // Dark/Light mode toggle
+    // Dark/Light mode toggle - UPDATED to use the global functions
     if (darkModeBtn) {
         darkModeBtn.addEventListener('click', function(event) {
             event.stopPropagation();
-            isDarkMode = !isDarkMode;
             
-            if (isDarkMode) {
-                document.body.style.backgroundColor = '#121212';
-                document.body.style.color = '#ffffff';
-                darkModeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                darkModeBtn.title = 'Toggle Light Mode';
-                
-                // Update button colors for dark mode
-                document.querySelectorAll('.fab-action').forEach(btn => {
-                    btn.style.background = '#333';
-                    btn.style.color = '#fff';
-                });
+            // Use the global toggle function from dark-mode.js
+            if (window.toggleDarkMode) {
+                window.toggleDarkMode();
             } else {
-                document.body.style.backgroundColor = '#ffffff';
-                document.body.style.color = '#000000';
-                darkModeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                darkModeBtn.title = 'Toggle Dark Mode';
-                
-                // Revert button colors for light mode
-                document.querySelectorAll('.fab-action').forEach(btn => {
-                    btn.style.background = 'white';
-                    btn.style.color = '#C62828';
-                });
+                // Fallback if dark-mode.js hasn't loaded
+                const isDark = !document.body.classList.contains('dark-mode');
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'true');
+                    darkModeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                    darkModeBtn.title = 'Toggle Light Mode';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'false');
+                    darkModeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                    darkModeBtn.title = 'Toggle Dark Mode';
+                }
             }
             
             // Close speed dial after clicking
@@ -161,9 +167,9 @@ function initChatModal() {
         console.log('Adding click listener to close button');
         closeChatBtn.addEventListener('click', function(event) {
             console.log('Close button clicked');
-            event.stopPropagation(); // Prevent event bubbling
+            event.stopPropagation();
             chatModal.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = '';
         });
     } else {
         console.error('Close button not found!');
@@ -177,7 +183,7 @@ function initChatModal() {
         if (event.target === chatModal) {
             console.log('Closing modal (clicked outside)');
             chatModal.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = '';
         }
     });
     
@@ -187,7 +193,7 @@ function initChatModal() {
         if (event.key === 'Escape' && chatModal.classList.contains('active')) {
             console.log('Closing modal (Escape key)');
             chatModal.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = '';
         }
     });
 }

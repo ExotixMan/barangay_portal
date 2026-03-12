@@ -1171,6 +1171,7 @@
 
     <script src="{{ asset('js/navbar.js') }}"></script>
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>  
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {

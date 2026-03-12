@@ -14,7 +14,6 @@ class AdminLoginController extends Controller
 {
     public function showLoginForm()
     {
-        // If already logged in, redirect to appropriate dashboard
         if (Auth::guard('admin')->check()) {
             return $this->redirectBasedOnRole(Auth::guard('admin')->user());
         }
@@ -70,9 +69,7 @@ class AdminLoginController extends Controller
         ])->withInput();
     }
 
-    /**
-     * Redirect user based on their role and permissions
-     */
+    //Redirect user based on their role and permissions
     protected function redirectBasedOnRole($user)
     {
         // Load the user's role if relationship exists

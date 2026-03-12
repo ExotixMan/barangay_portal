@@ -36,7 +36,7 @@ return new class extends Migration
             $table->text('respondent_description')->nullable();
 
             // preferences
-            $table->enum('confidentiality', ['public','confidential','anonymous']);
+            $table->enum('confidentiality', ['low','medium','high']);
             $table->text('additional_info')->nullable();
 
             //status

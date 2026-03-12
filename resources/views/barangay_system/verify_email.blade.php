@@ -99,25 +99,40 @@
         </a>
 
     </div>
+    @if (session('success'))
+        <script>
+        localStorage.setItem("verify_timer", 60);
+        </script>
+    @endif
 
-    <script>   
-        let seconds = 60;
+    <script>
         let btn = document.querySelector('.resend-btn');
+        let seconds = localStorage.getItem("verify_timer") || 0;
 
-        btn.disabled = true;
+        // Function to start countdown
+        function startTimer(sec) {
+            btn.disabled = true;
+            let timer = setInterval(() => {
+                sec--;
+                btn.innerText = "Resend Email (" + sec + "s)";
+                localStorage.setItem("verify_timer", sec);
 
-        let timer = setInterval(()=>{
-        seconds--;
-
-        btn.innerText = "Resend Email ("+seconds+"s)";
-
-        if(seconds <= 0){
-        clearInterval(timer);
-        btn.disabled = false;
-        btn.innerText = "Resend Verification Email";
+                if (sec <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = "Resend Verification Email";
+                    localStorage.removeItem("verify_timer");
+                }
+            }, 1000);
         }
 
-        },1000); 
+        if (seconds > 0) {
+            startTimer(parseInt(seconds));
+        }
+        
+        btn.closest('form').addEventListener('submit', function(e) {
+            startTimer(60);
+        });
     </script>
 
 </body>

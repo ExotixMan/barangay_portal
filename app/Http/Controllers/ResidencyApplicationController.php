@@ -11,6 +11,13 @@ class ResidencyApplicationController extends Controller
 
     public function index()
     {
+        if (session('submitted_application')) {
+            return redirect()->route('success', [
+                'service' => 'Certificate of Residency',
+                'reference' => session('reference_number')
+            ]);
+        }
+
         return view('barangay_system.residency_form');
     }
 
@@ -68,7 +75,9 @@ class ResidencyApplicationController extends Controller
             'applicant_name' => $applicant_name,
             'date_submitted' => $date_submitted,
             'status' => 'Submitted for Processing',
-            'amount' => 50
+            'amount' => 50,
+            'reference_number' => $data['reference_number'],
+            'submitted_application' => true
         ]);
 
         return redirect()->route('success', [

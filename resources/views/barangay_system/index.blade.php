@@ -922,6 +922,395 @@
                 justify-content: center;
             }
         }
+        /* ===== DARK MODE STYLES ===== */
+        :root {
+            --bg-primary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #ffffff;
+            --border-color: #eeeeee;
+            --hero-overlay: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6));
+        }
+
+        body.dark-mode {
+            --bg-primary: #121212;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --card-bg: #1e1e1e;
+            --border-color: #333333;
+            --hero-overlay: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8));
+            
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Navbar Dark Mode */
+        body.dark-mode .navbar {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background-color: #2d2d2d;
+            border-color: #444444;
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background-color: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.dark-mode .dropdown-divider {
+            border-top-color: #444444;
+        }
+
+        /* Hero Section Dark Mode */
+        body.dark-mode .hero {
+            background: var(--hero-overlay), url('Images/homepage-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        body.dark-mode .hero-content h1 {
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        body.dark-mode .hero-content p {
+            color: rgba(255,255,255,0.9);
+        }
+
+        body.dark-mode .stat-item i {
+            color: #C62828;
+        }
+
+        body.dark-mode .stat-number {
+            color: #ffffff;
+        }
+
+        body.dark-mode .stat-label {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Quick Access Section Dark Mode */
+        body.dark-mode .quick-access {
+            background: #1a1a1a;
+        }
+
+        body.dark-mode .quick-card {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .quick-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Announcements & Events Section Dark Mode */
+        body.dark-mode .announcements-events {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        }
+
+        body.dark-mode .announcements-events .container {
+            background: var(--card-bg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .ann {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .latann {
+            color: #C62828;
+        }
+
+        body.dark-mode .view-all {
+            color: #C62828;
+        }
+
+        body.dark-mode .announcement-item,
+        body.dark-mode .event-item {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .announcement-item:hover,
+        body.dark-mode .event-item:hover {
+            border-color: #C62828;
+            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.2);
+        }
+
+        body.dark-mode .announcement-item h3,
+        body.dark-mode .event-details h3 {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .announcement-item p,
+        body.dark-mode .event-location,
+        body.dark-mode .event-time {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .date {
+            color: #C62828;
+        }
+
+        body.dark-mode .event-date {
+            background: #C62828;
+        }
+
+        body.dark-mode .arrow-btn {
+            background: #2d2d2d;
+            border-color: #444444;
+            color: #C62828;
+        }
+
+        body.dark-mode .arrow-btn:hover {
+            background: #C62828;
+            color: #ffffff;
+            border-color: #C62828;
+        }
+
+        body.dark-mode .dot {
+            background: #444444;
+        }
+
+        body.dark-mode .dot.active {
+            background: #C62828;
+        }
+
+        /* About Section Dark Mode */
+        body.dark-mode .about-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #121212 100%);
+        }
+
+        body.dark-mode .about-section .container {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .text-content h2 {
+            color: #C62828;
+        }
+
+        body.dark-mode .text-content p {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .feature-item {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .feature-item i {
+            color: #C62828;
+        }
+
+        body.dark-mode .section-links {
+            color: #C62828;
+        }
+
+        body.dark-mode .image-overlay {
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+        }
+
+        /* Services & Community Section Dark Mode */
+        body.dark-mode .services-community {
+            background: #C62828;
+        }
+
+        body.dark-mode .service-card,
+        body.dark-mode .community-card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .service-card h2,
+        body.dark-mode .community-card h2 {
+            color: #C62828;
+        }
+
+        body.dark-mode .service-card p,
+        body.dark-mode .community-card p {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .service-list {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .service-list li {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .community-highlights {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .highlight {
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border-left-color: #C62828;
+        }
+
+        body.dark-mode .snc-links {
+            color: #C62828;
+        }
+
+        /* Report & Contact Section Dark Mode */
+        body.dark-mode .report-contact {
+            background: #1a1a1a;
+        }
+
+        body.dark-mode .report-contact .container {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .report-card h2 {
+            color: #C62828;
+        }
+
+        body.dark-mode .report-card p {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .report-type {
+            background: #2d2d2d;
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+
+        /* Footer Dark Mode */
+        body.dark-mode footer {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
+        }
+
+        body.dark-mode .footer-section h3 {
+            color: #C62828;
+        }
+
+        body.dark-mode .footer-link {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .footer-link:hover {
+            color: #C62828;
+        }
+
+        body.dark-mode .contact-row {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .contact-row a {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .contact-row a:hover {
+            color: #C62828;
+        }
+
+        body.dark-mode .emergency-item {
+            background: rgba(255,255,255,0.05);
+        }
+
+        body.dark-mode .emergency-label {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .emergency-number {
+            color: #C62828;
+        }
+
+        body.dark-mode .social-icons a {
+            background: rgba(255,255,255,0.1);
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .social-icons a:hover {
+            background: #C62828;
+            color: #ffffff;
+        }
+
+        body.dark-mode .footer-bottom {
+            border-top-color: #333333;
+        }
+
+        body.dark-mode .copyright-info {
+            color: #888888;
+        }
+
+        /* FAB Button Dark Mode */
+        body.dark-mode .fab-action {
+            background: #333333 !important;
+            color: #ffffff !important;
+            border-color: #444444 !important;
+        }
+
+        body.dark-mode .fab-main {
+            background: #C62828 !important;
+        }
+
+        body.dark-mode .back-to-top {
+            background: #C62828 !important;
+        }
+
+        /* Chat Modal Dark Mode */
+        body.dark-mode .chat-modal-content {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .chat-modal-header {
+            background: #C62828;
+        }
+
+        /* User Dropdown Dark Mode */
+        body.dark-mode .user-dropdown-btn {
+            background: #C62828;
+            color: #ffffff;
+        }
+
+        body.dark-mode .user-dropdown-btn:hover {
+            background: #b71c1c;
+        }
+
+        /* Mobile Menu Dark Mode */
+        body.dark-mode .navbar-toggler {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Bootstrap Components Dark Mode */
+        body.dark-mode .border-top {
+            border-top-color: #333333 !important;
+        }
+
+        body.dark-mode .bg-secondary {
+            background-color: #444444 !important;
+        }
+
+        /* Responsive Dark Mode Adjustments */
+        @media (max-width: 768px) {
+            body.dark-mode .navbar-collapse {
+                background: #1a1a1a;
+            }
+        }
+
+        /* Loading States */
+        body.dark-mode .carousel-item {
+            transition: background-color 0.3s ease;
+        }
+
+        /* Smooth Transitions */
+        body.dark-mode,
+        body.dark-mode * {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -1615,6 +2004,7 @@
 
     <script src="{{ asset('js/navbar.js') }}"></script>
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>  
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

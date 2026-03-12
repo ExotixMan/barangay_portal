@@ -10,6 +10,13 @@ class IndigencyApplicationController extends Controller
 {
     public function index()
     {
+        if (session('submitted_application')) {
+            return redirect()->route('success', [
+                'service' => 'Certificate of Indigency',
+                'reference' => session('reference_number')
+            ]);
+        }
+
         return view('barangay_system.indigency_form');
     }
 
@@ -56,7 +63,9 @@ class IndigencyApplicationController extends Controller
             'applicant_name' => $applicant_name,
             'date_submitted' => $date_submitted,
             'status' => 'Submitted for Processing',
-            'amount' => 0
+            'amount' => 0,
+            'reference_number' => $data['reference_number'],
+            'submitted_application' => true
         ]);
 
         return redirect()->route('success', [

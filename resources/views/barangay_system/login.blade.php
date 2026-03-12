@@ -508,7 +508,6 @@
                 </div>
             @endif
 
-            <!-- Custom Login Error Alert (for wrong username/password) -->
             <div id="loginErrorAlert" class="alert alert-danger" style="display: none;">
                 <i class="fas fa-exclamation-circle me-2"></i>
                 <span id="loginErrorMessage">Invalid username or password. Please try again.</span>
@@ -556,7 +555,7 @@
                     </div>
                 </button>
 
-                <!-- Register Link (triggers modal) -->
+                <!-- Register Link -->
                 <div class="register-link">
                     <p>Don't have an account?</p>
                     <a href="#" id="createAccountLink">

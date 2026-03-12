@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin / MA Login - {{ config('app.name', 'Laravel') }}</title>
+    <title>Admin Login</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
+            margin: 1%;
             font-family: 'Nunito', sans-serif;
         }
         .login-card {
@@ -224,7 +224,7 @@
                 </div>
                 
                 @if (Route::has('admin.password.request'))
-                    <a href="{{ route('admin.password.request') }}" id="forgotLink">
+                    <a href="/forgot-password" id="forgotLink">
                         Forgot Password?
                     </a>
                 @endif
@@ -232,7 +232,7 @@
             
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Login to Dashboard
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
                 </button>
             </div>
             

@@ -13,6 +13,12 @@ class BlotterController extends Controller
 {
     public function index()
     {
+        if (session('submitted_application')) {
+            return redirect()->route('incident_success', [
+                'reference' => session('reference_number')
+            ]);
+        }
+
         return view('barangay_system.incident_form');
     }
 
@@ -96,7 +102,9 @@ class BlotterController extends Controller
             session([
                 'complaint_name' => $complaint_name,
                 'date_submitted' => $date_submitted,
-                'status' => 'Submitted for Investigation'
+                'status' => 'Submitted for Investigation',
+                'reference_number' => $reference,
+                'submitted_application' => true
             ]);
 
             return redirect()->route('incident_success', [
@@ -105,7 +113,7 @@ class BlotterController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors('Submission failed');
+            return back()->withErrors($e->getMessage());
         }
     }
 
