@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\ResidentsController;
 use App\Http\Controllers\Admin\ResidentController;
@@ -41,44 +40,12 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\TrackRequestController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-// ========== TEST COMPATIBILITY ==========
-// These routes satisfy Laravel Breeze tests without modifying your existing code
+use Illuminate\Support\Facades\Auth;
 
-// Dashboard route for Breeze compatibility
-Route::get('/breeze-dashboard', function () {
-    if (Auth::check()) {
-        // Check if user is admin (you can modify this logic based on your user model)
-        if (isset(Auth::user()->is_admin) && Auth::user()->is_admin) {
-            return redirect()->route('admin.dashboard.index');
-        }
-        // For regular residents, redirect to services
-        return redirect()->route('services');
-    }
-    return redirect()->route('login');
-})->middleware(['auth'])->name('dashboard');
 
-// Residency route for Breeze compatibility (if needed)
-Route::get('/breeze-residency', function () {
-    return redirect()->route('residency');
-})->name('residency');
-
-// Password reset compatibility routes
-Route::get('/breeze-forgot-password', function () {
-    return redirect()->route('resident.password.request');
-})->name('password.request');
-
-Route::get('/breeze-reset-password/{token}', function ($token) {
-    return redirect()->route('resident.password.reset', ['token' => $token]);
-})->name('password.reset');
-
-// Email verification compatibility
-Route::get('/breeze-verify-email', function () {
-    return redirect()->route('verification.notice');
-})->name('verification.notice');
-
-// ========== END OF TEST COMPATIBILITY ROUTES ==========
 
 // Language switch (public)
+
 Route::get('/switch-language', function (Request $request) {
     $lang = $request->query('lang');
     if (in_array($lang, ['en', 'tl'])) {
@@ -88,6 +55,7 @@ Route::get('/switch-language', function (Request $request) {
 })->name('switch.language');
 
 // Public routes
+
 Route::get('/', [IndexController::class,'index'])->name('barangay_system.index');
 
 // About pages (public)
@@ -174,41 +142,47 @@ Route::post('/email/verification-notification', function (Request $request) {
     return back()->with('success', 'Verification link resent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
+
+
 // Authenticated resident routes
+
 Route::middleware('auth')->group(function () {
-    Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');
+    Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');;
 
     // Services pages
     Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
     // Indigency applications
     Route::get('/indigency', function () {
+        
         session()->forget([
             'submitted_application',
             'reference_number'
         ]);
     
         return view('barangay_system.certificate_indigency'); 
+         
     })->name('indigency');
-    
     Route::get('/indigency/form', [IndigencyApplicationController::class, 'index'])->name('indigency.form');
     Route::post('/indigency/store', [IndigencyApplicationController::class, 'store'])->name('indigency.store');
 
     // Residency applications
     Route::get('/residency', function () {
+         
         session()->forget([
             'submitted_application',
             'reference_number'
         ]);
     
         return view('barangay_system.certificate_residency'); 
-    })->name('residency');
     
+    })->name('residency');
     Route::get('/residency/form', [ResidencyApplicationController::class, 'index'])->name('residency.form');
     Route::post('/residency/store', [ResidencyApplicationController::class, 'store'])->name('residency.store');
 
     // Clearance applications
     Route::get('/clearance', function () { 
+
         session()->forget([
             'submitted_application',
             'reference_number'
@@ -216,12 +190,12 @@ Route::middleware('auth')->group(function () {
 
         return view('barangay_system.clearance'); 
     })->name('clearance');
-    
     Route::get('/clearance/form', [BarangayClearanceController::class, 'index'])->name('clearance.form');
     Route::post('/clearance/store', [BarangayClearanceController::class, 'store'])->name('clearance.store');
 
     // Incident/Blotter reports
     Route::get('/incident', function () {
+        
         session()->forget([
             'submitted_application',
             'reference_number'
@@ -229,7 +203,6 @@ Route::middleware('auth')->group(function () {
 
         return view('barangay_system.incident'); 
     })->name('incident');
-    
     Route::get('/incident/form', [BlotterController::class, 'index'])->name('incident.form');
     Route::post('/incident/store', [BlotterController::class, 'store'])->name('incident.store');
     Route::get('/incidentreport/{reference}', [BlotterController::class, 'success'])->name('incident_success');
@@ -245,7 +218,9 @@ Route::middleware('auth')->group(function () {
     })->name('success');
 });
 
+
 // ADMIN ROUTES
+
 // Admin login routes (public)
 Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
     Route::get('/login', [AdminLoginController::class, 'showLoginForm']);

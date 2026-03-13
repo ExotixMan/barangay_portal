@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerBladeDirectives();
         Paginator::useBootstrapFive();
+        if (env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+        }
     }
 
     private function registerBladeDirectives()
