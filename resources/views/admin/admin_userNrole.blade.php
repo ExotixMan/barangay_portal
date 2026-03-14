@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -932,7 +933,7 @@
         @admin_can('view_users')
         <a href="{{ route('admin.users.index') }}" class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
-            <span>Users</span>
+            <span>Users & Roles</span>
         </a>
         @endadmin_can
     </div>

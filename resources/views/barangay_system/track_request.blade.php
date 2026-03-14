@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
@@ -228,6 +229,7 @@
             margin: 0;
         }
 
+        /* Status Badge Colors based on definitions */
         .status-badge {
             padding: 8px 20px;
             border-radius: 25px;
@@ -239,22 +241,70 @@
             white-space: nowrap;
         }
 
-        .status-badge.processing {
+        .status-badge.pending {
             background: rgba(255, 152, 0, 0.2);
-            color: #FFE0B2;
+            color: #FF9800;
             border: 1px solid rgba(255, 152, 0, 0.3);
         }
 
-        .status-badge.completed {
+        .status-badge.under-review {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .status-badge.approved {
             background: rgba(76, 175, 80, 0.2);
-            color: #C8E6C9;
+            color: #4CAF50;
             border: 1px solid rgba(76, 175, 80, 0.3);
         }
 
-        .status-badge.ready {
+        .status-badge.payment-required {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-badge.processing {
             background: rgba(33, 150, 243, 0.2);
-            color: #BBDEFB;
+            color: #2196F3;
             border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .status-badge.ready-for-pickup {
+            background: rgba(0, 150, 136, 0.2);
+            color: #009688;
+            border: 1px solid rgba(0, 150, 136, 0.3);
+        }
+
+        .status-badge.claimed, .status-badge.released {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-badge.ready-for-delivery {
+            background: rgba(0, 150, 136, 0.2);
+            color: #009688;
+            border: 1px solid rgba(0, 150, 136, 0.3);
+        }
+
+        .status-badge.out-for-delivery {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .status-badge.delivered {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-badge.rejected, .status-badge.denied {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
         }
 
         .result-body {
@@ -419,6 +469,7 @@
         .btn-print {
             background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
+            text-decoration: none;
         }
 
         .btn-print:hover {
@@ -430,6 +481,7 @@
             background: #f8f9fa;
             color: #333;
             border: 2px solid #eee;
+            text-decoration: none;
         }
 
         .btn-new-track:hover {
@@ -437,10 +489,255 @@
             transform: translateY(-2px);
         }
 
+        /* My Requests Table Section */
+        .my-requests-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .requests-table-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 1.8rem;
+            color: #333;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-header h2 i {
+            color: #C62828;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-tab:hover {
+            border-color: #C62828;
+            color: #C62828;
+        }
+
+        .filter-tab.active {
+            background: #C62828;
+            color: white;
+            border-color: #C62828;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .requests-table th {
+            text-align: left;
+            padding: 15px 10px;
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .requests-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .requests-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Small Status Badges for Table */
+        .status-badge-small {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #FF9800;
+            border: 1px solid #FFE0B2;
+        }
+
+        .status-under-review {
+            background: #cce5ff;
+            color: #2196F3;
+            border: 1px solid #BBDEFB;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #4CAF50;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-payment-required {
+            background: #fff3cd;
+            color: #FFC107;
+            border: 1px solid #FFE082;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #2196F3;
+            border: 1px solid #BBDEFB;
+        }
+
+        .status-ready-for-pickup {
+            background: #d1e7dd;
+            color: #009688;
+            border: 1px solid #B2DFDB;
+        }
+
+        .status-claimed, .status-released {
+            background: #d4edda;
+            color: #4CAF50;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-ready-for-delivery {
+            background: #d1e7dd;
+            color: #009688;
+            border: 1px solid #B2DFDB;
+        }
+
+        .status-out-for-delivery {
+            background: #fff3cd;
+            color: #FF9800;
+            border: 1px solid #FFE0B2;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #4CAF50;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-rejected, .status-denied {
+            background: #f8d7da;
+            color: #F44336;
+            border: 1px solid #FFCDD2;
+        }
+
+        .btn-view {
+            padding: 6px 15px;
+            background: #C62828;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-view:hover {
+            background: #8B0000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.2);
+            color: white;
+        }
+
+        .btn-view i {
+            font-size: 0.8rem;
+        }
+
+        .request-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .assigned-officer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .assigned-officer i {
+            color: #C62828;
+            font-size: 0.9rem;
+        }
+
+        .no-requests {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .no-requests i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .no-requests p {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .no-requests .sub-text {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
         /* Status Legend Section */
         .status-legend-section {
             padding: 80px 0;
-            background: white;
+            background: #f8f9fa;
         }
 
         .section-title {
@@ -487,22 +784,27 @@
             font-size: 1.8rem;
         }
 
-        .status-card.submitted .status-icon {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
-            color: white;
-        }
-
-        .status-card.processing .status-icon {
+        .status-card.pending .status-icon {
             background: linear-gradient(135deg, #FF9800, #F57C00);
             color: white;
         }
 
-        .status-card.ready .status-icon {
+        .status-card.processing .status-icon {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .status-card.approved .status-icon {
             background: linear-gradient(135deg, #4CAF50, #388E3C);
             color: white;
         }
 
-        .status-card.completed-status .status-icon {
+        .status-card.rejected .status-icon {
+            background: linear-gradient(135deg, #F44336, #D32F2F);
+            color: white;
+        }
+
+        .status-card.completed .status-icon {
             background: linear-gradient(135deg, #9C27B0, #7B1FA2);
             color: white;
         }
@@ -524,7 +826,7 @@
         /* Quick Links Section */
         .quick-links-section {
             padding: 80px 0;
-            background: #f8f9fa;
+            background: white;
         }
 
         .quick-link-card {
@@ -601,8 +903,6 @@
 
         /* Responsive Design */
         @media (max-width: 1366px) {
-
-            
             .track-form-card {
                 padding: 40px;
             }
@@ -613,12 +913,16 @@
                 padding: 30px;
             }
             
+            .requests-table-card {
+                padding: 30px;
+            }
         }
 
         @media (max-width: 1200px) {
             .track-form-section,
             .status-legend-section,
-            .quick-links-section {
+            .quick-links-section,
+            .my-requests-section {
                 padding: 70px 0;
             }
         }
@@ -626,7 +930,8 @@
         @media (max-width: 992px) {
             .track-form-section,
             .status-legend-section,
-            .quick-links-section {
+            .quick-links-section,
+            .my-requests-section {
                 padding: 60px 0;
             }
             
@@ -641,6 +946,10 @@
             
             .section-title {
                 font-size: 1.8rem;
+            }
+            
+            .requests-table-card {
+                padding: 25px;
             }
         }
 
@@ -705,13 +1014,33 @@
                 left: -35px;
                 font-size: 0.7rem;
             }
+            
+            .requests-table-card {
+                padding: 20px;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-tabs {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+            
+            .filter-tab {
+                white-space: nowrap;
+            }
         }
 
         @media (max-width: 576px) {
             .track-form-section,
             .status-legend-section,
             .quick-links-section,
-            .track-result-section {
+            .track-result-section,
+            .my-requests-section {
                 padding: 45px 0;
             }
             
@@ -747,6 +1076,11 @@
             
             .container {
                 padding: 0 15px;
+            }
+            
+            .requests-table-card {
+                padding: 15px;
+                border-radius: 15px;
             }
         }
     </style>
@@ -797,7 +1131,7 @@
                             <i class="fas fa-concierge-bell"></i> Services
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
+                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
                             <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
@@ -841,7 +1175,6 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -870,11 +1203,9 @@
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
                                     <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
                                             <i class="fas fa-sign-out-alt"></i> Logout
                                         </a>
                                     </li>
@@ -898,8 +1229,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1><i class="fas fa-search-location bigicon"></i> Track Your Request</h1>
-                <p>Monitor the status of your document requests in real-time. Enter your reference number to get instant updates on your application.</p>
+                <h1><i class="fas fa-search-location"></i> Track Your Request</h1>
+                <p>Monitor the status of your document requests and incident reports in real-time. Enter your reference number or view all your requests below.</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-clock"></i>
@@ -933,29 +1264,31 @@
                                 <h2>Enter Your Reference Number</h2>
                                 <p>Your reference number was provided when you submitted your request</p>
                             </div>
-                            <form id="trackForm">
-                            @csrf
+                            
+                            @if(session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                            
+                            <form method="POST" action="{{ route('track_request') }}">
+                                @csrf
                                 <div class="form-group">
                                     <label for="referenceNumber">
                                         <i class="fas fa-hashtag"></i> Reference Number
                                     </label>
                                     <div class="input-wrapper">
-                                        <input type="text" class="form-control" id="referenceNumber" placeholder="e.g., BRG-2026-00001" required>
+                                        <input type="text" class="form-control @error('reference_number') is-invalid @enderror" 
+                                            id="referenceNumber" name="reference_number" 
+                                            placeholder="e.g., BC-2026-ABC123 or INC-2026-001" 
+                                            value="{{ old('reference_number') }}" required>
                                         <span class="input-icon"><i class="fas fa-barcode"></i></span>
+                                        @error('reference_number')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <small class="form-text">Format: BRG-YYYY-XXXXX (e.g., BRG-2026-00001)</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="requestType">
-                                        <i class="fas fa-file-alt"></i> Document Type (Optional)
-                                    </label>
-                                    <select class="form-control" id="requestType">
-                                        <option value="">Select document type</option>
-                                        <option value="clearance">Barangay Clearance</option>
-                                        <option value="residency">Certificate of Residency</option>
-                                        <option value="indigency">Certificate of Indigency</option>
-                                        <option value="blotter">Blotter Report</option>
-                                    </select>
+                                    <small class="form-text">Format: BC-YYYY-XXXXX for clearance, RES-YYYY-XXXXX for residency, IND-YYYY-XXXXX for indigency, INC-YYYY-XXXXX for incidents</small>
                                 </div>
                                 <button type="submit" class="btn-track">
                                     <i class="fas fa-search"></i> Track Request
@@ -967,47 +1300,87 @@
             </div>
         </section>
 
-        <!-- Track Result Section (Hidden by default) -->
-        <section class="track-result-section" id="trackResult" style="display: none;">
+        <!-- Track Result Section (shown when tracking data exists) -->
+        @if(isset($trackedRequest))
+        <section class="track-result-section" id="trackResult">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="result-card">
                             <div class="result-header">
-                                <div class="status-badge" id="resultStatusBadge">
-                                    <i class="fas fa-hourglass-half"></i> Processing
+                                @php
+                                    $statusClass = '';
+                                    $statusLower = strtolower($trackedRequest['status']);
+                                    
+                                    if(str_contains($statusLower, 'pending')) $statusClass = 'pending';
+                                    elseif(str_contains($statusLower, 'under review')) $statusClass = 'under-review';
+                                    elseif(str_contains($statusLower, 'approved')) $statusClass = 'approved';
+                                    elseif(str_contains($statusLower, 'payment')) $statusClass = 'payment-required';
+                                    elseif(str_contains($statusLower, 'process')) $statusClass = 'processing';
+                                    elseif(str_contains($statusLower, 'ready for pickup')) $statusClass = 'ready-for-pickup';
+                                    elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) $statusClass = 'claimed';
+                                    elseif(str_contains($statusLower, 'ready for delivery')) $statusClass = 'ready-for-delivery';
+                                    elseif(str_contains($statusLower, 'out for delivery')) $statusClass = 'out-for-delivery';
+                                    elseif(str_contains($statusLower, 'delivered')) $statusClass = 'delivered';
+                                    elseif(str_contains($statusLower, 'reject') || str_contains($statusLower, 'denied')) $statusClass = 'rejected';
+                                    
+                                    $statusIcon = 'fa-hourglass-half';
+                                    if(str_contains($statusLower, 'pending')) $statusIcon = 'fa-clock';
+                                    elseif(str_contains($statusLower, 'under review')) $statusIcon = 'fa-search';
+                                    elseif(str_contains($statusLower, 'approved')) $statusIcon = 'fa-check-circle';
+                                    elseif(str_contains($statusLower, 'payment')) $statusIcon = 'fa-credit-card';
+                                    elseif(str_contains($statusLower, 'process')) $statusIcon = 'fa-cog fa-spin';
+                                    elseif(str_contains($statusLower, 'ready for pickup')) $statusIcon = 'fa-store';
+                                    elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) $statusIcon = 'fa-check-double';
+                                    elseif(str_contains($statusLower, 'ready for delivery')) $statusIcon = 'fa-box-open';
+                                    elseif(str_contains($statusLower, 'out for delivery')) $statusIcon = 'fa-truck';
+                                    elseif(str_contains($statusLower, 'delivered')) $statusIcon = 'fa-check-circle';
+                                    elseif(str_contains($statusLower, 'reject') || str_contains($statusLower, 'denied')) $statusIcon = 'fa-times-circle';
+                                @endphp
+                                <div class="status-badge {{ $statusClass }}">
+                                    <i class="fas {{ $statusIcon }}"></i> {{ $trackedRequest['status'] }}
                                 </div>
-                                <h2>Request Details</h2>
+                                <h2>{{ $trackedRequest['type'] }} Details</h2>
                             </div>
                             <div class="result-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="detail-item">
                                             <span class="label">Reference Number</span>
-                                            <span class="value" id="resultRefNumber">BRG-2026-00001</span>
+                                            <span class="value">{{ $trackedRequest['reference'] }}</span>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="label">Document Type</span>
-                                            <span class="value" id="resultDocType">Barangay Clearance</span>
+                                            <span class="label">Request Type</span>
+                                            <span class="value">{{ $trackedRequest['type'] }}</span>
                                         </div>
                                         <div class="detail-item">
                                             <span class="label">Applicant Name</span>
-                                            <span class="value" id="resultName">Juan Dela Cruz</span>
+                                            <span class="value">{{ $trackedRequest['name'] }}</span>
                                         </div>
+                                        @if(isset($trackedRequest['purpose']))
+                                        <div class="detail-item">
+                                            <span class="label">Purpose</span>
+                                            <span class="value">{{ $trackedRequest['purpose'] }}</span>
+                                        </div>
+                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                         <div class="detail-item">
                                             <span class="label">Date Submitted</span>
-                                            <span class="value" id="resultDate">March 1, 2026</span>
+                                            <span class="value">{{ $trackedRequest['date'] }}</span>
                                         </div>
+                                        @if(isset($trackedRequest['expected_completion']))
                                         <div class="detail-item">
                                             <span class="label">Expected Completion</span>
-                                            <span class="value" id="resultExpected">March 4, 2026</span>
+                                            <span class="value">{{ $trackedRequest['expected_completion'] }}</span>
                                         </div>
+                                        @endif
+                                        @if(isset($trackedRequest['remarks']))
                                         <div class="detail-item">
-                                            <span class="label">Processing Fee</span>
-                                            <span class="value" id="resultFee">₱100.00</span>
+                                            <span class="label">Remarks</span>
+                                            <span class="value">{{ $trackedRequest['remarks'] }}</span>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -1016,19 +1389,360 @@
                             <div class="progress-timeline">
                                 <h3><i class="fas fa-tasks"></i> Request Progress</h3>
                                 <div class="timeline" id="timeline">
-                                    <!-- Timeline items will be populated dynamically -->
+                                    @if(isset($trackedRequest['steps']) && count($trackedRequest['steps']) > 0)
+                                        @foreach($trackedRequest['steps'] as $step)
+                                        <div class="timeline-item {{ $step['status'] }}">
+                                            <div class="timeline-marker">
+                                                @if($step['status'] == 'completed')
+                                                    <i class="fas fa-check"></i>
+                                                @elseif($step['status'] == 'active')
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                @else
+                                                    <i class="fas fa-circle"></i>
+                                                @endif
+                                            </div>
+                                            <div class="timeline-content">
+                                                <h4>{{ $step['label'] }}</h4>
+                                                <p>{{ $step['description'] }}</p>
+                                                @if($step['status'] == 'active')
+                                                    <span class="time">Current Status</span>
+                                                @elseif($step['status'] == 'completed')
+                                                    <span class="time">Completed</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    @else
+                                        @php
+                                            $isIncident = str_contains(strtolower($trackedRequest['type']), 'blotter') || 
+                                                        str_contains(strtolower($trackedRequest['type']), 'incident');
+                                            
+                                            if($isIncident) {
+                                                $steps = [
+                                                    ['label' => 'Report Submitted', 'description' => 'Your incident report has been received', 'status' => 'completed'],
+                                                    ['label' => 'Report Verified', 'description' => 'Report details have been verified', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Under Investigation', 'Resolved', 'Closed']) ? 'completed' : 
+                                                        (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
+                                                    ['label' => 'Under Investigation', 'description' => 'Case is being investigated by barangay officials', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Under Investigation', 'Resolved', 'Closed']) ? 'active' : 
+                                                        (in_array($trackedRequest['status'], ['Resolved', 'Closed']) ? 'completed' : 'pending')],
+                                                    ['label' => 'Resolved', 'description' => 'Incident report has been resolved', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Resolved', 'Closed']) ? 'completed' : 
+                                                        (in_array($trackedRequest['status'], ['Closed']) ? 'active' : 'pending')],
+                                                    ['label' => 'Closed', 'description' => 'Case has been closed', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Closed']) ? 'completed' : 'pending'],
+                                                ];
+                                            } else {
+                                                $requestMethod = $trackedRequest['request_method'] ?? 'pickup';
+                                                
+                                                if($requestMethod == 'delivery') {
+                                                    $steps = [
+                                                        ['label' => 'Request Submitted', 'description' => 'Your application has been received', 'status' => 'completed'],
+                                                        ['label' => 'Under Review', 'description' => 'Submitted documents are being verified', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Under Review', 'Approved', 'Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Pending']) ? 'active' : 'pending')],
+                                                        ['label' => 'Approved', 'description' => 'Request has been approved', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Approved', 'Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Under Review']) ? 'active' : 'pending')],
+                                                        ['label' => 'Payment Required', 'description' => 'Waiting for payment confirmation', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Payment Required']) ? 'active' : 
+                                                            (in_array($trackedRequest['status'], ['Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 'pending')],
+                                                        ['label' => 'Processing', 'description' => 'Document is being prepared', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'active' : 
+                                                            (in_array($trackedRequest['status'], ['Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 'pending')],
+                                                        ['label' => 'Ready for Delivery', 'description' => 'Document scheduled for delivery', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
+                                                        ['label' => 'Out for Delivery', 'description' => 'Document is on its way', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Out for Delivery', 'Delivered']) ? 'active' : 
+                                                            (in_array($trackedRequest['status'], ['Delivered']) ? 'completed' : 'pending')],
+                                                        ['label' => 'Delivered', 'description' => 'Document has been delivered', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Delivered']) ? 'completed' : 'pending'],
+                                                    ];
+                                                } else {
+                                                    $steps = [
+                                                        ['label' => 'Request Submitted', 'description' => 'Your application has been received', 'status' => 'completed'],
+                                                        ['label' => 'Under Review', 'description' => 'Submitted documents are being verified', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Under Review', 'Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Pending']) ? 'active' : 'pending')],
+                                                        ['label' => 'Approved', 'description' => 'Request has been approved', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Under Review']) ? 'active' : 'pending')],
+                                                        ['label' => 'Payment Required', 'description' => 'Waiting for payment confirmation', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Payment Required']) ? 'active' : 
+                                                            (in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
+                                                        ['label' => 'Processing', 'description' => 'Document is being prepared', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'active' : 
+                                                            (in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
+                                                        ['label' => 'Ready for Pickup', 'description' => 'Document ready at barangay hall', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                            (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
+                                                        ['label' => 'Claimed', 'description' => 'Document has been claimed', 'status' => 
+                                                            in_array($trackedRequest['status'], ['Claimed']) ? 'completed' : 'pending'],
+                                                    ];
+                                                }
+                                            }
+                                        @endphp
+                                        
+                                        @foreach($steps as $step)
+                                        <div class="timeline-item {{ $step['status'] }}">
+                                            <div class="timeline-marker">
+                                                @if($step['status'] == 'completed')
+                                                    <i class="fas fa-check"></i>
+                                                @elseif($step['status'] == 'active')
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                @else
+                                                    <i class="fas fa-circle"></i>
+                                                @endif
+                                            </div>
+                                            <div class="timeline-content">
+                                                <h4>{{ $step['label'] }}</h4>
+                                                <p>{{ $step['description'] }}</p>
+                                                @if($step['status'] == 'active')
+                                                    <span class="time">Current Status</span>
+                                                @elseif($step['status'] == 'completed')
+                                                    <span class="time">{{ $trackedRequest['date'] }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
 
                             <div class="result-actions">
-                                <button class="btn-print" onclick="printRequestDetails()">
+                                <a href="{{ route('track_request.print', ['reference' => $trackedRequest['reference']]) }}" class="btn-print" target="_blank">
                                     <i class="fas fa-print"></i> Print Details
-                                </button>
-                                <button class="btn-new-track" onclick="resetForm()">
+                                </a>
+                                <a href="{{ route('track_request') }}" class="btn-new-track">
                                     <i class="fas fa-redo"></i> Track Another
-                                </button>
+                                </a>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        @endif
+
+        <!-- My Requests Table Section -->
+        <section class="my-requests-section" id="my-requests">
+            <div class="container">
+                <div class="requests-table-card">
+                    <div class="table-header">
+                        <h2>
+                            <i class="fas fa-file-alt"></i> My Requests & Reports
+                        </h2>
+                        <div class="filter-tabs" id="filterTabs">
+                            <button class="filter-tab active" data-filter="all">All</button>
+                            <button class="filter-tab" data-filter="documents">Documents</button>
+                            <button class="filter-tab" data-filter="incidents">Incidents</button>
+                            <button class="filter-tab" data-filter="pending">Pending</button>
+                            <button class="filter-tab" data-filter="processing">Processing</button>
+                            <button class="filter-tab" data-filter="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="requests-table" id="requestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Reference #</th>
+                                    <th>Type</th>
+                                    <th>Date Submitted</th>
+                                    <th>Status</th>
+                                    <th>Last Updated</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @auth
+                                    @php
+                                        $allRequests = [];
+                                        
+                                        // Get clearance applications
+                                        $clearances = App\Models\BarangayClearance::where('email', Auth::user()->email)
+                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                            ->get()
+                                            ->map(function($item) {
+                                                return [
+                                                    'reference' => $item->reference_number,
+                                                    'type' => 'Barangay Clearance',
+                                                    'date' => $item->created_at->format('M d, Y'),
+                                                    'status' => ucfirst($item->status ?? 'Pending'),
+                                                    'last_updated' => $item->updated_at->format('M d, Y'),
+                                                    'email' => $item->email,
+                                                    'type_code' => 'clearance'
+                                                ];
+                                            })->toArray();
+                                        
+                                        // Get residency applications
+                                        $residencies = App\Models\ResidencyApplication::where('email', Auth::user()->email)
+                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                            ->get()
+                                            ->map(function($item) {
+                                                return [
+                                                    'reference' => $item->reference_number,
+                                                    'type' => 'Certificate of Residency',
+                                                    'date' => $item->created_at->format('M d, Y'),
+                                                    'status' => ucfirst($item->status ?? 'Pending'),
+                                                    'last_updated' => $item->updated_at->format('M d, Y'),
+                                                    'email' => $item->email,
+                                                    'type_code' => 'residency'
+                                                ];
+                                            })->toArray();
+                                        
+                                        // Get indigency applications
+                                        $indigencies = App\Models\IndigencyApplication::where('email', Auth::user()->email)
+                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                            ->get()
+                                            ->map(function($item) {
+                                                return [
+                                                    'reference' => $item->reference_number,
+                                                    'type' => 'Certificate of Indigency',
+                                                    'date' => $item->created_at->format('M d, Y'),
+                                                    'status' => ucfirst($item->status ?? 'Pending'),
+                                                    'last_updated' => $item->updated_at->format('M d, Y'),
+                                                    'email' => $item->email,
+                                                    'type_code' => 'indigency'
+                                                ];
+                                            })->toArray();
+                                        
+                                        // Get blotter reports if model exists
+                                        if(class_exists('App\Models\BlotterReport')) {
+                                            $blotters = App\Models\BlotterReport::where('complainant_email', Auth::user()->email)
+                                                ->orWhere('complainant_contact', Auth::user()->contact_number ?? '')
+                                                ->get()
+                                                ->map(function($item) {
+                                                    return [
+                                                        'reference' => $item->incident_number ?? $item->reference_number,
+                                                        'type' => 'Blotter Report',
+                                                        'date' => $item->created_at->format('M d, Y'),
+                                                        'status' => $item->status ?? 'Pending',
+                                                        'last_updated' => $item->updated_at->format('M d, Y'),
+                                                        'email' => $item->complainant_email,
+                                                        'type_code' => 'incident'
+                                                    ];
+                                                })->toArray();
+                                        } else {
+                                            $blotters = [];
+                                        }
+                                        
+                                        // Merge all requests
+                                        $allRequests = array_merge($clearances, $residencies, $indigencies, $blotters);
+                                        
+                                        // Sort by date (most recent first)
+                                        usort($allRequests, function($a, $b) {
+                                            return strtotime($b['date']) - strtotime($a['date']);
+                                        });
+                                    @endphp
+                                    
+                                    @forelse($allRequests as $request)
+                                    <tr class="request-row" 
+                                        data-type="{{ $request['type_code'] ?? 'document' }}" 
+                                        data-status="{{ strtolower($request['status']) }}">
+                                        <td><strong>{{ $request['reference'] }}</strong></td>
+                                        <td>
+                                            <span class="request-type-badge">
+                                                @php
+                                                    $icon = 'fa-file-alt';
+                                                    if(str_contains($request['type'], 'Clearance')) $icon = 'fa-certificate';
+                                                    elseif(str_contains($request['type'], 'Residency')) $icon = 'fa-house-user';
+                                                    elseif(str_contains($request['type'], 'Indigency')) $icon = 'fa-hands-helping';
+                                                    elseif(str_contains($request['type'], 'Blotter')) $icon = 'fa-clipboard-list';
+                                                @endphp
+                                                <i class="fas {{ $icon }}"></i> {{ $request['type'] }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $request['date'] }}</td>
+                                        <td>
+                                            @php
+                                                $statusClass = '';
+                                                $statusLower = strtolower($request['status']);
+                                                
+                                                if(str_contains($statusLower, 'pending')) {
+                                                    $statusClass = 'status-pending';
+                                                }
+                                                elseif(str_contains($statusLower, 'under review')) {
+                                                    $statusClass = 'status-under-review';
+                                                }
+                                                elseif(str_contains($statusLower, 'approved')) {
+                                                    $statusClass = 'status-approved';
+                                                }
+                                                elseif(str_contains($statusLower, 'payment')) {
+                                                    $statusClass = 'status-payment-required';
+                                                }
+                                                elseif(str_contains($statusLower, 'processing')) {
+                                                    $statusClass = 'status-processing';
+                                                }
+                                                elseif(str_contains($statusLower, 'ready for pickup')) {
+                                                    $statusClass = 'status-ready-for-pickup';
+                                                }
+                                                elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) {
+                                                    $statusClass = 'status-claimed';
+                                                }
+                                                elseif(str_contains($statusLower, 'ready for delivery')) {
+                                                    $statusClass = 'status-ready-for-delivery';
+                                                }
+                                                elseif(str_contains($statusLower, 'out for delivery')) {
+                                                    $statusClass = 'status-out-for-delivery';
+                                                }
+                                                elseif(str_contains($statusLower, 'delivered')) {
+                                                    $statusClass = 'status-delivered';
+                                                }
+                                                elseif(str_contains($statusLower, 'rejected') || str_contains($statusLower, 'denied')) {
+                                                    $statusClass = 'status-rejected';
+                                                }
+                                                else {
+                                                    $statusClass = 'status-pending'; // default fallback
+                                                }
+                                            @endphp
+                                            <span class="status-badge-small {{ $statusClass }}">
+                                                {{ $request['status'] }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $request['last_updated'] }}</td>
+                                        <td>
+                                            <a href="{{ route('track_request', ['view' => $request['reference']]) }}" class="btn-view">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="no-requests">
+                                                <i class="fas fa-inbox"></i>
+                                                <p>No requests found</p>
+                                                <p class="sub-text">You haven't submitted any requests yet</p>
+                                                <div class="mt-3">
+                                                    <a href="{{ route('clearance') }}" class="btn-track" style="width: auto; padding: 10px 20px; display: inline-block; margin-right: 10px; text-decoration: none;">
+                                                        <i class="fas fa-certificate"></i> Apply for Clearance
+                                                    </a>
+                                                    <a href="{{ route('incident') }}" class="btn-track" style="width: auto; padding: 10px 20px; display: inline-block; background: #666; text-decoration: none;">
+                                                        <i class="fas fa-exclamation-circle"></i> Report Incident
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                @else
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="no-requests">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                                <p>Please log in to view your requests</p>
+                                                <p class="sub-text">Login to track all your submitted documents and incident reports</p>
+                                                <a href="{{ route('login') }}" class="btn-track" style="width: auto; padding: 10px 30px; margin-top: 15px; display: inline-block; text-decoration: none;">
+                                                    <i class="fas fa-sign-in-alt"></i> Log In
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endauth
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1038,43 +1752,106 @@
         <section class="status-legend-section">
             <div class="container">
                 <h2 class="section-title">Status Guide</h2>
-                <p class="section-subtitle">Understanding your request status</p>
+                <p class="section-subtitle">Understanding your request and report status</p>
                 
-                <div class="row g-4">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="status-card submitted">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card pending">
                             <div class="status-icon">
-                                <i class="fas fa-paper-plane"></i>
+                                <i class="fas fa-clock"></i>
                             </div>
-                            <h3>Submitted</h3>
-                            <p>Your request has been received and is waiting for initial review.</p>
+                            <h3>Pending</h3>
+                            <p>Request submitted but not yet reviewed</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card processing">
+                            <div class="status-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3>Under Review</h3>
+                            <p>Barangay staff is verifying your request</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card approved">
+                            <div class="status-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3>Approved</h3>
+                            <p>Request approved and ready for processing</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card pending">
+                            <div class="status-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <h3>Payment Required</h3>
+                            <p>Waiting for payment confirmation</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
                         <div class="status-card processing">
                             <div class="status-icon">
                                 <i class="fas fa-cog fa-spin"></i>
                             </div>
                             <h3>Processing</h3>
-                            <p>Your documents are being verified and your request is being processed.</p>
+                            <p>Document is being prepared</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="status-card ready">
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card approved">
                             <div class="status-icon">
-                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-store"></i>
                             </div>
-                            <h3>Ready</h3>
-                            <p>Your document is ready for pickup at the barangay hall or download.</p>
+                            <h3>Ready for Pickup</h3>
+                            <p>Document waiting at barangay hall</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="status-card completed-status">
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card completed">
                             <div class="status-icon">
                                 <i class="fas fa-flag-checkered"></i>
                             </div>
-                            <h3>Completed</h3>
-                            <p>Your request has been fulfilled and the document has been released.</p>
+                            <h3>Claimed/Released</h3>
+                            <p>Document has been picked up</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card approved">
+                            <div class="status-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <h3>Ready for Delivery</h3>
+                            <p>Document scheduled for delivery</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card pending">
+                            <div class="status-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <h3>Out for Delivery</h3>
+                            <p>Document is on its way</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card completed">
+                            <div class="status-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3>Delivered</h3>
+                            <p>Document successfully delivered</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="status-card rejected">
+                            <div class="status-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <h3>Rejected/Denied</h3>
+                            <p>Request cannot be approved</p>
                         </div>
                     </div>
                 </div>
@@ -1134,7 +1911,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Your reference number was provided when you submitted your request. It was sent to your email and also displayed on the confirmation page. The format is BRG-YYYY-XXXXX (e.g., BRG-2026-00001).</p>
+                            <p>Your reference number was provided when you submitted your request. It was sent to your email and also displayed on the confirmation page. The format varies by request type: BC-YYYY-XXXXX for clearance, RES-YYYY-XXXXX for residency, IND-YYYY-XXXXX for indigency, and INC-YYYY-XXXXX for incident reports.</p>
                         </div>
                     </div>
                     <div class="faq-item">
@@ -1143,25 +1920,26 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Processing times vary by document type: Barangay Clearance (1-3 days), Certificate of Residency (1-2 days), Certificate of Indigency (1-2 days). Times may vary during peak periods.</p>
+                            <p>Processing times vary by document type: Barangay Clearance (1-3 days), Certificate of Residency (1-2 days), Certificate of Indigency (1-2 days). Incident reports are typically investigated within 3-5 business days.</p>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>What should I do if my request is taking too long?</span>
+                            <span>What do the different statuses mean?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>If your request exceeds the expected processing time, please contact our office at (02) 987-6543 or visit the barangay hall with your reference number for assistance.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Can I cancel or modify my request?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes, you can request cancellation or modification before your request reaches the "Processing" stage. Please contact our office with your reference number to make changes.</p>
+                            <p><strong>Pending:</strong> Request submitted but not yet reviewed<br>
+                            <strong>Under Review:</strong> Barangay staff is verifying your request details<br>
+                            <strong>Approved:</strong> Request approved and can proceed to processing<br>
+                            <strong>Payment Required:</strong> Waiting for payment confirmation (if applicable)<br>
+                            <strong>Processing:</strong> Barangay staff is preparing the official document<br>
+                            <strong>Ready for Pickup:</strong> Document completed and waiting at barangay hall<br>
+                            <strong>Claimed/Released:</strong> Document has been picked up<br>
+                            <strong>Ready for Delivery:</strong> Document prepared and scheduled for delivery<br>
+                            <strong>Out for Delivery:</strong> Document is currently being delivered<br>
+                            <strong>Delivered:</strong> Document successfully received<br>
+                            <strong>Rejected/Denied:</strong> Request cannot be approved (reason provided)</p>
                         </div>
                     </div>
                     <div class="faq-item">
@@ -1170,7 +1948,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Visit the barangay hall with a valid ID and provide your full name and date of application. Our staff can look up your request in our system and provide your reference number.</p>
+                            <p>If you're logged in, you can view all your requests in the "My Requests" table above. Otherwise, visit the barangay hall with a valid ID and our staff can look up your request using your name and date of application.</p>
                         </div>
                     </div>
                 </div>
@@ -1366,400 +2144,66 @@
     <script src="{{ asset('js/faq.js') }}"></script>
     
     <script>
-        // Store the current request data
-        let currentRequestData = null;
-
-        function getStatusClass(status) {
-            switch(status.toLowerCase()) {
-                case 'submitted': return 'submitted';
-                case 'processing': return 'processing';
-                case 'ready': return 'ready';
-                case 'completed': return 'completed-status';
-                default: return 'processing';
-            }
-        }
-
-        function getStatusIcon(status) {
-            switch(status.toLowerCase()) {
-                case 'submitted': return 'fa-paper-plane';
-                case 'processing': return 'fa-cog fa-spin';
-                case 'ready': return 'fa-check-circle';
-                case 'completed': return 'fa-flag-checkered';
-                default: return 'fa-hourglass-half';
-            }
-        }
-
-        function populateTimeline(data) {
-            const timeline = document.getElementById('timeline');
-            if (!timeline) return;
-
-            // Clear timeline first
-            timeline.innerHTML = '';
-
-            const timelineData = data.timeline || {};
-            const statusLower = data.status.toLowerCase();
-            const typeLower = data.type.toLowerCase();
-
-            // If the request is rejected or dropped, skip timeline
-            if (statusLower === 'rejected' || statusLower === 'dropped') {
-                timeline.innerHTML = `
-                    <div class="timeline-item rejected">
-                        <div class="timeline-marker">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h4>Status: ${data.status}</h4>
-                            <p>Your request has been ${data.status.toLowerCase()}.</p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            // Define timeline steps
-            const steps = [
-                { key: 'submitted', label: 'Request Submitted', description: 'Your application has been received' },
-                { key: 'verified', label: 'Documents Verified', description: 'Submitted documents have been verified' },
-                { key: 'processing', label: 'Processing', description: 'Your request is being processed' },
-                { key: 'ready', label: 'Ready for Release', description: 'Document ready for pickup/download' },
-                { key: 'completed', label: 'Completed', description: 'Request has been completed' }
-            ];
-
-            // Remove "ready" step for Blotter Reports
-            if (typeLower.includes('blotter')) {
-                steps.splice(3, 1); // Remove the 'ready' step
-            }
-
-            let timelineHtml = '';
-
-            steps.forEach((step) => {
-                const stepData = timelineData[step.key] || {};
-                const status = stepData.status || 'processing';
-                const dateTime = stepData.date_time || (status === 'processing' ? 'Pending' : '');
-
-                let icon = '<i class="fas fa-circle"></i>';
-                if (status === 'completed') icon = '<i class="fas fa-check"></i>';
-                else if (status === 'processing') icon = '<i class="fas fa-spinner fa-spin"></i>';
-                else if (status === 'rejected' || status === 'dropped') icon = '<i class="fas fa-times-circle"></i>';
-
-                timelineHtml += `
-                    <div class="timeline-item ${status}">
-                        <div class="timeline-marker">
-                            ${icon}
-                        </div>
-                        <div class="timeline-content">
-                            <h4>${step.label}</h4>
-                            <p>${step.description}</p>
-                            <span class="time">${dateTime}</span>
-                        </div>
-                    </div>
-                `;
+        // Table filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const rows = document.querySelectorAll('.request-row');
+            
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Update active tab
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    
+                    rows.forEach(row => {
+                        const type = row.dataset.type;
+                        const status = row.dataset.status;
+                        
+                        let show = false;
+                        
+                        switch(filter) {
+                            case 'all':
+                                show = true;
+                                break;
+                            case 'documents':
+                                show = type !== 'incident';
+                                break;
+                            case 'incidents':
+                                show = type === 'incident';
+                                break;
+                            case 'pending':
+                                show = status.includes('pending');
+                                break;
+                            case 'processing':
+                                show = status.includes('process') || status.includes('investigation') || status.includes('review');
+                                break;
+                            case 'completed':
+                                show = status.includes('complete') || status.includes('resolved') || status.includes('closed') || status.includes('approved') || status.includes('claimed') || status.includes('released') || status.includes('delivered');
+                                break;
+                        }
+                        
+                        row.style.display = show ? '' : 'none';
+                    });
+                });
             });
-
-            timeline.innerHTML = timelineHtml;
-        }
-
-        document.getElementById('trackForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const refNumber = document.getElementById('referenceNumber').value;
-
-            const submitBtn = this.querySelector('.btn-track');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-            submitBtn.disabled = true;
-
-            fetch("{{ route('track.request.search') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    reference_number: refNumber
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.error){
-                    alert("Reference number not found");
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-search"></i> Track Request';
-                    return;
+            
+            // Check if we should show a specific request from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlightRef = urlParams.get('highlight');
+            if(highlightRef) {
+                const targetRow = Array.from(rows).find(row => 
+                    row.cells[0].textContent.trim() === highlightRef
+                );
+                if(targetRow) {
+                    targetRow.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => {
+                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 500);
                 }
-
-                // Store the current request data
-                currentRequestData = data;
-
-                // Update status badge
-                const statusBadge = document.getElementById('resultStatusBadge');
-                statusBadge.className = `status-badge ${getStatusClass(data.status)}`;
-                statusBadge.innerHTML = `<i class="fas ${getStatusIcon(data.status)}"></i> ${data.status}`;
-
-                // Update request details
-                document.getElementById('resultRefNumber').textContent = data.reference;
-                document.getElementById('resultDocType').textContent = data.type;
-                document.getElementById('resultName').textContent = data.name;
-                document.getElementById('resultDate').textContent = data.date;
-                document.getElementById('resultExpected').textContent = data.expected_completion || 'TBD';
-                document.getElementById('resultFee').textContent = data.amount ? `₱${data.amount}` : '₱100.00';
-
-                // Populate timeline
-                populateTimeline(data);
-                
-                // Show the result section
-                document.getElementById('trackResult').style.display = 'block';
-
-                // Scroll to result
-                document.getElementById('trackResult').scrollIntoView({ behavior: 'smooth' });
-
-                submitBtn.innerHTML = '<i class="fas fa-search"></i> Track Request';
-                submitBtn.disabled = false;
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert("Server error. Please try again.");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-search"></i> Track Request';
-            });
+            }
         });
-
-        function resetForm() {
-            document.getElementById('trackForm').reset();
-            document.getElementById('trackResult').style.display = 'none';
-            currentRequestData = null;
-            document.getElementById('referenceNumber').focus();
-        }
-
-        function printRequestDetails() {
-            if (!currentRequestData) {
-                alert('No request data to print');
-                return;
-            }
-
-            const applicantName = currentRequestData.name;
-            const referenceNum = currentRequestData.reference;
-            const service = currentRequestData.type;
-            const currentDate = currentRequestData.date;
-            const amount = currentRequestData.amount;
-            const status = currentRequestData.status.toLowerCase();
-
-            // Handle rejected or dropped requests
-            if (status === 'rejected' || status === 'dropped') {
-                alert(`Your request has been ${status}.`);
-                return;
-            }
-
-            QRCode.toDataURL(referenceNum)
-            .then((qrDataUrl) => {
-                const trackContent = 
-                `<!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${ service } Application Receipt</title>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            margin: 30px; 
-                            line-height: 1.5; 
-                        }
-
-                        .header { 
-                            text-align: center; 
-                            margin-bottom: 20px; 
-                            border-bottom: 2px solid #C62828; 
-                            padding-bottom: 15px; 
-                        }
-
-                        .header h1 { 
-                            color: #C62828; 
-                            margin-bottom: 5px; 
-                            font-size: 22px; 
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            gap: 10px;
-                        }
-
-                        .header h1 i {
-                            font-size: 20px;
-                        }
-
-                        .header .subtitle { 
-                            color: #666; 
-                            font-size: 13px; 
-                        }
-
-                        .details { 
-                            margin: 20px 0; 
-                        }
-
-                        .detail-row { 
-                            display: flex; 
-                            margin: 6px 0; 
-                            padding: 4px 0; 
-                            border-bottom: 1px solid #eee; 
-                        }
-
-                        .detail-label { 
-                            font-weight: bold; 
-                            color: #333; 
-                            width: 170px; 
-                        }
-
-                        .detail-value { 
-                            color: #444; 
-                            flex: 1; 
-                        }
-
-                        .qr-code { 
-                            text-align: center; 
-                            margin: 15px 0; 
-                        }
-
-                        .qr-code img { 
-                            width: 130px; 
-                            height: 130px; 
-                            margin: 10px auto; 
-                            display: block;
-                            border: 1px solid #ddd; 
-                            padding: 8px; 
-                            background: white; 
-                        }
-
-                        .instructions { 
-                            margin-top: 15px; 
-                            padding: 15px; 
-                            background: #f8f9fa; 
-                            border-radius: 8px; 
-                            font-size: 13px;
-                        }
-
-                        .instructions h3 {
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            color: #C62828;
-                        }
-
-                        .footer { 
-                            text-align: center; 
-                            margin-top: 20px; 
-                            color: #666; 
-                            font-size: 11px; 
-                            border-top: 1px solid #eee; 
-                            padding-top: 10px; 
-                        }
-                        @page {
-                            size: 8.5in 11in;
-                            margin: 0.5in;
-                        }
-
-                        @media print {
-                            body {
-                                margin: 0;
-                                font-size: 12px;
-                            }
-
-                            .no-print {
-                                display: none !important;
-                            }
-
-                            html, body {
-                                width: 8.5in;
-                                height: 11in;
-                            }
-
-                            * {
-                                page-break-inside: avoid !important;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1><i class="fas fa-file-signature"></i> ${ service } Application Receipt</h1>
-                        <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
-                    </div>
-                    
-                    <div class="details">
-                        <h3>Application Details</h3>
-                        <div class="detail-row">
-                            <div class="detail-label">Reference Number:</div>
-                            <div class="detail-value"><strong>${referenceNum}</strong></div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Applicant Name:</div>
-                            <div class="detail-value">${applicantName}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Date Submitted:</div>
-                            <div class="detail-value">${currentDate}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Status:</div>
-                            <div class="detail-value"><span style="color: #C62828; font-weight: 600;">Submitted for ${ status }</span></div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Amount to Pay:</div>
-                            <div class="detail-value"><strong>₱${ amount }.00</strong></div>
-                        </div>
-                    </div>
-                    
-                    <div class="qr-code">
-                        <p><i class="fas fa-qrcode"></i> Scan to Verify Application Status</p>
-                        <img src="${qrDataUrl}" alt="QR Code for ${referenceNum}">
-                        <p style="font-size: 12px; color: #666; margin-top: 10px;">Reference: ${referenceNum}</p>
-                    </div>
-                    
-                    <div class="instructions">
-                        <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
-                        <div class="step"><strong>1.</strong> Wait for processing confirmation (1-3 business days)</div>
-                        <div class="step"><strong>2.</strong> Visit Barangay Hall during office hours</div>
-                        <div class="step"><strong>3.</strong> Present this receipt and valid ID</div>
-                        <div class="step"><strong>4.</strong> Pay ₱${ amount }.00 at the cashier</div>
-                        <div class="step"><strong>5.</strong> Receive your ${ service }</div>
-                        
-                        <div class="important-note">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Important Note:</strong> Bring this receipt and the same valid ID you used during application when claiming your ${ service }. Payment must be made in cash at the barangay hall.
-                        </div>
-                        
-                        <p><strong><i class="fas fa-map-marker-alt"></i> Barangay Hall Location:</strong><br>
-                        1 M. Blas St, Malabon, Metro Manila<br>
-                        <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
-                        Monday - Friday: 8:00 AM - 5:00 PM<br>
-                        Saturday: 8:00 AM - 12:00 PM<br>
-                        <strong><i class="fas fa-phone"></i> Contact:</strong> (02) 123-4567</p>
-                    </div>
-                    
-                    <div class="footer">
-                        <p>This is an electronically generated receipt. No signature is required.</p>
-                        <p>Barangay Hulong Duhat Online Services © ${new Date().getFullYear()}</p>
-                    </div>
-                    
-                    <div class="no-print" style="text-align: center; margin-top: 30px;">
-                        <button onclick="window.print()" style="padding: 12px 25px; background: #C62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                            <i class="fas fa-print"></i> Print Receipt
-                        </button>
-                        <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                            <i class="fas fa-times"></i> Close Window
-                        </button>
-                    </div>
-                </body>
-                </html>
-                `;
-
-                const trackWindow = window.open('', '_blank', 'width=800,height=600');
-
-                if(trackWindow){
-                    trackWindow.document.write(trackContent);
-                    trackWindow.document.close();
-                }else{
-                    alert('Please allow popups');
-                }
-            });
-        }
     </script>
 </body>
 </html>

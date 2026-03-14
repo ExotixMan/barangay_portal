@@ -32,8 +32,9 @@ class ResidencyController extends Controller
             });
         }
 
-        // Filter by status
-        if ($request->status && in_array($request->status, ['processing', 'approved', 'rejected'])) {
+        // Filter by status - UPDATED to include all statuses
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        if ($request->status && in_array($request->status, $allowedStatuses)) {
             $query->where('status', $request->status);
         }
 
@@ -42,10 +43,18 @@ class ResidencyController extends Controller
             $query->where('residency_type', $request->residency_type);
         }
 
-        $total_count = Residency::count(); // FIXED: removed all()
+        // UPDATED counts for new statuses
+        $total_count = Residency::count();
+        $pending_count = Residency::where('status', 'pending')->count();
+        $under_review_count = Residency::where('status', 'under_review')->count();
         $processing_count = Residency::where('status', 'processing')->count();
-        $approved_count   = Residency::where('status', 'approved')->count();
-        $rejected_count   = Residency::where('status', 'rejected')->count();
+        $approved_count = Residency::where('status', 'approved')->count();
+        $ready_pickup_count = Residency::where('status', 'ready_pickup')->count();
+        $claimed_count = Residency::where('status', 'claimed')->count();
+        $ready_delivery_count = Residency::where('status', 'ready_delivery')->count();
+        $out_delivery_count = Residency::where('status', 'out_delivery')->count();
+        $delivered_count = Residency::where('status', 'delivered')->count();
+        $rejected_count = Residency::where('status', 'rejected')->count();
 
         // SORTING
         $sort = $request->get('sort', 'created_at');
@@ -73,7 +82,20 @@ class ResidencyController extends Controller
 
         $applications = $query->latest()->paginate(20);
 
-        return view('admin.admin_residency', compact('applications', 'total_count','processing_count', 'approved_count', 'rejected_count'));
+        return view('admin.admin_residency', compact(
+            'applications', 
+            'total_count',
+            'pending_count',
+            'under_review_count',
+            'processing_count', 
+            'approved_count',
+            'ready_pickup_count',
+            'claimed_count',
+            'ready_delivery_count',
+            'out_delivery_count',
+            'delivered_count',
+            'rejected_count'
+        ));
     }
 
     public function store(Request $request)
@@ -125,18 +147,50 @@ class ResidencyController extends Controller
             // Generate reference number
             $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
             
-            // Set default status
-            $data['status'] = 'processing';
+            // Set default status to 'pending' instead of 'processing'
+            $data['status'] = 'pending';
 
-            Residency::create($data); // FIXED: using Residency model
+            Residency::create($data);
 
-            return redirect()->route('admin.residency.index') // FIXED: added redirect with proper route
-                ->with('success', 'Residency added successfully.');
+            return redirect()->route('admin.residency.index')
+                ->with('success', 'Residency application submitted successfully and is now pending.');
 
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Failed to submit application. Please try again. ' . $e->getMessage());
         }
+    }
+
+    /**
+     * NEW METHOD: Update status for any application
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $application = Residency::findOrFail($id);
+        
+        // Validate status
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        
+        $request->validate([
+            'status' => 'required|in:' . implode(',', $allowedStatuses)
+        ]);
+
+        $newStatus = $request->status;
+        $oldStatus = $application->status;
+
+        // Optional: Add business logic rules for status transitions
+        // For example, prevent certain transitions if needed
+        
+        // Update status and timestamp
+        $application->status = $newStatus;
+        $application->status_updated_at = now();
+        $application->save();
+
+        // Format status name for display
+        $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
+
+        return back()->with('success', "Application #{$application->reference_number} status updated from " . 
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}.");
     }
 
     public function update(Request $request, $id)
@@ -226,43 +280,13 @@ class ResidencyController extends Controller
 
             $application->save();
 
-            return redirect()->route('admin.residency.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.residency.index')
                 ->with('success', 'Residency application #' . $application->reference_number . ' updated successfully.');
 
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
         }
-    }
-
-    public function approve($id)
-    {
-        $application = Residency::findOrFail($id);
-        
-        // Only allow approval if currently processing
-        if ($application->status !== 'processing') {
-            return back()->with('error', 'Only processing applications can be approved.');
-        }
-
-        $application->status = 'approved';
-        $application->save();
-
-        return back()->with('success', 'Application #' . $application->reference_number . ' has been approved.');
-    }
-
-    public function reject($id)
-    {
-        $application = Residency::findOrFail($id);
-        
-        // Only allow rejection if currently processing
-        if ($application->status !== 'processing') {
-            return back()->with('error', 'Only processing applications can be rejected.');
-        }
-
-        $application->status = 'rejected';
-        $application->save();
-
-        return back()->with('success', 'Application #' . $application->reference_number . ' has been rejected.');
     }
 
     public function bulkDelete(Request $request)
@@ -303,7 +327,7 @@ class ResidencyController extends Controller
         if ($request->ids) {
             $query->whereIn('id', $request->ids);
         } else {
-            $query->whereIn('id', Residency::pluck('id')); // FIXED: simplified
+            $query->whereIn('id', Residency::pluck('id'));
         }
 
         $applications = $query->get();
@@ -339,13 +363,16 @@ class ResidencyController extends Controller
                     case '20+': $yearsDisplay = '20+ years'; break;
                     default: $yearsDisplay = $app->years_residing;
                 }
+
+                // Format status display
+                $statusDisplay = ucfirst(str_replace('_', ' ', $app->status));
                 
                 fputcsv($file, [
                     $app->id, $app->reference_number, $full_name, $app->first_name, $app->middle_name,
                     $app->last_name, $app->suffix, $app->birthdate, $app->gender, $app->civil_status,
                     $app->birth_place, $app->address, $yearsDisplay, $app->residency_type,
                     $app->contact_number, $app->email, $app->household_members, $app->purpose,
-                    $app->purpose_other, $app->status, $app->created_at, $app->updated_at
+                    $app->purpose_other, $statusDisplay, $app->created_at, $app->updated_at
                 ]);
             }
 
@@ -391,9 +418,9 @@ class ResidencyController extends Controller
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certificate of Residency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y'));
 
-        $fileName = 'certificate_' . $record->reference_number . '.docx'; // FIXED: use reference_number
+        $fileName = 'certificate_' . $record->reference_number . '.docx';
         $outputDir = storage_path('app/generated');
         if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 

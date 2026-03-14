@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Http;
 use App\Models\Residents;
 use App\Models\Announcement;
 use Carbon\Carbon;
@@ -36,15 +34,40 @@ class ResidentsController extends Controller
     public function register_res(Request $request)
     {
         $data = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
+            'middlename' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
+            'lastname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
+            'suffix' => 'nullable|string|max:10|in:None,Jr.,Sr.,II,III,IV,V',
             'email' => 'required|email|unique:residents,email',
-            'address' => 'required|string',
-            'birthdate' => 'required|date',
-            'contact' => 'required|string|max:11',
-            'username' => 'required|string|unique:residents,username',
-            'password' => 'required|string|confirmed'
+            'address' => 'required|string|max:500',
+            'birthdate' => 'required|date|before:18 years ago',
+            'contact' => 'required|string|max:11|regex:/^09\d{9}$/',
+            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
+            'password' => 'required|string|confirmed|min:8'
+        ], [
+            'firstname.regex' => 'First name may only contain letters, spaces, dots, apostrophes, and hyphens',
+            'middlename.regex' => 'Middle name may only contain letters, spaces, dots, apostrophes, and hyphens',
+            'lastname.regex' => 'Last name may only contain letters, spaces, dots, apostrophes, and hyphens',
+            'suffix.in' => 'Please select a valid suffix',
+            'contact.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
+            'birthdate.before' => 'You must be at least 18 years old to register',
+            'password.min' => 'Password must be at least 8 characters long',
+            'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
+            'username.min' => 'Username must be at least 4 characters long',
         ]);
+
+        if ($request->hasFile('valid_id')) {
+            $file = $request->file('valid_id');
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $extension;
+            $file->move(public_path('uploads/valid_id/residents'), $filename);
+            $data['valid_id'] = 'uploads/valid_id/residents/' . $filename;
+        }
+
+        if (isset($data['suffix']) && $data['suffix'] === 'None') {
+            $data['suffix'] = null;
+        }
 
         $otp = rand(100000, 999999);
 
@@ -60,25 +83,6 @@ class ResidentsController extends Controller
 
         return redirect()->route('verification.notice')
             ->with('success', 'Registration successful. Please verify your email.');
-
-        // SMS Verification
-
-        // $message = "Your Barangay OTP is: $otp. It expires in 5 minutes.";
-
-        // $response = Http::withHeaders([
-        //     'x-api-key' => env('SMS_API_KEY'),
-        //     'Content-Type' => 'application/json',
-        // ])->post('https://sms-api-ph-gceo.onrender.com/send/sms', [
-        //     'recipient' => $resident->contact,
-        //     'message' => $message,
-        // ]);
-        // dd($response->status(), $response->body());
-
-        // return redirect()->route('otp.form')
-        //     ->with('resident_id', $resident->id)
-        //     ->with('success', 'OTP sent to your mobile number.');
-
-        // return redirect('login')->with('success', 'Account registered successfully!');
     }
 
     public function login_res(Request $request)
@@ -101,12 +105,6 @@ class ResidentsController extends Controller
             return redirect()->route('verification.notice')
                 ->with('error', 'Please verify your email first.');
         }
-
-        // if (!$resident->phone_verified) {
-        //     return redirect()->route('otp.form')
-        //         ->with('resident_id', $resident->id)
-        //         ->with('fail', 'Please verify your phone first.');
-        // }
 
         $request->session()->regenerate();
         return redirect()->intended('/');

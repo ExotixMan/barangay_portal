@@ -32,7 +32,8 @@ return new class extends Migration
             $table->text('purpose_other')->nullable();
 
             // Status
-            $table->string('status')->default('processing');
+            $table->string('status')->default('pending');
+            $table->timestamp('status_updated_at')->nullable();
 
             $table->timestamps();
         });

@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
@@ -769,7 +770,7 @@
                                         <li><i class="fas fa-check"></i> Loan applications</li>
                                     </ul>
                                 </div>
-                                <a href="barangay_clearance.html" class="service-btn">
+                                <a href="{{ route('clearance')}}" class="service-btn">
                                     <i class="fas fa-arrow-right"></i> Request Now
                                 </a>
                             </div>
@@ -804,7 +805,7 @@
                                         <li><i class="fas fa-check"></i> Voter registration</li>
                                     </ul>
                                 </div>
-                                <a href="certificate_residency.html" class="service-btn">
+                                <a href="{{ route('residency') }}" class="service-btn">
                                     <i class="fas fa-arrow-right"></i> Request Now
                                 </a>
                             </div>
@@ -839,7 +840,7 @@
                                         <li><i class="fas fa-check"></i> Government aid programs</li>
                                     </ul>
                                 </div>
-                                <a href="certificate_indigency.html" class="service-btn">
+                                <a href="{{ route('indigency') }}" class="service-btn">
                                     <i class="fas fa-arrow-right"></i> Request Now
                                 </a>
                             </div>
@@ -906,7 +907,7 @@
                             </div>
                             <h3>Blotter Report</h3>
                             <p>File complaints, report incidents, or document disputes for official record and mediation.</p>
-                            <a href="blotter_report.html" class="card-link">
+                            <a href="{{ route('incident') }}" class="card-link">
                                 Learn More <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -930,7 +931,7 @@
                             </div>
                             <h3>Help & Support</h3>
                             <p>Need assistance? Contact our office or visit us for personalized help.</p>
-                            <a href="homepage.html#contact" class="card-link">
+                            <a href="{{ route('contacts') }}" class="card-link">
                                 Contact Us <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>

@@ -23,9 +23,9 @@ class BarangayClearanceController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
+            'middle_name' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
+            'last_name' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:255',
             'birthdate' => 'required|date',
             'gender' => 'required',

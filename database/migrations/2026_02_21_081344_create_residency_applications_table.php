@@ -41,7 +41,8 @@ return new class extends Migration
             $table->string('primary_proof');
             $table->string('government_id');
 
-            $table->string('status')->default('processing');
+            $table->string('status')->default('pending');
+            $table->timestamp('status_updated_at')->nullable();
 
             $table->timestamps();
         });

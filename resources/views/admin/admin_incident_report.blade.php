@@ -12,6 +12,8 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
 
     <style>
@@ -869,7 +871,7 @@
         @admin_can('view_users')
         <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
-            <span>Users</span>
+            <span>Users & Roles</span>
         </a>
         @endadmin_can
 

@@ -35,7 +35,8 @@ return new class extends Migration
 
             $table->string('valid_id_path');
 
-            $table->string('status')->default('processing');
+            $table->string('status')->default('pending');
+            $table->timestamp('status_updated_at')->nullable();
 
             $table->timestamps();
         });

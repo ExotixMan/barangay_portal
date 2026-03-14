@@ -20,6 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
     
@@ -709,7 +710,6 @@
             const progressSteps = document.querySelectorAll('.step');
             const nextButtons = document.querySelectorAll('.btn-next');
             const prevButtons = document.querySelectorAll('.btn-prev');
-            const submitButton = document.getElementById('submitBlotter');
             const declareTruth = document.getElementById('declareTruth');
             const agreePrivacy = document.getElementById('agreePrivacy');
             const consentProcessing = document.getElementById('consentProcessing');
@@ -720,16 +720,66 @@
 
             // Set max date for incident date
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('incidentDate').max = today;
-            
-            // Set default values
-            document.getElementById('incidentDate').value = today;
+            const incidentDateInput = document.getElementById('incidentDate');
+            if (incidentDateInput) {
+                incidentDateInput.max = today;
+                incidentDateInput.value = today;
+            }
             
             // Set current time as default
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('incidentTime').value = `${hours}:${minutes}`;
+            const incidentTimeInput = document.getElementById('incidentTime');
+            if (incidentTimeInput) {
+                incidentTimeInput.value = `${hours}:${minutes}`;
+            }
+
+            // Add real-time validation for name fields
+            const complainantName = document.getElementById('complainantName');
+            if (complainantName) {
+                complainantName.addEventListener('input', function(e) {
+                    validateNameField(this, 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                });
+            }
+
+            const respondentName = document.getElementById('respondentName');
+            if (respondentName) {
+                respondentName.addEventListener('input', function(e) {
+                    validateNameField(this, 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                });
+            }
+
+            // Add real-time validation for contact numbers
+            const complainantContact = document.getElementById('complainantContact');
+            if (complainantContact) {
+                complainantContact.addEventListener('input', function(e) {
+                    validateContactField(this);
+                });
+            }
+
+            const respondentContact = document.getElementById('respondentContact');
+            if (respondentContact) {
+                respondentContact.addEventListener('input', function(e) {
+                    validateContactField(this);
+                });
+            }
+
+            // Add real-time validation for email
+            const complainantEmail = document.getElementById('complainantEmail');
+            if (complainantEmail) {
+                complainantEmail.addEventListener('input', function(e) {
+                    validateEmailField(this);
+                });
+            }
+
+            // Add real-time validation for address
+            const complainantAddress = document.getElementById('complainantAddress');
+            if (complainantAddress) {
+                complainantAddress.addEventListener('input', function(e) {
+                    validateAddressField(this);
+                });
+            }
 
             // Add witness functionality
             const addWitnessBtn = document.getElementById('addWitnessBtn');
@@ -773,6 +823,19 @@
                     `;
 
                     witnessesList.insertAdjacentHTML('beforeend', witnessHtml);
+
+                    // Add real-time validation to new witness fields
+                    const newWitness = document.getElementById(witnessId);
+                    const nameInput = newWitness.querySelector('.witness-name');
+                    const contactInput = newWitness.querySelector('.witness-contact');
+                    
+                    nameInput.addEventListener('input', function(e) {
+                        validateNameField(this, 'Witness name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                    });
+                    
+                    contactInput.addEventListener('input', function(e) {
+                        validateContactField(this);
+                    });
                 });
             }
 
@@ -789,7 +852,7 @@
                 }
             };
 
-            // File upload functionality - matching clearance form approach
+            // File upload functionality
             setupFileUpload('photoUpload', 'photos', 'photoPreview', ['image/jpeg', 'image/jpg', 'image/png'], 10);
             setupFileUpload('videoUpload', 'videos', 'videoPreview', ['video/mp4', 'video/avi', 'video/quicktime'], 50);
             setupFileUpload('docUpload', 'documents', 'docPreview', ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], 5);
@@ -959,6 +1022,145 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
+            // Validation functions
+            function validateNameField(field, errorMessage) {
+                const nameRegex = /^[\p{L}\s'\.,-]*$/u;
+                const value = field.value;
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.classList.remove('error');
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+                
+                // Check if value matches the pattern
+                if (value && !nameRegex.test(value)) {
+                    field.classList.add('error');
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessageEl = document.createElement('div');
+                    errorMessageEl.className = 'error-message';
+                    errorMessageEl.style.color = '#ff4444';
+                    errorMessageEl.style.fontSize = '0.85rem';
+                    errorMessageEl.style.marginTop = '5px';
+                    errorMessageEl.textContent = errorMessage || 'Name contains invalid characters';
+                    field.parentNode.appendChild(errorMessageEl);
+                }
+                
+                // Check length
+                if (value && value.length > 0 && value.length < 2) {
+                    field.classList.add('error');
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessageEl = document.createElement('div');
+                    errorMessageEl.className = 'error-message';
+                    errorMessageEl.style.color = '#ff4444';
+                    errorMessageEl.style.fontSize = '0.85rem';
+                    errorMessageEl.style.marginTop = '5px';
+                    errorMessageEl.textContent = 'Name must be at least 2 characters long';
+                    field.parentNode.appendChild(errorMessageEl);
+                }
+            }
+
+            function validateContactField(field) {
+                const phoneRegex = /^09\d{9}$/;
+                const cleanedNumber = field.value.replace(/\s/g, '');
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.classList.remove('error');
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+                
+                // Check if phone number is valid
+                if (field.value && !phoneRegex.test(cleanedNumber)) {
+                    field.classList.add('error');
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateEmailField(field) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const value = field.value.trim();
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.classList.remove('error');
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+                
+                // Check if email is valid
+                if (value && !emailRegex.test(value)) {
+                    field.classList.add('error');
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a valid email address';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateAddressField(field) {
+                const value = field.value;
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.classList.remove('error');
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+                
+                // Check minimum length
+                if (value && value.length > 0 && value.length < 10) {
+                    field.classList.add('error');
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a complete address';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
             // Navigation
             nextButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -1050,10 +1252,8 @@
                         return;
                     }
                     
-                    let fieldValue = field.value.trim();
-                    
+                    // For radio buttons, check if any in the group is checked
                     if (field.type === 'radio') {
-                        // For radio buttons, check if any in the group is checked
                         const radioName = field.name;
                         const radioChecked = document.querySelector(`input[name="${radioName}"]:checked`);
                         if (!radioChecked) {
@@ -1066,10 +1266,21 @@
                         return;
                     }
                     
+                    let fieldValue = field.value.trim();
+                    
                     if (!fieldValue) {
                         isValid = false;
                         showFieldError(field, 'This field is required');
                         return;
+                    }
+                    
+                    // Validate name fields
+                    if (field.id === 'complainantName' || field.id === 'respondentName') {
+                        const nameRegex = /^[\p{L}\s'\.,-]+$/u;
+                        if (!nameRegex.test(fieldValue)) {
+                            isValid = false;
+                            showFieldError(field, 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                        }
                     }
                     
                     // Validate email format
@@ -1095,11 +1306,18 @@
                     if (field.id === 'incidentDate') {
                         const selectedDate = new Date(fieldValue);
                         const today = new Date();
-                        today.setHours(0, 0, 0, 0);
                         
-                        if (selectedDate > today) {
+                        if (selectedDate >= today) {
                             isValid = false;
                             showFieldError(field, 'Incident date cannot be in the future');
+                        }
+                    }
+                    
+                    // Validate address
+                    if (field.id === 'complainantAddress') {
+                        if (fieldValue.length < 10) {
+                            isValid = false;
+                            showFieldError(field, 'Please enter a complete address');
                         }
                     }
                 });
@@ -1122,6 +1340,13 @@
                             if (!name) {
                                 isValid = false;
                                 showFieldError(nameInput, 'Witness name is required if adding witness details');
+                            } else {
+                                // Validate witness name format
+                                const nameRegex = /^[\p{L}\s'\.,-]+$/u;
+                                if (!nameRegex.test(name)) {
+                                    isValid = false;
+                                    showFieldError(nameInput, 'Witness name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                                }
                             }
                             
                             if (contact) {
@@ -1188,7 +1413,13 @@
             function updateReview() {
                 // Incident Information
                 const incidentReview = document.getElementById('reviewIncident');
-                const reportType = document.querySelector('input[name="reportType"]:checked')?.closest('.report-type-option')?.querySelector('.type-card h4')?.textContent || 'Not selected';
+                const reportTypeElement = document.querySelector('input[name="reportType"]:checked');
+                let reportType = 'Not selected';
+                
+                if (reportTypeElement) {
+                    const typeCard = reportTypeElement.closest('.report-type-option')?.querySelector('.type-card h4');
+                    reportType = typeCard ? typeCard.textContent : reportTypeElement.value;
+                }
                 
                 incidentReview.innerHTML = `
                     <div class="review-item">
@@ -1239,6 +1470,17 @@
                 const videoCount = document.getElementById('videos').files.length;
                 const docCount = document.getElementById('documents').files.length;
                 
+                const confidentialityElement = document.querySelector('input[name="confidentiality"]:checked');
+                let confidentialityText = 'Not selected';
+                
+                if (confidentialityElement) {
+                    const value = confidentialityElement.value;
+                    if (value === 'public') confidentialityText = 'Public Report';
+                    else if (value === 'confidential') confidentialityText = 'Confidential Report';
+                    else if (value === 'high') confidentialityText = 'Anonymous Report';
+                    else confidentialityText = value;
+                }
+                
                 evidenceReview.innerHTML = `
                     <div class="review-item">
                         <div class="review-label">Photos</div>
@@ -1254,20 +1496,9 @@
                     </div>
                     <div class="review-item">
                         <div class="review-label">Confidentiality</div>
-                        <div class="review-value">${getConfidentialityText()}</div>
+                        <div class="review-value">${confidentialityText}</div>
                     </div>
                 `;
-            }
-
-            function getConfidentialityText() {
-                const selected = document.querySelector('input[name="confidentiality"]:checked');
-                if (!selected) return 'Not selected';
-                
-                const value = selected.value;
-                if (value === 'public') return 'Public Report';
-                if (value === 'confidential') return 'Confidential Report';
-                if (value === 'anonymous') return 'Anonymous Report';
-                return value;
             }
 
             function formatDate(dateString) {

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 
@@ -348,11 +349,11 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
-            const submitButton = document.getElementById('submitApplication');
 
             let currentStep = 1;
             const totalSteps = 3;
 
+            // Show purpose other textarea when "Other" is selected
             purposeSelect.addEventListener('change', function() {
                 if (this.value === 'other') {
                     purposeOther.style.display = 'block';
@@ -364,6 +365,38 @@
                 }
             });
 
+            // Add real-time validation for name fields
+            document.getElementById('firstName').addEventListener('input', function(e) {
+                validateNameField(this);
+            });
+            document.getElementById('middleName').addEventListener('input', function(e) {
+                validateNameField(this);
+            });
+            document.getElementById('lastName').addEventListener('input', function(e) {
+                validateNameField(this);
+            });
+
+            // Add real-time validation for email
+            document.getElementById('email').addEventListener('input', function(e) {
+                validateEmailField(this);
+            });
+
+            // Add real-time validation for contact number
+            document.getElementById('contactNumber').addEventListener('input', function(e) {
+                validateContactField(this);
+            });
+
+            // Add real-time validation for household members
+            document.getElementById('householdMembers').addEventListener('input', function(e) {
+                validateHouseholdField(this);
+            });
+
+            // Add real-time validation for address
+            document.getElementById('address').addEventListener('input', function(e) {
+                validateAddressField(this);
+            });
+
+            // Next button functionality
             nextButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -374,12 +407,27 @@
                 });
             });
 
+            // Previous button functionality
             prevButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const prevStep = this.getAttribute('data-prev');
                     goToStep(prevStep);
                 });
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                if (!validateStep(3)) {
+                    e.preventDefault();
+                    return;
+                }
+
+                if (!termsCheckbox.checked || !privacyCheckbox.checked || !pickupCheckbox.checked) {
+                    e.preventDefault();
+                    alert('Please accept all terms and conditions.');
+                    return;
+                }
             });
 
             // File upload functionality
@@ -480,8 +528,30 @@
                         return;
                     }
                     
+                    // Validate name fields (first_name, middle_name, last_name) - allow Unicode letters, spaces, apostrophes, periods, commas, and hyphens
+                    if (field.id === 'firstName' || field.id === 'middleName' || field.id === 'lastName') {
+                        // Regex pattern matching your backend: allows Unicode letters, spaces, apostrophes, periods, commas, and hyphens
+                        const nameRegex = /^[\p{L}\s'\.,-]+$/u;
+                        if (!nameRegex.test(fieldValue)) {
+                            isValid = false;
+                            showFieldError(field, 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens');
+                        }
+                        
+                        // Check minimum length
+                        if (fieldValue.length < 2) {
+                            isValid = false;
+                            showFieldError(field, 'Name must be at least 2 characters long');
+                        }
+                        
+                        // Check maximum length
+                        if (fieldValue.length > 255) {
+                            isValid = false;
+                            showFieldError(field, 'Name must not exceed 255 characters');
+                        }
+                    }
+                    
                     // Validate email format
-                    if (field.type === 'email') {
+                    else if (field.type === 'email') {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!emailRegex.test(fieldValue)) {
                             isValid = false;
@@ -490,7 +560,7 @@
                     }
                     
                     // Validate phone number
-                    if (field.id === 'contactNumber') {
+                    else if (field.id === 'contactNumber') {
                         const phoneRegex = /^09\d{9}$/;
                         const cleanedNumber = fieldValue.replace(/\s/g, '');
                         if (!phoneRegex.test(cleanedNumber)) {
@@ -498,16 +568,44 @@
                             showFieldError(field, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
                         }
                     }
-
-                    if (field.id === 'householdMembers') {
-                        const householdNumber = parseInt(fieldValue);
-                        if (isNaN(householdNumber) || householdNumber < 1 || householdNumber > 20) {
+                    
+                    // Validate household members
+                    else if (field.id === 'householdMembers') {
+                        const value = parseInt(fieldValue);
+                        if (isNaN(value) || value < 1 || value > 20) {
                             isValid = false;
-                            showFieldError(field, 'Please enter a number between 1 and 20');
+                            showFieldError(field, 'Please enter a valid number between 1 and 20');
+                        }
+                    }
+                    
+                    // Validate date of birth (not in future)
+                    else if (field.id === 'birthdate') {
+                        const selectedDate = new Date(fieldValue);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                            isValid = false;
+                            showFieldError(field, 'Date of birth cannot be in the future');
+                        }
+                        
+                        // Check if at least 18 years old (optional, remove if not needed)
+                        const age = today.getFullYear() - selectedDate.getFullYear();
+                        const monthDiff = today.getMonth() - selectedDate.getMonth();
+                        if (age < 18 || (age === 18 && monthDiff < 0)) {
+                            isValid = false;
+                            showFieldError(field, 'You must be at least 18 years old to apply');
+                        }
+                    }
+                    
+                    // Validate address
+                    else if (field.id === 'address') {
+                        if (fieldValue.length < 10) {
+                            isValid = false;
+                            showFieldError(field, 'Please enter a complete address');
                         }
                     }
                 });
                 
+                // Validate file uploads for step 2
                 if (stepNumber === 2) {
                     const fileInput = document.getElementById('validId');
                     if (!fileInput.files || fileInput.files.length === 0) {
@@ -515,10 +613,177 @@
                         const uploadArea = document.getElementById('validIdUpload');
                         uploadArea.style.borderColor = '#ff4444';
                         uploadArea.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+                        
+                        // Add error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.className = 'error-message';
+                        errorMessage.style.color = '#ff4444';
+                        errorMessage.style.fontSize = '0.85rem';
+                        errorMessage.style.marginTop = '10px';
+                        errorMessage.style.textAlign = 'center';
+                        errorMessage.textContent = 'Please upload your valid ID';
+                        uploadArea.parentNode.appendChild(errorMessage);
                     }
                 }
                 
                 return isValid;
+            }
+
+            function validateNameField(field) {
+                const nameRegex = /^[\p{L}\s'\.,-]*$/u;
+                const value = field.value;
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.style.borderColor = '#eee';
+                field.style.boxShadow = 'none';
+                
+                // Check if value matches the pattern
+                if (value && !nameRegex.test(value)) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens';
+                    field.parentNode.appendChild(errorMessage);
+                }
+                
+                // Check length
+                if (value && value.length > 0 && value.length < 2) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Name must be at least 2 characters long';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateEmailField(field) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const value = field.value.trim();
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.style.borderColor = '#eee';
+                field.style.boxShadow = 'none';
+                
+                // Check if email is valid
+                if (value && !emailRegex.test(value)) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a valid email address';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateContactField(field) {
+                const phoneRegex = /^09\d{9}$/;
+                const cleanedNumber = field.value.replace(/\s/g, '');
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.style.borderColor = '#eee';
+                field.style.boxShadow = 'none';
+                
+                // Check if phone number is valid
+                if (field.value && !phoneRegex.test(cleanedNumber)) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateHouseholdField(field) {
+                const value = parseInt(field.value);
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.style.borderColor = '#eee';
+                field.style.boxShadow = 'none';
+                
+                // Check if value is valid
+                if (field.value && (isNaN(value) || value < 1 || value > 20)) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a valid number between 1 and 20';
+                    field.parentNode.appendChild(errorMessage);
+                }
+            }
+
+            function validateAddressField(field) {
+                const value = field.value;
+                
+                // Remove any error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Reset field style
+                field.style.borderColor = '#eee';
+                field.style.boxShadow = 'none';
+                
+                // Check minimum length
+                if (value && value.length > 0 && value.length < 10) {
+                    field.style.borderColor = '#ff4444';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                    
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.style.color = '#ff4444';
+                    errorMessage.style.fontSize = '0.85rem';
+                    errorMessage.style.marginTop = '5px';
+                    errorMessage.textContent = 'Please enter a complete address';
+                    field.parentNode.appendChild(errorMessage);
+                }
             }
 
             function showFieldError(field, message) {
@@ -600,23 +865,30 @@
                     
                     // Validate file type
                     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                    if (!validTypes.includes(file.type.toLowerCase())) {
-                        // Also check by extension for older browsers
-                        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-                        const validExtensions = ['.jpg', '.jpeg', '.png', '.pdf'];
-                        if (!validExtensions.includes(fileExtension)) {
-                            alert('Invalid file type. Please upload JPG, PNG, or PDF files only.');
-                            return;
-                        }
+                    const validExtensions = ['.jpg', '.jpeg', '.png', '.pdf'];
+                    
+                    const fileType = file.type.toLowerCase();
+                    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                    
+                    if (!validTypes.includes(fileType) && !validExtensions.includes(fileExtension)) {
+                        alert('Invalid file type. Please upload JPG, PNG, or PDF files only.');
+                        return;
                     }
                     
                     // Show preview
                     const fileName = file.name;
                     const fileSize = formatFileSize(file.size);
                     
+                    let fileIcon = 'fa-file';
+                    if (file.type.includes('image')) {
+                        fileIcon = 'fa-file-image';
+                    } else if (file.type.includes('pdf')) {
+                        fileIcon = 'fa-file-pdf';
+                    }
+                    
                     previewArea.innerHTML = `
                         <div class="file-preview">
-                            <i class="fas fa-${file.type.includes('image') ? 'file-image' : 'file-pdf'}"></i>
+                            <i class="fas ${fileIcon}"></i>
                             <div class="file-info">
                                 <div class="file-name">${fileName}</div>
                                 <div class="file-size">${fileSize}</div>
@@ -630,13 +902,20 @@
                     
                     // Add event listener to remove button
                     const removeButton = previewArea.querySelector('.remove-file');
-                    removeButton.addEventListener('click', function() {
+                    removeButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
                         removeFile(fileInputId);
                     });
                     
                     // Reset upload area style
                     uploadArea.style.borderColor = '#ddd';
                     uploadArea.style.backgroundColor = '#fafafa';
+                    
+                    // Remove any error messages
+                    const errorMessage = uploadArea.parentNode.querySelector('.error-message');
+                    if (errorMessage) {
+                        errorMessage.remove();
+                    }
                 }
             }
 
@@ -667,6 +946,10 @@
                 const suffix = document.getElementById('suffix').value;
                 const suffixDisplay = suffix ? ` ${suffix}` : '';
                 
+                // Get monthly income text
+                const monthlyIncomeSelect = document.getElementById('monthlyIncome');
+                const monthlyIncomeText = monthlyIncomeSelect.options[monthlyIncomeSelect.selectedIndex]?.text || 'Not specified';
+                
                 personalInfo.innerHTML = `
                     <div class="review-item">
                         <div class="review-label">Full Name</div>
@@ -685,19 +968,19 @@
                         <div class="review-value">${document.getElementById('address').value}</div>
                     </div>
                     <div class="review-item">
-                        <div class="review-label">Contact</div>
+                        <div class="review-label">Contact Number</div>
                         <div class="review-value">${document.getElementById('contactNumber').value}</div>
                     </div>
                     <div class="review-item">
-                        <div class="review-label">Email</div>
+                        <div class="review-label">Email Address</div>
                         <div class="review-value">${document.getElementById('email').value}</div>
                     </div>
                     <div class="review-item">
                         <div class="review-label">Estimated Monthly Income</div>
-                        <div class="review-value">${document.getElementById('monthlyIncome').value}</div>
+                        <div class="review-value">${monthlyIncomeText}</div>
                     </div>
                     <div class="review-item">
-                        <div class="review-label">Number of Household Members</div>
+                        <div class="review-label">Household Members</div>
                         <div class="review-value">${document.getElementById('householdMembers').value}</div>
                     </div>
                 `;
@@ -706,24 +989,31 @@
                 const documentInfo = document.getElementById('reviewDocuments');
                 const purposeValue = document.getElementById('purpose').value;
                 let purposeText = '';
+                
                 if (purposeValue === 'other') {
                     purposeText = document.getElementById('purposeOther').value || 'Other';
-                } else {
+                } else if (purposeValue) {
                     const purposeSelect = document.getElementById('purpose');
                     purposeText = purposeSelect.options[purposeSelect.selectedIndex].text;
+                } else {
+                    purposeText = 'Not specified';
                 }
                 
                 const fileInput = document.getElementById('validId');
                 const hasFile = fileInput.files && fileInput.files.length > 0;
+                const fileName = hasFile ? fileInput.files[0].name : 'No file uploaded';
                 
                 documentInfo.innerHTML = `
                     <div class="review-item">
-                        <div class="review-label">Purpose</div>
+                        <div class="review-label">Purpose of Indigency</div>
                         <div class="review-value">${purposeText}</div>
                     </div>
                     <div class="review-item">
-                        <div class="review-label">Documents Uploaded</div>
-                        <div class="review-value">${hasFile ? '1 file uploaded' : 'No files uploaded'}</div>
+                        <div class="review-label">Valid ID Uploaded</div>
+                        <div class="review-value">
+                            <i class="fas fa-${hasFile ? (fileInput.files[0].type.includes('image') ? 'file-image' : 'file-pdf') : 'exclamation-circle'}"></i>
+                            ${fileName}
+                        </div>
                     </div>
                 `;
             }

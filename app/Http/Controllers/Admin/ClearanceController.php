@@ -105,22 +105,33 @@ class ClearanceController extends Controller
         }
     }
 
-    public function approve($id)
+    public function updateStatus(Request $request, $id)
     {
-        $app = BarangayClearance::findOrFail($id);
-        $app->status = 'approved';
-        $app->save();
+        $application = BarangayClearance::findOrFail($id);
+        
+        // Validate status
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        
+        $request->validate([
+            'status' => 'required|in:' . implode(',', $allowedStatuses)
+        ]);
 
-        return back()->with('success', 'Clearance approved.');
-    }
+        $newStatus = $request->status;
+        $oldStatus = $application->status;
 
-    public function reject($id)
-    {
-        $app = BarangayClearance::findOrFail($id);
-        $app->status = 'rejected';
-        $app->save();
+        // Optional: Add business logic rules for status transitions
+        // For example, prevent certain transitions if needed
+        
+        // Update status and timestamp
+        $application->status = $newStatus;
+        $application->status_updated_at = now();
+        $application->save();
 
-        return back()->with('success', 'Clearance rejected.');
+        // Format status name for display
+        $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
+
+        return back()->with('success', "Application #{$application->reference_number} status updated from " . 
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}.");
     }
 
     public function bulkDelete(Request $request)

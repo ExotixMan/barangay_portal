@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('email')->unique();
             $table->string('address');
+            $table->string('valid_id');
+            $table->boolean('valid_id_verified')->default(false);
             $table->date('birthdate');
             $table->string('contact', 11);
             $table->string('username')->unique();

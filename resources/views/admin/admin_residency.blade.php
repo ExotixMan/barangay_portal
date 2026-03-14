@@ -12,6 +12,8 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
 
     <style>
@@ -151,17 +153,25 @@
         .table-responsive {
             border-radius: 16px;
             overflow-x: auto;
+            overflow-y: visible !important;
             -webkit-overflow-scrolling: touch;
         }
 
         .table {
             margin-bottom: 0;
             min-width: 1200px;
+            overflow: visible !important;
         }
 
         @media (max-width: 768px) {
             .table {
                 min-width: 1000px;
+            }
+
+            .dropdown-menu {
+                max-width: 90vw;
+                max-height: 300px;
+                overflow-y: auto;
             }
         }
 
@@ -182,6 +192,7 @@
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
             white-space: nowrap;
+            overflow: visible !important;
         }
 
         .table tbody tr:hover {
@@ -208,6 +219,21 @@
         .badge.bg-warning-subtle {
             background: var(--warning-light) !important;
             color: var(--warning);
+        }
+
+        .badge.bg-info-subtle {
+            background: #e5f4ff !important;
+            color: #0288d1;
+        }
+
+        .badge.bg-secondary-subtle {
+            background: #f1f3f4 !important;
+            color: #5f6368;
+        }
+
+        .badge.bg-primary-subtle {
+            background: #e8eaf6 !important;
+            color: #3949ab;
         }
 
         /* Button Styling - Mobile Optimized */
@@ -684,9 +710,15 @@
         /* Dropdown button styling */
         .btn-group .btn-sm {
             padding: 0.3rem 0.6rem;
+            z-index: auto;
+            overflow: visible !important;
         }
 
         .dropdown-menu {
+            position: absolute !important;
+            z-index: 9999 !important;   
+            overflow-y: auto;
+            max-height: 400px;
             border-radius: 10px;
             border: 1px solid var(--border-color);
             box-shadow: var(--card-shadow);
@@ -696,6 +728,16 @@
         .dropdown-item {
             border-radius: 8px;
             transition: all 0.2s ease;
+        }
+
+        .table td .d-flex {
+            overflow: visible !important;
+        }
+
+        .table .dropdown-menu {
+            position: fixed !important;
+            transform: translate3d(0, 0, 0) !important;
+            margin-top: 0.25rem;
         }
 
         .dropdown-item:hover {
@@ -836,7 +878,7 @@
         @admin_can('view_users')
         <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
-            <span>Users</span>
+            <span>Users & Roles</span>
         </a>
         @endadmin_can
         
@@ -1008,8 +1050,15 @@
                             <div class="col-6 col-md-2">
                                 <select name="status" class="form-select">
                                     <option value="">All Status</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
                                     <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                    <option value="ready_pickup" {{ request('status') == 'ready_pickup' ? 'selected' : '' }}>Ready for Pickup</option>
+                                    <option value="claimed" {{ request('status') == 'claimed' ? 'selected' : '' }}>Claimed</option>
+                                    <option value="ready_delivery" {{ request('status') == 'ready_delivery' ? 'selected' : '' }}>Ready for Delivery</option>
+                                    <option value="out_delivery" {{ request('status') == 'out_delivery' ? 'selected' : '' }}>Out for Delivery</option>
+                                    <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
@@ -1148,28 +1197,202 @@
                                     <td>
                                         @if($app->status == 'approved')
                                             <span class="badge bg-success-subtle text-success">Approved</span>
+                                        @elseif($app->status == 'ready_pickup')
+                                            <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                        @elseif($app->status == 'claimed')
+                                            <span class="badge bg-success-subtle text-success">Claimed</span>
+                                        @elseif($app->status == 'ready_delivery')
+                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
+                                        @elseif($app->status == 'out_delivery')
+                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
+                                        @elseif($app->status == 'delivered')
+                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                        @elseif($app->status == 'pending')
+                                            <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                        @elseif($app->status == 'under_review')
+                                            <span class="badge bg-primary-subtle text-primary">Under Review</span>
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (everyone with view_residency can view) -->
+                                            <!-- View Button - Always visible -->
                                             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit (only for processing and if user has update_residency permission) -->
-                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('update_residency'))
+                                            <!-- Status Change Dropdown - Always visible for all statuses (if user has permission) -->
+                                            @if(auth('admin')->user()->hasPermission('update_residency') || 
+                                                auth('admin')->user()->hasPermission('approve_residency') || 
+                                                auth('admin')->user()->hasPermission('reject_residency'))
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Change Status">
+                                                    <i class="fas fa-tag"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <!-- Pending -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="pending">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'pending' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Pending?')">
+                                                                <i class="fas fa-clock me-2 text-secondary"></i>Pending
+                                                                @if($app->status == 'pending')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Under Review -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="under_review">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'under_review' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Under Review?')">
+                                                                <i class="fas fa-search me-2 text-primary"></i>Under Review
+                                                                @if($app->status == 'under_review')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Processing -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="processing">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'processing' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Processing?')">
+                                                                <i class="fas fa-spinner me-2 text-warning"></i>Processing
+                                                                @if($app->status == 'processing')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Approved -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="approved">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'approved' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Approved?')">
+                                                                <i class="fas fa-check-circle me-2 text-success"></i>Approved
+                                                                @if($app->status == 'approved')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    
+                                                    <!-- Ready for Pickup -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="ready_pickup">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'ready_pickup' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Pickup?')">
+                                                                <i class="fas fa-store me-2 text-info"></i>Ready for Pickup
+                                                                @if($app->status == 'ready_pickup')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Claimed -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="claimed">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'claimed' ? 'active' : '' }}" onclick="return delete(event, 'Change status to Claimed?')">
+                                                                <i class="fas fa-hand-peace me-2 text-success"></i>Claimed
+                                                                @if($app->status == 'claimed')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    
+                                                    <!-- Ready for Delivery -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="ready_delivery">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'ready_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Delivery?')">
+                                                                <i class="fas fa-box me-2 text-info"></i>Ready for Delivery
+                                                                @if($app->status == 'ready_delivery')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Out for Delivery -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="out_delivery">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'out_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Out for Delivery?')">
+                                                                <i class="fas fa-truck me-2 text-warning"></i>Out for Delivery
+                                                                @if($app->status == 'out_delivery')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <!-- Delivered -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="delivered">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'delivered' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Delivered?')">
+                                                                <i class="fas fa-check-double me-2 text-success"></i>Delivered
+                                                                @if($app->status == 'delivered')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    
+                                                    <!-- Rejected -->
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <input type="hidden" name="status" value="rejected">
+                                                            <button type="submit" class="dropdown-item text-danger {{ $app->status == 'rejected' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Reject this application?')">
+                                                                <i class="fas fa-times-circle me-2"></i>Rejected
+                                                                @if($app->status == 'rejected')
+                                                                    <i class="fas fa-check ms-2 text-success"></i>
+                                                                @endif
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            @endif
+
+                                            <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
+                                            @if(auth('admin')->user()->hasPermission('update_residency') && 
+                                                !in_array($app->status, ['rejected', 'claimed', 'delivered']))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editApplicationModal{{ $app->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
 
-                                            <!-- Document Actions Dropdown (only for approved and if user has generate_residency_document permission) -->
-                                            @if($app->status == 'approved' && auth('admin')->user()->hasPermission('generate_residency_document'))
+                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed, delivered -->
+                                            @if(auth('admin')->user()->hasPermission('generate_residency_document') && 
+                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed', 'delivered']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
                                                     <i class="fas fa-file-alt"></i>
@@ -1195,9 +1418,9 @@
                                             </div>
                                             @endif
 
-                                            <!-- Communication Dropdown (only for approved/rejected and if user has notification permissions) -->
-                                            @if(($app->status == 'approved' || $app->status == 'rejected') && 
-                                                (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
+                                            <!-- Communication Dropdown - Show for approved, rejected, claimed, delivered -->
+                                            @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
+                                                in_array($app->status, ['approved', 'rejected', 'claimed', 'delivered']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
@@ -1209,7 +1432,7 @@
                                                             @csrf
                                                             <input type="hidden" name="email" value="{{ $app->email }}">
                                                             <input type="hidden" name="name" value="{{ $app->first_name }} {{ $app->last_name }}">
-                                                            <input type="hidden" name="message" value="Your barangay residency application (Ref: {{ $app->reference_number }}) has been processed. Current status: {{ ucfirst($app->status) }}. Please check the barangay office for updates.">
+                                                            <input type="hidden" name="message" value="Your barangay residency application (Ref: {{ $app->reference_number }}) status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Please check the barangay office for updates.">
                                                             <button type="submit" class="dropdown-item" onclick="return confirm('Send email notification to {{ $app->email }}?')">
                                                                 <i class="fas fa-envelope me-2"></i>Send Email
                                                             </button>
@@ -1222,7 +1445,7 @@
                                                         <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="phone" value="+63{{ ltrim($app->contact_number, '0') }}">
-                                                            <input type="hidden" name="message" value="Barangay update: Your residency application {{ $app->reference_number }} status: {{ ucfirst($app->status) }}.">
+                                                            <input type="hidden" name="message" value="Barangay update: Your residency application {{ $app->reference_number }} status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}.">
                                                             <button type="submit" class="dropdown-item" onclick="return confirm('Send SMS to {{ $app->contact_number }}?')">
                                                                 <i class="fas fa-sms me-2"></i>Send SMS
                                                             </button>
@@ -1233,27 +1456,7 @@
                                             </div>
                                             @endif
 
-                                            <!-- Approve (only for processing and if user has approve_residency permission) -->
-                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('approve_residency'))
-                                            <form method="POST" action="{{ route('admin.residency.approve', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Approve this application?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
-                                            @endif
-
-                                            <!-- Reject (only for processing and if user has reject_residency permission) -->
-                                            @if($app->status == 'processing' && auth('admin')->user()->hasPermission('reject_residency'))
-                                            <form method="POST" action="{{ route('admin.residency.reject', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reject this application?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </form>
-                                            @endif
-
-                                            <!-- Delete (always available if user has delete_residency permission) -->
+                                            <!-- Delete Button - Always visible if user has permission -->
                                             @if(auth('admin')->user()->hasPermission('delete_residency'))
                                             <form method="POST" action="{{ route('admin.residency.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
                                                 @csrf
@@ -2003,8 +2206,22 @@
                                     <p>
                                         @if($app->status == 'approved')
                                             <span class="badge bg-success-subtle text-success">Approved</span>
+                                        @elseif($app->status == 'ready_pickup')
+                                            <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                        @elseif($app->status == 'claimed')
+                                            <span class="badge bg-success-subtle text-success">Claimed</span>
+                                        @elseif($app->status == 'ready_delivery')
+                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
+                                        @elseif($app->status == 'out_delivery')
+                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
+                                        @elseif($app->status == 'delivered')
+                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                        @elseif($app->status == 'pending')
+                                            <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                        @elseif($app->status == 'under_review')
+                                            <span class="badge bg-primary-subtle text-primary">Under Review</span>
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif

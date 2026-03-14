@@ -96,7 +96,7 @@ class AdminUserController extends Controller
             'username' => 'required|string|unique:admin_users,username|min:3|max:255',
             'password' => 'required|string|min:8',
             'contact_number' => 'nullable|string|max:11',
-            'role_id' => 'required|exists:admin_roles,id', // FIXED: changed from 'roles' to 'admin_roles'
+            'role_id' => 'required|exists:admin_roles,id',
             'department' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive,suspended',
         ]);
@@ -277,7 +277,7 @@ class AdminUserController extends Controller
         DB::beginTransaction();
 
         try {
-            $newPassword = $request->new_password ?? 'password123'; // Generate random password in production
+            $newPassword = $request->new_password ?? 'password123';
 
             $user->update([
                 'password' => Hash::make($newPassword)
@@ -285,7 +285,7 @@ class AdminUserController extends Controller
 
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'RESET_PASSWORD',
                 'module' => 'Users',
                 'details' => json_encode(['user_id' => $user->id]),
@@ -295,12 +295,12 @@ class AdminUserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
+            return redirect()->route('admin.users.index')
                 ->with('success', 'Password reset successfully. New password: ' . $newPassword);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Failed to reset password.');
         }
     }
@@ -311,7 +311,7 @@ class AdminUserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'permissions' => 'array',
-            'permissions.*' => 'exists:admin_permissions,id', // FIXED: changed from 'permissions' to 'admin_permissions'
+            'permissions.*' => 'exists:admin_permissions,id',
         ]);
 
         if ($validator->fails()) {
@@ -323,12 +323,9 @@ class AdminUserController extends Controller
         DB::beginTransaction();
 
         try {
-            // For user-specific permissions (if you implement user_permissions table)
-            // $user->permissions()->sync($request->permissions ?? []);
-
             // Log activity
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'UPDATE_PERMISSIONS',
                 'module' => 'Users',
                 'details' => json_encode([
@@ -341,12 +338,12 @@ class AdminUserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
+            return redirect()->route('admin.users.index')
                 ->with('success', 'User permissions updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Failed to update permissions.');
         }
     }
@@ -356,7 +353,7 @@ class AdminUserController extends Controller
         $validator = Validator::make($request->all(), [
             'action' => 'required|in:delete,activate,deactivate,suspend',
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:admin_users,id', // FIXED: changed from 'users' to 'admin_users'
+            'user_ids.*' => 'exists:admin_users,id',
         ]);
 
         if ($validator->fails()) {
@@ -373,7 +370,7 @@ class AdminUserController extends Controller
                     // Filter out super admins and current user
                     $users->whereDoesntHave('role', function($q) {
                         $q->where('name', 'super_admin');
-                    })->where('id', '!=', Auth::guard('admin')->id())->delete(); // FIXED: Added guard
+                    })->where('id', '!=', Auth::guard('admin')->id())->delete();
                     break;
                     
                 case 'activate':
@@ -391,7 +388,7 @@ class AdminUserController extends Controller
 
             // Log bulk action
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), // FIXED: Added guard
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'BULK_' . strtoupper($request->action),
                 'module' => 'Users',
                 'details' => json_encode(['user_ids' => $request->user_ids, 'action' => $request->action]),

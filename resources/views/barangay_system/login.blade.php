@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts - Assistant -->
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <style>
         * {
@@ -135,13 +136,52 @@
             margin-bottom: 12px;
         }
 
+        /* FIXED: Text centering in input boxes */
         .form-floating > .form-control {
             border-left: 3px solid var(--primary-red);
             border-radius: 8px;
-            height: 48px;
-            padding-left: 40px;
+            height: 48px !important;
+            padding: 12px 12px 12px 40px !important;
             font-family: 'Assistant', sans-serif;
             font-size: 0.85rem;
+            line-height: 24px !important;
+        }
+
+        .form-floating > label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 48px !important;
+            padding: 12px 12px 12px 40px !important;
+            overflow: hidden;
+            text-align: start;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            pointer-events: none;
+            border: 1px solid transparent;
+            transform-origin: 0 0;
+            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.8rem;
+            line-height: 24px !important;
+            display: flex;
+            align-items: center;
+        }
+
+        /* FIXED: Floating label position when active */
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            opacity: 0.8;
+            transform: scale(0.8) translateY(-12px) translateX(5px) !important;
+            background: white;
+            padding: 0 5px !important;
+            height: 20px !important;
+            line-height: 20px !important;
+            display: flex;
+            align-items: center;
+            top: 0;
         }
 
         .form-floating > .form-control:focus {
@@ -152,13 +192,6 @@
         .form-floating > .form-control.is-invalid {
             border-color: var(--primary-red);
             border-left: 3px solid var(--primary-red);
-        }
-
-        .form-floating > label {
-            padding-left: 40px;
-            font-weight: 500;
-            color: #555;
-            font-size: 0.8rem;
         }
 
         .input-icon {
@@ -459,9 +492,18 @@
                 font-size: 1.4rem;
             }
 
-            .form-floating > .form-control {
-                height: 42px;
-                font-size: 0.8rem;
+            .form-floating > .form-control,
+            .form-floating > label {
+                height: 42px !important;
+                padding: 10px 10px 10px 40px !important;
+                line-height: 22px !important;
+            }
+            
+            .form-floating > .form-control:focus ~ label,
+            .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                transform: scale(0.8) translateY(-10px) translateX(5px) !important;
+                height: 18px !important;
+                line-height: 18px !important;
             }
 
             .btn-login {
@@ -488,29 +530,26 @@
                 </div>
             @endif
 
-            <!-- Display Error Message -->
-            @if(session('error'))
+            <!-- Display Error Message - Only show one error -->
+            @if(session('error') && !$errors->any())
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     {{ session('error') }}
                 </div>
             @endif
 
-            <!-- Display Validation Errors -->
+            <!-- Display Validation Errors - Show only first error -->
             @if($errors->any())
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <ul class="mb-0 ps-3">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                    {{ $errors->first() }}
                 </div>
             @endif
 
-            <div id="loginErrorAlert" class="alert alert-danger" style="display: none;">
+            <!-- Client-side error container -->
+            <div id="clientErrorAlert" class="alert alert-danger" style="display: none;">
                 <i class="fas fa-exclamation-circle me-2"></i>
-                <span id="loginErrorMessage">Invalid username or password. Please try again.</span>
+                <span id="clientErrorMessage"></span>
             </div>
 
             <!-- Login Form -->
@@ -624,10 +663,75 @@
             const loginForm = document.getElementById('loginForm');
             const loginBtn = document.getElementById('loginButton');
             
-            if (loginForm && loginBtn) {
-                loginForm.addEventListener('submit', function() {
-                    loginBtn.classList.add('loading');
-                    loginBtn.disabled = true;
+            // Client-side validation elements
+            const clientAlert = document.getElementById('clientErrorAlert');
+            const clientMessage = document.getElementById('clientErrorMessage');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            // Hide server alerts when showing client error
+            function hideServerAlerts() {
+                const serverAlerts = document.querySelectorAll('.alert:not(#clientErrorAlert)');
+                serverAlerts.forEach(alert => {
+                    alert.style.display = 'none';
+                });
+            }
+
+            // Show client error
+            function showClientError(message) {
+                hideServerAlerts();
+                clientMessage.textContent = message;
+                clientAlert.style.display = 'flex';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    clientAlert.style.transition = 'opacity 0.5s ease';
+                    clientAlert.style.opacity = '0';
+                    setTimeout(() => {
+                        clientAlert.style.display = 'none';
+                        clientAlert.style.opacity = '1';
+                        clientAlert.style.transition = '';
+                    }, 500);
+                }, 5000);
+            }
+
+            // Form submit validation
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    let hasError = false;
+                    
+                    // Check empty fields
+                    if (!usernameInput.value.trim()) {
+                        e.preventDefault();
+                        hasError = true;
+                        showClientError('Username is required.');
+                        usernameInput.focus();
+                    }
+                    else if (!passwordInput.value) {
+                        e.preventDefault();
+                        hasError = true;
+                        showClientError('Password is required.');
+                        passwordInput.focus();
+                    }
+                    
+                    // Show loading only if no errors
+                    if (!hasError && loginBtn) {
+                        loginBtn.classList.add('loading');
+                        loginBtn.disabled = true;
+                    }
+                });
+            }
+
+            // Clear error when typing
+            if (usernameInput) {
+                usernameInput.addEventListener('input', function() {
+                    clientAlert.style.display = 'none';
+                });
+            }
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    clientAlert.style.display = 'none';
                 });
             }
 
@@ -643,7 +747,6 @@
                     termsModal.show();
                 });
 
-                // Handle accept terms - redirect to registration
                 document.getElementById('acceptTerms')?.addEventListener('click', function() {
                     termsModal.hide();
                     window.location.href = "{{ route('register') }}";
@@ -661,76 +764,6 @@
                     }, 500);
                 }, 5000);
             });
-
-            // =============================================
-            // FIXED: Client-side validation for empty fields
-            // =============================================
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const loginErrorAlert = document.getElementById('loginErrorAlert');
-            const loginErrorMessage = document.getElementById('loginErrorMessage');
-
-            // Function to show error message
-            function showLoginError(message) {
-                loginErrorMessage.textContent = message;
-                loginErrorAlert.style.display = 'flex';
-                loginErrorAlert.style.opacity = '1';
-                
-                // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    loginErrorAlert.style.transition = 'opacity 0.5s ease';
-                    loginErrorAlert.style.opacity = '0';
-                    setTimeout(() => {
-                        loginErrorAlert.style.display = 'none';
-                        loginErrorAlert.style.opacity = '1'; // Reset opacity for next time
-                        loginErrorAlert.style.transition = ''; // Remove transition
-                    }, 500);
-                }, 5000);
-            }
-
-            // Add form submit validation
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    // Check if username is empty
-                    if (!usernameInput.value.trim()) {
-                        e.preventDefault();
-                        showLoginError('Username is required.');
-                        loginBtn.classList.remove('loading');
-                        loginBtn.disabled = false;
-                        usernameInput.focus();
-                        return false;
-                    }
-                    
-                    // Check if password is empty
-                    if (!passwordInput.value) {
-                        e.preventDefault();
-                        showLoginError('Password is required.');
-                        loginBtn.classList.remove('loading');
-                        loginBtn.disabled = false;
-                        passwordInput.focus();
-                        return false;
-                    }
-                });
-            }
-
-            // =============================================
-            // FIXED: Check for login errors from session
-            // =============================================
-            @if(session('error'))
-                // Show custom error for any session error (most likely wrong credentials)
-                showLoginError('{{ session('error') }}');
-            @elseif($errors->any())
-                // Check if error is related to credentials
-                @foreach($errors->all() as $error)
-                    @if(strpos(strtolower($error), 'credential') !== false || 
-                        strpos(strtolower($error), 'password') !== false || 
-                        strpos(strtolower($error), 'username') !== false ||
-                        strpos(strtolower($error), 'email') !== false ||
-                        strpos(strtolower($error), 'login') !== false)
-                        showLoginError('{{ $error }}');
-                    @endif
-                @endforeach
-            @endif
         });
     </script>
 </body>

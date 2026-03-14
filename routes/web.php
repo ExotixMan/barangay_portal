@@ -90,12 +90,10 @@ Route::get('/contacts', function () {
     return view('barangay_system.contacts');
 })->name('contacts');
 
-Route::get('/track-request', function () {
-    App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.track_request');
-})->name('track_request');
-Route::post('/track-request', [TrackRequestController::class, 'track'])
-    ->name('track.request.search');
+// Track Request Routes
+Route::match(['get', 'post'], '/track-request', [TrackRequestController::class, 'index'])->name('track_request');
+Route::post('/track-request/search', [TrackRequestController::class, 'search'])->name('track.request.search');
+Route::get('/track-request/print/{reference}', [TrackRequestController::class, 'print'])->name('track.request.print');
 
 // Authentication routes (public)
 Route::get('/login', function () {
@@ -223,7 +221,7 @@ Route::middleware('auth')->group(function () {
 
 // Admin login routes (public)
 Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
-    Route::get('/login', [AdminLoginController::class, 'showLoginForm']);
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 });
@@ -257,8 +255,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-delete', [ResidencyController::class, 'bulkDelete'])->middleware('permission:delete_residency')->name('bulkDelete');
         Route::post('/export', [ResidencyController::class, 'export'])->middleware('permission:export_residency')->name('export');
         Route::put('/{application}', [ResidencyController::class, 'update'])->middleware('permission:update_residency')->name('update');
-        Route::post('/{id}/approve', [ResidencyController::class, 'approve'])->middleware('permission:approve_residency')->name('approve');
-        Route::post('/{id}/reject', [ResidencyController::class, 'reject'])->middleware('permission:reject_residency')->name('reject');
+        Route::post('/{id}/status', [ResidencyController::class, 'updateStatus'])->middleware('permission:approve_residency')->name('status');
         Route::delete('/{id}', [ResidencyController::class, 'destroy'])->middleware('permission:delete_residency')->name('destroy');
         Route::get('/generate-document', [ResidencyController::class, 'generate'])->middleware('permission:generate_residency_document')->name('document');
     });
@@ -270,8 +267,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-delete', [IndigencyController::class, 'bulkDelete'])->middleware('permission:delete_indigency')->name('bulkDelete');
         Route::post('/export', [IndigencyController::class, 'export'])->middleware('permission:export_indigency')->name('export');
         Route::put('/{application}', [IndigencyController::class, 'update'])->middleware('permission:update_indigency')->name('update');
-        Route::post('/{id}/approve', [IndigencyController::class, 'approve'])->middleware('permission:approve_indigency')->name('approve');
-        Route::post('/{id}/reject', [IndigencyController::class, 'reject'])->middleware('permission:reject_indigency')->name('reject');
+        Route::post('/{id}/status', [IndigencyController::class, 'updateStatus'])->middleware('permission:approve_indigency')->name('status');
         Route::delete('/{id}', [IndigencyController::class, 'destroy'])->middleware('permission:delete_indigency')->name('destroy');
         Route::get('/generate-document', [IndigencyController::class, 'generate'])->middleware('permission:generate_indigency_document')->name('document');
     });
@@ -283,8 +279,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-delete', [ClearanceController::class, 'bulkDelete'])->middleware('permission:delete_clearance')->name('bulkDelete');
         Route::post('/export', [ClearanceController::class, 'export'])->middleware('permission:export_clearance')->name('export');
         Route::put('/{application}', [ClearanceController::class, 'update'])->middleware('permission:update_clearance')->name('update');
-        Route::post('/{id}/approve', [ClearanceController::class, 'approve'])->middleware('permission:approve_clearance')->name('approve');
-        Route::post('/{id}/reject', [ClearanceController::class, 'reject'])->middleware('permission:reject_clearance')->name('reject');
+        Route::post('/{id}/status', [ClearanceController::class, 'updateStatus'])->middleware('permission:approve_clearance')->name('status');
         Route::delete('/{id}', [ClearanceController::class, 'destroy'])->middleware('permission:delete_clearance')->name('destroy');
         Route::get('/generate-document', [ClearanceController::class, 'generate'])->middleware('permission:generate_clearance_document')->name('document');
     });
