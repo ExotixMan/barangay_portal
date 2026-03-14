@@ -364,7 +364,8 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/', [AdminUserController::class, 'store'])->middleware('permission:create_users')->name('store');
         Route::put('/{id}', [AdminUserController::class, 'update'])->middleware('permission:update_users')->name('update');
         Route::delete('/{id}', [AdminUserController::class, 'destroy'])->middleware('permission:delete_users')->name('destroy');
-        Route::post('/{id}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('permission:reset_user_password')->name('reset-password');
+        Route::post('/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('permission:reset_user_password')->name('reset-password');
+        // Route::post('/{id}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('permission:reset_user_password')->name('reset-password');
         Route::post('/{id}/permissions', [AdminUserController::class, 'updatePermissions'])->middleware('permission:manage_user_permissions')->name('permissions');
         Route::post('/bulk-actions', [AdminUserController::class, 'bulkAction'])->middleware('permission:bulk_delete_users')->name('bulk-action');
     });

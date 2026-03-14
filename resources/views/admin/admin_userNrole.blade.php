@@ -1222,9 +1222,11 @@
 
                                                 <!-- Reset Password (requires reset_user_password permission) -->
                                                 @admin_can('reset_user_password')
-                                                <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Reset password for this user?')">
+                                                <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}" style="display: inline;" id="resetPasswordForm_{{ $user->id }}" onsubmit="return confirmResetPassword(event, this, '{{ $user->first_name }} {{ $user->last_name }}')">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset Password">
+                                                    <input type="hidden" name="new_password" id="new_password_{{ $user->id }}" value="">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" title="Reset Password" 
+                                                            onclick="promptNewPassword('{{ $user->id }}', '{{ $user->first_name }} {{ $user->last_name }}')">
                                                         <i class="fas fa-key"></i>
                                                     </button>
                                                 </form>
@@ -1244,169 +1246,7 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    <!-- Sample Data (only shown if no users and if user has view_users permission) -->
-                                    <tr>
-                                        <td class="ps-4">
-                                            <input type="checkbox" value="1" class="user-checkbox">
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="user-avatar me-2">JD</div>
-                                                <div>
-                                                    <div class="fw-semibold">Juan Dela Cruz</div>
-                                                    <small class="text-muted">ID: USR-001</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>juan.delacruz@barangay.gov.ph</td>
-                                        <td>
-                                            <span class="role-badge super_admin">Super Admin</span>
-                                        </td>
-                                        <td>Administration</td>
-                                        <td>Jan 1, 2020</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success">Active</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" title="View Details" data-bs-toggle="modal" data-bs-target="#viewUserModal1">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @admin_can('update_users')
-                                                <button type="button" class="btn btn-sm btn-outline-primary" title="Edit User" data-bs-toggle="modal" data-bs-target="#editUserModal1">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('manage_user_permissions')
-                                                <button type="button" class="btn btn-sm btn-outline-info" title="Manage Permissions" data-bs-toggle="modal" data-bs-target="#userPermissionsModal1">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('reset_user_password')
-                                                <form method="POST" action="#" style="display: inline;" onsubmit="return confirmDelete(event, 'Reset password for this user?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset Password">
-                                                        <i class="fas fa-key"></i>
-                                                    </button>
-                                                </form>
-                                                @endadmin_can
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <input type="checkbox" value="2" class="user-checkbox">
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="user-avatar me-2">MS</div>
-                                                <div>
-                                                    <div class="fw-semibold">Maria Santos</div>
-                                                    <small class="text-muted">ID: USR-002</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>maria.santos@barangay.gov.ph</td>
-                                        <td>
-                                            <span class="role-badge barangay_secretary">Secretary</span>
-                                        </td>
-                                        <td>Records Management</td>
-                                        <td>Mar 15, 2021</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success">Active</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" title="View Details" data-bs-toggle="modal" data-bs-target="#viewUserModal2">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @admin_can('update_users')
-                                                <button type="button" class="btn btn-sm btn-outline-primary" title="Edit User" data-bs-toggle="modal" data-bs-target="#editUserModal2">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('manage_user_permissions')
-                                                <button type="button" class="btn btn-sm btn-outline-info" title="Manage Permissions" data-bs-toggle="modal" data-bs-target="#userPermissionsModal2">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('reset_user_password')
-                                                <form method="POST" action="#" style="display: inline;" onsubmit="return confirmDelete(event, 'Reset password for this user?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset Password">
-                                                        <i class="fas fa-key"></i>
-                                                    </button>
-                                                </form>
-                                                @endadmin_can
-                                                @if(auth('admin')->user()->hasPermission('delete_users'))
-                                                <form method="POST" action="#" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this user permanently?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <input type="checkbox" value="3" class="user-checkbox">
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="user-avatar me-2">AG</div>
-                                                <div>
-                                                    <div class="fw-semibold">Anna Garcia</div>
-                                                    <small class="text-muted">ID: USR-003</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>anna.garcia@barangay.gov.ph</td>
-                                        <td>
-                                            <span class="role-badge staff">Staff</span>
-                                        </td>
-                                        <td>Administration</td>
-                                        <td>Jul 20, 2021</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success">Active</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" title="View Details" data-bs-toggle="modal" data-bs-target="#viewUserModal3">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @admin_can('update_users')
-                                                <button type="button" class="btn btn-sm btn-outline-primary" title="Edit User" data-bs-toggle="modal" data-bs-target="#editUserModal3">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('manage_user_permissions')
-                                                <button type="button" class="btn btn-sm btn-outline-info" title="Manage Permissions" data-bs-toggle="modal" data-bs-target="#userPermissionsModal3">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                </button>
-                                                @endadmin_can
-                                                @admin_can('reset_user_password')
-                                                <form method="POST" action="#" style="display: inline;" onsubmit="return confirmDelete(event, 'Reset password for this user?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset Password">
-                                                        <i class="fas fa-key"></i>
-                                                    </button>
-                                                </form>
-                                                @endadmin_can
-                                                @if(auth('admin')->user()->hasPermission('delete_users'))
-                                                <form method="POST" action="#" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this user permanently?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    
                                     @endforelse
                                 </tbody>
                             </table>
@@ -1764,6 +1604,81 @@
                     </div>
                 </div>
             </div>
+            @endadmin_can
+
+            <!-- RESET PASSWORD MODAL -->
+            @admin_can('reset_user_password')
+                <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-key me-2"></i>
+                                    Reset User Password
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="" id="resetPasswordForm">
+                                @csrf
+                                <div class="modal-body">
+                                    <div class="text-center mb-4">
+                                        <div class="user-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;" id="resetUserAvatar">JD</div>
+                                        <h5 id="resetUserName">Juan Dela Cruz</h5>
+                                        <span class="badge bg-info-subtle text-info" id="resetUserEmail">juan@example.com</span>
+                                    </div>
+
+                                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                                        <div>This will reset the user's password. They will receive an email with instructions to set a new password.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">New Password <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="password" id="resetPassword" required minlength="8">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPassword')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Minimum 8 characters</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="password_confirmation" id="resetPasswordConfirm" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPasswordConfirm')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="send_email" id="sendResetEmail" checked>
+                                        <label class="form-check-label" for="sendResetEmail">
+                                            Send password reset email to user
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="force_logout" id="forceLogout" checked>
+                                        <label class="form-check-label" for="forceLogout">
+                                            Force logout from all devices
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-key me-2"></i>Reset Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             @endadmin_can
 
             <!-- ADD ROLE MODAL -->
@@ -2572,6 +2487,111 @@
             });
         }
 
+        // Function to prompt for new password
+        function promptNewPassword(userId, userName) {
+            Swal.fire({
+                title: 'Reset Password for ' + userName,
+                html: `
+                    <div class="mb-3 text-start">
+                        <label class="form-label">New Password</label>
+                        <input type="password" id="new_password_input" class="form-control" placeholder="Enter new password" minlength="8">
+                        <small class="text-muted">Minimum 8 characters</small>
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="confirm_password_input" class="form-control" placeholder="Confirm new password">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Reset Password',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                preConfirm: () => {
+                    const password = document.getElementById('new_password_input');
+                    const confirm = document.getElementById('confirm_password_input');
+                    
+                    if (!password || !confirm) {
+                        Swal.showValidationMessage('Error finding input fields');
+                        return false;
+                    }
+                    
+                    if (!password.value) {
+                        Swal.showValidationMessage('Password is required');
+                        return false;
+                    }
+                    if (password.value.length < 8) {
+                        Swal.showValidationMessage('Password must be at least 8 characters');
+                        return false;
+                    }
+                    if (password.value !== confirm.value) {
+                        Swal.showValidationMessage('Passwords do not match');
+                        return false;
+                    }
+                    return password.value;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Check if the hidden input exists before setting value
+                    const hiddenInput = document.getElementById('new_password_' + userId);
+                    const form = document.getElementById('resetPasswordForm_' + userId);
+                    
+                    if (hiddenInput && form) {
+                        // Set the password in the hidden input
+                        hiddenInput.value = result.value;
+                        
+                        // Submit the form
+                        form.submit();
+                    } else {
+                        console.error('Form elements not found:', {
+                            hiddenInput: hiddenInput ? 'found' : 'not found',
+                            form: form ? 'found' : 'not found',
+                            userId: userId
+                        });
+                        
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Could not find form elements. Please try again or refresh the page.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Confirm reset password form submission
+        function confirmResetPassword(event, form, userName) {
+            event.preventDefault();
+            
+            const passwordInput = form.querySelector('input[name="new_password"]');
+            
+            if (!passwordInput.value) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter a new password',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+                return false;
+            }
+            
+            Swal.fire({
+                title: 'Reset Password',
+                html: `Are you sure you want to reset password for <strong>${userName}</strong>?<br><br>New password will be: <strong>${passwordInput.value}</strong>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, reset it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            
+            return false;
+        }
+
         // Auto-dismiss alerts after 5 seconds
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(alert => {
@@ -2611,6 +2631,28 @@
                     }
                 });
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle password reset success message
+            @if(session('success') && str_contains(session('success'), 'Password reset'))
+                Swal.fire({
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    icon: 'success',
+                    confirmButtonColor: '#28a745',
+                    timer: 5000
+                });
+            @endif
+            
+            @if(session('error') && str_contains(session('error'), 'password'))
+                Swal.fire({
+                    title: 'Error!',
+                    text: '{{ session('error') }}',
+                    icon: 'error',
+                    confirmButtonColor: '#d33'
+                });
+            @endif
         });
     </script>
 </body>

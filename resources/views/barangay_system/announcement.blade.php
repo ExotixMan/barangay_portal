@@ -852,7 +852,7 @@
 
                         @foreach($featured as $key => $item)
                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                <img src="{{ asset('announcement_pic/'.$item->image) }}" alt="{{ $item->title }}" class="carousel-image">
+                                <img src="{{ asset($item->image) }}" alt="{{ $item->title }}" class="carousel-image">
                                 <div class="carousel-content">
                                     <span class="category-badge">{{ ucfirst($item->category) }}</span>
                                     <h3>{{ $item->title }}</h3>

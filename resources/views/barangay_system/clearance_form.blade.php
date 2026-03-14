@@ -709,22 +709,7 @@
                 // Reset field style
                 field.style.borderColor = '#eee';
                 field.style.boxShadow = 'none';
-                
-                // Format the phone number as user types (add spaces for readability)
-                if (field.value.length > 0) {
-                    let formatted = field.value.replace(/\s/g, '');
-                    if (formatted.length > 4 && formatted.length <= 7) {
-                        formatted = formatted.slice(0, 4) + ' ' + formatted.slice(4);
-                    } else if (formatted.length > 7) {
-                        formatted = formatted.slice(0, 4) + ' ' + formatted.slice(4, 7) + ' ' + formatted.slice(7, 11);
-                    }
-                    
-                    // Only update if the formatted value is different
-                    if (formatted !== field.value) {
-                        field.value = formatted;
-                    }
-                }
-                
+
                 // Check if phone number is valid
                 if (field.value && !phoneRegex.test(cleanedNumber)) {
                     field.style.borderColor = '#ff4444';

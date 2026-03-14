@@ -258,7 +258,7 @@ class AdminUserController extends Controller
                 ->with('error', 'Failed to delete user.');
         }
     }
-
+    
     public function resetPassword(Request $request, $id)
     {
         $user = AdminUser::findOrFail($id);

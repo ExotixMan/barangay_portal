@@ -1252,20 +1252,6 @@
                         return;
                     }
                     
-                    // For radio buttons, check if any in the group is checked
-                    if (field.type === 'radio') {
-                        const radioName = field.name;
-                        const radioChecked = document.querySelector(`input[name="${radioName}"]:checked`);
-                        if (!radioChecked) {
-                            isValid = false;
-                            const radioGroup = field.closest('.form-group');
-                            if (radioGroup) {
-                                showFieldError(radioGroup.querySelector('label'), 'Please select an option');
-                            }
-                        }
-                        return;
-                    }
-                    
                     let fieldValue = field.value.trim();
                     
                     if (!fieldValue) {

@@ -602,6 +602,13 @@
                     field.style.boxShadow = 'none';
                 });
                 
+                // Reset upload areas styles
+                const uploadAreas = currentStepElement.querySelectorAll('.upload-area');
+                uploadAreas.forEach(area => {
+                    area.style.borderColor = '';
+                    area.style.backgroundColor = '';
+                });
+                
                 // Validate required fields
                 const requiredFields = currentStepElement.querySelectorAll('[required]');
                 
@@ -618,6 +625,14 @@
                         if (!field.files || field.files.length === 0) {
                             isValid = false;
                             showFieldError(field, 'This file is required');
+                            
+                            // Also highlight the upload area
+                            const uploadAreaId = field.id + 'Upload';
+                            const uploadArea = document.getElementById(uploadAreaId);
+                            if (uploadArea) {
+                                uploadArea.style.borderColor = '#ff4444';
+                                uploadArea.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+                            }
                             return;
                         }
                         
@@ -649,6 +664,10 @@
                     
                     // Validate name fields (first_name, middle_name, last_name) - allow Unicode letters, spaces, apostrophes, periods, commas, and hyphens
                     if (field.id === 'firstName' || field.id === 'middleName' || field.id === 'lastName') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         // Regex pattern matching your backend: allows Unicode letters, spaces, apostrophes, periods, commas, and hyphens
                         const nameRegex = /^[\p{L}\s'\.,-]+$/u;
                         if (!nameRegex.test(fieldValue)) {
@@ -657,13 +676,13 @@
                         }
                         
                         // Check minimum length
-                        if (fieldValue.length < 2) {
+                        else if (fieldValue.length < 2) {
                             isValid = false;
                             showFieldError(field, 'Name must be at least 2 characters long');
                         }
                         
                         // Check maximum length
-                        if (fieldValue.length > 255) {
+                        else if (fieldValue.length > 255) {
                             isValid = false;
                             showFieldError(field, 'Name must not exceed 255 characters');
                         }
@@ -671,6 +690,10 @@
                     
                     // Validate birth place
                     else if (field.id === 'birthPlace') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         const placeRegex = /^[\p{L}\s'\.,-]+$/u;
                         if (!placeRegex.test(fieldValue)) {
                             isValid = false;
@@ -680,6 +703,10 @@
                     
                     // Validate email format
                     else if (field.type === 'email') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!emailRegex.test(fieldValue)) {
                             isValid = false;
@@ -689,6 +716,10 @@
                     
                     // Validate phone number
                     else if (field.id === 'contactNumber') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         const phoneRegex = /^09\d{9}$/;
                         const cleanedNumber = fieldValue.replace(/\s/g, '');
                         if (!phoneRegex.test(cleanedNumber)) {
@@ -699,6 +730,10 @@
                     
                     // Validate household members
                     else if (field.id === 'householdMembers') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         const value = parseInt(fieldValue);
                         if (isNaN(value) || value < 1 || value > 20) {
                             isValid = false;
@@ -708,6 +743,10 @@
                     
                     // Validate date of birth (not in future)
                     else if (field.id === 'birthdate') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         const selectedDate = new Date(fieldValue);
                         const today = new Date();
                         if (selectedDate > today) {
@@ -726,6 +765,10 @@
                     
                     // Validate address
                     else if (field.id === 'address') {
+                        // Remove any existing error for this specific field first
+                        const fieldErrors = field.parentNode.querySelectorAll('.error-message');
+                        fieldErrors.forEach(error => error.remove());
+                        
                         if (fieldValue.length < 10) {
                             isValid = false;
                             showFieldError(field, 'Please enter a complete address');
@@ -738,11 +781,20 @@
                     const primaryProof = document.getElementById('primaryProof');
                     const governmentId = document.getElementById('governmentId');
                     
+                    // Remove existing file upload error messages first
+                    const primaryProofUpload = document.getElementById('primaryProofUpload');
+                    const governmentIdUpload = document.getElementById('governmentIdUpload');
+                    
+                    const primaryErrors = primaryProofUpload.parentNode.querySelectorAll('.error-message');
+                    primaryErrors.forEach(error => error.remove());
+                    
+                    const govErrors = governmentIdUpload.parentNode.querySelectorAll('.error-message');
+                    govErrors.forEach(error => error.remove());
+                    
                     if (!primaryProof.files || primaryProof.files.length === 0) {
                         isValid = false;
-                        const uploadArea = document.getElementById('primaryProofUpload');
-                        uploadArea.style.borderColor = '#ff4444';
-                        uploadArea.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+                        primaryProofUpload.style.borderColor = '#ff4444';
+                        primaryProofUpload.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
                         
                         // Add error message
                         const errorMessage = document.createElement('div');
@@ -752,14 +804,13 @@
                         errorMessage.style.marginTop = '10px';
                         errorMessage.style.textAlign = 'center';
                         errorMessage.textContent = 'Please upload your primary proof of residency';
-                        uploadArea.parentNode.appendChild(errorMessage);
+                        primaryProofUpload.parentNode.appendChild(errorMessage);
                     }
                     
                     if (!governmentId.files || governmentId.files.length === 0) {
                         isValid = false;
-                        const uploadArea = document.getElementById('governmentIdUpload');
-                        uploadArea.style.borderColor = '#ff4444';
-                        uploadArea.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+                        governmentIdUpload.style.borderColor = '#ff4444';
+                        governmentIdUpload.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
                         
                         // Add error message
                         const errorMessage = document.createElement('div');
@@ -769,7 +820,7 @@
                         errorMessage.style.marginTop = '10px';
                         errorMessage.style.textAlign = 'center';
                         errorMessage.textContent = 'Please upload your valid government ID';
-                        uploadArea.parentNode.appendChild(errorMessage);
+                        governmentIdUpload.parentNode.appendChild(errorMessage);
                     }
                 }
                 
@@ -780,7 +831,7 @@
                 const nameRegex = /^[\p{L}\s'\.,-]*$/u;
                 const value = field.value;
                 
-                // Remove any error message
+                // Remove any error message for this field only
                 const existingError = field.parentNode.querySelector('.error-message');
                 if (existingError) {
                     existingError.remove();
@@ -803,9 +854,8 @@
                     errorMessage.textContent = 'Name can only contain letters, spaces, apostrophes, periods, commas, and hyphens';
                     field.parentNode.appendChild(errorMessage);
                 }
-                
-                // Check length
-                if (value && value.length > 0 && value.length < 2) {
+                // Check length - use else if to prevent multiple error messages
+                else if (value && value.length > 0 && value.length < 2) {
                     field.style.borderColor = '#ff4444';
                     field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
                     
@@ -963,6 +1013,14 @@
             }
 
             function showFieldError(field, message) {
+                // Check if an error message already exists for this field
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    // If it exists, just update the text
+                    existingError.textContent = message;
+                    return;
+                }
+                
                 field.style.borderColor = '#ff4444';
                 field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
                 

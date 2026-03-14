@@ -18,79 +18,85 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 1%;
             font-family: 'Nunito', sans-serif;
         }
         .login-card {
             position: relative;
-            max-width: 480px;
+            max-width: 400px;
             width: 100%;
-            padding: 100px 40px 40px 40px;
-            margin: 0 20px;
+            padding: 70px 30px 30px 30px;
+            margin: 0 15px;
             border: 2px solid #e3342f;
-            border-radius: 12px;
+            border-radius: 10px;
             background-color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .login-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         .avatar {
             position: absolute;
-            top: -50px;
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background-color: #e3342f;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 48px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            font-size: 38px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .card-header {
             text-align: center;
             font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 25px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
             color: #333;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .input-group-text {
             background-color: #e3342f;
             color: #fff;
             border: none;
-            width: 50px;
+            width: 45px;
             justify-content: center;
+            padding: 0.5rem;
         }
         .form-control {
             border-left: none;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
         }
         .form-control:focus {
             border-color: #e3342f;
             box-shadow: 0 0 0 0.2rem rgba(227, 52, 47, 0.25);
         }
+        .form-control.is-invalid {
+            border-color: #e3342f;
+            background-image: none;
+        }
         .input-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.25rem;
         }
         .remember-forgot {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
-            margin-bottom: 25px;
+            margin-top: 5px;
+            margin-bottom: 20px;
             width: 100%;
         }
         .remember-forgot a {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #e3342f;
             text-decoration: none;
         }
@@ -101,56 +107,63 @@
             background-color: #e3342f;
             border-color: #e3342f;
             font-weight: 600;
-            padding: 0.75rem;
+            padding: 0.6rem;
             letter-spacing: 0.5px;
+            font-size: 0.95rem;
         }
         .btn-primary:hover {
             background-color: #cc1f1a;
             border-color: #cc1f1a;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(227, 52, 47, 0.4);
+            box-shadow: 0 5px 10px rgba(227, 52, 47, 0.3);
         }
         .btn-primary:focus {
             box-shadow: 0 0 0 .2rem rgba(227, 52, 47, 0.5);
         }
         .alert {
-            border-radius: 8px;
+            border-radius: 6px;
             border: none;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
+            margin-bottom: 1.2rem;
+            padding: 0.75rem;
+            font-size: 0.9rem;
         }
         .alert-danger {
             background-color: #f8d7da;
             color: #721c24;
-            border-left: 4px solid #e3342f;
+            border-left: 3px solid #e3342f;
         }
         .alert-success {
             background-color: #d4edda;
             color: #155724;
-            border-left: 4px solid #28a745;
+            border-left: 3px solid #28a745;
         }
-        .invalid-feedback {
+        .field-error {
             display: block;
-            margin-top: 0.25rem;
-            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
             color: #e3342f;
+            padding-left: 48px;
         }
         .form-check-input:checked {
             background-color: #e3342f;
             border-color: #e3342f;
         }
+        .form-check-input {
+            margin-top: 0.15rem;
+        }
         hr {
-            margin: 1.5rem 0;
-            opacity: 0.2;
+            margin: 1rem 0;
+            opacity: 0.15;
         }
         .secure-text {
             text-align: center;
             color: #6c757d;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .secure-text i {
             color: #e3342f;
-            margin-right: 5px;
+            margin-right: 4px;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -164,19 +177,21 @@
         ADMIN LOGIN
     </div>
     
-    <div class="card-body">
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {{ $errors->first('email') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        
+    <div class="card-body p-0">
+        <!-- Show only status messages, not validation errors -->
         @if(session('status'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle-fill me-2"></i>
                 {{ session('status') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        
+        <!-- Show a single summary error if needed (optional - remove if you don't want it) -->
+        @if($errors->any() && !$errors->has('email') && !$errors->has('password'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ $errors->first() }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
@@ -187,7 +202,7 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
                 <input type="email" 
-                       class="form-control form-control-lg @error('email') is-invalid @enderror" 
+                       class="form-control @error('email') is-invalid @enderror" 
                        id="email" 
                        name="email" 
                        value="{{ old('email') }}" 
@@ -196,28 +211,28 @@
                        autofocus>
             </div>
             @error('email')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
+                <div class="field-error">
+                    <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+                </div>
             @enderror
             
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
                 <input type="password" 
-                       class="form-control form-control-lg @error('password') is-invalid @enderror" 
+                       class="form-control @error('password') is-invalid @enderror" 
                        id="password" 
                        name="password" 
                        placeholder="Password" 
                        required>
             </div>
             @error('password')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
+                <div class="field-error">
+                    <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+                </div>
             @enderror
             
             <div class="remember-forgot">
-                <div class="form-check mb-0">
+                <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="remember" 
                            id="remember" {{ old('remember') ? 'checked' : '' }}>
                     <label class="form-check-label" for="remember">
@@ -226,14 +241,14 @@
                 </div>
                 
                 @if (Route::has('admin.password.request'))
-                    <a href="/forgot-password" id="forgotLink">
+                    <a href="{{ route('admin.password.request') }}" id="forgotLink">
                         Forgot Password?
                     </a>
                 @endif
             </div>
             
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">
+                <button type="submit" class="btn btn-primary">
                     <i class="bi bi-box-arrow-in-right me-2"></i>Login
                 </button>
             </div>
