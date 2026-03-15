@@ -100,7 +100,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.7);
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-item:hover .carousel-image {
+            transform: scale(1.05);
         }
 
         .carousel-content {
@@ -111,12 +115,25 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.9));
             color: white;
             padding: 40px;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            pointer-events: none;
         }
 
         .carousel-item:hover .carousel-content {
-            transform: translateY(-5px);
+            background: linear-gradient(transparent, rgba(198, 40, 40, 0.95));
+            padding-bottom: 50px;
+        }
+
+        .carousel-content .read-more-btn {
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-item:hover .carousel-content .read-more-btn {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .category-badge {
@@ -249,13 +266,58 @@
             border: 1px solid #f0f0f0;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .header-left h2 {
             font-size: 2.2rem;
             color: #C62828;
-            margin-bottom: 10px;
+            margin-bottom: 0;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        /* Refresh Button Styles */
+        .refresh-btn {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            max-width: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(198, 40, 40, 0.3);
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg);
+            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.4);
+        }
+
+        .refresh-btn i {
+            transition: transform 0.5s ease;
+        }
+
+        .refresh-btn:hover i {
+            transform: rotate(180deg);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
         }
 
         .result-count {
@@ -324,16 +386,28 @@
             box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
         }
 
-        /* Announcement Cards */
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Fixed Card Styles - Equal height and balanced */
         .announcement-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             background: white;
             border-radius: 15px;
             overflow: hidden;
             transition: all 0.3s ease;
             border: 1px solid #eee;
             position: relative;
-            margin-bottom: 30px;
-            height: 100%;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
@@ -365,10 +439,18 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .announcement-card:hover .announcement-image {
+            transform: scale(1.05);
         }
 
         .announcement-content {
             padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .announcement-category {
@@ -380,6 +462,7 @@
             font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 15px;
+            align-self: flex-start;
         }
 
         .announcement-category.important {
@@ -413,6 +496,11 @@
             margin-bottom: 15px;
             font-weight: 600;
             line-height: 1.4;
+            min-height: 3.6rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .announcement-content p {
@@ -420,6 +508,7 @@
             font-size: 0.95rem;
             line-height: 1.6;
             margin-bottom: 20px;
+            flex: 1;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -432,6 +521,7 @@
             align-items: center;
             padding-top: 20px;
             border-top: 1px solid #eee;
+            margin-top: auto;
         }
 
         .meta-info {
@@ -480,6 +570,21 @@
             text-decoration: none;
         }
 
+        /* Ensure cards in same row have equal height */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-lg-4, .col-md-6 {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .col-lg-4 > *, .col-md-6 > * {
+            flex: 1;
+        }
+
         .pagination .page-link {
             border-radius: 8px;
             margin: 0 4px;
@@ -491,7 +596,6 @@
             color: white;
             border-color: #C62828;
         }
-
 
         /* Load More Button */
         .load-more-container {
@@ -574,6 +678,11 @@
             box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
         }
 
+        /* Keyframe for refresh spin */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
         /* Responsive Design */
         @media (max-width: 1200px) {
@@ -630,6 +739,18 @@
             
             .header-left h2 {
                 font-size: 1.8rem;
+            }
+
+            .col-lg-6 .d-flex {
+                flex-wrap: wrap;
+            }
+            
+            .refresh-btn {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                max-width: 36px;
+                font-size: 1rem;
             }
         }
 
@@ -863,9 +984,6 @@
                                             <span>{{ date('M d, Y', strtotime($item->published_at)) }}</span>
                                         </div>
                                     </div>
-                                    <a href="{{ route('announcements.show',$item->slug) }}" class="read-more-btn">
-                                        Read More <i class="fas fa-arrow-right"></i>
-                                    </a>
                                 </div>
                             </div>
                         @endforeach
@@ -903,8 +1021,8 @@
                     </div>
                     
                     <div class="col-lg-6">
-                        <div class="header-right">
-                            <form method="GET" action="{{ route('announcements') }}#announcements" class="d-flex gap-3 w-100">
+                        <div class="d-flex align-items-center gap-2 justify-content-end">
+                            <form method="GET" action="{{ route('announcements') }}#announcements" class="d-flex gap-2 flex-wrap flex-sm-nowrap">
                                 <div class="search-box">
                                     <i class="fas fa-search"></i>
                                     <input
@@ -934,8 +1052,12 @@
                                         </option>
                                     </select>
                                 </div>
-
                             </form>
+
+                            <button class="refresh-btn" id="refreshAnnouncements" title="Refresh Announcements">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+
                         </div>
                     </div>
                 </div>
@@ -956,11 +1078,7 @@
                                     <div class="announcement-meta">
                                         <div class="meta-info">
                                             <span class="meta-date">{{ date('M d, Y', strtotime($item->published_at)) }}</span>
-                                            <span class="meta-views"><i class="fas fa-eye"></i> {{ $item->views }}</span>
                                         </div>
-                                        <a href="{{ route('announcements.show',$item->slug) }}" class="view-btn">
-                                            View <i class="fas fa-arrow-right"></i>
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -1185,7 +1303,6 @@
             const total = items.length;
 
             function showSlide(index) {
-
                 items.forEach(item => item.classList.remove("active"));
                 dots.forEach(dot => dot.classList.remove("active"));
 
@@ -1219,8 +1336,54 @@
             // Auto slide (optional)
             setInterval(nextSlide, 6000);
 
+            // Refresh button functionality
+            const refreshBtn = document.getElementById('refreshAnnouncements');
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const icon = this.querySelector('i');
+                    
+                    // Add spinning animation
+                    icon.style.animation = 'spin 0.5s ease-in-out';
+                    
+                    // Get current URL
+                    const url = new URL(window.location.href);
+                    
+                    // Add a random parameter to bypass cache but keep existing filters
+                    url.searchParams.set('_', Date.now());
+                    
+                    // Redirect to same URL with cache-busting parameter
+                    setTimeout(() => {
+                        window.location.href = url.toString();
+                    }, 300);
+                });
+
+                // Remove animation after it completes
+                refreshBtn.addEventListener('animationend', function() {
+                    const icon = this.querySelector('i');
+                    icon.style.animation = '';
+                });
+            }
+
+            // Reset filters button functionality
+            const resetFilters = document.getElementById('resetFilters');
+            if (resetFilters) {
+                resetFilters.addEventListener('click', function() {
+                    window.location.href = window.location.pathname + '#announcements';
+                });
+            }
+
+            // Check if there are no results and show message
+            const announcementsGrid = document.getElementById('announcementsGrid');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            
+            if (announcementsGrid && announcementsGrid.children.length === 0 && noResultsMessage) {
+                noResultsMessage.style.display = 'block';
+            }
         });
-        </script>
+    </script>
 
 </body>
 </html>

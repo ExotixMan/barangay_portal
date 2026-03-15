@@ -32,30 +32,27 @@
 
         /* Mission Vision Page Styles */
         .page-hero {
-            background: linear-gradient(135deg, #C62828 0%, #d32f2f 50%, #C62828 100%);
+            background: linear-gradient(135deg, rgba(198, 40, 40, 0.9), rgba(122, 35, 35, 0.9)), 
+                        url('https://images.unsplash.com/photo-1590691565924-90d0a14443a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=600&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
             padding: 140px 0 80px;
             text-align: center;
-            color: white;
             position: relative;
-            overflow: hidden;
         }
 
-        .page-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>') repeat;
-            background-size: 100px 100px;
+        .page-hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         .page-hero h1 {
             font-size: 3rem;
             font-weight: 700;
-            margin-bottom: 1rem;
-            position: relative;
+            margin-bottom: 20px;
+            line-height: 1.2;
         }
 
         .page-hero p {
@@ -63,7 +60,6 @@
             opacity: 0.9;
             max-width: 600px;
             margin: 0 auto;
-            position: relative;
         }
 
         .breadcrumb-custom {
@@ -508,15 +504,8 @@
 
     <!-- Page Hero -->
     <section class="page-hero">
-        <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-custom">
-                    <li class="breadcrumb-item"><a href="homepage.html"><i class="fas fa-home"></i> Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">About</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Mission & Vision</li>
-                </ol>
-            </nav>
-            <h1><i class="fas fa-bullseye me-3"></i>Mission & Vision</h1>
+        <div class="page-hero-content">
+            <h1><i class="fas fa-bullseye me-3"></i> Mission & Vision</h1>
             <p>Guided by our commitment to serve, we strive to build a progressive and harmonious community for all residents of Barangay Hulong Duhat.</p>
         </div>
     </section>

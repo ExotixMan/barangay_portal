@@ -1543,7 +1543,7 @@
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h2 class="section-header latann">Latest Updates</h2>
-                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('announcements')}}" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 mb-4 mb-lg-0">
@@ -1576,7 +1576,6 @@
                                                             </div>
                                                             <h3>{{ $item->title ?? 'Barangay Announcement' }}</h3>
                                                             <p>{{ Str::limit($item->content ?? $item->description ?? 'Stay tuned for important updates from your barangay.', 150) }}</p>
-                                                            <a href="{{ route('announcements.show', $item->id ?? '#') }}" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
                                                         </div>
                                                     @endforeach
                                                 </div>

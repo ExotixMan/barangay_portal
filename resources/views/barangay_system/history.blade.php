@@ -785,7 +785,7 @@
     <!-- Hero Section -->
     <section class="history-hero">
         <div class="history-hero-content">
-            <h1>History of Barangay Hulong Duhat</h1>
+            <h1><i class="fa-solid fa-landmark-flag"></i> History of Barangay Hulong Duhat</h1>
             <p>Discover our journey from a small settlement to a thriving community</p>
         </div>
     </section>

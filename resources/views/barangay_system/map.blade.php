@@ -622,7 +622,7 @@
     <!-- Hero Section -->
     <section class="history-hero">
         <div class="history-hero-content">
-            <h1>Barangay Hulong Duhat Interactive Map</h1>
+            <h1><i class="fa-solid fa-map-location-dot"></i> Barangay Hulong Duhat Interactive Map</h1>
             <p>Explore important locations and navigate through our community with this interactive map.</p>
         </div>
     </section>
