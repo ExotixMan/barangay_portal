@@ -530,7 +530,11 @@
             }
         }
 
-        @media (max-width: 768px) {    
+        @media (max-width: 768px) { 
+            .steps-container{
+                grid-template-columns: 1fr;
+            }   
+            
             .action-cards-grid {
                 grid-template-columns: 1fr;
             }

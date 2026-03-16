@@ -1293,7 +1293,7 @@
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
-                        <div class="step-icon">
+                        <div class="step-icon">s
                             <i class="fas fa-credit-card"></i>
                         </div>
                         <h3>Pay Fees</h3>
