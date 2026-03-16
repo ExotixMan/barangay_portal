@@ -347,16 +347,16 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/send-sms', [NotificationController::class, 'sendSMS'])->middleware('permission:send_sms')->name('sendSMS');
     });
 
-    // ==================== REQUEST STATUS MODULE ====================
-    Route::prefix('requests')->name('request.')->group(function () {
-        Route::get('/', [RequestStatusController::class, 'index'])->middleware('permission:view_requests')->name('index');
-        Route::get('/{request_id}', [RequestStatusController::class, 'show'])->middleware('permission:view_requests')->name('view');
-        Route::get('/{request_id}/edit', [RequestStatusController::class, 'edit'])->middleware('permission:update_requests')->name('edit');
-        Route::put('/{request_id}', [RequestStatusController::class, 'update'])->middleware('permission:update_requests')->name('update');
-        Route::delete('/{request_id}', [RequestStatusController::class, 'destroy'])->middleware('permission:delete_requests')->name('delete');
-        Route::post('/send-email', [RequestStatusController::class, 'sendEmail'])->middleware('permission:send_request_email')->name('sendEmail');
-        Route::post('/send-sms', [RequestStatusController::class, 'sendSMS'])->middleware('permission:send_request_sms')->name('sendSMS');
-    });
+    // // ==================== REQUEST STATUS MODULE ====================
+    // Route::prefix('requests')->name('request.')->group(function () {
+    //     Route::get('/', [RequestStatusController::class, 'index'])->middleware('permission:view_requests')->name('index');
+    //     Route::get('/{request_id}', [RequestStatusController::class, 'show'])->middleware('permission:view_requests')->name('view');
+    //     Route::get('/{request_id}/edit', [RequestStatusController::class, 'edit'])->middleware('permission:update_requests')->name('edit');
+    //     Route::put('/{request_id}', [RequestStatusController::class, 'update'])->middleware('permission:update_requests')->name('update');
+    //     Route::delete('/{request_id}', [RequestStatusController::class, 'destroy'])->middleware('permission:delete_requests')->name('delete');
+    //     Route::post('/send-email', [RequestStatusController::class, 'sendEmail'])->middleware('permission:send_request_email')->name('sendEmail');
+    //     Route::post('/send-sms', [RequestStatusController::class, 'sendSMS'])->middleware('permission:send_request_sms')->name('sendSMS');
+    // });
 
     // ==================== ADMIN USER MANAGEMENT ====================
     Route::prefix('users')->name('users.')->group(function () {
@@ -390,4 +390,38 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/role/{roleId}', [AdminPermissionController::class, 'updateRolePermissions'])->middleware('permission:update_permissions')->name('update-role');
         Route::post('/reset-defaults', [AdminPermissionController::class, 'resetToDefault'])->middleware('permission:reset_permission_defaults')->name('reset-defaults');
     });
+});
+use Illuminate\Support\Facades\Http;
+// Add to routes/web.php
+Route::get('/debug-semaphore', function() {
+    $apiKey = env('SMS_API_KEY');
+    
+    // Test with minimal payload
+    $payload = [
+        'apikey' => $apiKey,
+        'number' => '639994086683', // Replace with your actual test number
+        'message' => 'Test message',
+    ];
+    
+    try {
+        $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
+        
+        $result = [
+            'status_code' => $response->status(),
+            'headers' => $response->headers(),
+            'body_raw' => $response->body(),
+            'body_json' => $response->json(),
+            'successful' => $response->successful(),
+            'failed' => $response->failed(),
+            'client_error' => $response->clientError(),
+            'server_error' => $response->serverError(),
+        ];
+        
+        dd($result);
+    } catch (\Exception $e) {
+        dd([
+            'exception' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
 });
