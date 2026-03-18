@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     
     <style>
         * {
@@ -923,395 +924,6 @@
                 justify-content: center;
             }
         }
-        /* ===== DARK MODE STYLES ===== */
-        :root {
-            --bg-primary: #ffffff;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --card-bg: #ffffff;
-            --border-color: #eeeeee;
-            --hero-overlay: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6));
-        }
-
-        body.dark-mode {
-            --bg-primary: #121212;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --card-bg: #1e1e1e;
-            --border-color: #333333;
-            --hero-overlay: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8));
-            
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        /* Navbar Dark Mode */
-        body.dark-mode .navbar {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
-        }
-
-        body.dark-mode .dropdown-menu {
-            background-color: #2d2d2d;
-            border-color: #444444;
-        }
-
-        body.dark-mode .dropdown-item {
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .dropdown-item:hover {
-            background-color: #3d3d3d;
-            color: #ffffff;
-        }
-
-        body.dark-mode .dropdown-divider {
-            border-top-color: #444444;
-        }
-
-        /* Hero Section Dark Mode */
-        body.dark-mode .hero {
-            background: var(--hero-overlay), url('Images/homepage-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
-        body.dark-mode .hero-content h1 {
-            color: #ffffff;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-        }
-
-        body.dark-mode .hero-content p {
-            color: rgba(255,255,255,0.9);
-        }
-
-        body.dark-mode .stat-item i {
-            color: #C62828;
-        }
-
-        body.dark-mode .stat-number {
-            color: #ffffff;
-        }
-
-        body.dark-mode .stat-label {
-            color: rgba(255,255,255,0.8);
-        }
-
-        /* Quick Access Section Dark Mode */
-        body.dark-mode .quick-access {
-            background: #1a1a1a;
-        }
-
-        body.dark-mode .quick-card {
-            background: var(--card-bg);
-            color: var(--text-primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        body.dark-mode .quick-card p {
-            color: var(--text-secondary);
-        }
-
-        /* Announcements & Events Section Dark Mode */
-        body.dark-mode .announcements-events {
-            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-        }
-
-        body.dark-mode .announcements-events .container {
-            background: var(--card-bg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        body.dark-mode .ann {
-            color: var(--text-primary);
-        }
-
-        body.dark-mode .latann {
-            color: #C62828;
-        }
-
-        body.dark-mode .view-all {
-            color: #C62828;
-        }
-
-        body.dark-mode .announcement-item,
-        body.dark-mode .event-item {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        body.dark-mode .announcement-item:hover,
-        body.dark-mode .event-item:hover {
-            border-color: #C62828;
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.2);
-        }
-
-        body.dark-mode .announcement-item h3,
-        body.dark-mode .event-details h3 {
-            color: var(--text-primary);
-        }
-
-        body.dark-mode .announcement-item p,
-        body.dark-mode .event-location,
-        body.dark-mode .event-time {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .date {
-            color: #C62828;
-        }
-
-        body.dark-mode .event-date {
-            background: #C62828;
-        }
-
-        body.dark-mode .arrow-btn {
-            background: #2d2d2d;
-            border-color: #444444;
-            color: #C62828;
-        }
-
-        body.dark-mode .arrow-btn:hover {
-            background: #C62828;
-            color: #ffffff;
-            border-color: #C62828;
-        }
-
-        body.dark-mode .dot {
-            background: #444444;
-        }
-
-        body.dark-mode .dot.active {
-            background: #C62828;
-        }
-
-        /* About Section Dark Mode */
-        body.dark-mode .about-section {
-            background: linear-gradient(135deg, #1a1a1a 0%, #121212 100%);
-        }
-
-        body.dark-mode .about-section .container {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-
-        body.dark-mode .text-content h2 {
-            color: #C62828;
-        }
-
-        body.dark-mode .text-content p {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .feature-item {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .feature-item i {
-            color: #C62828;
-        }
-
-        body.dark-mode .section-links {
-            color: #C62828;
-        }
-
-        body.dark-mode .image-overlay {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-        }
-
-        /* Services & Community Section Dark Mode */
-        body.dark-mode .services-community {
-            background: #C62828;
-        }
-
-        body.dark-mode .service-card,
-        body.dark-mode .community-card {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        body.dark-mode .service-card h2,
-        body.dark-mode .community-card h2 {
-            color: #C62828;
-        }
-
-        body.dark-mode .service-card p,
-        body.dark-mode .community-card p {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .service-list {
-            background: #2d2d2d;
-        }
-
-        body.dark-mode .service-list li {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .community-highlights {
-            background: #2d2d2d;
-        }
-
-        body.dark-mode .highlight {
-            background: var(--card-bg);
-            color: var(--text-secondary);
-            border-left-color: #C62828;
-        }
-
-        body.dark-mode .snc-links {
-            color: #C62828;
-        }
-
-        /* Report & Contact Section Dark Mode */
-        body.dark-mode .report-contact {
-            background: #1a1a1a;
-        }
-
-        body.dark-mode .report-contact .container {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        body.dark-mode .report-card h2 {
-            color: #C62828;
-        }
-
-        body.dark-mode .report-card p {
-            color: var(--text-secondary);
-        }
-
-        body.dark-mode .report-type {
-            background: #2d2d2d;
-            color: var(--text-secondary);
-            border-color: var(--border-color);
-        }
-
-        /* Footer Dark Mode */
-        body.dark-mode footer {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
-        }
-
-        body.dark-mode .footer-section h3 {
-            color: #C62828;
-        }
-
-        body.dark-mode .footer-link {
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .footer-link:hover {
-            color: #C62828;
-        }
-
-        body.dark-mode .contact-row {
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .contact-row a {
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .contact-row a:hover {
-            color: #C62828;
-        }
-
-        body.dark-mode .emergency-item {
-            background: rgba(255,255,255,0.05);
-        }
-
-        body.dark-mode .emergency-label {
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .emergency-number {
-            color: #C62828;
-        }
-
-        body.dark-mode .social-icons a {
-            background: rgba(255,255,255,0.1);
-            color: #b0b0b0;
-        }
-
-        body.dark-mode .social-icons a:hover {
-            background: #C62828;
-            color: #ffffff;
-        }
-
-        body.dark-mode .footer-bottom {
-            border-top-color: #333333;
-        }
-
-        body.dark-mode .copyright-info {
-            color: #888888;
-        }
-
-        /* FAB Button Dark Mode */
-        body.dark-mode .fab-action {
-            background: #333333 !important;
-            color: #ffffff !important;
-            border-color: #444444 !important;
-        }
-
-        body.dark-mode .fab-main {
-            background: #C62828 !important;
-        }
-
-        body.dark-mode .back-to-top {
-            background: #C62828 !important;
-        }
-
-        /* Chat Modal Dark Mode */
-        body.dark-mode .chat-modal-content {
-            background: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        body.dark-mode .chat-modal-header {
-            background: #C62828;
-        }
-
-        /* User Dropdown Dark Mode */
-        body.dark-mode .user-dropdown-btn {
-            background: #C62828;
-            color: #ffffff;
-        }
-
-        body.dark-mode .user-dropdown-btn:hover {
-            background: #b71c1c;
-        }
-
-        /* Mobile Menu Dark Mode */
-        body.dark-mode .navbar-toggler {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        /* Bootstrap Components Dark Mode */
-        body.dark-mode .border-top {
-            border-top-color: #333333 !important;
-        }
-
-        body.dark-mode .bg-secondary {
-            background-color: #444444 !important;
-        }
-
-        /* Responsive Dark Mode Adjustments */
-        @media (max-width: 768px) {
-            body.dark-mode .navbar-collapse {
-                background: #1a1a1a;
-            }
-        }
-
-        /* Loading States */
-        body.dark-mode .carousel-item {
-            transition: background-color 0.3s ease;
-        }
-
-        /* Smooth Transitions */
-        body.dark-mode,
-        body.dark-mode * {
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-        }
     </style>
 </head>
 <body>
@@ -1322,11 +934,11 @@
             <div class="nav-logo">
                 <div class="logo"></div>
                 <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
+                    <span class="logo-title d-block">{{ __('messages.nav_brand_part1') }}</span>
+                    <span class="logo-subtitle d-block">{{ __('messages.nav_brand_part2') }} Portal</span>
                 </div>
                 <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+                    <span class="logo-subtitle">{{ __('messages.nav_brand_part2') }}</span>
                 </div>
             </div>
             
@@ -1339,57 +951,57 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
+                        <a class="nav-link active" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> {{ __('messages.nav_home') }}</a>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
+                            <i class="fas fa-info-circle"></i> {{ __('messages.nav_about') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
+                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> {{ __('messages.nav_history') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> {{ __('messages.nav_mission_vision') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> {{ __('messages.nav_barangay_map') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> {{ __('messages.nav_barangay_officials') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
+                            <i class="fas fa-concierge-bell"></i> {{ __('messages.nav_services_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
+                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> {{ __('messages.nav_all_services') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
+                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> {{ __('messages.nav_track_request') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
+                            <i class="fas fa-users"></i> {{ __('messages.nav_community_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
+                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> {{ __('messages.nav_announcements') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> {{ __('messages.nav_events_projects') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
+                            <i class="fas fa-exclamation-circle"></i> {{ __('messages.nav_report_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> {{ __('messages.nav_blotter_report') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
+                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> {{ __('messages.nav_contact') }}</a>
                     </li>
                     
                     <!-- LogIn-LogOut Actions -->
@@ -1402,11 +1014,11 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
                                         </a>
                                     </li>
                                 </ul>
@@ -1417,7 +1029,7 @@
                             </form>
                         @else
                             <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
+                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
                             </a>
                         @endauth
                     </li>
@@ -1430,11 +1042,11 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
                                         </a>
                                     </li>
                                 </ul>
@@ -1444,7 +1056,7 @@
                             </form>
                         @else
                             <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
+                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
                             </a>
                         @endauth
                     </li>
@@ -1542,14 +1154,14 @@
         <section class="announcements-events">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h2 class="section-header latann">Latest Updates</h2>
-                    <a href="{{ route('announcements')}}" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                    <h2 class="section-header latann">{{ __('messages.index_latest_updates_title') }}</h2>
+                    <a href="{{ route('announcements')}}" class="view-all">{{ __('messages.index_view_all_btn') }} <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 mb-4 mb-lg-0">
                         <div class="announcements-card card-hover">
                             <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0 ann"><i class="fas fa-bullhorn"></i> Announcements</h2>
+                                <h2 class="m-0 ann"><i class="fas fa-bullhorn"></i> {{ __('messages.index_announcements_card_header') }}</h2>
                                 <div class="announcement-counter">
                                     @isset($announcements)
                                         {{ count($announcements) }}+ New
@@ -1618,7 +1230,7 @@
                     <div class="col-lg-6">
                         <div class="events-card card-hover">
                             <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0 ann"><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+                                <h2 class="m-0 ann"><i class="fas fa-calendar-alt"></i> {{ __('messages.index_upcoming_events_title') }}</h2>
                                 <div class="events-counter">{{ $events->count() ?? 0 }}+ Events</div>
                             </div>
                             
@@ -1716,7 +1328,7 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6 mb-4 mb-lg-0">
                         <div class="text-content">
-                            <h2>About Barangay Hulo</h2>
+                            <h2>{{ __('messages.index_about_title') }}</h2>
                             <p>{{ __('messages.learn_more') }}</p>
                             <div class="feature-list">
                                 <div class="feature-item">
@@ -1755,7 +1367,7 @@
                         <div class="service-card card-hover">
                             <div class="card-header">
                                 <i class="fas fa-concierge-bell card-icon"></i>
-                                <h2>Services</h2>
+                                <h2>{{ __('messages.index_services_card_title') }}</h2>
                             </div>
                             <p>{{ __('messages.services_info') }}</p>
                             <ul class="service-list">
@@ -1771,7 +1383,7 @@
                         <div class="community-card card-hover">
                             <div class="card-header">
                                 <i class="fas fa-users card-icon"></i>
-                                <h2>Community</h2>
+                                <h2>{{ __('messages.index_community_card_title') }}</h2>
                             </div>
                             <p>{{ __('messages.community_info') }}</p>
                             <div class="community-highlights">
@@ -1799,7 +1411,7 @@
                         <div class="report-card card-hover">
                             <div class="card-header text-center mb-4">
                                 <i class="fas fa-exclamation-circle card-icon mb-3"></i>
-                                <h2>Report a Concern</h2>
+                                <h2>{{ __('messages.index_report_title') }}</h2>
                             </div>
                             <p class="text-center">{{ __('messages.incident_info') }}</p>
                             <div class="report-types">
@@ -1809,7 +1421,7 @@
                                 <span class="report-type">Safety Concern</span>
                             </div>
                             <div class="text-center">
-                                <a href="{{ route('incident') }}"><button class="section-btn"><i class="fas fa-paper-plane"></i> Report Now</button></a>
+                                <a href="{{ route('incident') }}"><button class="section-btn"><i class="fas fa-paper-plane"></i> {{ __('messages.index_report_now_btn') }}</button></a>
                             </div>
                         </div>
                     </div>
@@ -1823,7 +1435,7 @@
         <div class="chat-modal-content">
             <div class="chat-modal-header">
                 <div class="chat-modal-title">
-                    InfoHulo Assistant
+                    {{ __('messages.chat_modal_title') }}
                 </div>
                 <button class="chat-modal-close" id="closeChat">
                     <i class="fas fa-times"></i>
@@ -1846,9 +1458,9 @@
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="translateBtn" title="Translate Text">
                 @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
+                    <span>{{ __('messages.fab_switch_to_filipino') }}</span>
                 @else
-                    <span>English</span>
+                    <span>{{ __('messages.fab_switch_to_english') }}</span>
                 @endif
             </button>
             <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">

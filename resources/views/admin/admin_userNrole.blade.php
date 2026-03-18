@@ -1518,9 +1518,9 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.users.store') }}" id="addUserForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.users.store') }}" id="addUserForm">
                             @csrf
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <h6 class="fw-semibold text-primary">Personal Information</h6>
@@ -1591,16 +1591,16 @@
                                         </div>
                                     </div>
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" form="addUserForm" class="btn btn-success">
                                     <i class="fas fa-save me-2"></i>Create User
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1618,9 +1618,9 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="" id="resetPasswordForm">
+                            <div class="modal-body">
+                                <form method="POST" action="" id="resetPasswordForm">
                                 @csrf
-                                <div class="modal-body">
                                     <div class="text-center mb-4">
                                         <div class="user-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;" id="resetUserAvatar">JD</div>
                                         <h5 id="resetUserName">Juan Dela Cruz</h5>
@@ -1666,16 +1666,16 @@
                                             Force logout from all devices
                                         </label>
                                     </div>
+                                </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-warning">
+                                    <button type="submit" form="resetPasswordForm" class="btn btn-warning">
                                         <i class="fas fa-key me-2"></i>Reset Password
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -1693,9 +1693,9 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.roles.store') }}" id="addRoleForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.roles.store') }}" id="addRoleForm">
                             @csrf
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Role Name <span class="text-danger">*</span></label>
@@ -1788,16 +1788,16 @@
                                     </div>
                                     @endif
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" form="addRoleForm" class="btn btn-success">
                                     <i class="fas fa-save me-2"></i>Create Role
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1893,10 +1893,10 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.users.update', $user->id) }}" id="editUserForm{{ $user->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.users.update', $user->id) }}" id="editUserForm{{ $user->id }}">
                                 @csrf
                                 @method('PUT')
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <h6 class="fw-semibold text-primary">Personal Information</h6>
@@ -1956,16 +1956,16 @@
                                             </select>
                                         </div>
                                     </div>
+                                </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" form="editUserForm{{ $user->id }}" class="btn btn-primary">
                                         <i class="fas fa-save me-2"></i>Update User
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -1986,10 +1986,10 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.users.permissions', $user->id) }}" id="userPermissionsForm{{ $user->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.users.permissions', $user->id) }}" id="userPermissionsForm{{ $user->id }}">
                                 @csrf
                                 @method('PUT')
-                                <div class="modal-body">
                                     <div class="mb-4">
                                         <div class="d-flex align-items-center gap-3 mb-3">
                                             <div class="user-avatar">{{ substr($user->first_name ?? 'J', 0, 1) }}{{ substr($user->last_name ?? 'D', 0, 1) }}</div>
@@ -2066,16 +2066,16 @@
                                         </div>
                                         @endforeach
                                     </div>
+                                </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-success">
+                                    <button type="submit" form="userPermissionsForm{{ $user->id }}" class="btn btn-success">
                                         <i class="fas fa-save me-2"></i>Save Permissions
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2097,10 +2097,10 @@
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form method="POST" action="{{ route('admin.roles.update', $role->id) }}">
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ route('admin.roles.update', $role->id) }}" id="editRoleForm{{ $role->id }}">
                                     @csrf
                                     @method('PUT')
-                                    <div class="modal-body">
                                         <div class="row g-3">
                                             @if($role->is_system_role)
                                             <div class="col-12">
@@ -2222,15 +2222,16 @@
                                             @endif
                                         </div>
                                     </div>
+                                    </form>
+                                    </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                             <i class="fas fa-times me-2"></i>Cancel
                                         </button>
-                                        <button type="submit" class="btn btn-primary" {{ $role->is_system_role ? 'disabled' : '' }}>
+                                        <button type="submit" form="editRoleForm{{ $role->id }}" class="btn btn-primary" {{ $role->is_system_role ? 'disabled' : '' }}>
                                             <i class="fas fa-save me-2"></i>Update Role
                                         </button>
                                     </div>
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -2352,9 +2353,9 @@
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form method="POST" action="{{ route('admin.roles.members.add', $role->id) }}">
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ route('admin.roles.members.add', $role->id) }}" id="addMemberForm{{ $role->id }}">
                                     @csrf
-                                    <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Select User</label>
                                             <select class="form-select @error('user_id') is-invalid @enderror" name="user_id" required>
@@ -2372,16 +2373,16 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                    </form>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                             <i class="fas fa-times me-2"></i>Cancel
                                         </button>
-                                        <button type="submit" class="btn btn-success">
+                                        <button type="submit" form="addMemberForm{{ $role->id }}" class="btn btn-success">
                                             <i class="fas fa-check me-2"></i>Add Member
                                         </button>
                                     </div>
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -2396,6 +2397,209 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/admin/nav.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function sf(el, msg) {
+            if (!el) return;
+            el.classList.add('is-invalid');
+            let fb = el.parentElement.querySelector('.invalid-feedback');
+            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+            fb.textContent = msg;
+        }
+        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+
+        // --- User form validation (shared for add + edit) ---
+        function attachUserValidation(form) {
+            if (!form) return;
+            const firstName = form.querySelector('[name="first_name"]');
+            const lastName  = form.querySelector('[name="last_name"]');
+            const email     = form.querySelector('[name="email"]');
+            const contact   = form.querySelector('[name="contact_number"]');
+            const username  = form.querySelector('[name="username"]');
+            const password  = form.querySelector('[name="password"]');
+            const roleId    = form.querySelector('[name="role_id"]');
+
+            const namePattern = /^[a-zA-Z\s\-\.]+$/;
+
+            if (firstName) {
+                firstName.addEventListener('input', function() { cf(this); }, {once: true});
+                firstName.addEventListener('input', function() {
+                    const v = this.value.trim();
+                    if (!v) sf(this, 'First name is required.');
+                    else if (v.length < 2) sf(this, 'First name must be at least 2 characters.');
+                    else if (!namePattern.test(v)) sf(this, 'First name can only contain letters, spaces, hyphens, or periods.');
+                    else cf(this);
+                });
+            }
+            if (lastName) {
+                lastName.addEventListener('input', function() { cf(this); }, {once: true});
+                lastName.addEventListener('input', function() {
+                    const v = this.value.trim();
+                    if (!v) sf(this, 'Last name is required.');
+                    else if (v.length < 2) sf(this, 'Last name must be at least 2 characters.');
+                    else if (!namePattern.test(v)) sf(this, 'Last name can only contain letters, spaces, hyphens, or periods.');
+                    else cf(this);
+                });
+            }
+            if (email) {
+                email.addEventListener('input', function() { cf(this); }, {once: true});
+                email.addEventListener('input', function() {
+                    const v = this.value.trim();
+                    if (!v) sf(this, 'Email is required.');
+                    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) sf(this, 'Enter a valid email address.');
+                    else cf(this);
+                });
+            }
+            if (contact) {
+                contact.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                    if (this.value.length > 0) {
+                        if (!this.value.startsWith('09')) sf(this, 'Contact must start with 09.');
+                        else if (this.value.length !== 11) sf(this, 'Contact must be exactly 11 digits.');
+                        else cf(this);
+                    } else cf(this);
+                });
+            }
+            if (username) {
+                username.addEventListener('input', function() { cf(this); }, {once: true});
+                username.addEventListener('input', function() {
+                    const v = this.value.trim();
+                    if (!v) sf(this, 'Username is required.');
+                    else if (v.length < 3) sf(this, 'Username must be at least 3 characters.');
+                    else if (!/^[a-zA-Z0-9_.\-]+$/.test(v)) sf(this, 'Username can only contain letters, numbers, underscores, dots, or hyphens.');
+                    else cf(this);
+                });
+            }
+            if (password) {
+                password.addEventListener('input', function() { cf(this); }, {once: true});
+                password.addEventListener('input', function() {
+                    if (!this.value) sf(this, 'Password is required.');
+                    else if (this.value.length < 8) sf(this, 'Password must be at least 8 characters.');
+                    else cf(this);
+                });
+            }
+            if (roleId) roleId.addEventListener('change', function() {
+                if (!this.value) sf(this, 'Please select a role.'); else cf(this);
+            });
+
+            form.addEventListener('submit', function(e) {
+                let valid = true;
+                if (firstName) {
+                    const v = firstName.value.trim();
+                    if (!v) { sf(firstName, 'First name is required.'); valid = false; }
+                    else if (v.length < 2) { sf(firstName, 'First name must be at least 2 characters.'); valid = false; }
+                    else if (!namePattern.test(v)) { sf(firstName, 'First name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
+                }
+                if (lastName) {
+                    const v = lastName.value.trim();
+                    if (!v) { sf(lastName, 'Last name is required.'); valid = false; }
+                    else if (v.length < 2) { sf(lastName, 'Last name must be at least 2 characters.'); valid = false; }
+                    else if (!namePattern.test(v)) { sf(lastName, 'Last name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
+                }
+                if (email) {
+                    const v = email.value.trim();
+                    if (!v) { sf(email, 'Email is required.'); valid = false; }
+                    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { sf(email, 'Enter a valid email address.'); valid = false; }
+                }
+                if (contact && contact.value.length > 0) {
+                    if (!contact.value.startsWith('09') || contact.value.length !== 11) {
+                        sf(contact, 'Contact must be 11 digits starting with 09.'); valid = false;
+                    }
+                }
+                if (username) {
+                    const v = username.value.trim();
+                    if (!v) { sf(username, 'Username is required.'); valid = false; }
+                    else if (v.length < 3) { sf(username, 'Username must be at least 3 characters.'); valid = false; }
+                    else if (!/^[a-zA-Z0-9_.\-]+$/.test(v)) { sf(username, 'Username can only contain letters, numbers, underscores, dots, or hyphens.'); valid = false; }
+                }
+                if (password) {
+                    if (!password.value) { sf(password, 'Password is required.'); valid = false; }
+                    else if (password.value.length < 8) { sf(password, 'Password must be at least 8 characters.'); valid = false; }
+                }
+                if (roleId && !roleId.value) { sf(roleId, 'Please select a role.'); valid = false; }
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        // --- Reset password form validation ---
+        const resetForm = document.getElementById('resetPasswordForm');
+        if (resetForm) {
+            const pwField    = document.getElementById('resetPassword');
+            const pwConfirm  = document.getElementById('resetPasswordConfirm');
+
+            if (pwField) {
+                pwField.addEventListener('input', function() { cf(this); }, {once: true});
+                pwField.addEventListener('input', function() {
+                    if (!this.value) sf(this, 'Password is required.');
+                    else if (this.value.length < 8) sf(this, 'Password must be at least 8 characters.');
+                    else cf(this);
+                    if (pwConfirm && pwConfirm.value) {
+                        if (pwConfirm.value !== this.value) sf(pwConfirm, 'Passwords do not match.');
+                        else cf(pwConfirm);
+                    }
+                });
+            }
+            if (pwConfirm) {
+                pwConfirm.addEventListener('input', function() {
+                    if (!this.value) sf(this, 'Please confirm your password.');
+                    else if (pwField && this.value !== pwField.value) sf(this, 'Passwords do not match.');
+                    else cf(this);
+                });
+            }
+            resetForm.addEventListener('submit', function(e) {
+                let valid = true;
+                if (pwField) {
+                    if (!pwField.value) { sf(pwField, 'Password is required.'); valid = false; }
+                    else if (pwField.value.length < 8) { sf(pwField, 'Password must be at least 8 characters.'); valid = false; }
+                }
+                if (pwConfirm) {
+                    if (!pwConfirm.value) { sf(pwConfirm, 'Please confirm your password.'); valid = false; }
+                    else if (pwField && pwConfirm.value !== pwField.value) { sf(pwConfirm, 'Passwords do not match.'); valid = false; }
+                }
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        // --- Role form validation (shared for add + edit) ---
+        function attachRoleValidation(form) {
+            if (!form) return;
+            const roleName = form.querySelector('[name="name"]');
+
+            if (roleName && !roleName.readOnly) {
+                roleName.addEventListener('input', function() { cf(this); }, {once: true});
+                roleName.addEventListener('input', function() {
+                    const v = this.value.trim();
+                    if (!v) sf(this, 'Role name is required.');
+                    else if (v.length < 2) sf(this, 'Role name must be at least 2 characters.');
+                    else if (/\s/.test(v)) sf(this, 'Role name must not contain spaces.');
+                    else if (!/^[a-z0-9_\-]+$/.test(v)) sf(this, 'Role name must be lowercase with no spaces (letters, numbers, underscores, hyphens only).');
+                    else cf(this);
+                });
+            }
+
+            form.addEventListener('submit', function(e) {
+                let valid = true;
+                if (roleName && !roleName.readOnly) {
+                    const v = roleName.value.trim();
+                    if (!v) { sf(roleName, 'Role name is required.'); valid = false; }
+                    else if (v.length < 2) { sf(roleName, 'Role name must be at least 2 characters.'); valid = false; }
+                    else if (/\s/.test(v)) { sf(roleName, 'Role name must not contain spaces.'); valid = false; }
+                    else if (!/^[a-z0-9_\-]+$/.test(v)) { sf(roleName, 'Role name must be lowercase with no spaces.'); valid = false; }
+                }
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        // Attach to all user forms
+        attachUserValidation(document.getElementById('addUserForm'));
+        document.querySelectorAll('[id^="editUserForm"]').forEach(attachUserValidation);
+
+        // Attach to all role forms
+        attachRoleValidation(document.getElementById('addRoleForm'));
+        document.querySelectorAll('[id^="editRoleForm"]').forEach(attachRoleValidation);
+    });
+    </script>
 
     <script>
         // Add to your existing script section

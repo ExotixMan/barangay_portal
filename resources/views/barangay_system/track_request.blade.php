@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
     <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <style>
         * {
@@ -789,7 +790,7 @@
             color: white;
         }
 
-        .status-card.processing .status-icon {
+        .status-card.under-review .status-icon {
             background: linear-gradient(135deg, #2196F3, #1976D2);
             color: white;
         }
@@ -799,13 +800,43 @@
             color: white;
         }
 
-        .status-card.rejected .status-icon {
-            background: linear-gradient(135deg, #F44336, #D32F2F);
+        .status-card.payment-required .status-icon {
+            background: linear-gradient(135deg, #FFC107, #FFA000);
+            color: white;
+        }
+
+        .status-card.processing .status-icon {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .status-card.ready-pickup .status-icon {
+            background: linear-gradient(135deg, #009688, #00796B);
             color: white;
         }
 
         .status-card.completed .status-icon {
             background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            color: white;
+        }
+
+        .status-card.ready-delivery .status-icon {
+            background: linear-gradient(135deg, #00BCD4, #0097A7);
+            color: white;
+        }
+
+        .status-card.out-for-delivery .status-icon {
+            background: linear-gradient(135deg, #FF9800, #E65100);
+            color: white;
+        }
+
+        .status-card.delivered .status-icon {
+            background: linear-gradient(135deg, #66BB6A, #2E7D32);
+            color: white;
+        }
+
+        .status-card.rejected .status-icon {
+            background: linear-gradient(135deg, #F44336, #D32F2F);
             color: white;
         }
 
@@ -1174,7 +1205,7 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -1202,7 +1233,7 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -1755,7 +1786,7 @@
                 <p class="section-subtitle">Understanding your request and report status</p>
                 
                 <div class="row g-4 justify-content-center">
-                    <div class="col-lg-3 col-md-4 col-6">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card pending">
                             <div class="status-icon">
                                 <i class="fas fa-clock"></i>
@@ -1764,8 +1795,8 @@
                             <p>Request submitted but not yet reviewed</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card processing">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card under-review">
                             <div class="status-icon">
                                 <i class="fas fa-search"></i>
                             </div>
@@ -1773,7 +1804,7 @@
                             <p>Barangay staff is verifying your request</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card approved">
                             <div class="status-icon">
                                 <i class="fas fa-check-circle"></i>
@@ -1782,8 +1813,8 @@
                             <p>Request approved and ready for processing</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card pending">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card payment-required">
                             <div class="status-icon">
                                 <i class="fas fa-credit-card"></i>
                             </div>
@@ -1791,7 +1822,7 @@
                             <p>Waiting for payment confirmation</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card processing">
                             <div class="status-icon">
                                 <i class="fas fa-cog fa-spin"></i>
@@ -1800,8 +1831,8 @@
                             <p>Document is being prepared</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card approved">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card ready-pickup">
                             <div class="status-icon">
                                 <i class="fas fa-store"></i>
                             </div>
@@ -1809,17 +1840,17 @@
                             <p>Document waiting at barangay hall</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card completed">
                             <div class="status-icon">
                                 <i class="fas fa-flag-checkered"></i>
                             </div>
-                            <h3>Claimed/Released</h3>
+                            <h3>Claimed / Released</h3>
                             <p>Document has been picked up</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card approved">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card ready-delivery">
                             <div class="status-icon">
                                 <i class="fas fa-box-open"></i>
                             </div>
@@ -1827,8 +1858,8 @@
                             <p>Document scheduled for delivery</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card pending">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card out-for-delivery">
                             <div class="status-icon">
                                 <i class="fas fa-truck"></i>
                             </div>
@@ -1836,8 +1867,8 @@
                             <p>Document is on its way</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="status-card completed">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
+                        <div class="status-card delivered">
                             <div class="status-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
@@ -1845,12 +1876,12 @@
                             <p>Document successfully delivered</p>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-6">
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card rejected">
                             <div class="status-icon">
                                 <i class="fas fa-times-circle"></i>
                             </div>
-                            <h3>Rejected/Denied</h3>
+                            <h3>Rejected / Denied</h3>
                             <p>Request cannot be approved</p>
                         </div>
                     </div>
@@ -2141,6 +2172,7 @@
     
     <script src="{{ asset('js/navbar.js') }}"></script>
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/faq.js') }}"></script>
     
     <script>

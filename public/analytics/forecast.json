@@ -161,11 +161,11 @@
                 "Apr 15, 2026": 2.8
             },
             "status_distribution": {
-                "processing": 3,
+                "processing": 2,
+                "approved": 2,
                 "pending": 1,
                 "claimed": 1,
-                "under_review": 1,
-                "approved": 1
+                "under_review": 1
             }
         }
     },

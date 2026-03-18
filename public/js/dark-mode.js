@@ -1,15 +1,6 @@
 // Dark Mode Persistence
 (function() {
-    // Check for saved dark mode preference
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    
-    // Apply dark mode on page load
-    if (savedDarkMode) {
-        enableDarkMode();
-    }
-    
-    // Function to enable dark mode
-    window.enableDarkMode = function() {
+    function enableDarkMode() {
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'true');
         
@@ -18,10 +9,9 @@
         
         // Dispatch event for other scripts
         document.dispatchEvent(new CustomEvent('darkModeChanged', { detail: { isDark: true } }));
-    };
+    }
     
-    // Function to disable dark mode
-    window.disableDarkMode = function() {
+    function disableDarkMode() {
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'false');
         
@@ -30,16 +20,27 @@
         
         // Dispatch event for other scripts
         document.dispatchEvent(new CustomEvent('darkModeChanged', { detail: { isDark: false } }));
-    };
+    }
     
-    // Function to toggle dark mode
-    window.toggleDarkMode = function() {
+    function toggleDarkMode() {
         if (document.body.classList.contains('dark-mode')) {
             disableDarkMode();
         } else {
             enableDarkMode();
         }
-    };
+    }
+
+    window.enableDarkMode = enableDarkMode;
+    window.disableDarkMode = disableDarkMode;
+    window.toggleDarkMode = toggleDarkMode;
+
+    // Check for saved dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    // Apply dark mode on page load after functions are initialized
+    if (savedDarkMode) {
+        enableDarkMode();
+    }
     
     // Helper function to update dark mode button
     function updateDarkModeButton(isDark) {

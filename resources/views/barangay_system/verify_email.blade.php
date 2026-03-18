@@ -73,16 +73,16 @@
 
         <img src="{{ asset('Images/logo.jpg') }}" class="logo">
 
-        <h3 class="verify-title">Verify Your Email</h3>
+        <h3 class="verify-title">{{ __('messages.verify_email_title') }}</h3>
 
         <p class="verify-text">
-        A verification link has been sent to your email address.<br>
+        {{ __('messages.verify_email_message') }}<br>
         Please check your inbox and click the link to activate your account.
         </p>
 
         @if (session('status') == 'verification-link-sent')
         <div class="alert alert-success">
-        A new verification link has been sent to your email.
+        {{ __('messages.verify_email_resent') }}
         </div>
         @endif
 
@@ -96,7 +96,7 @@
         </form>
 
         <a href="{{ route('login') }}" class="back-login">
-        Back to Login
+        {{ __('messages.verify_email_back_btn') }}
         </a>
 
     </div>

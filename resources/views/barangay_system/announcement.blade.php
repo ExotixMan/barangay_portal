@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     
     <style>
         * {
@@ -801,11 +802,11 @@
             <div class="nav-logo">
                 <div class="logo"></div>
                 <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
+                    <span class="logo-title d-block">{{ __('messages.nav_brand_part1') }}</span>
+                    <span class="logo-subtitle d-block">{{ __('messages.nav_brand_part2') }} Portal</span>
                 </div>
                 <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+                    <span class="logo-subtitle">{{ __('messages.nav_brand_part2') }}</span>
                 </div>
             </div>
             
@@ -818,57 +819,57 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
+                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> {{ __('messages.nav_home') }}</a>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
+                            <i class="fas fa-info-circle"></i> {{ __('messages.nav_about') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
+                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> {{ __('messages.nav_history') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> {{ __('messages.nav_mission_vision') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> {{ __('messages.nav_barangay_map') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> {{ __('messages.nav_barangay_officials') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
+                            <i class="fas fa-concierge-bell"></i> {{ __('messages.nav_services_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
+                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> {{ __('messages.nav_all_services') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
+                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
+                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> {{ __('messages.nav_track_request') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle active" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
+                            <i class="fas fa-users"></i> {{ __('messages.nav_community_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
+                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> {{ __('messages.nav_announcements') }}</a></li>
+                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> {{ __('messages.nav_events_projects') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
+                            <i class="fas fa-exclamation-circle"></i> {{ __('messages.nav_report_dropdown') }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> {{ __('messages.nav_blotter_report') }}</a></li>
                         </ul>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
+                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> {{ __('messages.nav_contact') }}</a>
                     </li>
                     
                     <!-- LogIn-LogOut Actions -->
@@ -881,11 +882,11 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
                                         </a>
                                     </li>
                                 </ul>
@@ -896,7 +897,7 @@
                             </form>
                         @else
                             <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
+                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
                             </a>
                         @endauth
                     </li>
@@ -909,12 +910,12 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
                                         onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
                                         </a>
                                     </li>
                                 </ul>
@@ -924,7 +925,7 @@
                             </form>
                         @else
                             <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
+                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
                             </a>
                         @endauth
                     </li>
@@ -937,20 +938,20 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1><i class="fas fa-bullhorn bigicon"></i> Community Announcements</h1>
-                <p>Stay updated with the latest news, events, and important information from Barangay Hulong Duhat</p>
+                <h1><i class="fas fa-bullhorn bigicon"></i> {{ __('messages.announcements_hero_title') }}</h1>
+                <p>{{ __('messages.announcements_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-newspaper"></i>
-                        <span>{{ $announcements->total() }} Active Announcements</span>
+                        <span>{{ $announcements->total() }} {{ __('messages.announcements_stat_active') }}</span>
                     </div>
                     <div class="stat">
                         <i class="fas fa-eye"></i>
-                        <span>Updated Daily</span>
+                        <span>{{ __('messages.announcements_stat_updated') }}</span>
                     </div>
                     <div class="stat">
                         <i class="fas fa-bell"></i>
-                        <span>Get Notifications</span>
+                        <span>{{ __('messages.announcements_stat_notifications') }}</span>
                     </div>
                 </div>
             </div>
@@ -964,8 +965,8 @@
         <section class="featured-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Featured Announcements</h2>
-                    <p>Most important updates you need to know</p>
+                    <h2>{{ __('messages.announcements_featured_title') }}</h2>
+                    <p>{{ __('messages.announcements_featured_subtitle') }}</p>
                 </div>
                 
                 <div class="carousel-container">
@@ -1016,7 +1017,7 @@
                 <div class="row mb-4">
                     <div class="col-lg-6 mb-3 mb-lg-0">
                         <div class="header-left">
-                            <h2><i class="fas fa-list-alt"></i> Latest Announcements</h2>
+                            <h2><i class="fas fa-list-alt"></i> {{ __('messages.announcements_grid_title') }}</h2>
                         </div>
                     </div>
                     
@@ -1029,26 +1030,26 @@
                                         type="text"
                                         name="search"
                                         value="{{ request('search') }}"
-                                        placeholder="Search announcements..."
+                                        placeholder="{{ __('messages.announcements_search_placeholder') }}"
                                     >
                                 </div>
 
                                 <div class="sort-dropdown">
                                     <select name="sort" onchange="this.form.submit()">
                                         <option value="newest" {{ request('sort')=='newest'?'selected':'' }}>
-                                            Newest First
+                                            {{ __('messages.announcements_sort_newest') }}
                                         </option>
 
                                         <option value="oldest" {{ request('sort')=='oldest'?'selected':'' }}>
-                                            Oldest First
+                                            {{ __('messages.announcements_sort_oldest') }}
                                         </option>
 
                                         <option value="important" {{ request('sort')=='important'?'selected':'' }}>
-                                            Most Important
+                                            {{ __('messages.announcements_sort_important') }}
                                         </option>
 
                                         <option value="title" {{ request('sort')=='title'?'selected':'' }}>
-                                            Title (A-Z)
+                                            {{ __('messages.announcements_sort_title_az') }}
                                         </option>
                                     </select>
                                 </div>
@@ -1068,7 +1069,7 @@
                         <div class="col-lg-4 col-md-6 mb-4">
                             <div class="announcement-card {{ $item->is_featured ? 'featured' : '' }}">
                                 @if($item->is_featured)
-                                    <span class="featured-badge">Featured</span>
+                                    <span class="featured-badge">{{ __('messages.announcements_badge_featured') }}</span>
                                 @endif
                                 <img src="{{ asset('announcement_pic/'.$item->image) }}" alt="{{ $item->title }}" class="announcement-image">
                                 <div class="announcement-content">
@@ -1094,11 +1095,11 @@
                 <!-- No Results Message -->
                 <div class="no-results" id="noResultsMessage">
                     <i class="fas fa-search"></i>
-                    <h3>No announcements found</h3>
-                    <p>Try adjusting your search or filter criteria</p>
+                    <h3>{{ __('messages.announcements_empty_title') }}</h3>
+                    <p>{{ __('messages.announcements_empty_desc') }}</p>
                     <button class="reset-filters" id="resetFilters">
                         <i class="fas fa-redo"></i>
-                        Reset All Filters
+                        {{ __('messages.announcements_reset_filters') }}
                     </button>
                 </div>
             </div>
@@ -1110,7 +1111,7 @@
         <div class="chat-modal-content">
             <div class="chat-modal-header">
                 <div class="chat-modal-title">
-                    InfoHulo Assistant
+                    {{ __('messages.chat_modal_title') }}
                 </div>
                 <button class="chat-modal-close" id="closeChat">
                     <i class="fas fa-times"></i>
@@ -1132,9 +1133,9 @@
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="translateBtn" title="Translate Text">
                 @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
+                    <span>{{ __('messages.fab_switch_to_filipino') }}</span>
                 @else
-                    <span>English</span>
+                    <span>{{ __('messages.fab_switch_to_english') }}</span>
                 @endif
             </button>
             <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
@@ -1166,15 +1167,15 @@
                                 <i class="fas fa-landmark"></i>
                             </div>
                             <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
+                                <h3>{{ __('messages.footer_brand_name') }}</h3>
+                                <p class="tagline">{{ __('messages.footer_tagline') }}</p>
                             </div>
                         </div>
                         
                         <div class="contact-info-simple">
                             <div class="contact-row">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
+                                <span>{{ __('messages.footer_address') }}</span>
                             </div>
                             <div class="contact-row">
                                 <i class="fas fa-phone"></i>
@@ -1204,19 +1205,19 @@
                 <!-- Quick Access Links -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
-                        <h3>Quick Access</h3>
+                        <h3>{{ __('messages.footer_quick_access_heading') }}</h3>
                         <div class="footer-links-list">
                             <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
+                                <i class="fas fa-home"></i> {{ __('messages.footer_link_home') }}
                             </a>
                             <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
+                                <i class="fas fa-bullhorn"></i> {{ __('messages.footer_link_announcements') }}
                             </a>
                             <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
+                                <i class="fas fa-history"></i> {{ __('messages.footer_link_history') }}
                             </a>
                             <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
+                                <i class="fas fa-search"></i> {{ __('messages.footer_link_track') }}
                             </a>
                         </div>
                     </div>
@@ -1225,19 +1226,19 @@
                 <!-- Services -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
-                        <h3>Services</h3>
+                        <h3>{{ __('messages.footer_services_heading') }}</h3>
                         <div class="footer-links-list">
                             <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
+                                <i class="fas fa-certificate"></i> {{ __('messages.footer_link_clearance') }}
                             </a>
                             <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
+                                <i class="fas fa-house-user"></i> {{ __('messages.footer_link_residency') }}
                             </a>
                             <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
+                                <i class="fas fa-hands-helping"></i> {{ __('messages.footer_link_indigency') }}
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> {{ __('messages.footer_link_blotter') }}
                             </a>
                         </div>
                     </div>
@@ -1246,26 +1247,26 @@
                 <!-- Emergency & Support -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
+                        <h3>{{ __('messages.footer_emergency_heading') }}</h3>
                         <div class="emergency-contacts-simple">
                             <div class="emergency-item">
                                 <i class="fas fa-ambulance"></i>
                                 <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
+                                    <span class="emergency-label">{{ __('messages.footer_emergency_label') }}</span>
                                     <a href="tel:911" class="emergency-number">911</a>
                                 </div>
                             </div>
                             <div class="emergency-item">
                                 <i class="fas fa-shield-alt"></i>
                                 <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
+                                    <span class="emergency-label">{{ __('messages.footer_police_label') }}</span>
                                     <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
                                 </div>
                             </div>
                             <div class="emergency-item">
                                 <i class="fas fa-first-aid"></i>
                                 <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
+                                    <span class="emergency-label">{{ __('messages.footer_health_label') }}</span>
                                     <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
                                 </div>
                             </div>
@@ -1279,7 +1280,7 @@
         <div class="footer-bottom">
             <div class="container footer-bottom-container">
                 <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
+                    <p>&copy; {{ date('Y') }} {{ __('messages.footer_brand_name') }}, Malabon City. {{ __('messages.footer_copyright') }}</p>
                 </div>
             </div>
         </div>

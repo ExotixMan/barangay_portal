@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use App\Notifications\CustomResetPassword;
+use App\Notifications\CustomVerifyEmail;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
@@ -18,29 +19,46 @@ class Residents extends Authenticatable implements MustVerifyEmail
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'firstname', 
-        'lastname', 
-        'email', 
-        'address', 
+        'firstname',
+        'middlename',
+        'lastname',
+        'suffix',
+        'email',
+        'address',
         'birthdate',
-        'contact', 
-        'username', 
+        'contact',
+        'username',
         'password',
+        'valid_id',
+        'valid_id_verified',
+        'profile_photo',
         'phone_otp',
         'phone_otp_expires_at',
         'phone_verified',
-        'email_verified_at'
+        'email_verified_at',
     ];
 
     protected $casts = [
         'phone_verified' => 'boolean',
+        'valid_id_verified' => 'boolean',
         'phone_otp_expires_at' => 'datetime',
         'email_verified_at' => 'datetime',
     ];
 
     public function getFullNameAttribute()
     {
-        return $this->firstname . ' ' . $this->lastname;
+        $parts = array_filter([
+            $this->firstname,
+            $this->middlename,
+            $this->lastname,
+            $this->suffix,
+        ]);
+        return implode(' ', $parts);
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail());
     }
 
     public function sendPasswordResetNotification($token)

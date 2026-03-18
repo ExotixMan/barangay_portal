@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     <style>
         * {
             margin: 0;
@@ -450,7 +451,7 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -478,7 +479,7 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
@@ -879,6 +880,7 @@
 
     <script src="{{ asset('js/navbar.js') }}"></script>
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     <script>
         // Mission Vision Page Script

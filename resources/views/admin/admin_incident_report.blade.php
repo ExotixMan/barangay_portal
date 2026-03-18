@@ -1369,10 +1369,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.blotter.store') }}" id="addIncidentForm" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.blotter.store') }}" id="addIncidentForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Incident Details -->
                                     <div class="col-12">
@@ -1625,15 +1625,16 @@
                                     </div>
                                 </div>
                             </div>
+                            </form>
+                            </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addIncidentForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Report
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1652,12 +1653,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="editIncidentForm{{ $blotter->id }}" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="editIncidentForm{{ $blotter->id }}" enctype="multipart/form-data">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $blotter->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Incident Details -->
                                         <div class="col-12">
@@ -1969,16 +1970,16 @@
                                             @endif
                                         </div>
                                     </div>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $blotter->id }}">
+                                    <button type="submit" form="editIncidentForm{{ $blotter->id }}" class="btn btn-primary" id="submitEditForm{{ $blotter->id }}">
                                         <i class="fas fa-save me-2"></i>Update Report
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2427,44 +2428,104 @@
             // Real-time validation for add form
             const addForm = document.getElementById('addIncidentForm');
             if (addForm) {
-                // Contact number validation
-                const contact = document.querySelector('input[name="complainant_contact"]');
+                function sf(el, msg) {
+                    if (!el) return;
+                    el.classList.add('is-invalid');
+                    let fb = el.parentElement.querySelector('.invalid-feedback');
+                    if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+                    fb.textContent = msg;
+                }
+                function cf(el) { if (el) { el.classList.remove('is-invalid'); el.setCustomValidity(''); } }
+
+                const complainantName    = addForm.querySelector('[name="complainantName"]');
+                const contact            = addForm.querySelector('[name="complainantContact"]');
+                const complainantEmail   = addForm.querySelector('[name="complainantEmail"]');
+                const incidentDate       = addForm.querySelector('[name="incidentDate"]');
+                const incidentLocation   = addForm.querySelector('[name="incidentLocation"]');
+                const incidentDescription = addForm.querySelector('[name="incidentDescription"]');
+
+                if (complainantName) {
+                    complainantName.addEventListener('input', function() { cf(this); }, {once: true});
+                    complainantName.addEventListener('input', function() {
+                        const v = this.value.trim();
+                        if (!v) sf(this, 'Complainant name is required.');
+                        else if (v.length < 2) sf(this, 'Name must be at least 2 characters.');
+                        else if (!/^[a-zA-Z\s\-\.]+$/.test(v)) sf(this, 'Name must contain only letters, spaces, hyphens, or periods.');
+                        else cf(this);
+                    });
+                }
                 if (contact) {
                     contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                        }
-                        else if (this.value.length > 0 && this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                        }
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
+                        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                        if (this.value.length > 0 && !this.value.startsWith('09')) sf(this, 'Contact must start with 09.');
+                        else if (this.value.length > 0 && this.value.length !== 11) sf(this, 'Contact must be exactly 11 digits.');
+                        else cf(this);
+                    });
+                }
+                if (complainantEmail) {
+                    complainantEmail.addEventListener('input', function() {
+                        const v = this.value.trim();
+                        if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) sf(this, 'Enter a valid email address.');
+                        else cf(this);
+                    });
+                }
+                if (incidentDate) {
+                    incidentDate.addEventListener('change', function() {
+                        const selected = new Date(this.value);
+                        const today = new Date(); today.setHours(23, 59, 59, 999);
+                        if (!this.value) sf(this, 'Incident date is required.');
+                        else if (selected > today) sf(this, 'Incident date cannot be in the future.');
+                        else cf(this);
+                    });
+                }
+                if (incidentLocation) {
+                    incidentLocation.addEventListener('input', function() { cf(this); }, {once: true});
+                    incidentLocation.addEventListener('input', function() {
+                        if (!this.value.trim()) sf(this, 'Incident location is required.');
+                        else if (this.value.trim().length < 3) sf(this, 'Location must be at least 3 characters.');
+                        else cf(this);
+                    });
+                }
+                if (incidentDescription) {
+                    incidentDescription.addEventListener('input', function() { cf(this); }, {once: true});
+                    incidentDescription.addEventListener('input', function() {
+                        if (!this.value.trim()) sf(this, 'Description is required.');
+                        else if (this.value.trim().length < 10) sf(this, 'Description must be at least 10 characters.');
+                        else cf(this);
                     });
                 }
 
-                // Incident date validation
-                const incidentDate = document.querySelector('input[name="incident_date"]');
-                if (incidentDate) {
-                    incidentDate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Incident date cannot be in the future');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+                addForm.addEventListener('submit', function(e) {
+                    let valid = true;
+                    if (complainantName) {
+                        const v = complainantName.value.trim();
+                        if (!v) { sf(complainantName, 'Complainant name is required.'); valid = false; }
+                        else if (v.length < 2) { sf(complainantName, 'Name must be at least 2 characters.'); valid = false; }
+                        else if (!/^[a-zA-Z\s\-\.]+$/.test(v)) { sf(complainantName, 'Name must contain only letters, spaces, hyphens, or periods.'); valid = false; }
+                    }
+                    if (contact) {
+                        if (!contact.value) { sf(contact, 'Contact number is required.'); valid = false; }
+                        else if (!contact.value.startsWith('09') || contact.value.length !== 11) { sf(contact, 'Contact must be 11 digits starting with 09.'); valid = false; }
+                    }
+                    if (complainantEmail && complainantEmail.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(complainantEmail.value.trim())) {
+                        sf(complainantEmail, 'Enter a valid email address.'); valid = false;
+                    }
+                    if (incidentDate) {
+                        const selected = new Date(incidentDate.value);
+                        const today = new Date(); today.setHours(23, 59, 59, 999);
+                        if (!incidentDate.value) { sf(incidentDate, 'Incident date is required.'); valid = false; }
+                        else if (selected > today) { sf(incidentDate, 'Incident date cannot be in the future.'); valid = false; }
+                    }
+                    if (incidentLocation) {
+                        if (!incidentLocation.value.trim()) { sf(incidentLocation, 'Incident location is required.'); valid = false; }
+                        else if (incidentLocation.value.trim().length < 3) { sf(incidentLocation, 'Location must be at least 3 characters.'); valid = false; }
+                    }
+                    if (incidentDescription) {
+                        if (!incidentDescription.value.trim()) { sf(incidentDescription, 'Description is required.'); valid = false; }
+                        else if (incidentDescription.value.trim().length < 10) { sf(incidentDescription, 'Description must be at least 10 characters.'); valid = false; }
+                    }
+                    if (!valid) e.preventDefault();
+                });
             }
         });
 

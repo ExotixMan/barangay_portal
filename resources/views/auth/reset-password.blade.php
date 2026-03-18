@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Barangay Hulo Portal</title>
+    <title>Reset Password – Barangay Hulong Duhat Portal</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts - Assistant -->
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-red: #b30000;
-            --dark-red: #800000;
+            --red:       #b30000;
+            --dark-red:  #800000;
+            --success:   #1a7a3c;
+            --warning:   #b45309;
+            --muted:     #6c757d;
         }
 
         body {
@@ -32,565 +28,635 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px;
+            padding: 24px 16px;
         }
 
+        /* ── Card ── */
         .reset-card {
-            max-width: 450px;
+            max-width: 480px;
             width: 100%;
-            background: white;
+            background: #fff;
             border-radius: 20px;
-            padding: 40px 35px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,.18);
+        }
+
+        /* ── Card header band ── */
+        .card-header-band {
+            background: linear-gradient(135deg, var(--red) 0%, var(--dark-red) 100%);
+            padding: 30px 35px 24px;
             text-align: center;
+            color: #fff;
         }
 
-        .logo-img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
+        .logo-ring {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            border: 3px solid var(--primary-red);
-            padding: 4px;
-            background: white;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(179, 0, 0, 0.2);
+            border: 3px solid rgba(255,255,255,.5);
+            padding: 3px;
+            background: #fff;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,.25);
         }
 
-        .reset-title {
-            font-size: 1.8rem;
+        .logo-ring img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .card-title {
+            font-size: 1.55rem;
             font-weight: 900;
-            color: var(--primary-red);
-            margin-bottom: 5px;
-            line-height: 1.2;
+            letter-spacing: .3px;
+            margin-bottom: 2px;
         }
 
-        .barangay-name {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+        .card-subtitle {
+            font-size: .82rem;
+            opacity: .85;
         }
 
-        .reset-subtitle {
+        /* ── Card body ── */
+        .card-body-pad {
+            padding: 28px 35px 32px;
+        }
+
+        .intro-text {
+            text-align: center;
             color: #555;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
+            font-size: .93rem;
+            margin-bottom: 22px;
             line-height: 1.5;
         }
 
-        /* Alert Messages */
+        /* ── Alerts ── */
         .alert {
-            border-radius: 8px;
-            padding: 12px 15px;
+            border-radius: 10px;
+            padding: 12px 14px;
             margin-bottom: 20px;
             border-left: 4px solid;
-            font-size: 0.9rem;
-            text-align: left;
+            font-size: .88rem;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .alert-success {
-            background: #f0fff4;
-            border-left-color: #28a745;
-            color: #155724;
+            background: #ecfdf5;
+            border-left-color: var(--success);
+            color: #065f46;
         }
 
         .alert-danger {
             background: #fff2f2;
-            border-left-color: var(--primary-red);
-            color: #721c24;
+            border-left-color: var(--red);
+            color: #7f1d1d;
         }
 
-        /* Form Styles */
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
+        .alert i { margin-top: 2px; flex-shrink: 0; }
+
+        /* ── Form groups ── */
+        .form-group { margin-bottom: 20px; }
 
         .form-label {
-            font-weight: 600;
-            color: #555;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #333;
+            font-size: .88rem;
+            margin-bottom: 7px;
             display: block;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
+        .input-wrapper { position: relative; }
 
         .input-icon {
             position: absolute;
-            left: 15px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--primary-red);
-            font-size: 16px;
-            z-index: 10;
+            color: var(--red);
+            font-size: 15px;
+            pointer-events: none;
+            z-index: 5;
         }
 
-        .password-toggle {
+        .field-status {
             position: absolute;
-            right: 15px;
+            right: 42px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            display: none;
+        }
+
+        .field-status.valid   { color: var(--success); display: block; }
+        .field-status.invalid { color: var(--red);     display: block; }
+
+        .toggle-btn {
+            position: absolute;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #999;
+            color: #aaa;
             cursor: pointer;
-            padding: 5px;
-            z-index: 10;
+            padding: 4px 6px;
+            z-index: 5;
+            transition: color .2s;
         }
 
-        .password-toggle:hover {
-            color: var(--primary-red);
-        }
+        .toggle-btn:hover { color: var(--red); }
 
         .form-control {
             width: 100%;
             height: 50px;
-            padding: 10px 15px 10px 45px;
-            border: 1px solid #e0e0e0;
-            border-left: 3px solid var(--primary-red);
-            border-radius: 8px;
+            padding: 10px 82px 10px 42px;
+            border: 1.5px solid #dde0e7;
+            border-radius: 10px;
             font-family: 'Assistant', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            font-size: .95rem;
+            color: #222;
+            background: #fafafa;
+            transition: border-color .25s, box-shadow .25s, background .25s;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-red);
-            box-shadow: 0 0 0 3px rgba(179, 0, 0, 0.1);
+            border-color: var(--red);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(179,0,0,.1);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success);
+            background: #f0fdf4;
         }
 
         .form-control.is-invalid {
-            border-color: var(--primary-red);
-            border-left: 3px solid var(--primary-red);
+            border-color: var(--red);
+            background: #fff5f5;
         }
 
-        /* Password Strength Indicator */
-        .password-strength {
-            margin-top: 8px;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
+        /* readonly email field */
+        .form-control[readonly] {
+            background: #f3f4f6;
+            color: #555;
+            cursor: default;
+        }
+
+        .form-control[readonly]:focus {
+            border-color: #dde0e7;
+            box-shadow: none;
+        }
+
+        .field-error {
+            color: var(--red);
+            font-size: .78rem;
+            margin-top: 5px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── Strength bar ── */
+        .strength-wrap { margin-top: 8px; }
+
+        .strength-bar-bg {
+            height: 5px;
+            background: #e5e7eb;
+            border-radius: 3px;
             overflow: hidden;
         }
 
-        .strength-bar {
+        .strength-fill {
             height: 100%;
             width: 0;
-            transition: all 0.3s ease;
+            border-radius: 3px;
+            transition: width .35s ease, background .35s ease;
         }
 
-        .strength-text {
-            font-size: 0.75rem;
-            margin-top: 5px;
+        .strength-label {
+            font-size: .75rem;
+            margin-top: 4px;
             text-align: right;
-            color: #777;
+            color: var(--muted);
+            font-weight: 600;
         }
 
-        /* Submit Button */
+        /* ── Requirements checklist ── */
+        .req-box {
+            background: #f8f9fb;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .req-box p {
+            font-size: .8rem;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .req-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
+        }
+
+        .req-list li {
+            font-size: .8rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: color .25s;
+        }
+
+        .req-list li i {
+            font-size: .65rem;
+            width: 14px;
+            text-align: center;
+            transition: color .25s;
+        }
+
+        .req-list li.met {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .req-list li.met i { color: var(--success); }
+
+        /* ── Submit button ── */
         .btn-submit {
             width: 100%;
-            height: 50px;
+            height: 52px;
             border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
-            color: white;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--red) 0%, var(--dark-red) 100%);
+            color: #fff;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            margin: 25px 0 15px;
+            margin: 26px 0 16px;
+            transition: transform .2s, box-shadow .2s, opacity .2s;
+            letter-spacing: .3px;
         }
 
-        .btn-submit:hover {
+        .btn-submit:not(:disabled):hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(179, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(179,0,0,.35);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
+        .btn-submit:disabled {
+            opacity: .5;
+            cursor: not-allowed;
         }
 
-        .btn-submit.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
+        .btn-submit.loading { pointer-events: none; opacity: .7; }
+        .btn-submit.loading .btn-label { opacity: 0; }
 
-        .btn-submit.loading .btn-text {
-            opacity: 0;
-        }
-
-        .btn-submit .spinner {
+        .spinner-row {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            inset: 0;
             display: none;
-            gap: 5px;
-        }
-
-        .btn-submit.loading .spinner {
-            display: flex;
-        }
-
-        .spinner-dot {
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            animation: pulse 1.4s ease-in-out infinite;
-        }
-
-        .spinner-dot:nth-child(2) { animation-delay: 0.2s; }
-        .spinner-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-
-        /* Back to Login Link */
-        .back-login {
-            color: var(--primary-red);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .back-login i {
-            margin-right: 5px;
-        }
-
-        .back-login:hover {
-            color: var(--dark-red);
-            text-decoration: underline;
-            transform: translateX(-3px);
-        }
-
-        /* Requirements List */
-        .requirements {
-            text-align: left;
-            margin-top: 15px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-
-        .requirements p {
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        .requirements ul {
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 0;
-        }
-
-        .requirements li {
-            color: #777;
-            margin-bottom: 4px;
-            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
 
-        .requirements li i {
-            font-size: 0.7rem;
-            color: #999;
+        .btn-submit.loading .spinner-row { display: flex; }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: bounce 1.3s ease-in-out infinite;
         }
 
-        .requirements li.valid i {
-            color: #28a745;
+        .dot:nth-child(2) { animation-delay: .18s; }
+        .dot:nth-child(3) { animation-delay: .36s; }
+
+        @keyframes bounce {
+            0%,100% { transform: scale(.7); opacity: .5; }
+            50%      { transform: scale(1.2); opacity: 1; }
         }
 
-        /* Responsive */
+        /* ── Back link ── */
+        .back-link {
+            display: block;
+            text-align: center;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: .88rem;
+            transition: color .2s, gap .2s;
+        }
+
+        .back-link:hover { color: var(--dark-red); text-decoration: underline; }
+
+        /* ── Responsive ── */
         @media (max-width: 480px) {
-            .reset-card {
-                padding: 30px 20px;
-            }
-
-            .logo-img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .reset-title {
-                font-size: 1.5rem;
-            }
+            .card-body-pad { padding: 22px 20px 28px; }
+            .card-header-band { padding: 24px 20px 20px; }
+            .req-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="reset-card">
-        <!-- Logo -->
-        <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo-img">
-        
-        <h1 class="reset-title">Reset Password</h1>
-        <div class="barangay-name">Barangay Hulo • Malabon City</div>
-        
-        <p class="reset-subtitle">
-            <i class="fas fa-key text-muted me-2"></i>
-            Please enter your new password below.
+
+<div class="reset-card">
+
+    {{-- Red header band --}}
+    <div class="card-header-band">
+        <div class="logo-ring">
+            <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo">
+        </div>
+        <div class="card-title">Reset Password</div>
+        <div class="card-subtitle">Barangay Hulong Duhat &bull; Malabon City</div>
+    </div>
+
+    <div class="card-body-pad">
+
+        <p class="intro-text">
+            <i class="fas fa-shield-halved me-1"></i>
+            Create a strong new password for your account.
         </p>
 
-        <!-- Status Message -->
+        {{-- Server success --}}
         @if(session('status'))
             <div class="alert alert-success">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('status') }}
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('status') }}</span>
             </div>
         @endif
 
-        <!-- Error Message -->
-        @if($errors->any())
+        {{-- Server errors (non-field) --}}
+        @if($errors->has('email') || $errors->has('token'))
             <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                {{ $errors->first() }}
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ $errors->first('email') ?: $errors->first('token') }}</span>
             </div>
         @endif
 
-        <!-- Reset Password Form -->
-        <form method="POST" action="{{ route('resident.password.update') }}" id="resetForm">
+        <form method="POST" action="{{ route('resident.password.update') }}" id="resetForm" novalidate>
             @csrf
-
             <input type="hidden" name="token" value="{{ $token }}">
 
-            <!-- Email Field (Hidden style but visible) -->
+            {{-- Email (display-only) --}}
             <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
+                <label class="form-label" for="email">
+                    <i class="fas fa-envelope me-1" style="color:var(--red)"></i> Email Address
+                </label>
                 <div class="input-wrapper">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input type="email" 
-                           class="form-control @error('email') is-invalid @enderror" 
-                           id="email" 
-                           name="email" 
-                           value="{{ old('email', $email) }}" 
-                           placeholder="Enter your email"
-                           readonly
-                           required>
+                    <i class="input-icon fas fa-envelope"></i>
+                    <input type="email"
+                           class="form-control"
+                           id="email"
+                           name="email"
+                           value="{{ old('email', $email) }}"
+                           readonly>
                 </div>
             </div>
 
-            <!-- New Password Field -->
+            {{-- New Password --}}
             <div class="form-group">
-                <label for="password" class="form-label">New Password</label>
+                <label class="form-label" for="password">
+                    <i class="fas fa-lock me-1" style="color:var(--red)"></i> New Password
+                </label>
                 <div class="input-wrapper">
-                    <i class="fas fa-lock input-icon"></i>
-                    <input type="password" 
-                           class="form-control @error('password') is-invalid @enderror" 
-                           id="password" 
-                           name="password" 
-                           placeholder="Enter new password"
+                    <i class="input-icon fas fa-lock"></i>
+                    <span class="field-status" id="pwStatus"></span>
+                    <input type="password"
+                           class="form-control @error('password') is-invalid @enderror"
+                           id="password"
+                           name="password"
+                           placeholder="Create a strong password"
+                           autocomplete="new-password"
                            required>
-                    <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
+                    <button type="button" class="toggle-btn" id="togglePw" tabindex="-1" title="Show / hide">
                         <i class="far fa-eye"></i>
                     </button>
                 </div>
-                <!-- Password Strength Indicator -->
-                <div class="password-strength">
-                    <div class="strength-bar" id="strengthBar"></div>
+
+                {{-- Server-side password error --}}
+                @error('password')
+                    <div style="color:var(--red);font-size:.78rem;margin-top:5px;display:flex;align-items:center;gap:4px;">
+                        <i class="fas fa-circle-exclamation"></i> {{ $message }}
+                    </div>
+                @enderror
+
+                {{-- Strength bar --}}
+                <div class="strength-wrap">
+                    <div class="strength-bar-bg">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <div class="strength-label" id="strengthLabel">Enter a password</div>
                 </div>
-                <div class="strength-text" id="strengthText">Enter password</div>
+
+                {{-- Requirements checklist --}}
+                <div class="req-box">
+                    <p><i class="fas fa-list-check me-1"></i> Your password must contain:</p>
+                    <ul class="req-list">
+                        <li id="req-len"><i class="fas fa-circle"></i> 8+ characters</li>
+                        <li id="req-up"><i class="fas fa-circle"></i>  Uppercase letter</li>
+                        <li id="req-low"><i class="fas fa-circle"></i> Lowercase letter</li>
+                        <li id="req-num"><i class="fas fa-circle"></i> Number</li>
+                        <li id="req-sym"><i class="fas fa-circle"></i> Special character</li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Confirm Password Field -->
+            {{-- Confirm Password --}}
             <div class="form-group">
-                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                <label class="form-label" for="password_confirmation">
+                    <i class="fas fa-lock me-1" style="color:var(--red)"></i> Confirm Password
+                </label>
                 <div class="input-wrapper">
-                    <i class="fas fa-lock input-icon"></i>
-                    <input type="password" 
-                           class="form-control" 
-                           id="password_confirmation" 
-                           name="password_confirmation" 
-                           placeholder="Confirm new password"
+                    <i class="input-icon fas fa-lock"></i>
+                    <span class="field-status" id="cfStatus"></span>
+                    <input type="password"
+                           class="form-control"
+                           id="password_confirmation"
+                           name="password_confirmation"
+                           placeholder="Re-enter your password"
+                           autocomplete="new-password"
                            required>
-                    <button type="button" class="password-toggle" id="toggleConfirmPassword" tabindex="-1">
+                    <button type="button" class="toggle-btn" id="toggleCf" tabindex="-1" title="Show / hide">
                         <i class="far fa-eye"></i>
                     </button>
                 </div>
-                <div class="invalid-feedback" id="passwordMatchError" style="display: none;">
-                    Passwords do not match
+                <div class="field-error" id="cfError">
+                    <i class="fas fa-circle-exclamation"></i> Passwords do not match.
                 </div>
             </div>
 
-            <!-- Password Requirements -->
-            <div class="requirements">
-                <p><i class="fas fa-shield-alt me-2"></i>Password must contain:</p>
-                <ul>
-                    <li id="req-length"><i class="fas fa-circle"></i> At least 8 characters</li>
-                    <li id="req-uppercase"><i class="fas fa-circle"></i> At least one uppercase letter</li>
-                    <li id="req-lowercase"><i class="fas fa-circle"></i> At least one lowercase letter</li>
-                    <li id="req-number"><i class="fas fa-circle"></i> At least one number</li>
-                    <li id="req-special"><i class="fas fa-circle"></i> At least one special character</li>
-                </ul>
-            </div>
-
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">Reset Password</span>
-                <div class="spinner">
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
+            {{-- Submit --}}
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                <span class="btn-label">
+                    <i class="fas fa-key me-2"></i> Reset Password
+                </span>
+                <div class="spinner-row">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
             </button>
 
-            <a href="{{ route('login') }}" class="back-login">
-                <i class="fas fa-arrow-left"></i>
-                Back to Login
+            <a href="{{ route('login') }}" class="back-link">
+                <i class="fas fa-arrow-left me-1"></i> Back to Login
             </a>
         </form>
     </div>
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const resetForm = document.getElementById('resetForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('password_confirmation');
-            
-            // Password toggle functionality
-            const togglePassword = document.getElementById('togglePassword');
-            const toggleConfirm = document.getElementById('toggleConfirmPassword');
-            
-            if (togglePassword && password) {
-                togglePassword.addEventListener('click', function() {
-                    const type = password.type === 'password' ? 'text' : 'password';
-                    password.type = type;
-                    this.querySelector('i').classList.toggle('fa-eye');
-                    this.querySelector('i').classList.toggle('fa-eye-slash');
-                });
-            }
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
 
-            if (toggleConfirm && confirmPassword) {
-                toggleConfirm.addEventListener('click', function() {
-                    const type = confirmPassword.type === 'password' ? 'text' : 'password';
-                    confirmPassword.type = type;
-                    this.querySelector('i').classList.toggle('fa-eye');
-                    this.querySelector('i').classList.toggle('fa-eye-slash');
-                });
-            }
+    const pwInput  = document.getElementById('password');
+    const cfInput  = document.getElementById('password_confirmation');
+    const pwStatus = document.getElementById('pwStatus');
+    const cfStatus = document.getElementById('cfStatus');
+    const cfError  = document.getElementById('cfError');
+    const fillBar  = document.getElementById('strengthFill');
+    const fillLabel= document.getElementById('strengthLabel');
+    const submitBtn= document.getElementById('submitBtn');
 
-            // Password strength checker
-            if (password) {
-                password.addEventListener('input', function() {
-                    const val = this.value;
-                    const strengthBar = document.getElementById('strengthBar');
-                    const strengthText = document.getElementById('strengthText');
-                    
-                    // Check requirements
-                    const hasLength = val.length >= 8;
-                    const hasUpper = /[A-Z]/.test(val);
-                    const hasLower = /[a-z]/.test(val);
-                    const hasNumber = /[0-9]/.test(val);
-                    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-                    
-                    // Update requirement indicators
-                    document.getElementById('req-length').className = hasLength ? 'valid' : '';
-                    document.getElementById('req-uppercase').className = hasUpper ? 'valid' : '';
-                    document.getElementById('req-lowercase').className = hasLower ? 'valid' : '';
-                    document.getElementById('req-number').className = hasNumber ? 'valid' : '';
-                    document.getElementById('req-special').className = hasSpecial ? 'valid' : '';
-                    
-                    // Update icons
-                    document.querySelectorAll('.requirements li').forEach(li => {
-                        const icon = li.querySelector('i');
-                        if (li.classList.contains('valid')) {
-                            icon.className = 'fas fa-check-circle';
-                            icon.style.color = '#28a745';
-                        } else {
-                            icon.className = 'fas fa-circle';
-                            icon.style.color = '#999';
-                        }
-                    });
-                    
-                    // Calculate strength
-                    const strength = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
-                    
-                    // Update strength bar
-                    strengthBar.style.width = (strength * 20) + '%';
-                    
-                    if (val.length === 0) {
-                        strengthBar.style.background = '#e0e0e0';
-                        strengthText.textContent = 'Enter password';
-                    } else if (strength <= 2) {
-                        strengthBar.style.background = '#dc3545';
-                        strengthText.textContent = 'Weak password';
-                    } else if (strength <= 4) {
-                        strengthBar.style.background = '#ffc107';
-                        strengthText.textContent = 'Medium password';
-                    } else {
-                        strengthBar.style.background = '#28a745';
-                        strengthText.textContent = 'Strong password';
-                    }
-                });
-            }
+    const reqs = {
+        len: { el: document.getElementById('req-len'), test: v => v.length >= 8 },
+        up:  { el: document.getElementById('req-up'),  test: v => /[A-Z]/.test(v) },
+        low: { el: document.getElementById('req-low'), test: v => /[a-z]/.test(v) },
+        num: { el: document.getElementById('req-num'), test: v => /[0-9]/.test(v) },
+        sym: { el: document.getElementById('req-sym'), test: v => /[^A-Za-z0-9]/.test(v) },
+    };
 
-            // Password match validation
-            if (confirmPassword && password) {
-                function checkPasswordMatch() {
-                    const matchError = document.getElementById('passwordMatchError');
-                    if (password.value && confirmPassword.value) {
-                        if (password.value !== confirmPassword.value) {
-                            confirmPassword.classList.add('is-invalid');
-                            matchError.style.display = 'block';
-                            return false;
-                        } else {
-                            confirmPassword.classList.remove('is-invalid');
-                            matchError.style.display = 'none';
-                            return true;
-                        }
-                    }
-                    return true;
-                }
-
-                confirmPassword.addEventListener('input', checkPasswordMatch);
-                password.addEventListener('input', checkPasswordMatch);
-            }
-
-            // Form submission with validation
-            if (resetForm && submitBtn) {
-                resetForm.addEventListener('submit', function(e) {
-                    // Validate password match
-                    if (password.value !== confirmPassword.value) {
-                        e.preventDefault();
-                        confirmPassword.classList.add('is-invalid');
-                        document.getElementById('passwordMatchError').style.display = 'block';
-                        return false;
-                    }
-                    
-                    // Add loading state
-                    submitBtn.classList.add('loading');
-                    submitBtn.disabled = true;
-                });
-            }
-
-            // Auto-hide alerts after 5 seconds
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.transition = 'opacity 0.5s ease';
-                    alert.style.opacity = '0';
-                    setTimeout(() => {
-                        alert.style.display = 'none';
-                    }, 500);
-                }, 5000);
-            });
+    /* ── Toggle visibility ── */
+    function bindToggle(btnId, inputEl) {
+        document.getElementById(btnId).addEventListener('click', function () {
+            const show = inputEl.type === 'password';
+            inputEl.type = show ? 'text' : 'password';
+            this.querySelector('i').className = show ? 'far fa-eye-slash' : 'far fa-eye';
         });
-    </script>
+    }
+
+    bindToggle('togglePw', pwInput);
+    bindToggle('toggleCf', cfInput);
+
+    /* ── Strength colours ── */
+    const levels = [
+        { pct: 20, colour: '#dc2626', label: 'Very weak',  labelClass: '#dc2626' },
+        { pct: 40, colour: '#ea580c', label: 'Weak',       labelClass: '#ea580c' },
+        { pct: 60, colour: '#ca8a04', label: 'Fair',       labelClass: '#ca8a04' },
+        { pct: 80, colour: '#16a34a', label: 'Good',       labelClass: '#16a34a' },
+        { pct:100, colour: '#15803d', label: 'Strong ✓',   labelClass: '#15803d' },
+    ];
+
+    /* ── Validate password requirements ── */
+    function checkPassword() {
+        const val = pwInput.value;
+        let met = 0;
+
+        Object.values(reqs).forEach(r => {
+            const ok = r.test(val);
+            r.el.className = ok ? 'met' : '';
+            r.el.querySelector('i').className = ok ? 'fas fa-check-circle' : 'fas fa-circle';
+            if (ok) met++;
+        });
+
+        if (val.length === 0) {
+            fillBar.style.width = '0';
+            fillBar.style.background = '';
+            fillLabel.textContent = 'Enter a password';
+            fillLabel.style.color = '#6c757d';
+            pwStatus.className = 'field-status';
+            pwInput.classList.remove('is-valid', 'is-invalid');
+        } else {
+            const lvl = levels[met - 1] || levels[0];
+            fillBar.style.width  = lvl.pct + '%';
+            fillBar.style.background = lvl.colour;
+            fillLabel.textContent    = lvl.label;
+            fillLabel.style.color    = lvl.labelClass;
+
+            const allMet = met === 5;
+            pwInput.classList.toggle('is-valid',   allMet);
+            pwInput.classList.toggle('is-invalid', !allMet && val.length > 0);
+            pwStatus.innerHTML   = allMet
+                ? '<i class="fas fa-circle-check"></i>'
+                : '<i class="fas fa-circle-xmark"></i>';
+            pwStatus.className   = 'field-status ' + (allMet ? 'valid' : 'invalid');
+        }
+
+        checkConfirm();
+        updateSubmit();
+    }
+
+    /* ── Validate confirm password ── */
+    function checkConfirm() {
+        const pw = pwInput.value;
+        const cf = cfInput.value;
+
+        if (cf.length === 0) {
+            cfInput.classList.remove('is-valid', 'is-invalid');
+            cfStatus.className = 'field-status';
+            cfError.style.display = 'none';
+            return;
+        }
+
+        const match = pw === cf;
+        cfInput.classList.toggle('is-valid',   match);
+        cfInput.classList.toggle('is-invalid', !match);
+        cfStatus.innerHTML   = match
+            ? '<i class="fas fa-circle-check"></i>'
+            : '<i class="fas fa-circle-xmark"></i>';
+        cfStatus.className   = 'field-status ' + (match ? 'valid' : 'invalid');
+        cfError.style.display = match ? 'none' : 'flex';
+    }
+
+    /* ── Enable submit only when all rules met + passwords match ── */
+    function updateSubmit() {
+        const allReqsMet = Object.values(reqs).every(r => r.test(pwInput.value));
+        const pwMatch    = pwInput.value === cfInput.value && cfInput.value.length > 0;
+        submitBtn.disabled = !(allReqsMet && pwMatch);
+    }
+
+    pwInput.addEventListener('input', checkPassword);
+    cfInput.addEventListener('input', function () { checkConfirm(); updateSubmit(); });
+
+    /* ── Loading state on submit ── */
+    document.getElementById('resetForm').addEventListener('submit', function (e) {
+        /* Final guard: should never be false since button is disabled, but just in case */
+        const allReqsMet = Object.values(reqs).every(r => r.test(pwInput.value));
+        const pwMatch    = pwInput.value === cfInput.value;
+        if (!allReqsMet || !pwMatch) {
+            e.preventDefault();
+            return;
+        }
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+
+    /* ── Auto-dismiss alerts ── */
+    document.querySelectorAll('.alert').forEach(function (a) {
+        setTimeout(function () {
+            a.style.transition = 'opacity .5s';
+            a.style.opacity = '0';
+            setTimeout(function () { a.style.display = 'none'; }, 500);
+        }, 6000);
+    });
+})();
+</script>
 </body>
 </html>

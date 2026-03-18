@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     
     <style>
         * {
@@ -730,7 +731,7 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -758,7 +759,7 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
@@ -785,8 +786,8 @@
     <!-- Hero Section -->
     <section class="history-hero">
         <div class="history-hero-content">
-            <h1><i class="fa-solid fa-landmark-flag"></i> History of Barangay Hulong Duhat</h1>
-            <p>Discover our journey from a small settlement to a thriving community</p>
+            <h1><i class="fa-solid fa-landmark-flag"></i> {{ __('messages.history_hero_title') }}</h1>
+            <p>{{ __('messages.history_hero_subtitle') }}</p>
         </div>
     </section>
 
@@ -797,7 +798,7 @@
             <div class="container">
                 <div class="content-grid">
                     <div class="text-content">
-                        <h2>Our Beginnings</h2>
+                        <h2>{{ __('messages.history_our_beginnings') }}</h2>
                         <p>{{ __('messages.history_info') }}</p>
                         <div class="key-facts">
                             <div class="fact-item">
@@ -810,22 +811,22 @@
                             <div class="fact-item">
                                 <i class="fas fa-users"></i>
                                 <div>
-                                    <h4>Population</h4>
-                                    <p>12,850 Residents</p>
+                                    <h4>{{ __('messages.history_residents') }}</h4>
+                                    <p>12,850 {{ __('messages.history_total_residents') }}</p>
                                 </div>
                             </div>
                             <div class="fact-item">
                                 <i class="fas fa-map-marked-alt"></i>
                                 <div>
                                     <h4>Area</h4>
-                                    <p>15 Puroks</p>
+                                    <p>15 {{ __('messages.history_puroks') }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="image-content">
-                        <img src="Images/history.jpg" alt="Early Settlement" class="section-image" loading="lazy">
-                        <div class="image-caption">Early farming community in the 1950s</div>
+                        <img src="Images/history.jpg" alt="{{ __('messages.history_early_settlement') }}" class="section-image" loading="lazy">
+                        <div class="image-caption">{{ __('messages.history_early_farming') }}</div>
                     </div>
                 </div>
             </div>
@@ -845,8 +846,8 @@
                             <div class="timeline-icon">
                                 <i class="fas fa-seedling"></i>
                             </div>
-                            <h3>Early Settlement</h3>
-                            <p>Formation of the first farming community along the riverbanks. Families established the first residential areas.</p>
+                            <h3>{{ __('messages.history_early_settlement') }}</h3>
+                            <p>{{ __('messages.history_early_settlement_desc')}}</p>
                         </div>
                     </div>
                     
@@ -856,8 +857,8 @@
                             <div class="timeline-icon">
                                 <i class="fas fa-flag"></i>
                             </div>
-                            <h3>Official Recognition</h3>
-                            <p>Barangay Hulong Duhat was officially recognized by the City of Malabon. First barangay hall was established.</p>
+                            <h3>{{ __('messages.history_official_recognition') }}</h3>
+                            <p>{{ __('messages.history_recognition_desc') }}</p>
                         </div>
                     </div>
                     
@@ -867,8 +868,8 @@
                             <div class="timeline-icon">
                                 <i class="fas fa-road"></i>
                             </div>
-                            <h3>Infrastructure Development</h3>
-                            <p>Major road networks and public facilities were constructed. Population growth accelerated.</p>
+                            <h3>{{ __('messages.history_infrastructure') }}</h3>
+                            <p>{{ __('messages.history_infrastructure_desc') }}</p>
                         </div>
                     </div>
                     
@@ -878,8 +879,8 @@
                             <div class="timeline-icon">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <h3>Modernization</h3>
-                            <p>Improved public services, healthcare facilities, and community programs were implemented.</p>
+                            <h3>{{ __('messages.history_modernization') }}</h3>
+                            <p>{{ __('messages.history_modernization_desc') }}</p>
                         </div>
                     </div>
                     
@@ -889,8 +890,8 @@
                             <div class="timeline-icon">
                                 <i class="fas fa-laptop"></i>
                             </div>
-                            <h3>Digital Transformation</h3>
-                            <p>Launch of online services and digital platforms for better community engagement.</p>
+                            <h3>{{ __('messages.history_digital') }}</h3>
+                            <p>{{ __('messages.history_digital_desc') }}</p>
                         </div>
                     </div>
                 </div>
@@ -901,7 +902,7 @@
         <section class="heritage-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Cultural Heritage</h2>
+                    <h2>{{ __('messages.history_cultural_heritage') }}</h2>
                 </div>
                 
                 <div class="heritage-grid">
@@ -909,24 +910,24 @@
                         <div class="heritage-icon">
                             <i class="fas fa-glass-cheers"></i>
                         </div>
-                        <h3>Annual Fiesta</h3>
-                        <p>Celebrated every May 15th in honor of San Isidro Labrador, featuring community events and cultural activities.</p>
+                        <h3>{{ __('messages.history_annual_fiesta') }}</h3>
+                        <p>{{ __('messages.history_fiesta_desc') }}</p>
                     </div>
                     
                     <div class="heritage-card">
                         <div class="heritage-icon">
                             <i class="fas fa-utensils"></i>
                         </div>
-                        <h3>Local Cuisine</h3>
-                        <p>Known for traditional Filipino dishes and local specialties unique to our riverside community.</p>
+                        <h3>{{ __('messages.history_local_cuisine') }}</h3>
+                        <p>{{ __('messages.history_cuisine_desc') }}</p>
                     </div>
                     
                     <div class="heritage-card">
                         <div class="heritage-icon">
                             <i class="fas fa-hands-helping"></i>
                         </div>
-                        <h3>Community Values</h3>
-                        <p>Strong emphasis on bayanihan spirit, mutual assistance, and community cooperation.</p>
+                        <h3>{{ __('messages.history_community_values') }}</h3>
+                        <p>{{ __('messages.history_values_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -936,34 +937,34 @@
         <section class="landmarks-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Historical Landmarks</h2>
+                    <h2>{{ __('messages.history_landmarks') }}</h2>
                 </div>
                 
                 <div class="landmarks-grid">
                     <div class="landmark-card">
-                        <img src="Images/chapel.webp" alt="San Lorenzo Ruiz Chapel" loading="lazy">
+                        <img src="Images/chapel.webp" alt="{{ __('messages.history_chapel') }}" loading="lazy">
                         <div class="landmark-content">
-                            <h3>Hulong Duhat Chapel</h3>
-                            <p>The community chapel established in 1965, serving as the spiritual heart of our barangay. It has been the venue for masses, weddings, baptisms, and community gatherings for generations.</p>
-                            <div class="landmark-year">Est. 1965</div>
+                            <h3>{{ __('messages.history_chapel') }}</h3>
+                            <p>{{ __('messages.history_chapel_desc') }}</p>
+                            <div class="landmark-year">{{ __('messages.history_established') }} 1965</div>
                         </div>
                     </div>
                     
                     <div class="landmark-card">
-                        <img src="Images/barangay.jfif" alt="First Barangay Hall" loading="lazy">
+                        <img src="Images/barangay.jfif" alt="{{ __('messages.history_first_hall') }}" loading="lazy">
                         <div class="landmark-content">
-                            <h3>First Barangay Hall</h3>
-                            <p>The original administrative building constructed in 1978, now preserved as a historical site.</p>
-                            <div class="landmark-year">Est. 1978</div>
+                            <h3>{{ __('messages.history_first_hall') }}</h3>
+                            <p>{{ __('messages.history_first_hall_desc') }}</p>
+                            <div class="landmark-year">{{ __('messages.history_established') }} 1978</div>
                         </div>
                     </div>
                     
                     <div class="landmark-card">
-                        <img src="Images/plaza.avif" alt="Community Plaza" loading="lazy">
+                        <img src="Images/plaza.avif" alt="{{ __('messages.history_plaza') }}" loading="lazy">
                         <div class="landmark-content">
-                            <h3>Hulong Duhat Plaza</h3>
-                            <p>Central gathering place for community events, celebrations, and public assemblies.</p>
-                            <div class="landmark-year">Est. 1985</div>
+                            <h3>{{ __('messages.history_plaza') }}</h3>
+                            <p>{{ __('messages.history_plaza_desc') }}</p>
+                            <div class="landmark-year">{{ __('messages.history_established') }} 1985</div>
                         </div>
                     </div>
                 </div>
@@ -974,32 +975,32 @@
         <section class="stats-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Community Growth</h2>
+                    <h2>{{ __('messages.history_community_growth') }}</h2>
                 </div>
                 
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="heritage-card">
                         <div class="stat-number">12,850</div>
-                        <div class="stat-label">Total Residents</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 15% since 2015</div>
+                        <div class="stat-label">{{ __('messages.history_total_residents') }}</div>
+                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 15% {{ __('messages.history_since_2015') }}</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="heritage-card">
                         <div class="stat-number">1,287</div>
-                        <div class="stat-label">Households</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 12% since 2015</div>
+                        <div class="stat-label">{{ __('messages.history_households') }}</div>
+                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 12% {{ __('messages.history_since_2015') }}</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="heritage-card">
                         <div class="stat-number">85%</div>
-                        <div class="stat-label">Infrastructure Development</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 25% since 2000</div>
+                        <div class="stat-label">{{ __('messages.history_infrastructure') }}</div>
+                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 25% {{ __('messages.history_since_2000') }}</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="heritage-card">
                         <div class="stat-number">15</div>
-                        <div class="stat-label">Active Community Programs</div>
-                        <div class="stat-trend"><i class="fas fa-plus"></i> 5 new since 2020</div>
+                        <div class="stat-label">{{ __('messages.history_active_programs') }}</div>
+                        <div class="stat-trend"><i class="fas fa-plus"></i> 5 {{ __('messages.history_new_since_2020') }}</div>
                     </div>
                 </div>
             </div>
@@ -1032,17 +1033,17 @@
     <!-- Floating Action Button with Speed Dial -->
     <div class="fab-container">
         <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
+            <button class="fab-action" id="translateBtn" title="{{ __('messages.history_translate_text') }}">
                 @if(app()->getLocale() == 'en')
                     <span>Filipino</span>
                 @else
                     <span>English</span>
                 @endif
             </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
+            <button class="fab-action" id="darkModeBtn" title="{{ __('messages.history_toggle_dark') }}">
                 <i class="fas fa-moon"></i>
             </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
+            <button class="fab-action" id="chatBtn" title="{{ __('messages.history_chat_assistant') }}">
                 <i class="fas fa-comment-dots"></i>
             </button>
         </div>
@@ -1050,9 +1051,9 @@
             <i class="fas fa-gear"></i>
         </button>
     </div>
-    
+
     <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <button class="back-to-top" id="backToTop" aria-label="{{ __('messages.history_back_to_top') }}">
         <i class="fas fa-chevron-up"></i>
     </button>
 
@@ -1191,6 +1192,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/navbar.js') }}"></script>
 
     <script>

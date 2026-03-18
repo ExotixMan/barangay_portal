@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class PasswordResetController extends Controller
 {
@@ -38,9 +39,12 @@ class PasswordResetController extends Controller
     public function reset(Request $request)
     {
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email|exists:residents,email',
-            'password' => 'required|confirmed|min:8',
+            'token'    => 'required',
+            'email'    => 'required|email|exists:residents,email',
+            'password' => ['required', 'confirmed', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+        ], [
+            'password.confirmed' => 'The passwords do not match.',
+            'password.*'         => 'Password must be at least 8 characters and contain uppercase, lowercase, a number, and a special character.',
         ]);
 
         $status = Password::reset(

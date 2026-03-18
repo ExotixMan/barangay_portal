@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentsController;
 use App\Http\Controllers\Admin\ResidentController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -147,6 +148,15 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');;
 
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info');
+    Route::post('/profile/account', [ProfileController::class, 'updateAccount'])->name('profile.account');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
+    Route::delete('/profile/photo', [ProfileController::class, 'removePhoto'])->name('profile.photo.remove');
+    Route::post('/profile/id', [ProfileController::class, 'updateId'])->name('profile.id');
+
     // Services pages
     Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
@@ -246,6 +256,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{resident}', [ResidentController::class, 'update'])->middleware('permission:update_residents')->name('update');
         Route::delete('/{resident}', [ResidentController::class, 'destroy'])->middleware('permission:delete_residents')->name('destroy');
         Route::post('/{id}/restore', [ResidentController::class, 'restore'])->middleware('permission:restore_residents')->name('restore');
+        Route::post('/{id}/verify-id', [ResidentController::class, 'verifyValidId'])->middleware('permission:update_residents')->name('verifyId');
     });
 
     // ==================== RESIDENCY MODULE ====================
@@ -392,21 +403,23 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     });
 });
 use Illuminate\Support\Facades\Http;
-// Add to routes/web.php
-Route::get('/debug-semaphore', function() {
+
+Route::get('/debug-semaphore', function () {
     $apiKey = env('SMS_API_KEY');
-    
-    // Test with minimal payload
+
+    // Test with sender name
     $payload = [
         'apikey' => $apiKey,
-        'number' => '639994086683', // Replace with your actual test number
+        'number' => '639994086683',
         'message' => 'Test message',
+        // 'sendername' => env('SMS_SENDER_NAME'),
     ];
-    
+
     try {
         $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
-        
+
         $result = [
+            'payload' => $payload,
             'status_code' => $response->status(),
             'headers' => $response->headers(),
             'body_raw' => $response->body(),
@@ -416,7 +429,7 @@ Route::get('/debug-semaphore', function() {
             'client_error' => $response->clientError(),
             'server_error' => $response->serverError(),
         ];
-        
+
         dd($result);
     } catch (\Exception $e) {
         dd([

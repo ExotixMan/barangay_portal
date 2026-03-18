@@ -19,7 +19,7 @@
             font-family: 'Poppins', sans-serif; 
         }
         .review-content ul { 
-            padding-left: 1.2rem; 
+            padding-left: 1.2rem;
             margin-bottom: 0.5rem; 
         }
         .review-content li { 
@@ -312,6 +312,9 @@
                             I understand that the certificate is free of charge, and I will bring my valid ID for release.
                         </label>
                     </div>
+                    <div id="termsError" style="display:none;color:#ff4444;font-size:0.85rem;margin-top:8px;padding:8px 12px;background:rgba(255,68,68,0.05);border-radius:6px;border:1px solid rgba(255,68,68,0.3);">
+                        <i class="fas fa-exclamation-circle me-1"></i> Please accept all terms and conditions before submitting.
+                    </div>
 
                     <div class="form-actions row g-2">
                         <div class="col-6 col-md-auto">
@@ -425,9 +428,20 @@
 
                 if (!termsCheckbox.checked || !privacyCheckbox.checked || !pickupCheckbox.checked) {
                     e.preventDefault();
-                    alert('Please accept all terms and conditions.');
+                    const termsError = document.getElementById('termsError');
+                    termsError.style.display = 'block';
+                    termsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
+            });
+
+            // Hide terms error once all checkboxes are checked
+            [termsCheckbox, privacyCheckbox, pickupCheckbox].forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    if (termsCheckbox.checked && privacyCheckbox.checked && pickupCheckbox.checked) {
+                        document.getElementById('termsError').style.display = 'none';
+                    }
+                });
             });
 
             // File upload functionality
@@ -538,13 +552,13 @@
                         }
                         
                         // Check minimum length
-                        if (fieldValue.length < 2) {
+                        else if (fieldValue.length < 2) {
                             isValid = false;
                             showFieldError(field, 'Name must be at least 2 characters long');
                         }
                         
                         // Check maximum length
-                        if (fieldValue.length > 255) {
+                        else if (fieldValue.length > 255) {
                             isValid = false;
                             showFieldError(field, 'Name must not exceed 255 characters');
                         }
@@ -787,6 +801,13 @@
             }
 
             function showFieldError(field, message) {
+                // Prevent duplicate error messages on the same field
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.textContent = message;
+                    return;
+                }
+
                 field.style.borderColor = '#ff4444';
                 field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
                 

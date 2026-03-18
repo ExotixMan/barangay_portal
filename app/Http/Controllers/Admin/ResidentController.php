@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class ResidentController extends Controller
 {
@@ -128,14 +129,21 @@ class ResidentController extends Controller
         session()->flash('form_type', 'add');
 
         $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname'  => 'required|string|max:255',
-            'username'  => 'required|string|max:255|unique:residents,username',
+            'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username'],
             'email'     => 'required|email|max:255|unique:residents,email',
             'birthdate' => 'required|date|before:today',
-            'password'  => 'required|min:8|confirmed',
-            'contact'   => 'required|string|max:11',
+            'password'  => ['required','confirmed', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
+        ], [
+            'firstname.regex'   => 'First name can only contain letters, spaces, and hyphens.',
+            'lastname.regex'    => 'Last name can only contain letters, spaces, and hyphens.',
+            'username.regex'    => 'Username can only contain letters, numbers, and underscores.',
+            'username.min'      => 'Username must be at least 3 characters.',
+            'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
+            'password.min'      => 'Password must be at least 8 characters.',
         ]);
 
         $resident = Residents::create([
@@ -163,13 +171,19 @@ class ResidentController extends Controller
         session()->flash('form_type', 'edit_' . $resident->id);
 
         $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname'  => 'required|string|max:255',
-            'username'  => 'required|string|max:255|unique:residents,username,' . $resident->id,
-            'email'     => 'required|email|max:255|unique:residents,email,' . $resident->id,
-            'birthdate'  => 'required|date|before:today',
-            'contact'    => 'required|string|max:11',
-            'address'    => 'required|string|max:500',
+            'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username,'.$resident->id],
+            'email'     => 'required|email|max:255|unique:residents,email,'.$resident->id,
+            'birthdate' => 'required|date|before:today',
+            'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
+            'address'   => 'required|string|max:500',
+        ], [
+            'firstname.regex' => 'First name can only contain letters, spaces, and hyphens.',
+            'lastname.regex'  => 'Last name can only contain letters, spaces, and hyphens.',
+            'username.regex'  => 'Username can only contain letters, numbers, and underscores.',
+            'username.min'    => 'Username must be at least 3 characters.',
+            'contact.regex'   => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
         ]);
 
         $resident->update([
@@ -202,6 +216,20 @@ class ResidentController extends Controller
         $this->log($resident, 'Restored');
         
         return redirect()->back()->with('success', 'Resident restored successfully.');
+    }
+
+    public function verifyValidId($id)
+    {
+        $resident = Residents::withTrashed()->findOrFail($id);
+
+        if (!$resident->valid_id) {
+            return redirect()->back()->with('error', 'This resident has no valid ID uploaded.');
+        }
+
+        $resident->update(['valid_id_verified' => 'true']);
+        $this->log($resident, 'Valid ID Verified');
+
+        return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been verified.');
     }
     
     public function bulkDelete(Request $request)

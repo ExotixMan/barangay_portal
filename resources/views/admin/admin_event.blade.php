@@ -1243,10 +1243,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data" id="addEventForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data" id="addEventForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Basic Information -->
                                     <div class="col-12">
@@ -1360,16 +1360,16 @@
                                         <div id="addImagePreview" class="mt-2"></div>
                                     </div>
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addEventForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Event
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1388,12 +1388,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Basic Information -->
                                         <div class="col-12">
@@ -1512,16 +1512,16 @@
                                             </div>
                                         </div>
                                     </div>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
+                                    <button type="submit" form="editEventForm{{ $event->id }}" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
                                         <i class="fas fa-save me-2"></i>Update Event
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -1804,6 +1804,90 @@
             const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
             zoomModal.show();
         }
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function sf(el, msg) {
+            if (!el) return;
+            el.classList.add('is-invalid');
+            let fb = el.parentElement.querySelector('.invalid-feedback');
+            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+            fb.textContent = msg;
+        }
+        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+
+        function attachEventValidation(form) {
+            if (!form) return;
+            const title       = form.querySelector('[name="title"]');
+            const description = form.querySelector('[name="description"]');
+            const eventDate   = form.querySelector('[name="event_date"]');
+            const location    = form.querySelector('[name="location"]');
+            const type        = form.querySelector('[name="type"]');
+            const image       = form.querySelector('[name="image"]');
+
+            if (title) {
+                title.addEventListener('input', function() { cf(this); }, {once: true});
+                title.addEventListener('input', function() {
+                    if (!this.value.trim()) sf(this, 'Title is required.');
+                    else if (this.value.trim().length < 3) sf(this, 'Title must be at least 3 characters.');
+                    else cf(this);
+                });
+            }
+            if (description) {
+                description.addEventListener('input', function() { cf(this); }, {once: true});
+                description.addEventListener('input', function() {
+                    if (!this.value.trim()) sf(this, 'Description is required.');
+                    else if (this.value.trim().length < 10) sf(this, 'Description must be at least 10 characters.');
+                    else cf(this);
+                });
+            }
+            if (eventDate) eventDate.addEventListener('change', function() {
+                if (!this.value) sf(this, 'Event date is required.'); else cf(this);
+            });
+            if (location) {
+                location.addEventListener('input', function() { cf(this); }, {once: true});
+                location.addEventListener('input', function() {
+                    if (!this.value.trim()) sf(this, 'Location is required.');
+                    else if (this.value.trim().length < 3) sf(this, 'Location must be at least 3 characters.');
+                    else cf(this);
+                });
+            }
+            if (type) type.addEventListener('change', function() {
+                if (!this.value) sf(this, 'Please select an event type.'); else cf(this);
+            });
+            if (image) image.addEventListener('change', function() {
+                if (this.files && this.files[0] && this.files[0].size / 1024 / 1024 > 5) {
+                    sf(this, 'Image must be less than 5MB.'); this.value = '';
+                } else cf(this);
+            });
+
+            form.addEventListener('submit', function(e) {
+                let valid = true;
+                if (title) {
+                    if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
+                    else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
+                }
+                if (description) {
+                    if (!description.value.trim()) { sf(description, 'Description is required.'); valid = false; }
+                    else if (description.value.trim().length < 10) { sf(description, 'Description must be at least 10 characters.'); valid = false; }
+                }
+                if (eventDate && !eventDate.value) { sf(eventDate, 'Event date is required.'); valid = false; }
+                if (location) {
+                    if (!location.value.trim()) { sf(location, 'Location is required.'); valid = false; }
+                    else if (location.value.trim().length < 3) { sf(location, 'Location must be at least 3 characters.'); valid = false; }
+                }
+                if (type && !type.value) { sf(type, 'Please select an event type.'); valid = false; }
+                if (image && image.files && image.files[0] && image.files[0].size / 1024 / 1024 > 5) {
+                    sf(image, 'Image must be less than 5MB.'); valid = false;
+                }
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        attachEventValidation(document.getElementById('addEventForm'));
+        document.querySelectorAll('[id^="editEventForm"]').forEach(attachEventValidation);
+    });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

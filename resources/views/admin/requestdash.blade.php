@@ -28,7 +28,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($requests as $request)
+        @forelse ($requests as $request)
             <tr>
                 <td>{{ $request->request_id }}</td>
                 <td>{{ $request->request_type }}</td>
@@ -100,7 +100,14 @@
                     </form>
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="17" class="text-center" style="padding:40px;color:#888;">
+                    <div style="margin-bottom:8px;font-size:2.5rem;">&#128203;</div>
+                    <strong>No requests found.</strong>
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
 

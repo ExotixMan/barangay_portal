@@ -25,7 +25,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($residents as $resident)
+        @forelse ($residents as $resident)
             <tr>
                 <td>{{ $resident->id }}</td>
                 <td>{{ $resident->firstname }}</td>
@@ -50,7 +50,14 @@
                     </form>
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="10" class="text-center" style="padding:40px;color:#888;">
+                    <div style="margin-bottom:8px;font-size:2.5rem;">&#128101;</div>
+                    <strong>No residents found.</strong>
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
 

@@ -699,6 +699,13 @@
             padding: 0.5rem;
         }
 
+        .table .dropdown-menu {
+            margin-top: 0.25rem;
+            z-index: 1055;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
         .dropdown-item {
             border-radius: 8px;
             transition: all 0.2s ease;
@@ -2529,6 +2536,23 @@
             })('{{ $app->id }}');
             @endforeach
         @endif
+    </script>
+
+    <!-- Fix dropdown clipping inside table-responsive -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tableResponsive = document.querySelector('.table-responsive');
+            if (!tableResponsive) return;
+
+            tableResponsive.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(toggle) {
+                new bootstrap.Dropdown(toggle, {
+                    popperConfig: function(defaultConfig) {
+                        defaultConfig.strategy = 'fixed';
+                        return defaultConfig;
+                    }
+                });
+            });
+        });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

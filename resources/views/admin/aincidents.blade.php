@@ -27,7 +27,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($incidents as $incident)
+        @forelse ($incidents as $incident)
             <tr>
                 <td>{{ $incident->incident_id }}</td>
                 <td>{{ $incident->full_name }}</td>
@@ -94,7 +94,14 @@
                     </form>
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="12" class="text-center" style="padding:40px;color:#888;">
+                    <div style="margin-bottom:8px;font-size:2.5rem;">&#128203;</div>
+                    <strong>No incident reports found.</strong>
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
 

@@ -44,7 +44,8 @@ class ResidentsController extends Controller
             'contact' => 'required|string|max:11|regex:/^09\d{9}$/',
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
-            'password' => 'required|string|confirmed|min:8'
+            'password' => 'required|string|confirmed|min:8',
+            'terms' => 'accepted',
         ], [
             'firstname.regex' => 'First name may only contain letters, spaces, dots, apostrophes, and hyphens',
             'middlename.regex' => 'Middle name may only contain letters, spaces, dots, apostrophes, and hyphens',
@@ -55,6 +56,7 @@ class ResidentsController extends Controller
             'password.min' => 'Password must be at least 8 characters long',
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
             'username.min' => 'Username must be at least 4 characters long',
+            'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',
         ]);
 
         if ($request->hasFile('valid_id')) {

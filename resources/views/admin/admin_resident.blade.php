@@ -961,9 +961,19 @@
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </div>
+                                            @if($resident->profile_photo)
+                                                <img src="{{ asset($resident->profile_photo) }}" alt="Photo"
+                                                     class="rounded-circle me-2 object-fit-cover"
+                                                     style="width:36px;height:36px;border:2px solid #e9ecef;"
+                                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                                <div class="bg-light rounded-circle d-none align-items-center justify-content-center me-2" style="width:36px;height:36px;">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                            @else
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width:36px;height:36px;">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                            @endif
                                             <div>
                                                 <div class="fw-semibold">{{ $resident->full_name }}</div>
                                                 <small class="text-muted d-lg-none">ID: #{{ $resident->id }}</small>
@@ -989,6 +999,13 @@
                                             <span class="badge bg-danger-subtle text-danger">Deleted</span>
                                         @else
                                             <span class="badge bg-success-subtle text-success">Active</span>
+                                        @endif
+                                        @if($resident->valid_id)
+                                            @if($resident->valid_id_verified)
+                                                <span class="badge mt-1 d-block" style="background:#e8f5e8;color:#2e7d32;font-size:0.7rem;"><i class="fas fa-id-card me-1"></i>ID Verified</span>
+                                            @else
+                                                <span class="badge mt-1 d-block" style="background:#fff4e5;color:#ed6c02;font-size:0.7rem;"><i class="fas fa-id-card me-1"></i>ID Pending</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
@@ -1079,10 +1096,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <div class="modal-body">
                         <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label for="add_firstname" class="form-label">First Name <span class="text-danger">*</span></label>
@@ -1184,18 +1201,19 @@
                                         <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                                         <input type="password" name="password_confirmation" class="form-control" 
                                                id="add_password_confirmation" required>
+                                        <div class="invalid-feedback" id="add_pwc_feedback"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
+                        </form>
+                        </div>
+                        <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addResidentForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Resident
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1256,12 +1274,12 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
 
+                            <div class="modal-body">
                             <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">First Name <span class="text-danger">*</span></label>
@@ -1370,7 +1388,8 @@
                                             @endif
                                         </div>
                                     </div>
-                                </div>
+                            </form>
+                            </div>
 
                                 <div class="modal-footer">
                                     <button type="button"
@@ -1379,11 +1398,10 @@
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
 
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
+                                    <button type="submit" form="editResidentForm{{ $resident->id }}" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
                                         <i class="fas fa-save me-2"></i>Update Resident
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -1470,6 +1488,80 @@
                                         <i class="fas fa-map-marker-alt text-muted me-1"></i>
                                         {{ $resident->address ?? 'N/A' }}
                                     </p>
+                                </div>
+
+                                <!-- Profile Photo & Valid ID -->
+                                <div class="col-12 mt-2">
+                                    <h6 class="fw-semibold text-primary border-bottom pb-2">
+                                        <i class="fas fa-image me-2"></i>Profile Photo &amp; Valid ID
+                                    </h6>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small mb-1">Profile Photo</label>
+                                    @if($resident->profile_photo)
+                                        <div>
+                                            <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo"
+                                                 class="img-thumbnail object-fit-cover"
+                                                 style="width:120px;height:120px;border-radius:12px;cursor:pointer;"
+                                                 onclick="document.getElementById('profilePhotoFull{{ $resident->id }}').style.display='flex'"
+                                                 onerror="this.parentElement.innerHTML='<span class=\'text-muted small\'>Photo unavailable</span>';">
+                                        </div>
+                                        <!-- Full-screen overlay -->
+                                        <div id="profilePhotoFull{{ $resident->id }}" onclick="this.style.display='none'"
+                                             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                            <img src="{{ asset($resident->profile_photo) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                        </div>
+                                    @else
+                                        <p class="text-muted small fst-italic"><i class="fas fa-image me-1"></i>No profile photo uploaded</p>
+                                    @endif
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small mb-1">Valid ID</label>
+                                    @if($resident->valid_id)
+                                        @php $idExt = strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)); @endphp
+                                        @if(in_array($idExt, ['jpg','jpeg','png','webp']))
+                                            <div>
+                                                <img src="{{ asset($resident->valid_id) }}" alt="Valid ID"
+                                                     class="img-thumbnail object-fit-cover"
+                                                     style="width:120px;height:80px;border-radius:12px;cursor:pointer;"
+                                                     onclick="document.getElementById('validIdFull{{ $resident->id }}').style.display='flex'"
+                                                     onerror="this.parentElement.innerHTML='<span class=\'text-muted small\'>Image unavailable</span>';">
+                                                <div id="validIdFull{{ $resident->id }}" onclick="this.style.display='none'"
+                                                     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                    <img src="{{ asset($resident->valid_id) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                </div>
+                                            </div>
+                                        @else
+                                            <a href="{{ asset($resident->valid_id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-file-pdf me-1"></i>View PDF
+                                            </a>
+                                        @endif
+                                        <div class="mt-2">
+                                            @if($resident->valid_id_verified)
+                                                <span class="badge" style="background:#e8f5e8;color:#2e7d32;">
+                                                    <i class="fas fa-check-circle me-1"></i>Verified
+                                                </span>
+                                            @else
+                                                <span class="badge" style="background:#fff4e5;color:#ed6c02;">
+                                                    <i class="fas fa-clock me-1"></i>Pending Verification
+                                                </span>
+                                                @if(auth('admin')->user()->hasPermission('update_residents'))
+                                                    <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm ms-1"
+                                                                style="background:#e8f5e8;color:#2e7d32;border:1px solid #c8e6c9;border-radius:8px;"
+                                                                onclick="return confirm('Approve and verify the Valid ID for {{ addslashes($resident->full_name) }}?')">
+                                                            <i class="fas fa-check me-1"></i>Approve ID
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p class="text-muted small fst-italic"><i class="fas fa-id-card me-1"></i>No valid ID uploaded</p>
+                                    @endif
                                 </div>
 
                                 <!-- Account Information -->
@@ -1741,218 +1833,197 @@
         // Real-time validation for add form
         document.addEventListener('DOMContentLoaded', function() {
             const addForm = document.getElementById('addResidentForm');
-            if (addForm) {
-                // Password match validation
-                const password = document.getElementById('add_password');
-                const confirmPassword = document.getElementById('add_password_confirmation');
-                
-                if (password && confirmPassword) {
-                    confirmPassword.addEventListener('input', function() {
-                        if (password.value !== this.value) {
-                            this.setCustomValidity('Passwords do not match');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                    
-                    password.addEventListener('input', function() {
-                        if (confirmPassword.value && this.value !== confirmPassword.value) {
-                            confirmPassword.setCustomValidity('Passwords do not match');
-                            confirmPassword.classList.add('is-invalid');
-                        } else {
-                            confirmPassword.setCustomValidity('');
-                            confirmPassword.classList.remove('is-invalid');
-                        }
-                    });
-                }
+            if (!addForm) return;
 
-                // Contact number validation
-                const contact = document.getElementById('add_contact');
-                if (contact) {
-                    contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                        }
-                        else if (this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                        }
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
+            const namePattern     = /^[a-zA-Z\s\-\.]+$/;
+            const usernamePattern = /^[a-zA-Z0-9_]+$/;
+            const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                // Birthdate validation
-                const birthdate = document.getElementById('add_birthdate');
-                if (birthdate) {
-                    birthdate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Birthdate cannot be in the future');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
+            function setField(el, msg) {
+                if (msg) {
+                    el.setCustomValidity(msg);
+                    el.classList.add('is-invalid');
+                    let fb = el.parentNode.querySelector('.invalid-feedback');
+                    if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.parentNode.appendChild(fb); }
+                    fb.textContent = msg;
+                } else {
+                    el.setCustomValidity('');
+                    el.classList.remove('is-invalid');
+                    const fb = el.parentNode.querySelector('.invalid-feedback');
+                    if (fb) fb.textContent = '';
                 }
             }
+
+            // Clear any server-side is-invalid marks as soon as the user starts typing
+            addForm.querySelectorAll('.is-invalid').forEach(function(el) {
+                el.addEventListener('input', function() {
+                    el.classList.remove('is-invalid');
+                    const fb = el.parentNode.querySelector('.invalid-feedback');
+                    if (fb) fb.textContent = '';
+                }, { once: true });
+            });
+
+            // First name
+            const fn = document.getElementById('add_firstname');
+            if (fn) fn.addEventListener('input', function() {
+                if (!this.value.trim())              return setField(this, 'First name is required.');
+                if (!namePattern.test(this.value))   return setField(this, 'First name can only contain letters, spaces, and hyphens.');
+                if (this.value.trim().length < 2)    return setField(this, 'First name must be at least 2 characters.');
+                setField(this, '');
+            });
+
+            // Last name
+            const ln = document.getElementById('add_lastname');
+            if (ln) ln.addEventListener('input', function() {
+                if (!this.value.trim())              return setField(this, 'Last name is required.');
+                if (!namePattern.test(this.value))   return setField(this, 'Last name can only contain letters, spaces, and hyphens.');
+                if (this.value.trim().length < 2)    return setField(this, 'Last name must be at least 2 characters.');
+                setField(this, '');
+            });
+
+            // Username
+            const un = document.getElementById('add_username');
+            if (un) un.addEventListener('input', function() {
+                if (!this.value)                          return setField(this, 'Username is required.');
+                if (!usernamePattern.test(this.value))    return setField(this, 'Username can only contain letters, numbers, and underscores.');
+                if (this.value.length < 3)                return setField(this, 'Username must be at least 3 characters.');
+                setField(this, '');
+            });
+
+            // Email
+            const em = document.getElementById('add_email');
+            if (em) em.addEventListener('input', function() {
+                if (!this.value)                        return setField(this, 'Email is required.');
+                if (!emailPattern.test(this.value))     return setField(this, 'Please enter a valid email address.');
+                setField(this, '');
+            });
+
+            // Contact
+            const contact = document.getElementById('add_contact');
+            if (contact) contact.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                if (!this.value)                        return setField(this, 'Contact number is required.');
+                if (!this.value.startsWith('09'))       return setField(this, 'Contact number must start with 09.');
+                if (this.value.length !== 11)           return setField(this, 'Contact number must be exactly 11 digits.');
+                setField(this, '');
+            });
+
+            // Birthdate
+            const bd = document.getElementById('add_birthdate');
+            if (bd) bd.addEventListener('change', function() {
+                const sel = new Date(this.value);
+                const today = new Date(); today.setHours(0,0,0,0);
+                const minDate = new Date(); minDate.setFullYear(minDate.getFullYear() - 120);
+                if (sel >= today)    return setField(this, 'Birthdate must be in the past.');
+                if (sel < minDate)   return setField(this, 'Please enter a valid birthdate.');
+                setField(this, '');
+            });
+
+            // Password strength
+            const pw  = document.getElementById('add_password');
+            const pwc = document.getElementById('add_password_confirmation');
+
+            function validatePw() {
+                if (!pw.value)                          return setField(pw, 'Password is required.');
+                if (pw.value.length < 8)                return setField(pw, 'Password must be at least 8 characters.');
+                if (!/[A-Z]/.test(pw.value))            return setField(pw, 'Password must contain at least one uppercase letter.');
+                if (!/[a-z]/.test(pw.value))            return setField(pw, 'Password must contain at least one lowercase letter.');
+                if (!/[0-9]/.test(pw.value))            return setField(pw, 'Password must contain at least one number.');
+                if (!/[^A-Za-z0-9]/.test(pw.value))    return setField(pw, 'Password must contain at least one special character.');
+                setField(pw, '');
+                if (pwc.value) validatePwc();
+            }
+            function validatePwc() {
+                if (pwc.value !== pw.value) return setField(pwc, 'Passwords do not match.');
+                setField(pwc, '');
+            }
+            if (pw)  pw.addEventListener('input', validatePw);
+            if (pwc) pwc.addEventListener('input', validatePwc);
         });
         // Real-time validation for edit forms
         @if(auth('admin')->user()->hasPermission('update_residents'))
             @foreach($residents as $resident)
-            (function(editFormId) {
-                const editForm = document.getElementById('editResidentForm' + editFormId);
-                if (editForm) {
-                    // Contact number validation
-                    const contact = document.getElementById('edit_contact_' + editFormId);
-                    if (contact) {
-                        contact.addEventListener('input', function() {
-                            this.value = this.value.replace(/[^0-9]/g, '');
-                            if (this.value.length > 11) {
-                                this.value = this.value.slice(0, 11);
-                            }
-                            if (this.value.length > 0 && !this.value.startsWith('09')) {
-                                this.setCustomValidity('Contact number must start with 09');
-                                this.classList.add('is-invalid');
-                            }
-                            else if (this.value.length !== 11) {
-                                this.setCustomValidity('Contact number must be exactly 11 digits');
-                                this.classList.add('is-invalid');
-                            } 
-                            else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
+            (function(id) {
+                const form = document.getElementById('editResidentForm' + id);
+                if (!form) return;
 
-                    // Birthdate validation
-                    const birthdate = document.getElementById('edit_birthdate_' + editFormId);
-                    if (birthdate) {
-                        birthdate.addEventListener('change', function() {
-                            const selectedDate = new Date(this.value);
-                            const today = new Date();
-                            if (selectedDate > today) {
-                                this.setCustomValidity('Birthdate cannot be in the future');
-                                this.classList.add('is-invalid');
-                                
-                                // Create or update feedback message
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Birthdate cannot be in the future';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Email format validation
-                    const email = document.getElementById('edit_email_' + editFormId);
-                    if (email) {
-                        email.addEventListener('input', function() {
-                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            if (!emailPattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Please enter a valid email address');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Please enter a valid email address';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Username validation (no special characters except underscore)
-                    const username = document.getElementById('edit_username_' + editFormId);
-                    if (username) {
-                        username.addEventListener('input', function() {
-                            const usernamePattern = /^[a-zA-Z0-9_]+$/;
-                            if (!usernamePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Username can only contain letters, numbers, and underscores');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Username can only contain letters, numbers, and underscores';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Name validation (no numbers or special characters)
-                    const firstname = document.getElementById('edit_firstname_' + editFormId);
-                    if (firstname) {
-                        firstname.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
-                            if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    const lastname = document.getElementById('edit_lastname_' + editFormId);
-                    if (lastname) {
-                        lastname.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
-                            if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
+                function sf(el, msg) {
+                    if (!el) return;
+                    const fb = el.parentNode.querySelector('.invalid-feedback');
+                    if (msg) {
+                        el.setCustomValidity(msg);
+                        el.classList.add('is-invalid');
+                        if (fb) fb.textContent = msg;
+                    } else {
+                        el.setCustomValidity('');
+                        el.classList.remove('is-invalid');
+                        if (fb) fb.textContent = '';
                     }
                 }
+
+                // Clear server-side errors on first keystroke
+                form.querySelectorAll('.is-invalid').forEach(function(el) {
+                    el.addEventListener('input', function() {
+                        el.classList.remove('is-invalid');
+                        const fb = el.parentNode.querySelector('.invalid-feedback');
+                        if (fb) fb.textContent = '';
+                    }, { once: true });
+                });
+
+                const namePattern     = /^[a-zA-Z\s\-\.]+$/;
+                const usernamePattern = /^[a-zA-Z0-9_]+$/;
+                const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                const fn = document.getElementById('edit_firstname_' + id);
+                if (fn) fn.addEventListener('input', function() {
+                    if (!this.value.trim())            return sf(this, 'First name is required.');
+                    if (!namePattern.test(this.value)) return sf(this, 'First name can only contain letters, spaces, and hyphens.');
+                    if (this.value.trim().length < 2)  return sf(this, 'First name must be at least 2 characters.');
+                    sf(this, '');
+                });
+
+                const ln = document.getElementById('edit_lastname_' + id);
+                if (ln) ln.addEventListener('input', function() {
+                    if (!this.value.trim())            return sf(this, 'Last name is required.');
+                    if (!namePattern.test(this.value)) return sf(this, 'Last name can only contain letters, spaces, and hyphens.');
+                    if (this.value.trim().length < 2)  return sf(this, 'Last name must be at least 2 characters.');
+                    sf(this, '');
+                });
+
+                const un = document.getElementById('edit_username_' + id);
+                if (un) un.addEventListener('input', function() {
+                    if (!this.value)                        return sf(this, 'Username is required.');
+                    if (!usernamePattern.test(this.value))  return sf(this, 'Username can only contain letters, numbers, and underscores.');
+                    if (this.value.length < 3)              return sf(this, 'Username must be at least 3 characters.');
+                    sf(this, '');
+                });
+
+                const em = document.getElementById('edit_email_' + id);
+                if (em) em.addEventListener('input', function() {
+                    if (!this.value)                    return sf(this, 'Email is required.');
+                    if (!emailPattern.test(this.value)) return sf(this, 'Please enter a valid email address.');
+                    sf(this, '');
+                });
+
+                const ct = document.getElementById('edit_contact_' + id);
+                if (ct) ct.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                    if (!this.value)                  return sf(this, 'Contact number is required.');
+                    if (!this.value.startsWith('09')) return sf(this, 'Contact number must start with 09.');
+                    if (this.value.length !== 11)     return sf(this, 'Contact number must be exactly 11 digits.');
+                    sf(this, '');
+                });
+
+                const bd = document.getElementById('edit_birthdate_' + id);
+                if (bd) bd.addEventListener('change', function() {
+                    const sel = new Date(this.value);
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const minDate = new Date(); minDate.setFullYear(minDate.getFullYear() - 120);
+                    if (sel >= today)   return sf(this, 'Birthdate must be in the past.');
+                    if (sel < minDate)  return sf(this, 'Please enter a valid birthdate.');
+                    sf(this, '');
+                });
+
             })('{{ $resident->id }}');
             @endforeach
         @endif

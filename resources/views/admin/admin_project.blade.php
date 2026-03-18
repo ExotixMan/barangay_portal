@@ -1245,10 +1245,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.projects.store') }}" id="addProjectForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.projects.store') }}" id="addProjectForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Basic Information -->
                                     <div class="col-12">
@@ -1338,16 +1338,16 @@
                                         @endif
                                     </div>
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addProjectForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Project
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1366,12 +1366,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Basic Information -->
                                         <div class="col-12">
@@ -1461,16 +1461,16 @@
                                             @endif
                                         </div>
                                     </div>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
+                                    <button type="submit" form="editProjectForm{{ $project->id }}" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
                                         <i class="fas fa-save me-2"></i>Update Project
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -1873,6 +1873,77 @@
                 document.getElementById('searchForm').submit();
             }, 500);
         });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function sf(el, msg) {
+            if (!el) return;
+            el.classList.add('is-invalid');
+            let fb = el.parentElement.querySelector('.invalid-feedback');
+            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+            fb.textContent = msg;
+        }
+        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+
+        function attachProjectValidation(form) {
+            if (!form) return;
+            const title              = form.querySelector('[name="title"]');
+            const description        = form.querySelector('[name="description"]');
+            const status             = form.querySelector('[name="status"]');
+            const startDate          = form.querySelector('[name="start_date"]');
+            const expectedCompletion = form.querySelector('[name="expected_completion"]');
+
+            if (title) {
+                title.addEventListener('input', function() { cf(this); }, {once: true});
+                title.addEventListener('input', function() {
+                    if (!this.value.trim()) sf(this, 'Title is required.');
+                    else if (this.value.trim().length < 3) sf(this, 'Title must be at least 3 characters.');
+                    else cf(this);
+                });
+            }
+            if (description) {
+                description.addEventListener('input', function() { cf(this); }, {once: true});
+                description.addEventListener('input', function() {
+                    if (!this.value.trim()) sf(this, 'Description is required.');
+                    else if (this.value.trim().length < 10) sf(this, 'Description must be at least 10 characters.');
+                    else cf(this);
+                });
+            }
+            if (status) status.addEventListener('change', function() {
+                if (!this.value) sf(this, 'Please select a status.'); else cf(this);
+            });
+            if (expectedCompletion && startDate) {
+                const checkDates = function() {
+                    if (expectedCompletion.value && startDate.value && expectedCompletion.value < startDate.value) {
+                        sf(expectedCompletion, 'Completion date must not be before the start date.');
+                    } else cf(expectedCompletion);
+                };
+                expectedCompletion.addEventListener('change', checkDates);
+                startDate.addEventListener('change', checkDates);
+            }
+
+            form.addEventListener('submit', function(e) {
+                let valid = true;
+                if (title) {
+                    if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
+                    else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
+                }
+                if (description) {
+                    if (!description.value.trim()) { sf(description, 'Description is required.'); valid = false; }
+                    else if (description.value.trim().length < 10) { sf(description, 'Description must be at least 10 characters.'); valid = false; }
+                }
+                if (status && !status.value) { sf(status, 'Please select a status.'); valid = false; }
+                if (startDate && expectedCompletion && startDate.value && expectedCompletion.value && expectedCompletion.value < startDate.value) {
+                    sf(expectedCompletion, 'Completion date must not be before the start date.'); valid = false;
+                }
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        attachProjectValidation(document.getElementById('addProjectForm'));
+        document.querySelectorAll('[id^="editProjectForm"]').forEach(attachProjectValidation);
+    });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

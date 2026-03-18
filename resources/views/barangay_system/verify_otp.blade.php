@@ -3,9 +3,9 @@
 
     <input type="hidden" name="resident_id" value="{{ session('resident_id') }}">
 
-    <h3>Enter OTP sent to your phone</h3>
+    <h3>{{ __('messages.otp_title') }}</h3>
 
-    <input type="text" name="otp" placeholder="Enter 6-digit OTP" required>
+    <input type="text" name="otp" placeholder="{{ __('messages.otp_placeholder') }}" required>
 
-    <button type="submit">Verify OTP</button>
+    <button type="submit">{{ __('messages.otp_verify_btn') }}</button>
 </form>

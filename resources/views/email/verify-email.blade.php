@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Barangay Request Update</title>
+    <title>Verify Your Email</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
 
@@ -24,17 +24,27 @@
         <tr>
           <td bgcolor="#ffffff" style="background:#ffffff;padding:36px 40px;">
             <p style="margin:0 0 12px;font-size:16px;font-weight:bold;color:#1c2630;">Hello, {{ $name }}!</p>
+            <p style="margin:0 0 28px;font-size:14px;color:#555555;line-height:1.7;">
+              Thank you for registering with the <strong>Barangay Hulong Duhat Online Portal</strong>.
+              Please verify your email address to activate your account and access all services.
+            </p>
 
-            <table width="100%" cellpadding="16" cellspacing="0" border="0" style="background:#f8f9fa;border-left:4px solid #c62828;margin-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="font-size:14px;color:#444444;line-height:1.7;">{{ $messageText }}</td>
+                <td align="center" style="padding-bottom:28px;">
+                  <a href="{{ $url }}" style="display:inline-block;background:#c62828;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:6px;font-size:15px;font-weight:bold;">Verify Email Address</a>
+                </td>
               </tr>
             </table>
 
-            <hr style="border:none;border-top:1px solid #f0f0f0;margin:0 0 20px;">
+            <hr style="border:none;border-top:1px solid #f0f0f0;margin:0 0 24px;">
 
-            <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
-              For questions or concerns, please visit the Barangay Hulong Duhat office or contact us through the portal.
+            <p style="margin:0 0 8px;font-size:12px;color:#999999;line-height:1.6;">If the button above doesn't work, copy and paste this link into your browser:</p>
+            <p style="margin:0 0 20px;font-size:12px;"><a href="{{ $url }}" style="color:#c62828;word-break:break-all;">{{ $url }}</a></p>
+
+            <p style="margin:0;font-size:12px;color:#bbbbbb;line-height:1.6;">
+              This link expires in {{ $expireIn }} minutes.<br>
+              If you did not create an account, no further action is required.
             </p>
           </td>
         </tr>

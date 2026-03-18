@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
     <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <style>
         * { 
@@ -109,128 +110,225 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 5px 25px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             height: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             border: 1px solid #f0f0f0;
             position: relative;
         }
 
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(198,40,40,0.03) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .event-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(198, 40, 40, 0.15);
-            border-color: #C62828;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(198, 40, 40, 0.18);
+            border-color: rgba(198, 40, 40, 0.3);
+        }
+
+        .event-card:hover::before {
+            opacity: 1;
         }
 
         .event-date-badge {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
+            background: linear-gradient(135deg, #C62828, #8B0000);
             color: white;
-            padding: 25px;
-            text-align: center;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 25px 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .event-date-badge::after {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            background: white;
+            border-radius: 50% 0 0 50% / 50%;
+            z-index: 2;
         }
 
         .event-date-badge .month {
             display: block;
-            font-size: 1rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 500;
+            letter-spacing: 3px;
+            font-weight: 600;
+            opacity: 0.9;
         }
 
         .event-date-badge .day {
             display: block;
-            font-size: 3rem;
-            font-weight: 700;
+            font-size: 2.8rem;
+            font-weight: 800;
             line-height: 1;
-            margin: 5px 0;
+            margin: 4px 0;
         }
 
         .event-date-badge .year {
             display: block;
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-size: 0.85rem;
+            opacity: 0.75;
+            font-weight: 500;
         }
 
         .event-content {
-            padding: 25px;
+            padding: 25px 25px 25px 20px;
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 1;
         }
 
         .event-category {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             width: fit-content;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .event-category.upcoming {
             background: #E3F2FD;
-            color: #1976D2;
+            color: #1565C0;
         }
 
         .event-category.ongoing {
             background: #FFF3E0;
-            color: #F57C00;
+            color: #E65100;
         }
 
         .event-content h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 12px;
-            font-weight: 600;
+            font-size: 1.2rem;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-weight: 700;
+            line-height: 1.3;
         }
 
         .event-content p {
             color: #666;
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex: 1;
+            font-size: 0.9rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .event-details {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
-        .event-details .detail {
+        .event-details .detail,
+        .event-content .details .detail {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #555;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        .event-details .detail i {
+        .event-details .detail i,
+        .event-content .details .detail i {
             color: #C62828;
-            width: 18px;
+            width: 16px;
+            font-size: 0.85rem;
         }
 
         .event-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            padding: 12px 24px;
+            background: transparent;
+            color: #C62828;
+            padding: 10px 20px;
             border-radius: 25px;
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             justify-content: center;
             margin-top: auto;
+            border: 2px solid #C62828;
+            width: fit-content;
         }
 
         .event-btn:hover {
-            background: linear-gradient(135deg, #a02020, #C62828);
+            background: linear-gradient(135deg, #C62828, #d32f2f);
             color: white;
-            transform: translateX(5px);
             box-shadow: 0 5px 20px rgba(198, 40, 40, 0.3);
+            transform: none;
+        }
+
+        /* Mobile: stack event card vertically */
+        @media (max-width: 767.98px) {
+            .event-card {
+                flex-direction: column;
+            }
+
+            .event-date-badge {
+                min-width: unset;
+                flex-direction: row;
+                gap: 12px;
+                padding: 16px 20px;
+            }
+
+            .event-date-badge::after {
+                display: none;
+            }
+
+            .event-date-badge .day {
+                font-size: 2rem;
+                margin: 0;
+            }
+
+            .event-date-badge .month {
+                font-size: 0.85rem;
+                letter-spacing: 1px;
+            }
+
+            .event-date-badge .year {
+                font-size: 0.85rem;
+            }
+
+            .event-content {
+                padding: 20px;
+            }
+
+            .event-btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         /* Ongoing Projects Section */
@@ -551,7 +649,12 @@
             }
 
             .event-content h3 {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
+            }
+
+            .event-btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .project-content {
@@ -713,7 +816,7 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -741,7 +844,7 @@
                                     <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
                                 </button>
                                 <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider bg-secondary"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -797,7 +900,7 @@
                 
                 <div class="row g-4">
                     @forelse($upcomingEvents as $event)
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-6 col-md-6">
                             <div class="event-card">
                                 <div class="event-date-badge">
                                     <span class="month">{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
@@ -805,7 +908,7 @@
                                     <span class="year">{{ \Carbon\Carbon::parse($event->event_date)->format('Y') }}</span>
                                 </div>
                                 <div class="event-content">
-                                    <span class="event-category upcoming">Upcoming</span>
+                                    <span class="event-category upcoming"><i class="fas fa-calendar-check"></i> Upcoming</span>
                                     <h3>{{ $event->title }}</h3>
                                     <p>{{ $event->description }}</p>
                                     <div class="details">
@@ -825,7 +928,12 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-center">No upcoming events available.</p>
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ddd; margin-bottom: 15px; display: block;"></i>
+                                <p style="color: #999; font-size: 1.1rem;">No upcoming events available.</p>
+                            </div>
+                        </div>
                     @endforelse
                 </div>
             </div>
@@ -1118,6 +1226,7 @@
 
     <script src="{{ asset('js/navbar.js') }}"></script>
     <script src="{{ asset('js/floating-actions.js') }}"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/faq.js') }}"></script>
 </body>
 </html>

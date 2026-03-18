@@ -42,16 +42,10 @@ class CustomResetPassword extends Notification
         ], false));
 
         return (new MailMessage)
-            ->subject('Barangay Password Reset Request')
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('You requested a password reset for your Barangay account.')
-            ->line('Click the button below to reset your password:')
-            ->action('Reset Password', $url)
-            ->line('This link will expire in 60 minutes.')
-            ->line('If you did not request this, no action is required.')
-            ->salutation('— Barangay Admin')
-            ->with([
-                'logo' => asset('Images/logo.jpg'),
+            ->subject('Reset Your Password – Barangay Hulong Duhat')
+            ->view('email.reset-password', [
+                'url'  => $url,
+                'name' => $notifiable->firstname,
             ]);
     }
 

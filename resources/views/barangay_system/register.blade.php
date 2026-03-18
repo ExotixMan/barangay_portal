@@ -889,14 +889,14 @@
     <!-- Back Button -->
     <div class="back-button-container">
         <a href="{{ route('login') }}" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Back to Login
+            <i class="fas fa-arrow-left"></i> {{ __('messages.register_back_btn') }}
         </a>
     </div>
 
     <!-- Page Header -->
     <div class="form-page-header">
-        <h1><i class="fas fa-user-plus"></i> Create Account</h1>
-        <p>Join Barangay Hulo's online portal to access services and track requests</p>
+        <h1><i class="fas fa-user-plus"></i> {{ __('messages.register_page_title') }}</h1>
+        <p>{{ __('messages.register_page_subtitle') }}</p>
     </div>
 
     <!-- Main Container -->
@@ -930,17 +930,16 @@
 
             <form method="POST" action="{{ route('register.res') }}" id="registerForm" enctype="multipart/form-data" novalidate>
                 @csrf
-                @method('post')
 
                 <div class="form-progress">
                     <div class="progress-steps">
                         <div class="step active" data-step="1">
                             <div class="step-circle">1</div>
-                            <span>Personal Details</span>
+                            <span>{{ __('messages.register_step1_title') }}</span>
                         </div>
                         <div class="step" data-step="2">
                             <div class="step-circle">2</div>
-                            <span>Account Setup</span>
+                            <span>{{ __('messages.register_step2_title') }}</span>
                         </div>
                     </div>
                     <div class="progress-bar">
@@ -950,13 +949,13 @@
 
                 <!-- Step 1: Personal Details -->
                 <div class="form-step active" id="step1">
-                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    <h3><i class="fas fa-user"></i> {{ __('messages.register_step1_heading') }}</h3>
 
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="firstname">
-                                    <i class="fas fa-user"></i> First Name *
+                                    <i class="fas fa-user"></i> {{ __('messages.register_first_name_label') }} *
                                 </label>
                                 <input type="text" id="firstname" name="firstname" value="{{ old('firstname') }}" required
                                     placeholder="Enter your first name" class="form-control @error('firstname') is-invalid @enderror">
@@ -970,7 +969,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="middlename">
-                                    <i class="fas fa-user"></i> Middle Name
+                                    <i class="fas fa-user"></i> {{ __('messages.register_middle_name_label') }}
                                 </label>
                                 <input type="text" id="middlename" name="middlename" value="{{ old('middlename') }}"
                                     placeholder="Enter your middle name" class="form-control @error('middlename') is-invalid @enderror">
@@ -984,7 +983,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="lastname">
-                                    <i class="fas fa-user"></i> Last Name *
+                                    <i class="fas fa-user"></i> {{ __('messages.register_last_name_label') }} *
                                 </label>
                                 <input type="text" id="lastname" name="lastname" value="{{ old('lastname') }}" required
                                     placeholder="Enter your last name" class="form-control @error('lastname') is-invalid @enderror">
@@ -999,7 +998,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="suffix">
-                                    <i class="fas fa-user-tag"></i> Suffix
+                                    <i class="fas fa-user-tag"></i> {{ __('messages.register_suffix_label') }}
                                 </label>
                                 <select id="suffix" name="suffix" class="form-control @error('suffix') is-invalid @enderror">
                                     <option value="" {{ old('suffix') == '' ? 'selected' : '' }}>None</option>
@@ -1020,7 +1019,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="birthdate">
-                                    <i class="fas fa-birthday-cake"></i> Date of Birth *
+                                    <i class="fas fa-birthday-cake"></i> {{ __('messages.register_dob_label') }} *
                                 </label>
                                 <input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
                                     class="form-control @error('birthdate') is-invalid @enderror">
@@ -1033,7 +1032,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="contact">
-                                    <i class="fas fa-phone"></i> Contact Number *
+                                    <i class="fas fa-phone"></i> {{ __('messages.register_contact_label') }} *
                                 </label>
                                 <input type="tel" id="contact" name="contact" value="{{ old('contact') }}" required
                                     placeholder="09XX XXX XXXX" class="form-control @error('contact') is-invalid @enderror"
@@ -1048,7 +1047,7 @@
 
                     <div class="form-group">
                         <label for="email">
-                            <i class="fas fa-envelope"></i> Email Address *
+                            <i class="fas fa-envelope"></i> {{ __('messages.register_email_label') }} *
                         </label>
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required
                             placeholder="your.email@example.com" class="form-control @error('email') is-invalid @enderror"
@@ -1060,7 +1059,7 @@
 
                     <div class="form-group">
                         <label for="valid_id">
-                            <i class="fas fa-id-card"></i> Valid ID (Image or PDF) *
+                            <i class="fas fa-id-card"></i> {{ __('messages.register_valid_id_label') }} *
                         </label>
                         <div class="file-upload-wrapper">
                             <div class="file-upload-input" id="fileUploadBox">
@@ -1083,7 +1082,7 @@
 
                     <div class="form-group">
                         <label for="address">
-                            <i class="fas fa-home"></i> Complete Address *
+                            <i class="fas fa-home"></i> {{ __('messages.register_address_label') }} *
                         </label>
                         <textarea id="address" name="address" required rows="3"
                             placeholder="House #, Street, Zone, Barangay Hulo, Malabon City"
@@ -1096,21 +1095,21 @@
 
                     <div class="form-actions">
                         <a href="{{ route('login') }}" class="btn-prev">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> {{ __('messages.register_cancel_btn') }}
                         </a>
                         <button type="button" class="btn-next" data-next="step2" id="nextToStep2">
-                            Next Step <i class="fas fa-arrow-right"></i>
+                            {{ __('messages.register_next_btn') }} <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 2: Account Setup -->
                 <div class="form-step" id="step2">
-                    <h3><i class="fas fa-lock"></i> Account Setup</h3>
+                    <h3><i class="fas fa-lock"></i> {{ __('messages.register_step2_title') }}</h3>
 
                     <div class="form-group">
                         <label for="username">
-                            <i class="fas fa-user-circle"></i> Username *
+                            <i class="fas fa-user-circle"></i> {{ __('messages.register_username_label') }} *
                         </label>
                         <input type="text" id="username" name="username" value="{{ old('username') }}" required
                             placeholder="Choose a username" class="form-control @error('username') is-invalid @enderror"
@@ -1125,7 +1124,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="password">
-                                    <i class="fas fa-lock"></i> Password *
+                                    <i class="fas fa-lock"></i> {{ __('messages.register_password_label') }} *
                                 </label>
                                 <div class="password-input-wrapper">
                                     <input type="password" id="password" name="password" required
@@ -1159,7 +1158,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="password_confirmation">
-                                    <i class="fas fa-lock"></i> Confirm Password *
+                                    <i class="fas fa-lock"></i> {{ __('messages.register_confirm_label') }} *
                                 </label>
                                 <div class="password-input-wrapper">
                                     <input type="password" id="password_confirmation" name="password_confirmation"
@@ -1212,10 +1211,10 @@
 
                     <div class="form-actions">
                         <button type="button" class="btn-prev" data-prev="step1">
-                            <i class="fas fa-arrow-left"></i> Previous
+                            <i class="fas fa-arrow-left"></i> {{ __('messages.register_prev_btn') }}
                         </button>
                         <button type="submit" class="btn-submit" id="createAccountBtn">
-                            <span class="btn-text">Create Account</span>
+                            <span class="btn-text">{{ __('messages.register_submit_btn') }}</span>
                             <div class="spinner">
                                 <div class="spinner-dot"></div>
                                 <div class="spinner-dot"></div>
@@ -1233,7 +1232,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                    <h5 class="modal-title" id="termsModalLabel">{{ __('messages.terms_modal_title') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1290,7 +1289,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                    <h5 class="modal-title" id="privacyModalLabel">{{ __('messages.register_privacy_title') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1595,6 +1594,12 @@
                         }
                     }
 
+                    // Address minimum length
+                    if (field.id === 'address' && fieldValue.length < 10) {
+                        isValid = false;
+                        showFieldError(field, 'Address must be at least 10 characters long');
+                    }
+
                     // Email validation
                     if (field.type === 'email') {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1617,16 +1622,23 @@
                     if (field.id === 'birthdate') {
                         const birthDate = new Date(fieldValue);
                         const today = new Date();
-                        let age = today.getFullYear() - birthDate.getFullYear();
-                        const monthDiff = today.getMonth() - birthDate.getMonth();
+                        today.setHours(0, 0, 0, 0);
 
-                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                            age--;
-                        }
-
-                        if (age < 18) {
+                        if (birthDate > today) {
                             isValid = false;
-                            showFieldError(field, 'You must be at least 18 years old to register');
+                            showFieldError(field, 'Date of birth cannot be in the future');
+                        } else {
+                            let age = today.getFullYear() - birthDate.getFullYear();
+                            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                age--;
+                            }
+
+                            if (age < 18) {
+                                isValid = false;
+                                showFieldError(field, 'You must be at least 18 years old to register');
+                            }
                         }
                     }
                 });
@@ -1651,7 +1663,7 @@
             function showFieldError(field, message) {
                 field.classList.add('is-invalid');
 
-                const parent = field.type === 'checkbox' ? field.closest('.terms-checkbox') : 
+                const parent = field.type === 'checkbox' ? field.closest('.terms-section') : 
                             field.type === 'file' ? field.closest('.file-upload-wrapper') : 
                             field.parentNode;
                 
@@ -1711,8 +1723,9 @@
             // Previous button functionality
             prevButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    e.preventDefault();
                     const prevStep = this.getAttribute('data-prev');
+                    if (!prevStep) return; // no data-prev = natural link (Cancel)
+                    e.preventDefault();
                     goToStep(prevStep);
                 });
             });
@@ -1900,6 +1913,16 @@
             updateProgress();
             updatePasswordUI();
             updatePasswordMatchUI();
+
+            // Auto-navigate to step 2 if server returned errors for step 2 fields
+            const step2Fields = ['username', 'password'];
+            const hasStep2Errors = step2Fields.some(id => {
+                const el = document.getElementById(id);
+                return el && el.classList.contains('is-invalid');
+            });
+            if (hasStep2Errors) {
+                goToStep('step2');
+            }
         });
     </script>
 </body>

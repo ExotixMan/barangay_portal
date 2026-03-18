@@ -471,6 +471,44 @@
             padding: 8px 22px;
             border-radius: 8px;
             font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-accept:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .privacy-check-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #fff8f8;
+            border: 1px solid #fdd;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 16px;
+        }
+
+        .privacy-check-row input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--primary-red);
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .privacy-check-row label {
+            font-size: 0.88rem;
+            color: #444;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .privacy-check-row label strong {
+            color: var(--primary-red);
         }
 
         /* Responsive adjustments */
@@ -518,8 +556,8 @@
         <div class="login-panel">
             <div class="logo-section">
                 <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo-img">
-                <h1>Login</h1>
-                <p>Barangay Hulo<br>Malabon City</p>
+                <h1>{{ __('messages.login_page_title') }}</h1>
+                <p>{{ __('messages.login_brand_name') }}<br>{{ __('messages.login_brand_location') }}</p>
             </div>
 
             <!-- Display Success Message -->
@@ -563,7 +601,7 @@
                     <input type="text" class="form-control @error('username') is-invalid @enderror" 
                            id="username" name="username" placeholder="Username" 
                            value="{{ old('username') }}" required autofocus>
-                    <label for="username">Username or Email</label>
+                    <label for="username">{{ __('messages.login_username_label') }}</label>
                 </div>
 
                 <!-- Password Field -->
@@ -571,7 +609,7 @@
                     <i class="fas fa-lock input-icon"></i>
                     <input type="password" class="form-control @error('password') is-invalid @enderror" 
                            id="password" name="password" placeholder="Password" required>
-                    <label for="password">Password</label>
+                    <label for="password">{{ __('messages.login_password_label') }}</label>
                     <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
                         <i class="far fa-eye"></i>
                     </button>
@@ -580,13 +618,13 @@
                 <!-- Forgot Password -->
                 <div class="options-row justify-content-end">
                     <a href="{{ route('resident.password.request') }}" class="forgot-link">
-                        <i class="fas fa-lock me-1"></i>Forgot Password?
+                        <i class="fas fa-lock me-1"></i>{{ __('messages.login_forgot_password') }}
                     </a>
                 </div>
 
                 <!-- Login Button -->
                 <button type="submit" class="btn-login" id="loginButton">
-                    <span class="btn-text">Login</span>
+                    <span class="btn-text">{{ __('messages.login_submit_btn') }}</span>
                     <div class="spinner">
                         <div class="spinner-dot"></div>
                         <div class="spinner-dot"></div>
@@ -596,9 +634,9 @@
 
                 <!-- Register Link -->
                 <div class="register-link">
-                    <p>Don't have an account?</p>
+                    <p>{{ __('messages.login_no_account') }}</p>
                     <a href="#" id="createAccountLink">
-                        <i class="fas fa-user-plus me-1"></i>Create an Account
+                        <i class="fas fa-user-plus me-1"></i>{{ __('messages.login_create_account_link') }}
                     </a>
                 </div>
             </form>
@@ -610,32 +648,39 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title">Terms and Conditions</h2>
+                    <h2 class="modal-title">{{ __('messages.terms_modal_title') }}</h2>
                     <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h3>Barangay Hulo Online Portal</h3>
-                    <p>By creating an account, you agree to the following terms and conditions:</p>
+                    <h3>{{ __('messages.terms_modal_subtitle') }}</h3>
+                    <p>{{ __('messages.terms_modal_intro') }}</p>
                     
-                    <h4>1. User Responsibilities</h4>
+                    <h4>{{ __('messages.terms_section_1_title') }}</h4>
                     <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
                     
-                    <h4>2. Accurate Information</h4>
+                    <h4>{{ __('messages.terms_section_2_title') }}</h4>
                     <p>You must provide accurate, current, and complete information during registration. You confirm that you are a resident of Barangay Hulo or have valid reasons to access barangay services.</p>
                     
-                    <h4>3. Privacy Policy</h4>
+                    <h4>{{ __('messages.terms_section_3_title') }}</h4>
                     <p>Your personal information will be handled in accordance with our Privacy Policy and the Data Privacy Act of 2012.</p>
                     
-                    <h4>4. Acceptable Use</h4>
+                    <h4>{{ __('messages.terms_section_4_title') }}</h4>
                     <p>You agree to use the portal only for lawful purposes and in accordance with barangay regulations.</p>
                     
-                    <p class="mt-3"><strong>By clicking "I Agree", you confirm that you have read, understood, and accepted these terms and conditions.</strong></p>
+                    <p class="mt-3"><strong>{{ __('messages.terms_modal_footer_note') }}</strong></p>
+
+                    <div class="privacy-check-row">
+                        <input type="checkbox" id="privacyCheckbox">
+                        <label for="privacyCheckbox">
+                            {{ __('messages.terms_agree_checkbox') }}
+                        </label>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-decline" data-bs-dismiss="modal">Decline</button>
-                    <button type="button" class="btn-accept" id="acceptTerms">I Agree</button>
+                    <button type="button" class="btn-decline" data-bs-dismiss="modal">{{ __('messages.terms_decline_btn') }}</button>
+                    <button type="button" class="btn-accept" id="acceptTerms" disabled>{{ __('messages.terms_agree_btn') }}</button>
                 </div>
             </div>
         </div>
@@ -704,13 +749,13 @@
                     if (!usernameInput.value.trim()) {
                         e.preventDefault();
                         hasError = true;
-                        showClientError('Username is required.');
+                        showClientError('{{ __('messages.login_error_username_required') }}');
                         usernameInput.focus();
                     }
                     else if (!passwordInput.value) {
                         e.preventDefault();
                         hasError = true;
-                        showClientError('Password is required.');
+                        showClientError('{{ __('messages.login_error_password_required') }}');
                         passwordInput.focus();
                     }
                     
@@ -744,10 +789,28 @@
                 
                 createLink.addEventListener('click', function(e) {
                     e.preventDefault();
+                    // Reset checkbox every time modal opens
+                    const cb = document.getElementById('privacyCheckbox');
+                    if (cb) {
+                        cb.checked = false;
+                        document.getElementById('acceptTerms').disabled = true;
+                    }
                     termsModal.show();
                 });
 
-                document.getElementById('acceptTerms')?.addEventListener('click', function() {
+                // Enable/disable accept button based on checkbox
+                const privacyCheckbox = document.getElementById('privacyCheckbox');
+                const acceptBtn = document.getElementById('acceptTerms');
+                if (privacyCheckbox && acceptBtn) {
+                    privacyCheckbox.addEventListener('change', function() {
+                        acceptBtn.disabled = !this.checked;
+                    });
+                }
+
+                acceptBtn?.addEventListener('click', function() {
+                    // Move focus away before hiding to avoid aria-hidden focus conflict
+                    this.blur();
+                    document.getElementById('createAccountLink')?.focus();
                     termsModal.hide();
                     window.location.href = "{{ route('register') }}";
                 });

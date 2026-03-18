@@ -152,17 +152,13 @@
         /* Table Styling - Mobile Optimized */
         .table-responsive {
             border-radius: 16px;
-            overflow: visible !important;
-            position: relative !important;
-            z-index: 1;
+            overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .table {
             margin-bottom: 0;
             min-width: 1200px;
-            overflow: visible !important;
-            position: relative !important;
             z-index: 1;
         }
 
@@ -195,9 +191,6 @@
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
             white-space: nowrap;
-            overflow: visible !important;
-            position: relative !important;
-            z-index: 1;
         }
 
         .table tbody tr:hover {
@@ -692,41 +685,21 @@
         /* Dropdown button styling */
         .btn-group .btn-sm {
             padding: 0.3rem 0.6rem;
-            position: relative;
-            z-index: auto;
-            overflow: visible !important;
-        }
-
-        .table .btn-group .dropdown-menu {
-            position: absolute !important;
-            transform: translate3d(0, 0, 0) !important;
-            will-change: transform;
         }
 
         .dropdown-menu {
-            position: absolute !important;
-            z-index: 9999 !important;
             border-radius: 10px;
             border: 1px solid var(--border-color);
             box-shadow: var(--card-shadow);
             padding: 0.5rem;
-            overflow-y: auto;
-        }
-
-        .table td:last-child {
-            overflow: visible !important;
-        }
-
-        .table td .d-flex {
-            overflow: visible !important;
         }
 
         .table .dropdown-menu {
-            position: fixed !important;
-            transform: translate3d(0, 0, 0) !important;
             margin-top: 0.25rem;
+            z-index: 1055;
+            max-height: 250px;
+            overflow-y: auto;
         }
-
 
         .dropdown-item {
             border-radius: 8px;
@@ -1383,7 +1356,7 @@
                                             <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
                                             @if(auth('admin')->user()->hasPermission('update_indigency') && 
                                                 !in_array($ind->status, ['rejected', 'claimed', 'delivered']))
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editApplicationModal{{ $ind->id }}" title="Edit Application">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editIndigencyModal{{ $ind->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
@@ -1515,10 +1488,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.indigency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.indigency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Personal Information -->
                                     <div class="col-12">
@@ -1711,16 +1684,16 @@
                                         @endif
                                     </div>
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addApplicationForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1739,12 +1712,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.indigency.update', $ind->id) }}" enctype="multipart/form-data" id="editIndigencyForm{{ $ind->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.indigency.update', $ind->id) }}" enctype="multipart/form-data" id="editIndigencyForm{{ $ind->id }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $ind->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Personal Information -->
                                         <div class="col-12">
@@ -1959,16 +1932,16 @@
                                         </div>
                                         @endif
                                     </div>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $ind->id }}">
+                                    <button type="submit" form="editIndigencyForm{{ $ind->id }}" class="btn btn-primary" id="submitEditForm{{ $ind->id }}">
                                         <i class="fas fa-save me-2"></i>Update Application
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2652,6 +2625,23 @@
             })('{{ $ind->id }}');
             @endforeach
         @endif
+    </script>
+
+    <!-- Fix dropdown clipping inside table-responsive -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tableResponsive = document.querySelector('.table-responsive');
+            if (!tableResponsive) return;
+
+            tableResponsive.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(toggle) {
+                new bootstrap.Dropdown(toggle, {
+                    popperConfig: function(defaultConfig) {
+                        defaultConfig.strategy = 'fixed';
+                        return defaultConfig;
+                    }
+                });
+            });
+        });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

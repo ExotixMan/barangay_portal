@@ -153,7 +153,6 @@
         .table-responsive {
             border-radius: 16px;
             overflow-x: auto;
-            overflow-y: visible !important;
             -webkit-overflow-scrolling: touch;
         }
 
@@ -710,15 +709,9 @@
         /* Dropdown button styling */
         .btn-group .btn-sm {
             padding: 0.3rem 0.6rem;
-            z-index: auto;
-            overflow: visible !important;
         }
 
         .dropdown-menu {
-            position: absolute !important;
-            z-index: 9999 !important;   
-            overflow-y: auto;
-            max-height: 400px;
             border-radius: 10px;
             border: 1px solid var(--border-color);
             box-shadow: var(--card-shadow);
@@ -735,9 +728,15 @@
         }
 
         .table .dropdown-menu {
-            position: fixed !important;
-            transform: translate3d(0, 0, 0) !important;
             margin-top: 0.25rem;
+            z-index: 1055;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .table td .btn-group {
+            position: relative;
+            display: inline-flex;
         }
 
         .dropdown-item:hover {
@@ -760,6 +759,37 @@
 
         .dropdown-item button:hover {
             background: none;
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+
+            .table .dropdown-menu {
+                max-width: 90vw;
+                max-height: 300px;
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
@@ -1224,7 +1254,7 @@
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <!-- Status Change Dropdown - Always visible for all statuses (if user has permission) -->
+                                            <!-- Status Change Dropdown - Improved design from Clearance -->
                                             @if(auth('admin')->user()->hasPermission('update_residency') || 
                                                 auth('admin')->user()->hasPermission('approve_residency') || 
                                                 auth('admin')->user()->hasPermission('reject_residency'))
@@ -1310,7 +1340,7 @@
                                                         <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="status" value="claimed">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'claimed' ? 'active' : '' }}" onclick="return delete(event, 'Change status to Claimed?')">
+                                                            <button type="submit" class="dropdown-item {{ $app->status == 'claimed' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Claimed?')">
                                                                 <i class="fas fa-hand-peace me-2 text-success"></i>Claimed
                                                                 @if($app->status == 'claimed')
                                                                     <i class="fas fa-check ms-2 text-success"></i>
@@ -1382,7 +1412,7 @@
                                             </div>
                                             @endif
 
-                                            <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
+                                            <!-- Edit Button -->
                                             @if(auth('admin')->user()->hasPermission('update_residency') && 
                                                 !in_array($app->status, ['rejected', 'claimed', 'delivered']))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editApplicationModal{{ $app->id }}" title="Edit Application">
@@ -1390,7 +1420,7 @@
                                             </button>
                                             @endif
 
-                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed, delivered -->
+                                            <!-- Document Actions Dropdown -->
                                             @if(auth('admin')->user()->hasPermission('generate_residency_document') && 
                                                 in_array($app->status, ['approved', 'ready_pickup', 'claimed', 'delivered']))
                                             <div class="btn-group">
@@ -1418,7 +1448,7 @@
                                             </div>
                                             @endif
 
-                                            <!-- Communication Dropdown - Show for approved, rejected, claimed, delivered -->
+                                            <!-- Communication Dropdown -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
                                                 in_array($app->status, ['approved', 'rejected', 'claimed', 'delivered']))
                                             <div class="btn-group">
@@ -1456,7 +1486,7 @@
                                             </div>
                                             @endif
 
-                                            <!-- Delete Button - Always visible if user has permission -->
+                                            <!-- Delete Button -->
                                             @if(auth('admin')->user()->hasPermission('delete_residency'))
                                             <form method="POST" action="{{ route('admin.residency.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
                                                 @csrf
@@ -1515,10 +1545,10 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.residency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.residency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
                                 <div class="row g-3">
                                     <!-- Personal Information -->
                                     <div class="col-12">
@@ -1768,16 +1798,16 @@
                                         @endif
                                     </div>
                                 </div>
+                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addApplicationForm" class="btn btn-success" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1796,12 +1826,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.residency.update', $app->id) }}" enctype="multipart/form-data" id="editApplicationForm{{ $app->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.residency.update', $app->id) }}" enctype="multipart/form-data" id="editApplicationForm{{ $app->id }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Personal Information -->
                                         <div class="col-12">
@@ -2085,16 +2115,16 @@
                                         </div>
                                         @endif
                                     </div>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="submitEditForm{{ $app->id }}">
+                                    <button type="submit" form="editApplicationForm{{ $app->id }}" class="btn btn-primary" id="submitEditForm{{ $app->id }}">
                                         <i class="fas fa-save me-2"></i>Update Application
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2798,6 +2828,24 @@
             })('{{ $app->id }}');
             @endforeach
         @endif
+    </script>
+
+    <!-- Fix dropdown clipping inside table-responsive -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tableResponsive = document.querySelector('.table-responsive');
+            if (!tableResponsive) return;
+
+            // Initialize all dropdown toggles inside the table with Popper fixed strategy
+            tableResponsive.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(toggle) {
+                new bootstrap.Dropdown(toggle, {
+                    popperConfig: function(defaultConfig) {
+                        defaultConfig.strategy = 'fixed';
+                        return defaultConfig;
+                    }
+                });
+            });
+        });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->
