@@ -506,8 +506,8 @@
     <!-- Page Hero -->
     <section class="page-hero">
         <div class="page-hero-content">
-            <h1><i class="fas fa-bullseye me-3"></i> Mission & Vision</h1>
-            <p>Guided by our commitment to serve, we strive to build a progressive and harmonious community for all residents of Barangay Hulong Duhat.</p>
+            <h1><i class="fas fa-bullseye me-3"></i> {{ __('messages.mv_hero_title')}}</h1>
+            <p>{{ __('messages.mv_hero_subtitle') }}</p>
         </div>
     </section>
 
@@ -522,8 +522,8 @@
                             <div class="mv-icon">
                                 <i class="fas fa-bullseye"></i>
                             </div>
-                            <h2>Our Mission</h2>
-                            <p>To provide transparent, responsive, and people-centered governance through active community participation, effective delivery of basic services, strong partnerships with government agencies and stakeholders, and sustainable programs that promote peace and order, environmental protection, disaster resilience, and socio-economic development of all residents of Barangay Hulong Duhat.</p>
+                            <h2>{{ __('messages.mv_mission_title') }}</h2>
+                            <p>{{ __('messages.mv_mission_subtitle') }}</p>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -531,8 +531,8 @@
                             <div class="mv-icon">
                                 <i class="fas fa-eye"></i>
                             </div>
-                            <h2>Our Vision</h2>
-                            <p>Barangay Hulong Duhat envisions itself as a productive, peaceful, and resilient urban community, guided by God-fearing and peace-loving citizens, where social and economic opportunities are accessible to all, the environment is protected, and development is inclusive and sustainable.</p>
+                            <h2>{{ __('messages.mv_vision_title') }}</h2>
+                            <p>{{ __('messages.mv_vision_subtitle') }}</p>
                         </div>
                     </div>
                 </div>
@@ -543,7 +543,7 @@
         <section class="core-values-section">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-heart me-2"></i>Our Core Values</h2>
+                    <h2><i class="fas fa-heart me-2"></i>{{ __('messages.mv_values_title') }}</h2>
                     <p>The principles that guide our actions and decisions in serving the community of Barangay Hulong Duhat.</p>
                 </div>
                 <div class="row g-4">
@@ -627,7 +627,7 @@
         <section class="goals-section">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-flag me-2"></i>Our Goals</h2>
+                    <h2><i class="fas fa-flag me-2"></i>{{ __('messages.mv_goals_title') }}</h2>
                     <p>Strategic objectives that drive our community development initiatives.</p>
                 </div>
                 <div class="row">

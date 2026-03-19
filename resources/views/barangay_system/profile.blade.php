@@ -325,7 +325,7 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
+                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
                     </li>
                     
                     <li class="nav-item dropdown">
@@ -388,7 +388,7 @@
                                     <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
+                                    <li><a class="dropdown-link active" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
@@ -960,60 +960,133 @@
     </div>
     <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
 
-    {{-- ══════════════════ FOOTER ══════════════════ --}}
+    <!-- Footer Section -->
     <footer>
         <div class="container footer-container">
             <div class="row">
+                <!-- Logo & Contact Info -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
                         <div class="footer-logo">
-                            <div class="logo-circle"><i class="fas fa-landmark"></i></div>
-                            <div class="logo-text"><h3>Barangay Hulo</h3><p class="tagline">Serving Our Community</p></div>
+                            <div class="logo-circle">
+                                <i class="fas fa-landmark"></i>
+                            </div>
+                            <div class="logo-text">
+                                <h3>Barangay Hulo</h3>
+                                <p class="tagline">Serving Our Community</p>
+                            </div>
                         </div>
+                        
                         <div class="contact-info-simple">
-                            <div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>1 M. Blas St, Malabon, Metro Manila</span></div>
-                            <div class="contact-row"><i class="fas fa-phone"></i><a href="tel:+6329876543">(02) 987-6543</a></div>
-                            <div class="contact-row"><i class="fas fa-envelope"></i><a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a></div>
-                            <div class="contact-row"><i class="fas fa-clock"></i><span>Mon–Fri: 8:00 AM – 5:00 PM</span></div>
+                            <div class="contact-row">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>1 M. Blas St, Malabon, Metro Manila</span>
+                            </div>
+                            <div class="contact-row">
+                                <i class="fas fa-phone"></i>
+                                <a href="tel:+6329876543">(02) 987-6543</a>
+                            </div>
+                            <div class="contact-row">
+                                <i class="fas fa-envelope"></i>
+                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
+                            </div>
+                            <div class="contact-row">
+                                <i class="fas fa-clock"></i>
+                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
+                            </div>
+                        </div>
+
+                        <div class="social-links-simple">
+                            <div class="social-icons">
+                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Quick Access Links -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
                         <h3>Quick Access</h3>
                         <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link"><i class="fas fa-home"></i> Home</a>
-                            <a href="{{ route('announcements') }}" class="footer-link"><i class="fas fa-bullhorn"></i> Announcements</a>
-                            <a href="{{ route('history') }}" class="footer-link"><i class="fas fa-history"></i> Barangay History</a>
-                            <a href="{{ route('officials') }}" class="footer-link"><i class="fas fa-users"></i> Barangay Officials</a>
-                            <a href="{{ route('events_project') }}" class="footer-link"><i class="fas fa-calendar-alt"></i> Events & Projects</a>
+                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                            <a href="{{ route('announcements') }}" class="footer-link">
+                                <i class="fas fa-bullhorn"></i> Announcements
+                            </a>
+                            <a href="{{ route('history') }}" class="footer-link">
+                                <i class="fas fa-history"></i> Barangay History
+                            </a>
+                            <a href="{{ route('track_request') }}" class="footer-link">
+                                <i class="fas fa-search"></i> Track Request
+                            </a>
                         </div>
                     </div>
                 </div>
+
+                <!-- Services -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
-                        <h3>Our Services</h3>
+                        <h3>Services</h3>
                         <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link"><i class="fas fa-certificate"></i> Barangay Clearance</a>
-                            <a href="{{ route('residency') }}" class="footer-link"><i class="fas fa-house-user"></i> Certificate of Residency</a>
-                            <a href="{{ route('indigency') }}" class="footer-link"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a>
-                            <a href="{{ route('incident') }}" class="footer-link"><i class="fas fa-clipboard-list"></i> Blotter Report</a>
-                            <a href="{{ route('track_request') }}" class="footer-link"><i class="fas fa-search"></i> Track Request</a>
+                            <a href="{{ route('clearance') }}" class="footer-link">
+                                <i class="fas fa-certificate"></i> Barangay Clearance
+                            </a>
+                            <a href="{{ route('residency') }}" class="footer-link">
+                                <i class="fas fa-house-user"></i> Certificate of Residency
+                            </a>
+                            <a href="{{ route('indigency') }}" class="footer-link">
+                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
+                            </a>
+                            <a href="{{ route('incident') }}" class="footer-link">
+                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                            </a>
                         </div>
                     </div>
                 </div>
+
+                <!-- Emergency & Support -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="footer-section">
-                        <h3>Contact Us</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('contacts') }}" class="footer-link"><i class="fas fa-phone"></i> Contact Page</a>
-                            <a href="{{ route('map') }}" class="footer-link"><i class="fas fa-map"></i> Find Us</a>
+                        <h3>Emergency Contacts</h3>
+                        <div class="emergency-contacts-simple">
+                            <div class="emergency-item">
+                                <i class="fas fa-ambulance"></i>
+                                <div class="emergency-details">
+                                    <span class="emergency-label">Emergency</span>
+                                    <a href="tel:911" class="emergency-number">911</a>
+                                </div>
+                            </div>
+                            <div class="emergency-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <div class="emergency-details">
+                                    <span class="emergency-label">Police</span>
+                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
+                                </div>
+                            </div>
+                            <div class="emergency-item">
+                                <i class="fas fa-first-aid"></i>
+                                <div class="emergency-details">
+                                    <span class="emergency-label">Health Center</span>
+                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>© {{ date('Y') }} Barangay Hulo Online Portal. All rights reserved.</p>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container footer-bottom-container">
+                <div class="copyright-info">
+                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
+                </div>
             </div>
         </div>
     </footer>

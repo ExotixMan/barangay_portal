@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -1250,7 +1250,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1><i class="fas fa-certificate bigicon"></i> Barangay Clearance</h1>
-                <p>Request your official barangay clearance online. Fast, secure, and convenient process.</p>
+                <p>{{ __('messages.clearance_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-clock"></i>
@@ -1274,39 +1274,39 @@
         <!-- Process Steps -->
         <section class="process-steps">
             <div class="process-steps-content">
-                <h2 class="section-title">How to Get Your Clearance</h2>
+                <h2 class="section-title">{{ __('messages.clearance_steps_title') }}</h2>
                 <div class="steps-container">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <div class="step-icon">
                             <i class="fas fa-user-edit"></i>
                         </div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete the online application form with accurate information</p>
+                        <h3>{{ __('messages.clearance_step1_title') }}</h3>
+                        <p>{{ __('messages.clearance_step1_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <div class="step-icon">
                             <i class="fas fa-file-upload"></i>
                         </div>
-                        <h3>Upload Requirements</h3>
-                        <p>Submit required documents and identification</p>
+                        <h3>{{ __('messages.clearance_step2_title') }}</h3>
+                        <p>{{ __('messages.clearance_step2_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <div class="step-icon">
                             <i class="fas fa-credit-card"></i>
                         </div>
-                        <h3>Pay Fees</h3>
-                        <p>Pay the processing fee online or at the barangay hall</p>
+                        <h3>{{ __('messages.clearance_step3_title') }}</h3>
+                        <p>{{ __('messages.clearance_step3_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <div class="step-icon">
                             <i class="fas fa-file-download"></i>
                         </div>
-                        <h3>Receive Clearance</h3>
-                        <p>Get your barangay clearance via email or collect at barangay</p>
+                        <h3>{{ __('messages.clearance_step4_title') }}</h3>
+                        <p>{{ __('messages.clearance_step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -1319,7 +1319,7 @@
                     <div class="requirements-card">
                         <div class="card-header">
                             <i class="fas fa-clipboard-list"></i>
-                            <h2>Requirements</h2>
+                            <h2>{{ __('messages.clearance_requirements_title') }}</h2>
                         </div>
                         <div class="requirements-list">
                             <div class="requirement-item">
@@ -1363,7 +1363,7 @@
                     <div class="info-card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i>
-                            <h2>Important Information</h2>
+                            <h2>{{ __('messages.clearance_important_info_title') }}</h2>
                         </div>
                         <div class="info-content">
                             <div class="info-item">
@@ -1401,13 +1401,13 @@
         <section class="application-form-section" id="apply-form">
             <div class="container">
                 <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> Ready to Apply?</h2>
-                    <p>Click the button below to start your Barangay Clearance application</p>
+                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_title') }}</h2>
+                    <p>{{ __('messages.clearance_apply_btn_title') }}</p>
                 </div>
 
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
                     <a href="{{ route('clearance.form') }}" class="btn-apply-now" style="display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
-                        <i class="fas fa-file-signature"></i> Apply for Clearance Now
+                        <i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_btn') }}
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Processing Time: 3-5 Business Days

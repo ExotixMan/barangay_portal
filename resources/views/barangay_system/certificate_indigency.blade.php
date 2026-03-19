@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -812,7 +812,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1><i class="fas fa-hands-helping bigicon"></i> Certificate of Indigency</h1>
-                <p>Official document for financial assistance, medical aid, and social welfare programs. Dignified, confidential, and hassle‑free application.</p>
+                <p>{{ __('messages.indigency_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-clock"></i>
@@ -835,31 +835,31 @@
         <!-- PROCESS STEPS – 4 steps, exactly like clearance -->
         <section class="process-steps">
             <div class="process-steps-content">
-                <h2 class="section-title">How to Get Your Certificate</h2>
+                <h2 class="section-title">{{ __('messages.indigency_steps_title')}}</h2>
                 <div class="steps-container">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <div class="step-icon"><i class="fas fa-user-edit"></i></div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete online application with family composition and income details</p>
+                        <h3>{{ __('messages.indigency_step1_title') }}</h3>
+                        <p>{{ __('messages.indigency_step1_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <div class="step-icon"><i class="fas fa-file-upload"></i></div>
-                        <h3>Upload Requirements</h3>
-                        <p>Submit valid ID, proof of residency, and income documents</p>
+                        <h3>{{ __('messages.indigency_step2_title') }}</h3>
+                        <p>{{ __('messages.indigency_step2_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <div class="step-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                        <h3>Social Worker Review</h3>
-                        <p>Assessment and verification (2‑3 days, interview if needed)</p>
+                        <h3>{{ __('messages.indigency_step3_title') }}</h3>
+                        <p>{{ __('messages.indigency_step3_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <div class="step-icon"><i class="fas fa-file-download"></i></div>
-                        <h3>Pickup Certificate</h3>
-                        <p>Pay ₱25.00 at barangay hall and receive your certificate</p>
+                        <h3>{{ __('messages.indigency_step4_title') }}</h3>
+                        <p>{{ __('messages.indigency_step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -868,7 +868,7 @@
         <!-- BENEFITS – SINGLE ROW, all four cards in one row, centered -->
         <section class="benefits-section">
             <div class="container">
-                <h2 class="section-title">Benefits & Assistance Programs</h2>
+                <h2 class="section-title">{{ __('messages.indigency_benefits_title') }}</h2>
                 <div class="benefits-row">
                     <div class="benefit-card">
                         <div class="benefit-icon medical"><i class="fas fa-heartbeat"></i></div>
@@ -918,7 +918,7 @@
                     <div class="requirements-card">
                         <div class="card-header">
                             <i class="fas fa-clipboard-list"></i>
-                            <h2>Requirements</h2>
+                            <h2>{{ __('messages.indigency_requirements_title') }}</h2>
                         </div>
                         <div class="requirements-list">
                             <div class="requirement-item">
@@ -959,7 +959,7 @@
                     <div class="info-card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i>
-                            <h2>Important Info</h2>
+                            <h2>{{ __('messages.indigency_important_info_title') }}</h2>
                         </div>
                         <div class="info-content">
                             <div class="info-item">
@@ -997,12 +997,12 @@
         <section class="application-form-section" id="apply-form">
             <div class="container">
                 <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> Ready to Apply?</h2>
-                    <p>Click the button below to start your Certificate of Indigency application</p>
+                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.indigency_apply_title') }}</h2>
+                    <p>{{ __('messages.indigency_apply_subtitle') }}</p>
                 </div>
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
                     <button onclick="showNoticeModal()" class="btn-apply-now"  style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
-                        <i class="fas fa-hands-helping"></i> Apply for Certificate Now
+                        <i class="fas fa-hands-helping"></i> {{ __('messages.indigency_apply_btn') }}
                     </button>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Processing Time: 2-3 Business Days · Fee: ₱25.00

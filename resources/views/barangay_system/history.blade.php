@@ -836,7 +836,7 @@
         <section class="timeline-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Historical Timeline</h2>
+                    <h2>{{ __('messages.history_timeline') }}</h2>
                 </div>
                 
                 <div class="timeline">

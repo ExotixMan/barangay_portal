@@ -1360,7 +1360,6 @@
                                         <div id="addImagePreview" class="mt-2"></div>
                                     </div>
                                 </div>
-                            </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -1370,6 +1369,7 @@
                                     <i class="fas fa-save me-2"></i>Save Event
                                 </button>
                             </div>
+                        </form>
                     </div>
                 </div>
             </div>

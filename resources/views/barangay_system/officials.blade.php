@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -870,8 +870,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="flex-column flex-sm-row"><i class="fas fa-users mb-3 mb-sm-0"></i> Barangay Officials</h1>
-                <p>Meet the dedicated leaders serving Barangay Hulong Duhat. Our officials work tirelessly to ensure the welfare and progress of our community.</p>
+                <h1 class="flex-column flex-sm-row"><i class="fas fa-users mb-3 mb-sm-0"></i> {{ __('messages.officials_hero_title') }}</h1>
+                <p>{{ __('messages.officials_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-user-tie"></i>

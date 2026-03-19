@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -623,8 +623,8 @@
     <!-- Hero Section -->
     <section class="history-hero">
         <div class="history-hero-content">
-            <h1><i class="fa-solid fa-map-location-dot"></i> Barangay Hulong Duhat Interactive Map</h1>
-            <p>Explore important locations and navigate through our community with this interactive map.</p>
+            <h1><i class="fa-solid fa-map-location-dot"></i> {{ __('messages.map_hero_title') }}</h1>
+            <p>{{ __('messages.map_hero_subtitle') }}</p>
         </div>
     </section>
 
@@ -656,7 +656,7 @@
     <section class="locations-section">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Important Locations</h2>
+                <h2 class="section-title">{{ __('messages.map_locations_title')}}</h2>
                 <p class="section-subtitle">Key establishments and facilities in Barangay Hulong Duhat</p>
             </div>
             

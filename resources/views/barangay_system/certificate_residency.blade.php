@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -533,7 +533,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1><i class="fas fa-house-user bigicon"></i> Certificate of Residency</h1>
-                <p>Official proof of residency in Barangay Hulong Duhat. Fast, secure, and hassle‑free online request.</p>
+                <p>{{ __('messages.residency_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-clock"></i>
@@ -558,31 +558,31 @@
         <!-- PROCESS STEPS (4 steps) – full width, exact duplicate of clearance style -->
         <section class="process-steps">
             <div class="process-steps-content">
-                <h2 class="section-title">How to Get Your Certificate</h2>
+                <h2 class="section-title">{{ __('messages.residency_steps_title') }}</h2>
                 <div class="steps-container">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <div class="step-icon"><i class="fas fa-user-edit"></i></div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete the online application with accurate personal & residency details</p>
+                        <h3>{{ __('messages.residency_step1_title') }}</h3>
+                        <p>{{ __('messages.residency_step1_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <div class="step-icon"><i class="fas fa-file-upload"></i></div>
-                        <h3>Upload Requirements</h3>
-                        <p>Submit proof of residency and valid ID</p>
+                        <h3>{{ __('messages.residency_step2_title') }}</h3>
+                        <p>{{ __('messages.residency_step2_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <div class="step-icon"><i class="fas fa-credit-card"></i></div>
-                        <h3>Pay at Barangay Hall</h3>
-                        <p>Pay ₱50.00 in cash when you pick up</p>
+                        <h3>{{ __('messages.residency_step3_title') }}</h3>
+                        <p>{{ __('messages.residency_step3_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <div class="step-icon"><i class="fas fa-file-download"></i></div>
-                        <h3>Receive Certificate</h3>
-                        <p>Get your official Certificate of Residency</p>
+                        <h3>{{ __('messages.residency_step4_title') }}</h3>
+                        <p>{{ __('messages.residency_step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -596,7 +596,7 @@
                     <div class="requirements-card">
                         <div class="card-header">
                             <i class="fas fa-clipboard-list"></i>
-                            <h2>Requirements</h2>
+                            <h2>{{ __('messages.residency_requirements_title') }}</h2>
                         </div>
                         <div class="requirements-list">
                             <div class="requirement-item">
@@ -637,7 +637,7 @@
                     <div class="info-card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i>
-                            <h2>Important Information</h2>
+                            <h2>{{ __('messages.residency_important_info_title') }}</h2>
                         </div>
                         <div class="info-content">
                             <div class="info-item">
@@ -675,12 +675,12 @@
         <section class="application-form-section" id="apply-form">
             <div class="container">
                 <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> Ready to Apply?</h2>
-                    <p>Click the button below to start your Certificate of Residency application</p>
+                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.residency_apply_title') }}</h2>
+                    <p>{{ __('messages.residency_apply_subtitle') }}</p>
                 </div>
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
                     <a href="{{ route('residency.form')}}" class="btn-apply-now">
-                        <i class="fas fa-house-user"></i> Apply for Certificate Now
+                        <i class="fas fa-house-user"></i> {{ __('messages.residency_apply_btn') }}
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Processing Time: 1-2 Business Days · Fee: ₱50.00

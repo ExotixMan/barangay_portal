@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -714,8 +714,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="d-flex flex-column flex-sm-row"><i class="fas fa-concierge-bell bigicon"></i> <span>Barangay Services</span></h1>
-                <p>Access a wide range of barangay services online. Request documents, track applications, and get assistance without leaving your home.</p>
+                <h1 class="d-flex flex-column flex-sm-row"><i class="fas fa-concierge-bell bigicon"></i> <span>{{ __('messages.services_hero_title')}}</span></h1>
+                <p>{{ __('messages.services_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-file-alt"></i>
@@ -739,8 +739,8 @@
         <!-- Services Overview Section -->
         <section class="services-overview">
             <div class="container">
-                <h2 class="section-title">Our Services</h2>
-                <p class="section-subtitle">Choose from our available barangay services below. Each service can be requested online for your convenience.</p>
+                <h2 class="section-title">{{ __('messages.services_service_title') }}</h2>
+                <p class="section-subtitle">{{ __('messages.services_service_subtitle') }}</p>
                 
                 <div class="row g-4">
                     <!-- Barangay Clearance -->
@@ -751,7 +751,7 @@
                             </div>
                             <div class="service-content">
                                 <h3>Barangay Clearance</h3>
-                                <p>Official document certifying that you are a person of good moral character and have no pending case or derogatory record in the barangay.</p>
+                                <p>{{ __('messages.services_clearance_desc') }}</p>
                                 <div class="service-details">
                                     <div class="detail-item">
                                         <i class="fas fa-peso-sign"></i>
@@ -759,7 +759,7 @@
                                     </div>
                                     <div class="detail-item">
                                         <i class="fas fa-clock"></i>
-                                        <span>1-3 Business Days</span>
+                                        <span>{{ __('messages.services_clearance_duration') }}</span>
                                     </div>
                                 </div>
                                 <div class="service-uses">
@@ -786,7 +786,7 @@
                             </div>
                             <div class="service-content">
                                 <h3>Certificate of Residency</h3>
-                                <p>Official proof that you are a bonafide resident of Barangay Hulong Duhat, required for various government and private transactions.</p>
+                                <p>{{ __('messages.services_residency_desc') }}</p>
                                 <div class="service-details">
                                     <div class="detail-item">
                                         <i class="fas fa-peso-sign"></i>
@@ -794,7 +794,7 @@
                                     </div>
                                     <div class="detail-item">
                                         <i class="fas fa-clock"></i>
-                                        <span>1-2 Business Days</span>
+                                        <span>{{ __('messages.services_residency_duration') }}</span>
                                     </div>
                                 </div>
                                 <div class="service-uses">
@@ -854,8 +854,8 @@
         <!-- How It Works Section -->
         <section class="how-it-works">
             <div class="container">
-                <h2 class="section-title">How It Works</h2>
-                <p class="section-subtitle">Follow these simple steps to request any barangay document online.</p>
+                <h2 class="section-title">{{ __('messages.services_how_it_works_title') }}</h2>
+                <p class="section-subtitle">{{ __('messages.services_how_it_works_subtitle') }}</p>
                 
                 <div class="steps-container">
                     <div class="step-card">
@@ -863,32 +863,32 @@
                         <div class="step-icon">
                             <i class="fas fa-user-plus"></i>
                         </div>
-                        <h3>Create Account</h3>
-                        <p>Register for an account using your valid information</p>
+                        <h3>{{ __('messages.services_step1_title') }}</h3>
+                        <p>{{ __('messages.services_step1_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <div class="step-icon">
                             <i class="fas fa-file-signature"></i>
                         </div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete the online application form accurately</p>
+                        <h3>{{ __('messages.services_step2_title') }}</h3>
+                        <p>{{ __('messages.services_step2_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <div class="step-icon">
                             <i class="fas fa-upload"></i>
                         </div>
-                        <h3>Submit Requirements</h3>
-                        <p>Upload necessary documents and submit your request</p>
+                        <h3>{{ __('messages.services_step3_title') }}</h3>
+                        <p>{{ __('messages.services_step3_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <div class="step-icon">
                             <i class="fas fa-file-download"></i>
                         </div>
-                        <h3>Claim Document</h3>
-                        <p>Pick up or receive your document once approved</p>
+                        <h3>{{ __('messages.services_step4_title') }}</h3>
+                        <p>{{ __('messages.services_step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -897,8 +897,8 @@
         <!-- Additional Services Section -->
         <section class="additional-services">
             <div class="container">
-                <h2 class="section-title">Other Services</h2>
-                <p class="section-subtitle">Explore other services available at Barangay Hulong Duhat.</p>
+                <h2 class="section-title">{{ __('messages.services_other_title') }}</h2>
+                <p class="section-subtitle">{{ __('messages.services_other_subtitle') }}.</p>
                 
                 <div class="row g-4">
                     <div class="col-12 col-md-6 col-lg-4">
@@ -907,7 +907,7 @@
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
                             <h3>Blotter Report</h3>
-                            <p>File complaints, report incidents, or document disputes for official record and mediation.</p>
+                            <p>{{ __('messages.services_blotter_card_desc') }}</p>
                             <a href="{{ route('incident') }}" class="card-link">
                                 Learn More <i class="fas fa-arrow-right"></i>
                             </a>
@@ -919,7 +919,7 @@
                                 <i class="fas fa-search"></i>
                             </div>
                             <h3>Track Request</h3>
-                            <p>Check the status of your document request using your reference number.</p>
+                            <p>{{ __('messages.services_track_card_desc') }}</p>
                             <a href="{{ route('track_request') }}" class="card-link">
                                 Learn More <i class="fas fa-arrow-right"></i>
                             </a>
@@ -931,7 +931,7 @@
                                 <i class="fas fa-question-circle"></i>
                             </div>
                             <h3>Help & Support</h3>
-                            <p>Need assistance? Contact our office or visit us for personalized help.</p>
+                            <p>{{ __('messages.services_help_card_desc') }}</p>
                             <a href="{{ route('contacts') }}" class="card-link">
                                 Contact Us <i class="fas fa-arrow-right"></i>
                             </a>

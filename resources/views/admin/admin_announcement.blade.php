@@ -1345,8 +1345,6 @@
                                     </div>
                                 </div>
                             </div>
-                            </form>
-                            </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
@@ -1355,6 +1353,7 @@
                                     <i class="fas fa-save me-2"></i>Save Announcement
                                 </button>
                             </div>
+                        </form>
                     </div>
                 </div>
             </div>

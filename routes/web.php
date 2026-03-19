@@ -411,8 +411,8 @@ Route::get('/debug-semaphore', function () {
     $payload = [
         'apikey' => $apiKey,
         'number' => '639994086683',
-        'message' => 'Test message',
-        // 'sendername' => env('SMS_SENDER_NAME'),
+        'message' => 'This message is from hulong duhat',
+        'sendername' => 'Semaphore',
     ];
 
     try {

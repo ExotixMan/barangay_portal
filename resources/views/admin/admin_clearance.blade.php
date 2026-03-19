@@ -1393,7 +1393,7 @@
                                             <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
                                             @if(auth('admin')->user()->hasPermission('update_clearance') && 
                                                 !in_array($app->status, ['rejected', 'claimed', 'delivered']))
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editApplicationModal{{ $app->id }}" title="Edit Application">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editClearanceModal{{ $app->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
@@ -1525,10 +1525,11 @@
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.clearance.store') }}" enctype="multipart/form-data" id="addApplicationForm">
-                            @csrf
-                            <input type="hidden" name="form_type" value="add">
-                            <div class="modal-body">
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('admin.clearance.store') }}" enctype="multipart/form-data" id="addApplicationForm">
+                                @csrf
+                                <input type="hidden" name="form_type" value="add">
+
                                 <div class="row g-3">
                                     <!-- Personal Information -->
                                     <div class="col-12">
@@ -1716,12 +1717,12 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="{{ route('admin.clearance.update', $app->id) }}" enctype="multipart/form-data" id="editClearanceForm{{ $app->id }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.clearance.update', $app->id) }}" enctype="multipart/form-data" id="editClearanceForm{{ $app->id }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="form_type" value="edit_{{ $app->id }}">
 
-                                <div class="modal-body">
                                     <div class="row g-3">
                                         <!-- Personal Information -->
                                         <div class="col-12">
@@ -1889,7 +1890,6 @@
                                                 <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business</option>
                                                 <option value="scholarship" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
                                                 <option value="local_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'local_employment' ? 'selected' : '' }}>Local Employment</option>
-                                                <option value="overseas_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'overseas_employment' ? 'selected' : '' }}>Overseas Employment</option>
                                                 <option value="school_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school_requirements' ? 'selected' : '' }}>School Requirements</option>
                                                 <option value="government_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government_requirements' ? 'selected' : '' }}>Government Requirements</option>
                                                 <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'other' ? 'selected' : '' }}>Other</option>
@@ -2014,7 +2014,7 @@
                                 <div class="col-12">
                                     <label class="form-label text-muted">Valid ID</label>
                                     <div>
-                                        <a href="{{ asset('storage/' . $app->valid_id_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ asset($app->valid_id_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-id-card me-2"></i>View ID Document
                                         </a>
                                     </div>

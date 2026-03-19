@@ -1694,6 +1694,7 @@
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -1942,6 +1943,7 @@
                                         <i class="fas fa-save me-2"></i>Update Application
                                     </button>
                                 </div>
+                            </form>
                         </div>
                     </div>
                 </div>

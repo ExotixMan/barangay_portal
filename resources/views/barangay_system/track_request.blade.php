@@ -1261,7 +1261,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1><i class="fas fa-search-location"></i> Track Your Request</h1>
-                <p>Monitor the status of your document requests and incident reports in real-time. Enter your reference number or view all your requests below.</p>
+                <p>{{ __('messages.track_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-clock"></i>
@@ -1292,8 +1292,8 @@
                                 <div class="form-icon">
                                     <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Hulo Logo">
                                 </div>
-                                <h2>Enter Your Reference Number</h2>
-                                <p>Your reference number was provided when you submitted your request</p>
+                                <h2>{{ __('messages.track_form_title') }}</h2>
+                                <p>{{ __('messages.track_form_subtitle') }}</p>
                             </div>
                             
                             @if(session('error'))
@@ -1322,7 +1322,7 @@
                                     <small class="form-text">Format: BC-YYYY-XXXXX for clearance, RES-YYYY-XXXXX for residency, IND-YYYY-XXXXX for indigency, INC-YYYY-XXXXX for incidents</small>
                                 </div>
                                 <button type="submit" class="btn-track">
-                                    <i class="fas fa-search"></i> Track Request
+                                    <i class="fas fa-search"></i> {{ __('messages.track_form_submit_btn') }}
                                 </button>
                             </form>
                         </div>

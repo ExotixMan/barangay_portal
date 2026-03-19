@@ -1625,8 +1625,6 @@
                                     </div>
                                 </div>
                             </div>
-                            </form>
-                            </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
@@ -1635,6 +1633,7 @@
                                     <i class="fas fa-save me-2"></i>Save Report
                                 </button>
                             </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -1698,7 +1697,7 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Incident Date <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDate') is-invalid @enderror @endif" 
-                                                name="incidentDate" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDate', $blotter->incident_date) : $blotter->incident_date }}" required max="{{ date('Y-m-d') }}">
+                                                name="incidentDate" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDate', \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d')) : \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d') }}" required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('incidentDate')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1970,7 +1969,6 @@
                                             @endif
                                         </div>
                                     </div>
-                                    </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -1980,6 +1978,7 @@
                                         <i class="fas fa-save me-2"></i>Update Report
                                     </button>
                                 </div>
+                            </form>
                         </div>
                     </div>
                 </div>
