@@ -141,7 +141,7 @@
             border-left: 3px solid var(--primary-red);
             border-radius: 8px;
             height: 48px !important;
-            padding: 12px 12px 12px 40px !important;
+            padding: 23px 12px 12px 40px !important;
             font-family: 'Assistant', sans-serif;
             font-size: 0.85rem;
             line-height: 24px !important;
