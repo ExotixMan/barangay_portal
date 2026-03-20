@@ -366,9 +366,21 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            height: 100%;
+            min-height: 480px;
         }
 
         .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 0;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .service-card .card-header,
+        .community-card .card-header {
             display: flex;
             align-items: center;
             gap: 15px;
@@ -404,6 +416,14 @@
             font-size: 1rem;
             line-height: 1.6;
             margin: 0;
+            flex-shrink: 0;
+        }
+
+        .service-list,
+        .community-highlights {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .service-list {
@@ -434,7 +454,7 @@
         .community-highlights {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 30px;
+            padding: 20px;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -461,6 +481,15 @@
 
         .highlight span {
             flex: 1;
+        }
+
+        /* Make links consistent at bottom */
+        .snc-links {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: auto;
+            padding-top: 10px;
+            display: inline-block;
         }
 
         /* Announcements & Events Section */
@@ -1153,9 +1182,9 @@
 
         <section class="announcements-events">
             <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-5">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                     <h2 class="section-header latann">{{ __('messages.index_latest_updates_title') }}</h2>
-                    <a href="{{ route('announcements')}}" class="view-all">{{ __('messages.index_view_all_btn') }} <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('announcements')}}" class="view-all text-nowrap">{{ __('messages.index_view_all_btn') }} <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 mb-4 mb-lg-0">

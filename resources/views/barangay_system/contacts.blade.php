@@ -1009,7 +1009,7 @@
                 <h2 class="section-title">Follow Us on Facebook</h2>
                 
                 <div class="social-cards-single">
-                    <a href="#" class="social-card-featured">
+                    <a href="https://www.facebook.com/BarangayHulongDuhatOfficial" class="social-card-featured">
                         <div class="social-featured-icon">
                             <i class="fab fa-facebook-f"></i>
                         </div>

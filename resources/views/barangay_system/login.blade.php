@@ -170,14 +170,14 @@
             align-items: center;
         }
 
-        /* FIXED: Floating label position when active */
         .form-floating > .form-control:focus ~ label,
         .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            opacity: 0.8;
-            transform: scale(0.8) translateY(-12px) translateX(5px) !important;
+            /* opacity: 0.8; */
+            transform: scale(0.8) translateY(-9px) translateX(30px) !important;
             background: white;
             padding: 0 5px !important;
             height: 20px !important;
+            width: auto !important;
             line-height: 20px !important;
             display: flex;
             align-items: center;
@@ -598,16 +598,16 @@
                 <!-- Username Field -->
                 <div class="form-floating mb-3 position-relative">
                     <i class="fas fa-user input-icon"></i>
-                    <input type="text" class="form-control @error('username') is-invalid @enderror" 
-                           id="username" name="username" placeholder="Username" 
-                           value="{{ old('username') }}" required autofocus>
-                    <label for="username">{{ __('messages.login_username_label') }}</label>
+                    <input type="text" class="form-control @error('login') is-invalid @enderror" 
+                           id="login" name="login" placeholder="Username or Email" 
+                           value="{{ old('login') }}" required autofocus>
+                    <label for="login">{{ __('messages.login_username_label') }}</label>
                 </div>
 
                 <!-- Password Field -->
                 <div class="form-floating mb-2 position-relative">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                    <input type="password" class="form-control password @error('password') is-invalid @enderror" 
                            id="password" name="password" placeholder="Password" required>
                     <label for="password">{{ __('messages.login_password_label') }}</label>
                     <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
@@ -711,7 +711,7 @@
             // Client-side validation elements
             const clientAlert = document.getElementById('clientErrorAlert');
             const clientMessage = document.getElementById('clientErrorMessage');
-            const usernameInput = document.getElementById('username');
+            const loginInput = document.getElementById('login');
             const passwordInput = document.getElementById('password');
             
             // Hide server alerts when showing client error
@@ -746,11 +746,11 @@
                     let hasError = false;
                     
                     // Check empty fields
-                    if (!usernameInput.value.trim()) {
+                    if (!loginInput.value.trim()) {
                         e.preventDefault();
                         hasError = true;
                         showClientError('{{ __('messages.login_error_username_required') }}');
-                        usernameInput.focus();
+                        loginInput.focus();
                     }
                     else if (!passwordInput.value) {
                         e.preventDefault();
@@ -768,8 +768,8 @@
             }
 
             // Clear error when typing
-            if (usernameInput) {
-                usernameInput.addEventListener('input', function() {
+            if (loginInput) {
+                loginInput.addEventListener('input', function() {
                     clientAlert.style.display = 'none';
                 });
             }

@@ -86,12 +86,12 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('verification.send') }}">
-        @csrf
+        <form method="POST" action="{{ route('verification.send') }}" id="resendForm">
+            @csrf
 
-        <button type="submit" class="resend-btn w-100">
-        Resend Verification Email
-        </button>
+            <button type="submit" class="resend-btn w-100" id="resendBtn">
+                Send Verification Email
+            </button>
 
         </form>
 
@@ -107,33 +107,62 @@
     @endif
 
     <script>
-        let btn = document.querySelector('.resend-btn');
-        let seconds = localStorage.getItem("verify_timer") || 0;
-
-        // Function to start countdown
-        function startTimer(sec) {
+        const btn = document.getElementById('resendBtn');
+        const form = document.getElementById('resendForm');
+        
+        // Check if there's an active timer in localStorage
+        let endTime = localStorage.getItem('verify_end_time');
+        
+        if (endTime) {
+            let remainingSeconds = Math.floor((endTime - Date.now()) / 1000);
+            
+            if (remainingSeconds > 0) {
+                startTimer(remainingSeconds);
+            } else {
+                localStorage.removeItem('verify_end_time');
+                btn.disabled = false;
+                btn.innerText = "Send Verification Email";
+            }
+        }
+        
+        form.addEventListener('submit', function(e) {
+            if (btn.disabled) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Set end time (60 seconds from now)
+            let endTime = Date.now() + 60000;
+            localStorage.setItem('verify_end_time', endTime);
+            
+            startTimer(60);
+            
+            // Allow form to submit
+            return true;
+        });
+        
+        function startTimer(seconds) {
             btn.disabled = true;
-            let timer = setInterval(() => {
-                sec--;
-                btn.innerText = "Resend Email (" + sec + "s)";
-                localStorage.setItem("verify_timer", sec);
-
-                if (sec <= 0) {
+            
+            const timer = setInterval(() => {
+                let endTime = localStorage.getItem('verify_end_time');
+                if (!endTime) {
+                    clearInterval(timer);
+                    return;
+                }
+                
+                let remainingSeconds = Math.floor((endTime - Date.now()) / 1000);
+                
+                if (remainingSeconds <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = "Resend Verification Email";
-                    localStorage.removeItem("verify_timer");
+                    btn.innerText = "Send Verification Email";
+                    localStorage.removeItem('verify_end_time');
+                } else {
+                    btn.innerText = "Resend Email (" + remainingSeconds + "s)";
                 }
             }, 1000);
         }
-
-        if (seconds > 0) {
-            startTimer(parseInt(seconds));
-        }
-        
-        btn.closest('form').addEventListener('submit', function(e) {
-            startTimer(60);
-        });
     </script>
 
 </body>

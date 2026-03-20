@@ -90,13 +90,22 @@ class ResidentsController extends Controller
     public function login_res(Request $request)
     {
         $credentials = $request->validate([
-            'username' => ['required', 'string'],
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
+        // Determine if the login input is an email or username
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        
+        // Prepare credentials array
+        $credentials = [
+            $loginType => $request->login,
+            'password' => $request->password,
+        ];
+
         if (!Auth::attempt($credentials)) {
             return redirect('login')
-                ->with('error', 'Invalid username or password.');
+                ->with('error', 'Invalid username/email or password.');
         }
 
         $request->session()->regenerate();

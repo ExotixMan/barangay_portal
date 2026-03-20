@@ -1542,7 +1542,7 @@
                             </div>
 
                             <div class="result-actions">
-                                <a href="{{ route('track_request.print', ['reference' => $trackedRequest['reference']]) }}" class="btn-print" target="_blank">
+                                <a href="{{ route('track.request.print', ['reference' => $trackedRequest['reference']]) }}" class="btn-print" target="_blank">
                                     <i class="fas fa-print"></i> Print Details
                                 </a>
                                 <a href="{{ route('track_request') }}" class="btn-new-track">

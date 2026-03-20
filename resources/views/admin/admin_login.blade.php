@@ -178,16 +178,7 @@
     </div>
     
     <div class="card-body p-0">
-        <!-- Show only status messages, not validation errors -->
-        @if(session('status'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                {{ session('status') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        
-        <!-- Show a single summary error if needed (optional - remove if you don't want it) -->
+        <!-- Show a single summary error if needed -->
         @if($errors->any() && !$errors->has('email') && !$errors->has('password'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>

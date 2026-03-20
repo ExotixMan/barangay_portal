@@ -127,7 +127,7 @@ Route::get('/verify-otp', function () {
 Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])->name('otp.verify');
 
 // Email verification (requires auth)
-Route::get('/email/verify', function () {
+Route::get('/email/verify', function (Request $request) {
     return view('barangay_system.verify_email');
 })->middleware('auth')->name('verification.notice');
 

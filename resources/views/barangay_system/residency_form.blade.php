@@ -18,7 +18,7 @@
 <body>
     <!-- Back Button -->
     <div class="back-button-container container-fluid px-3 px-md-4">
-        <a href="{{ route('residency.form') }}" class="btn-back">
+        <a href="{{ route('residency') }}" class="btn-back">
             <i class="fas fa-arrow-left"></i> Back to Residency Info
         </a>
     </div>

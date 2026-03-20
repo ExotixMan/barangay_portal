@@ -1644,6 +1644,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/admin/nav.js') }}"></script>
+    
+    <!-- SweetAlert2 for better alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Bulk delete function
@@ -1804,18 +1807,27 @@
             const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
             zoomModal.show();
         }
-    </script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
         function sf(el, msg) {
             if (!el) return;
             el.classList.add('is-invalid');
             let fb = el.parentElement.querySelector('.invalid-feedback');
-            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+            if (!fb) { 
+                fb = document.createElement('div'); 
+                fb.className = 'invalid-feedback'; 
+                el.insertAdjacentElement('afterend', fb); 
+            }
             fb.textContent = msg;
         }
-        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+        
+        function cf(el) { 
+            if (el) {
+                el.classList.remove('is-invalid');
+                // Also remove any existing error message
+                const fb = el.parentElement.querySelector('.invalid-feedback');
+                if (fb) fb.remove();
+            }
+        }
 
         function attachEventValidation(form) {
             if (!form) return;
@@ -1827,71 +1839,246 @@
             const image       = form.querySelector('[name="image"]');
 
             if (title) {
-                title.addEventListener('input', function() { cf(this); }, {once: true});
-                title.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Title is required.');
-                    else if (this.value.trim().length < 3) sf(this, 'Title must be at least 3 characters.');
-                    else cf(this);
-                });
+                title.removeEventListener('input', title._handler);
+                title._handler = function() {
+                    cf(this);
+                    if (!this.value.trim()) {
+                        sf(this, 'Title is required.');
+                    } else if (this.value.trim().length < 3) {
+                        sf(this, 'Title must be at least 3 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                title.addEventListener('input', title._handler);
+                
+                // Also validate on blur
+                title.removeEventListener('blur', title._blurHandler);
+                title._blurHandler = function() {
+                    if (!this.value.trim()) {
+                        sf(this, 'Title is required.');
+                    } else if (this.value.trim().length < 3) {
+                        sf(this, 'Title must be at least 3 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                title.addEventListener('blur', title._blurHandler);
             }
+            
             if (description) {
-                description.addEventListener('input', function() { cf(this); }, {once: true});
-                description.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Description is required.');
-                    else if (this.value.trim().length < 10) sf(this, 'Description must be at least 10 characters.');
-                    else cf(this);
-                });
+                description.removeEventListener('input', description._handler);
+                description._handler = function() {
+                    cf(this);
+                    if (!this.value.trim()) {
+                        sf(this, 'Description is required.');
+                    } else if (this.value.trim().length < 10) {
+                        sf(this, 'Description must be at least 10 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                description.addEventListener('input', description._handler);
+                
+                description.removeEventListener('blur', description._blurHandler);
+                description._blurHandler = function() {
+                    if (!this.value.trim()) {
+                        sf(this, 'Description is required.');
+                    } else if (this.value.trim().length < 10) {
+                        sf(this, 'Description must be at least 10 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                description.addEventListener('blur', description._blurHandler);
             }
-            if (eventDate) eventDate.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Event date is required.'); else cf(this);
-            });
+            
+            if (eventDate) {
+                eventDate.removeEventListener('change', eventDate._handler);
+                eventDate._handler = function() {
+                    if (!this.value) {
+                        sf(this, 'Event date is required.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                eventDate.addEventListener('change', eventDate._handler);
+            }
+            
             if (location) {
-                location.addEventListener('input', function() { cf(this); }, {once: true});
-                location.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Location is required.');
-                    else if (this.value.trim().length < 3) sf(this, 'Location must be at least 3 characters.');
-                    else cf(this);
-                });
+                location.removeEventListener('input', location._handler);
+                location._handler = function() {
+                    cf(this);
+                    if (!this.value.trim()) {
+                        sf(this, 'Location is required.');
+                    } else if (this.value.trim().length < 3) {
+                        sf(this, 'Location must be at least 3 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                location.addEventListener('input', location._handler);
+                
+                location.removeEventListener('blur', location._blurHandler);
+                location._blurHandler = function() {
+                    if (!this.value.trim()) {
+                        sf(this, 'Location is required.');
+                    } else if (this.value.trim().length < 3) {
+                        sf(this, 'Location must be at least 3 characters.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                location.addEventListener('blur', location._blurHandler);
             }
-            if (type) type.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Please select an event type.'); else cf(this);
-            });
-            if (image) image.addEventListener('change', function() {
-                if (this.files && this.files[0] && this.files[0].size / 1024 / 1024 > 5) {
-                    sf(this, 'Image must be less than 5MB.'); this.value = '';
-                } else cf(this);
-            });
+            
+            if (type) {
+                type.removeEventListener('change', type._handler);
+                type._handler = function() {
+                    if (!this.value) {
+                        sf(this, 'Please select an event type.');
+                    } else {
+                        cf(this);
+                    }
+                };
+                type.addEventListener('change', type._handler);
+            }
+            
+            if (image) {
+                image.removeEventListener('change', image._handler);
+                image._handler = function() {
+                    if (this.files && this.files[0] && this.files[0].size / 1024 / 1024 > 5) {
+                        sf(this, 'Image must be less than 5MB.'); 
+                        this.value = '';
+                    } else {
+                        cf(this);
+                    }
+                };
+                image.addEventListener('change', image._handler);
+            }
 
-            form.addEventListener('submit', function(e) {
+            // Remove any existing submit listener
+            form.removeEventListener('submit', form._submitHandler);
+            
+            form._submitHandler = function(e) {
                 let valid = true;
+                
+                // Title validation
                 if (title) {
-                    if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
-                    else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
+                    if (!title.value.trim()) { 
+                        sf(title, 'Title is required.'); 
+                        valid = false; 
+                    } else if (title.value.trim().length < 3) { 
+                        sf(title, 'Title must be at least 3 characters.'); 
+                        valid = false; 
+                    } else {
+                        cf(title);
+                    }
                 }
+                
+                // Description validation
                 if (description) {
-                    if (!description.value.trim()) { sf(description, 'Description is required.'); valid = false; }
-                    else if (description.value.trim().length < 10) { sf(description, 'Description must be at least 10 characters.'); valid = false; }
+                    if (!description.value.trim()) { 
+                        sf(description, 'Description is required.'); 
+                        valid = false; 
+                    } else if (description.value.trim().length < 10) { 
+                        sf(description, 'Description must be at least 10 characters.'); 
+                        valid = false; 
+                    } else {
+                        cf(description);
+                    }
                 }
-                if (eventDate && !eventDate.value) { sf(eventDate, 'Event date is required.'); valid = false; }
+                
+                // Event date validation
+                if (eventDate && !eventDate.value) { 
+                    sf(eventDate, 'Event date is required.'); 
+                    valid = false; 
+                } else if (eventDate && eventDate.value) {
+                    cf(eventDate);
+                }
+                
+                // Location validation
                 if (location) {
-                    if (!location.value.trim()) { sf(location, 'Location is required.'); valid = false; }
-                    else if (location.value.trim().length < 3) { sf(location, 'Location must be at least 3 characters.'); valid = false; }
+                    if (!location.value.trim()) { 
+                        sf(location, 'Location is required.'); 
+                        valid = false; 
+                    } else if (location.value.trim().length < 3) { 
+                        sf(location, 'Location must be at least 3 characters.'); 
+                        valid = false; 
+                    } else {
+                        cf(location);
+                    }
                 }
-                if (type && !type.value) { sf(type, 'Please select an event type.'); valid = false; }
+                
+                // Type validation
+                if (type && !type.value) { 
+                    sf(type, 'Please select an event type.'); 
+                    valid = false; 
+                } else if (type && type.value) {
+                    cf(type);
+                }
+                
+                // Image validation
                 if (image && image.files && image.files[0] && image.files[0].size / 1024 / 1024 > 5) {
-                    sf(image, 'Image must be less than 5MB.'); valid = false;
+                    sf(image, 'Image must be less than 5MB.'); 
+                    valid = false;
+                } else if (image) {
+                    cf(image);
                 }
-                if (!valid) e.preventDefault();
-            });
+                
+                if (!valid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            };
+            
+            form.addEventListener('submit', form._submitHandler);
         }
 
+        // Attach validation to add form
         attachEventValidation(document.getElementById('addEventForm'));
+        
+        // Attach validation to all edit forms
         document.querySelectorAll('[id^="editEventForm"]').forEach(attachEventValidation);
+        
+        // Also handle form reset when modal is closed
+        const addModal = document.getElementById('addEventModal');
+        if (addModal) {
+            addModal.addEventListener('hidden.bs.modal', function () {
+                const form = document.getElementById('addEventForm');
+                if (form) {
+                    form.reset();
+                    const invalidFields = form.querySelectorAll('.is-invalid');
+                    invalidFields.forEach(field => {
+                        field.classList.remove('is-invalid');
+                        const fb = field.parentElement.querySelector('.invalid-feedback');
+                        if (fb) fb.remove();
+                    });
+                }
+            });
+        }
+        
+        // Handle edit modals reset
+        document.querySelectorAll('[id^="editEventModal"]').forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function () {
+                const form = this.querySelector('form');
+                if (form) {
+                    const invalidFields = form.querySelectorAll('.is-invalid');
+                    invalidFields.forEach(field => {
+                        field.classList.remove('is-invalid');
+                        const fb = field.parentElement.querySelector('.invalid-feedback');
+                        if (fb) fb.remove();
+                    });
+                }
+            });
+        });
     });
     </script>
-
-    <!-- SweetAlert2 for better alerts (optional) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
 </body>
 </html>

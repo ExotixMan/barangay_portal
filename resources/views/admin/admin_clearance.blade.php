@@ -1792,18 +1792,6 @@
                                             @endif
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            <label class="form-label">Birth Place</label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birth_place') is-invalid @enderror @endif" 
-                                                name="birth_place" id="edit_birth_place_{{ $app->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('birth_place', $app->birth_place) : $app->birth_place }}" 
-                                                required>
-                                            @if(session('form_type') == 'edit_' . $app->id)
-                                                @error('birth_place')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-                                        <div class="col-12 col-md-4">
                                             <label class="form-label">Gender <span class="text-danger">*</span></label>
                                             <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('gender') is-invalid @enderror @endif" 
                                                     name="gender" id="edit_gender_{{ $app->id }}" required>
@@ -1814,22 +1802,6 @@
                                             </select>
                                             @if(session('form_type') == 'edit_' . $app->id)
                                                 @error('gender')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <label class="form-label">Civil Status <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $app->id) @error('civil_status') is-invalid @enderror @endif" 
-                                                    name="civil_status" id="edit_civil_status_{{ $app->id }}" required>
-                                                <option value="">Select status</option>
-                                                <option value="single" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
-                                                <option value="married" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
-                                                <option value="widowed" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
-                                                <option value="separated" {{ (session('form_type') == 'edit_' . $app->id ? old('civil_status', $app->civil_status) : $app->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $app->id)
-                                                @error('civil_status')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             @endif
@@ -1983,8 +1955,8 @@
                                     <p>{{ $app->birth_place ?: 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-muted">Gender / Civil Status</label>
-                                    <p>{{ ucfirst($app->gender) }} / {{ ucfirst($app->civil_status) }}</p>
+                                    <label class="form-label text-muted">Gender</label>
+                                    <p>{{ ucfirst($app->gender) }}</p>
                                 </div>
 
                                 <div class="col-12 mt-2">
