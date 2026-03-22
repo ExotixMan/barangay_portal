@@ -268,6 +268,33 @@
             margin-bottom: 1rem;
             color: #adb5bd;
         }
+
+        .chart-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .chart-loading::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chart-alert {
+            margin: 0 0 1rem 0;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -669,54 +696,108 @@
     <script>
         // Store forecast data globally for access
         let forecastData = null;
+        const chartInstances = {};
+
+        function parseForecastDate(dateStr) {
+            // Supports format from forecast.json, e.g. "Mar 23, 2026"
+            const parsed = new Date(dateStr);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        function sortForecastEntries(forecastMap) {
+            return Object.entries(forecastMap || {})
+                .map(([date, value]) => ({
+                    date,
+                    dateObj: parseForecastDate(date),
+                    value: Number(value) || 0,
+                }))
+                .filter((item) => item.dateObj)
+                .sort((a, b) => a.dateObj - b.dateObj);
+        }
+
+        function shortDate(dateStr) {
+            const dateObj = parseForecastDate(dateStr);
+            if (!dateObj) {
+                return dateStr;
+            }
+            return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function renderChart(id, config) {
+            const ctx = document.getElementById(id)?.getContext('2d');
+            if (!ctx) {
+                return null;
+            }
+            if (chartInstances[id]) {
+                chartInstances[id].destroy();
+            }
+            chartInstances[id] = new Chart(ctx, config);
+            return chartInstances[id];
+        }
+
+        function setChartLoadingState(isLoading, message = '') {
+            const firstChartTitle = document.querySelector('#dailyRequestsChart')?.closest('.chart-card')?.querySelector('.summary-badge');
+            if (!firstChartTitle) {
+                return;
+            }
+            if (isLoading) {
+                firstChartTitle.innerHTML = '<span class="chart-loading">Loading forecast</span>';
+            } else if (message) {
+                firstChartTitle.textContent = message;
+            } else {
+                firstChartTitle.textContent = 'Last 7 days';
+            }
+        }
 
         async function loadForecastData() {
+            setChartLoadingState(true);
             try {
                 const response = await fetch("{{ route('admin.dashboard.forecast') }}");
                 const data = await response.json();
 
                 if (data.error) {
                     console.error("Forecast error:", data.error);
+                    setChartLoadingState(false, 'Forecast unavailable');
                     return;
                 }
 
                 forecastData = data;
                 
-                // Update Stats (always update - these are safe)
-                updateStats(data);
-                
                 // Build charts based on permissions (using Blade to determine which JS to run)
                 @if(auth('admin')->user()->hasPermission('view_forecast'))
-                    buildApplicationsCharts(data.applications);
+                    try { buildApplicationsCharts(data.applications); } catch (e) { console.error('Applications chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasPermission('view_blotter'))
-                    buildBlotterChart(data.blotter_reports);
+                    try { buildBlotterChart(data.blotter_reports); } catch (e) { console.error('Blotter chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasPermission('view_announcements'))
-                    buildAnnouncementsChart(data.announcements);
+                    try { buildAnnouncementsChart(data.announcements); } catch (e) { console.error('Announcements chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasPermission('view_events'))
-                    buildEventsChart(data.events);
+                    try { buildEventsChart(data.events); } catch (e) { console.error('Events chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasPermission('view_projects'))
-                    buildProjectsChart(data.projects);
+                    try { buildProjectsChart(data.projects); } catch (e) { console.error('Projects chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasPermission('view_residents'))
-                    buildAgeChart(data.residents?.age_distribution);
+                    try { buildAgeChart(data.residents?.age_distribution); } catch (e) { console.error('Age chart error:', e); }
                 @endif
 
                 @if(auth('admin')->user()->hasAnyPermission(['view_dashboard', 'view_forecast']))
-                    buildRequestTypeChart(data);
-                    buildDailyRequestsChart(data);
+                    try { buildRequestTypeChart(data); } catch (e) { console.error('Request types chart error:', e); }
+                    try { buildDailyRequestsChart(data); } catch (e) { console.error('Daily requests chart error:', e); }
                 @endif
+
+                setChartLoadingState(false);
 
             } catch (error) {
                 console.error("Error loading forecast:", error);
+                setChartLoadingState(false, 'Failed to load');
             }
         }
 
@@ -743,35 +824,6 @@
                 }
             }
 
-        function updateStats(data) {
-            // Update stat cards with meaningful labels
-            const totalResidentsEl = document.getElementById('totalResidents');
-            if (totalResidentsEl) {
-                totalResidentsEl.innerText = data.residents?.total_residents?.toLocaleString() || '0';
-            }
-
-            // Calculate total pending from all applications
-            const pendingRequests = 
-                (data.applications?.barangay_clearances?.status_distribution?.processing || 0) +
-                (data.applications?.indigency_applications?.status_distribution?.processing || 0) +
-                (data.applications?.residency_applications?.status_distribution?.processing || 0);
-            
-            const pendingEl = document.getElementById('pendingRequests');
-            if (pendingEl) {
-                pendingEl.innerText = pendingRequests;
-            }
-
-            const openReportsEl = document.getElementById('openReports');
-            if (openReportsEl) {
-                openReportsEl.innerText = data.blotter_reports?.analytics?.status_distribution?.processing || 0;
-            }
-
-            const upcomingEventsEl = document.getElementById('upcomingEvents');
-            if (upcomingEventsEl) {
-                upcomingEventsEl.innerText = data.events?.upcoming_vs_past?.upcoming || 0;
-            }
-        }
-
         function buildApplicationsCharts(applications) {
             const container = document.getElementById('applicationsForecast');
             if (!container || !applications) return;
@@ -781,9 +833,12 @@
             // Create a card for each application type
             Object.entries(applications).forEach(([key, value]) => {
                 if (value.daily_forecast) {
-                    const forecast = value.daily_forecast;
-                    const dates = Object.keys(forecast).slice(0, 15);
-                    const values = Object.values(forecast).slice(0, 15);
+                    const entries = sortForecastEntries(value.daily_forecast).slice(0, 15);
+                    if (!entries.length) {
+                        return;
+                    }
+                    const dates = entries.map((item) => item.date);
+                    const values = entries.map((item) => item.value);
                     
                     // Calculate summary
                     const avgForecast = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
@@ -829,12 +884,10 @@
                     
                     // Create chart
                     setTimeout(() => {
-                        const ctx = document.getElementById(`chart-${key}`)?.getContext('2d');
-                        if (ctx) {
-                            new Chart(ctx, {
+                        renderChart(`chart-${key}`, {
                                 type: 'line',
                                 data: {
-                                    labels: dates.map(d => d.split(',')[0]),
+                                    labels: dates.map(shortDate),
                                     datasets: [{
                                         label: 'Forecast',
                                         data: values,
@@ -871,7 +924,6 @@
                                     }
                                 }
                             });
-                        }
                     }, 100);
                 }
             });
@@ -880,17 +932,14 @@
         function buildBlotterChart(blotter) {
             if (!blotter?.daily_forecast) return;
             
-            const forecast = blotter.daily_forecast;
-            const dates = Object.keys(forecast).slice(0, 20);
-            const values = Object.values(forecast).slice(0, 20);
-            
-            const ctx = document.getElementById('blotterForecastChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+            const entries = sortForecastEntries(blotter.daily_forecast).slice(0, 20);
+            const dates = entries.map((item) => item.date);
+            const values = entries.map((item) => item.value);
+
+            renderChart('blotterForecastChart', {
                 type: 'line',
                 data: {
-                    labels: dates.map(d => d.split(',')[0]),
+                    labels: dates.map(shortDate),
                     datasets: [{
                         label: 'Predicted Incidents',
                         data: values,
@@ -938,17 +987,14 @@
         function buildAnnouncementsChart(announcements) {
             if (!announcements?.daily_forecast) return;
             
-            const forecast = announcements.daily_forecast;
-            const dates = Object.keys(forecast).slice(0, 20);
-            const values = Object.values(forecast).slice(0, 20);
-            
-            const ctx = document.getElementById('announcementsForecastChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+            const entries = sortForecastEntries(announcements.daily_forecast).slice(0, 20);
+            const dates = entries.map((item) => item.date);
+            const values = entries.map((item) => item.value);
+
+            renderChart('announcementsForecastChart', {
                 type: 'line',
                 data: {
-                    labels: dates.map(d => d.split(',')[0]),
+                    labels: dates.map(shortDate),
                     datasets: [{
                         label: 'Predicted Announcements',
                         data: values,
@@ -993,11 +1039,8 @@
 
         function buildEventsChart(events) {
             if (!events) return;
-            
-            const ctx = document.getElementById('eventsChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+
+            renderChart('eventsChart', {
                 type: 'doughnut',
                 data: {
                     labels: ['Upcoming', 'Past'],
@@ -1028,11 +1071,8 @@
 
         function buildProjectsChart(projects) {
             if (!projects?.status_distribution) return;
-            
-            const ctx = document.getElementById('projectsChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+
+            renderChart('projectsChart', {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(projects.status_distribution),
@@ -1080,10 +1120,7 @@
                 else ranges['60+'] += count;
             });
             
-            const ctx = document.getElementById('ageChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+            renderChart('ageChart', {
                 type: 'bar',
                 data: {
                     labels: Object.keys(ranges),
@@ -1132,10 +1169,7 @@
                 types['Residency'] = Object.values(data.applications.residency_applications.status_distribution).reduce((a, b) => a + b, 0);
             }
             
-            const ctx = document.getElementById('requestsTypeChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+            renderChart('requestsTypeChart', {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(types),
@@ -1157,14 +1191,35 @@
         }
 
         function buildDailyRequestsChart(data) {
-            // Create sample daily data (in real app, this would come from actual daily counts)
-            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            const requests = [12, 19, 15, 17, 24, 8, 5];
-            
-            const ctx = document.getElementById('dailyRequestsChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            new Chart(ctx, {
+            const applications = data?.applications || {};
+            const dailyMaps = [
+                applications.barangay_clearances?.daily_forecast || {},
+                applications.indigency_applications?.daily_forecast || {},
+                applications.residency_applications?.daily_forecast || {},
+            ];
+
+            const mergedByDate = {};
+            dailyMaps.forEach((map) => {
+                Object.entries(map).forEach(([date, value]) => {
+                    mergedByDate[date] = (mergedByDate[date] || 0) + (Number(value) || 0);
+                });
+            });
+
+            const entries = sortForecastEntries(mergedByDate)
+                .slice(0, 7)
+                .map((item) => ({
+                    date: item.date,
+                    value: Math.round(item.value * 10) / 10,
+                }));
+
+            if (!entries.length) {
+                return;
+            }
+
+            const days = entries.map((item) => shortDate(item.date));
+            const requests = entries.map((item) => item.value);
+
+            renderChart('dailyRequestsChart', {
                 type: 'bar',
                 data: {
                     labels: days,
