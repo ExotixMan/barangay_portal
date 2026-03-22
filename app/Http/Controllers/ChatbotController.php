@@ -18,6 +18,20 @@ class ChatbotController extends Controller
 {
     public function __construct(protected HybridAgent $agent) {}
 
+    private const KNOWLEDGE_CATEGORIES = [
+        'general',
+        'clearance',
+        'residency',
+        'indigency',
+        'blotter',
+        'tracking',
+        'announcements',
+        'events',
+        'projects',
+        'portal',
+        'support',
+    ];
+
     public function index()
     {
         return view('chatbot.widget');
@@ -129,7 +143,7 @@ class ChatbotController extends Controller
             'question' => 'required|string|max:500',
             'answer'   => 'required|string|max:5000',
             'keywords' => 'nullable|string|max:500',
-            'category' => 'nullable|string|max:100',
+            'category' => 'nullable|string|in:' . implode(',', self::KNOWLEDGE_CATEGORIES),
         ]);
         $data['keywords'] = $data['keywords'] ?? '';
         $data['category'] = $data['category'] ?? 'general';
@@ -143,7 +157,7 @@ class ChatbotController extends Controller
             'question' => 'required|string|max:500',
             'answer'   => 'required|string|max:5000',
             'keywords' => 'nullable|string|max:500',
-            'category' => 'nullable|string|max:100',
+            'category' => 'nullable|string|in:' . implode(',', self::KNOWLEDGE_CATEGORIES),
         ]);
         $item->update($data);
         return response()->json(['success' => true, 'data' => $item->fresh()]);

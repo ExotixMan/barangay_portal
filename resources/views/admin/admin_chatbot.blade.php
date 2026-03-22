@@ -577,10 +577,7 @@
             </div>
 
             <div class="tab-navigation">
-                <button class="tab-link active" data-tab="dashboard">
-                    <i class="fas fa-chart-pie me-2"></i>Dashboard
-                </button>
-                <button class="tab-link" data-tab="knowledge">
+                <button class="tab-link active" data-tab="knowledge">
                     <i class="fas fa-database me-2"></i>Knowledge Base
                 </button>
                 <button class="tab-link" data-tab="unmatched">
@@ -588,45 +585,7 @@
                 </button>
             </div>
 
-            <div id="tab-dashboard" class="tab-content active">
-                <div class="table-card mb-4">
-                    <div class="table-card-header">
-                        <h6><i class="bi bi-plus-circle me-2"></i>Quick Add Knowledge</h6>
-                    </div>
-                    @admin_can('create_content')
-                    <div class="p-3">
-                        <form id="quick-add-form" class="row g-2">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control form-control-sm" name="question" placeholder="Question / Topic *" required>
-                            </div>
-                            <div class="col-md-4">
-                                <textarea class="form-control form-control-sm" name="answer" rows="1" placeholder="Answer *" required></textarea>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control form-control-sm" name="keywords" placeholder="Keywords (comma-sep)">
-                            </div>
-                            <div class="col-md-1">
-                                <select class="form-select form-select-sm" name="category">
-                                    <option value="general">General</option>
-                                    <option value="business">Business</option>
-                                    <option value="civil">Civil</option>
-                                    <option value="health">Health</option>
-                                    <option value="tax">Tax</option>
-                                    <option value="id">ID</option>
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
-                            </div>
-                        </form>
-                    </div>
-                    @else
-                    <div class="p-3 text-muted small">You do not have permission to add chatbot knowledge.</div>
-                    @endadmin_can
-                </div>
-            </div>
-
-            <div id="tab-knowledge" class="tab-content">
+            <div id="tab-knowledge" class="tab-content active">
                 <div class="table-card">
                     <div class="table-card-header">
                         <h6><i class="bi bi-database-fill me-2"></i>Knowledge Base <span class="badge bg-primary ms-1" id="kb-count">{{ count($knowledge) }}</span></h6>
@@ -752,7 +711,7 @@
                     <form id="add-form">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Question / Topic <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="question" required placeholder="e.g. How do I request a Barangay Residency Certificate?">
+                            <input type="text" class="form-control" name="question" required placeholder="e.g. How do I track my Barangay Clearance request?">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Answer <span class="text-danger">*</span></label>
@@ -761,17 +720,22 @@
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label class="form-label fw-semibold">Keywords <small class="text-muted">(comma-separated)</small></label>
-                                <input type="text" class="form-control" name="keywords" placeholder="e.g. permit, renew, business license">
+                                <input type="text" class="form-control" name="keywords" placeholder="e.g. clearance, reference id, request status">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-semibold">Category</label>
                                 <select class="form-select" name="category">
                                     <option value="general">General</option>
-                                    <option value="business">Business</option>
-                                    <option value="civil">Civil Registry</option>
-                                    <option value="health">Health</option>
-                                    <option value="tax">Tax</option>
-                                    <option value="id">ID / Card</option>
+                                    <option value="clearance">Barangay Clearance</option>
+                                    <option value="residency">Residency</option>
+                                    <option value="indigency">Indigency</option>
+                                    <option value="blotter">Incident Reports</option>
+                                    <option value="tracking">Request Tracking</option>
+                                    <option value="announcements">Announcements</option>
+                                    <option value="events">Events</option>
+                                    <option value="projects">Projects</option>
+                                    <option value="portal">Portal Account</option>
+                                    <option value="support">Support</option>
                                 </select>
                             </div>
                         </div>
@@ -814,11 +778,16 @@
                                 <label class="form-label fw-semibold">Category</label>
                                 <select class="form-select" name="category" id="edit-category">
                                     <option value="general">General</option>
-                                    <option value="business">Business</option>
-                                    <option value="civil">Civil Registry</option>
-                                    <option value="health">Health</option>
-                                    <option value="tax">Tax</option>
-                                    <option value="id">ID / Card</option>
+                                    <option value="clearance">Barangay Clearance</option>
+                                    <option value="residency">Residency</option>
+                                    <option value="indigency">Indigency</option>
+                                    <option value="blotter">Incident Reports</option>
+                                    <option value="tracking">Request Tracking</option>
+                                    <option value="announcements">Announcements</option>
+                                    <option value="events">Events</option>
+                                    <option value="projects">Projects</option>
+                                    <option value="portal">Portal Account</option>
+                                    <option value="support">Support</option>
                                 </select>
                             </div>
                         </div>
@@ -857,7 +826,7 @@
                 });
             });
 
-            const allowedCategories = ['general', 'business', 'civil', 'health', 'tax', 'id'];
+            const allowedCategories = ['general', 'clearance', 'residency', 'indigency', 'blotter', 'tracking', 'announcements', 'events', 'projects', 'portal', 'support'];
 
             function setFieldError(input, message) {
                 if (!input) {
