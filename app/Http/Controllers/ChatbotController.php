@@ -162,7 +162,7 @@ class ChatbotController extends Controller
 
     public function resolveUnmatched(int $id): JsonResponse
     {
-        ChatbotUnmatched::findOrFail($id)->update(['resolved' => true]);
+        ChatbotUnmatched::findOrFail($id)->update(['resolved' => 'true']);
         return response()->json(['success' => true]);
     }
 
@@ -172,7 +172,7 @@ class ChatbotController extends Controller
             'knowledge_count'    => ChatbotKnowledge::count(),
             'conversation_count' => ChatbotConversation::count(),
             'message_count'      => ChatbotMessage::count(),
-            'unmatched_count'    => ChatbotUnmatched::where('resolved', false)->count(),
+            'unmatched_count'    => ChatbotUnmatched::where('resolved', 'false')->count(),
             'ai_enabled'         => !empty(env('ANTHROPIC_API_KEY'))
                                  || !empty(env('GEMINI_API_KEY'))
                                  || !empty(env('GROQ_API_KEY')),
