@@ -720,6 +720,29 @@
             }
         }
 
+            function initializeStaticStats(stats) {
+                // Display initial stats immediately from server data
+                const totalResidentsEl = document.getElementById('totalResidents');
+                if (totalResidentsEl) {
+                    totalResidentsEl.innerText = (stats.totalResidents || 0).toLocaleString();
+                }
+
+                const pendingEl = document.getElementById('pendingRequests');
+                if (pendingEl) {
+                    pendingEl.innerText = stats.pendingRequests || 0;
+                }
+
+                const openReportsEl = document.getElementById('openReports');
+                if (openReportsEl) {
+                    openReportsEl.innerText = stats.openReports || 0;
+                }
+
+                const upcomingEventsEl = document.getElementById('upcomingEvents');
+                if (upcomingEventsEl) {
+                    upcomingEventsEl.innerText = stats.upcomingEvents || 0;
+                }
+            }
+
         function updateStats(data) {
             // Update stat cards with meaningful labels
             const totalResidentsEl = document.getElementById('totalResidents');
@@ -855,9 +878,9 @@
         }
 
         function buildBlotterChart(blotter) {
-            if (!Incident Report?.daily_forecast) return;
+            if (!blotter?.daily_forecast) return;
             
-            const forecast = Incident Report.daily_forecast;
+            const forecast = blotter.daily_forecast;
             const dates = Object.keys(forecast).slice(0, 20);
             const values = Object.values(forecast).slice(0, 20);
             
@@ -1178,6 +1201,14 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function () {
+                // Initialize static stats from server immediately
+                initializeStaticStats({
+                    totalResidents: {{ $stats['totalResidents'] ?? 0 }},
+                    pendingRequests: {{ $stats['pendingRequests'] ?? 0 }},
+                    openReports: {{ $stats['openReports'] ?? 0 }},
+                    upcomingEvents: {{ $stats['upcomingEvents'] ?? 0 }}
+                });
+
             loadForecastData();
         });
     </script>

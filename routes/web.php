@@ -259,7 +259,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         ->name('dashboard.index');
     
     Route::get('/forecast', [DashboardController::class, 'forecastRequests'])
-        ->middleware('permission:view_forecast')
+        ->middleware('permission:view_forecast|view_dashboard')
         ->name('dashboard.forecast');
 
     // CHATBOT
