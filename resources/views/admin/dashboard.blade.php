@@ -581,6 +581,15 @@
                 <h3>Applications Forecast (Next 30 Days)</h3>
                 <span class="summary-badge ms-auto">Predictions based on historical data</span>
             </div>
+            <div class="small text-muted mb-3">
+                <i class="fas fa-clock me-1"></i>
+                Last updated:
+                @if(!empty($forecastLastUpdated))
+                    {{ $forecastLastUpdated }}
+                @else
+                    Forecast file not generated yet
+                @endif
+            </div>
             <div id="applicationsForecast" class="row g-3 g-lg-4 mb-4"></div>
             @endadmin_can
 

@@ -19,6 +19,11 @@ class DashboardController extends Controller
     public function index()
     {
         $pendingStatuses = ['pending', 'under_review', 'processing'];
+        $forecastPath = public_path('analytics/forecast.json');
+
+        $forecastLastUpdated = file_exists($forecastPath)
+            ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath), 'Asia/Manila')->format('M d, Y h:i A') . ' PHT'
+            : null;
 
         $pendingRequests =
             BarangayClearance::whereIn('status', $pendingStatuses)->count() +
@@ -33,7 +38,7 @@ class DashboardController extends Controller
             'upcomingEvents' => Event::where('event_date', '>=', now())->count(),
         ];
 
-        return view('admin.dashboard', compact('stats'));
+        return view('admin.dashboard', compact('stats', 'forecastLastUpdated'));
     }
 
     /**
