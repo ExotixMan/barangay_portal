@@ -89,7 +89,7 @@ class ResidentsController extends Controller
 
     public function login_res(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
@@ -104,8 +104,9 @@ class ResidentsController extends Controller
         ];
 
         if (!Auth::attempt($credentials)) {
-            return redirect('login')
-                ->with('error', 'Invalid username/email or password.');
+            return back()
+                ->withErrors(['login' => 'Invalid username/email or password.'])
+                ->onlyInput('login');
         }
 
         $request->session()->regenerate();
@@ -113,16 +114,15 @@ class ResidentsController extends Controller
         $resident = Auth::user();
 
         if (is_null($resident->email_verified_at)) {
-            return redirect()->route('verification.notice')
-                ->with('error', 'Please verify your email first.');
+            return redirect()->route('verification.notice');
         }
 
-        $request->session()->regenerate();
         return redirect()->intended('/');
     }
 
     public function destroy(Request $request)
     {
+        Auth::logout();
         $request->session()->forget('loginId');
         $request->session()->invalidate();
         $request->session()->regenerateToken();

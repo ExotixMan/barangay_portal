@@ -42,4 +42,26 @@ return [
         ],
     ],
 
+    // AI Providers for chatbot
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY', ''),
+    ],
+ 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY', ''),
+    ],
+ 
+    'groq' => [
+        'key' => env('GROQ_API_KEY', ''),
+    ],
+ 
+    'openai' => [
+        'key' => env('OPENAI_API_KEY', ''),
+    ],
+ 
+    'cloudflare' => [
+        'token'      => env('CLOUDFLARE_API_TOKEN', ''),
+        'account_id' => env('CLOUDFLARE_ACCOUNT_ID', ''),
+    ],
+
 ];

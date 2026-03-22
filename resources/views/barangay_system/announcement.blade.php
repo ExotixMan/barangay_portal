@@ -794,6 +794,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -1105,30 +1106,7 @@
             </div>
         </section>
     </main>
-
-    <!-- Chat Modal -->
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">
-                    {{ __('messages.chat_modal_title') }}
-                </div>
-                <button class="chat-modal-close" id="closeChat">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chat-modal-body">
-                <iframe
-                    id="chatIframe"
-                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
-                    frameborder="0"
-                    allow="clipboard-write"
-                ></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Action Button with Speed Dial -->
+<!-- Floating Action Button with Speed Dial -->
     <div class="fab-container">
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="translateBtn" title="Translate Text">

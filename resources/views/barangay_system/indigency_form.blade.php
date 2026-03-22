@@ -28,6 +28,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <div class="back-button-container container-fluid px-3 px-md-4">
         <a href="{{ route('indigency') }}" class="btn-back">

@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="form-page-header container-fluid px-3 px-md-4">
-        <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Blotter Report Application</h1>
+        <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Incident Report Application</h1>
     </div>
 
     <!-- Application Form -->
@@ -27,7 +27,7 @@
             <div class="application-status" id="statusMessage">
                 <div class="status-content">
                     <i class="fas fa-check-circle"></i>
-                    <h3>Blotter Report Submitted Successfully!</h3>
+                    <h3>Incident Report Submitted Successfully!</h3>
                     <p>Your report has been received. Your reference number is: <strong id="referenceNumber">{{ $reference }}</strong></p>
                     <div class="status-actions row g-2 justify-content-center">
                         <div class="col-12 col-md-auto">
@@ -74,14 +74,14 @@
                     const currentDate = '{{ $date_submitted }}';
                     
                     // Create QR code data
-                    const qrData = `Reference: ${referenceNum}\nComplainant: ${complainantName}\nDate: ${currentDate}\nType: Blotter Report`;
+                    const qrData = `Reference: ${referenceNum}\nComplainant: ${complainantName}\nDate: ${currentDate}\nType: Incident Report`;
                     
                     QRCode.toDataURL(qrData, { width: 150 })
                         .then(qrDataUrl => {
                             const printContent = `<!DOCTYPE html>
                             <html>
                             <head>
-                                <title>Blotter Report Application Receipt</title>
+                                <title>Incident Report Application Receipt</title>
                                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                                 <style>
                                     body { 
@@ -204,7 +204,7 @@
                             </head>
                             <body>
                                 <div class="header">
-                                    <h1><i class="fas fa-clipboard-list"></i> Barangay Blotter Report Receipt</h1>
+                                    <h1><i class="fas fa-clipboard-list"></i> Barangay Incident Report Receipt</h1>
                                     <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
                                 </div>
                                 

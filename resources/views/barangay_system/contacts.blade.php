@@ -694,6 +694,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 
 <body>
     <!-- Navigation Header -->
@@ -765,7 +766,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -953,7 +954,7 @@
                                 <i class="fas fa-shield-alt"></i>
                             </div>
                             <h3>Peace & Order Office</h3>
-                            <p>For security concerns, blotter reports, and peace and order matters.</p>
+                            <p>For security concerns, Incident Reports, and peace and order matters.</p>
                             <div class="dept-contact">
                                 <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 103</span>
                                 <span><i class="fas fa-envelope"></i> peace@barangayhulo.gov.ph</span>
@@ -1079,30 +1080,7 @@
             </div>
         </section>
     </main>
-
-    <!-- Chat Modal -->
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">
-                    InfoHulo Assistant
-                </div>
-                <button class="chat-modal-close" id="closeChat">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chat-modal-body">
-                <iframe
-                    id="chatIframe"
-                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
-                    frameborder="0"
-                    allow="clipboard-write"
-                ></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Action Button with Speed Dial -->
+<!-- Floating Action Button with Speed Dial -->
     <div class="fab-container">
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="translateBtn" title="Translate Text">
@@ -1212,7 +1190,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>

@@ -86,23 +86,6 @@
         .input-group {
             margin-bottom: 0.25rem;
         }
-        .remember-forgot {
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-        .remember-forgot a {
-            font-size: 0.85rem;
-            color: #e3342f;
-            text-decoration: none;
-        }
-        .remember-forgot a:hover {
-            text-decoration: underline;
-        }
         .btn-primary {
             background-color: #e3342f;
             border-color: #e3342f;
@@ -221,22 +204,6 @@
                     <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
                 </div>
             @enderror
-            
-            <div class="remember-forgot">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" 
-                           id="remember" {{ old('remember') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="remember">
-                        Remember me
-                    </label>
-                </div>
-                
-                @if (Route::has('admin.password.request'))
-                    <a href="{{ route('admin.password.request') }}" id="forgotLink">
-                        Forgot Password?
-                    </a>
-                @endif
-            </div>
             
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">

@@ -884,6 +884,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 
 <body>
     <!-- Back Button -->

@@ -1,7 +1,6 @@
 // Existing code remains the same until the dark mode section
 initBackToTop();
 initFloatingActionButton();
-initChatModal();
 
 const backToTopBtn = document.getElementById('backToTop');
 const body = document.body;
@@ -115,22 +114,19 @@ function initFloatingActionButton() {
         });
     }
     
-    // Chat modal functionality
-    if (chatBtn) {
+    // Chat modal functionality (legacy modal only).
+    // If HuloBot embed is present, chatbot.embed handles #chatBtn itself.
+    const hasHuloBotEmbed = !!document.getElementById('hulobot-modal');
+    if (chatBtn && !hasHuloBotEmbed) {
         chatBtn.addEventListener('click', function(event) {
             event.stopPropagation();
-            console.log('Chat button clicked');
-            
-            // Open chat modal
+
             const chatModal = document.getElementById('chatModal');
             if (chatModal) {
-                console.log('Modal found, adding active class');
                 chatModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-            } else {
-                console.error('Chat modal not found!');
             }
-            
+
             // Close speed dial after clicking
             closeSpeedDial();
         });
@@ -138,8 +134,8 @@ function initFloatingActionButton() {
     
     // Close speed dial when clicking outside
     document.addEventListener('click', function(event) {
-        if (isSpeedDialOpen && 
-            !fabMain.contains(event.target) && 
+        if (isSpeedDialOpen && fabMain && speedDial &&
+            !fabMain.contains(event.target) &&
             !speedDial.contains(event.target)) {
             closeSpeedDial();
         }
@@ -158,42 +154,42 @@ function initFloatingActionButton() {
     }
 }
 
-function initChatModal() {
-    const chatModal = document.getElementById('chatModal');
-    const closeChatBtn = document.getElementById('closeChat');
+// function initChatModal() {
+//     const chatModal = document.getElementById('chatModal');
+//     const closeChatBtn = document.getElementById('closeChat');
     
-    // Close modal when clicking close button
-    if (closeChatBtn) {
-        console.log('Adding click listener to close button');
-        closeChatBtn.addEventListener('click', function(event) {
-            console.log('Close button clicked');
-            event.stopPropagation();
-            chatModal.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-    } else {
-        console.error('Close button not found!');
-    }
+//     // Close modal when clicking close button
+//     if (closeChatBtn) {
+//         console.log('Adding click listener to close button');
+//         closeChatBtn.addEventListener('click', function(event) {
+//             console.log('Close button clicked');
+//             event.stopPropagation();
+//             chatModal.classList.remove('active');
+//             document.body.style.overflow = '';
+//         });
+//     } else {
+//         console.error('Close button not found!');
+//     }
     
-    // Close modal when clicking outside content
-    chatModal.addEventListener('click', function(event) {
-        console.log('Modal clicked, target:', event.target);
-        console.log('Is modal itself?', event.target === chatModal);
+//     // Close modal when clicking outside content
+//     chatModal.addEventListener('click', function(event) {
+//         console.log('Modal clicked, target:', event.target);
+//         console.log('Is modal itself?', event.target === chatModal);
         
-        if (event.target === chatModal) {
-            console.log('Closing modal (clicked outside)');
-            chatModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    });
+//         if (event.target === chatModal) {
+//             console.log('Closing modal (clicked outside)');
+//             chatModal.classList.remove('active');
+//             document.body.style.overflow = '';
+//         }
+//     });
     
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(event) {
-        console.log('Key pressed:', event.key);
-        if (event.key === 'Escape' && chatModal.classList.contains('active')) {
-            console.log('Closing modal (Escape key)');
-            chatModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    });
-}
+//     // Close modal with Escape key
+//     document.addEventListener('keydown', function(event) {
+//         console.log('Key pressed:', event.key);
+//         if (event.key === 'Escape' && chatModal.classList.contains('active')) {
+//             console.log('Closing modal (Escape key)');
+//             chatModal.classList.remove('active');
+//             document.body.style.overflow = '';
+//         }
+//     });
+// }

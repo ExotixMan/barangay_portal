@@ -406,6 +406,13 @@
             <span>Users & Roles</span>
         </a>
         @endadmin_can
+
+        @admin_can('view_content')
+        <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-robot"></i>
+            <span>Chatbot</span>
+        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -550,14 +557,14 @@
             <div id="applicationsForecast" class="row g-3 g-lg-4 mb-4"></div>
             @endadmin_can
 
-            {{-- Blotter Reports & Announcements - Conditional sections --}}
+            {{-- Incident Reports & Announcements - Conditional sections --}}
             <div class="row g-3 g-lg-4 mb-4">
                 @admin_can('view_blotter')
                 <div class="col-lg-6">
                     <div class="chart-card">
                         <div class="chart-title">
                             <i class="fas fa-book"></i>
-                            Blotter Reports Forecast
+                            Incident Reports Forecast
                             <span class="summary-badge ms-auto">Trending ↑</span>
                         </div>
                         <div class="chart-container">
@@ -848,9 +855,9 @@
         }
 
         function buildBlotterChart(blotter) {
-            if (!blotter?.daily_forecast) return;
+            if (!Incident Report?.daily_forecast) return;
             
-            const forecast = blotter.daily_forecast;
+            const forecast = Incident Report.daily_forecast;
             const dates = Object.keys(forecast).slice(0, 20);
             const values = Object.values(forecast).slice(0, 20);
             

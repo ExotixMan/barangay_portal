@@ -246,18 +246,19 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <!-- Back Button - Matching residency format exactly -->
     <div class="back-button-container container-fluid px-3 px-md-4">
         <a href="{{ route('incident') }}" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Back to Blotter Info
+            <i class="fas fa-arrow-left"></i> Back to Incident Report Info
         </a>
     </div>
 
     <!-- Page Header - Matching residency format -->
     <div class="form-page-header container-fluid px-3 px-md-4">
-        <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Blotter Report Application</h1>
-        <p class="mb-0">Fill out the form below to file an official blotter report with Barangay Hulo</p>
+        <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Incident Report Application</h1>
+        <p class="mb-0">Fill out the form below to file an official Incident Report with Barangay Hulo</p>
     </div>
 
     <!-- Application Form -->
@@ -589,7 +590,7 @@
                             <div class="review-content">
                                 <div class="payment-summary">
                                     <div class="payment-item">
-                                        <span>Blotter Report Filing Fee</span>
+                                        <span>Incident Report Filing Fee</span>
                                         <span>₱0.00</span>
                                     </div>
                                     <div class="payment-item">
@@ -639,7 +640,7 @@
                     </div>
 
                     <div class="benefits-section">
-                        <h4><i class="fas fa-star"></i> Benefits of Online Blotter Report</h4>
+                        <h4><i class="fas fa-star"></i> Benefits of Online Incident Report</h4>
                         <div class="benefits-grid row g-12">
                             <div class="benefit-item col-md-4 col-sm-6">
                                 <i class="fas fa-clock mb-3"></i>

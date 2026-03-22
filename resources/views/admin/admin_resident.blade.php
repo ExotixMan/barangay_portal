@@ -682,6 +682,13 @@
         </a>
         @endadmin_can
 
+        @admin_can('view_content')
+        <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-robot"></i>
+            <span>Chatbot</span>
+        </a>
+        @endadmin_can
+
     </div>
 
     <!-- Main Content -->

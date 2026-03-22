@@ -550,6 +550,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <div class="login-container">
         <!-- Login Panel -->

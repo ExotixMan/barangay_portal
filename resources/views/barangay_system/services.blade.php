@@ -571,6 +571,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -641,7 +642,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -906,7 +907,7 @@
                             <div class="card-icon">
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
-                            <h3>Blotter Report</h3>
+                            <h3>Incident Report</h3>
                             <p>{{ __('messages.services_blotter_card_desc') }}</p>
                             <a href="{{ route('incident') }}" class="card-link">
                                 Learn More <i class="fas fa-arrow-right"></i>
@@ -987,27 +988,6 @@
             </div>
         </section>
     </main>
-
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">
-                    InfoHulo Assistant
-                </div>
-                <button class="chat-modal-close" id="closeChat">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chat-modal-body">
-                <!-- Option 1: Iframe Method -->
-                <iframe
-                    id="chatIframe"
-                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
-                    frameborder="0"
-                    allow="clipboard-write"
-                ></iframe>
-            </div>
-        </div>
     </div>
 
     <!-- Floating Action Button with Speed Dial -->
@@ -1120,7 +1100,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>

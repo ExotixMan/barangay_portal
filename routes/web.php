@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminPermissionController;
 
 use App\Http\Controllers\Admin\RequestStatusController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\AIncidentReportsController;
 use App\Http\Controllers\Admin\AResidentsController;
@@ -43,7 +44,19 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use Illuminate\Support\Facades\Auth;
 
+// AI Chatbot
+Route::prefix('chatbot')->name('chatbot.')->group(function () {
+    Route::get('/',          [ChatbotController::class, 'index'])->name('index');
+    Route::post('/start',    [ChatbotController::class, 'startConversation'])->name('start');
+    Route::post('/message',  [ChatbotController::class, 'sendMessage'])->name('message');
+    Route::get('/ai-status', [ChatbotController::class, 'aiStatus'])->name('ai.status');
+    Route::post('/test-ai',  [ChatbotController::class, 'testAI'])->name('test.ai');
+});
 
+// /* ─── Debug (REMOVE in production!) ──────────────────────────── */
+// if (app()->environment('local', 'development')) {
+//     Route::get('/chatbot/debug', fn() => view('chatbot.debug'))->name('chatbot.debug');
+// }
 
 // Language switch (public)
 
@@ -157,6 +170,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/photo', [ProfileController::class, 'removePhoto'])->name('profile.photo.remove');
     Route::post('/profile/id', [ProfileController::class, 'updateId'])->name('profile.id');
 
+    Route::middleware('verified')->group(function () {
     // Services pages
     Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
@@ -224,6 +238,7 @@ Route::middleware('auth')->group(function () {
         $amount = session('amount');
         return view('barangay_system.success_form.successform', compact('service', 'reference_number', 'route', 'applicant_name', 'date_submitted', 'status', 'amount'));
     })->name('success');
+    });
 });
 
 
@@ -246,6 +261,16 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     Route::get('/forecast', [DashboardController::class, 'forecastRequests'])
         ->middleware('permission:view_forecast')
         ->name('dashboard.forecast');
+
+    // CHATBOT
+    Route::prefix('/chatbot')->name('chatbot.')->group(function () {
+        Route::get('/',                         [ChatbotController::class, 'adminIndex'])->name('index');
+        Route::get('/stats',                    [ChatbotController::class, 'getStats'])->name('stats');
+        Route::post('/knowledge',               [ChatbotController::class, 'storeKnowledge'])->name('knowledge.store');
+        Route::put('/knowledge/{id}',           [ChatbotController::class, 'updateKnowledge'])->name('knowledge.update');
+        Route::delete('/knowledge/{id}',        [ChatbotController::class, 'deleteKnowledge'])->name('knowledge.delete');
+        Route::patch('/unmatched/{id}/resolve', [ChatbotController::class, 'resolveUnmatched'])->name('unmatched.resolve');
+    });
 
     // ==================== RESIDENTS MODULE ====================
     Route::prefix('residents')->name('residents.')->group(function () {
@@ -438,3 +463,6 @@ Route::get('/debug-semaphore', function () {
         ]);
     }
 });
+
+Route::get('/chatbot/debug',    fn() => view('chatbot.debug'))->name('chatbot.debug');
+Route::get('/chatbot/ai-test',  fn() => view('chatbot.ai_test'))->name('chatbot.ai_test');

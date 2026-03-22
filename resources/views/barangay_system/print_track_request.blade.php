@@ -218,6 +218,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <div class="header">
         <h1><i class="fas fa-file-signature"></i> {{ $trackedRequest['type'] }}</h1>
@@ -292,7 +293,7 @@
     <div class="instructions">
         <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
         
-        @if(str_contains(strtolower($trackedRequest['type']), 'blotter') || str_contains(strtolower($trackedRequest['type']), 'incident'))
+        @if(str_contains(strtolower($trackedRequest['type']), 'Incident Report') || str_contains(strtolower($trackedRequest['type']), 'incident'))
             <div class="step"><strong>1.</strong> Wait for barangay contact for investigation</div>
             <div class="step"><strong>2.</strong> Attend scheduled hearings</div>
             <div class="step"><strong>3.</strong> Receive resolution</div>

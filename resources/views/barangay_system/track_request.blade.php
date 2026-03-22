@@ -1116,6 +1116,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 
 <body>
     <!-- Navigation Header -->
@@ -1187,7 +1188,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -1445,7 +1446,7 @@
                                         @endforeach
                                     @else
                                         @php
-                                            $isIncident = str_contains(strtolower($trackedRequest['type']), 'blotter') || 
+                                            $isIncident = str_contains(strtolower($trackedRequest['type']), 'incident report') || 
                                                         str_contains(strtolower($trackedRequest['type']), 'incident');
                                             
                                             if($isIncident) {
@@ -1639,7 +1640,7 @@
                                                 ];
                                             })->toArray();
                                         
-                                        // Get blotter reports if model exists
+                                        // Get Incident Reports if model exists
                                         if(class_exists('App\Models\BlotterReport')) {
                                             $blotters = App\Models\BlotterReport::where('complainant_email', Auth::user()->email)
                                                 ->orWhere('complainant_contact', Auth::user()->contact_number ?? '')
@@ -1647,7 +1648,7 @@
                                                 ->map(function($item) {
                                                     return [
                                                         'reference' => $item->incident_number ?? $item->reference_number,
-                                                        'type' => 'Blotter Report',
+                                                        'type' => 'Incident Report',
                                                         'date' => $item->created_at->format('M d, Y'),
                                                         'status' => $item->status ?? 'Pending',
                                                         'last_updated' => $item->updated_at->format('M d, Y'),
@@ -1680,7 +1681,7 @@
                                                     if(str_contains($request['type'], 'Clearance')) $icon = 'fa-certificate';
                                                     elseif(str_contains($request['type'], 'Residency')) $icon = 'fa-house-user';
                                                     elseif(str_contains($request['type'], 'Indigency')) $icon = 'fa-hands-helping';
-                                                    elseif(str_contains($request['type'], 'Blotter')) $icon = 'fa-clipboard-list';
+                                                    elseif(str_contains($request['type'], 'Incident Report')) $icon = 'fa-clipboard-list';
                                                 @endphp
                                                 <i class="fas {{ $icon }}"></i> {{ $request['type'] }}
                                             </span>
@@ -1986,30 +1987,7 @@
             </div>
         </section>
     </main>
-
-    <!-- Chat Modal -->
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">
-                    InfoHulo Assistant
-                </div>
-                <button class="chat-modal-close" id="closeChat">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chat-modal-body">
-                <iframe
-                    id="chatIframe"
-                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
-                    frameborder="0"
-                    allow="clipboard-write"
-                ></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Action Button with Speed Dial -->
+<!-- Floating Action Button with Speed Dial -->
     <div class="fab-container">
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="translateBtn" title="Translate Text">
@@ -2119,7 +2097,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>

@@ -25,6 +25,7 @@
     
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 </head>
+@include('chatbot.embed')
 
 <body>
     <!-- Back Button -->

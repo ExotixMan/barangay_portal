@@ -9,3 +9,5 @@
 
     <button type="submit">{{ __('messages.otp_verify_btn') }}</button>
 </form>
+
+@include('chatbot.embed')

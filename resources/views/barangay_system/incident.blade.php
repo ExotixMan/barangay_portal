@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Blotter Report</title>
+    <title>Barangay Hulong Duhat - Incident Report</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -633,6 +633,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
     <!-- Navigation Header -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -703,7 +704,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -845,7 +846,7 @@
             <div class="container">
                 <div class="section-header">
                     <h2><i class="fas fa-chart-bar"></i> Incident Statistics</h2>
-                    <p>Current status of blotter reports in Barangay Hulong Duhat</p>
+                    <p>Current status of Incident Reports in Barangay Hulong Duhat</p>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-box">
@@ -896,13 +897,13 @@
         <section class="apply-section" id="applySection">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-file-medical"></i> File New Blotter Report</h2>
-                    <p>Click the button below to start your Blotter Report application</p>
+                    <h2><i class="fas fa-file-medical"></i> File New Incident Report</h2>
+                    <p>Click the button below to start your Incident Report application</p>
                 </div>
 
                 <div class="apply-button-container">
                     <a href="{{ route('incident.form') }}" class="btn-apply-now">
-                        <i class="fas fa-clipboard-list"></i> File Blotter Report Now
+                        <i class="fas fa-clipboard-list"></i> File Incident Report Now
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Response Time: Within 24 Hours
@@ -968,39 +969,17 @@
                     
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Is there a cost to file a blotter report?</span>
+                            <span>Is there a cost to file a Incident Report?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>No, filing a blotter report is a free service provided by the barangay. However, certain cases requiring mediation may involve minimal administrative fees.</p>
+                            <p>No, filing a Incident Report is a free service provided by the barangay. However, certain cases requiring mediation may involve minimal administrative fees.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-
-    <!-- Chat Modal -->
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">
-                    InfoHulo Assistant
-                </div>
-                <button class="chat-modal-close" id="closeChat">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chat-modal-body">
-                <!-- Option 1: Iframe Method -->
-                <iframe
-                    id="chatIframe"
-                    src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe"
-                    frameborder="0"
-                    allow="clipboard-write"
-                ></iframe>
-            </div>
-        </div>
     </div>
 
     <!-- Floating Action Button with Speed Dial -->
@@ -1113,7 +1092,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link active">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>

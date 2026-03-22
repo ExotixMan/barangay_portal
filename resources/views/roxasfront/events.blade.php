@@ -392,7 +392,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -772,7 +772,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>

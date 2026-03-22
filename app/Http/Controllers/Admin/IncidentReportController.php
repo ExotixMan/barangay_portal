@@ -271,7 +271,7 @@ class IncidentReportController extends Controller
         $blotter = BlotterReport::findOrFail($id);
         $blotter->update(['status' => 'resolved']);
 
-        return back()->with('success', 'Blotter resolved.');
+        return back()->with('success', 'Incident report resolved.');
     }
 
     public function reject($id)
@@ -279,14 +279,14 @@ class IncidentReportController extends Controller
         $blotter = BlotterReport::findOrFail($id);
         $blotter->update(['status' => 'dropped']);
 
-        return back()->with('success', 'Blotter dropped.');
+        return back()->with('success', 'Incident report dropped.');
     }
 
     public function destroy($id)
     {
         $report = BlotterReport::findOrFail($id);
         $report->delete();
-        return back()->with('success', 'Blotter deleted.');
+        return back()->with('success', 'Incident report deleted.');
     }
 
     public function restore($id)

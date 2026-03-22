@@ -118,7 +118,7 @@ class TrackRequestController extends Controller
             ];
         }
 
-        // Search in Blotter Reports
+        // Search in incident reports
         if (class_exists('App\Models\BlotterReport')) {
             $blotter = BlotterReport::where('reference_number', $reference)
                 ->first();
@@ -126,7 +126,7 @@ class TrackRequestController extends Controller
                 $status = $blotter->status ?? 'processing';
                 return [
                     'reference' => $blotter->reference_number,
-                    'type' => 'Blotter Report / Incident',
+                    'type' => 'Incident Report',
                     'type_code' => 'incident',
                     'name' => $blotter->complainant_name ?? '',
                     'date' => $blotter->created_at->format('F d, Y'),
@@ -329,7 +329,7 @@ class TrackRequestController extends Controller
                 ];
             })->toArray();
         
-        // Get blotter reports if model exists
+        // Get incident reports if model exists
         $blotters = [];
         if (class_exists('App\Models\BlotterReport')) {
             $blotters = BlotterReport::where('complainant_email', $email)
@@ -338,7 +338,7 @@ class TrackRequestController extends Controller
                 ->map(function($item) {
                     return [
                         'reference' => $item->reference_number,
-                        'type' => 'Blotter Report',
+                        'type' => 'Incident Report',
                         'type_code' => 'incident',
                         'date' => $item->created_at->format('M d, Y'),
                         'status' => $item->status ?? 'processing',

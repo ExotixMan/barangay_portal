@@ -33,7 +33,7 @@ class ProfileController extends Controller
         $clearanceRecords = BarangayClearance::where('email', $resident->email)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Barangay Clearance' as type"));
         $blotterRecords = BlotterReport::where('complainant_email', $resident->email)
-            ->select('reference_number', 'status', 'created_at', DB::raw("'Blotter Report' as type"));
+            ->select('reference_number', 'status', 'created_at', DB::raw("'Incident Report' as type"));
 
         $recentRequests = $residencyRecords
             ->union($indigencyRecords)
@@ -146,6 +146,12 @@ class ProfileController extends Controller
 
     public function updatePhoto(Request $request)
     {
+        if (!$request->hasFile('profile_photo')) {
+            return redirect()->route('profile')
+                ->withErrors(['profile_photo' => 'Please choose an image file to upload.'])
+                ->with('open_tab', 'info');
+        }
+
         $request->validate([
             'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
@@ -161,10 +167,23 @@ class ProfileController extends Controller
             unlink(public_path($resident->profile_photo));
         }
 
-        $file     = $request->file('profile_photo');
-        $filename = 'profile_' . $resident->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('uploads/profile_photos'), $filename);
-        $resident->update(['profile_photo' => 'uploads/profile_photos/' . $filename]);
+        try {
+            $uploadDir = public_path('uploads/profile_photos');
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $file      = $request->file('profile_photo');
+            $extension = strtolower($file->getClientOriginalExtension());
+            $filename  = 'profile_' . $resident->id . '_' . time() . '.' . $extension;
+            $file->move($uploadDir, $filename);
+
+            $resident->update(['profile_photo' => 'uploads/profile_photos/' . $filename]);
+        } catch (\Throwable $e) {
+            return redirect()->route('profile')
+                ->withErrors(['profile_photo' => 'Photo upload failed. Please try again.'])
+                ->with('open_tab', 'info');
+        }
 
         return redirect()->route('profile')->with('success_photo', 'Profile photo updated successfully.');
     }

@@ -85,6 +85,9 @@
             width: 110px; height: 110px;
             border-radius: 50%;
             object-fit: cover;
+            object-position: center;
+            display: block;
+            background: #f1f3f5;
             border: 4px solid #c62828;
             box-shadow: 0 6px 20px rgba(198,40,40,.25);
         }
@@ -299,6 +302,7 @@
         }
     </style>
 </head>
+@include('chatbot.embed')
 <body>
 
     <!-- Navigation Header -->
@@ -370,7 +374,7 @@
                             <i class="fas fa-exclamation-circle"></i> Report
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Blotter Report</a></li>
+                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
                         </ul>
                     </li>
                     
@@ -475,8 +479,8 @@
 
                         {{-- Avatar --}}
                         <div class="avatar-wrap">
-                            @if($resident->profile_photo)
-                                <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo" class="avatar-img">
+                            @if($resident->profile_photo && file_exists(public_path($resident->profile_photo)))
+                                <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo" class="avatar-img" loading="lazy">
                             @else
                                 <div class="avatar-initials">
                                     {{ strtoupper(substr($resident->firstname,0,1)) }}{{ strtoupper(substr($resident->lastname,0,1)) }}
@@ -484,6 +488,10 @@
                             @endif
                             <label for="quickPhotoInput" class="avatar-edit-btn" title="Change photo"><i class="fas fa-camera"></i></label>
                         </div>
+
+                        @error('profile_photo')
+                            <div class="text-danger small mb-2">{{ $message }}</div>
+                        @enderror
 
                         {{-- Quick photo form --}}
                         <form method="POST" action="{{ route('profile.photo') }}" enctype="multipart/form-data" id="quickPhotoForm">
@@ -800,7 +808,7 @@
                                         <div class="stat-counter-card">
                                             <div class="sc-icon"><i class="fas fa-clipboard-list"></i></div>
                                             <div class="sc-num">{{ $blotterCount }}</div>
-                                            <div class="sc-lbl">Blotter</div>
+                                            <div class="sc-lbl">Incident Report</div>
                                         </div>
                                     </div>
                                 </div>
@@ -939,19 +947,7 @@
     </div>{{-- /profile-layout --}}
 
     {{-- ══════════════════ FAB + Chat ══════════════════ --}}
-    <div class="chat-modal" id="chatModal">
-        <div class="chat-modal-content">
-            <div class="chat-modal-header">
-                <div class="chat-modal-title">InfoHulo Assistant</div>
-                <button class="chat-modal-close" id="closeChat"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="chat-modal-body">
-                <iframe id="chatIframe" src="https://app.chaindesk.ai/agents/cmjoevt2d04giiz0r9u2i0zcb/iframe" frameborder="0" allow="clipboard-write"></iframe>
-            </div>
-        </div>
-    </div>
-
-    <div class="fab-container">
+<div class="fab-container">
         <div class="speed-dial" id="speedDial">
             <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
             <button class="fab-action" id="chatBtn" title="Chat with Assistant"><i class="fas fa-comment-dots"></i></button>
@@ -1043,7 +1039,7 @@
                                 <i class="fas fa-hands-helping"></i> Certificate of Indigency
                             </a>
                             <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Blotter Report
+                                <i class="fas fa-clipboard-list"></i> Incident Report
                             </a>
                         </div>
                     </div>
