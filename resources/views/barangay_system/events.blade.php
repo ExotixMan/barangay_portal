@@ -290,6 +290,71 @@
             transform: none;
         }
 
+        .detail-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: #C62828;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            justify-content: center;
+            margin-top: 16px;
+            border: 2px solid #C62828;
+            width: fit-content;
+        }
+
+        .detail-btn:hover {
+            background: linear-gradient(135deg, #C62828, #d32f2f);
+            color: white;
+            box-shadow: 0 5px 20px rgba(198, 40, 40, 0.3);
+        }
+
+        .info-modal .modal-content {
+            border-radius: 18px;
+            border: 0;
+        }
+
+        .info-modal .modal-header {
+            background: linear-gradient(135deg, #C62828, #8B0000);
+            color: #fff;
+            border: 0;
+        }
+
+        .info-modal .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .info-modal .modal-body p {
+            color: #444;
+            line-height: 1.75;
+        }
+
+        .modal-info-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .modal-info-list li {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #333;
+            font-size: 0.92rem;
+        }
+
+        .modal-info-list i {
+            color: #C62828;
+            width: 20px;
+        }
+
         /* Mobile: stack event card vertically */
         @media (max-width: 767.98px) {
             .event-card {
@@ -326,6 +391,11 @@
             }
 
             .event-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .detail-btn {
                 width: 100%;
                 justify-content: center;
             }
@@ -922,9 +992,9 @@
                                             <span>{{ $event->start_time }} - {{ $event->end_time }}</span>
                                         </div>
                                     </div>
-                                    <a href="#" class="event-btn">
+                                    <button type="button" class="event-btn" data-bs-toggle="modal" data-bs-target="#upcomingEventModal{{ $event->id }}">
                                         <i class="fas fa-info-circle"></i> View Details
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -979,6 +1049,9 @@
                                             <div class="progress-fill" style="width: {{ $project->progress }}%"></div>
                                         </div>
                                     </div>
+                                    <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#ongoingProjectModal{{ $project->id }}">
+                                        <i class="fas fa-info-circle"></i> Learn More
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1005,6 +1078,9 @@
                                 <div class="completed-info">
                                     <span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>
                                 </div>
+                                <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#completedProjectModal{{ $project->id }}">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </button>
                             </div>
                         </div>
                     @endforeach
@@ -1033,6 +1109,9 @@
                                         <i class="fas fa-users"></i> {{ $event->attendees }} Attendees
                                     </span>
                                 @endif
+                                <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#pastEventModal{{ $event->id }}">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </button>
                             </div>
                         </div>
                     @endforeach
@@ -1040,165 +1119,100 @@
             </div>
         </section>
     </main>
-    </div>
 
-    <!-- Floating Action Button with Speed Dial -->
-    <div class="fab-container">
-        <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
-                @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
-                @else
-                    <span>English</span>
-                @endif
-            </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        </div>
-        <button class="fab-main" id="fabMain">
-            <i class="fas fa-gear"></i>
-        </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="container footer-container">
-            <div class="row">
-                <!-- Logo & Contact Info -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <div class="logo-circle">
-                                <i class="fas fa-landmark"></i>
-                            </div>
-                            <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-simple">
-                            <div class="contact-row">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-phone"></i>
-                                <a href="tel:+6329876543">(02) 987-6543</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="social-links-simple">
-                            <div class="social-icons">
-                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
+    @foreach($upcomingEvents as $event)
+    <div class="modal fade info-modal" id="upcomingEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-calendar-check me-2"></i>{{ $event->title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
-                <!-- Quick Access Links -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Quick Access</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
-                            </a>
-                            <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
-                            </a>
-                            <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Services</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
-                            </a>
-                            <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
-                            </a>
-                            <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
-                            </a>
-                            <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Incident Report
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency & Support -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
-                        <div class="emergency-contacts-simple">
-                            <div class="emergency-item">
-                                <i class="fas fa-ambulance"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
-                                    <a href="tel:911" class="emergency-number">911</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
-                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-first-aid"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
-                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="modal-body">
+                    <p>{{ $event->description }}</p>
+                    <ul class="modal-info-list mt-3">
+                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Date:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</li>
+                        <li><i class="fas fa-clock me-2"></i><strong>Time:</strong> {{ $event->start_time }} - {{ $event->end_time }}</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $event->location }}</li>
+                        <li><i class="fas fa-tag me-2"></i><strong>Status:</strong> Upcoming</li>
+                    </ul>
                 </div>
             </div>
         </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
+    </div>
+    @endforeach
+
+    @foreach($ongoingProjects as $project)
+    <div class="modal fade info-modal" id="ongoingProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-tasks me-2"></i>{{ $project->title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ $project->description }}</p>
+                    <ul class="modal-info-list mt-3">
+                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Start Date:</strong> {{ $project->start_date }}</li>
+                        <li><i class="fas fa-calendar-check me-2"></i><strong>Expected Completion:</strong> {{ $project->expected_completion }}</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $project->location }}</li>
+                        <li><i class="fas fa-chart-line me-2"></i><strong>Progress:</strong> {{ $project->progress }}%</li>
+                        <li><i class="fas fa-spinner me-2"></i><strong>Status:</strong> Ongoing</li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+    @endforeach
+
+    @foreach($completedProjects as $project)
+    <div class="modal fade info-modal" id="completedProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>{{ $project->title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ $project->description }}</p>
+                    <ul class="modal-info-list mt-3">
+                        <li><i class="fas fa-calendar-check me-2"></i><strong>Completed On:</strong> {{ $project->expected_completion }}</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $project->location ?? 'Barangay Hulong Duhat' }}</li>
+                        <li><i class="fas fa-flag-checkered me-2"></i><strong>Status:</strong> Completed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    @foreach($pastEvents as $event)
+    <div class="modal fade info-modal" id="pastEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-history me-2"></i>{{ $event->title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ $event->description }}</p>
+                    <ul class="modal-info-list mt-3">
+                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Date:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $event->location }}</li>
+                        @if($event->attendees)
+                        <li><i class="fas fa-users me-2"></i><strong>Attendees:</strong> {{ $event->attendees }}</li>
+                        @endif
+                        <li><i class="fas fa-flag me-2"></i><strong>Status:</strong> Completed Event</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    </div>
+
+    @include('barangay_system.partials.fab_footer')
 
   
     <!-- Bootstrap 5 JS Bundle with Popper -->

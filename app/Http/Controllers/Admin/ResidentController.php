@@ -128,12 +128,17 @@ class ResidentController extends Controller
         // Store form type in session
         session()->flash('form_type', 'add');
 
+        // Normalize contact input before validation.
+        $request->merge([
+            'contact' => preg_replace('/\D+/', '', (string) $request->input('contact')),
+        ]);
+
         $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username'],
             'email'     => 'required|email|max:255|unique:residents,email',
-            'birthdate' => 'required|date|before:today',
+            'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
             'password'  => ['required','confirmed', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
@@ -142,8 +147,9 @@ class ResidentController extends Controller
             'lastname.regex'    => 'Last name can only contain letters, spaces, and hyphens.',
             'username.regex'    => 'Username can only contain letters, numbers, and underscores.',
             'username.min'      => 'Username must be at least 3 characters.',
+            'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
             'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
-            'password.min'      => 'Password must be at least 8 characters.',
+            'password.*'        => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
         $resident = Residents::create([
@@ -170,12 +176,17 @@ class ResidentController extends Controller
         // Store form type in session with resident ID
         session()->flash('form_type', 'edit_' . $resident->id);
 
+        // Normalize contact input before validation.
+        $request->merge([
+            'contact' => preg_replace('/\D+/', '', (string) $request->input('contact')),
+        ]);
+
         $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username,'.$resident->id],
             'email'     => 'required|email|max:255|unique:residents,email,'.$resident->id,
-            'birthdate' => 'required|date|before:today',
+            'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
             'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
         ], [
@@ -183,6 +194,7 @@ class ResidentController extends Controller
             'lastname.regex'  => 'Last name can only contain letters, spaces, and hyphens.',
             'username.regex'  => 'Username can only contain letters, numbers, and underscores.',
             'username.min'    => 'Username must be at least 3 characters.',
+            'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
             'contact.regex'   => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
         ]);
 

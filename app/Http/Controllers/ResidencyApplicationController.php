@@ -28,7 +28,7 @@ class ResidencyApplicationController extends Controller
             'middle_name' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'last_name' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:255',
-            'birthdate' => 'required|date',
+            'birthdate' => 'required|date|before_or_equal:' . now()->subYears(5)->toDateString(),
             'gender' => 'required',
             'civil_status' => 'required',
             'birth_place' => 'required',
@@ -50,7 +50,7 @@ class ResidencyApplicationController extends Controller
             $prip_ext = $prip->getClientOriginalExtension();
             $prip_name = time() . '.' . $prip_ext;
             $prip->move(public_path('uploads/proof_of_residency'), $prip_name);
-            $data['primary_proof'] = 'uploads/proof_of_residency/' . $prip_name;
+            $data['primary_proof'] = 'uploads/proof_of_residency/residency/' . $prip_name;
         }
 
         //Government ID
@@ -75,7 +75,8 @@ class ResidencyApplicationController extends Controller
             'applicant_name' => $applicant_name,
             'date_submitted' => $date_submitted,
             'status' => 'Submitted for Processing',
-            'amount' => 50,
+            'amount' => 0,
+            'fee_label' => 'Free',
             'reference_number' => $data['reference_number'],
             'submitted_application' => true
         ]);

@@ -178,6 +178,20 @@
 
                     <div class="upload-section row g-4">
                         <div class="upload-group col-12">
+                            <label for="primaryProof">
+                                <i class="fas fa-id-card"></i> Primary Proof of Residency *
+                                <span class="upload-size">Max: 5MB (JPG, PNG, PDF)</span>
+                            </label>
+                            <div class="upload-area" id="primaryProofUpload">
+                                <i class="fas fa-cloud-upload-alt mb-3"></i>
+                                <p class="mb-0">Drag & drop your proof of residency or <span>browse</span></p>
+                                <p class="small text-muted mt-2">Barangay ID, Voter's ID, Recent Utility Bill (Meralco, Maynilad), Cedula</p>
+                                <input type="file" id="primaryProof" name="primary_proof" accept=".jpg,.jpeg,.png,.pdf" hidden required>
+                            </div>
+                            <div class="upload-preview mt-2" id="primaryProofPreview"></div>
+                        </div>
+
+                        <div class="upload-group col-12">
                             <label for="validId">
                                 <i class="fas fa-id-card"></i> Valid ID *
                                 <span class="upload-size">Max: 5MB (JPG, PNG, PDF)</span>
@@ -245,7 +259,7 @@
                                 <div class="payment-summary">
                                     <div class="payment-item">
                                         <span>Barangay Clearance Fee</span>
-                                        <span>₱100.00</span>
+                                        <span>Depending on purpose</span>
                                     </div>
                                     <div class="payment-item">
                                         <span>Processing Fee</span>
@@ -253,7 +267,7 @@
                                     </div>
                                     <div class="payment-item total">
                                         <span>Total Amount to Pay</span>
-                                        <span>₱100.00</span>
+                                        <span>Depending on purpose</span>
                                     </div>
                                 </div>
 
@@ -272,8 +286,7 @@
                                         <i class="fas fa-clock"></i>
                                         <div>
                                             <h5><i class="fas fa-calendar-alt"></i> Office Hours</h5>
-                                            <p>Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                                Saturday: 8:00 AM - 12:00 PM</p>
+                                            <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
                                         </div>
                                     </div>
 
@@ -283,8 +296,9 @@
                                             <h5><i class="fas fa-id-card"></i> What to Bring</h5>
                                             <ul>
                                                 <li>Valid ID (same as uploaded)</li>
+                                                <li>Original proof of residency for verification</li>
                                                 <li>Printed Reference Number</li>
-                                                <li>Exact amount of ₱100.00</li>
+                                                <li>Fee depends on your selected purpose</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -330,8 +344,7 @@
                         <label class="terms-checkbox">
                             <input type="checkbox" id="pickup" name="pickup" required>
                             <span class="checkmark"></span>
-                            I understand that I need to pay ₱100.00 at the Barangay Hall to receive my
-                            clearance. I will bring my valid ID and reference number for verification.
+                            I understand that the barangay clearance fee depends on purpose and will be paid at the Barangay Hall upon release. I will bring my valid ID, proof of residency, and reference number for verification.
                         </label>
                     </div>
                     <div id="termsError" style="display:none;color:#ff4444;font-size:0.85rem;margin-top:8px;padding:8px 12px;background:rgba(255,68,68,0.05);border-radius:6px;border:1px solid rgba(255,68,68,0.3);">
@@ -460,6 +473,7 @@
             });
 
             // File upload functionality
+            setupFileUpload('primaryProofUpload', 'primaryProof', 'primaryProofPreview');
             setupFileUpload('validIdUpload', 'validId', 'validIdPreview');
 
             // Functions
@@ -607,12 +621,12 @@
                             showFieldError(field, 'Date of birth cannot be in the future');
                         }
                         
-                        // Check if at least 18 years old (optional, remove if not needed)
+                        // Accept applicants 5 years old and above
                         const age = today.getFullYear() - selectedDate.getFullYear();
                         const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 18 || (age === 18 && monthDiff < 0)) {
+                        if (age < 5 || (age === 5 && monthDiff < 0)) {
                             isValid = false;
-                            showFieldError(field, 'You must be at least 18 years old to apply');
+                            showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }
                     }
                     
@@ -627,6 +641,23 @@
                 
                 // Validate file uploads for step 2
                 if (stepNumber === 2) {
+                    const primaryProofInput = document.getElementById('primaryProof');
+                    if (!primaryProofInput.files || primaryProofInput.files.length === 0) {
+                        isValid = false;
+                        const primaryProofUpload = document.getElementById('primaryProofUpload');
+                        primaryProofUpload.style.borderColor = '#ff4444';
+                        primaryProofUpload.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+
+                        const primaryProofError = document.createElement('div');
+                        primaryProofError.className = 'error-message';
+                        primaryProofError.style.color = '#ff4444';
+                        primaryProofError.style.fontSize = '0.85rem';
+                        primaryProofError.style.marginTop = '10px';
+                        primaryProofError.style.textAlign = 'center';
+                        primaryProofError.textContent = 'Please upload a primary proof of residency';
+                        primaryProofUpload.parentNode.appendChild(primaryProofError);
+                    }
+
                     const fileInput = document.getElementById('validId');
                     if (!fileInput.files || fileInput.files.length === 0) {
                         isValid = false;

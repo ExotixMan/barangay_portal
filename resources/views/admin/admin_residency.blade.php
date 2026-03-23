@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -918,7 +918,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-        
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can        
     </div>
 
     <!-- Main Content -->
@@ -969,6 +975,14 @@
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -1093,9 +1107,6 @@
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="ready_pickup" {{ request('status') == 'ready_pickup' ? 'selected' : '' }}>Ready for Pickup</option>
                                     <option value="claimed" {{ request('status') == 'claimed' ? 'selected' : '' }}>Claimed</option>
-                                    <option value="ready_delivery" {{ request('status') == 'ready_delivery' ? 'selected' : '' }}>Ready for Delivery</option>
-                                    <option value="out_delivery" {{ request('status') == 'out_delivery' ? 'selected' : '' }}>Out for Delivery</option>
-                                    <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
@@ -1238,12 +1249,6 @@
                                             <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
                                         @elseif($app->status == 'claimed')
                                             <span class="badge bg-success-subtle text-success">Claimed</span>
-                                        @elseif($app->status == 'ready_delivery')
-                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
-                                        @elseif($app->status == 'out_delivery')
-                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
-                                        @elseif($app->status == 'delivered')
-                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @elseif($app->status == 'pending')
@@ -1358,50 +1363,6 @@
                                                     
                                                     <li><hr class="dropdown-divider"></li>
                                                     
-                                                    <!-- Ready for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="ready_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'ready_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Delivery?')">
-                                                                <i class="fas fa-box me-2 text-info"></i>Ready for Delivery
-                                                                @if($app->status == 'ready_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Out for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="out_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'out_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Out for Delivery?')">
-                                                                <i class="fas fa-truck me-2 text-warning"></i>Out for Delivery
-                                                                @if($app->status == 'out_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Delivered -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="delivered">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'delivered' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Delivered?')">
-                                                                <i class="fas fa-check-double me-2 text-success"></i>Delivered
-                                                                @if($app->status == 'delivered')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    
                                                     <!-- Rejected -->
                                                     <li>
                                                         <form method="POST" action="{{ route('admin.residency.status', $app->id) }}" class="dropdown-item p-0">
@@ -1421,7 +1382,7 @@
 
                                             <!-- Edit Button -->
                                             @if(auth('admin')->user()->hasPermission('update_residency') && 
-                                                !in_array($app->status, ['rejected', 'claimed', 'delivered']))
+                                                !in_array($app->status, ['rejected', 'claimed']))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editApplicationModal{{ $app->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -1429,14 +1390,14 @@
 
                                             <!-- Document Actions Dropdown -->
                                             @if(auth('admin')->user()->hasPermission('generate_residency_document') && 
-                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed', 'delivered']))
+                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
                                                     <i class="fas fa-file-alt"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.residency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.residency.document.residency_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="download" class="dropdown-item">
                                                                 <i class="fas fa-download me-2"></i>Download Word
@@ -1444,7 +1405,7 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.residency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.residency.document.residency_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="print" class="dropdown-item">
                                                                 <i class="fas fa-print me-2"></i>Print PDF
@@ -1457,7 +1418,7 @@
 
                                             <!-- Communication Dropdown -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($app->status, ['approved', 'rejected', 'claimed', 'delivered']))
+                                                in_array($app->status, ['approved', 'rejected', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
@@ -2247,12 +2208,6 @@
                                             <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
                                         @elseif($app->status == 'claimed')
                                             <span class="badge bg-success-subtle text-success">Claimed</span>
-                                        @elseif($app->status == 'ready_delivery')
-                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
-                                        @elseif($app->status == 'out_delivery')
-                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
-                                        @elseif($app->status == 'delivered')
-                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @elseif($app->status == 'pending')
@@ -2370,7 +2325,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected → Ask to export all
+            // If nothing selected â†’ Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2392,7 +2347,7 @@
                 return;
             }
 
-            // If selected → Confirm export selected
+            // If selected â†’ Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected application(s)?`,
@@ -2429,14 +2384,30 @@
             });
         }
 
-        // Confirm delete with SweetAlert
+        // Confirm action with SweetAlert when available, fallback to native confirm.
         function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            
+            const text = message || 'You won\'t be able to revert this!';
+
+            if (event && typeof event.preventDefault === 'function') {
+                event.preventDefault();
+            }
+
+            const form = event && event.target && typeof event.target.closest === 'function'
+                ? event.target.closest('form')
+                : null;
+
+            if (typeof Swal === 'undefined') {
+                return window.confirm(text);
+            }
+
+            // If no form context exists, fallback to native confirm to preserve behavior.
+            if (!form) {
+                return window.confirm(text);
+            }
+
             Swal.fire({
                 title: 'Are you sure?',
-                text: message || 'You won\'t be able to revert this!',
+                text: text,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -2447,7 +2418,7 @@
                     form.submit();
                 }
             });
-            
+
             return false;
         }
 
@@ -2510,6 +2481,12 @@
             @if ($errors->any() && session('form_type') == 'add')
                 var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
                 addModal.show();
+            @endif
+
+            // Re-open add modal for non-validation errors from controller try/catch.
+            @if (session('error') && session('form_type') == 'add')
+                var addModalOnError = new bootstrap.Modal(document.getElementById('addApplicationModal'));
+                addModalOnError.show();
             @endif
 
             // Real-time validation for add form
@@ -2860,3 +2837,4 @@
     
 </body>
 </html>
+

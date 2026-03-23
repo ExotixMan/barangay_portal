@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -882,6 +882,12 @@
         </a>
         @endadmin_can
 
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -2299,7 +2305,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected → Ask to export all
+            // If nothing selected â†’ Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2321,7 +2327,7 @@
                 return;
             }
 
-            // If selected → Confirm export selected
+            // If selected â†’ Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected incident report(s)?`,
@@ -2881,3 +2887,4 @@
     
 </body>
 </html>
+

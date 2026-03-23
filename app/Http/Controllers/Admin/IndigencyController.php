@@ -76,6 +76,11 @@ class IndigencyController extends Controller
         // Store form type in session
         session()->flash('form_type', 'add');
 
+        // Normalize phone input before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
         $data = $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -90,10 +95,20 @@ class IndigencyController extends Controller
             'household_members' => 'required|integer|min:1|max:20',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
+            'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         try {
+            // Proof of residency
+            if ($request->hasFile('primary_proof')) {
+                $proof = $request->file('primary_proof');
+                $proofExt = $proof->getClientOriginalExtension();
+                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proof->move(public_path('uploads/proof_of_residency/indigency'), $proofName);
+                $data['primary_proof'] = 'uploads/proof_of_residency/indigency/' . $proofName;
+            }
+
             //Valid ID
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
@@ -119,12 +134,76 @@ class IndigencyController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        $application = IndigencyApplication::findOrFail($id);
+
+        // Store form type in session with application ID
+        session()->flash('form_type', 'edit_' . $application->id);
+
+        // Normalize phone input before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
+        $data = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:255',
+            'birthdate' => 'required|date|before:today',
+            'gender' => 'required|in:male,female,other',
+            'address' => 'required|string',
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+            'email' => 'required|email|max:255',
+            'monthly_income' => 'required|in:below 5k,5k-8k,8k-10k,10k-15k,no income',
+            'household_members' => 'required|integer|min:1|max:20',
+            'purpose' => 'required|in:medical,scholarship,government,legal,employment,burial,financial,other',
+            'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
+            'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        try {
+            if ($request->hasFile('primary_proof')) {
+                if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
+                    unlink(public_path($application->primary_proof));
+                }
+
+                $proof = $request->file('primary_proof');
+                $proofExt = $proof->getClientOriginalExtension();
+                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proof->move(public_path('uploads/proof_of_residency/indigency'), $proofName);
+                $data['primary_proof'] = 'uploads/proof_of_residency/indigency/' . $proofName;
+            }
+
+            if ($request->hasFile('valid_id_path')) {
+                if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
+                    unlink(public_path($application->valid_id_path));
+                }
+
+                $vip = $request->file('valid_id_path');
+                $vipExt = $vip->getClientOriginalExtension();
+                $vipName = time() . '_id_' . Str::random(5) . '.' . $vipExt;
+                $vip->move(public_path('uploads/valid_id/indigency'), $vipName);
+                $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vipName;
+            }
+
+            $application->update($data);
+
+            return back()->with('success', 'Indigency application updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
+        }
+    }
+
     public function updateStatus(Request $request, $id)
     {
         $application = IndigencyApplication::findOrFail($id);
         
         // Validate status
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
             'status' => 'required|in:' . implode(',', $allowedStatuses)
@@ -158,6 +237,10 @@ class IndigencyController extends Controller
         $applications = IndigencyApplication::whereIn('id', $request->ids)->get();
 
         foreach ($applications as $application) {
+            if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
+                unlink(public_path($application->primary_proof));
+            }
+
             if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
                 unlink(public_path($application->valid_id_path));
             }
@@ -268,6 +351,10 @@ class IndigencyController extends Controller
     public function destroy($id)
     {
         $application = IndigencyApplication::findOrFail($id);
+
+        if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
+            unlink(public_path($application->primary_proof));
+        }
 
         if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
             unlink(public_path($application->valid_id_path));

@@ -70,8 +70,8 @@ class ChatbotKnowledgeSeeder extends Seeder
             ═══════════════════════════════════════════════════ */
             [
                 'question' => 'How do I track the status of my request?',
-                'answer'   => "Steps to track your request status:\n\n1) Log in to the Barangay Hulo Portal.\n2) Go to Request Status in your account dashboard.\n3) Find your request using your Reference ID.\n4) View the current status:\n   - Pending — received, waiting for review\n   - Under Review — being evaluated by staff\n   - Processing — being prepared\n   - Approved — approved by barangay\n   - Ready for Pickup — available to claim at the hall\n   - Claimed — successfully claimed\n   - Ready for Delivery — being prepared for delivery\n   - Out for Delivery — on its way\n   - Delivered — successfully delivered\n   - Rejected — not approved (check reason)\n\nYou also receive email and SMS notifications for every status update.",
-                'keywords' => 'track,tracking,request status,reference ID,status ng request,saan na ang request,pending,approved,rejected,under review,processing,ready pickup,claimed,delivered,how to track,check status,my request',
+                'answer'   => "Steps to track your request status:\n\n1) Log in to the Barangay Hulo Portal.\n2) Go to Request Status in your account dashboard.\n3) Find your request using your Reference ID.\n4) View the current status:\n   - Pending — received, waiting for review\n   - Under Review — being evaluated by staff\n   - Processing — being prepared\n   - Approved — approved by barangay\n   - Ready for Pickup — available to claim at the hall\n   - Claimed — successfully claimed\n   - Rejected — not approved (check reason)\n\nYou also receive email and SMS notifications for every status update.",
+                'keywords' => 'track,tracking,request status,reference ID,status ng request,saan na ang request,pending,approved,rejected,under review,processing,ready pickup,claimed,how to track,check status,my request',
                 'category' => 'tracking',
             ],
 
@@ -90,7 +90,7 @@ class ChatbotKnowledgeSeeder extends Seeder
             ═══════════════════════════════════════════════════ */
             [
                 'question' => 'How will I know if my request is approved or updated?',
-                'answer'   => "The Barangay Hulo Portal sends automatic notifications:\n\n- Email notification — sent to your registered email address\n- SMS notification — sent to your registered mobile number\n\nNotifications are sent when:\n- Your request is received (with your Reference ID)\n- Your request is under review\n- Your request is approved or rejected\n- Your document is ready for pickup or delivery\n\nYou can also log in anytime and check Request Status for real-time updates.",
+                'answer'   => "The Barangay Hulo Portal sends automatic notifications:\n\n- Email notification — sent to your registered email address\n- SMS notification — sent to your registered mobile number\n\nNotifications are sent when:\n- Your request is received (with your Reference ID)\n- Your request is under review\n- Your request is approved or rejected\n- Your document is ready for pickup\n\nYou can also log in anytime and check Request Status for real-time updates.",
                 'keywords' => 'notification,email,SMS,approved na ba,kailan malalaman,update,status update,how to know,receive notification,di natanggap,walang email,walang SMS,paano malalaman',
                 'category' => 'portal',
             ],

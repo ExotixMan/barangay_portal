@@ -20,12 +20,16 @@
                     </a>
                     
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        @if(Route::has('admin.profile'))
                         <a class="dropdown-item" href="{{ route('admin.profile') }}">
                             <i class="fas fa-user fa-sm fa-fw me-2"></i> Profile
                         </a>
+                        @endif
+                        @if(Route::has('admin.settings'))
                         <a class="dropdown-item" href="{{ route('admin.settings') }}">
                             <i class="fas fa-cog fa-sm fa-fw me-2"></i> Settings
                         </a>
+                        @endif
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i> Logout

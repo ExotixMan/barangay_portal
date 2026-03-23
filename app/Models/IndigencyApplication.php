@@ -24,6 +24,7 @@ class IndigencyApplication extends Model
         'household_members',
         'purpose',
         'purpose_other',
+        'primary_proof',
         'valid_id_path',
         'status',
     ];

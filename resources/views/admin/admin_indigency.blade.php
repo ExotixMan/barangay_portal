@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -855,6 +855,12 @@
         </a>
         @endadmin_can
 
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -1022,15 +1028,13 @@
 
                             <div class="col-6 col-md-2">
                                 <select name="status" class="form-select">
+                                    <option value="">All Status</option>
                                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
                                     <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="ready_pickup" {{ request('status') == 'ready_pickup' ? 'selected' : '' }}>Ready for Pickup</option>
                                     <option value="claimed" {{ request('status') == 'claimed' ? 'selected' : '' }}>Claimed</option>
-                                    <option value="ready_delivery" {{ request('status') == 'ready_delivery' ? 'selected' : '' }}>Ready for Delivery</option>
-                                    <option value="out_delivery" {{ request('status') == 'out_delivery' ? 'selected' : '' }}>Out for Delivery</option>
-                                    <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
@@ -1038,10 +1042,10 @@
                             <div class="col-6 col-md-3">
                                 <select name="monthly_income" class="form-select">
                                     <option value="">All Income</option>
-                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
-                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
-                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
-                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below â‚±5,000</option>
+                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
+                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
+                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
                                     <option value="no income" {{ request('monthly_income') == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                 </select>
                             </div>
@@ -1179,12 +1183,6 @@
                                             <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
                                         @elseif($ind->status == 'claimed')
                                             <span class="badge bg-success-subtle text-success">Claimed</span>
-                                        @elseif($ind->status == 'ready_delivery')
-                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
-                                        @elseif($ind->status == 'out_delivery')
-                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
-                                        @elseif($ind->status == 'delivered')
-                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($ind->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @elseif($ind->status == 'pending')
@@ -1299,50 +1297,6 @@
                                                     
                                                     <li><hr class="dropdown-divider"></li>
                                                     
-                                                    <!-- Ready for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="ready_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $ind->status == 'ready_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Delivery?')">
-                                                                <i class="fas fa-box me-2 text-info"></i>Ready for Delivery
-                                                                @if($ind->status == 'ready_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Out for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="out_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $ind->status == 'out_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Out for Delivery?')">
-                                                                <i class="fas fa-truck me-2 text-warning"></i>Out for Delivery
-                                                                @if($ind->status == 'out_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Delivered -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="delivered">
-                                                            <button type="submit" class="dropdown-item {{ $ind->status == 'delivered' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Delivered?')">
-                                                                <i class="fas fa-check-double me-2 text-success"></i>Delivered
-                                                                @if($ind->status == 'delivered')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    
                                                     <!-- Rejected -->
                                                     <li>
                                                         <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" class="dropdown-item p-0">
@@ -1360,24 +1314,24 @@
                                             </div>
                                             @endif
 
-                                            <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
+                                            <!-- Edit Button - Show for all statuses EXCEPT rejected and claimed -->
                                             @if(auth('admin')->user()->hasPermission('update_indigency') && 
-                                                !in_array($ind->status, ['rejected', 'claimed', 'delivered']))
+                                                !in_array($ind->status, ['rejected', 'claimed']))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editIndigencyModal{{ $ind->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
 
-                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed, delivered -->
+                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed -->
                                             @if(auth('admin')->user()->hasPermission('generate_indigency_document') && 
-                                                in_array($ind->status, ['approved', 'ready_pickup', 'claimed', 'delivered']))
+                                                in_array($ind->status, ['approved', 'ready_pickup', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
                                                     <i class="fas fa-file-alt"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.indigency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.indigency.document.indigency_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $ind->id }}">
                                                             <button type="submit" name="action" value="download" class="dropdown-item">
                                                                 <i class="fas fa-download me-2"></i>Download Word
@@ -1385,7 +1339,7 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.indigency.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.indigency.document.indigency_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $ind->id }}">
                                                             <button type="submit" name="action" value="print" class="dropdown-item">
                                                                 <i class="fas fa-print me-2"></i>Print PDF
@@ -1396,9 +1350,9 @@
                                             </div>
                                             @endif
 
-                                            <!-- Communication Dropdown - Show for approved, rejected, claimed, delivered -->
+                                            <!-- Communication Dropdown - Show for approved, rejected, claimed -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($ind->status, ['approved', 'rejected', 'claimed', 'delivered']))
+                                                in_array($ind->status, ['approved', 'rejected', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
@@ -1621,10 +1575,10 @@
                                         <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
                                                name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
                                                <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below ₱5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below â‚±5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
                                         </select>
                                         @if(session('form_type') == 'add')
@@ -1678,6 +1632,17 @@
                                     <!-- Documents -->
                                     <div class="col-12 mt-3">
                                         <h6 class="fw-semibold text-primary">Required Documents</h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Proof of Residency <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif" 
+                                               name="primary_proof" accept="image/*,.pdf" required>
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('primary_proof')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Valid ID <span class="text-danger">*</span></label>
@@ -1860,10 +1825,10 @@
                                             <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif" 
                                                 name="monthly_income" id="edit_monthly_income_{{ $ind->id }}" required>
                                                 <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>₱5,000 – ₱8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>₱8,001 – ₱10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>₱10,001 – ₱15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below â‚±5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income)  == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1921,6 +1886,17 @@
                                             <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
                                         </div>
                                         <div class="col-12">
+                                            <label class="form-label">Proof of Residency</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('primary_proof') is-invalid @enderror @endif" 
+                                                name="primary_proof" id="edit_primary_proof_{{ $ind->id }}" accept="image/*,.pdf">
+                                            <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                            @if(session('form_type') == 'edit_' . $ind->id)
+                                                @error('primary_proof')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
                                             <label class="form-label">Valid ID</label>
                                             <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('valid_id_path') is-invalid @enderror @endif" 
                                                 name="valid_id_path" id="edit_valid_id_path_{{ $ind->id }}" accept="image/*,.pdf">
@@ -1932,6 +1908,14 @@
                                             @endif
                                         </div>
                                         
+                                        @if($ind->primary_proof)
+                                        <div class="col-12">
+                                            <small class="text-info">
+                                                <i class="fas fa-info-circle me-1"></i>Current proof of residency: {{ basename($ind->primary_proof) }}
+                                            </small>
+                                        </div>
+                                        @endif
+
                                         @if($ind->valid_id_path)
                                         <div class="col-12">
                                             <small class="text-info">
@@ -2018,6 +2002,16 @@
                                     <label class="form-label text-muted">Purpose</label>
                                     <p>{{ $ind->purpose }} {{ $ind->purpose_other ? '(' . $ind->purpose_other . ')' : '' }}</p>
                                 </div>
+                                @if($ind->primary_proof)
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Proof of Residency</label>
+                                    <div>
+                                        <a href="{{ asset($ind->primary_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-file me-2"></i>View Proof of Residency
+                                        </a>
+                                    </div>
+                                </div>
+                                @endif
                                 @if($ind->valid_id_path)
                                 <div class="col-12">
                                     <label class="form-label text-muted">Valid ID</label>
@@ -2146,7 +2140,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected → Ask to export all
+            // If nothing selected â†’ Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2168,7 +2162,7 @@
                 return;
             }
 
-            // If selected → Confirm export selected
+            // If selected â†’ Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected application(s)?`,
@@ -2658,3 +2652,4 @@
     
 </body>
 </html>
+

@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\File;
 
 class ClearanceController extends Controller
 {
@@ -63,6 +64,11 @@ class ClearanceController extends Controller
 
     public function store(Request $request)
     {
+        // Normalize phone input before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
         $data = $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -73,12 +79,23 @@ class ClearanceController extends Controller
             'address' => 'required',
             'contact_number' => ['required','regex:/^09\d{9}$/'],
             'email' => 'required|email',
+            'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
+            'fee' => 'nullable|numeric|min:0|max:99999.99',
         ]);
 
         try {
+            // Proof of residency
+            if ($request->hasFile('primary_proof')) {
+                $proof = $request->file('primary_proof');
+                $proofExt = $proof->getClientOriginalExtension();
+                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proof->move(public_path('uploads/proof_of_residency/clearance'), $proofName);
+                $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
+            }
+
             //Valid ID
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
@@ -90,6 +107,12 @@ class ClearanceController extends Controller
 
             // Generate Reference Number
             $data['reference_number'] = 'BC-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
+
+            if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
+                $data['fee'] = round((float) $data['fee'], 2);
+            } else {
+                $data['fee'] = null;
+            }
 
             // Default status
             $data['status'] = 'processing';
@@ -105,12 +128,81 @@ class ClearanceController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        $application = BarangayClearance::findOrFail($id);
+
+        session()->flash('form_type', 'edit_' . $application->id);
+
+        // Normalize phone input before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
+        $data = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:255',
+            'birthdate' => 'required|date|before_or_equal:today',
+            'gender' => 'required',
+            'address' => 'required|string',
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+            'email' => 'required|email',
+            'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'purpose' => 'required',
+            'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
+            'fee' => 'nullable|numeric|min:0|max:99999.99',
+        ]);
+
+        try {
+            if ($request->hasFile('primary_proof')) {
+                if ($application->primary_proof && File::exists(public_path($application->primary_proof))) {
+                    File::delete(public_path($application->primary_proof));
+                }
+
+                $proof = $request->file('primary_proof');
+                $proofExt = $proof->getClientOriginalExtension();
+                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proof->move(public_path('uploads/proof_of_residency/clearance'), $proofName);
+                $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
+            }
+
+            if ($request->hasFile('valid_id_path')) {
+                if ($application->valid_id_path && File::exists(public_path($application->valid_id_path))) {
+                    File::delete(public_path($application->valid_id_path));
+                }
+
+                $vip = $request->file('valid_id_path');
+                $vipExt = $vip->getClientOriginalExtension();
+                $vipName = time() . '_' . Str::random(5) . '.' . $vipExt;
+                $vip->move(public_path('uploads/valid_id/clearance'), $vipName);
+                $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vipName;
+            }
+
+            if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
+                $data['fee'] = round((float) $data['fee'], 2);
+            } else {
+                $data['fee'] = null;
+            }
+
+            $application->update($data);
+
+            return redirect()->route('admin.clearance.index')
+                ->with('success', 'Application #' . $application->reference_number . ' updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
+        }
+    }
+
     public function updateStatus(Request $request, $id)
     {
         $application = BarangayClearance::findOrFail($id);
         
         // Validate status
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
             'status' => 'required|in:' . implode(',', $allowedStatuses)
@@ -130,8 +222,12 @@ class ClearanceController extends Controller
         // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
+        $feeText = is_null($application->fee)
+            ? 'Depending on purpose'
+            : 'PHP ' . number_format((float) $application->fee, 2);
+
         return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}.");
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Current fee: {$feeText}.");
     }
 
     public function bulkDelete(Request $request)
@@ -144,6 +240,10 @@ class ClearanceController extends Controller
         $applications = BarangayClearance::whereIn('id', $request->ids)->get();
 
         foreach ($applications as $application) {
+            if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
+                unlink(public_path($application->primary_proof));
+            }
+
             if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
                 unlink(public_path($application->valid_id_path));
             }
@@ -197,6 +297,7 @@ class ClearanceController extends Controller
                 'Email',
                 'Purpose',
                 'Purpose Other',
+                'Fee',
                 'Status',
                 'Created At',
                 'Updated At'
@@ -226,6 +327,7 @@ class ClearanceController extends Controller
                     $app->email,
                     $app->purpose,
                     $app->purpose_other,
+                    is_null($app->fee) ? 'Depending on purpose' : number_format((float) $app->fee, 2, '.', ''),
                     $app->status,
                     $app->created_at,
                     $app->updated_at,
@@ -241,6 +343,10 @@ class ClearanceController extends Controller
     public function destroy($id)
     {
         $application = BarangayClearance::findOrFail($id);
+
+        if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
+            unlink(public_path($application->primary_proof));
+        }
 
         if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
             unlink(public_path($application->valid_id_path));
@@ -259,17 +365,49 @@ class ClearanceController extends Controller
 
         $record = BarangayClearance::findOrFail($id);
 
-        $templatePath = public_path('document_template/Doc2.docx');
+        $clearanceTemplatePath = public_path('document_template/Clearance_Template.docx');
+        $templatePath = file_exists($clearanceTemplatePath)
+            ? $clearanceTemplatePath
+            : public_path('document_template/Doc2.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Word template not found');
         }
 
-        $full_name = trim($record->first_name . ' ' . $record->middle_name . ' ' . $record->last_name . ' ' . $record->suffix);
+        $nameParts = array_filter([
+            $record->first_name,
+            $record->middle_name,
+            $record->last_name,
+            $record->suffix,
+        ]);
+        $full_name = strtoupper(trim(implode(' ', $nameParts)));
+
+        $createdDate = Carbon::parse($record->created_at);
+        $day = strtoupper($createdDate->format('jS'));
+        $month = strtoupper($createdDate->format('F'));
+        $year = strtoupper($createdDate->format('Y'));
+
+        $address = strtoupper($record->address ?? 'N/A');
+        $purpose = $record->purpose === 'other'
+            ? strtoupper($record->purpose_other ?? 'N/A')
+            : strtoupper(str_replace('_', ' ', $record->purpose ?? 'N/A'));
+
+        $adminUser = auth('admin')->user();
+        $resolvedStaffName = $adminUser?->full_name
+            ?? trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''))
+            ?? $adminUser?->username
+            ?? 'BARANGAY STAFF';
+        $staffName = strtoupper(trim($resolvedStaffName));
 
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Barangay Clearance');
         $templateProcessor->setValue('FULL_NAME', $full_name);
+        $templateProcessor->setValue('ADDRESS', $address);
+        $templateProcessor->setValue('PURPOSE', $purpose);
+        $templateProcessor->setValue('DAY', $day);
+        $templateProcessor->setValue('MONTH', $month);
+        $templateProcessor->setValue('YEAR', $year);
+        $templateProcessor->setValue('STAFF_NAME', $staffName);
         $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
 
         $fileName = 'barangay_clearance_' . $record->reference_number . '.docx'; // FIXED: added underscore

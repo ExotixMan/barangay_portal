@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -943,7 +943,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    </div>
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -1186,7 +1192,7 @@
                                                     {{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}
                                                 </div>
                                                 <div>
-                                                    <div class="fw-semibold">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                                    <div class="fw-semibold">{{ trim($user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . ' ' : '') . $user->last_name) }}</div>
                                                     <small class="text-muted">ID: {{ $user->user_id }}</small>
                                                 </div>
                                             </div>
@@ -1365,7 +1371,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         @admin_can('reset_permission_defaults')
-                        <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}" id="resetPermissionsForm" style="display: inline;">
+                        <form method="POST" action="{{ route('admin.permissions.reset-defaults') }}" id="resetPermissionsForm" style="display: inline;">
                             @csrf
                             <button type="submit" class="btn btn-outline-secondary" onclick="return confirmReset()">
                                 <i class="fas fa-undo me-2"></i>Reset Defaults
@@ -1536,7 +1542,11 @@
                                         <label class="form-label">First Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="first_name" required>
                                     </div>
-                                    <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-2">
+                                        <label class="form-label">Middle Initial</label>
+                                        <input type="text" class="form-control" name="middle_initial" maxlength="3" placeholder="A">
+                                    </div>
+                                    <div class="col-12 col-md-4">
                                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="last_name" required>
                                     </div>
@@ -1827,7 +1837,7 @@
                                 <div class="user-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                                     {{ substr($user->first_name ?? 'J', 0, 1) }}{{ substr($user->last_name ?? 'D', 0, 1) }}
                                 </div>
-                                <h5>{{ $user->first_name ?? 'Juan' }} {{ $user->last_name ?? 'Dela Cruz' }}</h5>
+                                <h5>{{ trim(($user->first_name ?? 'Juan') . ' ' . (($user->middle_initial ?? null) ? ($user->middle_initial . ' ') : '') . ($user->last_name ?? 'Dela Cruz')) }}</h5>
                                 <span class="role-badge {{ $user->role->name ?? 'staff' }}">{{ $user->role->display_name ?? 'Staff' }}</span>
                             </div>
 
@@ -1854,6 +1864,12 @@
                                     <div class="p-3 bg-light rounded">
                                         <small class="text-muted d-block">Email</small>
                                         <strong>{{ $user->email ?? 'juan.delacruz@barangay.gov.ph' }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-3 bg-light rounded">
+                                        <small class="text-muted d-block">Middle Initial</small>
+                                        <strong>{{ $user->middle_initial ?: 'N/A' }}</strong>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -1912,7 +1928,11 @@
                                             <label class="form-label">First Name <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="first_name" value="{{ $user->first_name ?? 'Juan' }}" required>
                                         </div>
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-md-2">
+                                            <label class="form-label">Middle Initial</label>
+                                            <input type="text" class="form-control" name="middle_initial" value="{{ $user->middle_initial }}" maxlength="3" placeholder="A">
+                                        </div>
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label">Last Name <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="last_name" value="{{ $user->last_name ?? 'Dela Cruz' }}" required>
                                         </div>
@@ -1997,6 +2017,9 @@
                                 <form method="POST" action="{{ route('admin.users.permissions', $user->id) }}" id="userPermissionsForm{{ $user->id }}">
                                 @csrf
                                 @method('PUT')
+                                    @php
+                                        $isSuperAdminUser = $user->role && $user->role->name === 'super_admin';
+                                    @endphp
                                     <div class="mb-4">
                                         <div class="d-flex align-items-center gap-3 mb-3">
                                             <div class="user-avatar">{{ substr($user->first_name ?? 'J', 0, 1) }}{{ substr($user->last_name ?? 'D', 0, 1) }}</div>
@@ -2007,6 +2030,13 @@
                                         </div>
                                         <p class="text-muted small mb-0">Configure additional permissions for this user beyond their role-based permissions.</p>
                                     </div>
+
+                                    @if($isSuperAdminUser)
+                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                        <i class="fas fa-lock me-2"></i>
+                                        <div>Super admin permissions are fixed and cannot be modified.</div>
+                                    </div>
+                                    @endif
 
                                     <div class="permissions-grid" style="grid-template-columns: 1fr;">
                                         @php
@@ -2065,7 +2095,9 @@
                                             <div class="module-permissions">
                                                 @foreach($permissions as $permission)
                                                 <div class="perm-item">
-                                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="user_perm_{{ $permission->id }}_{{ $user->id }}">
+                                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="user_perm_{{ $permission->id }}_{{ $user->id }}"
+                                                        {{ $user->hasPermission($permission->name) ? 'checked' : '' }}
+                                                        {{ $isSuperAdminUser ? 'disabled' : '' }}>
                                                     <label for="user_perm_{{ $permission->id }}_{{ $user->id }}">{{ $permission->display_name }}</label>
                                                 </div>
                                                 @endforeach
@@ -2079,7 +2111,7 @@
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" form="userPermissionsForm{{ $user->id }}" class="btn btn-success">
+                                    <button type="submit" form="userPermissionsForm{{ $user->id }}" class="btn btn-success" {{ $isSuperAdminUser ? 'disabled' : '' }}>
                                         <i class="fas fa-save me-2"></i>Save Permissions
                                     </button>
                                 </div>
@@ -2295,7 +2327,7 @@
                                                                 {{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}
                                                             </div>
                                                             <div>
-                                                                <div class="fw-semibold">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                                                <div class="fw-semibold">{{ trim($user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . ' ' : '') . $user->last_name) }}</div>
                                                                 <small class="text-muted">ID: {{ $user->user_id }}</small>
                                                             </div>
                                                         </div>
@@ -2407,19 +2439,40 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+            window.isStrongPassword = function(value) {
+            return value.length >= 8
+                && /[A-Z]/.test(value)
+                && /[a-z]/.test(value)
+                && /[0-9]/.test(value)
+                && /[^A-Za-z0-9]/.test(value);
+            };
+
         function sf(el, msg) {
             if (!el) return;
             el.classList.add('is-invalid');
             let fb = el.parentElement.querySelector('.invalid-feedback');
-            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
+                if (!fb) {
+                    fb = document.createElement('div');
+                    fb.className = 'invalid-feedback';
+                    fb.dataset.generated = 'true';
+                    el.insertAdjacentElement('afterend', fb);
+                }
             fb.textContent = msg;
         }
-        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+            function cf(el) {
+                if (!el) return;
+                el.classList.remove('is-invalid');
+                const fb = el.parentElement.querySelector('.invalid-feedback[data-generated="true"]');
+                if (fb) {
+                    fb.remove();
+                }
+            }
 
         // --- User form validation (shared for add + edit) ---
         function attachUserValidation(form) {
             if (!form) return;
             const firstName = form.querySelector('[name="first_name"]');
+            const middleInitial = form.querySelector('[name="middle_initial"]');
             const lastName  = form.querySelector('[name="last_name"]');
             const email     = form.querySelector('[name="email"]');
             const contact   = form.querySelector('[name="contact_number"]');
@@ -2428,6 +2481,7 @@
             const roleId    = form.querySelector('[name="role_id"]');
 
             const namePattern = /^[a-zA-Z\s\-\.]+$/;
+            const middleInitialPattern = /^[A-Za-z]\.?$/;
 
             if (firstName) {
                 firstName.addEventListener('input', function() { cf(this); }, {once: true});
@@ -2446,6 +2500,15 @@
                     if (!v) sf(this, 'Last name is required.');
                     else if (v.length < 2) sf(this, 'Last name must be at least 2 characters.');
                     else if (!namePattern.test(v)) sf(this, 'Last name can only contain letters, spaces, hyphens, or periods.');
+                    else cf(this);
+                });
+            }
+            if (middleInitial) {
+                middleInitial.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^A-Za-z\.]/g, '').slice(0, 3).toUpperCase();
+                    const v = this.value.trim();
+                    if (!v) cf(this);
+                    else if (!middleInitialPattern.test(v)) sf(this, 'Middle initial must be one letter, optional period (e.g. A or A.).');
                     else cf(this);
                 });
             }
@@ -2482,7 +2545,7 @@
                 password.addEventListener('input', function() { cf(this); }, {once: true});
                 password.addEventListener('input', function() {
                     if (!this.value) sf(this, 'Password is required.');
-                    else if (this.value.length < 8) sf(this, 'Password must be at least 8 characters.');
+                    else if (!window.isStrongPassword(this.value)) sf(this, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.');
                     else cf(this);
                 });
             }
@@ -2504,6 +2567,13 @@
                     else if (v.length < 2) { sf(lastName, 'Last name must be at least 2 characters.'); valid = false; }
                     else if (!namePattern.test(v)) { sf(lastName, 'Last name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
                 }
+                if (middleInitial) {
+                    const v = middleInitial.value.trim();
+                    if (v && !middleInitialPattern.test(v)) {
+                        sf(middleInitial, 'Middle initial must be one letter, optional period (e.g. A or A.).');
+                        valid = false;
+                    }
+                }
                 if (email) {
                     const v = email.value.trim();
                     if (!v) { sf(email, 'Email is required.'); valid = false; }
@@ -2522,7 +2592,7 @@
                 }
                 if (password) {
                     if (!password.value) { sf(password, 'Password is required.'); valid = false; }
-                    else if (password.value.length < 8) { sf(password, 'Password must be at least 8 characters.'); valid = false; }
+                    else if (!window.isStrongPassword(password.value)) { sf(password, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.'); valid = false; }
                 }
                 if (roleId && !roleId.value) { sf(roleId, 'Please select a role.'); valid = false; }
                 if (!valid) e.preventDefault();
@@ -2539,7 +2609,7 @@
                 pwField.addEventListener('input', function() { cf(this); }, {once: true});
                 pwField.addEventListener('input', function() {
                     if (!this.value) sf(this, 'Password is required.');
-                    else if (this.value.length < 8) sf(this, 'Password must be at least 8 characters.');
+                    else if (!window.isStrongPassword(this.value)) sf(this, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.');
                     else cf(this);
                     if (pwConfirm && pwConfirm.value) {
                         if (pwConfirm.value !== this.value) sf(pwConfirm, 'Passwords do not match.');
@@ -2558,7 +2628,7 @@
                 let valid = true;
                 if (pwField) {
                     if (!pwField.value) { sf(pwField, 'Password is required.'); valid = false; }
-                    else if (pwField.value.length < 8) { sf(pwField, 'Password must be at least 8 characters.'); valid = false; }
+                    else if (!window.isStrongPassword(pwField.value)) { sf(pwField, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.'); valid = false; }
                 }
                 if (pwConfirm) {
                     if (!pwConfirm.value) { sf(pwConfirm, 'Please confirm your password.'); valid = false; }
@@ -2734,6 +2804,10 @@
                         Swal.showValidationMessage('Password must be at least 8 characters');
                         return false;
                     }
+                    if (!window.isStrongPassword(password.value)) {
+                        Swal.showValidationMessage('Password must include uppercase, lowercase, number, and special character');
+                        return false;
+                    }
                     if (password.value !== confirm.value) {
                         Swal.showValidationMessage('Passwords do not match');
                         return false;
@@ -2868,3 +2942,4 @@
     </script>
 </body>
 </html>
+

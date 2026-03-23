@@ -51,6 +51,45 @@
             margin: 30px auto 50px;
         }
 
+        .officials-overview {
+            margin-top: -35px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .overview-item {
+            background: white;
+            border: 1px solid #f2dede;
+            border-radius: 14px;
+            padding: 16px 14px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .overview-item .count {
+            display: block;
+            font-size: 1.55rem;
+            line-height: 1.1;
+            font-weight: 700;
+            color: #C62828;
+            margin-bottom: 4px;
+        }
+
+        .overview-item .label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            color: #6b6b6b;
+        }
+
         /* Captain Section */
         .captain-section {
             padding: 80px 0;
@@ -181,6 +220,37 @@
             margin: 0;
         }
 
+        .captain-highlight {
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: #fff5f5;
+            border: 1px solid #f5d2d2;
+            border-radius: 12px;
+            color: #8f2a2a;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captain-focus {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .focus-chip {
+            background: #f8f9fa;
+            color: #4b4b4b;
+            border: 1px solid #ececec;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 12px;
+            letter-spacing: 0.03em;
+        }
+
         /* Kagawad Section */
         .kagawad-section {
             padding: 80px 0;
@@ -234,59 +304,32 @@
         .official-info h3 {
             font-size: 1.2rem;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
 
         .official-info .position {
-            display: block;
+            display: inline-block;
             color: #C62828;
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-size: 0.88rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: #fff3f3;
+            border: 1px solid #f5d2d2;
+            border-radius: 999px;
+            padding: 8px 14px;
         }
 
-        .official-info .committee {
-            display: block;
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 15px;
-            padding: 5px 12px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            display: inline-block;
-        }
-
-        .official-info p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .contact-info a {
-            width: 40px;
-            height: 40px;
-            background: #f8f9fa;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #C62828;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .contact-info a:hover {
-            background: #C62828;
-            color: white;
-            transform: translateY(-3px);
+        .official-seat {
+            margin-top: 14px;
+            border-top: 1px solid #f1f1f1;
+            padding-top: 12px;
+            font-size: 0.77rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #8c8c8c;
+            font-weight: 600;
         }
 
         /* Other Officials Section */
@@ -502,6 +545,10 @@
 
         /* Tablet */
         @media (max-width: 991.98px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .section-title {
                 font-size: 2rem;
             }
@@ -546,6 +593,11 @@
 
         /* Mobile */
         @media (max-width: 767.98px) {
+            .officials-overview {
+                margin-top: -20px;
+                margin-bottom: 30px;
+            }
+
             .captain-section,
             .kagawad-section,
             .other-officials,
@@ -662,6 +714,10 @@
 
         /* Small Mobile */
         @media (max-width: 575.98px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
             .officials-hero h1 {
                 font-size: 1.5rem;
             }
@@ -718,11 +774,6 @@
             .contact-btn{
                 min-height: 44px;
                 padding: 12px 15px;
-            }
-            
-            .contact-info a {
-                width: 44px;
-                height: 44px;
             }
         }
     </style>
@@ -893,6 +944,29 @@
 
     <!-- Main Content -->
     <main class="main-content" id="main-content">
+        <section class="officials-overview">
+            <div class="container">
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <span class="count">10</span>
+                        <span class="label">Total Officials</span>
+                    </div>
+                    <div class="overview-item">
+                        <span class="count">7</span>
+                        <span class="label">Sangguniang Members</span>
+                    </div>
+                    <div class="overview-item">
+                        <span class="count">2</span>
+                        <span class="label">Appointed Officers</span>
+                    </div>
+                    <div class="overview-item">
+                        <span class="count">2023-2026</span>
+                        <span class="label">Current Term</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Punong Barangay Section -->
         <section class="captain-section">
             <div class="container">
@@ -909,26 +983,17 @@
                         </div>
                     </div>
                     <div class="captain-info">
-                        <h3>Hon. Wen Santos dela Cruz</h3>
+                        <h3>KAP. WENCESLAO S. DELA CRUZ</h3>
                         <span class="position">Punong Barangay</span>
-                        <p class="bio">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                        <div class="captain-details">
-                            <div class="detail-item">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Term: 2023 - 2026</span>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-envelope"></i>
-                                <span>captain@barangayhulo.gov.ph</span>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-phone"></i>
-                                <span>(02) 987-6543</span>
-                            </div>
+                        <div class="captain-highlight">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Public Service Term: 2023 - 2026</span>
                         </div>
-                        <div class="captain-message">
-                            <h4><i class="fas fa-quote-left"></i> Message from the Captain</h4>
-                            <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Maecenas sed enim ut sem viverra aliquet eget sit amet."</p>
+                        <div class="captain-focus">
+                            <span class="focus-chip">Governance</span>
+                            <span class="focus-chip">Community Safety</span>
+                            <span class="focus-chip">Public Service Delivery</span>
+                            <span class="focus-chip">Barangay Development</span>
                         </div>
                     </div>
                 </div>
@@ -951,14 +1016,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Maria Santos</h3>
+                                <h3>KAG. ARNEL S. LAZARO</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Health</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:maria@barangayhulo.gov.ph" aria-label="Email Maria Santos"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Maria Santos"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 01</div>
                             </div>
                         </div>
                     </div>
@@ -972,14 +1032,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Pedro Reyes</h3>
+                                <h3>KAG. ALFRED KENNETH J. PINEDA</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Peace & Order</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:pedro@barangayhulo.gov.ph" aria-label="Email Pedro Reyes"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Pedro Reyes"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 02</div>
                             </div>
                         </div>
                     </div>
@@ -993,14 +1048,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Ana Garcia</h3>
+                                <h3>KAG. MELVIN S. GONZALES</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Education</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:ana@barangayhulo.gov.ph" aria-label="Email Ana Garcia"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Ana Garcia"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 03</div>
                             </div>
                         </div>
                     </div>
@@ -1014,14 +1064,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Jose Mendoza</h3>
+                                <h3>KAG. REYNALDO S. TAMPOL</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Infrastructure</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:jose@barangayhulo.gov.ph" aria-label="Email Jose Mendoza"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Jose Mendoza"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 04</div>
                             </div>
                         </div>
                     </div>
@@ -1035,14 +1080,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Rosa Villanueva</h3>
+                                <h3>KAG. REMEL C. SANTOS</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Women & Family</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:rosa@barangayhulo.gov.ph" aria-label="Email Rosa Villanueva"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Rosa Villanueva"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 05</div>
                             </div>
                         </div>
                     </div>
@@ -1056,14 +1096,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Roberto Cruz</h3>
+                                <h3>KAG. ROMULO L. CRUZ JR.</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Environment</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:roberto@barangayhulo.gov.ph" aria-label="Email Roberto Cruz"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Roberto Cruz"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 06</div>
                             </div>
                         </div>
                     </div>
@@ -1077,14 +1112,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Hon. Lorna Bautista</h3>
+                                <h3>KAG. TEODORO L. BERNABE</h3>
                                 <span class="position">Kagawad</span>
-                                <span class="committee">Committee on Budget & Finance</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:lorna@barangayhulo.gov.ph" aria-label="Email Lorna Bautista"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Lorna Bautista"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Council Seat 07</div>
                             </div>
                         </div>
                     </div>
@@ -1099,29 +1129,6 @@
                 <p class="section-subtitle">Key personnel supporting the barangay administration.</p>
                 
                 <div class="row g-4 justify-content-center">
-                    <!-- SK Chairman -->
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="special-official-card sk">
-                            <div class="card-header-badge">
-                                <i class="fas fa-star"></i> SK Chairman
-                            </div>
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>Hon. Miguel Ramos</h3>
-                                <span class="position">SK Chairman</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:sk@barangayhulo.gov.ph" aria-label="Email SK Chairman"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call SK Chairman"><i class="fas fa-phone"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Barangay Secretary -->
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="special-official-card secretary">
@@ -1134,13 +1141,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Elena Fernandez</h3>
+                                <h3>SEC. DESIREE ONG-BERSALES</h3>
                                 <span class="position">Barangay Secretary</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:secretary@barangayhulo.gov.ph" aria-label="Email Secretary"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Secretary"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Administrative Office</div>
                             </div>
                         </div>
                     </div>
@@ -1157,13 +1160,9 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>Carmen Aquino</h3>
+                                <h3>TREAS. ANIEL SANTOS</h3>
                                 <span class="position">Barangay Treasurer</span>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
-                                <div class="contact-info">
-                                    <a href="mailto:treasurer@barangayhulo.gov.ph" aria-label="Email Treasurer"><i class="fas fa-envelope"></i></a>
-                                    <a href="tel:+639123456789" aria-label="Call Treasurer"><i class="fas fa-phone"></i></a>
-                                </div>
+                                <div class="official-seat">Finance Office</div>
                             </div>
                         </div>
                     </div>
@@ -1199,16 +1198,11 @@
                         </div>
                     </div>
                     <div class="org-connector"></div>
-                    <div class="org-level level-3 flex-column flex-sm-row">
+                    <div class="org-level level-3">
                         <div class="org-box kagawad-box mb-3 mb-sm-0">
                             <i class="fas fa-users"></i>
                             <h4>Sangguniang Barangay</h4>
                             <p>7 Kagawads (Legislative Body)</p>
-                        </div>
-                        <div class="org-box sk-box">
-                            <i class="fas fa-star"></i>
-                            <h4>SK Chairman</h4>
-                            <p>Youth Representative</p>
                         </div>
                     </div>
                 </div>
@@ -1217,163 +1211,7 @@
     </main>
     </div>
 
-    <!-- Floating Action Button with Speed Dial -->
-    <div class="fab-container">
-        <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
-                @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
-                @else
-                    <span>English</span>
-                @endif
-            </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        </div>
-        <button class="fab-main" id="fabMain">
-            <i class="fas fa-gear"></i>
-        </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="container footer-container">
-            <div class="row">
-                <!-- Logo & Contact Info -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <div class="logo-circle">
-                                <i class="fas fa-landmark"></i>
-                            </div>
-                            <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-simple">
-                            <div class="contact-row">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-phone"></i>
-                                <a href="tel:+6329876543">(02) 987-6543</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="social-links-simple">
-                            <div class="social-icons">
-                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quick Access Links -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Quick Access</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
-                            </a>
-                            <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
-                            </a>
-                            <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Services</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
-                            </a>
-                            <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
-                            </a>
-                            <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
-                            </a>
-                            <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Incident Report
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency & Support -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
-                        <div class="emergency-contacts-simple">
-                            <div class="emergency-item">
-                                <i class="fas fa-ambulance"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
-                                    <a href="tel:911" class="emergency-number">911</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
-                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-first-aid"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
-                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @include('barangay_system.partials.fab_footer')
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

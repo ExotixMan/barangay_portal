@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -495,7 +495,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    </div>
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    </div>
 
     <div class="main-content" id="mainContent">
         <header class="header d-flex align-items-center justify-content-between">
@@ -1149,3 +1155,4 @@
     </script>
 </body>
 </html>
+

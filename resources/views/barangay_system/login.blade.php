@@ -32,7 +32,7 @@
         body {
             min-height: 100vh;
             overflow-y: auto;
-            background: url('/Images/bgnew.png') center center / cover no-repeat fixed;
+            background: url('/Images/bgnew(3).png') center center / cover no-repeat fixed;
             font-family: 'Assistant', sans-serif;
             display: flex;
             justify-content: center;

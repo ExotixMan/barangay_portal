@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Dashboard – Admin</title>
+    <title>Barangay Dashboard â€“ Admin</title>
     
     <!-- Bootstrap 5 + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -440,7 +440,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    </div>
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -601,7 +607,7 @@
                         <div class="chart-title">
                             <i class="fas fa-book"></i>
                             Incident Reports Forecast
-                            <span class="summary-badge ms-auto">Trending ↑</span>
+                            <span class="summary-badge ms-auto">Trending â†‘</span>
                         </div>
                         <div class="chart-container">
                             <canvas id="blotterForecastChart"></canvas>
@@ -1278,3 +1284,4 @@
     </script>
 </body>
 </html>
+

@@ -25,10 +25,11 @@ use App\Http\Controllers\Admin\AdminPermissionController;
 
 use App\Http\Controllers\Admin\RequestStatusController;
 use App\Http\Controllers\ChatbotController;
-use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\AIncidentReportsController;
 use App\Http\Controllers\Admin\AResidentsController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\BackupSettingsController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\BarangayClearanceController;
@@ -294,7 +295,13 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/{id}/status', [ResidencyController::class, 'updateStatus'])->middleware('permission:approve_residency')->name('status');
         Route::delete('/{id}', [ResidencyController::class, 'destroy'])->middleware('permission:delete_residency')->name('destroy');
         Route::get('/generate-document', [ResidencyController::class, 'generate'])->middleware('permission:generate_residency_document')->name('document');
+        Route::get('/generate-document-residency-only', [DocumentController::class, 'generateResidencyOnly'])->middleware('permission:generate_residency_document')->name('document.residency_only');
     });
+
+    Route::get('/documents/preview-file/{file}', [DocumentController::class, 'previewGeneratedPdf'])
+        ->middleware('permission:generate_indigency_document|generate_clearance_document|generate_residency_document')
+        ->where('file', '[A-Za-z0-9._-]+')
+        ->name('documents.preview_file');
 
     // ==================== INDIGENCY MODULE ====================
     Route::prefix('indigency')->name('indigency.')->group(function () {
@@ -305,7 +312,8 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{application}', [IndigencyController::class, 'update'])->middleware('permission:update_indigency')->name('update');
         Route::post('/{id}/status', [IndigencyController::class, 'updateStatus'])->middleware('permission:approve_indigency')->name('status');
         Route::delete('/{id}', [IndigencyController::class, 'destroy'])->middleware('permission:delete_indigency')->name('destroy');
-        Route::get('/generate-document', [IndigencyController::class, 'generate'])->middleware('permission:generate_indigency_document')->name('document');
+        // Route::get('/generate-document', [IndigencyController::class, 'generate'])->middleware('permission:generate_indigency_document')->name('document');
+        Route::get('/generate-document-indigency-only', [DocumentController::class, 'generateIndigencyOnly'])->middleware('permission:generate_indigency_document')->name('document.indigency_only');
     });
 
     // ==================== CLEARANCE MODULE ====================
@@ -318,6 +326,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/{id}/status', [ClearanceController::class, 'updateStatus'])->middleware('permission:approve_clearance')->name('status');
         Route::delete('/{id}', [ClearanceController::class, 'destroy'])->middleware('permission:delete_clearance')->name('destroy');
         Route::get('/generate-document', [ClearanceController::class, 'generate'])->middleware('permission:generate_clearance_document')->name('document');
+        Route::get('/generate-document-clearance-only', [DocumentController::class, 'generateClearanceOnly'])->middleware('permission:generate_clearance_document')->name('document.clearance_only');
     });
 
     // ==================== BLOTTER/INCIDENT MODULE ====================
@@ -425,6 +434,18 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::get('/', [AdminPermissionController::class, 'index'])->middleware('permission:view_permissions')->name('index');
         Route::post('/role/{roleId}', [AdminPermissionController::class, 'updateRolePermissions'])->middleware('permission:update_permissions')->name('update-role');
         Route::post('/reset-defaults', [AdminPermissionController::class, 'resetToDefault'])->middleware('permission:reset_permission_defaults')->name('reset-defaults');
+    });
+
+    // ==================== BACKUP SETTINGS ====================
+    Route::prefix('settings/backup')->name('backup.')->middleware('permission:view_users')->group(function () {
+        Route::get('/', [BackupSettingsController::class, 'index'])->name('index');
+        Route::post('/create', [BackupSettingsController::class, 'store'])->name('store');
+        Route::get('/download/{file}', [BackupSettingsController::class, 'download'])
+            ->where('file', '[A-Za-z0-9._-]+')
+            ->name('download');
+        Route::delete('/{file}', [BackupSettingsController::class, 'destroy'])
+            ->where('file', '[A-Za-z0-9._-]+')
+            ->name('destroy');
     });
 });
 use Illuminate\Support\Facades\Http;

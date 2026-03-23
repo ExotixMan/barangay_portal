@@ -334,7 +334,7 @@
                                 <div class="payment-summary">
                                     <div class="payment-item">
                                         <span>Certificate of Residency Fee</span>
-                                        <span>₱50.00</span>
+                                        <span>₱0.00 (Free)</span>
                                     </div>
                                     <div class="payment-item">
                                         <span>Processing Fee</span>
@@ -342,7 +342,7 @@
                                     </div>
                                     <div class="payment-item total">
                                         <span>Total Amount to Pay</span>
-                                        <span>₱50.00</span>
+                                        <span>₱0.00</span>
                                     </div>
                                 </div>
 
@@ -361,8 +361,7 @@
                                         <i class="fas fa-clock"></i>
                                         <div>
                                             <h5><i class="fas fa-calendar-alt"></i> Office Hours</h5>
-                                            <p>Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                                Saturday: 8:00 AM - 12:00 PM</p>
+                                            <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
                                         </div>
                                     </div>
 
@@ -373,7 +372,7 @@
                                             <ul>
                                                 <li>Valid ID (same as uploaded)</li>
                                                 <li>Printed Reference Number</li>
-                                                <li>Exact amount of ₱50.00</li>
+                                                <li>No payment required (free certificate)</li>
                                                 <li>Original proof of residency for verification</li>
                                             </ul>
                                         </div>
@@ -419,8 +418,7 @@
                         <label class="terms-checkbox">
                             <input type="checkbox" id="pickup" name="pickup" required>
                             <span class="checkmark"></span>
-                            I understand that I need to pay ₱50.00 at the Barangay Hall to receive my
-                            certificate. I will bring my valid ID and reference number for verification.
+                            I understand that this certificate is free of charge. I will bring my valid ID, proof of residency, and reference number for verification.
                         </label>
                     </div>
                     <div id="termsError" style="display:none;color:#ff4444;font-size:0.85rem;margin-top:8px;padding:8px 12px;background:rgba(255,68,68,0.05);border-radius:6px;border:1px solid rgba(255,68,68,0.3);">
@@ -769,12 +767,12 @@
                             showFieldError(field, 'Date of birth cannot be in the future');
                         }
                         
-                        // Check if at least 18 years old (optional, remove if not needed)
+                        // Accept applicants 5 years old and above
                         const age = today.getFullYear() - selectedDate.getFullYear();
                         const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 18 || (age === 18 && monthDiff < 0)) {
+                        if (age < 5 || (age === 5 && monthDiff < 0)) {
                             isValid = false;
-                            showFieldError(field, 'You must be at least 18 years old to apply');
+                            showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }
                     }
                     

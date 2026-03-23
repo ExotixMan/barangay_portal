@@ -275,6 +275,11 @@
             <div class="detail-label">Amount to Pay:</div>
             <div class="detail-value"><strong>₱{{ number_format($trackedRequest['amount'], 2) }}</strong></div>
         </div>
+        @elseif(isset($trackedRequest['fee_label']))
+        <div class="detail-row">
+            <div class="detail-label">Amount to Pay:</div>
+            <div class="detail-value"><strong>{{ $trackedRequest['fee_label'] }}</strong></div>
+        </div>
         @endif
         @if(isset($trackedRequest['remarks']))
         <div class="detail-row">
@@ -308,6 +313,9 @@
             @if(isset($trackedRequest['amount']) && $trackedRequest['amount'] > 0)
             <div class="step"><strong>4.</strong> Pay ₱{{ number_format($trackedRequest['amount'], 2) }} at cashier</div>
             <div class="step"><strong>5.</strong> Receive your document</div>
+            @elseif(isset($trackedRequest['fee_label']) && $trackedRequest['fee_label'] === 'Depending on purpose')
+            <div class="step"><strong>4.</strong> Pay depending on purpose at cashier</div>
+            <div class="step"><strong>5.</strong> Receive your document</div>
             @else
             <div class="step"><strong>4.</strong> Receive your document</div>
             @endif
@@ -319,8 +327,8 @@
         
         <div class="location-info">
             <strong><i class="fas fa-map-marker-alt"></i> Barangay Hall:</strong> 1 M. Blas St, Malabon<br>
-            <strong><i class="fas fa-clock"></i> Hours:</strong> Mon-Fri 8AM-5PM, Sat 8AM-12PM<br>
-            <strong><i class="fas fa-phone"></i> Contact:</strong> (02) 123-4567
+            <strong><i class="fas fa-clock"></i> Hours:</strong> Mon-Fri 8AM-5PM<br>
+            <strong><i class="fas fa-phone"></i> Contact:</strong> 8-281-1373
         </div>
     </div>
     

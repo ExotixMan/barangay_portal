@@ -221,3 +221,102 @@ window.addEventListener('resize', function() {
         }
     }
 });
+
+// ========== ADMIN AUTO-SYNC (LIST PAGES) ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const AUTO_SYNC_INTERVAL_MS = 10000;
+    const AUTO_SYNC_REQUEST_TIMEOUT_MS = 6000;
+
+    function hasListTable(doc) {
+        return !!doc.querySelector('table tbody');
+    }
+
+    function isUserBusy() {
+        if (document.hidden) return true;
+        if (document.querySelector('.modal.show')) return true;
+        if (document.querySelector('.dropdown-menu.show')) return true;
+
+        const active = document.activeElement;
+        if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
+            return true;
+        }
+
+        // Avoid reloading while user has selected rows for bulk actions.
+        if (document.querySelector('tbody input[type="checkbox"]:checked')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function buildSignature(doc) {
+        const tbody = doc.querySelector('table tbody');
+        if (!tbody) return '';
+
+        const rows = Array.from(tbody.querySelectorAll('tr')).slice(0, 30).map(function(row) {
+            return (row.textContent || '').replace(/\s+/g, ' ').trim();
+        });
+
+        const pagination = (doc.querySelector('.pagination')?.textContent || '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        return rows.join('|') + '||' + pagination;
+    }
+
+    if (!hasListTable(document)) {
+        return;
+    }
+
+    let currentSignature = buildSignature(document);
+    let isSyncRunning = false;
+
+    setInterval(async function() {
+        if (isSyncRunning || isUserBusy()) {
+            return;
+        }
+
+        isSyncRunning = true;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(function() {
+            controller.abort();
+        }, AUTO_SYNC_REQUEST_TIMEOUT_MS);
+
+        try {
+            const response = await fetch(window.location.href, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Cache-Control': 'no-cache'
+                },
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const nextDoc = parser.parseFromString(html, 'text/html');
+
+            if (!hasListTable(nextDoc)) {
+                return;
+            }
+
+            const nextSignature = buildSignature(nextDoc);
+            if (nextSignature && nextSignature !== currentSignature) {
+                window.location.reload();
+                return;
+            }
+
+            currentSignature = nextSignature;
+        } catch (error) {
+            // Ignore polling/network errors and retry next interval.
+        } finally {
+            clearTimeout(timeoutId);
+            isSyncRunning = false;
+        }
+    }, AUTO_SYNC_INTERVAL_MS);
+});

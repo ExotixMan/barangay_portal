@@ -284,24 +284,6 @@
             border: 1px solid rgba(76, 175, 80, 0.3);
         }
 
-        .status-badge.ready-for-delivery {
-            background: rgba(0, 150, 136, 0.2);
-            color: #009688;
-            border: 1px solid rgba(0, 150, 136, 0.3);
-        }
-
-        .status-badge.out-for-delivery {
-            background: rgba(255, 152, 0, 0.2);
-            color: #FF9800;
-            border: 1px solid rgba(255, 152, 0, 0.3);
-        }
-
-        .status-badge.delivered {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-            border: 1px solid rgba(76, 175, 80, 0.3);
-        }
-
         .status-badge.rejected, .status-badge.denied {
             background: rgba(244, 67, 54, 0.2);
             color: #F44336;
@@ -639,24 +621,6 @@
             border: 1px solid #C8E6C9;
         }
 
-        .status-ready-for-delivery {
-            background: #d1e7dd;
-            color: #009688;
-            border: 1px solid #B2DFDB;
-        }
-
-        .status-out-for-delivery {
-            background: #fff3cd;
-            color: #FF9800;
-            border: 1px solid #FFE0B2;
-        }
-
-        .status-delivered {
-            background: #d4edda;
-            color: #4CAF50;
-            border: 1px solid #C8E6C9;
-        }
-
         .status-rejected, .status-denied {
             background: #f8d7da;
             color: #F44336;
@@ -817,21 +781,6 @@
 
         .status-card.completed .status-icon {
             background: linear-gradient(135deg, #9C27B0, #7B1FA2);
-            color: white;
-        }
-
-        .status-card.ready-delivery .status-icon {
-            background: linear-gradient(135deg, #00BCD4, #0097A7);
-            color: white;
-        }
-
-        .status-card.out-for-delivery .status-icon {
-            background: linear-gradient(135deg, #FF9800, #E65100);
-            color: white;
-        }
-
-        .status-card.delivered .status-icon {
-            background: linear-gradient(135deg, #66BB6A, #2E7D32);
             color: white;
         }
 
@@ -1351,9 +1300,6 @@
                                     elseif(str_contains($statusLower, 'process')) $statusClass = 'processing';
                                     elseif(str_contains($statusLower, 'ready for pickup')) $statusClass = 'ready-for-pickup';
                                     elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) $statusClass = 'claimed';
-                                    elseif(str_contains($statusLower, 'ready for delivery')) $statusClass = 'ready-for-delivery';
-                                    elseif(str_contains($statusLower, 'out for delivery')) $statusClass = 'out-for-delivery';
-                                    elseif(str_contains($statusLower, 'delivered')) $statusClass = 'delivered';
                                     elseif(str_contains($statusLower, 'reject') || str_contains($statusLower, 'denied')) $statusClass = 'rejected';
                                     
                                     $statusIcon = 'fa-hourglass-half';
@@ -1364,9 +1310,6 @@
                                     elseif(str_contains($statusLower, 'process')) $statusIcon = 'fa-cog fa-spin';
                                     elseif(str_contains($statusLower, 'ready for pickup')) $statusIcon = 'fa-store';
                                     elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) $statusIcon = 'fa-check-double';
-                                    elseif(str_contains($statusLower, 'ready for delivery')) $statusIcon = 'fa-box-open';
-                                    elseif(str_contains($statusLower, 'out for delivery')) $statusIcon = 'fa-truck';
-                                    elseif(str_contains($statusLower, 'delivered')) $statusIcon = 'fa-check-circle';
                                     elseif(str_contains($statusLower, 'reject') || str_contains($statusLower, 'denied')) $statusIcon = 'fa-times-circle';
                                 @endphp
                                 <div class="status-badge {{ $statusClass }}">
@@ -1401,6 +1344,12 @@
                                             <span class="label">Date Submitted</span>
                                             <span class="value">{{ $trackedRequest['date'] }}</span>
                                         </div>
+                                        @if(isset($trackedRequest['fee_label']))
+                                        <div class="detail-item">
+                                            <span class="label">Fee</span>
+                                            <span class="value">{{ $trackedRequest['fee_label'] }}</span>
+                                        </div>
+                                        @endif
                                         @if(isset($trackedRequest['expected_completion']))
                                         <div class="detail-item">
                                             <span class="label">Expected Completion</span>
@@ -1465,54 +1414,26 @@
                                                         in_array($trackedRequest['status'], ['Closed']) ? 'completed' : 'pending'],
                                                 ];
                                             } else {
-                                                $requestMethod = $trackedRequest['request_method'] ?? 'pickup';
-                                                
-                                                if($requestMethod == 'delivery') {
-                                                    $steps = [
-                                                        ['label' => 'Request Submitted', 'description' => 'Your application has been received', 'status' => 'completed'],
-                                                        ['label' => 'Under Review', 'description' => 'Submitted documents are being verified', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Under Review', 'Approved', 'Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Pending']) ? 'active' : 'pending')],
-                                                        ['label' => 'Approved', 'description' => 'Request has been approved', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Approved', 'Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Under Review']) ? 'active' : 'pending')],
-                                                        ['label' => 'Payment Required', 'description' => 'Waiting for payment confirmation', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Payment Required']) ? 'active' : 
-                                                            (in_array($trackedRequest['status'], ['Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 'pending')],
-                                                        ['label' => 'Processing', 'description' => 'Document is being prepared', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Processing', 'Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'active' : 
-                                                            (in_array($trackedRequest['status'], ['Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 'pending')],
-                                                        ['label' => 'Ready for Delivery', 'description' => 'Document scheduled for delivery', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Ready for Delivery', 'Out for Delivery', 'Delivered']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
-                                                        ['label' => 'Out for Delivery', 'description' => 'Document is on its way', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Out for Delivery', 'Delivered']) ? 'active' : 
-                                                            (in_array($trackedRequest['status'], ['Delivered']) ? 'completed' : 'pending')],
-                                                        ['label' => 'Delivered', 'description' => 'Document has been delivered', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Delivered']) ? 'completed' : 'pending'],
-                                                    ];
-                                                } else {
-                                                    $steps = [
-                                                        ['label' => 'Request Submitted', 'description' => 'Your application has been received', 'status' => 'completed'],
-                                                        ['label' => 'Under Review', 'description' => 'Submitted documents are being verified', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Under Review', 'Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Pending']) ? 'active' : 'pending')],
-                                                        ['label' => 'Approved', 'description' => 'Request has been approved', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Under Review']) ? 'active' : 'pending')],
-                                                        ['label' => 'Payment Required', 'description' => 'Waiting for payment confirmation', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Payment Required']) ? 'active' : 
-                                                            (in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
-                                                        ['label' => 'Processing', 'description' => 'Document is being prepared', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'active' : 
-                                                            (in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
-                                                        ['label' => 'Ready for Pickup', 'description' => 'Document ready at barangay hall', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 
-                                                            (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
-                                                        ['label' => 'Claimed', 'description' => 'Document has been claimed', 'status' => 
-                                                            in_array($trackedRequest['status'], ['Claimed']) ? 'completed' : 'pending'],
-                                                    ];
-                                                }
+                                                $steps = [
+                                                    ['label' => 'Request Submitted', 'description' => 'Your application has been received', 'status' => 'completed'],
+                                                    ['label' => 'Under Review', 'description' => 'Submitted documents are being verified', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Under Review', 'Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                        (in_array($trackedRequest['status'], ['Pending']) ? 'active' : 'pending')],
+                                                    ['label' => 'Approved', 'description' => 'Request has been approved', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Approved', 'Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                        (in_array($trackedRequest['status'], ['Under Review']) ? 'active' : 'pending')],
+                                                    ['label' => 'Payment Required', 'description' => 'Waiting for payment confirmation', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Payment Required']) ? 'active' : 
+                                                        (in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
+                                                    ['label' => 'Processing', 'description' => 'Document is being prepared', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Processing', 'Ready for Pickup', 'Claimed']) ? 'active' : 
+                                                        (in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 'pending')],
+                                                    ['label' => 'Ready for Pickup', 'description' => 'Document ready at barangay hall', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Ready for Pickup', 'Claimed']) ? 'completed' : 
+                                                        (in_array($trackedRequest['status'], ['Processing']) ? 'active' : 'pending')],
+                                                    ['label' => 'Claimed', 'description' => 'Document has been claimed', 'status' => 
+                                                        in_array($trackedRequest['status'], ['Claimed']) ? 'completed' : 'pending'],
+                                                ];
                                             }
                                         @endphp
                                         
@@ -1713,15 +1634,6 @@
                                                 elseif(str_contains($statusLower, 'claimed') || str_contains($statusLower, 'released')) {
                                                     $statusClass = 'status-claimed';
                                                 }
-                                                elseif(str_contains($statusLower, 'ready for delivery')) {
-                                                    $statusClass = 'status-ready-for-delivery';
-                                                }
-                                                elseif(str_contains($statusLower, 'out for delivery')) {
-                                                    $statusClass = 'status-out-for-delivery';
-                                                }
-                                                elseif(str_contains($statusLower, 'delivered')) {
-                                                    $statusClass = 'status-delivered';
-                                                }
                                                 elseif(str_contains($statusLower, 'rejected') || str_contains($statusLower, 'denied')) {
                                                     $statusClass = 'status-rejected';
                                                 }
@@ -1851,33 +1763,6 @@
                         </div>
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-4 col-6">
-                        <div class="status-card ready-delivery">
-                            <div class="status-icon">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-                            <h3>Ready for Delivery</h3>
-                            <p>Document scheduled for delivery</p>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
-                        <div class="status-card out-for-delivery">
-                            <div class="status-icon">
-                                <i class="fas fa-truck"></i>
-                            </div>
-                            <h3>Out for Delivery</h3>
-                            <p>Document is on its way</p>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
-                        <div class="status-card delivered">
-                            <div class="status-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <h3>Delivered</h3>
-                            <p>Document successfully delivered</p>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-md-4 col-6">
                         <div class="status-card rejected">
                             <div class="status-icon">
                                 <i class="fas fa-times-circle"></i>
@@ -1968,9 +1853,6 @@
                             <strong>Processing:</strong> Barangay staff is preparing the official document<br>
                             <strong>Ready for Pickup:</strong> Document completed and waiting at barangay hall<br>
                             <strong>Claimed/Released:</strong> Document has been picked up<br>
-                            <strong>Ready for Delivery:</strong> Document prepared and scheduled for delivery<br>
-                            <strong>Out for Delivery:</strong> Document is currently being delivered<br>
-                            <strong>Delivered:</strong> Document successfully received<br>
                             <strong>Rejected/Denied:</strong> Request cannot be approved (reason provided)</p>
                         </div>
                     </div>
@@ -1987,163 +1869,7 @@
             </div>
         </section>
     </main>
-<!-- Floating Action Button with Speed Dial -->
-    <div class="fab-container">
-        <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
-                @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
-                @else
-                    <span>English</span>
-                @endif
-            </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        </div>
-        <button class="fab-main" id="fabMain">
-            <i class="fas fa-gear"></i>
-        </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="container footer-container">
-            <div class="row">
-                <!-- Logo & Contact Info -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <div class="logo-circle">
-                                <i class="fas fa-landmark"></i>
-                            </div>
-                            <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-simple">
-                            <div class="contact-row">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-phone"></i>
-                                <a href="tel:+6329876543">(02) 987-6543</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="social-links-simple">
-                            <div class="social-icons">
-                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quick Access Links -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Quick Access</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
-                            </a>
-                            <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
-                            </a>
-                            <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Services</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
-                            </a>
-                            <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
-                            </a>
-                            <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
-                            </a>
-                            <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Incident Report
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency & Support -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
-                        <div class="emergency-contacts-simple">
-                            <div class="emergency-item">
-                                <i class="fas fa-ambulance"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
-                                    <a href="tel:911" class="emergency-number">911</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
-                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-first-aid"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
-                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+@include('barangay_system.partials.fab_footer')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
@@ -2190,7 +1916,7 @@
                                 show = status.includes('process') || status.includes('investigation') || status.includes('review');
                                 break;
                             case 'completed':
-                                show = status.includes('complete') || status.includes('resolved') || status.includes('closed') || status.includes('approved') || status.includes('claimed') || status.includes('released') || status.includes('delivered');
+                                show = status.includes('complete') || status.includes('resolved') || status.includes('closed') || status.includes('approved') || status.includes('claimed') || status.includes('released');
                                 break;
                         }
                         

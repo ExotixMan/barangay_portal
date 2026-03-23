@@ -20,9 +20,15 @@ class BarangayClearance extends Model
         'address',
         'contact_number',
         'email',
+        'primary_proof',
         'valid_id_path',
         'purpose',
         'purpose_other',
+        'fee',
         'status'
+    ];
+
+    protected $casts = [
+        'fee' => 'decimal:2',
     ];
 }

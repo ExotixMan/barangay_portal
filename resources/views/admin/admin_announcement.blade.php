@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -62,6 +62,10 @@
             color: var(--primary);
             font-size: 0.8rem;
             margin-top: 0.25rem;
+            display: none;
+        }
+
+        .is-invalid + .invalid-feedback {
             display: block;
         }
 
@@ -84,7 +88,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -825,7 +829,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    </div>
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -985,7 +995,7 @@
                         
                         <!-- Search and Filter Row -->
                         <div class="row g-3">
-                            <div class="col-12 col-md-5">
+                            <div class="col-12 col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
@@ -1007,7 +1017,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <select name="category" class="form-select">
                                     <option value="">All Categories</option>
                                     <option value="important" {{ request('category') == 'important' ? 'selected' : '' }}>Important</option>
@@ -1017,30 +1027,40 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-2">
+                            <div class="col-6 col-md-2">
                                 <select name="featured" class="form-select">
                                     <option value="">Featured</option>
                                     <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Featured Only</option>
                                     <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Not Featured</option>
                                 </select>
                             </div>
+
+                            <div class="col-12 col-md-2">
+                                <button type="submit" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-filter me-2"></i>Apply
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_announcements'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('admin.announcements.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
                         </div>
                         @endif
                     </form>
                 </div>
             </div>
+
+            @if(auth('admin')->user()->hasPermission('delete_announcements'))
+            <form id="bulkForm" method="POST" action="{{ route('admin.announcements.bulkDelete') }}" class="d-none">
+                @csrf
+                <div id="bulkIdsContainer"></div>
+            </form>
+            @endif
 
             <!-- Announcements Table - Mobile Responsive with Horizontal Scroll -->
             <div class="card border-0">
@@ -1142,7 +1162,7 @@
                                                 <i class="fas fa-star me-1"></i>Featured
                                             </span>
                                         @else
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">â€”</span>
                                         @endif
                                     </td>
                                     <td class="d-none d-md-table-cell">
@@ -1151,7 +1171,7 @@
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
-                                        {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : '—' }}
+                                        {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : 'â€”' }}
                                     </td>
                                     <td>
                                         @if($ann->status == 'published')
@@ -1628,6 +1648,12 @@
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.announcement-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
+            const idsContainer = document.getElementById('bulkIdsContainer');
+
+            if (!bulkForm || !idsContainer) {
+                alert('Bulk delete form is unavailable. Please refresh the page.');
+                return;
+            }
 
             if (checkboxes.length === 0) {
                 if (typeof Swal !== 'undefined') {
@@ -1643,6 +1669,16 @@
                 return;
             }
 
+            // Clear old ids so repeated operations do not duplicate inputs.
+            idsContainer.innerHTML = '';
+            checkboxes.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                idsContainer.appendChild(input);
+            });
+
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: 'Confirm Bulk Delete',
@@ -1654,29 +1690,15 @@
                     confirmButtonText: 'Yes, Delete'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        checkboxes.forEach(cb => {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'ids[]';
-                            input.value = cb.value;
-                            bulkForm.appendChild(input);
-                        });
                         bulkForm.submit();
                     }
                 });
             } else {
                 if (confirm(`Are you sure you want to delete ${checkboxes.length} announcement(s)?`)) {
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'ids[]';
-                            input.value = cb.value;
-                            bulkForm.appendChild(input);
-                        });
-                        bulkForm.submit();
-                    }
+                    bulkForm.submit();
                 }
             }
+        }
 
         // Select all checkboxes
         function toggleSelectAll() {
@@ -1793,8 +1815,17 @@
             let fb = el.parentElement.querySelector('.invalid-feedback');
             if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
             fb.textContent = msg;
+            fb.style.display = 'block';
         }
-        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+        function cf(el) {
+            if (!el) return;
+            el.classList.remove('is-invalid');
+            const fb = el.parentElement.querySelector('.invalid-feedback');
+            if (fb) {
+                fb.textContent = '';
+                fb.style.display = 'none';
+            }
+        }
 
         function attachAnnouncementValidation(form) {
             if (!form) return;
@@ -1861,3 +1892,4 @@
     
 </body>
 </html>
+

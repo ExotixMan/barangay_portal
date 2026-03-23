@@ -73,6 +73,13 @@
     gap: 10px;
     flex-shrink: 0;
 }
+.hbm-logo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255,255,255,.55);
+}
 .hbm-header-title {
     font-size: 1rem;
     font-weight: 600;
@@ -122,10 +129,15 @@
 }
 .hbm-agent-avt {
     width: 36px; height: 36px; border-radius: 50%;
-    background: linear-gradient(135deg,#C62828,#d32f2f);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; flex-shrink: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #ffe5e5;
+    background: #fff;
+}
+.hbm-agent-avt img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .hbm-agent-name  { font-weight: 600; font-size: .88rem; color: #1e293b; }
 .hbm-agent-role  { font-size: .70rem; color: #9ca3af; }
@@ -178,8 +190,14 @@
 
 .hbm-avt {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg,#C62828,#d32f2f); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 13px;
+    overflow: hidden;
+    border: 1px solid #ffd6d6;
+    background: #fff;
+}
+.hbm-avt img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .hbm-bbl {
     max-width: 80%; padding: 8px 12px; border-radius: 13px;
@@ -269,7 +287,7 @@
 
     {{-- Header --}}
     <div class="hbm-header">
-        <i class="bi bi-person-badge-fill" style="font-size:1.1rem"></i>
+        <img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant" class="hbm-logo-icon">
         <span class="hbm-header-title">InfoHulo Assistant</span>
         <button class="hbm-close" id="hbm-close" title="Close">&times;</button>
     </div>
@@ -280,7 +298,7 @@
         {{-- Left sidebar --}}
         <div class="hbm-sidebar">
             <div class="hbm-agent-card">
-                <div class="hbm-agent-avt"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="hbm-agent-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
                 <div>
                     <div class="hbm-agent-name">InfoHulo Assistant</div>
                     <div class="hbm-agent-role">Portal Assistant</div>
@@ -491,7 +509,7 @@
 
         msgs.insertAdjacentHTML('beforeend', `
             <div class="hbm-row bot">
-                <div class="hbm-avt"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
                 <div>
                     <div class="hbm-bbl">${text}</div>
                     ${note}
@@ -508,7 +526,7 @@
             typEl = document.createElement('div');
             typEl.className = 'hbm-row bot';
             typEl.innerHTML = `
-                <div class="hbm-avt"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
                 <div class="hbm-bbl" style="padding:0;background:#fff;border:1px solid #e9ecef">
                     <div class="hbm-typing">
                         <div class="hbm-td"></div><div class="hbm-td"></div><div class="hbm-td"></div>

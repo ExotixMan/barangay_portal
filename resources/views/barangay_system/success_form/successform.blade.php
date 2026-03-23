@@ -73,9 +73,20 @@
                     const referenceNum = '{{ $reference_number }}';
                     const currentDate = '{{ $date_submitted }}';
                     const amount = '{{ $amount }}';
+                    const feeLabel = '{{ session('fee_label', '') }}';
+
+                    const parsedAmount = parseFloat(amount);
+                    const hasNumericAmount = !Number.isNaN(parsedAmount);
+                    const amountDisplay = feeLabel
+                        ? feeLabel
+                        : (hasNumericAmount ? `P${parsedAmount.toFixed(2)}` : 'Free');
+
+                    const paymentStepText = (amountDisplay.toLowerCase() === 'free' || amountDisplay.includes('Free'))
+                        ? 'No payment required for this service'
+                        : `Pay ${amountDisplay} at the cashier`;
                     
                     // Create QR code data URL using Promise
-                    const qrData = `Reference: ${referenceNum}\nName: ${applicantName}\nDate: ${currentDate}\nStatus: Processing\nAmount to Pay: ₱${amount}.00`;
+                    const qrData = `Reference: ${referenceNum}\nName: ${applicantName}\nDate: ${currentDate}\nStatus: Processing\nAmount to Pay: ${amountDisplay}`;
                     
                     QRCode.toDataURL(qrData, { width: 150 })
                         .then(qrDataUrl => {
@@ -229,7 +240,7 @@
                                     </div>
                                     <div class="detail-row">
                                         <div class="detail-label">Amount to Pay:</div>
-                                        <div class="detail-value"><strong>₱${amount}.00</strong></div>
+                                        <div class="detail-value"><strong>${amountDisplay}</strong></div>
                                     </div>
                                 </div>
                                 
@@ -244,7 +255,7 @@
                                     <div class="step"><strong>1.</strong> Wait for processing confirmation (1-3 business days)</div>
                                     <div class="step"><strong>2.</strong> Visit Barangay Hall during office hours</div>
                                     <div class="step"><strong>3.</strong> Present this receipt and valid ID</div>
-                                    <div class="step"><strong>4.</strong> Pay ₱{{ $amount }}.00 at the cashier</div>
+                                    <div class="step"><strong>4.</strong> ${paymentStepText}</div>
                                     <div class="step"><strong>5.</strong> Receive your {{ $service }}</div>
                                     
                                     <div class="important-note">
@@ -256,8 +267,7 @@
                                     1 M. Blas St, Malabon, Metro Manila<br>
                                     <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
                                     Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                    Saturday: 8:00 AM - 12:00 PM<br>
-                                    <strong><i class="fas fa-phone"></i> Contact:</strong> (02) 123-4567</p>
+                                    <strong><i class="fas fa-phone"></i> Contact:</strong> 8-281-1373</p>
                                 </div>
                                 
                                 <div class="footer">

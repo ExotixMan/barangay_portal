@@ -95,9 +95,17 @@
         }
         .hb-avatar {
             width: 38px; height: 38px; border-radius: 50%;
-            background: rgba(255,255,255,.18);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 19px; flex-shrink: 0;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,.5);
+            background: #fff;
+        }
+        .hb-avatar img,
+        .hb-avatar-sm img,
+        .hb-page-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .hb-name    { font-weight: 700; font-size: .92rem; line-height: 1.2; }
         .hb-status  { font-size: .68rem; opacity: .85; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
@@ -142,9 +150,9 @@
 
         .hb-avatar-sm {
             width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-            background: var(--grad); color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
+            overflow: hidden;
+            border: 1px solid #ffd6d6;
+            background: #fff;
         }
 
         .hb-bubble {
@@ -253,7 +261,7 @@
 
     {{-- Page header above widget --}}
     <div class="hb-page-header">
-        <div class="hb-page-logo"><i class="bi bi-person-badge-fill"></i></div>
+        <div class="hb-page-logo"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
         <div>
             <div class="hb-page-label">Barangay Hulong Duhat, Malabon City</div>
             <div class="hb-page-title">BISIG Portal Assistant</div>
@@ -266,7 +274,7 @@
 
         {{-- Header --}}
         <div class="hb-header">
-            <div class="hb-avatar"><i class="bi bi-person-badge-fill"></i></div>
+            <div class="hb-avatar"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
             <div>
                 <div class="hb-name">InfoHulo Assistant</div>
                 <div class="hb-status"><span class="hb-dot"></span>Barangay Hulo Portal Assistant</div>
@@ -424,7 +432,7 @@
 
         msgs.insertAdjacentHTML('beforeend', `
             <div class="hb-row bot">
-                <div class="hb-avatar-sm"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="hb-avatar-sm"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
                 <div>
                     <div class="hb-bubble">${text}</div>
                     ${note}
@@ -441,7 +449,7 @@
             typEl = document.createElement('div');
             typEl.className = 'hb-row bot';
             typEl.innerHTML = `
-                <div class="hb-avatar-sm"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="hb-avatar-sm"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
                 <div class="hb-bubble" style="padding:0;background:#fff;border:1px solid var(--border)">
                     <div class="hb-typing">
                         <div class="hb-dot-t"></div><div class="hb-dot-t"></div><div class="hb-dot-t"></div>

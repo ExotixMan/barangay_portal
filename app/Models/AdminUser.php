@@ -23,6 +23,7 @@ class AdminUser extends Authenticatable
     protected $fillable = [
         'user_id',
         'first_name',
+        'middle_initial',
         'last_name',
         'email',
         'username',
@@ -86,7 +87,7 @@ class AdminUser extends Authenticatable
     // Accessors
     public function getFullNameAttribute()
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name . ' ' . ($this->middle_initial ? $this->middle_initial . ' ' : '') . $this->last_name);
     }
 
     public function getInitialsAttribute()
@@ -116,6 +117,7 @@ class AdminUser extends Authenticatable
     {
         return $query->where(function($q) use ($search) {
             $q->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('middle_initial', 'like', "%{$search}%")
               ->orWhere('last_name', 'like', "%{$search}%")
               ->orWhere('email', 'like', "%{$search}%")
               ->orWhere('username', 'like', "%{$search}%")

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -64,6 +64,10 @@
             color: var(--primary);
             font-size: 0.8rem;
             margin-top: 0.25rem;
+            display: none;
+        }
+
+        .is-invalid + .invalid-feedback {
             display: block;
         }
 
@@ -86,7 +90,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -813,7 +817,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-        
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can        
     </div>
 
     <!-- Main Content -->
@@ -1015,18 +1025,22 @@
                         <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_projects'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('admin.projects.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
                         </div>
                         @endif
                     </form>
                 </div>
             </div>
+
+            @if(auth('admin')->user()->hasPermission('delete_projects'))
+            <form id="bulkForm" method="POST" action="{{ route('admin.projects.bulkDelete') }}" class="d-none">
+                @csrf
+                <div id="bulkIdsContainer"></div>
+            </form>
+            @endif
 
             <!-- Projects Table - Mobile Responsive with Horizontal Scroll -->
             <div class="card border-0">
@@ -1128,21 +1142,21 @@
                                     <td class="d-none d-md-table-cell">
                                         <span class="location-badge">
                                             <i class="fas fa-map-marker-alt me-1"></i>
-                                            {{ Str::limit($project->location, 20) ?? '—' }}
+                                            {{ Str::limit($project->location, 20) ?? 'â€”' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
                                             {{ $project->start_date 
                                                 ? \Carbon\Carbon::parse($project->start_date)->format('M d, Y')
-                                                : '—' }}
+                                                : 'â€”' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
                                             {{ $project->expected_completion 
                                                 ? \Carbon\Carbon::parse($project->expected_completion)->format('M d, Y')
-                                                : '—' }}
+                                                : 'â€”' }}
                                         </span>
                                         @if($project->is_overdue)
                                             <span class="badge bg-danger-subtle text-danger ms-1">Overdue</span>
@@ -1659,6 +1673,12 @@
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.project-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
+            const idsContainer = document.getElementById('bulkIdsContainer');
+
+            if (!bulkForm || !idsContainer) {
+                alert('Bulk delete form is unavailable. Please refresh the page.');
+                return;
+            }
 
             if (checkboxes.length === 0) {
                 if (typeof Swal !== 'undefined') {
@@ -1674,6 +1694,16 @@
                 return;
             }
 
+            // Clear previous ids to avoid duplicate submissions.
+            idsContainer.innerHTML = '';
+            checkboxes.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                idsContainer.appendChild(input);
+            });
+
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: 'Confirm Bulk Delete',
@@ -1685,29 +1715,15 @@
                     confirmButtonText: 'Yes, Delete'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        checkboxes.forEach(cb => {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'ids[]';
-                            input.value = cb.value;
-                            bulkForm.appendChild(input);
-                        });
                         bulkForm.submit();
                     }
                 });
             } else {
                 if (confirm(`Are you sure you want to delete ${checkboxes.length} project(s)?`)) {
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'ids[]';
-                            input.value = cb.value;
-                            bulkForm.appendChild(input);
-                        });
-                        bulkForm.submit();
-                    }
+                    bulkForm.submit();
                 }
             }
+        }
 
         // Select all checkboxes
         function toggleSelectAll() {
@@ -1756,8 +1772,9 @@
             const value = document.getElementById('progressValue');
             const hidden = document.getElementById('progressHidden');
             const statusSelect = document.getElementById('progressStatus');
-            
-            form.action = `/projects/${projectId}/progress`;
+
+            const progressUrlTemplate = "{{ route('admin.projects.progress', ['id' => '__ID__']) }}";
+            form.action = progressUrlTemplate.replace('__ID__', projectId);
             range.value = currentProgress;
             value.textContent = currentProgress + '%';
             hidden.value = currentProgress;
@@ -1890,8 +1907,17 @@
             let fb = el.parentElement.querySelector('.invalid-feedback');
             if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
             fb.textContent = msg;
+            fb.style.display = 'block';
         }
-        function cf(el) { if (el) el.classList.remove('is-invalid'); }
+        function cf(el) {
+            if (!el) return;
+            el.classList.remove('is-invalid');
+            const fb = el.parentElement.querySelector('.invalid-feedback');
+            if (fb) {
+                fb.textContent = '';
+                fb.style.display = 'none';
+            }
+        }
 
         function attachProjectValidation(form) {
             if (!form) return;
@@ -1935,14 +1961,20 @@
                 if (title) {
                     if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
                     else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
+                    else { cf(title); }
                 }
                 if (description) {
                     if (!description.value.trim()) { sf(description, 'Description is required.'); valid = false; }
                     else if (description.value.trim().length < 10) { sf(description, 'Description must be at least 10 characters.'); valid = false; }
+                    else { cf(description); }
                 }
                 if (status && !status.value) { sf(status, 'Please select a status.'); valid = false; }
+                else if (status) { cf(status); }
                 if (startDate && expectedCompletion && startDate.value && expectedCompletion.value && expectedCompletion.value < startDate.value) {
                     sf(expectedCompletion, 'Completion date must not be before the start date.'); valid = false;
+                }
+                else if (expectedCompletion) {
+                    cf(expectedCompletion);
                 }
                 if (!valid) e.preventDefault();
             });
@@ -1958,3 +1990,4 @@
     
 </body>
 </html>
+

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class AdminUserController extends Controller
 {
@@ -26,6 +27,7 @@ class AdminUserController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('middle_initial', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('username', 'like', "%{$search}%")
@@ -89,16 +91,28 @@ class AdminUserController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
+            'middle_initial' => ['nullable', 'string', 'max:3', 'regex:/^[A-Za-z]\\.?$/'],
+            'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
             'email' => 'required|email|unique:admin_users,email',
-            'username' => 'required|string|unique:admin_users,username|min:3|max:255',
-            'password' => 'required|string|min:8',
-            'contact_number' => 'nullable|string|max:11',
+            'username' => ['required', 'string', 'unique:admin_users,username', 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'],
+            'password' => ['required', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'contact_number' => ['nullable', 'regex:/^09\d{9}$/'],
             'role_id' => 'required|exists:admin_roles,id',
             'department' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive,suspended',
+        ], [
+            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and periods.',
+            'middle_initial.regex' => 'Middle initial must be a single letter, with an optional period (e.g. A or A.).',
+            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and periods.',
+            'username.regex' => 'Username can only contain letters, numbers, underscores, dots, and hyphens.',
+            'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
+            'password.*' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
         if ($validator->fails()) {
@@ -114,6 +128,7 @@ class AdminUserController extends Controller
             $user = AdminUser::create([
                 'user_id' => 'USR-' . date('Y') . str_pad(AdminUser::count() + 1, 5, '0', STR_PAD_LEFT), // FIXED: Added user_id generation
                 'first_name' => $request->first_name,
+                'middle_initial' => $request->middle_initial ? strtoupper($request->middle_initial) : null,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'username' => $request->username,
@@ -156,15 +171,26 @@ class AdminUserController extends Controller
     {
         $user = AdminUser::findOrFail($id);
 
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
+            'middle_initial' => ['nullable', 'string', 'max:3', 'regex:/^[A-Za-z]\\.?$/'],
+            'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
             'email' => 'required|email|unique:admin_users,email,' . $id, // FIXED: changed from 'users' to 'admin_users'
-            'username' => 'required|string|unique:admin_users,username,' . $id . '|min:3|max:255', // FIXED: changed from 'users' to 'admin_users'
-            'contact_number' => 'nullable|string|max:11',
+            'username' => ['required', 'string', 'unique:admin_users,username,' . $id, 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'], // FIXED: changed from 'users' to 'admin_users'
+            'contact_number' => ['nullable', 'regex:/^09\d{9}$/'],
             'role_id' => 'required|exists:admin_roles,id', // FIXED: changed from 'roles' to 'admin_roles'
             'department' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,suspended',
+        ], [
+            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and periods.',
+            'middle_initial.regex' => 'Middle initial must be a single letter, with an optional period (e.g. A or A.).',
+            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and periods.',
+            'username.regex' => 'Username can only contain letters, numbers, underscores, dots, and hyphens.',
+            'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
         ]);
 
         if ($validator->fails()) {
@@ -181,6 +207,7 @@ class AdminUserController extends Controller
             
             $user->update([
                 'first_name' => $request->first_name,
+                'middle_initial' => $request->middle_initial ? strtoupper($request->middle_initial) : null,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'username' => $request->username,
@@ -263,8 +290,17 @@ class AdminUserController extends Controller
     {
         $user = AdminUser::findOrFail($id);
 
+        // Support both legacy field names and modal field names.
+        if (!$request->filled('new_password') && $request->filled('password')) {
+            $request->merge([
+                'new_password' => $request->input('password'),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
-            'new_password' => 'sometimes|required|string|min:8',
+            'new_password' => ['sometimes', 'required', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+        ], [
+            'new_password.*' => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
         if ($validator->fails()) {
@@ -308,6 +344,12 @@ class AdminUserController extends Controller
     public function updatePermissions(Request $request, $id)
     {
         $user = AdminUser::findOrFail($id);
+
+        // Super admin permissions are fixed by design.
+        if ($user->role && $user->role->name === 'super_admin') {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Super admin permissions cannot be modified.');
+        }
 
         $validator = Validator::make($request->all(), [
             'permissions' => 'array',

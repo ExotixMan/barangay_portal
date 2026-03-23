@@ -168,6 +168,13 @@ body:not(.back-to-top-visible) .fab-container {
     transition-delay: 0s;
 }
 
+.fab-action-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .speed-dial.active .fab-action {
     opacity: 1;
     transform: translateY(0) scale(1);

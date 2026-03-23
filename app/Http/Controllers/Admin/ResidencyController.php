@@ -33,7 +33,7 @@ class ResidencyController extends Controller
         }
 
         // Filter by status - UPDATED to include all statuses
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         if ($request->status && in_array($request->status, $allowedStatuses)) {
             $query->where('status', $request->status);
         }
@@ -51,9 +51,6 @@ class ResidencyController extends Controller
         $approved_count = Residency::where('status', 'approved')->count();
         $ready_pickup_count = Residency::where('status', 'ready_pickup')->count();
         $claimed_count = Residency::where('status', 'claimed')->count();
-        $ready_delivery_count = Residency::where('status', 'ready_delivery')->count();
-        $out_delivery_count = Residency::where('status', 'out_delivery')->count();
-        $delivered_count = Residency::where('status', 'delivered')->count();
         $rejected_count = Residency::where('status', 'rejected')->count();
 
         // SORTING
@@ -91,9 +88,6 @@ class ResidencyController extends Controller
             'approved_count',
             'ready_pickup_count',
             'claimed_count',
-            'ready_delivery_count',
-            'out_delivery_count',
-            'delivered_count',
             'rejected_count'
         ));
     }
@@ -102,6 +96,11 @@ class ResidencyController extends Controller
     {
         // Store form type in session
         session()->flash('form_type', 'add');
+
+        // Normalize phone input (remove spaces/dashes/etc.) before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
 
         // Validate based on residency applications table schema
         $data = $request->validate([
@@ -169,7 +168,7 @@ class ResidencyController extends Controller
         $application = Residency::findOrFail($id);
         
         // Validate status
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'ready_delivery', 'out_delivery', 'delivered', 'rejected'];
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
             'status' => 'required|in:' . implode(',', $allowedStatuses)
@@ -200,6 +199,11 @@ class ResidencyController extends Controller
         // Store form type in session with application ID
         session()->flash('form_type', 'edit_' . $application->id);
 
+        // Normalize phone input (remove spaces/dashes/etc.) before validation.
+        $request->merge([
+            'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
+        ]);
+
         // Validate based on residency applications table schema
         $data = $request->validate([
             // Personal Information
@@ -213,7 +217,7 @@ class ResidencyController extends Controller
             'civil_status' => 'required|in:single,married,widowed,separated',
 
             // Contact Information
-            'email' => 'required|email|max:255|unique:residency_applications,email,' . $application->id,
+            'email' => 'required|email|max:255',
             'contact_number' => 'required|string|max:11|regex:/^09[0-9]{9}$/',
             'address' => 'required|string',
 
@@ -242,7 +246,7 @@ class ResidencyController extends Controller
             $application->gender = $request->gender;
             $application->civil_status = $request->civil_status;
             $application->email = $request->email;
-            $application->contact_number = $request->contact_number;
+            $application->contact_number = $data['contact_number'];
             $application->address = $request->address;
             $application->years_residing = $request->years_residing;
             $application->residency_type = $request->residency_type;

@@ -24,11 +24,13 @@ class AdminRoleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:admin_roles,name|max:255',
+            'name' => ['required', 'string', 'unique:admin_roles,name', 'max:255', 'regex:/^[a-z_]+$/'],
             'display_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'permissions' => 'array',
             'permissions.*' => 'exists:admin_permissions,id',
+        ], [
+            'name.regex' => 'Role name must use lowercase letters and underscores only.',
         ]);
 
         if ($validator->fails()) {
@@ -86,11 +88,13 @@ class AdminRoleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:admin_roles,name,' . $id,
+            'name' => ['required', 'string', 'max:255', 'unique:admin_roles,name,' . $id, 'regex:/^[a-z_]+$/'],
             'display_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'permissions.*' => 'exists:admin_permissions,id',
+        ], [
+            'name.regex' => 'Role name must use lowercase letters and underscores only.',
         ]);
 
         if ($validator->fails()) {

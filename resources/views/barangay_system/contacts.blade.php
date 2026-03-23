@@ -33,6 +33,10 @@
             line-height: 1.6;
             color: #333;
             scroll-behavior: smooth;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(198, 40, 40, 0.08), transparent 32%),
+                radial-gradient(circle at 90% 20%, rgba(122, 35, 35, 0.06), transparent 30%),
+                #f8f9fa;
         }
 
         /* Full Width Background Sections */
@@ -45,7 +49,7 @@
         /* Contact Info Cards */
         .contact-info-section {
             padding: 80px 0;
-            background: #f8f9fa;
+            background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);
         }
 
         .section-title {
@@ -54,23 +58,55 @@
             font-size: 2.2rem;
             font-weight: 700;
             color: #C62828;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            width: 70px;
+            height: 4px;
+            border-radius: 3px;
+            background: linear-gradient(135deg, #C62828, #7a2323);
+            position: absolute;
+            left: 50%;
+            bottom: -14px;
+            transform: translateX(-50%);
         }
 
         .contact-card {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 35px 25px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
             border: 1px solid #eee;
             transition: all 0.3s ease;
             height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #C62828, #7a2323);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
         }
 
         .contact-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 35px rgba(198, 40, 40, 0.12);
             border-color: rgba(198, 40, 40, 0.2);
+        }
+
+        .contact-card:hover::before {
+            transform: scaleX(1);
         }
 
         .contact-card-icon {
@@ -122,7 +158,9 @@
         }
 
         .card-link {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             color: #C62828;
             font-weight: 600;
             font-size: 0.9rem;
@@ -436,7 +474,7 @@
         /* Social Media Section */
         .social-section {
             padding: 80px 0;
-            background: #f8f9fa;
+            background: linear-gradient(180deg, #f8f9fa 0%, #f1f4f9 100%);
         }
 
         .social-cards-single {
@@ -885,8 +923,7 @@
                                 <i class="fas fa-phone-alt"></i>
                             </div>
                             <h3>Call Us</h3>
-                            <p><a href="tel:+6329876543">(02) 987-6543</a></p>
-                            <p><a href="tel:+6329871234">(02) 987-1234</a></p>
+                            <p><a href="tel:+63282811373">8-281-1373</a></p>
                             <span class="card-note">Available during office hours</span>
                         </div>
                     </div>
@@ -896,8 +933,7 @@
                                 <i class="fas fa-envelope"></i>
                             </div>
                             <h3>Email Us</h3>
-                            <p><a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a></p>
-                            <p><a href="mailto:support@barangayhulo.gov.ph">support@barangayhulo.gov.ph</a></p>
+                            <p><a href="mailto:barangayhulongduhat@gmail.com">barangayhulongduhat@gmail.com</a></p>
                             <span class="card-note">We reply within 24 hours</span>
                         </div>
                     </div>
@@ -908,96 +944,7 @@
                             </div>
                             <h3>Office Hours</h3>
                             <p>Monday - Friday<br>8:00 AM - 5:00 PM</p>
-                            <p>Saturday<br>8:00 AM - 12:00 PM</p>
-                            <span class="card-note">Closed on Sundays & Holidays</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Departments Section -->
-        <section class="departments-section">
-            <div class="container">
-                <h2 class="section-title">Department Directory</h2>
-                
-                <div class="row g-4">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <h3>Barangay Captain's Office</h3>
-                            <p>For concerns regarding barangay governance, ordinances, and executive matters.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 101</span>
-                                <span><i class="fas fa-envelope"></i> captain@barangayhulo.gov.ph</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h3>Records & Documentation</h3>
-                            <p>For document requests, barangay clearance, certifications, and record verification.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 102</span>
-                                <span><i class="fas fa-envelope"></i> records@barangayhulo.gov.ph</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <h3>Peace & Order Office</h3>
-                            <p>For security concerns, Incident Reports, and peace and order matters.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 103</span>
-                                <span><i class="fas fa-envelope"></i> peace@barangayhulo.gov.ph</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-heartbeat"></i>
-                            </div>
-                            <h3>Health & Sanitation</h3>
-                            <p>For health programs, medical missions, and sanitation concerns.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 104</span>
-                                <span><i class="fas fa-envelope"></i> health@barangayhulo.gov.ph</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-hands-helping"></i>
-                            </div>
-                            <h3>Social Welfare</h3>
-                            <p>For social services, senior citizen concerns, and community assistance programs.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 105</span>
-                                <span><i class="fas fa-envelope"></i> welfare@barangayhulo.gov.ph</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="department-card">
-                            <div class="dept-icon">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                            <h3>Treasury & Finance</h3>
-                            <p>For payment inquiries, fee structures, and financial matters.</p>
-                            <div class="dept-contact">
-                                <span><i class="fas fa-phone"></i> (02) 987-6543 loc. 106</span>
-                                <span><i class="fas fa-envelope"></i> treasury@barangayhulo.gov.ph</span>
-                            </div>
+                            <span class="card-note">Closed on weekends & holidays</span>
                         </div>
                     </div>
                 </div>
@@ -1037,7 +984,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>The barangay hall is open Monday to Friday from 8:00 AM to 5:00 PM, and Saturday from 8:00 AM to 12:00 PM. We are closed on Sundays and national holidays.</p>
+                            <p>The barangay hall is open Monday to Friday from 8:00 AM to 5:00 PM. We are closed on weekends and national holidays.</p>
                         </div>
                     </div>
                     <div class="faq-item">
@@ -1073,170 +1020,14 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>For emergencies, call 911. For barangay-related emergencies, contact the Peace & Order Office at (02) 987-6543 loc. 103 or the Barangay Tanod hotline.</p>
+                            <p>For emergencies, call 911. For barangay-related emergencies, contact the Peace & Order Office at 8-281-1373 or the Barangay Tanod hotline.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-<!-- Floating Action Button with Speed Dial -->
-    <div class="fab-container">
-        <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
-                @if(app()->getLocale() == 'en')
-                    <span>Filipino</span>
-                @else
-                    <span>English</span>
-                @endif
-            </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        </div>
-        <button class="fab-main" id="fabMain">
-            <i class="fas fa-gear"></i>
-        </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="container footer-container">
-            <div class="row">
-                <!-- Logo & Contact Info -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <div class="logo-circle">
-                                <i class="fas fa-landmark"></i>
-                            </div>
-                            <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-simple">
-                            <div class="contact-row">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-phone"></i>
-                                <a href="tel:+6329876543">(02) 987-6543</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="social-links-simple">
-                            <div class="social-icons">
-                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quick Access Links -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Quick Access</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
-                            </a>
-                            <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
-                            </a>
-                            <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Services</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
-                            </a>
-                            <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
-                            </a>
-                            <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
-                            </a>
-                            <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Incident Report
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency & Support -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
-                        <div class="emergency-contacts-simple">
-                            <div class="emergency-item">
-                                <i class="fas fa-ambulance"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
-                                    <a href="tel:911" class="emergency-number">911</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
-                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-first-aid"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
-                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+@include('barangay_system.partials.fab_footer')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     

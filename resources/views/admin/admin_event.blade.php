@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -823,7 +823,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    
     </div>
 
     <!-- Main Content -->
@@ -1033,18 +1039,22 @@
                         <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_events'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <form id="bulkForm" method="POST" action="{{ route('admin.events.bulkDelete') }}" style="display: inline;">
-                                @csrf
-                                <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="d-none d-sm-inline">Bulk Delete</span>
-                                </button>
-                            </form>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                            </button>
                         </div>
                         @endif
                     </form>
                 </div>
             </div>
+
+            @if(auth('admin')->user()->hasPermission('delete_events'))
+            <form id="bulkForm" method="POST" action="{{ route('admin.events.bulkDelete') }}" class="d-none">
+                @csrf
+                <div id="bulkIdsContainer"></div>
+            </form>
+            @endif
 
             <!-- Events Table - Mobile Responsive with Horizontal Scroll -->
             <div class="card border-0">
@@ -1145,12 +1155,12 @@
                                             {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
                                             {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
                                         @else
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">â€”</span>
                                         @endif
                                     </td>
                                     <td>
                                         <span class="location-text" title="{{ $event->location }}">
-                                            {{ $event->location ?? '—' }}
+                                            {{ $event->location ?? 'â€”' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-md-table-cell">
@@ -1660,6 +1670,12 @@
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.event-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
+            const idsContainer = document.getElementById('bulkIdsContainer');
+
+            if (!bulkForm || !idsContainer) {
+                alert('Bulk delete form is unavailable. Please refresh the page.');
+                return;
+            }
 
             if (checkboxes.length === 0) {
                 if (typeof Swal !== 'undefined') {
@@ -1675,6 +1691,17 @@
                 return;
             }
 
+            // Clear old ids so repeated bulk operations do not accumulate inputs.
+            idsContainer.innerHTML = '';
+
+            checkboxes.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                idsContainer.appendChild(input);
+            });
+
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: 'Confirm Bulk Delete',
@@ -1686,25 +1713,11 @@
                     confirmButtonText: 'Yes, Delete'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        checkboxes.forEach(cb => {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'ids[]';
-                            input.value = cb.value;
-                            bulkForm.appendChild(input);
-                        });
                         bulkForm.submit();
                     }
                 });
             } else {
                 if (confirm(`Are you sure you want to delete ${checkboxes.length} event(s)?`)) {
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'ids[]';
-                        input.value = cb.value;
-                        bulkForm.appendChild(input);
-                    });
                     bulkForm.submit();
                 }
             }
@@ -2089,3 +2102,4 @@
     </script>
 </body>
 </html>
+

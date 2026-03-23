@@ -166,6 +166,20 @@
                     <h3><i class="fas fa-file-upload"></i> Upload Requirements</h3>
 
                     <div class="upload-section row g-4">
+                        <div class="upload-group col-12">
+                            <label for="primaryProof">
+                                <i class="fas fa-id-card"></i> Primary Proof of Residency *
+                                <span class="upload-size">Max: 5MB (JPG, PNG, PDF)</span>
+                            </label>
+                            <div class="upload-area" id="primaryProofUpload">
+                                <i class="fas fa-cloud-upload-alt mb-3"></i>
+                                <p class="mb-0">Drag & drop your proof of residency or <span>browse</span></p>
+                                <p class="small text-muted mt-2">Barangay ID, Voter's ID, Recent Utility Bill (Meralco, Maynilad), Cedula</p>
+                                <input type="file" id="primaryProof" name="primary_proof" accept=".jpg,.jpeg,.png,.pdf" hidden required>
+                            </div>
+                            <div class="upload-preview mt-2" id="primaryProofPreview"></div>
+                        </div>
+
                         <!-- 1. VALID ID (any government ID) -->
                         <div class="upload-group col-12">
                             <label for="validId">
@@ -253,7 +267,7 @@
                                         <i class="fas fa-clock"></i>
                                         <div>
                                             <h5><i class="fas fa-calendar-alt"></i> Office Hours</h5>
-                                            <p>Monday - Friday: 8:00 AM - 5:00 PM<br>Saturday: 8:00 AM - 12:00 PM</p>
+                                            <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
                                         </div>
                                     </div>
 
@@ -446,6 +460,7 @@
             });
 
             // File upload functionality
+            setupFileUpload('primaryProofUpload', 'primaryProof', 'primaryProofPreview');
             setupFileUpload('validIdUpload', 'validId', 'validIdPreview');
 
             // Functions
@@ -602,12 +617,12 @@
                             showFieldError(field, 'Date of birth cannot be in the future');
                         }
                         
-                        // Check if at least 18 years old (optional, remove if not needed)
+                        // Accept applicants 5 years old and above
                         const age = today.getFullYear() - selectedDate.getFullYear();
                         const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 18 || (age === 18 && monthDiff < 0)) {
+                        if (age < 5 || (age === 5 && monthDiff < 0)) {
                             isValid = false;
-                            showFieldError(field, 'You must be at least 18 years old to apply');
+                            showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }
                     }
                     
@@ -622,6 +637,23 @@
                 
                 // Validate file uploads for step 2
                 if (stepNumber === 2) {
+                    const primaryProofInput = document.getElementById('primaryProof');
+                    if (!primaryProofInput.files || primaryProofInput.files.length === 0) {
+                        isValid = false;
+                        const primaryProofUpload = document.getElementById('primaryProofUpload');
+                        primaryProofUpload.style.borderColor = '#ff4444';
+                        primaryProofUpload.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+
+                        const primaryProofError = document.createElement('div');
+                        primaryProofError.className = 'error-message';
+                        primaryProofError.style.color = '#ff4444';
+                        primaryProofError.style.fontSize = '0.85rem';
+                        primaryProofError.style.marginTop = '10px';
+                        primaryProofError.style.textAlign = 'center';
+                        primaryProofError.textContent = 'Please upload a primary proof of residency';
+                        primaryProofUpload.parentNode.appendChild(primaryProofError);
+                    }
+
                     const fileInput = document.getElementById('validId');
                     if (!fileInput.files || fileInput.files.length === 0) {
                         isValid = false;

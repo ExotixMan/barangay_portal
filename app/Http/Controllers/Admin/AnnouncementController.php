@@ -36,14 +36,15 @@ class AnnouncementController extends Controller
 
         // Featured filter
         if ($request->has('featured') && $request->featured !== '') {
-            $query->where('is_featured', $request->featured);
+            $isFeaturedFilter = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $query->where('is_featured', $isFeaturedFilter === true ? 'true' : 'false');
         }
 
         // Stats
         $total_count = Announcement::count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
-        $featured_count = Announcement::where('is_featured', 'true')->count(); // FIXED: changed 'true' to true
+        $featured_count = Announcement::where('is_featured', 'true')->count();
 
         // Sorting
         $sort = $request->get('sort', 'created_at');
@@ -99,8 +100,8 @@ class AnnouncementController extends Controller
                 $data['published_at'] = now();
             }
 
-            // Set featured
-            $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
+            // PostgreSQL strict boolean handling: persist literal boolean text.
+            $data['is_featured'] = $request->has('is_featured') ? 'true' : 'false';
 
             Announcement::create($data);
 
@@ -154,8 +155,8 @@ class AnnouncementController extends Controller
                 $data['published_at'] = now();
             }
 
-            // Set featured
-            $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
+            // PostgreSQL strict boolean handling: persist literal boolean text.
+            $data['is_featured'] = $request->has('is_featured') ? 'true' : 'false';
 
             $announcement->update($data);
 
@@ -208,7 +209,8 @@ class AnnouncementController extends Controller
     {
         $announcement = Announcement::findOrFail($id);
 
-        $announcement->is_featured = !$announcement->is_featured;
+        // Use explicit PostgreSQL boolean literals to avoid int binding issues.
+        $announcement->is_featured = $announcement->is_featured ? 'false' : 'true';
         $announcement->save();
 
         $status = $announcement->is_featured ? 'featured' : 'unfeatured';

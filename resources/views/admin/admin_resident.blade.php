@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -147,7 +147,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -689,6 +689,12 @@
         </a>
         @endadmin_can
 
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can
     </div>
 
     <!-- Main Content -->
@@ -1018,13 +1024,13 @@
                                     <td class="text-end pe-4">
                                         <div class="d-flex gap-1 gap-sm-2 justify-content-end">
                                             <!-- View (everyone with view_residents can view) -->
-                                            <button type="button" class="btn btn-sm btn-outline-info d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View">
+                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View">
                                                 <i class="fa-regular fa-eye"></i>
                                             </button>
 
                                             <!-- Edit (only for non-deleted and if user has update_residents permission) -->
                                             @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('update_residents'))
-                                            <button type="button" class="btn btn-sm btn-outline-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
@@ -1174,7 +1180,8 @@
                                         <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
                                                name="birthdate" id="add_birthdate" 
                                                value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" 
-                                               required max="{{ date('Y-m-d') }}">
+                                               required max="{{ now()->subYears(18)->format('Y-m-d') }}">
+                                        <small class="text-muted">Resident must be 18 years old or above.</small>
                                         @if(session('form_type') == 'add')
                                             @error('birthdate')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1197,7 +1204,7 @@
                                         <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" 
                                                name="password" id="add_password" 
                                                required minlength="8">
-                                        <small class="text-muted">Minimum 8 characters</small>
+                                        <small class="text-muted">Minimum 8 characters with uppercase, lowercase, number, and special character.</small>
                                         @if(session('form_type') == 'add')
                                             @error('password')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1209,6 +1216,14 @@
                                         <input type="password" name="password_confirmation" class="form-control" 
                                                id="add_password_confirmation" required>
                                         <div class="invalid-feedback" id="add_pwc_feedback"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check mt-1">
+                                            <input class="form-check-input" type="checkbox" id="toggle_add_passwords">
+                                            <label class="form-check-label" for="toggle_add_passwords">
+                                                Show password and confirm password
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                         </form>
@@ -1689,7 +1704,7 @@
             const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected → Ask to export all
+            // If nothing selected â†’ Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -1711,7 +1726,7 @@
                 return;
             }
 
-            // If selected → Confirm export selected
+            // If selected â†’ Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected resident(s)?`,
@@ -1846,6 +1861,18 @@
             const usernamePattern = /^[a-zA-Z0-9_]+$/;
             const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+            function calculateAge(birthDateValue) {
+                if (!birthDateValue) return null;
+                const birthDate = new Date(birthDateValue);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
             function setField(el, msg) {
                 if (msg) {
                     el.setCustomValidity(msg);
@@ -1921,8 +1948,10 @@
                 const sel = new Date(this.value);
                 const today = new Date(); today.setHours(0,0,0,0);
                 const minDate = new Date(); minDate.setFullYear(minDate.getFullYear() - 120);
+                const age = calculateAge(this.value);
                 if (sel >= today)    return setField(this, 'Birthdate must be in the past.');
                 if (sel < minDate)   return setField(this, 'Please enter a valid birthdate.');
+                if (age === null || age < 18) return setField(this, 'Resident must be 18 years old or above.');
                 setField(this, '');
             });
 
@@ -1946,6 +1975,15 @@
             }
             if (pw)  pw.addEventListener('input', validatePw);
             if (pwc) pwc.addEventListener('input', validatePwc);
+
+            const toggleAddPasswords = document.getElementById('toggle_add_passwords');
+            if (toggleAddPasswords && pw && pwc) {
+                toggleAddPasswords.addEventListener('change', function() {
+                    const inputType = this.checked ? 'text' : 'password';
+                    pw.type = inputType;
+                    pwc.type = inputType;
+                });
+            }
         });
         // Real-time validation for edit forms
         @if(auth('admin')->user()->hasPermission('update_residents'))
@@ -2041,3 +2079,4 @@
     
 </body>
 </html>
+

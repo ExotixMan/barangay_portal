@@ -27,16 +27,26 @@ class BarangayClearanceController extends Controller
             'middle_name' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'last_name' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:255',
-            'birthdate' => 'required|date',
+            'birthdate' => 'required|date|before_or_equal:' . now()->subYears(5)->toDateString(),
             'gender' => 'required',
             'address' => 'required',
             'contact_number' => 'required',
             'email' => 'required|email',
+            'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'nullable',
         ]);
         try {
+
+            // Primary proof of residency
+            if ($request->hasFile('primary_proof')) {
+                $proof = $request->file('primary_proof');
+                $proofExt = $proof->getClientOriginalExtension();
+                $proofName = time() . '_proof.' . $proofExt;
+                $proof->move(public_path('uploads/proof_of_residency/clearance'), $proofName);
+                $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
+            }
         
             //Valid ID
             if ($request->hasFile('valid_id_path')){
@@ -63,7 +73,8 @@ class BarangayClearanceController extends Controller
                 'applicant_name' => $applicant_name,
                 'date_submitted' => $date_submitted,
                 'status' => 'Submitted for Processing',
-                'amount' => 100,
+                'amount' => null,
+                'fee_label' => 'Depending on purpose',
                 'reference_number' => $data['reference_number'],
                 'submitted_application' => true
             ]);

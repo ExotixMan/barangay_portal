@@ -8,8 +8,8 @@
         
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
-                   href="{{ route('admin.dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('admin.dashboard.index') ? 'active' : '' }}" 
+                   href="{{ route('admin.dashboard.index') }}">
                     <i class="fas fa-tachometer-alt me-2"></i>
                     Dashboard
                 </a>
@@ -34,7 +34,18 @@
                 </a>
             </li>
             @endadmin_can
+
+            @admin_can('view_users')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.backup.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.backup.index') }}">
+                    <i class="fas fa-database me-2"></i>
+                    Backup Settings
+                </a>
+            </li>
+            @endadmin_can
             
+            @if(Route::has('admin.activities'))
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.activities') ? 'active' : '' }}" 
                    href="{{ route('admin.activities') }}">
@@ -42,6 +53,7 @@
                     Activity Logs
                 </a>
             </li>
+            @endif
             
             <li class="nav-item mt-4">
                 <form method="POST" action="{{ route('admin.logout') }}">

@@ -1108,19 +1108,19 @@
                 <!-- Quick Stats -->
                 <div class="row quick-stats justify-content-center text-center">
                     <div class="col-4 col-md-4 stat-item">
-                        <i class="fas fa-file-alt mb-3"></i>
-                        <span class="stat-number">1,234</span>
-                        <span class="stat-label">Services Rendered</span>
+                        <i class="fa-solid fa-landmark"></i>
+                        <span class="stat-number">0.5483 km²</span>
+                        <span class="stat-label">Land Area</span>
                     </div>
                     <div class="col-4 col-md-4 stat-item">
                         <i class="fas fa-users mb-3"></i>
-                        <span class="stat-number">12,000</span>
-                        <span class="stat-label">Active Residents</span>
+                        <span class="stat-number">12,265</span>
+                        <span class="stat-label">Total Population (2024, PSA)</span>
                     </div>
                     <div class="col-4 col-md-4 stat-item">
-                        <i class="fas fa-check-circle mb-3"></i>
-                        <span class="stat-number">98%</span>
-                        <span class="stat-label">Satisfaction Rate</span>
+                        <i class="fa-solid fa-city"></i>
+                        <span class="stat-number">Urban Barangay</span>
+                        <span class="stat-label">Classification</span>
                     </div>
                 </div>
             </div>
@@ -1363,15 +1363,15 @@
                             <div class="feature-list">
                                 <div class="feature-item">
                                     <i class="fas fa-history"></i>
-                                    <span>Rich History Since 1901</span>
+                                    <span>Rich History Since 1861</span>
                                 </div>
                                 <div class="feature-item">
                                     <i class="fas fa-award"></i>
-                                    <span>National Award Winning</span>
+                                    <span>Clean Opinion on Audit Malabon Office(2021)</span>
                                 </div>
                                 <div class="feature-item">
                                     <i class="fas fa-user-friends"></i>
-                                    <span>12 Dedicated Officials</span>
+                                    <span>11 Dedicated Officials</span>
                                 </div>
                             </div>
                             <a href={{ route('history')}} class='section-links'><i class="fa-solid fa-up-right-from-square"></i> Learn more about Barangay Hulo</a>
@@ -1379,7 +1379,7 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="image-content position-relative">
-                            <img src="Images/about1.jpg" alt="Barangay Hall" class="section-image img-fluid" loading="lazy">
+                            <img src="Images/Barangay_Hall.jpg" alt="Barangay Hall" class="section-image img-fluid" loading="lazy">
                             <div class="image-overlay">
                                 <p>Visit our barangay hall for personalized assistance</p>
                             </div>
@@ -1460,163 +1460,7 @@
         </section>
     </main>
 
-    <!-- Floating Action Button with Speed Dial -->
-    <div class="fab-container">
-        <div class="speed-dial" id="speedDial">
-            <button class="fab-action" id="translateBtn" title="Translate Text">
-                @if(app()->getLocale() == 'en')
-                    <span>{{ __('messages.fab_switch_to_filipino') }}</span>
-                @else
-                    <span>{{ __('messages.fab_switch_to_english') }}</span>
-                @endif
-            </button>
-            <button class="fab-action" id="darkModeBtn" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="fab-action" id="chatBtn" title="Chat with Assistant">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        </div>
-        <button class="fab-main" id="fabMain">
-            <i class="fas fa-gear"></i>
-        </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="container footer-container">
-            <div class="row">
-                <!-- Logo & Contact Info -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <div class="logo-circle">
-                                <i class="fas fa-landmark"></i>
-                            </div>
-                            <div class="logo-text">
-                                <h3>Barangay Hulo</h3>
-                                <p class="tagline">Serving Our Community</p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-simple">
-                            <div class="contact-row">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>1 M. Blas St, Malabon, Metro Manila</span>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-phone"></i>
-                                <a href="tel:+6329876543">(02) 987-6543</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:info@barangayhulo.gov.ph">info@barangayhulo.gov.ph</a>
-                            </div>
-                            <div class="contact-row">
-                                <i class="fas fa-clock"></i>
-                                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="social-links-simple">
-                            <div class="social-icons">
-                                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quick Access Links -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Quick Access</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('barangay_system.index') }}" class="footer-link">
-                                <i class="fas fa-home"></i> Home
-                            </a>
-                            <a href="{{ route('announcements') }}" class="footer-link">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="{{ route('history') }}" class="footer-link">
-                                <i class="fas fa-history"></i> Barangay History
-                            </a>
-                            <a href="{{ route('track_request') }}" class="footer-link">
-                                <i class="fas fa-search"></i> Track Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Services</h3>
-                        <div class="footer-links-list">
-                            <a href="{{ route('clearance') }}" class="footer-link">
-                                <i class="fas fa-certificate"></i> Barangay Clearance
-                            </a>
-                            <a href="{{ route('residency') }}" class="footer-link">
-                                <i class="fas fa-house-user"></i> Certificate of Residency
-                            </a>
-                            <a href="{{ route('indigency') }}" class="footer-link">
-                                <i class="fas fa-hands-helping"></i> Certificate of Indigency
-                            </a>
-                            <a href="{{ route('incident') }}" class="footer-link">
-                                <i class="fas fa-clipboard-list"></i> Incident Report
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emergency & Support -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-section">
-                        <h3>Emergency Contacts</h3>
-                        <div class="emergency-contacts-simple">
-                            <div class="emergency-item">
-                                <i class="fas fa-ambulance"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Emergency</span>
-                                    <a href="tel:911" class="emergency-number">911</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Police</span>
-                                    <a href="tel:+6329876543" class="emergency-number">(02) 987-6543</a>
-                                </div>
-                            </div>
-                            <div class="emergency-item">
-                                <i class="fas fa-first-aid"></i>
-                                <div class="emergency-details">
-                                    <span class="emergency-label">Health Center</span>
-                                    <a href="tel:+6327654321" class="emergency-number">(02) 765-4321</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <div class="copyright-info">
-                    <p>&copy; 2025 Barangay Hulo, Malabon City. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @include('barangay_system.partials.fab_footer')
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

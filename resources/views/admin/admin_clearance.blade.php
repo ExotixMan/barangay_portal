@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: '⚠️';
+            content: 'âš ï¸';
             margin-right: 0.5rem;
         }
 
@@ -664,12 +664,17 @@
 
         @media (max-width: 768px) {
             .d-flex.gap-1.gap-sm-2.justify-content-end {
-                flex-wrap: wrap;
-                justify-content: flex-start !important;
+                flex-wrap: nowrap !important;
+                justify-content: flex-end !important;
+                align-items: center;
             }
             
             .btn-group {
-                margin-bottom: 0.25rem;
+                margin-bottom: 0;
+            }
+
+            .d-flex.gap-1.gap-sm-2.justify-content-end > * {
+                flex: 0 0 auto;
             }
             
             .dropdown-menu {
@@ -907,7 +912,13 @@
             <span>Chatbot</span>
         </a>
         @endadmin_can
-    </div>
+
+        @admin_can('view_users')
+        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-database"></i>
+            <span>Backup Settings</span>
+        </a>
+        @endadmin_can    </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -1081,9 +1092,6 @@
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="ready_pickup" {{ request('status') == 'ready_pickup' ? 'selected' : '' }}>Ready for Pickup</option>
                                     <option value="claimed" {{ request('status') == 'claimed' ? 'selected' : '' }}>Claimed</option>
-                                    <option value="ready_delivery" {{ request('status') == 'ready_delivery' ? 'selected' : '' }}>Ready for Delivery</option>
-                                    <option value="out_delivery" {{ request('status') == 'out_delivery' ? 'selected' : '' }}>Out for Delivery</option>
-                                    <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
@@ -1172,6 +1180,7 @@
                                     <th class="d-none d-lg-table-cell">Birthdate</th>
                                     <th class="d-none d-md-table-cell">Gender</th>
                                     <th>Purpose</th>
+                                    <th>Fee</th>
                                     <th>Status</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
@@ -1210,18 +1219,19 @@
                                         </span>
                                     </td>
                                     <td>
+                                        @if(is_null($app->fee))
+                                            <span class="badge bg-warning-subtle text-warning">Depending on purpose</span>
+                                        @else
+                                            <span class="fw-semibold">PHP {{ number_format((float) $app->fee, 2) }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if($app->status == 'approved')
                                             <span class="badge bg-success-subtle text-success">Approved</span>
                                         @elseif($app->status == 'ready_pickup')
                                             <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
                                         @elseif($app->status == 'claimed')
                                             <span class="badge bg-success-subtle text-success">Claimed</span>
-                                        @elseif($app->status == 'ready_delivery')
-                                            <span class="badge bg-info-subtle text-info">Ready for Delivery</span>
-                                        @elseif($app->status == 'out_delivery')
-                                            <span class="badge bg-warning-subtle text-warning">Out for Delivery</span>
-                                        @elseif($app->status == 'delivered')
-                                            <span class="badge bg-success-subtle text-success">Delivered</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
                                         @elseif($app->status == 'pending')
@@ -1336,50 +1346,6 @@
                                                     
                                                     <li><hr class="dropdown-divider"></li>
                                                     
-                                                    <!-- Ready for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="ready_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'ready_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Delivery?')">
-                                                                <i class="fas fa-box me-2 text-info"></i>Ready for Delivery
-                                                                @if($app->status == 'ready_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Out for Delivery -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="out_delivery">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'out_delivery' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Out for Delivery?')">
-                                                                <i class="fas fa-truck me-2 text-warning"></i>Out for Delivery
-                                                                @if($app->status == 'out_delivery')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Delivered -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="delivered">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'delivered' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Delivered?')">
-                                                                <i class="fas fa-check-double me-2 text-success"></i>Delivered
-                                                                @if($app->status == 'delivered')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    
                                                     <!-- Rejected -->
                                                     <li>
                                                         <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
@@ -1397,24 +1363,24 @@
                                             </div>
                                             @endif
 
-                                            <!-- Edit Button - Show for all statuses EXCEPT rejected, claimed, delivered -->
+                                            <!-- Edit Button - Show for all statuses EXCEPT rejected and claimed -->
                                             @if(auth('admin')->user()->hasPermission('update_clearance') && 
-                                                !in_array($app->status, ['rejected', 'claimed', 'delivered']))
+                                                !in_array($app->status, ['rejected', 'claimed']))
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editClearanceModal{{ $app->id }}" title="Edit Application">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endif
 
-                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed, delivered -->
+                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed -->
                                             @if(auth('admin')->user()->hasPermission('generate_clearance_document') && 
-                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed', 'delivered']))
+                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
                                                     <i class="fas fa-file-alt"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="download" class="dropdown-item">
                                                                 <i class="fas fa-download me-2"></i>Download Word
@@ -1422,7 +1388,7 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form method="GET" action="{{ route('admin.clearance.document') }}" target="_blank" class="dropdown-item p-0">
+                                                        <form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank" class="dropdown-item p-0">
                                                             <input type="hidden" name="id" value="{{ $app->id }}">
                                                             <button type="submit" name="action" value="print" class="dropdown-item">
                                                                 <i class="fas fa-print me-2"></i>Print PDF
@@ -1433,9 +1399,9 @@
                                             </div>
                                             @endif
 
-                                            <!-- Communication Dropdown - Show for approved, rejected, claimed, delivered -->
+                                            <!-- Communication Dropdown - Show for approved, rejected, claimed -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($app->status, ['approved', 'rejected', 'claimed', 'delivered']))
+                                                in_array($app->status, ['approved', 'rejected', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
@@ -1447,7 +1413,7 @@
                                                             @csrf
                                                             <input type="hidden" name="email" value="{{ $app->email }}">
                                                             <input type="hidden" name="name" value="{{ $app->first_name }} {{ $app->last_name }}">
-                                                            <input type="hidden" name="message" value="Your barangay clearance application (Ref: {{ $app->reference_number }}) status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Please check the barangay office for updates.">
+                                                            <input type="hidden" name="message" value="Your barangay clearance application (Ref: {{ $app->reference_number }}) status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Fee: {{ is_null($app->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $app->fee, 2) }}. Please check the barangay office for updates.">
                                                             <button type="submit" class="dropdown-item" onclick="return confirm('Send email notification to {{ $app->email }}?')">
                                                                 <i class="fas fa-envelope me-2"></i>Send Email
                                                             </button>
@@ -1460,7 +1426,7 @@
                                                         <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="phone" value="+63{{ ltrim($app->contact_number, '0') }}">
-                                                            <input type="hidden" name="message" value="Barangay update: Your clearance application {{ $app->reference_number }} status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}.">
+                                                            <input type="hidden" name="message" value="Barangay update: Your clearance application {{ $app->reference_number }} status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Fee: {{ is_null($app->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $app->fee, 2) }}.">
                                                             <button type="submit" class="dropdown-item" onclick="return confirm('Send SMS to {{ $app->contact_number }}?')">
                                                                 <i class="fas fa-sms me-2"></i>Send SMS
                                                             </button>
@@ -1486,7 +1452,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
+                                    <td colspan="9" class="text-center py-5">
                                         <div class="py-4">
                                             <i class="fas fa-file-contract fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No clearance applications found</h5>
@@ -1684,6 +1650,29 @@
                                             @enderror
                                         @endif
                                     </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Fee (PHP)</label>
+                                        <input type="number" class="form-control @if(session('form_type') == 'add') @error('fee') is-invalid @enderror @endif"
+                                               name="fee" value="{{ session('form_type') == 'add' ? old('fee') : '' }}"
+                                               min="0" step="0.01" placeholder="Leave empty = Depending on purpose">
+                                        <small class="text-muted">Leave blank if fee depends on purpose.</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('fee')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Proof of Residency <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif" 
+                                               name="primary_proof" accept="image/*,.pdf" required>
+                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
+                                        @if(session('form_type') == 'add')
+                                            @error('primary_proof')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
                                     <div class="col-12">
                                         <label class="form-label">Valid ID <span class="text-danger">*</span></label>
                                         <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif" 
@@ -1865,12 +1854,12 @@
                                                     name="purpose" id="edit_purpose_{{ $app->id }}" required>
                                                 <option value="">Select purpose</option>
                                                 <option value="employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
-                                                <option value="travel" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'travel' ? 'selected' : '' }}>Travel</option>
-                                                <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business</option>
+                                                <option value="business" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'business' ? 'selected' : '' }}>Business Permit</option>
                                                 <option value="scholarship" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
-                                                <option value="local_employment" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'local_employment' ? 'selected' : '' }}>Local Employment</option>
-                                                <option value="school_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school_requirements' ? 'selected' : '' }}>School Requirements</option>
-                                                <option value="government_requirements" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government_requirements' ? 'selected' : '' }}>Government Requirements</option>
+                                                <option value="travel" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'travel' ? 'selected' : '' }}>Travel/Abroad</option>
+                                                <option value="bank" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'bank' ? 'selected' : '' }}>Bank Transaction</option>
+                                                <option value="government" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'government' ? 'selected' : '' }}>Government Transaction</option>
+                                                <option value="school" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'school' ? 'selected' : '' }}>School Requirement</option>
                                                 <option value="other" {{ (session('form_type') == 'edit_' . $app->id ? old('purpose', $app->purpose) : $app->purpose) == 'other' ? 'selected' : '' }}>Other</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $app->id)
@@ -1891,10 +1880,34 @@
                                                 @enderror
                                             @endif
                                         </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Fee (PHP)</label>
+                                            <input type="number" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('fee') is-invalid @enderror @endif"
+                                                name="fee" id="edit_fee_{{ $app->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('fee', $app->fee) : $app->fee }}"
+                                                min="0" step="0.01" placeholder="Leave empty = Depending on purpose">
+                                            <small class="text-muted">Leave blank if fee depends on purpose.</small>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('fee')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
                                         <!-- Documents -->
                                         <div class="col-12 mt-3">
                                             <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Proof of Residency</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('primary_proof') is-invalid @enderror @endif" 
+                                                name="primary_proof" id="edit_primary_proof_{{ $app->id }}" accept="image/*,.pdf">
+                                            <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                            @if(session('form_type') == 'edit_' . $app->id)
+                                                @error('primary_proof')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Valid ID</label>
@@ -1908,6 +1921,14 @@
                                             @endif
                                         </div>
                                         
+                                        @if($app->primary_proof)
+                                        <div class="col-12">
+                                            <small class="text-info">
+                                                <i class="fas fa-info-circle me-1"></i>Current proof of residency: {{ basename($app->primary_proof) }}
+                                            </small>
+                                        </div>
+                                        @endif
+
                                         @if($app->valid_id_path)
                                         <div class="col-12">
                                             <small class="text-info">
@@ -1989,6 +2010,26 @@
                                     <label class="form-label text-muted">Purpose</label>
                                     <p class="purpose-badge d-inline-block p-2">{{ ucfirst(str_replace('_', ' ', $app->purpose)) }} {{ $app->purpose_other ? '(' . $app->purpose_other . ')' : '' }}</p>
                                 </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Fee</label>
+                                    <p>
+                                        @if(is_null($app->fee))
+                                            Depending on purpose
+                                        @else
+                                            PHP {{ number_format((float) $app->fee, 2) }}
+                                        @endif
+                                    </p>
+                                </div>
+                                @if($app->primary_proof)
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Proof of Residency</label>
+                                    <div>
+                                        <a href="{{ asset($app->primary_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-file me-2"></i>View Proof of Residency
+                                        </a>
+                                    </div>
+                                </div>
+                                @endif
                                 @if($app->valid_id_path)
                                 <div class="col-12">
                                     <label class="form-label text-muted">Valid ID</label>
@@ -2117,7 +2158,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected → Ask to export all
+            // If nothing selected â†’ Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2139,7 +2180,7 @@
                 return;
             }
 
-            // If selected → Confirm export selected
+            // If selected â†’ Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected application(s)?`,
@@ -2539,3 +2580,4 @@
     
 </body>
 </html>
+

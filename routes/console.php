@@ -4,6 +4,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
+use App\Services\BackupArchiveService;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -32,7 +33,28 @@ Artisan::command('analytics:refresh-forecast', function () {
     Log::info('Analytics refresh completed', ['output' => trim($output)]);
 })->purpose('Regenerate dashboard forecast JSON file');
 
+Artisan::command('backup:weekly', function () {
+    try {
+        $backupService = app(BackupArchiveService::class);
+        $fileName = $backupService->createBackup();
+
+        $this->info('Weekly backup created: ' . $fileName);
+        Log::info('Weekly backup created successfully', ['file' => $fileName]);
+        return 0;
+    } catch (\Throwable $e) {
+        $this->error('Weekly backup failed: ' . $e->getMessage());
+        Log::error('Weekly backup failed', ['error' => $e->getMessage()]);
+        return 1;
+    }
+})->purpose('Create automatic weekly system backup');
+
 Schedule::command('analytics:refresh-forecast')
     ->dailyAt('00:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('backup:weekly')
+    ->weeklyOn(0, '00:00')
+    ->timezone('Asia/Manila')
     ->withoutOverlapping()
     ->runInBackground();
