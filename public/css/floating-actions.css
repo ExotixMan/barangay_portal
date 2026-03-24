@@ -112,6 +112,14 @@ body:not(.back-to-top-visible) .fab-container {
     justify-content: center;
     z-index: 10;
     position: relative;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    line-height: 1;
+    overflow: hidden;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .fab-main:hover {
@@ -126,7 +134,17 @@ body:not(.back-to-top-visible) .fab-container {
 #translateBtn {
     font-size: 0.60rem;
     font-weight: 700;
-    padding: 5px;
+    padding: 0;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+#translateBtn span {
+    display: block;
+    white-space: nowrap;
+    transform: scale(0.9);
+    transform-origin: center;
 }
 
 /* Speed Dial Buttons */
@@ -166,6 +184,14 @@ body:not(.back-to-top-visible) .fab-container {
     opacity: 0;
     transform: translateY(10px) scale(0.8);
     transition-delay: 0s;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    line-height: 1;
+    overflow: hidden;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .fab-action-icon {
@@ -227,6 +253,12 @@ body:not(.back-to-top-visible) .fab-container {
     transition: all 0.3s ease;
     z-index: 200;
     box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
+    box-sizing: border-box;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    line-height: 1;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .back-to-top.visible {
@@ -273,5 +305,26 @@ body:not(.back-to-top-visible) .fab-container {
         width: 45px;
         height: 45px;
         font-size: 1.1rem;
+    }
+
+    #translateBtn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 0.54rem;
+        overflow: hidden;
+        aspect-ratio: 1 / 1;
+    }
+
+    #translateBtn span {
+        transform: none;
+        font-size: 0.50rem;
+        line-height: 1.05;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
     }
 }

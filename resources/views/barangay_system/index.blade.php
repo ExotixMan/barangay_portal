@@ -925,6 +925,15 @@
             .event-details h3 {
                 font-size: 1.1rem;
             }
+
+            .quick-stats {
+                row-gap: 12px;
+            }
+
+            .quick-stats .stat-label {
+                letter-spacing: 0.5px;
+                line-height: 1.3;
+            }
         }
 
         @media (max-width: 576px) {
@@ -940,12 +949,33 @@
                 display: none;
             }
             
+            .quick-stats {
+                row-gap: 14px;
+            }
+
             .quick-stats .col-4 {
-                margin-bottom: 20px;
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 0;
+            }
+
+            .stat-item {
+                padding: 0 10px;
+            }
+
+            .stat-item i {
+                font-size: 1.9rem;
             }
             
             .stat-number {
-                font-size: 1.5rem;
+                font-size: 1.35rem;
+                line-height: 1.2;
+            }
+
+            .stat-label {
+                font-size: 0.76rem;
+                letter-spacing: 0.4px;
+                line-height: 1.35;
             }
             
             .section-btn {

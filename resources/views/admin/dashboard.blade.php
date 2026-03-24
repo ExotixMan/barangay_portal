@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Dashboard â€“ Admin</title>
+    <title>Barangay Dashboard - Admin</title>
     
     <!-- Bootstrap 5 + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -607,7 +607,7 @@
                         <div class="chart-title">
                             <i class="fas fa-book"></i>
                             Incident Reports Forecast
-                            <span class="summary-badge ms-auto">Trending â†‘</span>
+                            <span class="summary-badge ms-auto">Trending</span>
                         </div>
                         <div class="chart-container">
                             <canvas id="blotterForecastChart"></canvas>
@@ -989,13 +989,13 @@
                 }
             });
             
-            // Update summary
-            const total = Object.values(forecast).reduce((a, b) => a + b, 0).toFixed(1);
-            const avg = (total / Object.keys(forecast).length).toFixed(1);
+            // Update summary using parsed forecast values
+            const total = values.reduce((sum, value) => sum + value, 0);
+            const avg = values.length ? (total / values.length) : 0;
             const summaryEl = document.getElementById('blotterSummary');
             if (summaryEl) {
                 summaryEl.innerHTML = 
-                    `<i class="fas fa-chart-line me-1"></i> Expected total: ${total} incidents | Daily average: ${avg}`;
+                    `<i class="fas fa-chart-line me-1"></i> Expected total: ${total.toFixed(1)} incidents | Daily average: ${avg.toFixed(1)}`;
             }
         }
 
@@ -1043,12 +1043,12 @@
                 }
             });
             
-            // Update summary
-            const total = Object.values(forecast).reduce((a, b) => a + b, 0).toFixed(1);
+            // Update summary using parsed forecast values
+            const total = values.reduce((sum, value) => sum + value, 0);
             const summaryEl = document.getElementById('announcementsSummary');
             if (summaryEl) {
                 summaryEl.innerHTML = 
-                    `<i class="fas fa-info-circle me-1"></i> Expected total: ${total} announcements over 30 days`;
+                    `<i class="fas fa-info-circle me-1"></i> Expected total: ${total.toFixed(1)} announcements over 30 days`;
             }
         }
 

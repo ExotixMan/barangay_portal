@@ -283,14 +283,6 @@
                         });
                 });
             }
-
-            // Track button
-            const trackButton = document.querySelector('.btn-track');
-            if (trackButton) {
-                trackButton.addEventListener('click', function() {
-                    alert('Status tracking feature coming soon! Your report is currently being processed.');
-                });
-            }
         });
     </script>
 </body>

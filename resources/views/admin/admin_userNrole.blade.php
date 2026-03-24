@@ -575,6 +575,10 @@
             border-top: 1px solid var(--border-color);
         }
 
+        .modal .modal-dialog {
+            max-width: min(960px, calc(100% - 2rem));
+        }
+
         /* Modal Permission Modules */
         .modal .permission-module {
             margin-bottom: 1.5rem;
@@ -755,6 +759,59 @@
             .permission-checklist {
                 grid-template-columns: 1fr;
             }
+
+            .modal .permission-checklist {
+                grid-template-columns: 1fr;
+            }
+
+            .modal .module-header h4 {
+                font-size: 0.95rem;
+                line-height: 1.25;
+                overflow-wrap: anywhere;
+            }
+
+            .modal .perm-check label {
+                align-items: flex-start;
+            }
+
+            .modal .modal-dialog {
+                margin: 0.6rem;
+                max-width: calc(100% - 1.2rem);
+            }
+
+            .modal .modal-content {
+                border-radius: 14px;
+            }
+
+            .modal .modal-header {
+                padding: 1rem;
+                border-radius: 14px 14px 0 0;
+            }
+
+            .modal .modal-title {
+                font-size: 1rem;
+                line-height: 1.3;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.4rem;
+                flex-wrap: wrap;
+            }
+
+            .modal .modal-body {
+                padding: 1rem;
+                max-height: calc(100vh - 10.5rem);
+            }
+
+            .modal .modal-footer {
+                padding: 0.9rem 1rem;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+            }
+
+            .modal .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         /* Form Styling */
@@ -785,6 +842,18 @@
         @media (max-width: 576px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .modal .col-6 {
+                width: 100%;
+            }
+
+            .modal .input-group {
+                flex-wrap: nowrap;
+            }
+
+            .modal .input-group .btn {
+                width: auto;
             }
         }
 
@@ -2260,17 +2329,16 @@
                                             </div>
                                             @endif
                                         </div>
-                                    </div>
                                     </form>
-                                    </div>
-                                    <div class="modal-footer">
+                                </div>
+                                <div class="modal-footer">
                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                             <i class="fas fa-times me-2"></i>Cancel
                                         </button>
                                         <button type="submit" form="editRoleForm{{ $role->id }}" class="btn btn-primary" {{ $role->is_system_role ? 'disabled' : '' }}>
                                             <i class="fas fa-save me-2"></i>Update Role
                                         </button>
-                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

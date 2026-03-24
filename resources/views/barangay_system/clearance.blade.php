@@ -977,6 +977,208 @@
             flex-wrap: wrap;
         }
 
+        /* IMPORTANCE NOTICE MODAL */
+        .notice-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .notice-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(198,40,40,0.3);
+            border-top: 8px solid #C62828;
+        }
+
+        .notice-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .notice-modal-close:hover {
+            color: #C62828;
+            background: rgba(198,40,40,0.1);
+        }
+
+        .notice-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .notice-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: #C62828;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .notice-modal-title {
+            color: #C62828;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .notice-modal-subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .notice-modal-body {
+            margin-bottom: 30px;
+        }
+
+        .notice-modal-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .notice-modal-section h4 {
+            color: #C62828;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notice-modal-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notice-modal-section li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+            color: #555;
+        }
+
+        .notice-modal-section li::before {
+            content: "•";
+            color: #C62828;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .legal-warning {
+            background: rgba(198,40,40,0.1);
+            border-left: 5px solid #C62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .legal-warning p {
+            color: #C62828;
+            font-weight: 500;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .acknowledgment-box {
+            background: white;
+            border: 2px solid #C62828;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            accent-color: #C62828;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-primary {
+            background: #C62828;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-modal-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-modal-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
         /* Responsive Design */
         /* Small Desktop - 1366x768 */
         @media (max-width: 1366px) {
@@ -1048,6 +1250,20 @@
             
             .step-circle {
                 flex-shrink: 0;
+            }
+
+            .notice-modal {
+                padding: 30px 20px;
+                width: 95%;
+            }
+
+            .notice-modal-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .modal-actions {
+                flex-direction: column;
             }
         }
 
@@ -1406,9 +1622,9 @@
                 </div>
 
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <a href="{{ route('clearance.form') }}" class="btn-apply-now" style="display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
+                    <button onclick="showNoticeModal()" class="btn-apply-now" style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
                         <i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_btn') }}
-                    </a>
+                    </button>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Processing Time: 1-3 Business Days
                     </p>
@@ -1483,6 +1699,68 @@
     </main>
     </div>
 
+    <!-- IMPORTANCE NOTICE MODAL -->
+    <div id="noticeModalOverlay" class="notice-modal-overlay">
+        <div class="notice-modal">
+            <button onclick="closeNoticeModal()" class="notice-modal-close">&times;</button>
+
+            <div class="notice-modal-header">
+                <div class="notice-modal-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h2 class="notice-modal-title">IMPORTANT NOTICE</h2>
+                    <p class="notice-modal-subtitle">Please read carefully before proceeding with your application</p>
+                </div>
+            </div>
+
+            <div class="notice-modal-body">
+                <div class="legal-warning">
+                    <p>
+                        <i class="fas fa-gavel"></i>
+                        <strong>REPUBLIC ACT NO. 11313 (Safe Spaces Act) & OTHER APPLICABLE LAWS</strong>
+                    </p>
+                </div>
+
+                <div class="notice-modal-section">
+                    <h4><i class="fas fa-exclamation-circle"></i> Legal Consequences of False Information</h4>
+                    <ul>
+                        <li>Providing false information or submitting falsified documents is punishable under Philippine law</li>
+                        <li>Penalties may include imprisonment, fines, or both as determined by the court</li>
+                        <li>False declarations may result in disqualification from barangay services</li>
+                    </ul>
+                </div>
+
+                <div class="notice-modal-section">
+                    <h4><i class="fas fa-shield-alt"></i> Confidentiality & Data Privacy</h4>
+                    <ul>
+                        <li>All personal information submitted will be processed in accordance with the Data Privacy Act of 2012 (RA 10173)</li>
+                        <li>Your information will only be used for application assessment and verification purposes</li>
+                        <li>Information will not be shared with third parties without your consent, except as required by law</li>
+                    </ul>
+                </div>
+
+                <div class="acknowledgment-box">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="acknowledgeCheckbox">
+                        <label for="acknowledgeCheckbox" class="checkbox-label">
+                            <strong>I acknowledge that I have read and understood this notice and that all information I provide will be true and correct.</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="closeNoticeModal()" class="btn-modal-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="proceedButton" onclick="proceedToForm()" class="btn-modal-primary" disabled>
+                    <i class="fas fa-check-circle"></i> I Understand, Proceed to Form
+                </button>
+            </div>
+        </div>
+    </div>
+
     @include('barangay_system.partials.fab_footer')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1491,5 +1769,50 @@
     <script src="{{ asset('js/floating-actions.js') }}"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/faq.js') }}"></script>
+
+    <script>
+        function showNoticeModal() {
+            document.getElementById('noticeModalOverlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNoticeModal() {
+            document.getElementById('noticeModalOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function proceedToForm() {
+            const checkbox = document.getElementById('acknowledgeCheckbox');
+            if (checkbox && checkbox.checked) {
+                window.location.href = '{{ route('clearance.form') }}';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('acknowledgeCheckbox');
+            const proceedButton = document.getElementById('proceedButton');
+            const overlay = document.getElementById('noticeModalOverlay');
+
+            if (checkbox && proceedButton) {
+                checkbox.addEventListener('change', function() {
+                    proceedButton.disabled = !this.checked;
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        closeNoticeModal();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (overlay && e.key === 'Escape' && overlay.style.display === 'flex') {
+                    closeNoticeModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
