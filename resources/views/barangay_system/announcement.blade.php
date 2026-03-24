@@ -616,6 +616,41 @@
             border-color: #C62828;
         }
 
+        .announcement-detail-meta {
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .announcement-detail-meta span {
+            color: #555;
+            font-size: 0.92rem;
+        }
+
+        /* Page-local dark mode fix for announcement action buttons */
+        body.dark-mode .read-more-btn,
+        body.dark-mode .view-btn {
+            background: linear-gradient(135deg, #e53935, #b71c1c) !important;
+            color: #fff !important;
+            border: 1px solid rgba(229, 57, 53, 0.7) !important;
+        }
+
+        body.dark-mode .read-more-btn:hover,
+        body.dark-mode .view-btn:hover {
+            background: linear-gradient(135deg, #ef5350, #c62828) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 20px rgba(229, 57, 53, 0.35) !important;
+            text-decoration: none;
+        }
+
+        body.dark-mode .announcement-detail-meta {
+            background: var(--dm-bg-tertiary) !important;
+            border: 1px solid var(--dm-border-color);
+        }
+
+        body.dark-mode .announcement-detail-meta span {
+            color: var(--dm-text-secondary) !important;
+        }
+
         /* Load More Button */
         .load-more-container {
             text-align: center;
@@ -1160,7 +1195,7 @@
 
                     <p style="white-space: pre-line; color: #444; line-height: 1.8;">{{ $item->content }}</p>
 
-                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 12px;">
+                    <div class="mt-4 p-3 announcement-detail-meta">
                         <div class="d-flex flex-wrap gap-3">
                             <span><i class="fas fa-calendar-alt me-2" style="color: #C62828;"></i>{{ date('F d, Y', strtotime($item->published_at)) }}</span>
                             <span><i class="fas fa-tag me-2" style="color: #C62828;"></i>{{ ucfirst($item->category) }}</span>

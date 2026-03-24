@@ -926,6 +926,21 @@
                 font-size: 1.1rem;
             }
 
+            /* Keep events grid height stable on mobile/tablet */
+            .events-grid {
+                min-height: 560px;
+                height: 560px;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
+            .announcement-grid {
+                min-height: 560px;
+                height: 560px;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
             .quick-stats {
                 row-gap: 12px;
             }
@@ -976,6 +991,18 @@
                 font-size: 0.76rem;
                 letter-spacing: 0.4px;
                 line-height: 1.35;
+            }
+
+            .events-grid {
+                min-height: 550px;
+                height: 550px;
+                overflow-y: auto;
+            }
+
+            .announcement-grid {
+                min-height: 550px;
+                height: 550px;
+                overflow-y: auto;
             }
             
             .section-btn {

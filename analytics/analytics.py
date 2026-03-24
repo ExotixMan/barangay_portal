@@ -95,6 +95,7 @@ for table, date_field in applications_tables.items():
             d.strftime("%b %d, %Y"): round(float(v),1)
             for d,v in zip(fc['ds'], fc['y_hat'])
         },
+        "historical_count": int(len(df)),
         "status_distribution": df['status'].value_counts().to_dict()
     }
 

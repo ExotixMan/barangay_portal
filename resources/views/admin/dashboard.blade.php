@@ -295,6 +295,67 @@
             margin: 0 0 1rem 0;
             border-radius: 10px;
         }
+
+        .dashboard-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn {
+            border: 1px solid var(--primary);
+            background: #fff;
+            color: var(--primary);
+            border-radius: 8px;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .auto-toggle-btn {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #475569;
+            border-radius: 8px;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auto-toggle-btn.auto-on {
+            border-color: #2e7d32;
+            color: #2e7d32;
+            background: #f2fbf4;
+        }
+
+        .auto-toggle-btn.auto-off {
+            border-color: #ed6c02;
+            color: #ed6c02;
+            background: #fff8f1;
+        }
     </style>
 </head>
 <body>
@@ -501,6 +562,19 @@
                 </div>
             @endif
 
+            <div class="dashboard-controls">
+                <button type="button" class="refresh-btn" id="refreshNowBtn" title="Refresh dashboard now">
+                    <i class="fas fa-rotate-right"></i>
+                    <span id="refreshNowBtnText">Refresh Now</span>
+                </button>
+                @admin_can('view_forecast')
+                <button type="button" class="refresh-btn" id="refreshForecastBtn" title="Regenerate forecast from latest database records">
+                    <i class="fas fa-bolt"></i>
+                    <span id="refreshForecastBtnText">Refresh Forecast</span>
+                </button>
+                @endadmin_can
+            </div>
+
             {{-- Stats Cards (always visible - they contain no sensitive data) --}}
             <div class="row g-3 g-lg-4 mb-4">
                 <div class="col-sm-6 col-xl-3">
@@ -586,15 +660,6 @@
                 <i class="fas fa-file-signature"></i>
                 <h3>Applications Forecast (Next 30 Days)</h3>
                 <span class="summary-badge ms-auto">Predictions based on historical data</span>
-            </div>
-            <div class="small text-muted mb-3">
-                <i class="fas fa-clock me-1"></i>
-                Last updated:
-                @if(!empty($forecastLastUpdated))
-                    {{ $forecastLastUpdated }}
-                @else
-                    Forecast file not generated yet
-                @endif
             </div>
             <div id="applicationsForecast" class="row g-3 g-lg-4 mb-4"></div>
             @endadmin_can
@@ -712,6 +777,14 @@
         // Store forecast data globally for access
         let forecastData = null;
         const chartInstances = {};
+        const STATS_REFRESH_MS = 120000;
+        const FORECAST_REFRESH_MS = 180000;
+        let statsRefreshTimer = null;
+        let forecastRefreshTimer = null;
+        let isRefreshingStats = false;
+        let isManualRefreshInProgress = false;
+        let isRefreshingForecastCommand = false;
+        let autoRefreshEnabled = false;
 
         function parseForecastDate(dateStr) {
             // Supports format from forecast.json, e.g. "Mar 23, 2026"
@@ -736,6 +809,23 @@
                 return dateStr;
             }
             return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function formatPhtDateTime(dateInput) {
+            const value = new Date(dateInput);
+            if (Number.isNaN(value.getTime())) {
+                return null;
+            }
+            const formatted = value.toLocaleString('en-US', {
+                timeZone: 'Asia/Manila',
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            return `${formatted} PHT`;
         }
 
         function renderChart(id, config) {
@@ -816,6 +906,193 @@
             }
         }
 
+        async function loadLiveStats() {
+            if (isRefreshingStats) {
+                return;
+            }
+
+            isRefreshingStats = true;
+            try {
+                const response = await fetch("{{ route('admin.dashboard.live_stats') }}", {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const payload = await response.json();
+                if (payload?.stats) {
+                    initializeStaticStats(payload.stats);
+                }
+
+                if (payload?.serverTime) {
+                    const liveSyncEl = document.getElementById('liveSyncTimeText');
+                    const formattedServerTime = formatPhtDateTime(payload.serverTime);
+                    if (liveSyncEl && formattedServerTime) {
+                        liveSyncEl.textContent = formattedServerTime;
+                    }
+                }
+
+                if (payload?.forecastLastUpdated) {
+                    const lastUpdatedEl = document.getElementById('forecastLastUpdatedText');
+                    if (lastUpdatedEl) {
+                        lastUpdatedEl.textContent = payload.forecastLastUpdated;
+                    }
+                }
+            } catch (error) {
+                console.error('Realtime stats refresh failed:', error);
+            } finally {
+                isRefreshingStats = false;
+            }
+        }
+
+        async function refreshDashboardNow() {
+            if (isManualRefreshInProgress) {
+                return;
+            }
+
+            const btn = document.getElementById('refreshNowBtn');
+            const btnText = document.getElementById('refreshNowBtnText');
+            isManualRefreshInProgress = true;
+
+            if (btn) {
+                btn.disabled = true;
+            }
+            if (btnText) {
+                btnText.textContent = 'Refreshing...';
+            }
+
+            try {
+                await Promise.allSettled([
+                    loadLiveStats(),
+                    loadForecastData()
+                ]);
+            } finally {
+                if (btnText) {
+                    btnText.textContent = 'Refresh Now';
+                }
+                if (btn) {
+                    btn.disabled = false;
+                }
+                isManualRefreshInProgress = false;
+            }
+        }
+
+        async function refreshForecastNow() {
+            if (isRefreshingForecastCommand) {
+                return;
+            }
+
+            const btn = document.getElementById('refreshForecastBtn');
+            const btnText = document.getElementById('refreshForecastBtnText');
+
+            isRefreshingForecastCommand = true;
+            if (btn) {
+                btn.disabled = true;
+            }
+            if (btnText) {
+                btnText.textContent = 'Running...';
+            }
+
+            try {
+                const response = await fetch("{{ route('admin.dashboard.refresh_forecast') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const payload = await response.json();
+                if (!response.ok || !payload?.success) {
+                    throw new Error(payload?.message || 'Failed to refresh forecast.');
+                }
+
+                await Promise.allSettled([
+                    loadForecastData(),
+                    loadLiveStats()
+                ]);
+            } catch (error) {
+                console.error('Forecast refresh failed:', error);
+                alert(error?.message || 'Failed to refresh forecast.');
+            } finally {
+                if (btnText) {
+                    btnText.textContent = 'Refresh Forecast';
+                }
+                if (btn) {
+                    btn.disabled = false;
+                }
+                isRefreshingForecastCommand = false;
+            }
+        }
+
+        function updateAutoRefreshButtonState() {
+            const btn = document.getElementById('autoRefreshToggleBtn');
+            const text = document.getElementById('autoRefreshToggleText');
+            if (!btn || !text) {
+                return;
+            }
+
+            if (autoRefreshEnabled) {
+                btn.classList.remove('auto-off');
+                btn.classList.add('auto-on');
+                text.textContent = 'Auto Refresh: ON';
+            } else {
+                btn.classList.remove('auto-on');
+                btn.classList.add('auto-off');
+                text.textContent = 'Auto Refresh: OFF';
+            }
+        }
+
+        function stopRealtimeDashboardRefresh() {
+            if (statsRefreshTimer) {
+                clearInterval(statsRefreshTimer);
+                statsRefreshTimer = null;
+            }
+            if (forecastRefreshTimer) {
+                clearInterval(forecastRefreshTimer);
+                forecastRefreshTimer = null;
+            }
+        }
+
+        function startRealtimeDashboardRefresh() {
+            stopRealtimeDashboardRefresh();
+
+            if (!autoRefreshEnabled) {
+                return;
+            }
+
+            statsRefreshTimer = setInterval(() => {
+                if (document.hidden) {
+                    return;
+                }
+                loadLiveStats();
+            }, STATS_REFRESH_MS);
+
+            forecastRefreshTimer = setInterval(() => {
+                if (document.hidden) {
+                    return;
+                }
+                loadForecastData();
+            }, FORECAST_REFRESH_MS);
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            updateAutoRefreshButtonState();
+
+            if (autoRefreshEnabled) {
+                startRealtimeDashboardRefresh();
+            } else {
+                stopRealtimeDashboardRefresh();
+            }
+        }
+
             function initializeStaticStats(stats) {
                 // Display initial stats immediately from server data
                 const totalResidentsEl = document.getElementById('totalResidents');
@@ -890,7 +1167,7 @@
                             </div>
                             <div class="mt-2 small text-muted">
                                 <i class="fas fa-info-circle"></i>
-                                Based on ${Object.values(value.status_distribution || {}).reduce((a, b) => a + b, 0)} historical applications
+                                Based on ${Number.isFinite(Number(value.historical_count)) ? Number(value.historical_count) : Object.values(value.status_distribution || {}).reduce((a, b) => a + b, 0)} historical applications
                             </div>
                         </div>
                     `;
@@ -1280,6 +1557,26 @@
                 });
 
             loadForecastData();
+            loadLiveStats();
+            startRealtimeDashboardRefresh();
+            updateAutoRefreshButtonState();
+
+            const refreshNowBtn = document.getElementById('refreshNowBtn');
+            if (refreshNowBtn) {
+                refreshNowBtn.addEventListener('click', refreshDashboardNow);
+            }
+
+            const refreshForecastBtn = document.getElementById('refreshForecastBtn');
+            if (refreshForecastBtn) {
+                refreshForecastBtn.addEventListener('click', refreshForecastNow);
+            }
+
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    loadLiveStats();
+                    loadForecastData();
+                }
+            });
         });
     </script>
 </body>

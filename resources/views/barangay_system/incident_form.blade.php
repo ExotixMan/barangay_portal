@@ -23,6 +23,7 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     
     <style>
         .report-type-grid {
@@ -669,7 +670,7 @@
                         <label class="terms-checkbox">
                             <input type="checkbox" id="agreePrivacy" name="agreePrivacy" required>
                             <span class="checkmark"></span>
-                            <p style='margin-bottom: 0;'>I agree to the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> of Barangay Hulo Online Services.</p>
+                            <p style='margin-bottom: 0;'>I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" onclick="event.stopPropagation();">Privacy Policy</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#termsConditionsModal" onclick="event.stopPropagation();">Terms and Conditions</a> of Barangay Hulo Online Services.</p>
                         </label>
                         <label class="terms-checkbox">
                             <input type="checkbox" id="consentProcessing" name="consentProcessing" required>
@@ -701,10 +702,13 @@
         </div>
     </section>
 
+    @include('barangay_system.partials.policy_modals')
+
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- QR Code library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

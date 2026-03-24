@@ -1622,9 +1622,9 @@
                 </div>
 
                 <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <button onclick="showNoticeModal()" class="btn-apply-now" style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
+                    <a href="{{ route('clearance.form') }}" class="btn-apply-now" style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
                         <i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_btn') }}
-                    </button>
+                    </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
                         <i class="fas fa-clock"></i> Processing Time: 1-3 Business Days
                     </p>

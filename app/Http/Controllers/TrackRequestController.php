@@ -28,7 +28,7 @@ class TrackRequestController extends Controller
             $trackedRequest = $this->searchRequest($request->reference_number);
             
             if (!$trackedRequest) {
-                return redirect()->route('track.request')
+                return redirect()->route('track_request')
                     ->with('error', 'Reference number not found. Please check and try again.')
                     ->withInput();
             }
@@ -39,7 +39,7 @@ class TrackRequestController extends Controller
             $trackedRequest = $this->searchRequest($request->view);
             
             if (!$trackedRequest) {
-                return redirect()->route('track.request')
+                return redirect()->route('track_request')
                     ->with('error', 'Request not found');
             }
         }
@@ -271,7 +271,7 @@ class TrackRequestController extends Controller
         $trackedRequest = $this->searchRequest($reference);
 
         if (!$trackedRequest) {
-            return redirect()->route('track.request')->with('error', 'Request not found');
+            return redirect()->route('track_request')->with('error', 'Request not found');
         }
 
         return view('barangay_system.print_track_request', compact('trackedRequest'));

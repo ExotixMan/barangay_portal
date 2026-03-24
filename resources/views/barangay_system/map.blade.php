@@ -232,7 +232,18 @@
             margin-bottom: 10px;
             color: #C62828;
             font-weight: 600;
-            min-height: 2.8rem;
+            min-height: 3.2rem;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .address-text {
@@ -240,7 +251,11 @@
             color: #666;
             margin-bottom: 15px;
             line-height: 1.4;
-            min-height: 2.5rem;
+            min-height: 3.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .location-services {
@@ -248,7 +263,8 @@
             flex-wrap: wrap;
             gap: 0.5rem;
             margin: 15px 0;
-            min-height: 2.5rem;
+            min-height: 3rem;
+            align-content: flex-start;
         }
 
         .service-badge {
@@ -263,13 +279,13 @@
         .location-hours {
             color: #666;
             font-size: 0.85rem;
-            margin-top: auto;
+            margin-top: 10px;
             padding-top: 15px;
             border-top: 1px solid #eee;
             display: flex;
             align-items: center;
             gap: 8px;
-            min-height: 1.8rem;
+            min-height: 2.2rem;
         }
 
         .btn-view-map {
@@ -286,7 +302,7 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            margin-top: 15px;
+            margin-top: auto;
         }
 
         .btn-view-map:hover {
@@ -295,9 +311,6 @@
             color: white;
         }
 
-        /* =========================================== */
-        /* CUSTOM MARKERS - UPDATED WITH INDEX THEME */
-        /* =========================================== */
         .custom-marker {
             background: #C62828;
             border: 3px solid white;
@@ -374,20 +387,20 @@
             
             .location-card h5 {
                 font-size: 1.1rem;
-                min-height: auto;
+                min-height: 3rem;
             }
             
             .address-text {
                 font-size: 0.85rem;
-                min-height: auto;
+                min-height: 3.6rem;
             }
             
             .location-services {
-                min-height: auto;
+                min-height: 2.8rem;
             }
             
             .location-hours {
-                min-height: auto;
+                min-height: 2rem;
                 font-size: 0.8rem;
             }
         }

@@ -1088,6 +1088,85 @@ body.dark-mode .status-card p {
     color: var(--dm-text-secondary);
 }
 
+body.dark-mode .my-requests-section {
+    background: var(--dm-bg-primary);
+}
+
+body.dark-mode .requests-table-card {
+    background: var(--dm-card-bg);
+    border-color: var(--dm-border-color);
+    box-shadow: 0 10px 30px var(--dm-shadow);
+}
+
+body.dark-mode .table-header h2 {
+    color: var(--dm-text-primary);
+}
+
+body.dark-mode .table-header h2 i {
+    color: var(--dm-accent);
+}
+
+body.dark-mode .filter-tab {
+    background: var(--dm-bg-secondary);
+    border-color: var(--dm-border-color);
+    color: var(--dm-text-secondary);
+}
+
+body.dark-mode .filter-tab:hover {
+    border-color: var(--dm-accent);
+    color: var(--dm-accent);
+}
+
+body.dark-mode .filter-tab.active {
+    background: var(--dm-accent);
+    border-color: var(--dm-accent);
+    color: #ffffff;
+}
+
+body.dark-mode .requests-table {
+    background: var(--dm-card-bg);
+}
+
+body.dark-mode .requests-table th {
+    background: var(--dm-bg-tertiary);
+    color: var(--dm-text-primary);
+    border-bottom-color: var(--dm-border-color);
+}
+
+body.dark-mode .requests-table td {
+    color: var(--dm-text-secondary);
+    border-bottom-color: var(--dm-border-color);
+}
+
+body.dark-mode .requests-table td strong {
+    color: var(--dm-text-primary);
+}
+
+body.dark-mode .requests-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .request-type-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--dm-text-secondary);
+}
+
+body.dark-mode .request-type-badge i {
+    color: var(--dm-accent);
+}
+
+body.dark-mode .no-requests {
+    color: var(--dm-text-secondary);
+}
+
+body.dark-mode .no-requests i {
+    color: var(--dm-text-muted);
+}
+
+body.dark-mode .no-requests .sub-text {
+    color: var(--dm-text-muted);
+}
+
 /* ===== MISSION & VISION PAGE ===== */
 body.dark-mode .mission-vision-section {
     background: var(--dm-bg-secondary);
@@ -1597,6 +1676,454 @@ body.dark-mode .accordion-body {
 body.dark-mode .tooltip-inner {
     background-color: #2d2d2d;
     color: var(--dm-text-primary);
+}
+
+/* ===== AUTH PAGES (LOGIN / REGISTER / VERIFY) ===== */
+body.dark-mode .login-container,
+body.dark-mode .verify-card,
+body.dark-mode .otp-card,
+body.dark-mode .main-container,
+body.dark-mode .form-container {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    box-shadow: 0 15px 35px var(--dm-shadow) !important;
+}
+
+body.dark-mode .login-panel {
+    background: var(--dm-card-bg) !important;
+}
+
+body.dark-mode .logo-section h1,
+body.dark-mode .verify-title,
+body.dark-mode .otp-title,
+body.dark-mode .form-title,
+body.dark-mode .form-step h3,
+body.dark-mode .subtitle {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .form-subtitle,
+body.dark-mode .verify-text,
+body.dark-mode .register-link p,
+body.dark-mode .back-login,
+body.dark-mode .form-hint,
+body.dark-mode .modal-body p,
+body.dark-mode .modal-body li {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .form-input,
+body.dark-mode .otp-input,
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode textarea.form-control,
+body.dark-mode .password-toggle,
+body.dark-mode .remember-check {
+    background-color: var(--dm-input-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .form-input::placeholder,
+body.dark-mode .otp-input::placeholder,
+body.dark-mode .form-control::placeholder {
+    color: var(--dm-text-muted) !important;
+}
+
+body.dark-mode .options-row,
+body.dark-mode .divider span,
+body.dark-mode .terms-section,
+body.dark-mode .upload-area,
+body.dark-mode .upload-group,
+body.dark-mode .party-section,
+body.dark-mode .witness-item,
+body.dark-mode .report-type-option .type-card,
+body.dark-mode .confidentiality-option .option-content {
+    background: var(--dm-bg-secondary) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .divider::before,
+body.dark-mode .divider::after,
+body.dark-mode .register-link,
+body.dark-mode .form-step h3,
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: var(--dm-border-color) !important;
+}
+
+body.dark-mode .btn-back {
+    background: #2b2b2b !important;
+    color: #f5f5f5 !important;
+    border-color: #3c3c3c !important;
+}
+
+body.dark-mode .btn-back:hover {
+    background: #3a3a3a !important;
+    color: #ffffff !important;
+}
+
+/* ===== FORMS / REVIEW / SUBMIT ===== */
+body.dark-mode .form-page-header {
+    color: #f3f3f3 !important;
+}
+
+body.dark-mode .requirement-form,
+body.dark-mode .review-card,
+body.dark-mode .pickup-info,
+body.dark-mode .benefit-item,
+body.dark-mode .application-status,
+body.dark-mode .status-content {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .review-card h4,
+body.dark-mode .review-content,
+body.dark-mode .review-item,
+body.dark-mode .review-label,
+body.dark-mode .review-value,
+body.dark-mode .pickup-info h5,
+body.dark-mode .pickup-info p,
+body.dark-mode .pickup-info li,
+body.dark-mode .benefit-item h5,
+body.dark-mode .status-content h3,
+body.dark-mode .status-content p,
+body.dark-mode .terms-checkbox {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .benefit-item p,
+body.dark-mode .upload-size,
+body.dark-mode .payment-item span,
+body.dark-mode .terms-checkbox a,
+body.dark-mode .error-message {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .checkmark {
+    background: var(--dm-bg-tertiary) !important;
+    border-color: #4a4a4a !important;
+}
+
+body.dark-mode .terms-checkbox input:checked ~ .checkmark {
+    background: var(--dm-accent) !important;
+    border-color: var(--dm-accent) !important;
+}
+
+body.dark-mode .btn-prev {
+    background: var(--dm-bg-tertiary) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: #4a4a4a !important;
+}
+
+body.dark-mode .btn-prev:hover {
+    background: #3a3a3a !important;
+}
+
+body.dark-mode .btn-track,
+body.dark-mode .btn-back-info,
+body.dark-mode .btn-download,
+body.dark-mode .track-btn,
+body.dark-mode .btn-login,
+body.dark-mode .btn-submit,
+body.dark-mode .btn-next,
+body.dark-mode .otp-btn,
+body.dark-mode .resend-btn {
+    color: #ffffff !important;
+}
+
+body.dark-mode .notice-modal,
+body.dark-mode .notice-modal-body,
+body.dark-mode .notice-card,
+body.dark-mode .legal-warning,
+body.dark-mode .acknowledgment-box,
+body.dark-mode .notice-modal-section {
+    background: var(--dm-card-bg) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border-color) !important;
+}
+
+/* ===== INDIGENCY PAGE TUNING ===== */
+body.dark-mode .benefits-section,
+body.dark-mode .benefits-section .container,
+body.dark-mode .requirements-section,
+body.dark-mode .application-form-section {
+    background: var(--dm-bg-secondary) !important;
+}
+
+body.dark-mode .benefit-card {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    box-shadow: 0 8px 24px var(--dm-shadow) !important;
+}
+
+body.dark-mode .benefit-card h3,
+body.dark-mode .benefit-list li,
+body.dark-mode .card-header h2,
+body.dark-mode .notice-modal-title,
+body.dark-mode .notice-modal-subtitle,
+body.dark-mode .notice-modal-section h4,
+body.dark-mode .checkbox-label {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .benefit-card p,
+body.dark-mode .requirement-content p,
+body.dark-mode .id-list li,
+body.dark-mode .info-item p,
+body.dark-mode .notice-modal-section li,
+body.dark-mode .notice-content p {
+    color: var(--dm-text-secondary) !important;
+}
+
+/* ===== TRACK REQUEST PAGE TUNING ===== */
+body.dark-mode .track-form-card,
+body.dark-mode .result-card,
+body.dark-mode .status-card,
+body.dark-mode .progress-timeline {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+}
+
+body.dark-mode .result-body,
+body.dark-mode .detail-item,
+body.dark-mode .timeline-content {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .form-group label,
+body.dark-mode .detail-item .label,
+body.dark-mode .timeline-content p,
+body.dark-mode .timeline-content .time,
+body.dark-mode .form-text,
+body.dark-mode .input-wrapper .input-icon {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .track-form-card select.form-control,
+body.dark-mode .track-form-card .form-control,
+body.dark-mode .input-wrapper .form-control {
+    background-color: var(--dm-input-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .timeline::before {
+    background: #3f3f3f !important;
+}
+
+body.dark-mode .timeline-item.pending .timeline-marker {
+    background: #3a3a3a !important;
+    color: #a6a6a6 !important;
+}
+
+body.dark-mode .result-actions {
+    border-top-color: var(--dm-border-color) !important;
+}
+
+body.dark-mode .btn-new-track {
+    background: var(--dm-bg-tertiary) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border-color) !important;
+}
+
+body.dark-mode .btn-new-track:hover {
+    background: #3a3a3a !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .status-legend-section {
+    background: var(--dm-bg-secondary) !important;
+}
+
+body.dark-mode .quick-links-section {
+    background: var(--dm-bg-primary) !important;
+}
+
+body.dark-mode .quick-link-card {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+    box-shadow: 0 8px 24px var(--dm-shadow) !important;
+}
+
+body.dark-mode .quick-link-card:hover {
+    border-color: rgba(229, 57, 53, 0.45) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .quick-link-card h3 {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .quick-link-card p {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .link-arrow {
+    background: var(--dm-bg-tertiary) !important;
+    color: var(--dm-accent) !important;
+}
+
+body.dark-mode .quick-link-card:hover .link-arrow {
+    background: var(--dm-accent) !important;
+    color: #ffffff !important;
+}
+
+/* ===== ANNOUNCEMENT PAGE TUNING ===== */
+body.dark-mode .featured-section,
+body.dark-mode .announcements-grid-section {
+    background: var(--dm-bg-secondary) !important;
+}
+
+body.dark-mode .announcements-grid-section .container,
+body.dark-mode .announcement-card,
+body.dark-mode .carousel-btn,
+body.dark-mode .search-box input,
+body.dark-mode .sort-dropdown select {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .result-count,
+body.dark-mode .announcement-content p,
+body.dark-mode .meta-item,
+body.dark-mode .meta-date,
+body.dark-mode .search-box i {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .announcement-content h3,
+body.dark-mode .header-left h2,
+body.dark-mode .section-header p {
+    color: var(--dm-text-primary) !important;
+}
+
+/* Announcement action buttons in dark mode */
+body.dark-mode .read-more-btn,
+body.dark-mode .view-btn {
+    background: linear-gradient(135deg, var(--dm-accent), #b71c1c) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(229, 57, 53, 0.55) !important;
+}
+
+body.dark-mode .read-more-btn:hover,
+body.dark-mode .view-btn:hover {
+    background: linear-gradient(135deg, #ef5350, var(--dm-accent)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(229, 57, 53, 0.35) !important;
+}
+
+/* ===== EVENTS PAGE TUNING ===== */
+body.dark-mode .upcoming-events,
+body.dark-mode .ongoing-projects,
+body.dark-mode .filter-section {
+    background: var(--dm-bg-secondary) !important;
+}
+
+body.dark-mode .event-card,
+body.dark-mode .project-card,
+body.dark-mode .empty-state,
+body.dark-mode .filter-btn,
+body.dark-mode .modal-info-list li {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .event-content h3,
+body.dark-mode .project-content h3,
+body.dark-mode .section-subtitle {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .event-content p,
+body.dark-mode .event-details .detail,
+body.dark-mode .project-content p,
+body.dark-mode .project-info .info-item,
+body.dark-mode .modal-info-list li {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .info-modal .modal-body p {
+    color: var(--dm-text-secondary) !important;
+}
+
+/* Events/Projects action buttons in dark mode */
+body.dark-mode .event-btn,
+body.dark-mode .detail-btn {
+    background: transparent !important;
+    color: var(--dm-accent) !important;
+    border: 2px solid rgba(229, 57, 53, 0.75) !important;
+}
+
+body.dark-mode .event-btn:hover,
+body.dark-mode .detail-btn:hover {
+    background: linear-gradient(135deg, var(--dm-accent), #b71c1c) !important;
+    color: #ffffff !important;
+    border-color: var(--dm-accent) !important;
+    box-shadow: 0 8px 22px rgba(229, 57, 53, 0.35) !important;
+}
+
+/* ===== PROFILE PAGE TUNING ===== */
+body.dark-mode .profile-layout,
+body.dark-mode .profile-hero::before {
+    background: var(--dm-bg-primary) !important;
+}
+
+body.dark-mode .profile-sidebar,
+body.dark-mode .profile-panel,
+body.dark-mode .stat-counter-card,
+body.dark-mode .id-preview-card,
+body.dark-mode .req-table thead th,
+body.dark-mode .req-table tbody tr,
+body.dark-mode .sidebar-nav .nav-pill,
+body.dark-mode .info-row .info-icon,
+body.dark-mode .req-type-icon {
+    background: var(--dm-card-bg) !important;
+    border-color: var(--dm-border-color) !important;
+}
+
+body.dark-mode .profile-name,
+body.dark-mode .panel-header h5,
+body.dark-mode .info-row .info-val,
+body.dark-mode .profile-label,
+body.dark-mode .sidebar-stat,
+body.dark-mode .req-table tbody td,
+body.dark-mode .stat-counter-card .sc-num {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .profile-username,
+body.dark-mode .panel-header p,
+body.dark-mode .info-row .info-label,
+body.dark-mode .pw-hint,
+body.dark-mode .stat-counter-card .sc-lbl,
+body.dark-mode .sidebar-stat .val,
+body.dark-mode .req-table thead th {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .profile-control,
+body.dark-mode .profile-control:disabled,
+body.dark-mode .profile-control[readonly] {
+    background: var(--dm-input-bg) !important;
+    border-color: var(--dm-border-color) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .sidebar-nav .nav-pill:hover,
+body.dark-mode .sidebar-nav .nav-pill.active {
+    background: rgba(229, 57, 53, 0.18) !important;
+    color: var(--dm-accent) !important;
+}
+
+body.dark-mode .req-table tbody tr:hover {
+    background: #252525 !important;
 }
 
 body.dark-mode .popover {

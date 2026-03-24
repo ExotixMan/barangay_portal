@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 </head>
 <body>
     <!-- Page Header -->
@@ -57,6 +58,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Add QR Code library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     <script>
         history.pushState(null, null, location.href);

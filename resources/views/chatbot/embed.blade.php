@@ -27,25 +27,38 @@
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 9998;
-    background: rgba(0,0,0,.55);
+    z-index: 2147483000;
+    background: rgba(15,23,42,.55);
     animation: hbFadeIn .2s ease;
 }
 #hulobot-backdrop.open { display: block; }
 @keyframes hbFadeIn { from{opacity:0} to{opacity:1} }
 
+/* While chat is open, block page interactions including FAB actions. */
+body.hulobot-open {
+    overflow: hidden;
+}
+body.hulobot-open #fabMain,
+body.hulobot-open #speedDial,
+body.hulobot-open #translateBtn,
+body.hulobot-open #darkModeBtn,
+body.hulobot-open #backToTop {
+    pointer-events: none !important;
+}
+
 /* Modal box — centered, same proportions as your screenshot */
 #hulobot-modal {
     display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(.96);
-    z-index: 9999;
-    width: 800px;
-    max-width: calc(100vw - 32px);
-    height: 580px;
-    max-height: calc(100vh - 80px);
+    right: 86px;
+    top: 76px;
+    bottom: 24px;
+    transform: translateY(16px) scale(.98);
+    z-index: 2147483001;
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    height: auto;
+    max-height: none;
     border-radius: 12px;
     overflow: hidden;
     display: none;
@@ -59,8 +72,8 @@
     animation: hbSlideIn .25s ease forwards;
 }
 @keyframes hbSlideIn {
-    from { opacity:0; transform: translate(-50%,-50%) scale(.96); }
-    to   { opacity:1; transform: translate(-50%,-50%) scale(1);   }
+    from { opacity:0; transform: translateY(16px) scale(.98); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
 }
 
 /* ── Modal header — red bar like your screenshot ── */
@@ -102,64 +115,14 @@
 
 /* ── Chat body — two-column layout like screenshot ── */
 .hbm-body {
-    display: flex;
+    display: block;
     flex: 1;
     overflow: hidden;
 }
-
-/* Left sidebar — agent info strip */
-.hbm-sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    border-right: 1px solid #e9ecef;
-    background: #fafafa;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
-}
-.hbm-agent-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 10px 12px;
-}
-.hbm-agent-avt {
-    width: 36px; height: 36px; border-radius: 50%;
-    flex-shrink: 0;
-    overflow: hidden;
-    border: 2px solid #ffe5e5;
-    background: #fff;
-}
-.hbm-agent-avt img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.hbm-agent-name  { font-weight: 600; font-size: .88rem; color: #1e293b; }
-.hbm-agent-role  { font-size: .70rem; color: #9ca3af; }
-.hbm-online-dot  { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-left: auto; box-shadow: 0 0 0 2px #d1fae5; }
-
-.hbm-sidebar-label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: #9ca3af; padding: 0 2px; }
-
-.hbm-quick-btn {
-    display: block; width: 100%;
-    background: #fff; border: 1px solid #e9ecef;
-    border-radius: 8px; padding: 8px 10px;
-    font-size: .76rem; color: #374151;
-    cursor: pointer; text-align: left;
-    transition: border-color .15s, background .15s;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.4;
-}
-.hbm-quick-btn:hover { border-color: #C62828; background: #fff5f5; color: #C62828; }
 
 /* ── Right: chat panel ── */
 .hbm-chat {
-    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -183,6 +146,15 @@
     content:''; position:absolute; top:50%; width:38%; height:1px; background:#e5e7eb;
 }
 .hbm-div::before{left:0} .hbm-div::after{right:0}
+
+.hbm-loading {
+    font-size: .78rem;
+    color: #6b7280;
+    background: #ffffff;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+    padding: 8px 10px;
+}
 
 .hbm-row { display:flex; align-items:flex-end; gap:7px; }
 .hbm-row.bot  { justify-content:flex-start; }
@@ -269,12 +241,11 @@
     #hulobot-modal {
         width: 100%; max-width: 100%;
         height: 100%; max-height: 100%;
-        top: 0; left: 0; transform: none;
+        top: 0; left: 0; right: auto; bottom: auto; transform: none;
         border-radius: 0;
     }
     #hulobot-modal.open { animation: hbSlideUp .25s ease; }
     @keyframes hbSlideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
-    .hbm-sidebar { display: none; }
 }
 </style>
 @endonce
@@ -294,44 +265,14 @@
 
     {{-- Body --}}
     <div class="hbm-body">
-
-        {{-- Left sidebar --}}
-        <div class="hbm-sidebar">
-            <div class="hbm-agent-card">
-                <div class="hbm-agent-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
-                <div>
-                    <div class="hbm-agent-name">InfoHulo Assistant</div>
-                    <div class="hbm-agent-role">Portal Assistant</div>
-                </div>
-                <span class="hbm-online-dot" title="Online"></span>
-            </div>
-
-            <div class="hbm-sidebar-label">Quick Links</div>
-
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('How do I get a Barangay Clearance?')">
-                Barangay Clearance
-            </button>
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('I want to request a Barangay Indigency certificate.')">
-                Indigency Certificate
-            </button>
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('How do I request a Barangay Residency certificate?')">
-                Residency Certificate
-            </button>
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('I want to submit an incident report.')">
-                Incident Report
-            </button>
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('How can I track the status of my request?')">
-                Track My Request
-            </button>
-            <button class="hbm-quick-btn" onclick="InfoHuloAssistant.ask('I need help or support with the portal.')">
-                Portal Support
-            </button>
-        </div>
-
         {{-- Chat panel --}}
         <div class="hbm-chat">
             <div class="hbm-msgs" id="hbm-msgs">
                 <div class="hbm-div">Today</div>
+                <div class="hbm-row bot" id="hbm-loading-row">
+                    <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
+                    <div class="hbm-loading">Loading assistant...</div>
+                </div>
             </div>
 
             <div class="hbm-chips" id="hbm-chips"></div>
@@ -374,13 +315,18 @@
     /* ── Open / Close ──────────────────────────────────── */
     function open() {
         isOpen = true;
+        document.body.classList.add('hulobot-open');
         backdrop.classList.add('open');
         modal.classList.add('open');
         input.focus();
-        if (!ready) init();
+        if (!ready) {
+            showLoading();
+            init();
+        }
     }
     function close() {
         isOpen = false;
+        document.body.classList.remove('hulobot-open');
         backdrop.classList.remove('open');
         modal.classList.remove('open');
     }
@@ -396,7 +342,15 @@
         if (chatBtn) {
             // Override whatever floating-actions.js does with chatBtn
             chatBtn.addEventListener('click', function (e) {
+                e.preventDefault();
                 e.stopPropagation();
+                const speedDial = document.getElementById('speedDial');
+                const fabMain = document.getElementById('fabMain');
+                if (speedDial) speedDial.classList.remove('active');
+                if (fabMain) {
+                    fabMain.classList.remove('active');
+                    fabMain.innerHTML = '<i class="fas fa-gear"></i>';
+                }
                 toggle();
             });
         }
@@ -416,6 +370,7 @@
     /* ── Init session ──────────────────────────────────── */
     async function init() {
         ready = true;
+        showLoading();
         try {
             const r = await api('/chatbot/start', 'POST', {});
             sessionId = r.session_id;
@@ -424,6 +379,7 @@
     }
 
     function welcome() {
+        clearLoading();
         bot(
             'Hi there! I\'m <strong>InfoHulo Assistant</strong>, your Barangay Hulo Portal assistant.<br><br>' +
             'I can help you with:<br>' +
@@ -431,7 +387,7 @@
             '&bull; Requesting Barangay Clearance<br>' +
             '&bull; Requesting Barangay Residency Certificate<br>' +
             '&bull; Submitting an Incident Report<br><br>' +
-            'Click an option on the left or type your question!',
+            'Type your question and I will guide you step by step.',
             null, [
                 'I want to request a Barangay Indigency certificate.',
                 'How do I get a Barangay Clearance?',
@@ -547,6 +503,22 @@
         });
     }
     function clearChips() { chips.innerHTML = ''; }
+
+    function showLoading() {
+        const existing = document.getElementById('hbm-loading-row');
+        if (existing) return;
+        msgs.insertAdjacentHTML('beforeend', `
+            <div class="hbm-row bot" id="hbm-loading-row">
+                <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
+                <div class="hbm-loading">Loading assistant...</div>
+            </div>`);
+        scroll();
+    }
+
+    function clearLoading() {
+        const loading = document.getElementById('hbm-loading-row');
+        if (loading) loading.remove();
+    }
 
     /* ── Utils ─────────────────────────────────────────── */
     function busy(v)  { isBusy = v; sendBtn.disabled = v; input.disabled = v; }

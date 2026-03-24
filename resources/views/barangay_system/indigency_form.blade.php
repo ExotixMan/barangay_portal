@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <style>
         .income-bracket option { 
@@ -45,7 +46,7 @@
     <!-- Application Form -->
     <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
         <div class="container form-container px-0">
-            <form id="requirementForm" method="POST" action="{{ route('indigency.store') }}" enctype="multipart/form-data" class="requirement-form">
+            <form id="requirementForm" method="POST" action="{{ route('indigency.store') }}" enctype="multipart/form-data" class="requirement-form" novalidate>
                 @csrf
                 <div class="form-progress">
                     <div class="progress-steps">
@@ -319,7 +320,7 @@
                         <label class="terms-checkbox">
                             <input type="checkbox" id="privacy" name="privacy" required>
                             <span class="checkmark"></span>
-                            <p style="margin-bottom: 0;">I agree to the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> of Barangay Hulo Online Services.</p>
+                            <p style="margin-bottom: 0;">I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" onclick="event.stopPropagation();">Privacy Policy</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#termsConditionsModal" onclick="event.stopPropagation();">Terms and Conditions</a> of Barangay Hulo Online Services.</p>
                         </label>
                         <label class="terms-checkbox">
                             <input type="checkbox" id="pickup" name="pickup" required>
@@ -351,8 +352,11 @@
         </div>
     </section>
 
+    @include('barangay_system.partials.policy_modals')
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -263,6 +263,14 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         ->middleware('permission:view_forecast|view_dashboard')
         ->name('dashboard.forecast');
 
+    Route::get('/dashboard/live-stats', [DashboardController::class, 'liveStats'])
+        ->middleware('permission:view_dashboard')
+        ->name('dashboard.live_stats');
+
+    Route::post('/dashboard/refresh-forecast', [DashboardController::class, 'refreshForecast'])
+        ->middleware('permission:view_forecast')
+        ->name('dashboard.refresh_forecast');
+
     // CHATBOT
     Route::prefix('/chatbot')->name('chatbot.')->group(function () {
         Route::get('/',                         [ChatbotController::class, 'adminIndex'])->name('index');
