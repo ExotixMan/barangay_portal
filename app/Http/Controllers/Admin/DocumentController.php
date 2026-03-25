@@ -330,18 +330,48 @@ class DocumentController extends Controller
         $templateProcessor->saveAs($docxPath);
 
         if ($action === 'print') {
-            $pdf = Pdf::loadView('public.document_template.Residency_Template.docx', [
-                'record' => $record,
-                'fullName' => $fullName,
-                'address' => $address,
-                'purpose' => $purpose,
-                'day' => $day,
-                'month' => $month,
-                'year' => $year,
-                'staffName' => $staffName,
-            ]);
+            $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
+            $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            return $pdf->stream('residency_' . $record->reference_number . '.pdf');
+            // Delete old PDF if exists
+            if (file_exists($pdfPath)) {
+                @unlink($pdfPath);
+            }
+
+            // Create a writable LibreOffice user profile directory
+            $tempUserDir = $outputDir . '/libreoffice_profile';
+            if (!is_dir($tempUserDir)) {
+                mkdir($tempUserDir, 0775, true);
+            }
+
+            // Make sure permissions are okay
+            @chmod($tempUserDir, 0775);
+
+            // IMPORTANT: build the full file:// URL first, then escape the whole value
+            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
+
+            // Set HOME too for better compatibility on VPS
+            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
+                . 'soffice --headless '
+                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
+                . '--convert-to pdf '
+                . '--outdir ' . escapeshellarg($outputDir) . ' '
+                . escapeshellarg($docxPath) . ' 2>&1';
+
+            $output = [];
+            $code = 1;
+            exec($cmd, $output, $code);
+
+            $converted = ($code === 0 && file_exists($pdfPath));
+
+            if ($converted) {
+                return $this->renderPrintPreviewPage($pdfFileName);
+            }
+
+            abort(500, "Print conversion failed\n"
+                . "Document: residency | Reference: {$record->reference_number} | Exit code: {$code}\n"
+                . "Command\n{$cmd}\n"
+                . "Output\n" . implode("\n", $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
