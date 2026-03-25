@@ -330,7 +330,7 @@ class DocumentController extends Controller
         $templateProcessor->saveAs($docxPath);
 
         if ($action === 'print') {
-            $pdf = Pdf::loadView('admin.documents.residency_pdf', [
+            $pdf = Pdf::loadView('public.document_template.Residency_Template.docx', [
                 'record' => $record,
                 'fullName' => $fullName,
                 'address' => $address,
