@@ -318,7 +318,6 @@ class DocumentController extends Controller
         $templateProcessor->setValue('DAY', $day);
         $templateProcessor->setValue('MONTH', $month);
         $templateProcessor->setValue('YEAR', $year);
-        // Keep both keys for template compatibility.
         $templateProcessor->setValue('STAFF_NAME', $staffName);
 
         $fileName = 'residency_' . $record->reference_number . '.docx';
@@ -348,10 +347,12 @@ class DocumentController extends Controller
             // Make sure permissions are okay
             @chmod($tempUserDir, 0775);
 
-            // IMPORTANT: must be file:///absolute/path (NO escapeshellarg inside the URL)
+            // IMPORTANT: build the full file:// URL first, then escape the whole value
             $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
 
-            $cmd = 'soffice --headless '
+            // Set HOME too for better compatibility on VPS
+            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
+                . 'soffice --headless '
                 . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
                 . '--convert-to pdf '
                 . '--outdir ' . escapeshellarg($outputDir) . ' '
@@ -372,6 +373,8 @@ class DocumentController extends Controller
                 . "Command\n{$cmd}\n"
                 . "Output\n" . implode("\n", $output));
         }
+
+        return response()->download($docxPath)->deleteFileAfterSend(true);
     }
 
     public function previewGeneratedPdf(string $file)
