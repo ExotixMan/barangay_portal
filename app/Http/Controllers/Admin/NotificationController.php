@@ -42,35 +42,34 @@ class NotificationController extends Controller
                 return back()->with('error', 'SMS API key is missing.');
             }
 
-            // Clean phone number
+            // Normalize to Philippine format expected by Semaphore (63XXXXXXXXXX)
             $recipient = preg_replace('/\D/', '', $request->phone);
 
             if (substr($recipient, 0, 1) === '0') {
                 $recipient = '63' . substr($recipient, 1);
             }
 
-            // Build payload - sender name is OPTIONAL
+            if (substr($recipient, 0, 1) === '9') {
+                $recipient = '63' . $recipient;
+            }
+
+            $senderName = env('SMS_SENDER_NAME');
+
+            // Match Semaphore payload format used in debug route
             $payload = [
                 'apikey' => $apiKey,
                 'number' => $recipient,
                 'message' => $request->message,
+                'sendername' => $senderName,
             ];
-
-            // Only add sendername if it exists and is not empty
-            $senderName = env('SMS_SENDER_NAME');
-            if (!empty($senderName)) {
-                $payload['sendername'] = $senderName;
-            }
-            // If no sender name, Semaphore will use "SEMAPHORE" by default
 
             $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
 
             if ($response->successful()) {
-                $senderUsed = $senderName ?? 'SEMAPHORE (default)';
-                return back()->with('success', "SMS sent successfully using sender: {$senderUsed}");
+                return back()->with('success', 'SMS sent successfully.');
             }
 
-            return back()->with('error', 'Failed to send SMS: ' . $response->body());
+            return back()->with('error', 'Failed to send SMS (HTTP ' . $response->status() . '): ' . $response->body());
 
         } catch (\Exception $e) {
             return back()->with('error', 'Something went wrong: ' . $e->getMessage());

@@ -466,7 +466,7 @@ Route::get('/debug-semaphore', function () {
         'apikey' => $apiKey,
         'number' => '639994086683',
         'message' => 'This message is from hulong duhat',
-        'sendername' => 'Semaphore',
+        'sendername' => 'HULONGDUHAT',
     ];
 
     try {
