@@ -163,7 +163,7 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
+            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -263,7 +263,7 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
+            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -331,32 +331,40 @@ class DocumentController extends Controller
             $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            // Create a user profile folder inside storage
-            $tempUserDir = $outputDir . '/libreoffice_profile';
-            if (!is_dir($tempUserDir)) {
-                mkdir($tempUserDir, 0755, true);
+            if (file_exists($pdfPath)) {
+                @unlink($pdfPath);
             }
 
-            // Build the command
-            $cmd = 'soffice --headless '
-                . '--env:UserInstallation=file://' . escapeshellarg($tempUserDir) . ' '
-                . '--convert-to pdf '
-                . '--outdir ' . escapeshellarg($outputDir) . ' '
-                . escapeshellarg($docxPath) . ' 2>&1';
+            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+            $bins = $isWindows
+                ? [
+                    'soffice',
+                    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+                    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
+                ]
+                : ['libreoffice', 'soffice'];
 
-            $output = [];
-            $code = 1;
-            exec($cmd, $output, $code);
+            $converted = false;
+            foreach ($bins as $bin) {
+                $cmd = escapeshellarg($bin)
+                    . ' --headless --convert-to pdf --outdir '
+                    . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
 
-            // Check if PDF exists
-            $converted = ($code === 0 && file_exists($pdfPath));
+                $output = [];
+                $code = 1;
+                @exec($cmd, $output, $code);
+
+                if ($code === 0 && file_exists($pdfPath)) {
+                    $converted = true;
+                    break;
+                }
+            }
 
             if ($converted) {
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            // If it failed, show detailed conversion diagnostics.
-            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
+            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -387,19 +395,6 @@ class DocumentController extends Controller
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
         ]);
-    }
-
-    private function buildLibreOfficeErrorMessage(string $cmd, int $code, array $output): string
-    {
-        $outputText = trim(implode("\n", $output));
-        if ($outputText === '') {
-            $outputText = 'No CLI output. Possible causes: soffice not installed, exec disabled, or permission denied.';
-        }
-
-        return 'Unable to create print preview PDF. '
-            . 'Command: ' . $cmd
-            . ' | Exit code: ' . $code
-            . ' | Output: ' . $outputText;
     }
 
 }
