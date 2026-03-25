@@ -306,8 +306,8 @@
             <div class="brand-left">
                 <img class="logo" src="{{ asset('Images/logo.png') }}" alt="Logo">
                 <div class="brand-text">
-                    <div class="brand-title">Admin Panel</div>
-                    <div class="brand-sub">Barangay Portal</div>
+                    <div class="brand-title">BISIG Hulong Duhat</div>
+                    <div class="brand-sub">Administrator</div>
                 </div>
             </div>
             <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
