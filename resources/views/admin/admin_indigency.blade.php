@@ -1352,7 +1352,7 @@
 
                                             <!-- Communication Dropdown - Show for approved, rejected, claimed -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($ind->status, ['approved', 'rejected', 'claimed']))
+                                                in_array($ind->status, ['approved', 'rejected', 'ready_pickup', 'claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
@@ -1364,7 +1364,7 @@
                                                             @csrf
                                                             <input type="hidden" name="email" value="{{ $ind->email }}">
                                                             <input type="hidden" name="name" value="{{ $ind->first_name }} {{ $ind->last_name }}">
-                                                            <input type="hidden" name="message" value="Your barangay indigency application (Ref: {{ $ind->reference_number }}) status: {{ ucfirst(str_replace('_', ' ', $ind->status)) }}. Please check the barangay office for updates.">
+                                                            <input type="hidden" name="message" value="Your barangay indigency application (Ref: {{ $ind->reference_number }}) Status: {{ ucfirst(str_replace('_', ' ', $ind->status)) }}. Please check the barangay office for updates.">
                                                             <button type="submit" class="dropdown-item" onclick="return confirm('Send email notification to {{ $ind->email }}?')">
                                                                 <i class="fas fa-envelope me-2"></i>Send Email
                                                             </button>

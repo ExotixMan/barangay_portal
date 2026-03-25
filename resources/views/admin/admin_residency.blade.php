@@ -1418,7 +1418,7 @@
 
                                             <!-- Communication Dropdown -->
                                             @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($app->status, ['approved', 'rejected', 'claimed']))
+                                                in_array($app->status, ['approved', 'rejected', 'ready_pickup','claimed']))
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
                                                     <i class="fas fa-bell"></i>
