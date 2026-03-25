@@ -331,39 +331,32 @@ class DocumentController extends Controller
             $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            if (file_exists($pdfPath)) {
-                @unlink($pdfPath);
+            // Create a user profile folder inside storage
+            $tempUserDir = $outputDir . '/libreoffice_profile';
+            if (!is_dir($tempUserDir)) {
+                mkdir($tempUserDir, 0755, true);
             }
 
-            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-            $bins = $isWindows
-                ? [
-                    'soffice',
-                    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
-                    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
-                ]
-                : ['libreoffice', 'soffice'];
+            // Build the command
+            $cmd = 'soffice --headless '
+                . '--env:UserInstallation=file://' . escapeshellarg($tempUserDir) . ' '
+                . '--convert-to pdf '
+                . '--outdir ' . escapeshellarg($outputDir) . ' '
+                . escapeshellarg($docxPath) . ' 2>&1';
 
-            $converted = false;
-            foreach ($bins as $bin) {
-                $cmd = 'soffice --headless --convert-to pdf --outdir ' . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
-                $output = [];
-                $code = 1;
-                exec($cmd, $output, $code);
+            $output = [];
+            $code = 1;
+            exec($cmd, $output, $code);
 
-                dd([
-                    'command' => $cmd,
-                    'output' => $output,
-                    'returnCode' => $code,
-                    'pdfExists' => file_exists($outputDir . '/' . 'clearance_' . $record->reference_number . '.pdf')
-                ]);
-            }
+            // Check if PDF exists
+            $converted = ($code === 0 && file_exists($pdfPath));
 
             if ($converted) {
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            // If it failed, show full debug output
+            abort(500, 'Unable to create print preview PDF. LibreOffice error: ' . implode("\n", $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
