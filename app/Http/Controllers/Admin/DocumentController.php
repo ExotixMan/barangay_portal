@@ -165,7 +165,7 @@ class DocumentController extends Controller
             }
 
             $this->logConversionFailure('indigency', $record->reference_number, $cmd, $code, $output);
-            return $this->renderConversionErrorPage('indigency', $record->reference_number, $cmd, $code, $output);
+            return response()->download($docxPath)->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -266,7 +266,7 @@ class DocumentController extends Controller
             }
 
             $this->logConversionFailure('clearance', $record->reference_number, $cmd, $code, $output);
-            return $this->renderConversionErrorPage('clearance', $record->reference_number, $cmd, $code, $output);
+            return response()->download($docxPath)->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -334,44 +334,44 @@ class DocumentController extends Controller
             $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
+            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-            $bins = $isWindows
-                ? [
-                    'soffice',
-                    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
-                    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
-                ]
-                : ['libreoffice', 'soffice'];
-
-            $converted = false;
-            foreach ($bins as $bin) {
-                $cmd = escapeshellarg($bin)
-                    . ' --headless --convert-to pdf --outdir '
-                    . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
-
-                $output = [];
-                $code = 1;
-                @exec($cmd, $output, $code);
-
-                if ($code === 0 && file_exists($pdfPath)) {
-                    $converted = true;
-                    break;
-                }
+            // Create a writable LibreOffice user profile directory
+            $tempUserDir = $outputDir . '/libreoffice_profile';
+            if (!is_dir($tempUserDir)) {
+                mkdir($tempUserDir, 0775, true);
             }
+
+            // Make sure permissions are okay
+            @chmod($tempUserDir, 0775);
+
+            // IMPORTANT: must be file:///absolute/path (NO escapeshellarg inside the URL)
+            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
+
+            $cmd = 'soffice --headless '
+                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
+                . '--convert-to pdf '
+                . '--outdir ' . escapeshellarg($outputDir) . ' '
+                . escapeshellarg($docxPath) . ' 2>&1';
+
+            $output = [];
+            $code = 1;
+            exec($cmd, $output, $code);
+
+            $converted = ($code === 0 && file_exists($pdfPath));
 
             if ($converted) {
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            $this->logConversionFailure('residency', $record->reference_number, $cmd, $code, $output);
-            return $this->renderConversionErrorPage('residency', $record->reference_number, $cmd, $code, $output);
+            abort(500, "Print conversion failed\n"
+                . "Document: residency | Reference: {$record->reference_number} | Exit code: {$code}\n"
+                . "Command\n{$cmd}\n"
+                . "Output\n" . implode("\n", $output));
         }
-
-        return response()->download($docxPath)->deleteFileAfterSend(true);
     }
 
     public function previewGeneratedPdf(string $file)
@@ -399,27 +399,6 @@ class DocumentController extends Controller
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
         ]);
-    }
-
-    private function renderConversionErrorPage(string $documentType, string $referenceNumber, string $cmd, int $code, array $output)
-    {
-        $outputText = trim(implode("\n", $output));
-        if ($outputText === '') {
-            $outputText = 'No CLI output returned. Possible causes: soffice not installed, exec disabled, or permission denied.';
-        }
-
-        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print Conversion Error</title>'
-            . '<style>body{font-family:Arial,sans-serif;padding:24px;background:#f8f9fa;color:#212529}pre{white-space:pre-wrap;background:#fff;border:1px solid #dee2e6;padding:12px;border-radius:8px}h2{margin:0 0 12px;color:#b00020}.meta{margin-bottom:16px}</style>'
-            . '</head><body>'
-            . '<h2>Print conversion failed</h2>'
-            . '<div class="meta"><strong>Document:</strong> ' . htmlspecialchars($documentType, ENT_QUOTES, 'UTF-8')
-            . ' | <strong>Reference:</strong> ' . htmlspecialchars($referenceNumber, ENT_QUOTES, 'UTF-8')
-            . ' | <strong>Exit code:</strong> ' . $code . '</div>'
-            . '<h3>Command</h3><pre>' . htmlspecialchars($cmd, ENT_QUOTES, 'UTF-8') . '</pre>'
-            . '<h3>Output</h3><pre>' . htmlspecialchars($outputText, ENT_QUOTES, 'UTF-8') . '</pre>'
-            . '</body></html>';
-
-        return response($html, 500, ['Content-Type' => 'text/html; charset=UTF-8']);
     }
 
     private function logConversionFailure(string $documentType, string $referenceNumber, string $cmd, int $code, array $output): void
