@@ -17,7 +17,6 @@ class AnnouncementController extends Controller
         $featured = Announcement::where('is_featured', 'true')
             ->where('status', 'published')
             ->latest()
-            ->take(5)
             ->get();
 
         // Main query

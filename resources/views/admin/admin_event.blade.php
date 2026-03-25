@@ -1155,12 +1155,12 @@
                                             {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - 
                                             {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
                                         @else
-                                            <span class="text-muted">â€”</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
                                         <span class="location-text" title="{{ $event->location }}">
-                                            {{ $event->location ?? 'â€”' }}
+                                            {{ $event->location ?? '-' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-md-table-cell">
@@ -1187,16 +1187,6 @@
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}" title="Edit Event">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            @endadmin_can
-
-                                            <!-- Duplicate (requires duplicate_events permission) -->
-                                            @admin_can('duplicate_events')
-                                            <form method="POST" action="{{ route('admin.events.duplicate', $event->id) }}" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Duplicate" onclick="return confirm('Duplicate this event?')">
-                                                    <i class="fas fa-copy"></i>
-                                                </button>
-                                            </form>
                                             @endadmin_can
 
                                             <!-- Delete (requires delete_events permission) -->

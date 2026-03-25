@@ -1142,21 +1142,21 @@
                                     <td class="d-none d-md-table-cell">
                                         <span class="location-badge">
                                             <i class="fas fa-map-marker-alt me-1"></i>
-                                            {{ Str::limit($project->location, 20) ?? 'â€”' }}
+                                            {{ Str::limit($project->location, 20) ?? '-' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
                                             {{ $project->start_date 
                                                 ? \Carbon\Carbon::parse($project->start_date)->format('M d, Y')
-                                                : 'â€”' }}
+                                                : '-' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
                                             {{ $project->expected_completion 
                                                 ? \Carbon\Carbon::parse($project->expected_completion)->format('M d, Y')
-                                                : 'â€”' }}
+                                                : '-' }}
                                         </span>
                                         @if($project->is_overdue)
                                             <span class="badge bg-danger-subtle text-danger ms-1">Overdue</span>

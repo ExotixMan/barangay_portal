@@ -1135,7 +1135,7 @@
                                 @if($item->is_featured)
                                     <span class="featured-badge"><i class="fas fa-star me-1"></i>{{ __('messages.announcements_badge_featured') }}</span>
                                 @endif
-                                <img src="{{ asset('announcement_pic/'.$item->image) }}" alt="{{ $item->title }}" class="announcement-image">
+                                <img src="{{ asset($item->image) }}" alt="{{ $item->title }}" class="announcement-image">
                                 <div class="announcement-content">
                                     <span class="announcement-category {{ $item->category }}">{{ ucfirst($item->category) }}</span>
                                     <h3>{{ $item->title }}</h3>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -88,7 +88,7 @@
         }
 
         .alert-danger li::before {
-            content: 'âš ï¸';
+            content: '���️';
             margin-right: 0.5rem;
         }
 
@@ -1162,7 +1162,7 @@
                                                 <i class="fas fa-star me-1"></i>Featured
                                             </span>
                                         @else
-                                            <span class="text-muted">â€”</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td class="d-none d-md-table-cell">
@@ -1171,7 +1171,7 @@
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
-                                        {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : 'â€”' }}
+                                        {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : '���' }}
                                     </td>
                                     <td>
                                         @if($ann->status == 'published')
@@ -1892,4 +1892,5 @@
     
 </body>
 </html>
+
 
