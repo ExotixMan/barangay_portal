@@ -163,7 +163,7 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -263,7 +263,7 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -355,8 +355,8 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            // If it failed, show full debug output
-            abort(500, 'Unable to create print preview PDF. LibreOffice error: ' . implode("\n", $output));
+            // If it failed, show detailed conversion diagnostics.
+            abort(500, $this->buildLibreOfficeErrorMessage($cmd, $code, $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -387,6 +387,19 @@ class DocumentController extends Controller
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
         ]);
+    }
+
+    private function buildLibreOfficeErrorMessage(string $cmd, int $code, array $output): string
+    {
+        $outputText = trim(implode("\n", $output));
+        if ($outputText === '') {
+            $outputText = 'No CLI output. Possible causes: soffice not installed, exec disabled, or permission denied.';
+        }
+
+        return 'Unable to create print preview PDF. '
+            . 'Command: ' . $cmd
+            . ' | Exit code: ' . $code
+            . ' | Output: ' . $outputText;
     }
 
 }
