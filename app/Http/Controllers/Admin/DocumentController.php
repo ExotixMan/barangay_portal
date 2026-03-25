@@ -165,7 +165,7 @@ class DocumentController extends Controller
             }
 
             $this->logConversionFailure('indigency', $record->reference_number, $cmd, $code, $output);
-            return response()->download($docxPath)->deleteFileAfterSend(true);
+            return $this->renderConversionErrorPage('indigency', $record->reference_number, $cmd, $code, $output);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -266,7 +266,7 @@ class DocumentController extends Controller
             }
 
             $this->logConversionFailure('clearance', $record->reference_number, $cmd, $code, $output);
-            return response()->download($docxPath)->deleteFileAfterSend(true);
+            return $this->renderConversionErrorPage('clearance', $record->reference_number, $cmd, $code, $output);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -368,7 +368,7 @@ class DocumentController extends Controller
             }
 
             $this->logConversionFailure('residency', $record->reference_number, $cmd, $code, $output);
-            return response()->download($docxPath)->deleteFileAfterSend(true);
+            return $this->renderConversionErrorPage('residency', $record->reference_number, $cmd, $code, $output);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -399,6 +399,27 @@ class DocumentController extends Controller
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
         ]);
+    }
+
+    private function renderConversionErrorPage(string $documentType, string $referenceNumber, string $cmd, int $code, array $output)
+    {
+        $outputText = trim(implode("\n", $output));
+        if ($outputText === '') {
+            $outputText = 'No CLI output returned. Possible causes: soffice not installed, exec disabled, or permission denied.';
+        }
+
+        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print Conversion Error</title>'
+            . '<style>body{font-family:Arial,sans-serif;padding:24px;background:#f8f9fa;color:#212529}pre{white-space:pre-wrap;background:#fff;border:1px solid #dee2e6;padding:12px;border-radius:8px}h2{margin:0 0 12px;color:#b00020}.meta{margin-bottom:16px}</style>'
+            . '</head><body>'
+            . '<h2>Print conversion failed</h2>'
+            . '<div class="meta"><strong>Document:</strong> ' . htmlspecialchars($documentType, ENT_QUOTES, 'UTF-8')
+            . ' | <strong>Reference:</strong> ' . htmlspecialchars($referenceNumber, ENT_QUOTES, 'UTF-8')
+            . ' | <strong>Exit code:</strong> ' . $code . '</div>'
+            . '<h3>Command</h3><pre>' . htmlspecialchars($cmd, ENT_QUOTES, 'UTF-8') . '</pre>'
+            . '<h3>Output</h3><pre>' . htmlspecialchars($outputText, ENT_QUOTES, 'UTF-8') . '</pre>'
+            . '</body></html>';
+
+        return response($html, 500, ['Content-Type' => 'text/html; charset=UTF-8']);
     }
 
     private function logConversionFailure(string $documentType, string $referenceNumber, string $cmd, int $code, array $output): void
