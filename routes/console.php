@@ -20,7 +20,19 @@ Artisan::command('analytics:refresh-forecast', function () {
         return;
     }
 
-    $output = shell_exec("\"$pythonExe\" \"$scriptPath\" 2>&1");
+    // Run Python invisibly on Windows
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Windows: Use PowerShell to run without visible window
+        $command = sprintf(
+            'powershell -NoWindow -Command "python \"%s\" 2>&1"',
+            str_replace('"', '\"', $scriptPath)
+        );
+    } else {
+        // Linux/Mac: Standard execution
+        $command = "\"$pythonExe\" \"$scriptPath\" 2>&1";
+    }
+
+    $output = shell_exec($command);
 
     if ($output === null) {
         $this->error('Analytics refresh failed: no output from Python process.');
