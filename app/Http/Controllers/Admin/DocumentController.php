@@ -12,6 +12,7 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
@@ -163,7 +164,8 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            $this->logConversionFailure('indigency', $record->reference_number, $cmd, $code, $output);
+            return response()->download($docxPath)->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -263,7 +265,8 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            $this->logConversionFailure('clearance', $record->reference_number, $cmd, $code, $output);
+            return response()->download($docxPath)->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -364,7 +367,8 @@ class DocumentController extends Controller
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            abort(500, 'Unable to create print preview PDF. Ensure LibreOffice is installed and web server can access soffice.');
+            $this->logConversionFailure('residency', $record->reference_number, $cmd, $code, $output);
+            return response()->download($docxPath)->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -394,6 +398,17 @@ class DocumentController extends Controller
     {
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
+        ]);
+    }
+
+    private function logConversionFailure(string $documentType, string $referenceNumber, string $cmd, int $code, array $output): void
+    {
+        Log::error('LibreOffice conversion failed', [
+            'document_type' => $documentType,
+            'reference_number' => $referenceNumber,
+            'command' => $cmd,
+            'exit_code' => $code,
+            'output' => implode("\n", $output),
         ]);
     }
 
