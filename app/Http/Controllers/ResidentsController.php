@@ -33,6 +33,11 @@ class ResidentsController extends Controller
 
     public function register_res(Request $request)
     {
+        // Normalize username casing before validation so uniqueness is checked consistently.
+        $request->merge([
+            'username' => strtolower((string) $request->input('username', '')),
+        ]);
+
         $data = $request->validate([
             'firstname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'middlename' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
@@ -94,12 +99,18 @@ class ResidentsController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $loginInput = (string) $request->login;
+
         // Determine if the login input is an email or username
-        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if ($loginType === 'username') {
+            $loginInput = strtolower($loginInput);
+        }
         
         // Prepare credentials array
         $credentials = [
-            $loginType => $request->login,
+            $loginType => $loginInput,
             'password' => $request->password,
         ];
 

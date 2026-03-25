@@ -711,15 +711,6 @@
                     </div>
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Can I apply for my whole family in one request?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes. Use the family application option and submit proof of relationship (birth/marriage certificates) for each certificate requested.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
                             <span>What if I don't have any bill or ID under my name?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>

@@ -1460,7 +1460,6 @@
                             <ul class="service-list">
                                 <li><i class="fas fa-check-circle"></i> Online document requests</li>
                                 <li><i class="fas fa-check-circle"></i> Real-time status tracking</li>
-                                <li><i class="fas fa-check-circle"></i> Digital payment options</li>
                                 <li><i class="fas fa-check-circle"></i> Appointment scheduling</li>
                             </ul>
                             <a href="{{ route('services') }}" class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Request Services</a>
@@ -1476,11 +1475,11 @@
                             <div class="community-highlights">
                                 <div class="highlight">
                                     <i class="fas fa-calendar-day"></i>
-                                    <span>Upcoming: Community Clean-up on July 20</span>
+                                    <span>Get instant announcement alerts and view upcoming barangay events in one place</span>
                                 </div>
                                 <div class="highlight">
                                     <i class="fas fa-chart-line"></i>
-                                    <span>3 Ongoing Projects</span>
+                                    <span>Track ongoing projects with real-time progress updates and schedules</span>
                                 </div>
                             </div>
                             <a href='announcements' class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Stay Updated</a>

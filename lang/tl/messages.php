@@ -304,10 +304,14 @@ return [
     'officials_hero_title'        => 'Mga Opisyal ng Barangay',
     'officials_hero_subtitle'     => 'Makilala ang mga dedikadong lider na naglilingkod sa Barangay Hulong Duhat.',
     'officials_punong_label'      => 'Punong Barangay',
+    'officials_punong_desc'       => 'Ang pinuno ng Barangay Hulong Duhat, na namumuno sa aming komunidad nang may dedikasyon at integridad.',
     'officials_kagawad_label'     => 'Kagawad',
-    'officials_sk_label'          => 'Chairman ng SK',
+    'officials_sangunian_desc'    => 'Ang sangguniang barangay na sama-samang gumagawa ng mga patakaran para sa kaunlaran ng komunidad.',
+    'officials_sk_label'          => 'Tagapangulo ng SK',
+    'officials_other_officials'   => 'Mga pangunahing kawani na sumusuporta sa administrasyon ng barangay.',
     'officials_secretary_label'   => 'Kalihim ng Barangay',
     'officials_treasurer_label'   => 'Ingat-yaman ng Barangay',
+    'officials_organizational_chart' => 'Pag-unawa sa kung paano nakaayos ang pamahalaang barangay.',
     'officials_committee_label'   => 'Komite sa',
 
     // ── Mission & Vision ─────────────────────────────────────────────────────

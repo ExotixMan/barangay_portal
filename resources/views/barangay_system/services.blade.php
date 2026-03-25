@@ -950,38 +950,38 @@
                 <div class="faq-container">
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>What are the requirements for requesting documents?</span>
+                            <span>What can I request through this Barangay Hulo Online Portal?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Basic requirements include a valid ID, proof of residency (utility bill or voter's ID), and a completed application form. Specific requirements may vary per document type.</p>
+                            <p>You can submit requests for Barangay Clearance, Certificate of Residency, and Certificate of Indigency directly in the portal. You can also file Incident Reports and use Track Request to monitor your application status.</p>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>How long does it take to process my request?</span>
+                            <span>How does this system process my request?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Processing time is 1-3 business days for Barangay Clearance, Certificate of Residency, and Certificate of Indigency.</p>
+                            <p>After you submit the online form and required files, your request is forwarded to barangay staff for review. The portal records your reference details, and you can check progress anytime in the Track Request page.</p>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Can I request documents for someone else?</span>
+                            <span>How can I track updates from the system?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Yes, you can request on behalf of immediate family members. You'll need to provide an authorization letter and valid IDs of both parties.</p>
+                            <p>Use the Track Request feature to view the current status of your submitted application. For community updates, the portal also provides Announcements and Events/Projects pages so residents can stay informed.</p>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>What payment methods are accepted?</span>
+                            <span>What else can I do in the portal besides document requests?</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>We accept cash payments at the barangay hall. Online payment options through GCash and bank transfer are also available for select services.</p>
+                            <p>Aside from requesting documents, you can submit Incident Reports, browse barangay announcements, check community events and projects, and access contact details for barangay assistance.</p>
                         </div>
                     </div>
                 </div>

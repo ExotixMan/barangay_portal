@@ -421,6 +421,7 @@
         .org-chart {
             max-width: 900px;
             margin: 50px auto 0;
+            justify-items: center;
         }
 
         .org-level {
@@ -971,7 +972,7 @@
         <section class="captain-section">
             <div class="container">
                 <h2 class="section-title">Punong Barangay</h2>
-                <p class="section-subtitle">The head of Barangay Hulong Duhat, leading our community with dedication and integrity.</p>
+                <p class="section-subtitle">{{ __('messages.officials_punong_desc') }}</p>
                 
                 <div class="captain-card">
                     <div class="captain-image">
@@ -1004,7 +1005,7 @@
         <section class="kagawad-section">
             <div class="container">
                 <h2 class="section-title">Sangguniang Barangay</h2>
-                <p class="section-subtitle">The legislative body of the barangay, working together to create policies for community development.</p>
+                <p class="section-subtitle">{{ __('messages.officials_sangunian_desc') }}</p>
                 
                 <div class="row g-3 g-lg-4">
                     <!-- Kagawad 1 -->
@@ -1126,7 +1127,7 @@
         <section class="other-officials">
             <div class="container">
                 <h2 class="section-title">Other Officials</h2>
-                <p class="section-subtitle">Key personnel supporting the barangay administration.</p>
+                <p class="section-subtitle">{{ __('messages.officials_other_officials') }}</p>
                 
                 <div class="row g-4 justify-content-center">
                     <!-- Barangay Secretary -->
@@ -1174,7 +1175,7 @@
         <section class="org-structure">
             <div class="container">
                 <h2 class="section-title">Organizational Structure</h2>
-                <p class="section-subtitle">Understanding how our barangay government is organized.</p>
+                <p class="section-subtitle">{{ __('messages.officials_organizational_chart') }}</p>
                 
                 <div class="org-chart">
                     <div class="org-level level-1">

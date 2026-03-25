@@ -304,10 +304,14 @@ return [
     'officials_hero_title'        => 'Barangay Officials',
     'officials_hero_subtitle'     => 'Meet the dedicated leaders serving Barangay Hulong Duhat.',
     'officials_punong_label'      => 'Punong Barangay',
+    'officials_punong_desc'       => 'The head of Barangay Hulong Duhat, leading our community with dedication and integrity.',
     'officials_kagawad_label'     => 'Kagawad',
+    'officials_sangunian_desc'    => 'The legislative body of the barangay, working together to create policies for community development.',
     'officials_sk_label'          => 'SK Chairperson',
+    'officials_other_officials'   => 'Key personnel supporting the barangay administration.',
     'officials_secretary_label'   => 'Barangay Secretary',
     'officials_treasurer_label'   => 'Barangay Treasurer',
+    'officials_organizational_chart' => 'Understanding how our barangay government is organized.',
     'officials_committee_label'   => 'Committee on',
 
     // ── Mission & Vision ─────────────────────────────────────────────────────
