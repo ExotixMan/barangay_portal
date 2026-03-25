@@ -448,6 +448,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     Route::prefix('settings/backup')->name('backup.')->middleware('permission:view_users')->group(function () {
         Route::get('/', [BackupSettingsController::class, 'index'])->name('index');
         Route::post('/create', [BackupSettingsController::class, 'store'])->name('store');
+        Route::post('/restore', [BackupSettingsController::class, 'restore'])->name('restore');
         Route::get('/download/{file}', [BackupSettingsController::class, 'download'])
             ->where('file', '[A-Za-z0-9._-]+')
             ->name('download');

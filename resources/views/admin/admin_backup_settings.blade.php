@@ -181,6 +181,23 @@
             white-space: nowrap;
         }
 
+        .backup-time {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            line-height: 1.2;
+        }
+
+        .backup-time-main {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .backup-time-sub {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
         .table tbody tr:hover {
             background: #f8f9fa;
         }
@@ -190,6 +207,18 @@
             padding: 0.6rem 1.2rem;
             font-weight: 500;
             transition: all 0.2s ease;
+        }
+
+        .restore-upload-row .form-control {
+            min-height: 46px;
+        }
+
+        .restore-upload-row .btn {
+            height: 46px;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-primary {
@@ -261,6 +290,10 @@
 
             .stat-number {
                 font-size: 1.5rem;
+            }
+
+            .restore-upload-row .btn {
+                margin-top: 0.25rem;
             }
         }
     </style>
@@ -441,6 +474,26 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ $errors->first() }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if(session('restore_status') && session('restore_message'))
+                <div id="restoreResultPanel" class="alert {{ session('restore_status') === 'success' ? 'alert-success' : 'alert-danger' }} border-2 shadow-sm mb-4" role="alert">
+                    <div class="d-flex flex-column gap-1">
+                        <div class="fw-bold">
+                            <i class="fas {{ session('restore_status') === 'success' ? 'fa-circle-check' : 'fa-circle-xmark' }} me-2"></i>
+                            Restore Result
+                        </div>
+                        <div>{{ session('restore_message') }}</div>
+                        <small class="opacity-75">Time: {{ session('restore_time') }}</small>
+                    </div>
+                </div>
+            @endif
+
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                 <div>
                     <h5 class="mb-1">System Backups</h5>
@@ -452,6 +505,31 @@
                         <i class="fas fa-database me-2"></i>Create New Backup
                     </button>
                 </form>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="mb-2">Restore Backup Archive</h6>
+                    <p class="text-muted mb-3">
+                        Upload a backup zip and restore in one click. This will overwrite current database and backup-managed files.
+                    </p>
+
+                    <form method="POST" action="{{ route('admin.backup.restore') }}" enctype="multipart/form-data" onsubmit="return validateUploadAndConfirmRestore(event, this);">
+                        @csrf
+                        <div class="row g-2 align-items-center restore-upload-row">
+                            <div class="col-12 col-md-8 col-lg-9">
+                                <input type="file" name="backup_archive" id="restoreArchiveInput" accept=".zip" class="form-control" required>
+                                <div class="form-text">Accepted: .zip, max 500 MB.</div>
+                                <div id="restoreValidationMessage" class="form-text"></div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3 d-grid align-self-stretch">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-rotate-left me-2"></i>Upload and Restore
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="row g-3 g-lg-4 mb-4">
@@ -508,7 +586,7 @@
                             <thead>
                                 <tr>
                                     <th>File Name</th>
-                                    <th>Last Modified</th>
+                                    <th>Last Modified ({{ $displayTimezone ?? 'Asia/Manila' }})</th>
                                     <th>Size</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
@@ -517,12 +595,24 @@
                                 @foreach($backups as $backup)
                                     <tr>
                                         <td class="fw-semibold">{{ $backup['name'] }}</td>
-                                        <td>{{ $backup['modified_at'] }}</td>
+                                        <td>
+                                            <div class="backup-time">
+                                                <span class="backup-time-main">{{ $backup['modified_at'] }}</span>
+                                                <span class="backup-time-sub">{{ $backup['modified_relative'] }}</span>
+                                            </div>
+                                        </td>
                                         <td>{{ number_format($backup['size'] / 1024 / 1024, 2) }} MB</td>
                                         <td class="text-end pe-4">
                                             <a href="{{ route('admin.backup.download', $backup['name']) }}" class="btn btn-sm btn-outline-primary me-2">
                                                 <i class="fas fa-download me-1"></i>Download
                                             </a>
+                                            <form method="POST" action="{{ route('admin.backup.restore') }}" class="d-inline" onsubmit="return confirmRestore(event);">
+                                                @csrf
+                                                <input type="hidden" name="file" value="{{ $backup['name'] }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-warning me-2">
+                                                    <i class="fas fa-rotate-left me-1"></i>Restore
+                                                </button>
+                                            </form>
                                             <form method="POST" action="{{ route('admin.backup.destroy', $backup['name']) }}" class="d-inline" onsubmit="return confirmDelete(event, 'Delete this backup file?');">
                                                 @csrf
                                                 @method('DELETE')
@@ -552,12 +642,111 @@
             return true;
         }
 
-        setTimeout(function () {
-            document.querySelectorAll('.alert').forEach(function (alertEl) {
-                var bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
-                bsAlert.close();
+        function confirmRestore(event) {
+            var message = 'This will overwrite current database and files with backup content. Continue restore?';
+            if (!confirm(message)) {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        function validateUploadAndConfirmRestore(event, form) {
+            var fileInput = form.querySelector('input[name="backup_archive"]');
+            var validationMessage = document.getElementById('restoreValidationMessage');
+
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                event.preventDefault();
+                if (validationMessage) {
+                    validationMessage.className = 'form-text text-danger';
+                    validationMessage.textContent = 'Please select a backup zip file first.';
+                }
+                alert('Please select a backup zip file first.');
+                return false;
+            }
+
+            var file = fileInput.files[0];
+            var maxBytes = 500 * 1024 * 1024;
+            var isZipByType = file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.type === 'multipart/x-zip';
+            var isZipByName = /\.zip$/i.test(file.name || '');
+
+            if (!isZipByType && !isZipByName) {
+                event.preventDefault();
+                if (validationMessage) {
+                    validationMessage.className = 'form-text text-danger';
+                    validationMessage.textContent = 'Invalid file type. Please upload a .zip backup file.';
+                }
+                alert('Invalid file type. Please upload a .zip backup file.');
+                return false;
+            }
+
+            if (file.size > maxBytes) {
+                event.preventDefault();
+                if (validationMessage) {
+                    validationMessage.className = 'form-text text-danger';
+                    validationMessage.textContent = 'Backup file is too large. Maximum allowed size is 500 MB.';
+                }
+                alert('Backup file is too large. Maximum allowed size is 500 MB.');
+                return false;
+            }
+
+            if (validationMessage) {
+                validationMessage.className = 'form-text text-success';
+                validationMessage.textContent = 'File is valid and ready to restore.';
+            }
+
+            return confirmRestore(event);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var fileInput = document.getElementById('restoreArchiveInput');
+            var validationMessage = document.getElementById('restoreValidationMessage');
+            var restoreResultPanel = document.getElementById('restoreResultPanel');
+
+            if (restoreResultPanel) {
+                restoreResultPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            if (!fileInput || !validationMessage) {
+                return;
+            }
+
+            fileInput.addEventListener('change', function () {
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    validationMessage.className = 'form-text';
+                    validationMessage.textContent = '';
+                    return;
+                }
+
+                var file = fileInput.files[0];
+                var maxBytes = 500 * 1024 * 1024;
+                var isZipByType = file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.type === 'multipart/x-zip';
+                var isZipByName = /\.zip$/i.test(file.name || '');
+
+                if (!isZipByType && !isZipByName) {
+                    validationMessage.className = 'form-text text-danger';
+                    validationMessage.textContent = 'Invalid file type. Please upload a .zip backup file.';
+                    return;
+                }
+
+                if (file.size > maxBytes) {
+                    validationMessage.className = 'form-text text-danger';
+                    validationMessage.textContent = 'Backup file is too large. Maximum allowed size is 500 MB.';
+                    return;
+                }
+
+                validationMessage.className = 'form-text text-success';
+                validationMessage.textContent = 'File is valid and ready to restore.';
             });
-        }, 5000);
+
+            setTimeout(function () {
+                document.querySelectorAll('.alert').forEach(function (alertEl) {
+                    var bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
+                    bsAlert.close();
+                });
+            }, 6000);
+        });
+
     </script>
 </body>
 </html>
