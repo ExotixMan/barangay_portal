@@ -346,18 +346,17 @@ class DocumentController extends Controller
 
             $converted = false;
             foreach ($bins as $bin) {
-                $cmd = escapeshellarg($bin)
-                    . ' --headless --convert-to pdf --outdir '
-                    . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
-
+                $cmd = 'soffice --headless --convert-to pdf --outdir ' . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
                 $output = [];
                 $code = 1;
-                @exec($cmd, $output, $code);
+                exec($cmd, $output, $code);
 
-                if ($code === 0 && file_exists($pdfPath)) {
-                    $converted = true;
-                    break;
-                }
+                dd([
+                    'command' => $cmd,
+                    'output' => $output,
+                    'returnCode' => $code,
+                    'pdfExists' => file_exists($outputDir . '/' . 'clearance_' . $record->reference_number . '.pdf')
+                ]);
             }
 
             if ($converted) {

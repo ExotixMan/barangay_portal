@@ -1828,7 +1828,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Your reference number was provided when you submitted your request. It was sent to your email and also displayed on the confirmation page. The format varies by request type: BC-YYYY-XXXXX for clearance, RES-YYYY-XXXXX for residency, IND-YYYY-XXXXX for indigency, and INC-YYYY-XXXXX for incident reports.</p>
+                            <p>Your reference number was provided when you submitted your request. It was displayed on the confirmation page. The format varies by request type: BC-YYYY-XXXXX for clearance, RES-YYYY-XXXXX for residency, IND-YYYY-XXXXX for indigency, and INC-YYYY-XXXXX for incident reports.</p>
                         </div>
                     </div>
                     <div class="faq-item">
