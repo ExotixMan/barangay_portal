@@ -12,7 +12,6 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
@@ -126,46 +125,48 @@ class DocumentController extends Controller
         $templateProcessor->saveAs($docxPath);
 
         if ($action === 'print') {
-            // Use LibreOffice conversion only to preserve original DOCX layout
             $pdfFileName = 'indigency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            // Remove stale PDF to avoid serving old conversion results.
+            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-            $bins = $isWindows
-                ? [
-                    'soffice',
-                    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
-                    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
-                ]
-                : ['libreoffice', 'soffice'];
-
-            $converted = false;
-            foreach ($bins as $bin) {
-                $cmd = escapeshellarg($bin)
-                    . ' --headless --convert-to pdf --outdir '
-                    . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
-
-                $output = [];
-                $code = 1;
-                @exec($cmd, $output, $code);
-
-                if ($code === 0 && file_exists($pdfPath)) {
-                    $converted = true;
-                    break;
-                }
+            // Create a writable LibreOffice user profile directory
+            $tempUserDir = $outputDir . '/libreoffice_profile';
+            if (!is_dir($tempUserDir)) {
+                mkdir($tempUserDir, 0775, true);
             }
+
+            // Make sure permissions are okay
+            @chmod($tempUserDir, 0775);
+
+            // IMPORTANT: build the full file:// URL first, then escape the whole value
+            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
+
+            // Set HOME too for better compatibility on VPS
+            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
+                . 'soffice --headless '
+                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
+                . '--convert-to pdf '
+                . '--outdir ' . escapeshellarg($outputDir) . ' '
+                . escapeshellarg($docxPath) . ' 2>&1';
+
+            $output = [];
+            $code = 1;
+            exec($cmd, $output, $code);
+
+            $converted = ($code === 0 && file_exists($pdfPath));
 
             if ($converted) {
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            $this->logConversionFailure('indigency', $record->reference_number, $cmd, $code, $output);
-            return response()->download($docxPath)->deleteFileAfterSend(true);
+            abort(500, "Print conversion failed\n"
+                . "Document: indigency | Reference: {$record->reference_number} | Exit code: {$code}\n"
+                . "Command\n{$cmd}\n"
+                . "Output\n" . implode("\n", $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -232,41 +233,45 @@ class DocumentController extends Controller
             $pdfFileName = 'clearance_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
+            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-            $bins = $isWindows
-                ? [
-                    'soffice',
-                    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
-                    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
-                ]
-                : ['libreoffice', 'soffice'];
-
-            $converted = false;
-            foreach ($bins as $bin) {
-                $cmd = escapeshellarg($bin)
-                    . ' --headless --convert-to pdf --outdir '
-                    . escapeshellarg($outputDir) . ' ' . escapeshellarg($docxPath) . ' 2>&1';
-
-                $output = [];
-                $code = 1;
-                @exec($cmd, $output, $code);
-
-                if ($code === 0 && file_exists($pdfPath)) {
-                    $converted = true;
-                    break;
-                }
+            // Create a writable LibreOffice user profile directory
+            $tempUserDir = $outputDir . '/libreoffice_profile';
+            if (!is_dir($tempUserDir)) {
+                mkdir($tempUserDir, 0775, true);
             }
+
+            // Make sure permissions are okay
+            @chmod($tempUserDir, 0775);
+
+            // IMPORTANT: build the full file:// URL first, then escape the whole value
+            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
+
+            // Set HOME too for better compatibility on VPS
+            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
+                . 'soffice --headless '
+                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
+                . '--convert-to pdf '
+                . '--outdir ' . escapeshellarg($outputDir) . ' '
+                . escapeshellarg($docxPath) . ' 2>&1';
+
+            $output = [];
+            $code = 1;
+            exec($cmd, $output, $code);
+
+            $converted = ($code === 0 && file_exists($pdfPath));
 
             if ($converted) {
                 return $this->renderPrintPreviewPage($pdfFileName);
             }
 
-            $this->logConversionFailure('clearance', $record->reference_number, $cmd, $code, $output);
-            return response()->download($docxPath)->deleteFileAfterSend(true);
+            abort(500, "Print conversion failed\n"
+                . "Document: clearance | Reference: {$record->reference_number} | Exit code: {$code}\n"
+                . "Command\n{$cmd}\n"
+                . "Output\n" . implode("\n", $output));
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -401,17 +406,6 @@ class DocumentController extends Controller
     {
         return view('admin.print_document', [
             'pdfUrl' => route('admin.documents.preview_file', ['file' => $pdfFileName])
-        ]);
-    }
-
-    private function logConversionFailure(string $documentType, string $referenceNumber, string $cmd, int $code, array $output): void
-    {
-        Log::error('LibreOffice conversion failed', [
-            'document_type' => $documentType,
-            'reference_number' => $referenceNumber,
-            'command' => $cmd,
-            'exit_code' => $code,
-            'output' => implode("\n", $output),
         ]);
     }
 
