@@ -1157,6 +1157,9 @@
                     <i class="fas fa-lock me-2"></i>Permissions
                 </button>
                 @endadmin_can
+                <button class="tab-link" onclick="switchTab('audit', event)">
+                    <i class="fas fa-clipboard-list me-2"></i>Audit Logs
+                </button>
             </div>
 
             <!-- USERS TAB -->
@@ -1165,6 +1168,7 @@
                 <div class="card border-0 mb-4">
                     <div class="card-body">
                         <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm">
+                            <input type="hidden" name="tab" value="users">
                             <div class="row g-3 align-items-center mb-3">
                                 <div class="col-12 col-md-6">
                                     <h6 class="mb-0 fw-semibold">
@@ -1178,7 +1182,7 @@
                                             <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add User</span>
                                         </button>
                                         @endadmin_can
-                                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                        <a href="{{ route('admin.users.index', ['tab' => 'users']) }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
                                             <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                         </a>
                                     </div>
@@ -1342,7 +1346,7 @@
                                 {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }}
                             </small>
                             <nav class="order-1 order-md-2">
-                                {{ $users->withQueryString()->links('pagination::bootstrap-5') }}
+                                {{ $users->appends(['tab' => 'users'])->links('pagination::bootstrap-5') }}
                             </nav>
                         </div>
                         @endif
@@ -1587,6 +1591,180 @@
                 @endif
             </div>
             @endadmin_can
+
+            <!-- AUDIT LOGS TAB -->
+            <div id="auditTab" class="tab-content">
+                <div class="card border-0 mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-end mb-3">
+                            <a href="{{ route('admin.users.audit-logs.export-csv', [
+                                'tab' => 'audit',
+                                'log_action' => request('log_action'),
+                                'log_module' => request('log_module'),
+                                'log_user_id' => request('log_user_id'),
+                                'log_date' => request('log_date'),
+                            ]) }}" class="btn btn-success">
+                                <i class="fas fa-file-csv me-2"></i>Export CSV
+                            </a>
+                        </div>
+
+                        <form method="GET" action="{{ route('admin.users.index') }}">
+                            <input type="hidden" name="tab" value="audit">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label fw-semibold">Action</label>
+                                    <select name="log_action" class="form-select">
+                                        <option value="">All Actions</option>
+                                        @foreach($auditActions as $action)
+                                            <option value="{{ $action }}" {{ request('log_action') === $action ? 'selected' : '' }}>{{ $action }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label fw-semibold">Module</label>
+                                    <select name="log_module" class="form-select">
+                                        <option value="">All Modules</option>
+                                        @foreach($auditModules as $module)
+                                            <option value="{{ $module }}" {{ request('log_module') === $module ? 'selected' : '' }}>{{ $module }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label fw-semibold">User</label>
+                                    <select name="log_user_id" class="form-select">
+                                        <option value="">All Users</option>
+                                        @foreach($allUsers as $adminUser)
+                                            <option value="{{ $adminUser->id }}" {{ (string) request('log_user_id') === (string) $adminUser->id ? 'selected' : '' }}>
+                                                {{ $adminUser->full_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label fw-semibold">Date</label>
+                                    <input type="date" name="log_date" class="form-control" value="{{ request('log_date') }}">
+                                </div>
+                                <div class="col-12 col-md-2 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-filter me-2"></i>Apply
+                                    </button>
+                                    <a href="{{ route('admin.users.index', ['tab' => 'audit']) }}" class="btn btn-outline-secondary w-100">
+                                        Reset
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">When</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Module</th>
+                                        <th>Details</th>
+                                        <th>IP Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($auditLogs as $log)
+                                        <tr>
+                                            <td class="ps-4">{{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : '-' }}</td>
+                                            <td>{{ $log->user?->full_name ?? 'Unknown User' }}</td>
+                                            <td>
+                                                @php
+                                                    $action = strtoupper((string) $log->action);
+                                                    $actionBadgeClass = match(true) {
+                                                        str_contains($action, 'CREATE') => 'bg-success-subtle text-success',
+                                                        str_contains($action, 'UPDATE') => 'bg-warning-subtle text-warning',
+                                                        str_contains($action, 'DELETE') => 'bg-danger-subtle text-danger',
+                                                        str_contains($action, 'VIEW') => 'bg-info-subtle text-info',
+                                                        default => 'bg-secondary-subtle text-secondary',
+                                                    };
+                                                @endphp
+                                                <span class="badge {{ $actionBadgeClass }}">{{ $log->action }}</span>
+                                            </td>
+                                            <td><span class="badge bg-secondary-subtle text-secondary">{{ $log->module }}</span></td>
+                                            <td>
+                                                @php
+                                                    $details = is_array($log->details) ? $log->details : (json_decode((string) $log->details, true) ?: []);
+                                                @endphp
+                                                @if(!empty($details))
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-primary view-log-details-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#auditLogDetailsModal"
+                                                            data-log-id="{{ $log->id }}"
+                                                            data-log-action="{{ $log->action }}"
+                                                            data-log-module="{{ $log->module }}"
+                                                            data-log-user="{{ $log->user?->full_name ?? 'Unknown User' }}"
+                                                            data-log-time="{{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : '-' }}"
+                                                            data-log-details='@json($details)'>
+                                                        <i class="fas fa-eye me-1"></i>View Details
+                                                    </button>
+                                                @else
+                                                    <small class="text-muted">-</small>
+                                                @endif
+                                            </td>
+                                            <td>{{ $log->ip_address ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                                                <div>No audit logs found for the selected filters.</div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if(isset($auditLogs) && $auditLogs->total() > 0)
+                        <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                            <small class="text-muted order-2 order-md-1">
+                                <i class="fas fa-list me-1"></i>
+                                {{ $auditLogs->firstItem() ?? 0 }}-{{ $auditLogs->lastItem() ?? 0 }} of {{ $auditLogs->total() }}
+                            </small>
+                            <nav class="order-1 order-md-2">
+                                {{ $auditLogs->appends(['tab' => 'audit'])->appends(request()->query('log_action', null), 'log_action')->appends(request()->query('log_module', null), 'log_module')->appends(request()->query('log_user_id', null), 'log_user_id')->appends(request()->query('log_date', null), 'log_date')->links('pagination::bootstrap-5') }}
+                            </nav>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="auditLogDetailsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-clipboard-list me-2"></i>Audit Log Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6"><strong>User:</strong> <span id="auditDetailUser">-</span></div>
+                                <div class="col-md-6"><strong>Time:</strong> <span id="auditDetailTime">-</span></div>
+                                <div class="col-md-6"><strong>Action:</strong> <span id="auditDetailAction">-</span></div>
+                                <div class="col-md-6"><strong>Module:</strong> <span id="auditDetailModule">-</span></div>
+                            </div>
+                            <label class="form-label fw-semibold">Details JSON</label>
+                            <pre id="auditDetailJson" class="p-3 bg-light rounded border" style="max-height: 380px; overflow: auto; white-space: pre-wrap;">{}</pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- ADD USER MODAL -->
             @admin_can('create_users')
@@ -2984,6 +3162,36 @@
                     }
                 });
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailButtons = document.querySelectorAll('.view-log-details-btn');
+
+            detailButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const detailsRaw = this.dataset.logDetails || '{}';
+                    let prettyJson = '{}';
+
+                    try {
+                        const parsed = JSON.parse(detailsRaw);
+                        prettyJson = JSON.stringify(parsed, null, 2);
+                    } catch (error) {
+                        prettyJson = detailsRaw;
+                    }
+
+                    const userEl = document.getElementById('auditDetailUser');
+                    const timeEl = document.getElementById('auditDetailTime');
+                    const actionEl = document.getElementById('auditDetailAction');
+                    const moduleEl = document.getElementById('auditDetailModule');
+                    const jsonEl = document.getElementById('auditDetailJson');
+
+                    if (userEl) userEl.textContent = this.dataset.logUser || '-';
+                    if (timeEl) timeEl.textContent = this.dataset.logTime || '-';
+                    if (actionEl) actionEl.textContent = this.dataset.logAction || '-';
+                    if (moduleEl) moduleEl.textContent = this.dataset.logModule || '-';
+                    if (jsonEl) jsonEl.textContent = prettyJson;
+                });
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {

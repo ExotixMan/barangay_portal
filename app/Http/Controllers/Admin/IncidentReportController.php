@@ -269,7 +269,28 @@ class IncidentReportController extends Controller
     public function approve($id)
     {
         $blotter = BlotterReport::findOrFail($id);
+        $oldStatus = $blotter->status;
         $blotter->update(['status' => 'resolved']);
+
+        // Log approval
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPROVAL_INCIDENT_REPORT',
+                'module' => 'Incident Report',
+                'details' => [
+                    'blotter_id' => $blotter->id,
+                    'reference_number' => $blotter->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => 'resolved',
+                    'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'reporter' => $blotter->created_by,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
 
         return back()->with('success', 'Incident report resolved.');
     }
@@ -277,7 +298,28 @@ class IncidentReportController extends Controller
     public function reject($id)
     {
         $blotter = BlotterReport::findOrFail($id);
+        $oldStatus = $blotter->status;
         $blotter->update(['status' => 'dropped']);
+
+        // Log rejection
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'REJECT_INCIDENT_REPORT',
+                'module' => 'Incident Report',
+                'details' => [
+                    'blotter_id' => $blotter->id,
+                    'reference_number' => $blotter->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => 'dropped',
+                    'rejected_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'reporter' => $blotter->created_by,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
 
         return back()->with('success', 'Incident report dropped.');
     }

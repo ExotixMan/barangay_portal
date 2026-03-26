@@ -25,6 +25,23 @@ class NotificationController extends Controller
                 $validated['message']
             ));
 
+        // Log notification
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'SEND_EMAIL_NOTIFICATION',
+                'module' => 'Notifications',
+                'details' => [
+                    'recipient_email' => $validated['email'],
+                    'recipient_name' => $validated['name'],
+                    'sent_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'message_length' => strlen($validated['message']),
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
+
         return back()->with('success', 'Email sent successfully!');
     }
 
@@ -66,6 +83,23 @@ class NotificationController extends Controller
             $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
 
             if ($response->successful()) {
+                // Log notification
+                if (auth('admin')->check()) {
+                    \App\Models\AdminActivityLog::create([
+                        'user_id' => auth('admin')->id(),
+                        'action' => 'SEND_SMS_NOTIFICATION',
+                        'module' => 'Notifications',
+                        'details' => [
+                            'recipient_phone' => $recipient,
+                            'sent_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                            'message_length' => strlen($request->message),
+                            'sms_id' => $response->json('message_id') ?? null,
+                        ],
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ]);
+                }
+
                 return back()->with('success', 'SMS sent successfully.');
             }
 

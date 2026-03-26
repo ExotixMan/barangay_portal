@@ -185,6 +185,24 @@ class ResidencyController extends Controller
         $application->status_updated_at = now();
         $application->save();
 
+        // Log approval/status update
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPROVAL_STATUS_CHANGE',
+                'module' => 'Residency',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $application->reference_number,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
+
         // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 

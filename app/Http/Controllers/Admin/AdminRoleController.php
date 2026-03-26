@@ -264,4 +264,84 @@ class AdminRoleController extends Controller
                 ->with('error', 'Failed to remove user from role.');
         }
     }
+
+    public function getPermissions(Request $request, $id)
+    {
+        $role = AdminRole::with('permissions')->findOrFail($id);
+
+        AdminActivityLog::create([
+            'user_id' => Auth::guard('admin')->id(),
+            'action' => 'VIEW_ROLE_PERMISSIONS',
+            'module' => 'roles',
+            'details' => [
+                'role_id' => $role->id,
+                'role_name' => $role->name,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'role' => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'display_name' => $role->display_name,
+            ],
+            'permissions' => $role->permissions->pluck('id'),
+        ]);
+    }
+
+    public function updatePermissions(Request $request, $id)
+    {
+        $role = AdminRole::findOrFail($id);
+
+        // Prevent modifying system role permissions.
+        if ($role->is_system_role || $role->name === 'super_admin') {
+            return redirect()->back()
+                ->with('error', 'System role permissions cannot be modified.');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:admin_permissions,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $role->permissions()->sync($request->permissions ?? []);
+
+            AdminActivityLog::create([
+                'user_id' => Auth::guard('admin')->id(),
+                'action' => 'update_role_permissions',
+                'module' => 'roles',
+                'details' => [
+                    'role_id' => $role->id,
+                    'role_name' => $role->name,
+                    'permission_count' => count($request->permissions ?? []),
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.users.index', [
+                'tab' => 'permissions',
+                'selected_role' => $role->id,
+            ])->with('success', 'Role permissions updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', 'Failed to update role permissions.');
+        }
+    }
 }

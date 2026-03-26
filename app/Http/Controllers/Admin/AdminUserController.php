@@ -15,11 +15,55 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password as PasswordRules;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminUserController extends Controller
 {
+    private function getAuditLogsBaseQuery()
+    {
+        return AdminActivityLog::with('user')
+            ->where(function ($query) {
+                $query->whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users']);
+            });
+    }
+
+    private function applyAuditFilters($query, Request $request)
+    {
+        if ($request->filled('log_action')) {
+            $query->where('action', $request->input('log_action'));
+        }
+
+        if ($request->filled('log_module')) {
+            $query->where('module', $request->input('log_module'));
+        }
+
+        if ($request->filled('log_user_id')) {
+            $query->where('user_id', $request->input('log_user_id'));
+        }
+
+        if ($request->filled('log_date')) {
+            $query->whereDate('created_at', $request->input('log_date'));
+        }
+
+        return $query;
+    }
+
     public function index(Request $request)
     {
+        AdminActivityLog::create([
+            'user_id' => Auth::guard('admin')->id(),
+            'action' => 'VIEW',
+            'module' => 'Users & Roles',
+            'details' => [
+                'tab' => $request->input('tab', 'users'),
+                'search' => $request->input('search'),
+                'role_filter' => $request->input('role'),
+                'status_filter' => $request->input('status'),
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         $query = AdminUser::with('role');
 
         // Search filter
@@ -73,6 +117,21 @@ class AdminUserController extends Controller
             $q->where('name', 'super_admin');
         })->count();
         $total_roles = AdminRole::count();
+
+        $auditLogsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
+        $auditLogs = $auditLogsQuery->orderBy('created_at', 'desc')->paginate(10, ['*'], 'logs_page');
+
+        $auditActions = AdminActivityLog::whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users'])
+            ->select('action')
+            ->distinct()
+            ->orderBy('action')
+            ->pluck('action');
+
+        $auditModules = AdminActivityLog::whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users'])
+            ->select('module')
+            ->distinct()
+            ->orderBy('module')
+            ->pluck('module');
         
 
         return view('admin.admin_userNrole', compact(
@@ -85,8 +144,44 @@ class AdminUserController extends Controller
             'total_users',
             'active_users',
             'super_admins',
-            'total_roles'
+            'total_roles',
+            'auditLogs',
+            'auditActions',
+            'auditModules'
         ));
+    }
+
+    public function exportAuditLogsCsv(Request $request): StreamedResponse
+    {
+        $fileName = 'admin_user_role_audit_logs_' . now()->format('Ymd_His') . '.csv';
+
+        $logs = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->streamDownload(function () use ($logs) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Date/Time', 'User', 'Action', 'Module', 'Details', 'IP Address', 'User Agent']);
+
+            foreach ($logs as $log) {
+                $details = is_array($log->details) ? $log->details : (json_decode((string) $log->details, true) ?: $log->details);
+
+                fputcsv($handle, [
+                    optional($log->created_at)->format('Y-m-d H:i:s'),
+                    $log->user?->full_name ?? 'Unknown User',
+                    $log->action,
+                    $log->module,
+                    is_array($details) ? json_encode($details) : (string) $details,
+                    $log->ip_address,
+                    $log->user_agent,
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 
     public function store(Request $request)

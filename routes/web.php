@@ -421,6 +421,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         // Route::post('/{id}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('permission:reset_user_password')->name('reset-password');
         Route::post('/{id}/permissions', [AdminUserController::class, 'updatePermissions'])->middleware('permission:manage_user_permissions')->name('permissions');
         Route::post('/bulk-actions', [AdminUserController::class, 'bulkAction'])->middleware('permission:bulk_delete_users')->name('bulk-action');
+        Route::get('/audit-logs/export-csv', [AdminUserController::class, 'exportAuditLogsCsv'])->middleware('permission:view_users')->name('audit-logs.export-csv');
     });
 
     // ==================== ROLE MANAGEMENT ====================
