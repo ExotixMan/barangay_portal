@@ -22,9 +22,7 @@ class AdminUserController extends Controller
     private function getAuditLogsBaseQuery()
     {
         return AdminActivityLog::with('user')
-            ->where(function ($query) {
-                $query->whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users']);
-            });
+            ->orderBy('created_at', 'desc');
     }
 
     private function applyAuditFilters($query, Request $request)
@@ -121,14 +119,12 @@ class AdminUserController extends Controller
         $auditLogsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
         $auditLogs = $auditLogsQuery->orderBy('created_at', 'desc')->paginate(10, ['*'], 'logs_page');
 
-        $auditActions = AdminActivityLog::whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users'])
-            ->select('action')
+        $auditActions = AdminActivityLog::select('action')
             ->distinct()
             ->orderBy('action')
             ->pluck('action');
 
-        $auditModules = AdminActivityLog::whereIn('module', ['Users', 'roles', 'Users & Roles', 'Roles', 'users'])
-            ->select('module')
+        $auditModules = AdminActivityLog::select('module')
             ->distinct()
             ->orderBy('module')
             ->pluck('module');

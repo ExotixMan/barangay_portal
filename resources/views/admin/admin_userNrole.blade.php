@@ -2134,7 +2134,7 @@
                                 <div class="col-6">
                                     <div class="p-3 bg-light rounded">
                                         <small class="text-muted d-block">Last Login</small>
-                                        <strong>{{ $user->last_login_at ?? 'Today 9:30 AM' }}</strong>
+                                        <strong>{{ $user->last_login_at ? $user->last_login_at->format('M d, Y H:i:s') : 'Never logged in' }}</strong>
                                     </div>
                                 </div>
                             </div>
