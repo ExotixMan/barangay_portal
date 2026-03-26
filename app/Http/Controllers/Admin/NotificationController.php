@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Http;
 use App\Mail\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Traits\NotificationThrottler;
 
 class NotificationController extends Controller
 {
+    use NotificationThrottler;
+
     public function sendEmail(Request $request)
     {
         $validated = $request->validate([
@@ -19,11 +22,19 @@ class NotificationController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Check throttle limits before sending email
+        if (!$this->canSendNotification('email', $validated['email'], 'email_channel')) {
+            return back()->with('error', 'Too many emails sent. Please try again in a few moments.');
+        }
+
         Mail::to($validated['email'])
             ->send(new Notification(
                 $validated['name'],
                 $validated['message']
             ));
+
+        // Record the notification for throttling tracking
+        $this->recordNotification('email', $validated['email'], 'email_channel');
 
         // Log notification
         if (auth('admin')->check()) {
@@ -52,22 +63,27 @@ class NotificationController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Normalize to Philippine format expected by Semaphore (63XXXXXXXXXX)
+        $recipient = preg_replace('/\D/', '', $request->phone);
+
+        if (substr($recipient, 0, 1) === '0') {
+            $recipient = '63' . substr($recipient, 1);
+        }
+
+        if (substr($recipient, 0, 1) === '9') {
+            $recipient = '63' . $recipient;
+        }
+
+        // Check throttle limits before sending SMS
+        if (!$this->canSendNotification('sms', $recipient, 'sms_channel')) {
+            return back()->with('error', 'Too many SMS messages sent. Please try again in a few moments.');
+        }
+
         try {
             $apiKey = env('SMS_API_KEY');
 
             if (empty($apiKey)) {
                 return back()->with('error', 'SMS API key is missing.');
-            }
-
-            // Normalize to Philippine format expected by Semaphore (63XXXXXXXXXX)
-            $recipient = preg_replace('/\D/', '', $request->phone);
-
-            if (substr($recipient, 0, 1) === '0') {
-                $recipient = '63' . substr($recipient, 1);
-            }
-
-            if (substr($recipient, 0, 1) === '9') {
-                $recipient = '63' . $recipient;
             }
 
             $senderName = env('SMS_SENDER_NAME');
@@ -83,6 +99,9 @@ class NotificationController extends Controller
             $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
 
             if ($response->successful()) {
+                // Record the notification for throttling tracking
+                $this->recordNotification('sms', $recipient, 'sms_channel');
+
                 // Log notification
                 if (auth('admin')->check()) {
                     \App\Models\AdminActivityLog::create([

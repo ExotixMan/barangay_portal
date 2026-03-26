@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\AdminActivityLog;
 use App\Models\AdminUser;
 
@@ -48,6 +49,9 @@ class AdminLoginController extends Controller
                     'email' => 'Your account is not active. Please contact administrator.',
                 ])->withInput();
             }
+            
+            // Update the last_login_at timestamp for accurate login tracking
+            DB::table('admin_users')->where('id', $user->id)->update(['last_login_at' => now()]);
             
             // Store login time in session
             $this->storeLoginTime($request);

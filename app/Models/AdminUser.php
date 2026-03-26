@@ -33,6 +33,7 @@ class AdminUser extends Authenticatable
         'department',
         'status',
         'email_verified_at',
+        'last_login_at',
     ];
 
     protected $hidden = [
@@ -42,6 +43,7 @@ class AdminUser extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
