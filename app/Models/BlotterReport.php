@@ -12,6 +12,7 @@ class BlotterReport extends Model
     protected $table = 'blotter_reports';
 
     protected $fillable = [
+        'user_id',
         'reference_number',
         'report_type',
         'incident_date',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\IndigencyApplication;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class IndigencyApplicationController extends Controller
 {
@@ -62,6 +63,7 @@ class IndigencyApplicationController extends Controller
         $data['reference_number'] = 'IND-' . date('Y') . '-' . strtoupper(Str::random(6));
 
         $data['status'] = 'processing';
+        $data['user_id'] = $request->user()?->id;
 
         IndigencyApplication::create($data);
 

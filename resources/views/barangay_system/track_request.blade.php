@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -1512,10 +1512,10 @@
                                 @auth
                                     @php
                                         $allRequests = [];
+                                        $userId = Auth::id();
                                         
-                                        // Get clearance applications
-                                        $clearances = App\Models\BarangayClearance::where('email', Auth::user()->email)
-                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                        // Get clearance applications - user_id only
+                                        $clearances = App\Models\BarangayClearance::where('user_id', $userId)
                                             ->get()
                                             ->map(function($item) {
                                                 return [
@@ -1529,9 +1529,8 @@
                                                 ];
                                             })->toArray();
                                         
-                                        // Get residency applications
-                                        $residencies = App\Models\ResidencyApplication::where('email', Auth::user()->email)
-                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                        // Get residency applications - user_id only
+                                        $residencies = App\Models\Residency::where('user_id', $userId)
                                             ->get()
                                             ->map(function($item) {
                                                 return [
@@ -1545,9 +1544,8 @@
                                                 ];
                                             })->toArray();
                                         
-                                        // Get indigency applications
-                                        $indigencies = App\Models\IndigencyApplication::where('email', Auth::user()->email)
-                                            ->orWhere('contact_number', Auth::user()->contact_number ?? '')
+                                        // Get indigency applications - user_id only
+                                        $indigencies = App\Models\IndigencyApplication::where('user_id', $userId)
                                             ->get()
                                             ->map(function($item) {
                                                 return [
@@ -1563,8 +1561,7 @@
                                         
                                         // Get Incident Reports if model exists
                                         if(class_exists('App\Models\BlotterReport')) {
-                                            $blotters = App\Models\BlotterReport::where('complainant_email', Auth::user()->email)
-                                                ->orWhere('complainant_contact', Auth::user()->contact_number ?? '')
+                                            $blotters = App\Models\BlotterReport::where('user_id', $userId)
                                                 ->get()
                                                 ->map(function($item) {
                                                     return [

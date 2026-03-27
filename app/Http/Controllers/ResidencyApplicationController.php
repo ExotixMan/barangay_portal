@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ResidencyApplication;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ResidencyApplicationController extends Controller
 {
@@ -64,6 +65,7 @@ class ResidencyApplicationController extends Controller
 
         // Generate reference number
         $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
+        $data['user_id'] = $request->user()?->id;
 
         ResidencyApplication::create($data);
 

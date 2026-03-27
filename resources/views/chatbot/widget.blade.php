@@ -371,6 +371,10 @@
     /* ── Send ─────────────────────────────────────────── */
     async function send() {
         const text = input.value.trim();
+        if (text.length === 1) {
+            bot('Please type at least 2 characters so I can understand your request.', null, [], 'guard', null);
+            return;
+        }
         if (!text || isBusy) return;
 
         user(text);

@@ -334,6 +334,22 @@ class ResidencyController extends Controller
         // Delete the records
         Residency::whereIn('id', $request->ids)->delete();
 
+        // Log audit trail
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'BULK_DELETE',
+                'module' => 'Residency',
+                'details' => [
+                    'ids' => $request->ids,
+                    'count' => count($request->ids),
+                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
+
         return back()->with('success', count($request->ids) . ' selected application(s) deleted successfully.');
     }
 
@@ -401,6 +417,27 @@ class ResidencyController extends Controller
             fclose($file);
         };
 
+        // Log audit trail
+        if (auth('admin')->check()) {
+            $exportCount = Residency::query()->when($request->ids, function($q) use ($request) {
+                return $q->whereIn('id', $request->ids);
+            })->count();
+            
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'EXPORT',
+                'module' => 'Residency',
+                'details' => [
+                    'ids' => $request->ids ?: 'all',
+                    'count' => $exportCount,
+                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'file_format' => 'CSV'
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
+
         return response()->stream($callback, 200, $headers);
     }
 
@@ -448,6 +485,25 @@ class ResidencyController extends Controller
 
         $docxPath = $outputDir . '/' . $fileName;
         $templateProcessor->saveAs($docxPath);
+
+        // Log audit trail
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'DOWNLOAD',
+                'module' => 'Residency',
+                'details' => [
+                    'record_id' => $record->id,
+                    'reference_number' => $record->reference_number,
+                    'document_name' => $record->reference_number,
+                    'file_type' => 'Word Document',
+                    'action_type' => $action,
+                    'downloaded_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
 
         if ($action === 'print') {
             $phpWord = IOFactory::load($docxPath);

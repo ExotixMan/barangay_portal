@@ -9,7 +9,7 @@
 @endif
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -372,7 +372,7 @@
 
                     <div class="form-actions row g-2 btns" style="margin-top: 3px;">
                         <div class="col-12 col-md-auto">
-                            <a href="{{ route('incident') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <a href="{{ route('incident') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;" onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                         </div>
@@ -717,10 +717,11 @@
             const progressFill = document.getElementById('progressFill');
             const progressSteps = document.querySelectorAll('.step');
             const nextButtons = document.querySelectorAll('.btn-next');
-            const prevButtons = document.querySelectorAll('.btn-prev');
+            const prevButtons = document.querySelectorAll('.btn-prev[data-prev]');
             const declareTruth = document.getElementById('declareTruth');
             const agreePrivacy = document.getElementById('agreePrivacy');
             const consentProcessing = document.getElementById('consentProcessing');
+            const termsError = document.getElementById('termsError');
 
             let currentStep = 1;
             const totalSteps = 4;
@@ -1197,18 +1198,32 @@
 
                 if (!declareTruth.checked || !agreePrivacy.checked || !consentProcessing.checked) {
                     e.preventDefault();
-                    const termsError = document.getElementById('termsError');
                     termsError.style.display = 'block';
                     termsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
             });
 
-            // Hide terms error once all checkboxes are checked
+            // Show or hide terms error based on checkbox state
             [declareTruth, agreePrivacy, consentProcessing].forEach(function(cb) {
                 cb.addEventListener('change', function() {
                     if (declareTruth.checked && agreePrivacy.checked && consentProcessing.checked) {
-                        document.getElementById('termsError').style.display = 'none';
+                        termsError.style.display = 'none';
+                    } else {
+                        termsError.style.display = 'block';
+                    }
+                });
+
+                // When native required validation triggers, show the same custom error block.
+                cb.addEventListener('invalid', function(e) {
+                    e.preventDefault();
+                    termsError.style.display = 'block';
+                    termsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                cb.addEventListener('input', function() {
+                    if (declareTruth.checked && agreePrivacy.checked && consentProcessing.checked) {
+                        termsError.style.display = 'none';
                     }
                 });
             });

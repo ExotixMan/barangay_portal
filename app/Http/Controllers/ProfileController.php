@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use App\Models\Residents;
 use App\Models\ResidencyApplication;
@@ -19,20 +20,28 @@ class ProfileController extends Controller
     {
         /** @var Residents $resident */
         $resident = Auth::user();
+        $userId = $resident->id;
 
-        $residencyCount = ResidencyApplication::where('email', $resident->email)->count();
-        $indigencyCount = IndigencyApplication::where('email', $resident->email)->count();
-        $clearanceCount = BarangayClearance::where('email', $resident->email)->count();
-        $blotterCount   = BlotterReport::where('complainant_email', $resident->email)->count();
+        $residencyCount = ResidencyApplication::where('user_id', $userId)->count();
+
+        $indigencyCount = IndigencyApplication::where('user_id', $userId)->count();
+
+        $clearanceCount = BarangayClearance::where('user_id', $userId)->count();
+
+        $blotterCount = BlotterReport::where('user_id', $userId)->count();
+
         $totalRequests  = $residencyCount + $indigencyCount + $clearanceCount + $blotterCount;
 
-        $residencyRecords = ResidencyApplication::where('email', $resident->email)
+        $residencyRecords = ResidencyApplication::where('user_id', $userId)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Certificate of Residency' as type"));
-        $indigencyRecords = IndigencyApplication::where('email', $resident->email)
+
+        $indigencyRecords = IndigencyApplication::where('user_id', $userId)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Certificate of Indigency' as type"));
-        $clearanceRecords = BarangayClearance::where('email', $resident->email)
+
+        $clearanceRecords = BarangayClearance::where('user_id', $userId)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Barangay Clearance' as type"));
-        $blotterRecords = BlotterReport::where('complainant_email', $resident->email)
+
+        $blotterRecords = BlotterReport::where('user_id', $userId)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Incident Report' as type"));
 
         $recentRequests = $residencyRecords
@@ -109,11 +118,22 @@ class ProfileController extends Controller
         ]);
 
         $emailChanged = $validated['email'] !== $resident->email;
-        $resident->update($validated);
+        $resident->fill($validated);
 
         if ($emailChanged) {
-            $resident->update(['email_verified_at' => null]);
-            $resident->sendEmailVerificationNotification();
+            $resident->email_verified_at = null;
+        }
+
+        $resident->save();
+
+        if ($emailChanged) {
+            $emailThrottleKey = 'verify-email-sent:' . $resident->id . ':' . $resident->email;
+
+            if (!Cache::has($emailThrottleKey)) {
+                $resident->sendEmailVerificationNotification();
+                Cache::put($emailThrottleKey, true, now()->addMinutes(2));
+            }
+
             return redirect()->route('verification.notice')
                 ->with('success', 'Email updated. Please verify your new email address.');
         }
@@ -153,11 +173,11 @@ class ProfileController extends Controller
         }
 
         $request->validate([
-            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ], [
             'profile_photo.image' => 'The file must be an image.',
             'profile_photo.mimes' => 'Only JPG, PNG, and WebP images are allowed.',
-            'profile_photo.max'   => 'Photo must not exceed 2MB.',
+            'profile_photo.max'   => 'Photo must not exceed 5MB.',
         ]);
 
         /** @var Residents $resident */

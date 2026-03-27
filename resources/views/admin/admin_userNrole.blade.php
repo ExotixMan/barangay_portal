@@ -1732,7 +1732,7 @@
                                 {{ $auditLogs->firstItem() ?? 0 }}-{{ $auditLogs->lastItem() ?? 0 }} of {{ $auditLogs->total() }}
                             </small>
                             <nav class="order-1 order-md-2">
-                                {{ $auditLogs->appends(['tab' => 'audit'])->appends(request()->query('log_action', null), 'log_action')->appends(request()->query('log_module', null), 'log_module')->appends(request()->query('log_user_id', null), 'log_user_id')->appends(request()->query('log_date', null), 'log_date')->links('pagination::bootstrap-5') }}
+                                {{ $auditLogs->appends(array_merge(['tab' => 'audit'], request()->only(['log_action', 'log_module', 'log_user_id', 'log_date'])))->links('pagination::bootstrap-5') }}
                             </nav>
                         </div>
                         @endif

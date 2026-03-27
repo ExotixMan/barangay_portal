@@ -275,6 +275,10 @@
                             if (printWindow) {
                                 printWindow.document.write(printContent);
                                 printWindow.document.close();
+                                printWindow.focus();
+                                setTimeout(() => {
+                                    printWindow.print();
+                                }, 300);
                             } else {
                                 alert('Please allow pop-ups to print the receipt');
                             }

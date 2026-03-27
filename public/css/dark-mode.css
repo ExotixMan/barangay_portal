@@ -1835,6 +1835,29 @@ body.dark-mode .resend-btn {
     color: #ffffff !important;
 }
 
+body.dark-mode .btn-download,
+body.dark-mode .btn-back-info {
+    background: var(--dm-accent) !important;
+    border: 1px solid var(--dm-accent) !important;
+}
+
+body.dark-mode .btn-download:hover,
+body.dark-mode .btn-back-info:hover {
+    background: #b71c1c !important;
+    border-color: #b71c1c !important;
+}
+
+body.dark-mode .btn-track {
+    background: var(--dm-bg-tertiary) !important;
+    border: 1px solid #4a4a4a !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .btn-track:hover {
+    background: #3a3a3a !important;
+    border-color: #5a5a5a !important;
+}
+
 body.dark-mode .notice-modal,
 body.dark-mode .notice-modal-body,
 body.dark-mode .notice-card,

@@ -119,10 +119,31 @@ class AdminUserController extends Controller
         $auditLogsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
         $auditLogs = $auditLogsQuery->orderBy('created_at', 'desc')->paginate(10, ['*'], 'logs_page');
 
-        $auditActions = AdminActivityLog::select('action')
+        // Get all possible audit actions (predefined + from database)
+        $predefinedActions = [
+            'CREATE',
+            'READ',
+            'UPDATE',
+            'DELETE',
+            'VIEW',
+            'APPROVE',
+            'REJECT',
+            'EMAIL',
+            'SMS',
+            'EXPORT',
+            'DOWNLOAD',
+            'BULK_DELETE',
+            'APPROVAL_STATUS_CHANGE'
+        ];
+        
+        $dbActions = AdminActivityLog::select('action')
             ->distinct()
-            ->orderBy('action')
-            ->pluck('action');
+            ->pluck('action')
+            ->toArray();
+        
+        $auditActions = collect(array_unique(array_merge($predefinedActions, $dbActions)))
+            ->sort()
+            ->values();
 
         $auditModules = AdminActivityLog::select('module')
             ->distinct()

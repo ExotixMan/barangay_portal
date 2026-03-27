@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ResidencyApplication extends Model
 {
     protected $fillable = [
+        'user_id',
         'reference_number',
         'first_name',
         'middle_name',

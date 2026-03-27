@@ -241,6 +241,23 @@ class ResidentController extends Controller
         $resident->update(['valid_id_verified' => 'true']);
         $this->log($resident, 'Valid ID Verified');
 
+        // Log audit trail
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPROVE',
+                'module' => 'Residents',
+                'details' => [
+                    'resident_id' => $resident->id,
+                    'resident_name' => $resident->full_name,
+                    'action_type' => 'valid_id_verified',
+                    'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been verified.');
     }
     
@@ -256,6 +273,22 @@ class ResidentController extends Controller
         foreach ($residents as $resident) {
             $resident->delete();
             $this->log($resident, 'Bulk Deleted');
+        }
+
+        // Log audit trail
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'BULK_DELETE',
+                'module' => 'Residents',
+                'details' => [
+                    'ids' => $request->ids,
+                    'count' => count($request->ids),
+                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
         }
 
         return back()->with('success', 'Selected residents deleted.');
@@ -301,6 +334,27 @@ class ResidentController extends Controller
 
             fclose($file);
         };
+
+        // Log audit trail
+        if (auth('admin')->check()) {
+            $exportCount = Residents::query()->when($request->ids, function($q) use ($request) {
+                return $q->whereIn('id', $request->ids);
+            })->count();
+            
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'EXPORT',
+                'module' => 'Residents',
+                'details' => [
+                    'ids' => $request->ids ?: 'all',
+                    'count' => $exportCount,
+                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'file_format' => 'CSV'
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
 
         return response()->stream($callback, 200, $headers);
     }

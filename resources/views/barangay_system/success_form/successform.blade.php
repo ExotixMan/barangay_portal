@@ -34,8 +34,8 @@
                             id="referenceNumber">{{ $reference_number }}</strong></p>
                     <div class="status-actions row g-2 justify-content-center">
                         <div class="col-12 col-md-auto">
-                            <button class="btn-download w-100">
-                                <i class="fas fa-download"></i> Download Receipt
+                            <button type="button" class="btn-download w-100" id="printReceipt">
+                                <i class="fas fa-print"></i> Print Receipt
                             </button>
                         </div>
                         <div class="col-12 col-md-auto">
@@ -66,11 +66,10 @@
             history.go(1);
         };
         document.addEventListener('DOMContentLoaded', function() {
-            
             // Download receipt button
-            const downloadButton = document.querySelector('.btn-download');
-            if (downloadButton) {
-                downloadButton.addEventListener('click', function() {
+            const printButton = document.getElementById('printReceipt');
+            if (printButton) {
+                printButton.addEventListener('click', function() {
                     const applicantName = '{{ $applicant_name }}';
                     const referenceNum = '{{ $reference_number }}';
                     const currentDate = '{{ $date_submitted }}';
@@ -293,6 +292,10 @@
                             if (printWindow) {
                                 printWindow.document.write(printContent);
                                 printWindow.document.close();
+                                printWindow.focus();
+                                setTimeout(() => {
+                                    printWindow.print();
+                                }, 300);
                             } else {
                                 alert('Please allow pop-ups to print the receipt');
                             }

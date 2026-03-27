@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,7 +150,7 @@
 
                     <div class="form-actions row g-2 btns">
                         <div class="col-12 col-md-auto">
-                            <a href="{{ route('residency.form') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <a href="{{ route('residency') }}" class="btn-prev" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;" onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                         </div>
@@ -461,7 +461,7 @@
             const progressFill = document.getElementById('progressFill');
             const progressSteps = document.querySelectorAll('.step');
             const nextButtons = document.querySelectorAll('.btn-next');
-            const prevButtons = document.querySelectorAll('.btn-prev');
+            const prevButtons = document.querySelectorAll('.btn-prev[data-prev]');
             const purposeSelect = document.getElementById('purpose');
             const purposeOther = document.getElementById('purposeOther');
             const termsCheckbox = document.getElementById('terms');

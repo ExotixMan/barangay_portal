@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BarangayClearance;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class BarangayClearanceController extends Controller
 {
@@ -62,6 +63,7 @@ class BarangayClearanceController extends Controller
 
             // Default status
             $data['status'] = 'processing';
+            $data['user_id'] = $request->user()?->id;
 
             BarangayClearance::create($data);
 

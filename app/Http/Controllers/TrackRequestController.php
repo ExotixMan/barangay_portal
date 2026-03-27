@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BarangayClearance;
-use App\Models\ResidencyApplication;
+use App\Models\Residency;
 use App\Models\IndigencyApplication;
 use App\Models\BlotterReport;
 use Illuminate\Support\Facades\Auth;
@@ -59,7 +59,7 @@ class TrackRequestController extends Controller
                 'type_code' => 'clearance',
                 'name' => trim($clearance->first_name . ' ' . ($clearance->middle_name ?? '') . ' ' . $clearance->last_name . ($clearance->suffix ? ' ' . $clearance->suffix : '')),
                 'date' => $clearance->created_at->format('F d, Y'),
-                'status' => $status,
+                'status' =>  strtoupper($status),
                 'status_lower' => strtolower($status),
                 'purpose' => $clearance->purpose == 'other' ? ($clearance->purpose_other ?? 'Other') : $clearance->purpose,
                 'expected_completion' => $clearance->created_at->addDays(3)->format('F d, Y'),
@@ -76,7 +76,7 @@ class TrackRequestController extends Controller
         }
 
         // Search in Residency
-        $residency = ResidencyApplication::where('reference_number', $reference)->first();
+        $residency = Residency::where('reference_number', $reference)->first();
         if ($residency) {
             $status = ucfirst($residency->status ?? 'processing');
             return [
@@ -85,7 +85,7 @@ class TrackRequestController extends Controller
                 'type_code' => 'residency',
                 'name' => trim($residency->first_name . ' ' . ($residency->middle_name ?? '') . ' ' . $residency->last_name . ($residency->suffix ? ' ' . $residency->suffix : '')),
                 'date' => $residency->created_at->format('F d, Y'),
-                'status' => $status,
+                'status' =>  strtoupper($status),
                 'status_lower' => strtolower($status),
                 'purpose' => $residency->purpose == 'other' ? ($residency->purpose_other ?? 'Other') : $residency->purpose,
                 'expected_completion' => $residency->created_at->addDays(3)->format('F d, Y'),
@@ -109,7 +109,7 @@ class TrackRequestController extends Controller
                 'type_code' => 'indigency',
                 'name' => trim($indigency->first_name . ' ' . ($indigency->middle_name ?? '') . ' ' . $indigency->last_name . ($indigency->suffix ? ' ' . $indigency->suffix : '')),
                 'date' => $indigency->created_at->format('F d, Y'),
-                'status' => $status,
+                'status' =>  strtoupper($status),
                 'status_lower' => strtolower($status),
                 'purpose' => $indigency->purpose == 'other' ? ($indigency->purpose_other ?? 'Other') : $indigency->purpose,
                 'expected_completion' => $indigency->created_at->addDays(3)->format('F d, Y'),
@@ -128,14 +128,14 @@ class TrackRequestController extends Controller
             $blotter = BlotterReport::where('reference_number', $reference)
                 ->first();
             if ($blotter) {
-                $status = $blotter->status ?? 'processing';
+                $status = strtoupper($blotter->status ?? 'processing');
                 return [
                     'reference' => $blotter->reference_number,
                     'type' => 'Incident Report',
                     'type_code' => 'incident',
                     'name' => $blotter->complainant_name ?? '',
                     'date' => $blotter->created_at->format('F d, Y'),
-                    'status' => $status,
+                    'status' =>  strtoupper($status),
                     'status_lower' => strtolower($status),
                     'purpose' => $blotter->incident_type ?? 'Incident Report',
                     'remarks' => $blotter->remarks ?? $blotter->additional_info ?? 'Under investigation',
@@ -280,12 +280,10 @@ class TrackRequestController extends Controller
     private function getUserRequests($user)
     {
         $requests = [];
-        $email = $user->email;
-        $contact = $user->contact_number ?? '';
+        $userId = $user->id;
 
-        // Get clearance applications
-        $clearances = BarangayClearance::where('email', $email)
-            ->orWhere('contact_number', $contact)
+        // Get clearance applications - user_id only
+        $clearances = BarangayClearance::where('user_id', $userId)
             ->get()
             ->map(function($item) {
                 return [
@@ -293,16 +291,15 @@ class TrackRequestController extends Controller
                     'type' => 'Barangay Clearance',
                     'type_code' => 'clearance',
                     'date' => $item->created_at->format('M d, Y'),
-                    'status' => ucfirst($item->status ?? 'processing'),
+                    'status' =>  strtoupper(ucfirst($item->status ?? 'processing')),
                     'status_lower' => strtolower($item->status ?? 'processing'),
                     'last_updated' => $item->updated_at->format('M d, Y'),
                     'email' => $item->email,
                 ];
             })->toArray();
         
-        // Get residency applications
-        $residencies = ResidencyApplication::where('email', $email)
-            ->orWhere('contact_number', $contact)
+        // Get residency applications - user_id only
+        $residencies = Residency::where('user_id', $userId)
             ->get()
             ->map(function($item) {
                 return [
@@ -310,16 +307,15 @@ class TrackRequestController extends Controller
                     'type' => 'Certificate of Residency',
                     'type_code' => 'residency',
                     'date' => $item->created_at->format('M d, Y'),
-                    'status' => ucfirst($item->status ?? 'processing'),
+                    'status' =>  strtoupper(ucfirst($item->status ?? 'processing')),
                     'status_lower' => strtolower($item->status ?? 'processing'),
                     'last_updated' => $item->updated_at->format('M d, Y'),
                     'email' => $item->email,
                 ];
             })->toArray();
         
-        // Get indigency applications
-        $indigencies = IndigencyApplication::where('email', $email)
-            ->orWhere('contact_number', $contact)
+        // Get indigency applications - user_id only
+        $indigencies = IndigencyApplication::where('user_id', $userId)
             ->get()
             ->map(function($item) {
                 return [
@@ -327,7 +323,7 @@ class TrackRequestController extends Controller
                     'type' => 'Certificate of Indigency',
                     'type_code' => 'indigency',
                     'date' => $item->created_at->format('M d, Y'),
-                    'status' => ucfirst($item->status ?? 'processing'),
+                    'status' =>  strtoupper(ucfirst($item->status ?? 'processing')),
                     'status_lower' => strtolower($item->status ?? 'processing'),
                     'last_updated' => $item->updated_at->format('M d, Y'),
                     'email' => $item->email,
@@ -337,8 +333,7 @@ class TrackRequestController extends Controller
         // Get incident reports if model exists
         $blotters = [];
         if (class_exists('App\Models\BlotterReport')) {
-            $blotters = BlotterReport::where('complainant_email', $email)
-                ->orWhere('complainant_contact', $contact)
+            $blotters = BlotterReport::where('user_id', $userId)
                 ->get()
                 ->map(function($item) {
                     return [
@@ -346,7 +341,7 @@ class TrackRequestController extends Controller
                         'type' => 'Incident Report',
                         'type_code' => 'incident',
                         'date' => $item->created_at->format('M d, Y'),
-                        'status' => $item->status ?? 'processing',
+                        'status' => strtoupper($item->status ?? 'processing'),
                         'status_lower' => strtolower($item->status ?? 'processing'),
                         'last_updated' => $item->updated_at->format('M d, Y'),
                         'email' => $item->complainant_email

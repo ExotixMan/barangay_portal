@@ -173,7 +173,9 @@ class InputGuard
 
         // 1. Empty / too short
         if (strlen(trim($message)) < 2) {
-            return GuardResult::block('empty', null); // silent — no response
+            return GuardResult::block('too_short',
+                "Please type at least 2 characters so I can help you with Barangay Hulo Portal services."
+            );
         }
 
         // 2. Too long (possible injection payload)

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -303,7 +303,7 @@
             font-size: 0.9rem;
             transition: all 0.3s ease;
             justify-content: center;
-            margin-top: 16px;
+            margin-top: auto;
             border: 2px solid #C62828;
             width: fit-content;
         }
@@ -415,6 +415,8 @@
             transition: all 0.3s ease;
             border: 1px solid #f0f0f0;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .project-card:hover {
@@ -443,6 +445,9 @@
 
         .project-content {
             padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .project-content h3 {
@@ -456,10 +461,16 @@
             color: #666;
             line-height: 1.6;
             margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 4.8em;
         }
 
         .project-info {
             margin-bottom: 25px;
+            min-height: 110px;
         }
 
         .project-info .info-item {
@@ -1029,7 +1040,7 @@
                                     <div class="project-info">
                                         <div class="info-item">
                                             <i class="fas fa-calendar-alt"></i>
-                                            <span>{{ $project->start_date }}</span>
+                                            <span>Started: {{ $project->start_date }}</span>
                                         </div>
                                         <div class="info-item">
                                             <i class="fas fa-calendar-check"></i>
@@ -1074,7 +1085,7 @@
                                     <i class="fas fa-check-circle"></i>
                                 </div>
                                 <h3>{{ $project->title }}</h3>
-                                <p>{{ $project->description }}</p>
+                                <p>{{ \Illuminate\Support\Str::limit($project->description, 150) }}</p>
                                 <div class="completed-info">
                                     <span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>
                                 </div>

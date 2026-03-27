@@ -10,6 +10,7 @@ class IndigencyApplication extends Model
     protected $table = 'indigency_applications';
 
     protected $fillable = [
+        'user_id',
         'reference_number',
         'first_name',
         'middle_name',

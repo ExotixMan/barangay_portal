@@ -10,6 +10,7 @@ class BarangayClearance extends Model
     protected $table = 'barangay_clearances';
     
     protected $fillable = [
+        'user_id',
         'reference_number',
         'first_name',
         'middle_name',

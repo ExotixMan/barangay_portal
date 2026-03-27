@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -778,7 +778,7 @@
                         <div class="tab-content d-none" id="tab-requests">
                             <div class="panel-header pb-3">
                                 <h5><i class="fas fa-file-alt me-2 text-danger"></i>Request History</h5>
-                                <p>All document requests associated with your email address.</p>
+                                <p>All document requests linked to your account.</p>
                             </div>
                             <div class="tab-pane-body">
                                 {{-- Summary counters --}}
@@ -998,7 +998,18 @@
         const quickForm  = document.getElementById('quickPhotoForm');
         if (quickInput && quickForm) {
             quickInput.addEventListener('change', () => {
-                if (quickInput.files.length > 0) quickForm.submit();
+                if (quickInput.files.length === 0) return;
+
+                const file = quickInput.files[0];
+                const maxBytes = 5 * 1024 * 1024;
+
+                if (file.size > maxBytes) {
+                    alert('Profile photo must not exceed 5MB.');
+                    quickInput.value = '';
+                    return;
+                }
+
+                quickForm.submit();
             });
         }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use App\Models\BlotterReport;
 use App\Models\Witness;
 use App\Models\ReportFile;
@@ -57,6 +58,7 @@ class BlotterController extends Controller
             $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
 
             $report = BlotterReport::create([
+                'user_id' => $request->user()?->id,
                 'reference_number' => $reference,
                 'report_type' => $request->reportType,
                 'incident_date' => $request->incidentDate,

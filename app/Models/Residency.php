@@ -9,6 +9,7 @@ class Residency extends Model
     protected $table = 'residency_applications'; // if your table is named residencies
 
     protected $fillable = [
+        'user_id',
         'reference_number',
         'first_name',
         'middle_name',
