@@ -117,7 +117,7 @@
                             <label for="birthdate">
                                 <i class="fas fa-birthday-cake"></i> Date of Birth *
                             </label>
-                            <input type="date" id="birthdate" name="birthdate" required class="form-control">
+                            <input type="date" id="birthdate" name="birthdate" required max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
                         </div>
 
                         <div class="form-group col-md-12">
@@ -393,6 +393,17 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
+            const birthdateInput = document.getElementById('birthdate');
+            const maxBirthdate = new Date();
+
+            maxBirthdate.setFullYear(maxBirthdate.getFullYear() - 5);
+            maxBirthdate.setHours(0, 0, 0, 0);
+
+            const maxBirthdateString = maxBirthdate.toISOString().split('T')[0];
+
+            if (birthdateInput) {
+                birthdateInput.max = maxBirthdateString;
+            }
 
             let currentStep = 1;
             const totalSteps = 3;
@@ -617,17 +628,11 @@
                     
                     // Validate date of birth (not in future)
                     else if (field.id === 'birthdate') {
-                        const selectedDate = new Date(fieldValue);
-                        const today = new Date();
-                        if (selectedDate > today) {
+                        const selectedDate = new Date(`${fieldValue}T00:00:00`);
+                        if (Number.isNaN(selectedDate.getTime())) {
                             isValid = false;
-                            showFieldError(field, 'Date of birth cannot be in the future');
-                        }
-                        
-                        // Accept applicants 5 years old and above
-                        const age = today.getFullYear() - selectedDate.getFullYear();
-                        const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 5 || (age === 5 && monthDiff < 0)) {
+                            showFieldError(field, 'Please enter a valid date of birth');
+                        } else if (selectedDate > maxBirthdate) {
                             isValid = false;
                             showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }

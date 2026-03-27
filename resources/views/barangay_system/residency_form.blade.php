@@ -111,7 +111,7 @@
                             <label for="birthdate">
                                 <i class="fas fa-birthday-cake"></i> Date of Birth *
                             </label>
-                            <input type="date" id="birthdate" name="birthdate" required class="form-control">
+                            <input type="date" id="birthdate" name="birthdate" required max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
                         </div>
 
                         <div class="form-group col-md-12">
@@ -171,6 +171,7 @@
                         <textarea id="address" name="address" required rows="3"
                             placeholder="House No., Street, Subdivision/Village, Barangay Hulo, Malabon City" class="form-control"></textarea>
                         <div class="form-hint">Include specific landmarks for accurate verification</div>
+                        <div id="addressError" class="error-message" style="display:none;color:#ff4444;font-size:0.85rem;margin-top:5px;"></div>
                     </div>
 
                     <div class="form-grid row g-3">
@@ -226,7 +227,7 @@
                                 <i class="fas fa-users"></i> Number of Household Members *
                             </label>
                             <input type="number" id="householdMembers" name="household_members" required
-                                min="1" max="20" placeholder="e.g., 4" class="form-control">
+                                min="1" max="20" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="e.g., 4" class="form-control">
                         </div>
                     </div>
 
@@ -467,6 +468,32 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
+            const birthdateInput = document.getElementById('birthdate');
+            const householdMembersInput = document.getElementById('householdMembers');
+            const maxBirthdate = new Date();
+
+            maxBirthdate.setFullYear(maxBirthdate.getFullYear() - 5);
+            maxBirthdate.setHours(0, 0, 0, 0);
+
+            const maxBirthdateString = maxBirthdate.toISOString().split('T')[0];
+
+            if (birthdateInput) {
+                birthdateInput.max = maxBirthdateString;
+            }
+
+            if (householdMembersInput) {
+                householdMembersInput.addEventListener('keydown', function(e) {
+                    const blockedKeys = ['e', 'E', '+', '-', '.'];
+                    if (blockedKeys.includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                householdMembersInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^\d]/g, '');
+                    validateHouseholdField(this);
+                });
+            }
 
             let currentStep = 1;
             const totalSteps = 4;
@@ -502,11 +529,6 @@
             // Add real-time validation for contact number
             document.getElementById('contactNumber').addEventListener('input', function(e) {
                 validateContactField(this);
-            });
-
-            // Add real-time validation for household members
-            document.getElementById('householdMembers').addEventListener('input', function(e) {
-                validateHouseholdField(this);
             });
 
             // Add real-time validation for birth place
@@ -606,10 +628,35 @@
             function validateStep(stepNumber) {
                 let isValid = true;
                 const currentStepElement = document.getElementById(`step${stepNumber}`);
+
+                function setAddressError(message) {
+                    const addressError = document.getElementById('addressError');
+                    if (addressError) {
+                        addressError.textContent = message;
+                        addressError.style.display = 'block';
+                    }
+                }
+
+                function clearAddressError() {
+                    const addressError = document.getElementById('addressError');
+                    if (addressError) {
+                        addressError.textContent = '';
+                        addressError.style.display = 'none';
+                    }
+                }
+
+                clearAddressError();
                 
                 // Clear previous error messages
                 const existingErrors = currentStepElement.querySelectorAll('.error-message');
-                existingErrors.forEach(error => error.remove());
+                existingErrors.forEach(error => {
+                    if (error.id === 'addressError') {
+                        error.textContent = '';
+                        error.style.display = 'none';
+                        return;
+                    }
+                    error.remove();
+                });
                 
                 // Reset field styles
                 const allFields = currentStepElement.querySelectorAll('input, select, textarea');
@@ -674,7 +721,13 @@
                     // For text inputs, select, and textarea
                     else if (!fieldValue) {
                         isValid = false;
-                        showFieldError(field, 'This field is required');
+                        if (field.id === 'address') {
+                            setAddressError('This field is required');
+                            field.style.borderColor = '#ff4444';
+                            field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+                        } else {
+                            showFieldError(field, 'This field is required');
+                        }
                         return;
                     }
                     
@@ -762,18 +815,12 @@
                         // Remove any existing error for this specific field first
                         const fieldErrors = field.parentNode.querySelectorAll('.error-message');
                         fieldErrors.forEach(error => error.remove());
-                        
-                        const selectedDate = new Date(fieldValue);
-                        const today = new Date();
-                        if (selectedDate > today) {
+
+                        const selectedDate = new Date(`${fieldValue}T00:00:00`);
+                        if (Number.isNaN(selectedDate.getTime())) {
                             isValid = false;
-                            showFieldError(field, 'Date of birth cannot be in the future');
-                        }
-                        
-                        // Accept applicants 5 years old and above
-                        const age = today.getFullYear() - selectedDate.getFullYear();
-                        const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 5 || (age === 5 && monthDiff < 0)) {
+                            showFieldError(field, 'Please enter a valid date of birth');
+                        } else if (selectedDate > maxBirthdate) {
                             isValid = false;
                             showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }
@@ -783,11 +830,17 @@
                     else if (field.id === 'address') {
                         // Remove any existing error for this specific field first
                         const fieldErrors = field.parentNode.querySelectorAll('.error-message');
-                        fieldErrors.forEach(error => error.remove());
+                        fieldErrors.forEach(error => {
+                            if (error.id !== 'addressError') {
+                                error.remove();
+                            }
+                        });
                         
                         if (fieldValue.length < 10) {
                             isValid = false;
-                            showFieldError(field, 'Please enter a complete address');
+                            setAddressError('Please enter a complete address');
+                        } else {
+                            clearAddressError();
                         }
                     }
                 });
@@ -916,11 +969,17 @@
 
             function validateAddressField(field) {
                 const value = field.value;
+                const addressError = document.getElementById('addressError');
                 
                 // Remove any error message
                 const existingError = field.parentNode.querySelector('.error-message');
-                if (existingError) {
+                if (existingError && existingError.id !== 'addressError') {
                     existingError.remove();
+                }
+
+                if (addressError) {
+                    addressError.textContent = '';
+                    addressError.style.display = 'none';
                 }
                 
                 // Reset field style
@@ -931,14 +990,11 @@
                 if (value && value.length > 0 && value.length < 10) {
                     field.style.borderColor = '#ff4444';
                     field.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
-                    
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'error-message';
-                    errorMessage.style.color = '#ff4444';
-                    errorMessage.style.fontSize = '0.85rem';
-                    errorMessage.style.marginTop = '5px';
-                    errorMessage.textContent = 'Please enter a complete address';
-                    field.parentNode.appendChild(errorMessage);
+
+                    if (addressError) {
+                        addressError.textContent = 'Please enter a complete address';
+                        addressError.style.display = 'block';
+                    }
                 }
             }
 

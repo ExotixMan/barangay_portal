@@ -34,7 +34,7 @@ class IndigencyApplicationController extends Controller
             'contact_number' => 'required',
             'email' => 'required|email',
             'monthly_income' => 'required',
-            'household_members' => 'required|integer',
+            'household_members' => 'required|integer|min:1|max:20',
             'purpose' => 'required',
             'purpose_other' => 'nullable',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',

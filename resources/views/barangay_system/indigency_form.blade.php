@@ -102,7 +102,7 @@
                     <div class="form-grid row g-3">
                         <div class="form-group col-md-12">
                             <label for="birthdate"><i class="fas fa-birthday-cake"></i> Date of Birth *</label>
-                            <input type="date" id="birthdate" name="birthdate" required class="form-control">
+                            <input type="date" id="birthdate" name="birthdate" required max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
                         </div>
                         <div class="form-group col-md-12">
                             <label for="gender"><i class="fas fa-venus-mars"></i> Gender *</label>
@@ -147,7 +147,7 @@
                         </div>
                         <div class="form-group col-md-12">
                             <label for="householdMembers"><i class="fas fa-users"></i> Number of Household Members *</label>
-                            <input type="number" id="householdMembers" name="household_members" min="1" max="20" required placeholder="e.g., 4" class="form-control">
+                            <input type="number" id="householdMembers" name="household_members" min="1" max="20" step="1" inputmode="numeric" pattern="[0-9]*" required placeholder="e.g., 4" class="form-control">
                         </div>
                     </div>
 
@@ -371,6 +371,32 @@
             const termsCheckbox = document.getElementById('terms');
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
+            const birthdateInput = document.getElementById('birthdate');
+            const householdMembersInput = document.getElementById('householdMembers');
+            const maxBirthdate = new Date();
+
+            maxBirthdate.setFullYear(maxBirthdate.getFullYear() - 5);
+            maxBirthdate.setHours(0, 0, 0, 0);
+
+            const maxBirthdateString = maxBirthdate.toISOString().split('T')[0];
+
+            if (birthdateInput) {
+                birthdateInput.max = maxBirthdateString;
+            }
+
+            if (householdMembersInput) {
+                householdMembersInput.addEventListener('keydown', function(e) {
+                    const blockedKeys = ['e', 'E', '+', '-', '.'];
+                    if (blockedKeys.includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                householdMembersInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^\d]/g, '');
+                    validateHouseholdField(this);
+                });
+            }
 
             let currentStep = 1;
             const totalSteps = 3;
@@ -406,11 +432,6 @@
             // Add real-time validation for contact number
             document.getElementById('contactNumber').addEventListener('input', function(e) {
                 validateContactField(this);
-            });
-
-            // Add real-time validation for household members
-            document.getElementById('householdMembers').addEventListener('input', function(e) {
-                validateHouseholdField(this);
             });
 
             // Add real-time validation for address
@@ -614,17 +635,11 @@
                     
                     // Validate date of birth (not in future)
                     else if (field.id === 'birthdate') {
-                        const selectedDate = new Date(fieldValue);
-                        const today = new Date();
-                        if (selectedDate > today) {
+                        const selectedDate = new Date(`${fieldValue}T00:00:00`);
+                        if (Number.isNaN(selectedDate.getTime())) {
                             isValid = false;
-                            showFieldError(field, 'Date of birth cannot be in the future');
-                        }
-                        
-                        // Accept applicants 5 years old and above
-                        const age = today.getFullYear() - selectedDate.getFullYear();
-                        const monthDiff = today.getMonth() - selectedDate.getMonth();
-                        if (age < 5 || (age === 5 && monthDiff < 0)) {
+                            showFieldError(field, 'Please enter a valid date of birth');
+                        } else if (selectedDate > maxBirthdate) {
                             isValid = false;
                             showFieldError(field, 'Applicant must be at least 5 years old to apply');
                         }
