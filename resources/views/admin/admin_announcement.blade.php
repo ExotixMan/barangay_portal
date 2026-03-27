@@ -837,6 +837,8 @@
         </a>
         @endadmin_can
 
+    </div>
+
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <!-- Header -->
