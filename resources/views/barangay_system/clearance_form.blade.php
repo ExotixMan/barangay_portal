@@ -117,7 +117,7 @@
                             <label for="birthdate">
                                 <i class="fas fa-birthday-cake"></i> Date of Birth *
                             </label>
-                            <input type="date" id="birthdate" name="birthdate" required max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
+                            <input type="date" id="birthdate" name="birthdate" required min="{{ now()->subYears(130)->toDateString() }}" max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
                         </div>
 
                         <div class="form-group col-md-12">
@@ -394,14 +394,19 @@
             const privacyCheckbox = document.getElementById('privacy');
             const pickupCheckbox = document.getElementById('pickup');
             const birthdateInput = document.getElementById('birthdate');
+            const minBirthdate = new Date();
             const maxBirthdate = new Date();
 
+            minBirthdate.setFullYear(minBirthdate.getFullYear() - 130);
+            minBirthdate.setHours(0, 0, 0, 0);
             maxBirthdate.setFullYear(maxBirthdate.getFullYear() - 5);
             maxBirthdate.setHours(0, 0, 0, 0);
 
+            const minBirthdateString = minBirthdate.toISOString().split('T')[0];
             const maxBirthdateString = maxBirthdate.toISOString().split('T')[0];
 
             if (birthdateInput) {
+                birthdateInput.min = minBirthdateString;
                 birthdateInput.max = maxBirthdateString;
             }
 
@@ -635,6 +640,9 @@
                         } else if (selectedDate > maxBirthdate) {
                             isValid = false;
                             showFieldError(field, 'Applicant must be at least 5 years old to apply');
+                        } else if (selectedDate < minBirthdate) {
+                            isValid = false;
+                            showFieldError(field, 'Applicant age must not exceed 130 years');
                         }
                     }
                     

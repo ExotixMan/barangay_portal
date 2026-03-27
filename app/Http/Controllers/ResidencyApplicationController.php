@@ -29,7 +29,7 @@ class ResidencyApplicationController extends Controller
             'middle_name' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'last_name' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:255',
-            'birthdate' => 'required|date|before_or_equal:' . now()->subYears(5)->toDateString(),
+            'birthdate' => 'required|date|after_or_equal:' . now()->subYears(130)->toDateString() . '|before_or_equal:' . now()->subYears(5)->toDateString(),
             'gender' => 'required',
             'civil_status' => 'required',
             'birth_place' => 'required',
