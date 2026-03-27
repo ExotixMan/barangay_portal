@@ -495,14 +495,14 @@
         </a>
         @endadmin_can
 
-        @admin_can('view_content')
+        @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
         @endadmin_can
 
-        @admin_can('view_users')
+        @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>

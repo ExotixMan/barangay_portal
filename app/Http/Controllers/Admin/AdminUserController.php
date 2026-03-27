@@ -62,7 +62,7 @@ class AdminUserController extends Controller
             'user_agent' => $request->userAgent()
         ]);
 
-        $query = AdminUser::with('role');
+        $query = AdminUser::with(['role.permissions', 'permissions']);
 
         // Search filter
         if ($request->filled('search')) {
@@ -461,7 +461,8 @@ class AdminUserController extends Controller
 
         // Super admin permissions are fixed by design.
         if ($user->role && $user->role->name === 'super_admin') {
-            return redirect()->route('admin.users.index')
+            return redirect()->route('admin.users.index', ['tab' => 'users'])
+                ->with('form_type', 'user_permissions_' . $id)
                 ->with('error', 'Super admin permissions cannot be modified.');
         }
 
@@ -473,12 +474,28 @@ class AdminUserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput();
+                ->withInput()
+                ->with('form_type', 'user_permissions_' . $id);
         }
 
         DB::beginTransaction();
 
         try {
+            $selectedPermissionIds = collect($request->input('permissions', []))
+                ->filter()
+                ->map(fn ($value) => (int) $value)
+                ->unique()
+                ->values();
+
+            $rolePermissionIds = $user->role
+                ? $user->role->permissions()->pluck('admin_permissions.id')
+                : collect();
+
+            // Persist only user-specific extras; role permissions remain inherited.
+            $directPermissionIds = $selectedPermissionIds->diff($rolePermissionIds)->values()->all();
+
+            $user->permissions()->sync($directPermissionIds);
+
             // Log activity
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
@@ -486,7 +503,8 @@ class AdminUserController extends Controller
                 'module' => 'Users',
                 'details' => json_encode([
                     'user_id' => $user->id,
-                    'permissions' => $request->permissions
+                    'selected_permissions' => $selectedPermissionIds,
+                    'direct_permissions' => $directPermissionIds,
                 ]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
@@ -494,13 +512,14 @@ class AdminUserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.users.index')
+            return redirect()->route('admin.users.index', ['tab' => 'users'])
                 ->with('success', 'User permissions updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Failed to update permissions.');
+            return redirect()->route('admin.users.index', ['tab' => 'users'])
+                ->with('form_type', 'user_permissions_' . $id)
+                ->with('error', 'Failed to update permissions. ' . $e->getMessage());
         }
     }
 

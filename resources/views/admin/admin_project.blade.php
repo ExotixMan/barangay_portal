@@ -811,14 +811,14 @@
         </a>
         @endadmin_can
 
-        @admin_can('view_content')
+        @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
         @endadmin_can
 
-        @admin_can('view_users')
+        @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
@@ -1347,7 +1347,7 @@
 
                                     <div class="col-12 col-md-3">
                                         <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                                        <input type="range" class="form-range" name="progress" id="addProgressRange" min="0" max="100" step="1" value="{{ old('progress', 0) }}">
+                                        <input type="range" class="form-range" id="addProgressRange" min="0" max="100" step="1" value="{{ old('progress', 0) }}">
                                         <div class="text-center mt-2">
                                             <span class="badge bg-primary" id="addProgressValue">0%</span>
                                         </div>
@@ -1614,7 +1614,7 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label class="form-label">Progress Percentage</label>
-                                    <input type="range" class="form-range" name="progress" id="progressRange" min="0" max="100" step="1">
+                                    <input type="range" class="form-range" id="progressRange" min="0" max="100" step="1">
                                     <div class="text-center mt-2">
                                         <span class="badge bg-primary" id="progressValue">0%</span>
                                     </div>
@@ -1817,6 +1817,42 @@
             }
         });
 
+        // Do not allow completed unless progress is exactly 100.
+        document.getElementById('progressStatus')?.addEventListener('change', function() {
+            const progress = Number(document.getElementById('progressHidden')?.value || 0);
+            if (this.value === 'completed' && progress !== 100) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Status',
+                        text: 'Status can only be set to Completed when progress is exactly 100%.',
+                        confirmButtonColor: '#d32f2f'
+                    });
+                } else {
+                    alert('Status can only be set to Completed when progress is exactly 100%.');
+                }
+                this.value = 'ongoing';
+            }
+        });
+
+        document.getElementById('updateProgressForm')?.addEventListener('submit', function(e) {
+            const progress = Number(document.getElementById('progressHidden')?.value || 0);
+            const status = document.getElementById('progressStatus')?.value || 'ongoing';
+            if (status === 'completed' && progress !== 100) {
+                e.preventDefault();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Status can only be set to Completed when progress is exactly 100%.',
+                        confirmButtonColor: '#d32f2f'
+                    });
+                } else {
+                    alert('Status can only be set to Completed when progress is exactly 100%.');
+                }
+            }
+        });
+
         // Update select all checkbox when individual checkboxes change
         document.addEventListener('DOMContentLoaded', function() {
             const checkboxes = document.querySelectorAll('.project-checkbox');
@@ -1926,6 +1962,39 @@
             const status             = form.querySelector('[name="status"]');
             const startDate          = form.querySelector('[name="start_date"]');
             const expectedCompletion = form.querySelector('[name="expected_completion"]');
+            const progressHidden     = form.querySelector('input[type="hidden"][name="progress"]');
+
+            function hasFourDigitYear(dateValue) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(dateValue);
+            }
+
+            function getProgressValue() {
+                const raw = progressHidden ? progressHidden.value : '0';
+                const parsed = parseInt(raw, 10);
+                return Number.isNaN(parsed) ? 0 : parsed;
+            }
+
+            function validateStatusVsProgress() {
+                if (!status) return true;
+                const progress = getProgressValue();
+                if (status.value === 'completed' && progress !== 100) {
+                    sf(status, 'Status can only be Completed when progress is 100%.');
+                    return false;
+                }
+                if (status.value) {
+                    cf(status);
+                }
+                return true;
+            }
+
+            function checkDateFieldFormat(field) {
+                if (!field || !field.value) return true;
+                if (!hasFourDigitYear(field.value)) {
+                    sf(field, 'Date must use a 4-digit year (YYYY-MM-DD).');
+                    return false;
+                }
+                return true;
+            }
 
             if (title) {
                 title.addEventListener('input', function() { cf(this); }, {once: true});
@@ -1944,10 +2013,35 @@
                 });
             }
             if (status) status.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Please select a status.'); else cf(this);
+                if (!this.value) {
+                    sf(this, 'Please select a status.');
+                } else {
+                    validateStatusVsProgress();
+                }
             });
+
+            if (progressHidden) {
+                progressHidden.addEventListener('input', validateStatusVsProgress);
+                progressHidden.addEventListener('change', validateStatusVsProgress);
+            }
+
+            if (startDate) {
+                startDate.addEventListener('change', function() {
+                    if (checkDateFieldFormat(this)) cf(this);
+                });
+            }
+
+            if (expectedCompletion) {
+                expectedCompletion.addEventListener('change', function() {
+                    if (checkDateFieldFormat(this)) cf(this);
+                });
+            }
+
             if (expectedCompletion && startDate) {
                 const checkDates = function() {
+                    if (!checkDateFieldFormat(startDate) || !checkDateFieldFormat(expectedCompletion)) {
+                        return;
+                    }
                     if (expectedCompletion.value && startDate.value && expectedCompletion.value < startDate.value) {
                         sf(expectedCompletion, 'Completion date must not be before the start date.');
                     } else cf(expectedCompletion);
@@ -1969,7 +2063,16 @@
                     else { cf(description); }
                 }
                 if (status && !status.value) { sf(status, 'Please select a status.'); valid = false; }
+                else if (status && !validateStatusVsProgress()) { valid = false; }
                 else if (status) { cf(status); }
+
+                if (startDate && !checkDateFieldFormat(startDate)) {
+                    valid = false;
+                }
+                if (expectedCompletion && !checkDateFieldFormat(expectedCompletion)) {
+                    valid = false;
+                }
+
                 if (startDate && expectedCompletion && startDate.value && expectedCompletion.value && expectedCompletion.value < startDate.value) {
                     sf(expectedCompletion, 'Completion date must not be before the start date.'); valid = false;
                 }

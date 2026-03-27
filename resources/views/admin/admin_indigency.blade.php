@@ -848,14 +848,14 @@
         </a>
         @endadmin_can
 
-        @admin_can('view_content')
+        @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
         @endadmin_can
 
-        @admin_can('view_users')
+        @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
@@ -1042,10 +1042,10 @@
                             <div class="col-6 col-md-3">
                                 <select name="monthly_income" class="form-select">
                                     <option value="">All Income</option>
-                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below â‚±5,000</option>
-                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
-                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
-                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
+                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
+                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>₱5,000 - ₱8,000</option>
+                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>₱8,001 - ₱10,000</option>
+                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>₱10,001 - ₱15,000</option>
                                     <option value="no income" {{ request('monthly_income') == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                 </select>
                             </div>
@@ -1575,10 +1575,10 @@
                                         <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
                                                name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
                                                <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below â‚±5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below ₱5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>₱5,000 - ₱8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>₱8,001 - ₱10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>₱10,001 - ₱15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
                                         </select>
                                         @if(session('form_type') == 'add')
@@ -1825,10 +1825,10 @@
                                             <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif" 
                                                 name="monthly_income" id="edit_monthly_income_{{ $ind->id }}" required>
                                                 <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below â‚±5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>â‚±5,000 â€“ â‚±8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>â‚±8,001 â€“ â‚±10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>â‚±10,001 â€“ â‚±15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below ₱5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>₱5,000 - ₱8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>₱8,001 - ₱10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>₱10,001 - ₱15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income)  == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ind->id)

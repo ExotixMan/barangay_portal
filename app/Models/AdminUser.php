@@ -86,6 +86,16 @@ class AdminUser extends Authenticatable
         return $this->hasMany(AdminActivityLog::class);
     }
 
+    public function permissions()
+    {
+        return $this->belongsToMany(
+            AdminPermission::class,
+            'admin_user_permissions',
+            'user_id',
+            'permission_id'
+        )->withTimestamps();
+    }
+
     // Accessors
     public function getFullNameAttribute()
     {

@@ -1006,14 +1006,14 @@
         </a>
         @endadmin_can
 
-        @admin_can('view_content')
+        @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
         @endadmin_can
 
-        @admin_can('view_users')
+        @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
@@ -1965,16 +1965,43 @@
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Role Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="name" placeholder="e.g., staff" required>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add_role') @error('name') is-invalid @enderror @endif"
+                                            name="name"
+                                            value="{{ session('form_type') == 'add_role' ? old('name') : '' }}"
+                                            placeholder="e.g., staff"
+                                            pattern="[a-z_]+"
+                                            title="Use lowercase letters and underscores only."
+                                            required>
+                                        @if(session('form_type') == 'add_role')
+                                            @error('name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                         <small class="text-muted">System name (lowercase, no spaces)</small>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Display Name</label>
-                                        <input type="text" class="form-control" name="display_name" placeholder="e.g., Staff Member">
+                                        <input type="text" class="form-control @if(session('form_type') == 'add_role') @error('display_name') is-invalid @enderror @endif"
+                                            name="display_name"
+                                            value="{{ session('form_type') == 'add_role' ? old('display_name') : '' }}"
+                                            placeholder="e.g., Staff Member">
+                                        @if(session('form_type') == 'add_role')
+                                            @error('display_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Description</label>
-                                        <textarea class="form-control" name="description" rows="2" placeholder="Role description"></textarea>
+                                        <textarea class="form-control @if(session('form_type') == 'add_role') @error('description') is-invalid @enderror @endif"
+                                            name="description"
+                                            rows="2"
+                                            placeholder="Role description">{{ session('form_type') == 'add_role' ? old('description') : '' }}</textarea>
+                                        @if(session('form_type') == 'add_role')
+                                            @error('description')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
 
                                     @if(auth('admin')->user()->hasPermission('manage_role_permissions'))
@@ -2042,7 +2069,8 @@
                                                         @foreach($permissions as $permission)
                                                         <div class="perm-check">
                                                             <label>
-                                                                <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
+                                                                <input type="checkbox" name="permissions[]" value="{{ $permission->id }}"
+                                                                    {{ session('form_type') == 'add_role' && is_array(old('permissions')) && in_array($permission->id, old('permissions')) ? 'checked' : '' }}>
                                                                 {{ $permission->display_name }}
                                                             </label>
                                                         </div>
@@ -2265,7 +2293,6 @@
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.users.permissions', $user->id) }}" id="userPermissionsForm{{ $user->id }}">
                                 @csrf
-                                @method('PUT')
                                     @php
                                         $isSuperAdminUser = $user->role && $user->role->name === 'super_admin';
                                     @endphp
@@ -2354,6 +2381,15 @@
                                         </div>
                                         @endforeach
                                     </div>
+
+                                    @if(session('form_type') == 'user_permissions_' . $user->id)
+                                        @error('permissions')
+                                            <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                                        @enderror
+                                        @error('permissions.*')
+                                            <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                                        @enderror
+                                    @endif
                                 </form>
                                 </div>
                                 <div class="modal-footer">
@@ -2685,6 +2721,66 @@
     <script src="{{ asset('js/admin/nav.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @if ($errors->any() && session('form_type') == 'add_role')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(link => {
+                if (link.textContent.toLowerCase().includes('roles')) {
+                    link.click();
+                }
+            });
+
+            const modalEl = document.getElementById('addRoleModal');
+            if (modalEl) {
+                new bootstrap.Modal(modalEl).show();
+            }
+        });
+    </script>
+    @endif
+
+    @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_role_'))
+        @php
+            $editRoleId = str_replace('edit_role_', '', session('form_type'));
+        @endphp
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tabLinks = document.querySelectorAll('.tab-link');
+                tabLinks.forEach(link => {
+                    if (link.textContent.toLowerCase().includes('roles')) {
+                        link.click();
+                    }
+                });
+
+                const modalEl = document.getElementById('editRoleModal{{ $editRoleId }}');
+                if (modalEl) {
+                    new bootstrap.Modal(modalEl).show();
+                }
+            });
+        </script>
+    @endif
+
+    @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'user_permissions_'))
+        @php
+            $permissionsUserId = str_replace('user_permissions_', '', session('form_type'));
+        @endphp
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tabLinks = document.querySelectorAll('.tab-link');
+                tabLinks.forEach(link => {
+                    if (link.textContent.toLowerCase().includes('users')) {
+                        link.click();
+                    }
+                });
+
+                const modalEl = document.getElementById('userPermissionsModal{{ $permissionsUserId }}');
+                if (modalEl) {
+                    new bootstrap.Modal(modalEl).show();
+                }
+            });
+        </script>
+    @endif
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
             window.isStrongPassword = function(value) {
@@ -2902,7 +2998,7 @@
                     if (!v) sf(this, 'Role name is required.');
                     else if (v.length < 2) sf(this, 'Role name must be at least 2 characters.');
                     else if (/\s/.test(v)) sf(this, 'Role name must not contain spaces.');
-                    else if (!/^[a-z0-9_\-]+$/.test(v)) sf(this, 'Role name must be lowercase with no spaces (letters, numbers, underscores, hyphens only).');
+                    else if (!/^[a-z_]+$/.test(v)) sf(this, 'Role name must be lowercase letters and underscores only.');
                     else cf(this);
                 });
             }
@@ -2914,7 +3010,7 @@
                     if (!v) { sf(roleName, 'Role name is required.'); valid = false; }
                     else if (v.length < 2) { sf(roleName, 'Role name must be at least 2 characters.'); valid = false; }
                     else if (/\s/.test(v)) { sf(roleName, 'Role name must not contain spaces.'); valid = false; }
-                    else if (!/^[a-z0-9_\-]+$/.test(v)) { sf(roleName, 'Role name must be lowercase with no spaces.'); valid = false; }
+                    else if (!/^[a-z_]+$/.test(v)) { sf(roleName, 'Role name must be lowercase letters and underscores only.'); valid = false; }
                 }
                 if (!valid) e.preventDefault();
             });

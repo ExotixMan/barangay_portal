@@ -47,30 +47,9 @@ class IncidentReportController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'reportType' => 'required|string',
-            'incidentDate' => 'required|date',
-            'incidentTime' => 'required',
-            'incidentLocation' => 'required|string|max:255',
-            'incidentDescription' => 'required|string',
-            'complainantName' => 'required|string|max:255',
-            'complainantContact' => 'required|string|max:11',
-            'complainantAddress' => 'required|string|max:255',
-            'complainantEmail' => 'nullable|email',
+        $this->normalizeIncidentInputs($request);
 
-            // RESPONDENT OPTIONAL
-            'respondentName' => 'nullable|string|max:255',
-            'respondentContact' => 'nullable|string|max:11',
-            'respondentAddress' => 'nullable|string|max:255',
-            'respondentDescription' => 'nullable|string',
-
-            'confidentiality' => 'required|string',
-
-            // EVIDENCE OPTIONAL
-            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-            'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200',
-            'documents.*' => 'nullable|mimes:pdf,doc,docx|max:5120',
-        ]);
+        $request->validate($this->incidentValidationRules(), $this->incidentValidationMessages());
 
         DB::beginTransaction();
 
@@ -130,30 +109,9 @@ class IncidentReportController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'reportType' => 'required|string',
-            'incidentDate' => 'required|date',
-            'incidentTime' => 'required',
-            'incidentLocation' => 'required|string|max:255',
-            'incidentDescription' => 'required|string',
-            'complainantName' => 'required|string|max:255',
-            'complainantContact' => 'required|string|max:11',
-            'complainantAddress' => 'required|string|max:255',
-            'complainantEmail' => 'nullable|email',
+        $this->normalizeIncidentInputs($request);
 
-            // RESPONDENT OPTIONAL
-            'respondentName' => 'nullable|string|max:255',
-            'respondentContact' => 'nullable|string|max:11',
-            'respondentAddress' => 'nullable|string|max:255',
-            'respondentDescription' => 'nullable|string',
-
-            'confidentiality' => 'required|string',
-
-            // EVIDENCE OPTIONAL
-            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-            'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200',
-            'documents.*' => 'nullable|mimes:pdf,doc,docx|max:5120',
-        ]);
+        $request->validate($this->incidentValidationRules(), $this->incidentValidationMessages());
 
         DB::beginTransaction();
 
@@ -264,6 +222,116 @@ class IncidentReportController extends Controller
                 ]);
             }
         }
+    }
+
+    private function incidentValidationRules(): array
+    {
+        return [
+            'reportType' => 'required|in:dispute,security,public,other',
+            'incidentDate' => 'required|date|before_or_equal:today',
+            'incidentTime' => 'required|date_format:H:i',
+            'incidentLocation' => 'required|string|min:3|max:255',
+            'incidentDescription' => 'required|string|min:10|max:2000',
+            'immediateAction' => 'nullable|string|max:1000',
+            'complainantName' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                "regex:/^[A-Za-z\\s\\-\\.',]+$/",
+            ],
+            'complainantContact' => ['required', 'regex:/^09\d{9}$/'],
+            'complainantAddress' => 'required|string|min:5|max:255',
+            'complainantEmail' => 'nullable|email:rfc',
+
+            // Respondent fields are optional, but validated if provided.
+            'respondentName' => [
+                'nullable',
+                'string',
+                'min:2',
+                'max:255',
+                "regex:/^[A-Za-z\\s\\-\\.',]+$/",
+            ],
+            'respondentContact' => ['nullable', 'regex:/^09\d{9}$/'],
+            'respondentAddress' => 'nullable|string|min:5|max:255',
+            'respondentDescription' => 'nullable|string|max:1000',
+
+            'confidentiality' => 'required|in:low,medium,high',
+            'additionalInfo' => 'nullable|string|max:1000',
+
+            'witnesses' => 'nullable|array',
+            'witnesses.*.name' => [
+                'nullable',
+                'string',
+                'min:2',
+                'max:255',
+                "regex:/^[A-Za-z\\s\\-\\.',]+$/",
+            ],
+            'witnesses.*.contact' => ['nullable', 'regex:/^09\d{9}$/'],
+            'witnesses.*.statement' => 'nullable|string|max:1000',
+
+            // Evidence uploads
+            'photos' => 'nullable|array',
+            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'videos' => 'nullable|array',
+            'videos.*' => 'nullable|mimetypes:video/mp4,video/x-msvideo,video/quicktime|max:51200',
+            'documents' => 'nullable|array',
+            'documents.*' => 'nullable|mimes:pdf,doc,docx|max:5120',
+        ];
+    }
+
+    private function incidentValidationMessages(): array
+    {
+        return [
+            'reportType.in' => 'Please select a valid report type.',
+            'incidentDate.before_or_equal' => 'Incident date cannot be in the future.',
+            'incidentTime.date_format' => 'Incident time must be in HH:MM format.',
+            'incidentDescription.min' => 'Incident description must be at least 10 characters.',
+            'complainantName.regex' => 'Complainant name can only contain letters, spaces, apostrophes, commas, periods, and hyphens.',
+            'respondentName.regex' => 'Respondent name can only contain letters, spaces, apostrophes, commas, periods, and hyphens.',
+            'witnesses.*.name.regex' => 'Witness name can only contain letters, spaces, apostrophes, commas, periods, and hyphens.',
+            'complainantContact.regex' => 'Complainant contact must be a valid 11-digit number starting with 09.',
+            'respondentContact.regex' => 'Respondent contact must be a valid 11-digit number starting with 09.',
+            'witnesses.*.contact.regex' => 'Witness contact must be a valid 11-digit number starting with 09.',
+            'confidentiality.in' => 'Please select a valid confidentiality level.',
+        ];
+    }
+
+    private function normalizeIncidentInputs(Request $request): void
+    {
+        $request->merge([
+            'complainantContact' => $this->normalizeContactNumber($request->input('complainantContact')),
+            'respondentContact' => $this->normalizeContactNumber($request->input('respondentContact')),
+        ]);
+
+        $witnesses = $request->input('witnesses', []);
+        if (is_array($witnesses)) {
+            foreach ($witnesses as $index => $witness) {
+                if (is_array($witness) && array_key_exists('contact', $witness)) {
+                    $witnesses[$index]['contact'] = $this->normalizeContactNumber($witness['contact']);
+                }
+            }
+            $request->merge(['witnesses' => $witnesses]);
+        }
+    }
+
+    private function normalizeContactNumber($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', (string) $value);
+        if ($digits === '') {
+            return null;
+        }
+
+        // Convert +63XXXXXXXXXX or 63XXXXXXXXXX into local 09XXXXXXXXX format.
+        if (str_starts_with($digits, '63') && strlen($digits) === 12) {
+            $digits = '0' . substr($digits, 2);
+        }
+
+        return $digits;
     }
 
     public function approve($id)

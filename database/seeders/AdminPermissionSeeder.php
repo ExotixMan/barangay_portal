@@ -52,6 +52,14 @@ class AdminPermissionSeeder extends Seeder
             ['name' => 'change_user_role', 'display_name' => 'Change User Role', 'module' => 'users'],
             ['name' => 'view_user_activity', 'display_name' => 'View User Activity', 'module' => 'users'],
             ['name' => 'send_notifications', 'display_name' => 'Send Notifications', 'module' => 'users'],
+            
+            // Chatbot Management
+            ['name' => 'manage_chatbot', 'display_name' => 'Manage Chatbot', 'module' => 'chatbot'],
+            ['name' => 'edit_chatbot', 'display_name' => 'Edit Chatbot Content', 'module' => 'chatbot'],
+            
+            // Backup Management
+            ['name' => 'view_backup', 'display_name' => 'View Backups', 'module' => 'backup'],
+            ['name' => 'manage_backup', 'display_name' => 'Manage Backups', 'module' => 'backup'],
         ];
 
         foreach ($permissions as $permission) {

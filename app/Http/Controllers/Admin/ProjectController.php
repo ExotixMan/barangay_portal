@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
 class ProjectController extends Controller
@@ -92,12 +93,14 @@ class ProjectController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date' => 'nullable|date',
-            'expected_completion' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'expected_completion' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:ongoing,completed',
             'progress' => 'required|integer|min:0|max:100',
         ]);
+
+        $this->validateCompletedStatusAgainstProgress($data['status'], (int) $data['progress']);
 
         try {
             Project::create($data);
@@ -121,19 +124,16 @@ class ProjectController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date' => 'nullable|date',
-            'expected_completion' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'expected_completion' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:ongoing,completed',
             'progress' => 'required|integer|min:0|max:100',
         ]);
 
-        try {
-            // Auto-set status to completed if progress is 100
-            if ($data['progress'] == 100 && $data['status'] != 'completed') {
-                $data['status'] = 'completed';
-            }
+        $this->validateCompletedStatusAgainstProgress($data['status'], (int) $data['progress']);
 
+        try {
             $project->update($data);
 
             return redirect()->route('admin.projects.index') // FIXED: added 'admin.' prefix
@@ -187,8 +187,19 @@ class ProjectController extends Controller
             'status' => 'required|in:ongoing,completed'
         ]);
 
+        $this->validateCompletedStatusAgainstProgress($data['status'], (int) $data['progress']);
+
         $project->update($data);
 
         return back()->with('success', 'Project progress updated successfully.');
+    }
+
+    private function validateCompletedStatusAgainstProgress(string $status, int $progress): void
+    {
+        if ($status === 'completed' && $progress !== 100) {
+            throw ValidationException::withMessages([
+                'status' => 'Status can only be set to Completed when progress is exactly 100%.',
+            ]);
+        }
     }
 }

@@ -12,7 +12,7 @@ trait HasPermissions
     
     public function hasPermission($permission)
     {
-        if (!$this->role) {
+        if (!$this->role && !$this->permissions()->exists()) {
             return false;
         }
         
@@ -20,14 +20,18 @@ trait HasPermissions
             return true;
         }
         
-        return $this->role->permissions()
-            ->where('name', $permission)
-            ->exists();
+        $hasRolePermission = $this->role
+            ? $this->role->permissions()->where('name', $permission)->exists()
+            : false;
+
+        $hasDirectPermission = $this->permissions()->where('name', $permission)->exists();
+
+        return $hasRolePermission || $hasDirectPermission;
     }
 
     public function hasAnyPermission(array $permissions)
     {
-        if (!$this->role) {
+        if (!$this->role && !$this->permissions()->exists()) {
             return false;
         }
         
@@ -35,9 +39,13 @@ trait HasPermissions
             return true;
         }
         
-        return $this->role->permissions()
-            ->whereIn('name', $permissions)
-            ->exists();
+        $hasRolePermission = $this->role
+            ? $this->role->permissions()->whereIn('name', $permissions)->exists()
+            : false;
+
+        $hasDirectPermission = $this->permissions()->whereIn('name', $permissions)->exists();
+
+        return $hasRolePermission || $hasDirectPermission;
     }
 
     public function hasAllPermissions($permissions)
@@ -75,20 +83,23 @@ trait HasPermissions
 
     public function getAllPermissions()
     {
-        if (!$this->role) {
+        if (!$this->role && !$this->permissions()->exists()) {
             return collect();
         }
 
-        return $this->role->permissions;
+        $rolePermissions = $this->role ? $this->role->permissions : collect();
+        $directPermissions = $this->permissions;
+
+        return $rolePermissions->merge($directPermissions)->unique('id')->values();
     }
 
     public function getPermissionNames()
     {
-        if (!$this->role) {
+        if (!$this->role && !$this->permissions()->exists()) {
             return collect();
         }
 
-        return $this->role->permissions->pluck('name');
+        return $this->getAllPermissions()->pluck('name');
     }
 
     public function isSuperAdmin()

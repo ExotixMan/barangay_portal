@@ -43,12 +43,17 @@ class AdminRoleController extends Controller
         DB::beginTransaction();
 
         try {
-            $role = AdminRole::create([
+            // For PostgreSQL boolean compatibility
+            $roleId = DB::table('admin_roles')->insertGetId([
                 'name' => $request->name,
                 'display_name' => $request->display_name,
                 'description' => $request->description,
-                'is_system_role' => false,
+                'is_system_role' => DB::raw("'f'::boolean"),  // PostgreSQL false
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+            
+            $role = AdminRole::findOrFail($roleId);
 
             if ($request->has('permissions')) {
                 $role->permissions()->sync($request->permissions);
@@ -100,7 +105,8 @@ class AdminRoleController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput();
+                ->withInput()
+                ->with('form_type', 'edit_role_' . $id);
         }
 
         DB::beginTransaction();

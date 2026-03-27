@@ -62,6 +62,10 @@
             color: var(--primary);
             font-size: 0.8rem;
             margin-top: 0.25rem;
+            display: none;
+        }
+
+        .is-invalid ~ .invalid-feedback {
             display: block;
         }
 
@@ -875,14 +879,14 @@
         </a>
         @endadmin_can
 
-        @admin_can('view_content')
+        @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
         @endadmin_can
 
-        @admin_can('view_users')
+        @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
@@ -1480,7 +1484,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('complainantName') is-invalid @enderror @endif" 
-                                            name="complainantName" value="{{ session('form_type') == 'add' ? old('complainantName') : '' }}" placeholder="Full name" required>
+                                            name="complainantName" value="{{ session('form_type') == 'add' ? old('complainantName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
                                         @if(session('form_type') == 'add')
                                             @error('complainantName')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1490,7 +1494,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Contact Number <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('complainantContact') is-invalid @enderror @endif" 
-                                            name="complainantContact" value="{{ session('form_type') == 'add' ? old('complainantContact') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                            name="complainantContact" value="{{ session('form_type') == 'add' ? old('complainantContact') : '' }}" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09." required>
                                         <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
                                         @if(session('form_type') == 'add')
                                             @error('complainantContact')
@@ -1526,7 +1530,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Respondent Name</label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('respondentName') is-invalid @enderror @endif" 
-                                            name="respondentName" value="{{ session('form_type') == 'add' ? old('respondentName') : '' }}" placeholder="Full name">
+                                            name="respondentName" value="{{ session('form_type') == 'add' ? old('respondentName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                         @if(session('form_type') == 'add')
                                             @error('respondentName')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1536,7 +1540,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Respondent Contact</label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('respondentContact') is-invalid @enderror @endif" 
-                                            name="respondentContact" value="{{ session('form_type') == 'add' ? old('respondentContact') : '' }}" placeholder="09XXXXXXXXX" maxlength="11">
+                                            name="respondentContact" value="{{ session('form_type') == 'add' ? old('respondentContact') : '' }}" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
                                         @if(session('form_type') == 'add')
                                             @error('respondentContact')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1710,6 +1714,7 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Incident Date <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('incidentDate') is-invalid @enderror @endif" 
+                                                id="edit_incident_date_{{ $blotter->id }}"
                                                 name="incidentDate" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('incidentDate', \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d')) : \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d') }}" required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('incidentDate')
@@ -1765,7 +1770,8 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantName') is-invalid @enderror @endif" 
-                                                name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" required>
+                                                id="edit_complainant_name_{{ $blotter->id }}"
+                                                name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('complainantName')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1775,7 +1781,8 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Contact Number <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantContact') is-invalid @enderror @endif" 
-                                                name="complainantContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantContact', $blotter->complainant_contact) : $blotter->complainant_contact }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                                id="edit_complainant_contact_{{ $blotter->id }}"
+                                                name="complainantContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantContact', $blotter->complainant_contact) : $blotter->complainant_contact }}" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09." required>
                                             <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('complainantContact')
@@ -1796,6 +1803,7 @@
                                         <div class="col-12">
                                             <label class="form-label">Email (Optional)</label>
                                             <input type="email" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantEmail') is-invalid @enderror @endif" 
+                                                id="edit_complainant_email_{{ $blotter->id }}"
                                                 name="complainantEmail" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantEmail', $blotter->complainant_email) : $blotter->complainant_email }}" placeholder="email@example.com">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('complainantEmail')
@@ -1811,7 +1819,8 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Respondent Name</label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentName') is-invalid @enderror @endif" 
-                                                name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name">
+                                                id="edit_respondent_name_{{ $blotter->id }}"
+                                                name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('respondentName')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1821,7 +1830,7 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Respondent Contact</label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentContact') is-invalid @enderror @endif" 
-                                                name="respondentContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentContact', $blotter->respondent_contact) : $blotter->respondent_contact }}" placeholder="09XXXXXXXXX" maxlength="11">
+                                                name="respondentContact" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentContact', $blotter->respondent_contact) : $blotter->respondent_contact }}" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('respondentContact')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1875,11 +1884,11 @@
                                                         <div class="row g-3">
                                                             <div class="col-md-6">
                                                                 <label class="form-label">Witness Name</label>
-                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name">
+                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <label class="form-label">Contact Number</label>
-                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][contact]" value="{{ $witness->contact }}" placeholder="09XXXXXXXXX" maxlength="11">
+                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][contact]" value="{{ $witness->contact }}" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label class="form-label">Witness Statement</label>
@@ -2388,6 +2397,38 @@
 
         // Update select all checkbox when individual checkboxes change
         document.addEventListener('DOMContentLoaded', function() {
+            function normalizePhoneValue(value) {
+                let cleaned = (value || '').replace(/[^0-9]/g, '').slice(0, 12);
+                if (cleaned.startsWith('63') && cleaned.length === 12) {
+                    cleaned = '0' + cleaned.slice(2);
+                }
+                return cleaned.slice(0, 11);
+            }
+
+            function bindClearInvalidOnEdit(form) {
+                if (!form) return;
+
+                form.querySelectorAll('input, textarea, select').forEach(function(field) {
+                    const clearState = function() {
+                        field.classList.remove('is-invalid');
+                        field.setCustomValidity('');
+                    };
+
+                    field.addEventListener('input', clearState);
+                    field.addEventListener('change', clearState);
+                });
+
+                // Normalize all contact inputs consistently (complainant/respondent/witness).
+                form.querySelectorAll('input[name$="Contact"], input[name*="[contact]"]').forEach(function(field) {
+                    field.addEventListener('input', function() {
+                        this.value = normalizePhoneValue(this.value);
+                    });
+                    field.addEventListener('blur', function() {
+                        this.value = normalizePhoneValue(this.value);
+                    });
+                });
+            }
+
             // Initialize Swal if not loaded
             if (typeof Swal === 'undefined') {
                 console.log('SweetAlert2 not loaded, using default confirm');
@@ -2440,6 +2481,8 @@
             // Real-time validation for add form
             const addForm = document.getElementById('addIncidentForm');
             if (addForm) {
+                bindClearInvalidOnEdit(addForm);
+
                 function sf(el, msg) {
                     if (!el) return;
                     el.classList.add('is-invalid');
@@ -2462,13 +2505,16 @@
                         const v = this.value.trim();
                         if (!v) sf(this, 'Complainant name is required.');
                         else if (v.length < 2) sf(this, 'Name must be at least 2 characters.');
-                        else if (!/^[a-zA-Z\s\-\.]+$/.test(v)) sf(this, 'Name must contain only letters, spaces, hyphens, or periods.');
+                        else if (!/^[A-Za-z\s\-\.',]+$/.test(v)) sf(this, 'Name must contain only letters, spaces, apostrophes, commas, hyphens, or periods.');
                         else cf(this);
                     });
                 }
                 if (contact) {
                     contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12);
+                        if (this.value.startsWith('63') && this.value.length === 12) {
+                            this.value = '0' + this.value.slice(2);
+                        }
                         if (this.value.length > 0 && !this.value.startsWith('09')) sf(this, 'Contact must start with 09.');
                         else if (this.value.length > 0 && this.value.length !== 11) sf(this, 'Contact must be exactly 11 digits.');
                         else cf(this);
@@ -2513,7 +2559,7 @@
                         const v = complainantName.value.trim();
                         if (!v) { sf(complainantName, 'Complainant name is required.'); valid = false; }
                         else if (v.length < 2) { sf(complainantName, 'Name must be at least 2 characters.'); valid = false; }
-                        else if (!/^[a-zA-Z\s\-\.]+$/.test(v)) { sf(complainantName, 'Name must contain only letters, spaces, hyphens, or periods.'); valid = false; }
+                        else if (!/^[A-Za-z\s\-\.',]+$/.test(v)) { sf(complainantName, 'Name must contain only letters, spaces, apostrophes, commas, hyphens, or periods.'); valid = false; }
                     }
                     if (contact) {
                         if (!contact.value) { sf(contact, 'Contact number is required.'); valid = false; }
@@ -2576,11 +2622,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Witness Name</label>
-                            <input type="text" class="form-control" name="witnesses[${witnessCount}][name]" placeholder="Full name">
+                            <input type="text" class="form-control" name="witnesses[${witnessCount}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" name="witnesses[${witnessCount}][contact]" placeholder="09XXXXXXXXX" maxlength="11">
+                            <input type="text" class="form-control" name="witnesses[${witnessCount}][contact]" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Witness Statement</label>
@@ -2597,8 +2643,11 @@
             if (newContact) {
                 newContact.addEventListener('input', function() {
                     this.value = this.value.replace(/[^0-9]/g, '');
-                    if (this.value.length > 11) {
-                        this.value = this.value.slice(0, 11);
+                    if (this.value.length > 12) {
+                        this.value = this.value.slice(0, 12);
+                    }
+                    if (this.value.startsWith('63') && this.value.length === 12) {
+                        this.value = '0' + this.value.slice(2);
                     }
                 });
             }
@@ -2674,13 +2723,18 @@
             (function(editId) {
                 const editForm = document.getElementById('editIncidentForm' + editId);
                 if (editForm) {
+                    bindClearInvalidOnEdit(editForm);
+
                     // Contact number validation
                     const contact = document.getElementById('edit_complainant_contact_' + editId);
                     if (contact) {
                         contact.addEventListener('input', function() {
                             this.value = this.value.replace(/[^0-9]/g, '');
-                            if (this.value.length > 11) {
-                                this.value = this.value.slice(0, 11);
+                            if (this.value.length > 12) {
+                                this.value = this.value.slice(0, 12);
+                            }
+                            if (this.value.startsWith('63') && this.value.length === 12) {
+                                this.value = '0' + this.value.slice(2);
                             }
                             if (this.value.length > 0 && !this.value.startsWith('09')) {
                                 this.setCustomValidity('Contact number must start with 09');
@@ -2764,9 +2818,9 @@
                     const complainantName = document.getElementById('edit_complainant_name_' + editId);
                     if (complainantName) {
                         complainantName.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            const namePattern = /^[A-Za-z\s\-\.',]+$/;
                             if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
+                                this.setCustomValidity('Name can only contain letters, spaces, apostrophes, commas, periods, and hyphens');
                                 this.classList.add('is-invalid');
                                 
                                 let feedback = this.nextElementSibling;
@@ -2775,7 +2829,7 @@
                                     feedback.className = 'invalid-feedback';
                                     this.parentNode.appendChild(feedback);
                                 }
-                                feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
+                                feedback.textContent = 'Name can only contain letters, spaces, apostrophes, commas, periods, and hyphens';
                             } else {
                                 this.setCustomValidity('');
                                 this.classList.remove('is-invalid');
@@ -2786,9 +2840,9 @@
                     const respondentName = document.getElementById('edit_respondent_name_' + editId);
                     if (respondentName) {
                         respondentName.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
+                            const namePattern = /^[A-Za-z\s\-\.',]+$/;
                             if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Name can only contain letters, spaces, and hyphens');
+                                this.setCustomValidity('Name can only contain letters, spaces, apostrophes, commas, periods, and hyphens');
                                 this.classList.add('is-invalid');
                                 
                                 let feedback = this.nextElementSibling;
@@ -2797,7 +2851,7 @@
                                     feedback.className = 'invalid-feedback';
                                     this.parentNode.appendChild(feedback);
                                 }
-                                feedback.textContent = 'Name can only contain letters, spaces, and hyphens';
+                                feedback.textContent = 'Name can only contain letters, spaces, apostrophes, commas, periods, and hyphens';
                             } else {
                                 this.setCustomValidity('');
                                 this.classList.remove('is-invalid');
@@ -2830,11 +2884,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Witness Name</label>
-                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][name]" placeholder="Full name">
+                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][contact]" placeholder="09XXXXXXXXX" maxlength="11">
+                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][contact]" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Witness Statement</label>

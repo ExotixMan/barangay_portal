@@ -280,13 +280,13 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         ->name('dashboard.refresh_forecast');
 
     // CHATBOT
-    Route::prefix('/chatbot')->name('chatbot.')->group(function () {
+    Route::prefix('/chatbot')->name('chatbot.')->middleware('permission:manage_chatbot')->group(function () {
         Route::get('/',                         [ChatbotController::class, 'adminIndex'])->name('index');
         Route::get('/stats',                    [ChatbotController::class, 'getStats'])->name('stats');
-        Route::post('/knowledge',               [ChatbotController::class, 'storeKnowledge'])->name('knowledge.store');
-        Route::put('/knowledge/{id}',           [ChatbotController::class, 'updateKnowledge'])->name('knowledge.update');
-        Route::delete('/knowledge/{id}',        [ChatbotController::class, 'deleteKnowledge'])->name('knowledge.delete');
-        Route::patch('/unmatched/{id}/resolve', [ChatbotController::class, 'resolveUnmatched'])->name('unmatched.resolve');
+        Route::post('/knowledge',               [ChatbotController::class, 'storeKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.store');
+        Route::put('/knowledge/{id}',           [ChatbotController::class, 'updateKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.update');
+        Route::delete('/knowledge/{id}',        [ChatbotController::class, 'deleteKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.delete');
+        Route::patch('/unmatched/{id}/resolve', [ChatbotController::class, 'resolveUnmatched'])->middleware('permission:edit_chatbot')->name('unmatched.resolve');
     });
 
     // ==================== RESIDENTS MODULE ====================

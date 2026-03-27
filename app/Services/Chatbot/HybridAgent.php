@@ -103,6 +103,9 @@ class HybridAgent
             return $this->respond($result, 'rule_based');
         }
 
+        // No knowledge base match — log for admin training
+        $this->saveUnmatched($userMessage, $sessionId);
+
         // ╔═══════════════════════════════════════════════════════╗
         // ║  LAYER 2 — AI Engine                                 ║
         // ╚═══════════════════════════════════════════════════════╝
@@ -137,8 +140,8 @@ class HybridAgent
 
         // ╔═══════════════════════════════════════════════════════╗
         // ║  FALLBACK — Both layers failed or unavailable         ║
+        // ║  (Already logged to unmatched when KB check failed)   ║
         // ╚═══════════════════════════════════════════════════════╝
-        $this->saveUnmatched($userMessage, $sessionId);
         $fallback = $this->fallbackResult($userMessage);
         $this->saveMessages($sessionId, $userMessage, $fallback);
         return $this->respond($fallback, 'fallback');
