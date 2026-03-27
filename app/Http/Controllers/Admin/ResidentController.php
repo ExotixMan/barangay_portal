@@ -81,14 +81,16 @@ class ResidentController extends Controller
         // Get last month date
         $lastMonth = Carbon::now()->subMonth();
 
-        //TOTAL CREATED LAST MONTH
-        $totalLastMonth = Residents::withTrashed()
-            ->whereMonth('created_at', $lastMonth->month)
-            ->whereYear('created_at', $lastMonth->year)
-            ->count();
-
+        // Get 3-month average for smoother growth calculation
         $thisMonth = Carbon::now();
-
+        $threeMonthsAgo = $thisMonth->copy()->subMonths(3);
+        
+        $totalLastThreeMonths = Residents::withTrashed()
+            ->whereBetween('created_at', [$threeMonthsAgo->startOfMonth(), $thisMonth->copy()->subMonth()->endOfMonth()])
+            ->count();
+        
+        $threeMonthAverage = $totalLastThreeMonths / 3;
+        
         $totalThisMonth = Residents::withTrashed()
             ->whereMonth('created_at', $thisMonth->month)
             ->whereYear('created_at', $thisMonth->year)
@@ -96,8 +98,10 @@ class ResidentController extends Controller
 
         $growthPercentage = 0;
 
-        if ($totalLastMonth > 0) {
-            $growthPercentage = (($totalThisMonth - $totalLastMonth) / $totalLastMonth) * 100;
+        if ($threeMonthAverage > 0) {
+            $growthPercentage = (($totalThisMonth - $threeMonthAverage) / $threeMonthAverage) * 100;
+            // Cap growth at ±100% for display purposes to avoid extreme percentages from small numbers
+            $growthPercentage = max(-100, min(100, $growthPercentage));
         }
 
         //ACTIVE (not soft deleted)
