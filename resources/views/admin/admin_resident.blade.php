@@ -1152,10 +1152,16 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <label for="add_suffix" class="form-label">Suffix</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
-                                               name="suffix" id="add_suffix" 
-                                               value="{{ session('form_type') == 'add' ? old('suffix') : '' }}" 
-                                               placeholder="e.g., Jr., Sr., III (optional)">
+                                        <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                                name="suffix" id="add_suffix">
+                                            <option value="">None</option>
+                                            <option value="Jr." {{ session('form_type') == 'add' && old('suffix') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                            <option value="Sr." {{ session('form_type') == 'add' && old('suffix') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                            <option value="II" {{ session('form_type') == 'add' && old('suffix') == 'II' ? 'selected' : '' }}>II</option>
+                                            <option value="III" {{ session('form_type') == 'add' && old('suffix') == 'III' ? 'selected' : '' }}>III</option>
+                                            <option value="IV" {{ session('form_type') == 'add' && old('suffix') == 'IV' ? 'selected' : '' }}>IV</option>
+                                            <option value="V" {{ session('form_type') == 'add' && old('suffix') == 'V' ? 'selected' : '' }}>V</option>
+                                        </select>
                                         @if(session('form_type') == 'add')
                                             @error('suffix')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1375,12 +1381,17 @@
 
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Suffix</label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') is-invalid @enderror @endif"
-                                                name="suffix"
-                                                id="edit_suffix_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix }}"
-                                                placeholder="e.g., Jr., Sr., III">
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') is-invalid @enderror @endif"
+                                                    name="suffix"
+                                                    id="edit_suffix_{{ $resident->id }}">
+                                                <option value="">None</option>
+                                                <option value="Jr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                <option value="Sr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                <option value="II" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'II' ? 'selected' : '' }}>II</option>
+                                                <option value="III" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                                <option value="IV" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                                <option value="V" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'V' ? 'selected' : '' }}>V</option>
+                                            </select>
                                             @if(session('form_type') == 'edit_' . $resident->id)
                                                 @error('suffix')
                                                     <div class="invalid-feedback">{{ $message }}</div>
