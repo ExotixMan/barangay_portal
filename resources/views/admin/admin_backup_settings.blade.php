@@ -564,7 +564,7 @@
                     <i class="fas fa-clock mt-1" style="color:#0b63ad;"></i>
                     <div>
                         <div class="schedule-title">Automatic Weekly Backup Enabled</div>
-                        <div>Scheduled every Sunday at 12:00 AM (Asia/Manila) via Laravel Scheduler.</div>
+                        <div>Scheduled every Sunday at 12:00 AM (Asia/Manila).</div>
                     </div>
                 </div>
             </div>

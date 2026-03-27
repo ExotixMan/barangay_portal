@@ -761,10 +761,17 @@ SQL);
         }
 
         if (is_dir($destinationDirectory)) {
-            File::deleteDirectory($destinationDirectory);
+            $deleted = File::deleteDirectory($destinationDirectory);
+            if ($deleted === false && is_dir($destinationDirectory)) {
+                throw new \RuntimeException('Unable to clear destination directory: ' . $destinationDirectory);
+            }
         }
 
         File::ensureDirectoryExists(dirname($destinationDirectory));
-        File::copyDirectory($sourceDirectory, $destinationDirectory);
+
+        $copied = File::copyDirectory($sourceDirectory, $destinationDirectory);
+        if ($copied === false) {
+            throw new \RuntimeException('Unable to restore directory: ' . basename($destinationDirectory));
+        }
     }
 }

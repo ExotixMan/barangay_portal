@@ -162,7 +162,7 @@
     
     <div class="card-body p-0">
         <!-- Show a single summary error if needed -->
-        @if($errors->any() && !$errors->has('email') && !$errors->has('password'))
+        @if($errors->any() && !$errors->has('login') && !$errors->has('password'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 {{ $errors->first() }}
@@ -175,16 +175,16 @@
             
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                <input type="email" 
-                       class="form-control @error('email') is-invalid @enderror" 
-                       id="email" 
-                       name="email" 
-                       value="{{ old('email') }}" 
-                       placeholder="Email Address" 
+                <input type="text" 
+                       class="form-control @error('login') is-invalid @enderror" 
+                       id="login" 
+                       name="login" 
+                       value="{{ old('login') }}" 
+                       placeholder="Email or Username" 
                        required 
                        autofocus>
             </div>
-            @error('email')
+            @error('login')
                 <div class="field-error">
                     <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
                 </div>

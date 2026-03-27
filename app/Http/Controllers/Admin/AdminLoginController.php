@@ -24,8 +24,12 @@ class AdminLoginController extends Controller
 
     public function login(Request $request)
     {
+        $request->merge([
+            'login' => trim((string) $request->input('login', $request->input('email', ''))),
+        ]);
+
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -33,7 +37,15 @@ class AdminLoginController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $credentials = $request->only('email', 'password');
+        $loginInput = (string) $request->input('login');
+        $password = (string) $request->input('password');
+
+        // Support either email or username in one field.
+        $loginField = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $credentials = [
+            $loginField => $loginInput,
+            'password' => $password,
+        ];
         
         // Use the admin guard
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
@@ -46,8 +58,8 @@ class AdminLoginController extends Controller
             if ($user->status !== 'active') {
                 Auth::guard('admin')->logout();
                 return back()->withErrors([
-                    'email' => 'Your account is not active. Please contact administrator.',
-                ])->withInput();
+                    'login' => 'Your account is not active. Please contact administrator.',
+                ])->withInput($request->except('password'));
             }
             
             // Update the last_login_at timestamp for accurate login tracking
@@ -69,8 +81,8 @@ class AdminLoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->withInput();
+            'login' => 'The provided credentials do not match our records.',
+        ])->withInput($request->except('password'));
     }
 
     //Redirect user based on their role and permissions

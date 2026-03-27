@@ -7,7 +7,9 @@ use App\Models\AdminActivityLog;
 use App\Services\BackupArchiveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class BackupSettingsController extends Controller
 {
@@ -113,10 +115,21 @@ class BackupSettingsController extends Controller
 
     public function restore(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'file' => ['nullable', 'string', 'required_without:backup_archive'],
             'backup_archive' => ['nullable', 'file', 'mimes:zip', 'max:512000', 'required_without:file'],
         ]);
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first() ?: 'Restore validation failed.';
+
+            return redirect()->route('admin.backup.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('restore_status', 'error')
+                ->with('restore_message', $firstError)
+                ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
+        }
 
         $backupService = app(BackupArchiveService::class);
         $uploadedPath = null;
@@ -167,10 +180,21 @@ class BackupSettingsController extends Controller
                 ->with('restore_message', 'Restore completed successfully from ' . $sourceLabel . '.')
                 ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
         } catch (\Throwable $e) {
+            Log::error('Backup restore failed', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+                'admin_id' => auth('admin')->id(),
+            ]);
+
+            $errorMessage = trim((string) $e->getMessage()) !== ''
+                ? $e->getMessage()
+                : 'An unexpected error occurred while restoring the backup.';
+
             return redirect()->route('admin.backup.index')
-                ->with('error', 'Restore failed: ' . $e->getMessage())
+                ->with('error', 'Restore failed: ' . $errorMessage)
                 ->with('restore_status', 'error')
-                ->with('restore_message', 'Restore failed: ' . $e->getMessage())
+                ->with('restore_message', 'Restore failed: ' . $errorMessage)
                 ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
         } finally {
             if ($uploadedPath !== null) {
