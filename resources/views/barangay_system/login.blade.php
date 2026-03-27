@@ -157,32 +157,38 @@
             padding: 23px 12px 12px 40px !important;
             overflow: hidden;
             text-align: start;
-            text-overflow: ellipsis;
+            text-overflow: clip;
             white-space: nowrap;
             pointer-events: none;
             border: 1px solid transparent;
             transform-origin: 0 0;
-            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
             font-weight: 500;
             color: #555;
             font-size: 0.8rem;
             line-height: 24px !important;
             display: flex;
             align-items: center;
+            box-sizing: border-box;
+            background: transparent;
+            opacity: 0.35;
+            z-index: 1;
         }
 
         .form-floating > .form-control:focus ~ label,
         .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            /* opacity: 0.8; */
-            transform: scale(0.8) translateY(-9px) translateX(30px) !important;
-            background: white;
-            padding: 0 5px !important;
-            height: 20px !important;
+            transform: scale(0.75) translateY(-12px) translateX(40px) !important;
+            background: white !important;
+            padding: 0 6px !important;
+            height: auto !important;
             width: auto !important;
-            line-height: 20px !important;
-            display: flex;
-            align-items: center;
-            top: 0;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            top: 0 !important;
+            left: 0 !important;
+            opacity: 1 !important;
+            z-index: 10 !important;
         }
 
         .form-floating > .form-control:focus {
@@ -510,6 +516,172 @@
 
         .privacy-check-row label strong {
             color: var(--primary-red);
+        }
+
+        /* Dark mode overrides for login page - using body.dark-mode class */
+        body.dark-mode .login-container {
+            background: rgba(30, 30, 30, 0.98);
+            border-color: #333333;
+        }
+
+        body.dark-mode .login-panel {
+            background: #1e1e1e !important;
+        }
+
+        body.dark-mode .form-floating > label {
+            color: #999999 !important;
+            background: transparent !important;
+            opacity: 0.35 !important;
+        }
+
+        body.dark-mode .form-floating > .form-control:focus ~ label,
+        body.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            background: #1e1e1e !important;
+            color: #e53935 !important;
+            opacity: 1 !important;
+            z-index: 10 !important;
+        }
+
+        body.dark-mode .privacy-check-row {
+            background: rgba(229, 57, 53, 0.08) !important;
+            border-color: rgba(229, 57, 53, 0.25) !important;
+        }
+
+        body.dark-mode .privacy-check-row label {
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .privacy-check-row label strong {
+            color: #e53935 !important;
+        }
+
+        body.dark-mode .logo-section h1 {
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .logo-section p {
+            color: #b0b0b0 !important;
+        }
+
+        body.dark-mode .form-floating > .form-control {
+            background-color: #2d2d2d !important;
+            border-color: #444444 !important;
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .form-floating > .form-control::placeholder {
+            color: #888888 !important;
+        }
+
+        body.dark-mode .form-floating > .form-control:focus {
+            background-color: #2d2d2d !important;
+            border-color: #e53935 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1) !important;
+        }
+
+        body.dark-mode .password-toggle,
+        body.dark-mode .input-icon {
+            color: #b0b0b0 !important;
+        }
+
+        body.dark-mode .btn-login {
+            background: #b30000 !important;
+            border-color: #800000 !important;
+        }
+
+        body.dark-mode .btn-login:hover {
+            background: #800000 !important;
+            border-color: #600000 !important;
+        }
+
+        body.dark-mode .alert {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+        }
+
+        body.dark-mode .forgot-link {
+            color: #e53935 !important;
+        }
+
+        body.dark-mode .form-check-input {
+            background-color: #2d2d2d !important;
+            border-color: #444444 !important;
+        }
+
+        body.dark-mode .form-check-input:checked {
+            background-color: #b30000 !important;
+            border-color: #800000 !important;
+        }
+
+        body.dark-mode .remember-text {
+            color: #b0b0b0 !important;
+        }
+
+        /* Dark mode modal styles */
+        body.dark-mode .modal-content {
+            background-color: #2d2d2d !important;
+            border-color: #444444 !important;
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom-color: #444444 !important;
+            background-color: #2d2d2d !important;
+        }
+
+        body.dark-mode .modal-header h2 {
+            color: #e53935 !important;
+        }
+
+        body.dark-mode .modal-close {
+            color: #b0b0b0 !important;
+        }
+
+        body.dark-mode .modal-close:hover {
+            color: #e53935 !important;
+        }
+
+        body.dark-mode .modal-body {
+            background-color: #2d2d2d !important;
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .modal-body h3 {
+            color: #e53935 !important;
+        }
+
+        body.dark-mode .modal-body h4 {
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .modal-body p,
+        body.dark-mode .modal-body li {
+            color: #e8e8e8 !important;
+        }
+
+        body.dark-mode .modal-footer {
+            border-top-color: #444444 !important;
+            background-color: #2d2d2d !important;
+        }
+
+        body.dark-mode .btn-decline {
+            background-color: #444444 !important;
+            color: #e8e8e8 !important;
+            border-color: #555555 !important;
+        }
+
+        body.dark-mode .btn-decline:hover {
+            background-color: #555555 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .btn-accept {
+            background: linear-gradient(135deg, #b30000, #800000) !important;
+            border-color: #800000 !important;
+        }
+
+        body.dark-mode .btn-accept:hover {
+            background: linear-gradient(135deg, #800000, #600000) !important;
         }
 
         /* Responsive adjustments */

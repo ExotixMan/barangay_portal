@@ -1899,18 +1899,20 @@
                                     <div class="mb-3">
                                         <label class="form-label">New Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" name="password" id="resetPassword" required minlength="8">
+                                            <input type="password" class="form-control" name="password" id="resetPassword" required minlength="8"
+                                                   onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPassword')">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
-                                        <small class="text-muted">Minimum 8 characters</small>
+                                        <small class="text-muted">Minimum 8 characters. <strong>No spaces allowed.</strong></small>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" name="password_confirmation" id="resetPasswordConfirm" required>
+                                            <input type="password" class="form-control" name="password_confirmation" id="resetPasswordConfirm" required
+                                                   onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPasswordConfirm')">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -2854,6 +2856,8 @@
             if (pwField) {
                 pwField.addEventListener('input', function() { cf(this); }, {once: true});
                 pwField.addEventListener('input', function() {
+                    // Remove spaces from password
+                    this.value = this.value.replace(/\s/g, "");
                     if (!this.value) sf(this, 'Password is required.');
                     else if (!window.isStrongPassword(this.value)) sf(this, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.');
                     else cf(this);
@@ -2865,6 +2869,8 @@
             }
             if (pwConfirm) {
                 pwConfirm.addEventListener('input', function() {
+                    // Remove spaces from confirm password
+                    this.value = this.value.replace(/\s/g, "");
                     if (!this.value) sf(this, 'Please confirm your password.');
                     else if (pwField && this.value !== pwField.value) sf(this, 'Passwords do not match.');
                     else cf(this);

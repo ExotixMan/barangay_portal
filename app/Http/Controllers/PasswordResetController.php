@@ -41,9 +41,10 @@ class PasswordResetController extends Controller
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email|exists:residents,email',
-            'password' => ['required', 'confirmed', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'password.confirmed' => 'The passwords do not match.',
+            'password.regex'     => 'Password cannot contain spaces.',
             'password.*'         => 'Password must be at least 8 characters and contain uppercase, lowercase, a number, and a special character.',
         ]);
 

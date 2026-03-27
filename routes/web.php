@@ -245,8 +245,16 @@ Route::middleware('auth')->group(function () {
 
 // ADMIN ROUTES
 
-// Admin login routes (public)
+// Admin root route - redirect based on auth status
 Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
+    Route::get('/', function () {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard.index');
+        }
+        return redirect()->route('admin.login');
+    })->name('index');
+    
+    // Admin login routes (public)
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');

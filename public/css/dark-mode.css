@@ -2218,3 +2218,27 @@ body.dark-mode .far,
 body.dark-mode .fab {
     transition: none !important;
 }
+
+/* ===== FORM FLOATING LABELS FIX ===== */
+body.dark-mode .form-floating > label {
+    color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .form-floating > .form-control:focus ~ label,
+body.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--dm-accent) !important;
+}
+
+/* ===== PRIVACY CHECKBOX ROW FIX ===== */
+body.dark-mode .privacy-check-row {
+    background: rgba(229, 57, 53, 0.08) !important;
+    border-color: rgba(229, 57, 53, 0.25) !important;
+}
+
+body.dark-mode .privacy-check-row label {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .privacy-check-row label strong {
+    color: var(--dm-accent) !important;
+}

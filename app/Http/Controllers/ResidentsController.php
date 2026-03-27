@@ -49,7 +49,7 @@ class ResidentsController extends Controller
             'contact' => 'required|string|max:11|regex:/^09\d{9}$/',
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
-            'password' => 'required|string|confirmed|min:8',
+            'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
             'terms' => 'accepted',
         ], [
             'firstname.regex' => 'First name may only contain letters, spaces, dots, apostrophes, and hyphens',
@@ -59,6 +59,7 @@ class ResidentsController extends Controller
             'contact.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
             'birthdate.before' => 'You must be at least 18 years old to register',
             'password.min' => 'Password must be at least 8 characters long',
+            'password.regex' => 'Password cannot contain spaces',
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
             'username.min' => 'Username must be at least 4 characters long',
             'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',

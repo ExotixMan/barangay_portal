@@ -213,7 +213,7 @@ class AdminUserController extends Controller
             'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
             'email' => 'required|email|unique:admin_users,email',
             'username' => ['required', 'string', 'unique:admin_users,username', 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'],
-            'password' => ['required', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'contact_number' => ['nullable', 'regex:/^09\d{9}$/'],
             'role_id' => 'required|exists:admin_roles,id',
             'department' => 'nullable|string|max:255',
@@ -224,6 +224,7 @@ class AdminUserController extends Controller
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and periods.',
             'username.regex' => 'Username can only contain letters, numbers, underscores, dots, and hyphens.',
             'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
+            'password.regex' => 'Password cannot contain spaces.',
             'password.*' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
@@ -410,8 +411,9 @@ class AdminUserController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'new_password' => ['sometimes', 'required', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'new_password' => ['sometimes', 'required', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
+            'new_password.regex' => 'New password cannot contain spaces.',
             'new_password.*' => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 

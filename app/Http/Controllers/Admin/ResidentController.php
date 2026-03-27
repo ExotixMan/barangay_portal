@@ -139,26 +139,33 @@ class ResidentController extends Controller
 
         $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'middlename' => ['nullable','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'suffix' => ['nullable','string','max:50','regex:/^[a-zA-Z\s\.,]+$/'],
             'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username'],
             'email'     => 'required|email|max:255|unique:residents,email',
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
-            'password'  => ['required','confirmed', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'password'  => ['required','confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
         ], [
             'firstname.regex'   => 'First name can only contain letters, spaces, and hyphens.',
+            'middlename.regex'  => 'Middle name can only contain letters, spaces, and hyphens.',
             'lastname.regex'    => 'Last name can only contain letters, spaces, and hyphens.',
+            'suffix.regex'      => 'Suffix can only contain letters, spaces, and periods.',
             'username.regex'    => 'Username can only contain letters, numbers, and underscores.',
             'username.min'      => 'Username must be at least 3 characters.',
             'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
             'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
+            'password.regex'    => 'Password cannot contain spaces.',
             'password.*'        => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
         $resident = Residents::create([
             'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
             'lastname' => $request->lastname,
+            'suffix' => $request->suffix,
             'email' => $request->email,
             'address' => $request->address,
             'birthdate' => $request->birthdate,
@@ -187,7 +194,9 @@ class ResidentController extends Controller
 
         $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'middlename' => ['nullable','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
+            'suffix' => ['nullable','string','max:50','regex:/^[a-zA-Z\s\.,]+$/'],
             'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username,'.$resident->id],
             'email'     => 'required|email|max:255|unique:residents,email,'.$resident->id,
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
@@ -195,7 +204,9 @@ class ResidentController extends Controller
             'address'   => 'required|string|max:500',
         ], [
             'firstname.regex' => 'First name can only contain letters, spaces, and hyphens.',
+            'middlename.regex' => 'Middle name can only contain letters, spaces, and hyphens.',
             'lastname.regex'  => 'Last name can only contain letters, spaces, and hyphens.',
+            'suffix.regex' => 'Suffix can only contain letters, spaces, and periods.',
             'username.regex'  => 'Username can only contain letters, numbers, and underscores.',
             'username.min'    => 'Username must be at least 3 characters.',
             'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
@@ -204,7 +215,9 @@ class ResidentController extends Controller
 
         $resident->update([
             'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
             'lastname'  => $request->lastname,
+            'suffix' => $request->suffix,
             'username'  => $request->username,
             'email'     => $request->email,
             'contact'   => $request->contact,

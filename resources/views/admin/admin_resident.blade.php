@@ -1127,6 +1127,18 @@
                                         @endif
                                     </div>
                                     <div class="col-12 col-md-6">
+                                        <label for="add_middlename" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('middlename') is-invalid @enderror @endif" 
+                                               name="middlename" id="add_middlename" 
+                                               value="{{ session('form_type') == 'add' ? old('middlename') : '' }}" 
+                                               placeholder="Enter middle name (optional)">
+                                        @if(session('form_type') == 'add')
+                                            @error('middlename')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-6">
                                         <label for="add_lastname" class="form-label">Last Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('lastname') is-invalid @enderror @endif" 
                                                name="lastname" id="add_lastname" 
@@ -1134,6 +1146,18 @@
                                                required placeholder="Enter last name">
                                         @if(session('form_type') == 'add')
                                             @error('lastname')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="add_suffix" class="form-label">Suffix</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                               name="suffix" id="add_suffix" 
+                                               value="{{ session('form_type') == 'add' ? old('suffix') : '' }}" 
+                                               placeholder="e.g., Jr., Sr., III (optional)">
+                                        @if(session('form_type') == 'add')
+                                            @error('suffix')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         @endif
@@ -1203,8 +1227,9 @@
                                         <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
                                         <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" 
                                                name="password" id="add_password" 
-                                               required minlength="8">
-                                        <small class="text-muted">Minimum 8 characters with uppercase, lowercase, number, and special character.</small>
+                                               required minlength="8"
+                                               onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
+                                        <small class="text-muted">Minimum 8 characters with uppercase, lowercase, number, and special character. <strong>No spaces allowed.</strong></small>
                                         @if(session('form_type') == 'add')
                                             @error('password')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1214,7 +1239,8 @@
                                     <div class="col-12 col-md-6">
                                         <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                                         <input type="password" name="password_confirmation" class="form-control" 
-                                               id="add_password_confirmation" required>
+                                               id="add_password_confirmation" required
+                                               onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                         <div class="invalid-feedback" id="add_pwc_feedback"></div>
                                     </div>
                                     <div class="col-12">
@@ -1319,6 +1345,20 @@
                                         </div>
 
                                         <div class="col-12 col-md-6">
+                                            <label class="form-label">Middle Name</label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('middlename') is-invalid @enderror @endif"
+                                                name="middlename"
+                                                id="edit_middlename_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('middlename', $resident->middlename) : $resident->middlename }}">
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('middlename')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
                                             <label class="form-label">Last Name <span class="text-danger">*</span></label>
                                             <input type="text"
                                                 class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif"
@@ -1328,6 +1368,21 @@
                                                 required>
                                             @if(session('form_type') == 'edit_' . $resident->id)
                                                 @error('lastname')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Suffix</label>
+                                            <input type="text"
+                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') is-invalid @enderror @endif"
+                                                name="suffix"
+                                                id="edit_suffix_{{ $resident->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix }}"
+                                                placeholder="e.g., Jr., Sr., III">
+                                            @if(session('form_type') == 'edit_' . $resident->id)
+                                                @error('suffix')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             @endif
@@ -1458,8 +1513,18 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label class="form-label text-muted small mb-1">Middle Name</label>
+                                    <p class="fw-semibold">{{ $resident->middlename ?? 'N/A' }}</p>
+                                </div>
+
+                                <div class="col-md-6">
                                     <label class="form-label text-muted small mb-1">Last Name</label>
                                     <p class="fw-semibold">{{ $resident->lastname }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small mb-1">Suffix</label>
+                                    <p class="fw-semibold">{{ $resident->suffix ?? 'N/A' }}</p>
                                 </div>
 
                                 <div class="col-md-6">
@@ -1960,6 +2025,8 @@
             const pwc = document.getElementById('add_password_confirmation');
 
             function validatePw() {
+                // Remove spaces from password
+                pw.value = pw.value.replace(/\s/g, "");
                 if (!pw.value)                          return setField(pw, 'Password is required.');
                 if (pw.value.length < 8)                return setField(pw, 'Password must be at least 8 characters.');
                 if (!/[A-Z]/.test(pw.value))            return setField(pw, 'Password must contain at least one uppercase letter.');
@@ -1970,6 +2037,8 @@
                 if (pwc.value) validatePwc();
             }
             function validatePwc() {
+                // Remove spaces from confirm password
+                pwc.value = pwc.value.replace(/\s/g, "");
                 if (pwc.value !== pw.value) return setField(pwc, 'Passwords do not match.');
                 setField(pwc, '');
             }

@@ -1132,7 +1132,8 @@
                                     <input type="password" id="password" name="password" required
                                         placeholder="Create a password"
                                         class="form-control @error('password') is-invalid @enderror"
-                                        autocomplete="new-password">
+                                        autocomplete="new-password"
+                                        onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                     <button type="button" class="toggle-password" data-target="password"
                                         aria-label="Show or hide password">
                                         <i class="fas fa-eye"></i>
@@ -1150,6 +1151,7 @@
                                     <li data-rule="number">Contains a number</li>
                                     <li data-rule="upper">Contains uppercase letter</li>
                                     <li data-rule="special">Contains special character</li>
+                                    <li style="grid-column: 1 / -1;"><strong>No spaces allowed</strong></li>
                                 </ul>
                                 @error('password')
                                     <div class="error-message">{{ $message }}</div>
@@ -1166,7 +1168,8 @@
                                     <input type="password" id="password_confirmation" name="password_confirmation"
                                         required placeholder="Re-enter your password"
                                         class="form-control"
-                                        autocomplete="new-password">
+                                        autocomplete="new-password"
+                                        onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                     <button type="button" class="toggle-password" data-target="password_confirmation"
                                         aria-label="Show or hide confirm password">
                                         <i class="fas fa-eye"></i>
@@ -1849,13 +1852,19 @@
             // Password event listeners
             if (passwordInput) {
                 passwordInput.addEventListener("input", () => {
+                    // Remove any spaces that may have been typed or pasted
+                    passwordInput.value = passwordInput.value.replace(/\s/g, "");
                     updatePasswordUI();
                     updatePasswordMatchUI();
                 });
             }
 
             if (confirmPasswordInput) {
-                confirmPasswordInput.addEventListener("input", updatePasswordMatchUI);
+                confirmPasswordInput.addEventListener("input", () => {
+                    // Remove any spaces that may have been typed or pasted
+                    confirmPasswordInput.value = confirmPasswordInput.value.replace(/\s/g, "");
+                    updatePasswordMatchUI();
+                });
             }
 
             // Toggle password visibility

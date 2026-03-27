@@ -1048,6 +1048,8 @@
 
         if (newPwInput && fill) {
             newPwInput.addEventListener('input', () => {
+                // Remove spaces from password
+                newPwInput.value = newPwInput.value.replace(/\s/g, "");
                 const { w, label, color } = evalStrength(newPwInput.value);
                 fill.style.width = w + '%';
                 fill.style.background = color;
@@ -1057,7 +1059,11 @@
             });
         }
         if (confirmPwInput) {
-            confirmPwInput.addEventListener('input', checkMatch);
+            confirmPwInput.addEventListener('input', () => {
+                // Remove spaces from confirm password
+                confirmPwInput.value = confirmPwInput.value.replace(/\s/g, "");
+                checkMatch();
+            });
         }
         function checkMatch() {
             if (!newPwInput || !confirmPwInput || !matchHint) return;

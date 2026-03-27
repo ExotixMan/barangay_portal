@@ -446,7 +446,8 @@
                            name="password"
                            placeholder="Create a strong password"
                            autocomplete="new-password"
-                           required>
+                           required
+                           onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                     <button type="button" class="toggle-btn" id="togglePw" tabindex="-1" title="Show / hide">
                         <i class="far fa-eye"></i>
                     </button>
@@ -494,7 +495,8 @@
                            name="password_confirmation"
                            placeholder="Re-enter your password"
                            autocomplete="new-password"
-                           required>
+                           required
+                           onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                     <button type="button" class="toggle-btn" id="toggleCf" tabindex="-1" title="Show / hide">
                         <i class="far fa-eye"></i>
                     </button>
@@ -632,8 +634,17 @@
         submitBtn.disabled = !(allReqsMet && pwMatch);
     }
 
-    pwInput.addEventListener('input', checkPassword);
-    cfInput.addEventListener('input', function () { checkConfirm(); updateSubmit(); });
+    pwInput.addEventListener('input', function() {
+        // Remove spaces from password
+        pwInput.value = pwInput.value.replace(/\s/g, "");
+        checkPassword();
+    });
+    cfInput.addEventListener('input', function () {
+        // Remove spaces from confirm password
+        cfInput.value = cfInput.value.replace(/\s/g, "");
+        checkConfirm();
+        updateSubmit();
+    });
 
     /* ── Loading state on submit ── */
     document.getElementById('resetForm').addEventListener('submit', function (e) {
