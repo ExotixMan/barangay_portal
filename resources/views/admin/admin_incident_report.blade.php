@@ -1261,6 +1261,7 @@
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         @if(auth('admin')->user()->hasPermission('send_email'))
                                                         <li>
+                                                            @if(!empty($blotter->complainant_email))
                                                             <form method="POST" action="{{ route('admin.notifications.sendEmail') }}" class="dropdown-item p-0">
                                                                 @csrf
                                                                 <input type="hidden" name="email" value="{{ $blotter->complainant_email ?? '' }}">
@@ -1274,6 +1275,11 @@
                                                                     <i class="fas fa-envelope me-2"></i>Send Email
                                                                 </button>
                                                             </form>
+                                                            @else
+                                                            <span class="dropdown-item text-muted" title="No complainant email available">
+                                                                <i class="fas fa-envelope me-2"></i>Send Email (No email)
+                                                            </span>
+                                                            @endif
                                                         </li>
                                                         @endif
                                                         

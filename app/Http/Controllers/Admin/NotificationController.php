@@ -16,6 +16,14 @@ class NotificationController extends Controller
 
     public function sendEmail(Request $request)
     {
+        $request->merge([
+            'email' => trim((string) $request->input('email', '')),
+        ]);
+
+        if ($request->input('email') === '') {
+            return back()->with('error', 'Cannot send email: complainant email is missing for this report.');
+        }
+
         $validated = $request->validate([
             'email'   => 'required|email',
             'name'    => 'required|string',

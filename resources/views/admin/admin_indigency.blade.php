@@ -1856,10 +1856,12 @@
                                             <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('purpose') is-invalid @enderror @endif" 
                                                     name="purpose" id="edit_purpose_{{ $ind->id }}" required>
                                                 <option value="">Select purpose</option>
-                                                <option value="medical" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'medical' ? 'selected' : '' }}>Medical Assistance</option>
-                                                <option value="financial" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'financial' ? 'selected' : '' }}>Financial Assistance</option>
-                                                <option value="scholarship" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
-                                                <option value="employment" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'employment' ? 'selected' : '' }}>Employment</option>
+                                                <option value="medical" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'medical' ? 'selected' : '' }}>Medical / Hospital assistance</option>
+                                                <option value="scholarship" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'scholarship' ? 'selected' : '' }}>Scholarship / Financial aid</option>
+                                                <option value="government" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'government' ? 'selected' : '' }}>Government program (4Ps, AICS)</option>
+                                                <option value="legal" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'legal' ? 'selected' : '' }}>Legal assistance (PAO, etc.)</option>
+                                                <option value="employment" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'employment' ? 'selected' : '' }}>Employment requirement (low income proof)</option>
+                                                <option value="burial" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'burial' ? 'selected' : '' }}>Burial assistance</option>
                                                 <option value="other" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'other' ? 'selected' : '' }}>Other</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ind->id)
