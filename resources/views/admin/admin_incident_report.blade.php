@@ -1068,7 +1068,7 @@
                             </div>
 
                             <div class="col-6 col-md-2">
-                                <select name="confidentiality" class="form-select">
+                                <select name="report_type" class="form-select">
                                     <option value="">All Report Type</option>
                                     <option value="dispute" {{ request('report_type') == 'dispute' ? 'selected' : '' }}>Community Dispute</option>
                                     <option value="security" {{ request('report_type') == 'security' ? 'selected' : '' }}>Security Concern</option>
@@ -1123,10 +1123,10 @@
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'reference_number', 'direction' => request('sort') === 'reference_number' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Reference #
-                                            @if(request('sort') == 'created_at')
+                                            @if(request('sort') == 'reference_number')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
                                                 <i class="fas fa-sort text-muted ms-1"></i>
@@ -1134,7 +1134,7 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'report_type', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'report_type', 'direction' => request('sort') === 'report_type' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Report Type
                                             @if(request('sort') == 'report_type')
@@ -1145,7 +1145,7 @@
                                         </a>
                                     </th>
                                     <th class="d-none d-lg-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'incident_date', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'incident_date', 'direction' => request('sort') === 'incident_date' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Incident Date
                                             @if(request('sort') == 'incident_date')
@@ -1156,7 +1156,7 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('sort') === 'complainant_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Complainant
                                             @if(request('sort') == 'complainant_name')
@@ -1168,7 +1168,7 @@
                                     </th>
                                     <th class="d-none d-md-table-cell">Respondent</th>
                                     <th class="d-none d-md-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'confidentiality', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'confidentiality', 'direction' => request('sort') === 'confidentiality' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Confidentiality
                                             @if(request('sort') == 'confidentiality')
@@ -1179,7 +1179,7 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Status
                                             @if(request('sort') == 'status')

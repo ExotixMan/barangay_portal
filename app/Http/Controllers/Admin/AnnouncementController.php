@@ -51,14 +51,26 @@ class AnnouncementController extends Controller
 
         // Sorting
         $sort = $request->get('sort', 'created_at');
-        $direction = $request->get('direction', 'desc');
+        $direction = strtolower((string) $request->get('direction', 'desc'));
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
         $allowedSorts = ['title', 'category', 'views', 'published_at', 'created_at', 'status'];
         
         if (!in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
-        $query->orderBy($sort, $direction);
+        if ($sort === 'status') {
+            $query->orderByRaw("CASE status WHEN 'published' THEN 1 WHEN 'draft' THEN 2 WHEN 'archived' THEN 3 ELSE 4 END {$direction}");
+        } elseif ($sort === 'published_at') {
+            // Keep nulls consistently last regardless of direction.
+            $query->orderByRaw('published_at IS NULL ASC')
+                ->orderBy('published_at', $direction);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        // Stable secondary sort to avoid row shuffle on equal values.
+        $query->orderBy('created_at', 'desc');
 
         $announcements = $query->paginate(10)->withQueryString();
 

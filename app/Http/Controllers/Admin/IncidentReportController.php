@@ -35,12 +35,42 @@ class IncidentReportController extends Controller
             $query->where('report_type', $request->report_type);
         }
 
+        // Sorting
+        $sort = $request->get('sort', 'created_at');
+        $direction = strtolower((string) $request->get('direction', 'desc'));
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
+
+        $allowedSorts = [
+            'reference_number',
+            'created_at',
+            'report_type',
+            'incident_date',
+            'complainant_name',
+            'confidentiality',
+            'status',
+        ];
+
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'created_at';
+        }
+
+        if ($sort === 'status') {
+            $query->orderByRaw("CASE status WHEN 'processing' THEN 1 WHEN 'resolved' THEN 2 WHEN 'dropped' THEN 3 ELSE 4 END {$direction}");
+        } elseif ($sort === 'confidentiality') {
+            $query->orderByRaw("CASE confidentiality WHEN 'low' THEN 1 WHEN 'medium' THEN 2 WHEN 'high' THEN 3 ELSE 4 END {$direction}");
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        // Stable secondary sort to avoid row jumps when values are equal.
+        $query->orderBy('created_at', 'desc');
+
         $total_count = BlotterReport::withTrashed()->count();
         $processing_count = BlotterReport::where('status', 'processing')->count();
         $resolved_count = BlotterReport::where('status', 'resolved')->count();
         $dropped_count = BlotterReport::where('status', 'dropped')->count();
 
-        $incidents = $query->with(['witnesses', 'files'])->latest()->paginate(20); // FIXED: moved with() to query
+        $incidents = $query->with(['witnesses', 'files'])->paginate(20);
 
         return view('admin.admin_incident_report', compact('incidents', 'total_count', 'processing_count', 'resolved_count', 'dropped_count'));
     }

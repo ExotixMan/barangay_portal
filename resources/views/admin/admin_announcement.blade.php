@@ -1075,7 +1075,7 @@
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('sort') === 'title' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Title
                                             @if(request('sort') == 'title')
@@ -1086,7 +1086,7 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'category', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'category', 'direction' => request('sort') === 'category' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Category
                                             @if(request('sort') == 'category')
@@ -1098,7 +1098,7 @@
                                     </th>
                                     <th class="d-none d-md-table-cell">Featured</th>
                                     <th class="d-none d-md-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'views', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'views', 'direction' => request('sort') === 'views' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Views
                                             @if(request('sort') == 'views')
@@ -1109,7 +1109,7 @@
                                         </a>
                                     </th>
                                     <th class="d-none d-lg-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'published_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'published_at', 'direction' => request('sort') === 'published_at' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Published At
                                             @if(request('sort') == 'published_at')
@@ -1120,7 +1120,7 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
                                         class="text-decoration-none text-dark">
                                             Status
                                             @if(request('sort') == 'status')

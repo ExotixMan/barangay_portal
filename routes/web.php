@@ -143,6 +143,10 @@ Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])->name('otp
 
 // Email verification (requires auth)
 Route::get('/email/verify', function (Request $request) {
+    if ($request->user() && $request->user()->hasVerifiedEmail()) {
+        return redirect()->route('barangay_system.index');
+    }
+
     return view('barangay_system.verify_email');
 })->middleware('auth')->name('verification.notice');
 
