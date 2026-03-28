@@ -179,8 +179,8 @@ class RuleBasedEngine
         'dokumento','document','request',
         // System / portal words
         'reference id','tracking','track','login','register','account',
-        'notification','approved','pending','rejected','download','upload',
-        'mag-apply','i-submit','i-download','i-track','i-cancel','i-appeal',
+        'notification','approved','pending','rejected','upload',
+        'mag-apply','i-submit','i-track','i-cancel','i-appeal',
         'request status','support',
         // Filipino action words
         'kuha','kunin','makuha','mag-file','mag-request','pano','paano',
@@ -543,13 +543,13 @@ class RuleBasedEngine
     public function suggestions(string $cat): array
     {
         return match ($cat) {
-            'clearance'   => ["Clearance requirements", "Track my request", "Download my clearance"],
+            'clearance'   => ["Clearance requirements", "Track my request", "Office hours"],
             'indigency'   => ["Indigency requirements", "Track my request", "Is indigency free?"],
-            'residency'   => ["Residency requirements", "Track my request", "Download my residency certificate"],
+            'residency'   => ["Residency requirements", "Track my request", "Office hours"],
             'blotter'     => ["How to file incident report", "Track my report", "Upload evidence"],
             'tracking'    => ["What is a Reference ID?", "My request is rejected", "Contact support"],
             'portal'      => ["How to register", "Track my request", "Contact support"],
-            'support'     => ["Email support", "Office hours", "Cancel a request"],
+            'support'     => ["Email support", "Office hours", "Track my request"],
             default       => $this->defaultSuggestions(),
         };
     }

@@ -153,8 +153,11 @@ class InputGuard
         'dokumento','document','request','i-request',
         // System words
         'reference id','tracking','track','login','register','account',
-        'notification','approved','pending','rejected','download','upload',
-        'mag-apply','i-submit','i-download','i-upload','i-track',
+        'notification','approved','pending','rejected','upload',
+        'mag-apply','i-submit','i-upload','i-track',
+        // Support/help desk queries
+        'support','contact support','contact','help desk','helpdesk',
+        'hotline','email support',
         // Filipino action words for gov
         'kuha','kunin','makuha','mag-file','mag-request',
         'i-cancel','i-appeal','i-renew',

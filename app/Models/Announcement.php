@@ -35,4 +35,26 @@ class Announcement extends Model
         });
     }
 
+    public function getImageUrlAttribute(): string
+    {
+        $image = trim((string) $this->image);
+
+        if ($image === '') {
+            return asset('Images/logo.png');
+        }
+
+        // Normalize Windows-style paths stored with backslashes.
+        $normalized = str_replace('\\', '/', $image);
+
+        if (Str::startsWith($normalized, ['http://', 'https://', '//'])) {
+            return $normalized;
+        }
+
+        if (Str::startsWith($normalized, 'public/')) {
+            $normalized = Str::after($normalized, 'public/');
+        }
+
+        return asset(ltrim($normalized, '/'));
+    }
+
 }

@@ -626,6 +626,22 @@
             font-size: 0.92rem;
         }
 
+        .announcement-detail-image-wrap {
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            margin-bottom: 18px;
+            background: #f3f4f6;
+        }
+
+        .announcement-detail-image {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            display: block;
+        }
+
         /* Page-local dark mode fix for announcement action buttons */
         body.dark-mode .read-more-btn,
         body.dark-mode .view-btn {
@@ -1035,7 +1051,7 @@
 
                         @foreach($featured as $key => $item)
                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                <img src="{{ asset($item->image) }}" alt="{{ $item->title }}" class="carousel-image">
+                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" class="carousel-image">
                                 <div class="carousel-content">
                                     <span class="category-badge">{{ ucfirst($item->category) }}</span>
                                     <h3>{{ $item->title }}</h3>
@@ -1135,7 +1151,7 @@
                                 @if($item->is_featured)
                                     <span class="featured-badge"><i class="fas fa-star me-1"></i>{{ __('messages.announcements_badge_featured') }}</span>
                                 @endif
-                                <img src="{{ asset($item->image) }}" alt="{{ $item->title }}" class="announcement-image">
+                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" class="announcement-image">
                                 <div class="announcement-content">
                                     <span class="announcement-category {{ $item->category }}">{{ ucfirst($item->category) }}</span>
                                     <h3>{{ $item->title }}</h3>
@@ -1191,6 +1207,10 @@
                         @if($item->is_featured)
                             <span class="featured-badge-inline"><i class="fas fa-star"></i>{{ __('messages.announcements_badge_featured') }}</span>
                         @endif
+                    </div>
+
+                    <div class="announcement-detail-image-wrap">
+                        <img src="{{ $item->image_url }}" alt="{{ $item->title }}" class="announcement-detail-image">
                     </div>
 
                     <p style="white-space: pre-line; color: #444; line-height: 1.8;">{{ $item->content }}</p>
