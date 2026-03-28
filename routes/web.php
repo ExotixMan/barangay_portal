@@ -96,6 +96,7 @@ Route::get('/barangay-officials', function () {
 
 // Community pages (public)
 Route::get('/announcements', [AnnouncementController::class,'index'])->name('announcements');
+Route::post('/announcements/{slug}/track-view', [AdminAnnouncement::class, 'trackView'])->name('announcements.track-view');
 Route::get('/announcements/{slug}', [AnnouncementController::class,'show'])->name('announcements.show');
 Route::get('/events-project', [EventProjectController::class, 'index'])->name('events_project');
 

@@ -1046,7 +1046,7 @@
                                             <span>{{ date('M d, Y', strtotime($item->published_at)) }}</span>
                                         </div>
                                     </div>
-                                    <button type="button" class="read-more-btn" data-bs-toggle="modal" data-bs-target="#announcementDetailModal{{ $item->id }}">
+                                    <button type="button" class="read-more-btn" data-slug="{{ $item->slug }}" data-bs-toggle="modal" data-bs-target="#announcementDetailModal{{ $item->id }}">
                                         <i class="fas fa-info-circle"></i> Learn More
                                     </button>
                                 </div>
@@ -1144,7 +1144,7 @@
                                         <div class="meta-info">
                                             <span class="meta-date">{{ date('M d, Y', strtotime($item->published_at)) }}</span>
                                         </div>
-                                        <button type="button" class="view-btn" data-bs-toggle="modal" data-bs-target="#announcementDetailModal{{ $item->id }}">
+                                        <button type="button" class="view-btn" data-slug="{{ $item->slug }}" data-bs-toggle="modal" data-bs-target="#announcementDetailModal{{ $item->id }}">
                                             <i class="fas fa-info-circle"></i> View Details
                                         </button>
                                     </div>
@@ -1178,7 +1178,7 @@
     @endphp
 
     @foreach($modalAnnouncements as $item)
-    <div class="modal fade" id="announcementDetailModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="announcementDetailModal{{ $item->id }}" data-slug="{{ $item->slug }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header" style="background: linear-gradient(135deg, #C62828, #8B0000); color: #fff;">
@@ -1302,6 +1302,27 @@
             // Check if there are no results and show message
             const announcementsGrid = document.getElementById('announcementsGrid');
             const noResultsMessage = document.getElementById('noResultsMessage');
+
+            // Count a view when resident opens announcement details modal.
+            document.querySelectorAll('.modal[id^="announcementDetailModal"]').forEach((modalEl) => {
+                modalEl.addEventListener('shown.bs.modal', () => {
+                    const slug = modalEl.getAttribute('data-slug');
+                    if (!slug) {
+                        return;
+                    }
+
+                    fetch(`{{ url('/announcements') }}/${encodeURIComponent(slug)}/track-view`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                    }).catch(() => {
+                        // Fail silently to avoid affecting modal UX.
+                    });
+                });
+            });
             
             if (announcementsGrid && announcementsGrid.children.length === 0 && noResultsMessage) {
                 noResultsMessage.style.display = 'block';

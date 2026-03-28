@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AnnouncementController extends Controller
@@ -37,14 +38,16 @@ class AnnouncementController extends Controller
         // Featured filter
         if ($request->has('featured') && $request->featured !== '') {
             $isFeaturedFilter = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            $query->where('is_featured', $isFeaturedFilter === true ? 'true' : 'false');
+            if (!is_null($isFeaturedFilter)) {
+                $query->whereRaw($isFeaturedFilter ? 'is_featured IS TRUE' : 'is_featured IS FALSE');
+            }
         }
 
         // Stats
         $total_count = Announcement::count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
-        $featured_count = Announcement::where('is_featured', 'true')->count();
+        $featured_count = Announcement::whereRaw('is_featured IS TRUE')->count();
 
         // Sorting
         $sort = $request->get('sort', 'created_at');
@@ -100,10 +103,15 @@ class AnnouncementController extends Controller
                 $data['published_at'] = now();
             }
 
-            // PostgreSQL strict boolean handling: persist literal boolean text.
-            $data['is_featured'] = $request->has('is_featured') ? 'true' : 'false';
+            // PostgreSQL-safe boolean literal to avoid boolean/integer binding mismatch.
+            unset($data['is_featured']);
 
-            Announcement::create($data);
+            $announcement = Announcement::create($data);
+
+            Announcement::where('id', $announcement->id)
+                ->update([
+                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
+                ]);
 
             return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Announcement created successfully.');
@@ -155,10 +163,15 @@ class AnnouncementController extends Controller
                 $data['published_at'] = now();
             }
 
-            // PostgreSQL strict boolean handling: persist literal boolean text.
-            $data['is_featured'] = $request->has('is_featured') ? 'true' : 'false';
+            // PostgreSQL-safe boolean literal to avoid boolean/integer binding mismatch.
+            unset($data['is_featured']);
 
             $announcement->update($data);
+
+            Announcement::where('id', $announcement->id)
+                ->update([
+                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
+                ]);
 
             return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
                 ->with('success', 'Announcement updated successfully.');
@@ -209,13 +222,28 @@ class AnnouncementController extends Controller
     {
         $announcement = Announcement::findOrFail($id);
 
-        // Use explicit PostgreSQL boolean literals to avoid int binding issues.
-        $announcement->is_featured = $announcement->is_featured ? 'false' : 'true';
-        $announcement->save();
+        Announcement::where('id', $announcement->id)
+            ->update(['is_featured' => DB::raw('NOT is_featured')]);
+
+        $announcement->refresh();
 
         $status = $announcement->is_featured ? 'featured' : 'unfeatured';
 
         return back()->with('success', 'Announcement ' . $status . ' successfully.');
+    }
+
+    public function trackView($slug)
+    {
+        $announcement = Announcement::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        $announcement->increment('views');
+
+        return response()->json([
+            'success' => true,
+            'views' => $announcement->views,
+        ]);
     }
 
     public function show($slug)

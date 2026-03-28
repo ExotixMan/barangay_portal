@@ -778,20 +778,20 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1><i class="fas fa-clipboard-list bigicon"></i> Incident Report</h1>
-                <p>File your incident report anytime, anywhere. Fast, secure, and easy.</p>
+                <h1><i class="fas fa-clipboard-list bigicon"></i> {{ __('messages.incident_hero_title') }}</h1>
+                <p>{{ __('messages.incident_hero_subtitle') }}</p>
                 <div class="hero-stats">
                     <div class="stat">
                         <i class="fas fa-shield-alt"></i>
-                        <span>24/7 Incident Reporting</span>
+                        <span>{{ __('messages.incident_stat_availability') }}</span>
                     </div>
                     <div class="stat">
                         <i class="fas fa-clock"></i>
-                        <span>Response: Within 24 Hours</span>
+                        <span>{{ __('messages.incident_stat_response') }}</span>
                     </div>
                     <div class="stat">
                         <i class="fas fa-user-secret"></i>
-                        <span>Confidential Reporting</span>
+                        <span>{{ __('messages.incident_stat_confidential') }}</span>
                     </div>
                 </div>
             </div>
@@ -803,39 +803,39 @@
         <!-- Process Steps -->
         <section class="process-steps">
             <div class="process-steps-content">
-                <h2 class="section-title">How to File a Incident Report</h2>
+                <h2 class="section-title">{{ __('messages.incident_how_to_title') }}</h2>
                 <div class="steps-container">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <div class="step-icon">
                             <i class="fas fa-user-edit"></i>
                         </div>
-                        <h3>Fill Out Form</h3>
-                        <p>Complete the online incident report form with accurate incident details</p>
+                        <h3>{{ __('messages.incident_step1_title') }}</h3>
+                        <p>{{ __('messages.incident_step1_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <div class="step-icon">
                             <i class="fas fa-file-upload"></i>
                         </div>
-                        <h3>Upload Evidence</h3>
-                        <p>Submit supporting documents, photos, or videos if available</p>
+                        <h3>{{ __('messages.incident_step2_title') }}</h3>
+                        <p>{{ __('messages.incident_step2_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <div class="step-icon">
                             <i class="fas fa-search"></i>
                         </div>
-                        <h3>Review & Investigation</h3>
-                        <p>Barangay officials review your report and conduct initial investigation</p>
+                        <h3>{{ __('messages.incident_step3_title') }}</h3>
+                        <p>{{ __('messages.incident_step3_desc') }}</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <div class="step-icon">
                             <i class="fas fa-gavel"></i>
                         </div>
-                        <h3>Action & Resolution</h3>
-                        <p>Receive updates on actions taken and case resolution</p>
+                        <h3>{{ __('messages.incident_step4_title') }}</h3>
+                        <p>{{ __('messages.incident_step4_desc') }}</p>
                     </div>
                 </div>
             </div>
@@ -845,8 +845,8 @@
         <section class="stats-section">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-chart-bar"></i> Incident Statistics</h2>
-                    <p>Current status of Incident Reports in Barangay Hulong Duhat</p>
+                    <h2><i class="fas fa-chart-bar"></i> {{ __('messages.incident_stats_title') }}</h2>
+                    <p>{{ __('messages.incident_stats_subtitle') }}</p>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-box">
@@ -854,9 +854,9 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="stat-content">
-                            <h3>Active Cases</h3>
+                            <h3>{{ __('messages.incident_stat_active') }}</h3>
                             <div class="stat-number">24</div>
-                            <p class="stat-trend"><i class="fas fa-arrow-down text-success"></i> 12% from last month</p>
+                            <p class="stat-trend"><i class="fas fa-arrow-down text-success"></i> {{ __('messages.incident_stat_active_note') }}</p>
                         </div>
                     </div>
                     <div class="stat-box">
@@ -864,9 +864,9 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-content">
-                            <h3>Resolved Cases</h3>
+                            <h3>{{ __('messages.incident_stat_resolved') }}</h3>
                             <div class="stat-number">156</div>
-                            <p class="stat-trend"><i class="fas fa-arrow-up text-success"></i> 8% resolution rate</p>
+                            <p class="stat-trend"><i class="fas fa-arrow-up text-success"></i> {{ __('messages.incident_stat_resolved_note') }}</p>
                         </div>
                     </div>
                     <div class="stat-box">
@@ -874,9 +874,9 @@
                             <i class="fas fa-balance-scale"></i>
                         </div>
                         <div class="stat-content">
-                            <h3>Under Mediation</h3>
+                            <h3>{{ __('messages.incident_stat_mediation') }}</h3>
                             <div class="stat-number">18</div>
-                            <p class="stat-trend"><i class="fas fa-clock"></i> Average: 7 days</p>
+                            <p class="stat-trend"><i class="fas fa-clock"></i> {{ __('messages.incident_stat_mediation_note') }}</p>
                         </div>
                     </div>
                     <div class="stat-box">
@@ -884,9 +884,9 @@
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="stat-content">
-                            <h3>Response Rate</h3>
+                            <h3>{{ __('messages.incident_stat_rate') }}</h3>
                             <div class="stat-number">98%</div>
-                            <p class="stat-trend"><i class="fas fa-thumbs-up"></i> Within 24 hours</p>
+                            <p class="stat-trend"><i class="fas fa-thumbs-up"></i> {{ __('messages.incident_stat_rate_note') }}</p>
                         </div>
                     </div>
                 </div>
@@ -897,16 +897,16 @@
         <section class="apply-section" id="applySection">
             <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-file-medical"></i> File New Incident Report</h2>
-                    <p>Click the button below to start your Incident Report application</p>
+                    <h2><i class="fas fa-file-medical"></i> {{ __('messages.incident_apply_title') }}</h2>
+                    <p>{{ __('messages.incident_apply_subtitle') }}</p>
                 </div>
 
                 <div class="apply-button-container">
                     <a href="{{ route('incident.form') }}" class="btn-apply-now">
-                        <i class="fas fa-clipboard-list"></i> File Incident Report Now
+                        <i class="fas fa-clipboard-list"></i> {{ __('messages.incident_apply_btn') }}
                     </a>
                     <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
-                        <i class="fas fa-clock"></i> Response Time: Within 24 Hours
+                        <i class="fas fa-clock"></i> {{ __('messages.incident_apply_response_note') }}
                     </p>
                 </div>
             </div>
@@ -915,65 +915,65 @@
         <!-- FAQ Section -->
         <section class="faq-section">
             <div class="container">
-                <h2 class="section-title">Frequently Asked Questions</h2>
+                <h2 class="section-title">{{ __('messages.faq_title') }}</h2>
                 <div class="faq-container">
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>What types of incidents should I report?</span>
+                            <span>{{ __('messages.incident_faq_q1') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Report community disputes, security concerns, public safety issues, property conflicts, noise complaints, and any barangay-related incidents requiring official documentation.</p>
+                            <p>{{ __('messages.incident_faq_a1') }}</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>How long does it take to process a report?</span>
+                            <span>{{ __('messages.incident_faq_q2') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Reports are reviewed within 24 hours. Simple cases may be resolved in 3-5 days, while complex cases requiring mediation may take 1-2 weeks.</p>
+                            <p>{{ __('messages.incident_faq_a2') }}</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Can I report anonymously?</span>
+                            <span>{{ __('messages.incident_faq_q3') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Yes, you can submit anonymous reports. However, anonymous reports may limit investigation effectiveness as officials cannot follow up for additional details.</p>
+                            <p>{{ __('messages.incident_faq_a3') }}</p>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>What happens after I submit a report?</span>
+                            <span>{{ __('messages.incident_faq_q4') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Your report is reviewed, assigned to an official, investigated, and appropriate action is taken. You'll receive updates via email or SMS if provided.</p>
+                            <p>{{ __('messages.incident_faq_a4') }}</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Can I withdraw a report?</span>
+                            <span>{{ __('messages.incident_faq_q5') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>Yes, you can request to withdraw a report. Contact the barangay office with your reference number. Note: Some reports involving public safety may still require action.</p>
+                            <p>{{ __('messages.incident_faq_a5') }}</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Is there a cost to file a Incident Report?</span>
+                            <span>{{ __('messages.incident_faq_q6') }}</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="faq-answer">
-                            <p>No, filing a Incident Report is a free service provided by the barangay. However, certain cases requiring mediation may involve minimal administrative fees.</p>
+                            <p>{{ __('messages.incident_faq_a6') }}</p>
                         </div>
                     </div>
                 </div>

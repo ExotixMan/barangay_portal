@@ -1565,7 +1565,7 @@
                                             value="{{ $permission->id }}" 
                                             id="perm_{{ $permission->id }}"
                                             {{ in_array($permission->id, $selectedRolePermissionIds) ? 'checked' : '' }}
-                                            {{ ($selectedRole->name === 'super_admin' || !auth('admin')->user()->hasPermission('update_permissions')) ? 'disabled' : '' }}>
+                                            {{ ($selectedRole->name === 'super_admin' || !auth('admin')->user()->hasPermission('manage_role_permissions')) ? 'disabled' : '' }}>
                                         <label for="perm_{{ $permission->id }}">{{ $permission->display_name }}</label>
                                     </div>
                                     @endforeach
@@ -1574,7 +1574,7 @@
                             @endforeach
                         </div>
 
-                        @if($selectedRole->name !== 'super_admin' && auth('admin')->user()->hasPermission('update_permissions'))
+                        @if($selectedRole->name !== 'super_admin' && auth('admin')->user()->hasPermission('manage_role_permissions'))
                         <div class="mt-4 text-end">
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-save me-2"></i>Save Permissions for {{ $selectedRole->display_name }}

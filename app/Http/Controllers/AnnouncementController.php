@@ -14,7 +14,7 @@ class AnnouncementController extends Controller
         App::setLocale(Session::get('locale', config('app.locale')));
 
         // Featured
-        $featured = Announcement::where('is_featured', 'true')
+            $featured = Announcement::whereRaw('is_featured IS TRUE')
             ->where('status', 'published')
             ->latest()
             ->get();
