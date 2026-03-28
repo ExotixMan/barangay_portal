@@ -19,23 +19,20 @@ class AnnouncementController extends Controller
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $search = preg_replace('/[^a-zA-Z0-9\s\-\.@,]/', '', $search);
+            $searchLike = '%' . strtolower($search) . '%';
 
-            $query->where(function ($q) use ($search) {
-                $searchLike = '%' . strtolower($search) . '%';
+            $query->where(function ($q) use ($searchLike) {
                 $q->whereRaw('LOWER(title) LIKE ?', [$searchLike])
                   ->orWhereRaw('LOWER(content) LIKE ?', [$searchLike])
                   ->orWhereRaw('LOWER(category) LIKE ?', [$searchLike])
-                  ->orWhereRaw('LOWER(status) LIKE ?', [$searchLike]);
+                  ->orWhereRaw('CAST(status AS TEXT) ILIKE ?', [$searchLike]);
             });
         }
 
         // Status filter
         $status = strtolower(trim((string) $request->get('status', '')));
-        if ($status === 'archive') {
-            $status = 'archived';
-        }
         if ($status !== '' && in_array($status, ['published', 'draft', 'archived'], true)) {
-            $query->whereRaw('LOWER(status) = ?', [$status]);
+            $query->where('status', $status);
         }
 
         // Category filter
@@ -62,7 +59,7 @@ class AnnouncementController extends Controller
         $sort = $request->get('sort', 'created_at');
         $direction = strtolower((string) $request->get('direction', 'desc'));
         $direction = $direction === 'asc' ? 'asc' : 'desc';
-        $allowedSorts = ['title', 'category', 'views', 'published_at', 'created_at', 'status'];
+        $allowedSorts = ['title', 'category', 'is_featured', 'views', 'published_at', 'created_at', 'status'];
         
         if (!in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
@@ -70,6 +67,8 @@ class AnnouncementController extends Controller
 
         if ($sort === 'status') {
             $query->orderByRaw("CASE status WHEN 'published' THEN 1 WHEN 'draft' THEN 2 WHEN 'archived' THEN 3 ELSE 4 END {$direction}");
+        } elseif ($sort === 'is_featured') {
+            $query->orderBy('is_featured', $direction);
         } elseif ($sort === 'published_at') {
             // Keep nulls consistently last regardless of direction.
             $query->orderByRaw('published_at IS NULL ASC')
