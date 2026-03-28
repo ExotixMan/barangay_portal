@@ -1026,6 +1026,7 @@
                                     <option value="events" {{ request('category') == 'events' ? 'selected' : '' }}>Events</option>
                                     <option value="health" {{ request('category') == 'health' ? 'selected' : '' }}>Health</option>
                                     <option value="services" {{ request('category') == 'services' ? 'selected' : '' }}>Services</option>
+                                    <option value="other" {{ request('category') == 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
                             </div>
 
@@ -1316,6 +1317,7 @@
                                             <option value="events" {{ (session('form_type') == 'add' && old('category') == 'events') ? 'selected' : '' }}>Events</option>
                                             <option value="health" {{ (session('form_type') == 'add' && old('category') == 'health') ? 'selected' : '' }}>Health</option>
                                             <option value="services" {{ (session('form_type') == 'add' && old('category') == 'services') ? 'selected' : '' }}>Services</option>
+                                            <option value="other" {{ (session('form_type') == 'add' && old('category') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
                                         @if(session('form_type') == 'add')
                                             @error('category')
@@ -1450,6 +1452,7 @@
                                                 <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
                                                 <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
                                                 <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
+                                                <option value="other" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'other' ? 'selected' : '' }}>Other</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ann->id)
                                                 @error('category')
