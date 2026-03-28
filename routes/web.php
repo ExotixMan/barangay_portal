@@ -41,6 +41,7 @@ use App\Http\Controllers\ResidencyApplicationController;
 use App\Http\Controllers\EventProjectController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\TrackRequestController;
+use App\Models\AdminUser;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use Illuminate\Support\Facades\Auth;
@@ -91,7 +92,52 @@ Route::get('/barangay-map', function () {
 
 Route::get('/barangay-officials', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
-    return view('barangay_system.officials');
+
+    $officialRoleNames = [
+        'barangay_captain',
+        'barangay_kagawad',
+        'barangay_secretary',
+        'barangay_treasurer',
+    ];
+
+    $officialUsers = AdminUser::query()
+        ->active()
+        ->with('role:id,name,display_name')
+        ->get()
+        ->filter(function ($user) use ($officialRoleNames) {
+            return in_array(optional($user->role)->name, $officialRoleNames, true);
+        })
+        ->values();
+
+    $captain = $officialUsers->first(function ($user) {
+        return optional($user->role)->name === 'barangay_captain';
+    });
+
+    $kagawads = $officialUsers
+        ->filter(function ($user) {
+            return optional($user->role)->name === 'barangay_kagawad';
+        })
+        ->values();
+
+    $secretary = $officialUsers->first(function ($user) {
+        return optional($user->role)->name === 'barangay_secretary';
+    });
+
+    $treasurer = $officialUsers->first(function ($user) {
+        return optional($user->role)->name === 'barangay_treasurer';
+    });
+
+    return view('barangay_system.officials', [
+        'captain' => $captain,
+        'kagawads' => $kagawads,
+        'secretary' => $secretary,
+        'treasurer' => $treasurer,
+        'officialCounts' => [
+            'total' => $officialUsers->count(),
+            'kagawads' => $kagawads->count(),
+            'appointed' => collect([$secretary, $treasurer])->filter()->count(),
+        ],
+    ]);
 })->name('officials');
 
 // Community pages (public)

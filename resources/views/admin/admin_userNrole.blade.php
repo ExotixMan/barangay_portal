@@ -1849,14 +1849,6 @@
                                             <option value="suspended">Suspended</option>
                                         </select>
                                     </div>
-                                    <div class="col-12">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="send_welcome_email" id="sendWelcomeEmail" checked>
-                                            <label class="form-check-label" for="sendWelcomeEmail">
-                                                Send welcome email with login credentials
-                                            </label>
-                                        </div>
-                                    </div>
                                 </div>
                             </form>
                             </div>

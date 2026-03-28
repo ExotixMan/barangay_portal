@@ -949,15 +949,15 @@
             <div class="container">
                 <div class="overview-grid">
                     <div class="overview-item">
-                        <span class="count">10</span>
+                        <span class="count">{{ $officialCounts['total'] ?? 0 }}</span>
                         <span class="label">Total Officials</span>
                     </div>
                     <div class="overview-item">
-                        <span class="count">7</span>
+                        <span class="count">{{ $officialCounts['kagawads'] ?? 0 }}</span>
                         <span class="label">Sangguniang Members</span>
                     </div>
                     <div class="overview-item">
-                        <span class="count">2</span>
+                        <span class="count">{{ $officialCounts['appointed'] ?? 0 }}</span>
                         <span class="label">Appointed Officers</span>
                     </div>
                     <div class="overview-item">
@@ -984,7 +984,7 @@
                         </div>
                     </div>
                     <div class="captain-info">
-                        <h3>KAP. WENCESLAO S. DELA CRUZ</h3>
+                        <h3>{{ $captain ? 'KAP. ' . strtoupper($captain->full_name) : 'KAP. TO BE ANNOUNCED' }}</h3>
                         <span class="position">Punong Barangay</span>
                         <div class="captain-highlight">
                             <i class="fas fa-calendar-check"></i>
@@ -1008,117 +1008,28 @@
                 <p class="section-subtitle">{{ __('messages.officials_sangunian_desc') }}</p>
                 
                 <div class="row g-3 g-lg-4">
-                    <!-- Kagawad 1 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
+                    @forelse ($kagawads as $index => $kagawad)
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="official-card">
+                                <div class="official-image">
+                                    <div class="image-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="official-info">
+                                    <h3>{{ 'KAG. ' . strtoupper($kagawad->full_name) }}</h3>
+                                    <span class="position">Kagawad</span>
+                                    <div class="official-seat">Council Seat {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</div>
                                 </div>
                             </div>
-                            <div class="official-info">
-                                <h3>KAG. ARNEL S. LAZARO</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 01</div>
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <div class="alert alert-light border text-center mb-0">
+                                No Sangguniang Barangay members are currently assigned.
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Kagawad 2 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. ALFRED KENNETH J. PINEDA</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 02</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kagawad 3 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. MELVIN S. GONZALES</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 03</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kagawad 4 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. REYNALDO S. TAMPOL</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 04</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kagawad 5 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. REMEL C. SANTOS</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 05</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kagawad 6 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. ROMULO L. CRUZ JR.</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 06</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kagawad 7 -->
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="official-card">
-                            <div class="official-image">
-                                <div class="image-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="official-info">
-                                <h3>KAG. TEODORO L. BERNABE</h3>
-                                <span class="position">Kagawad</span>
-                                <div class="official-seat">Council Seat 07</div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </section>
@@ -1142,7 +1053,7 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>SEC. DESIREE ONG-BERSALES</h3>
+                                <h3>{{ $secretary ? 'SEC. ' . strtoupper($secretary->full_name) : 'SEC. TO BE ANNOUNCED' }}</h3>
                                 <span class="position">Barangay Secretary</span>
                                 <div class="official-seat">Administrative Office</div>
                             </div>
@@ -1161,7 +1072,7 @@
                                 </div>
                             </div>
                             <div class="official-info">
-                                <h3>TREAS. ANIEL SANTOS</h3>
+                                <h3>{{ $treasurer ? 'TREAS. ' . strtoupper($treasurer->full_name) : 'TREAS. TO BE ANNOUNCED' }}</h3>
                                 <span class="position">Barangay Treasurer</span>
                                 <div class="official-seat">Finance Office</div>
                             </div>
