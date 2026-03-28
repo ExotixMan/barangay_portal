@@ -16,23 +16,32 @@ class AnnouncementController extends Controller
         $query = Announcement::query();
 
         // Search
-        if ($request->search) {
-            $search = $request->search;
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $search = preg_replace('/[^a-zA-Z0-9\s\-\.@,]/', '', $search);
+
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%");
+                $searchLike = '%' . strtolower($search) . '%';
+                $q->whereRaw('LOWER(title) LIKE ?', [$searchLike])
+                  ->orWhereRaw('LOWER(content) LIKE ?', [$searchLike])
+                  ->orWhereRaw('LOWER(category) LIKE ?', [$searchLike])
+                  ->orWhereRaw('LOWER(status) LIKE ?', [$searchLike]);
             });
         }
 
         // Status filter
-        if ($request->status && in_array($request->status, ['published', 'draft', 'archived'])) {
-            $query->where('status', $request->status);
+        $status = strtolower(trim((string) $request->get('status', '')));
+        if ($status === 'archive') {
+            $status = 'archived';
+        }
+        if ($status !== '' && in_array($status, ['published', 'draft', 'archived'], true)) {
+            $query->whereRaw('LOWER(status) = ?', [$status]);
         }
 
         // Category filter
-        if ($request->category) {
-            $query->where('category', $request->category);
+        $category = strtolower(trim((string) $request->get('category', '')));
+        if ($category !== '') {
+            $query->whereRaw('LOWER(category) = ?', [$category]);
         }
 
         // Featured filter
