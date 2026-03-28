@@ -1446,6 +1446,9 @@
                         @admin_can('reset_permission_defaults')
                         <form method="POST" action="{{ route('admin.permissions.reset-defaults') }}" id="resetPermissionsForm" style="display: inline;">
                             @csrf
+                            @if($selectedRole)
+                                <input type="hidden" name="role_id" value="{{ $selectedRole->id }}">
+                            @endif
                             <button type="submit" class="btn btn-outline-secondary" onclick="return confirmReset()">
                                 <i class="fas fa-undo me-2"></i>Reset Defaults
                             </button>

@@ -23,6 +23,7 @@ class AdminPermissionController extends Controller
     public function updateRolePermissions(Request $request, $roleId)
     {
         $role = AdminRole::findOrFail($roleId);
+        $adminId = Auth::guard('admin')->id();
 
         // Prevent modifying super admin permissions
         if ($role->name === 'super_admin') {
@@ -48,18 +49,20 @@ class AdminPermissionController extends Controller
             $role->permissions()->sync($request->permissions ?? []);
 
             // Log activity
-            AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'update_role_permissions',
-                'module' => 'permissions',
-                'details' => [
-                    'role_id' => $role->id,
-                    'role_name' => $role->name,
-                    'permissions' => $request->permissions
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            if ($adminId) {
+                AdminActivityLog::create([
+                    'user_id' => $adminId,
+                    'action' => 'update_role_permissions',
+                    'module' => 'permissions',
+                    'details' => [
+                        'role_id' => $role->id,
+                        'role_name' => $role->name,
+                        'permissions' => $request->permissions
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+            }
 
             DB::commit();
 
@@ -75,6 +78,7 @@ class AdminPermissionController extends Controller
 
     public function resetToDefault(Request $request)
     {
+        $adminId = Auth::guard('admin')->id();
         DB::beginTransaction();
 
         try {
@@ -181,18 +185,25 @@ class AdminPermissionController extends Controller
             }
 
             // Log activity
-            AdminActivityLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'reset_permissions',
-                'module' => 'permissions',
-                'details' => ['reset_to_default' => true],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            if ($adminId) {
+                AdminActivityLog::create([
+                    'user_id' => $adminId,
+                    'action' => 'reset_permissions',
+                    'module' => 'permissions',
+                    'details' => ['reset_to_default' => true],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+            }
 
             DB::commit();
 
-            return redirect()->route('admin.users.index', ['tab' => 'permissions'])
+            $roleId = $request->input('role_id');
+
+            return redirect()->route('admin.users.index', array_filter([
+                'tab' => 'permissions',
+                'role_id' => $roleId,
+            ]))
                 ->with('success', 'Permissions reset to default successfully.');
 
         } catch (\Exception $e) {
