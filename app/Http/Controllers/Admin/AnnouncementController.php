@@ -77,8 +77,13 @@ class AnnouncementController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-        // Stable secondary sort to avoid row shuffle on equal values.
-        $query->orderBy('created_at', 'desc');
+        // Secondary sort follows selected direction so status-only buckets
+        // (e.g., filtered archived records) still visibly reorder.
+        if ($sort !== 'created_at') {
+            $query->orderBy('created_at', $direction);
+        }
+
+        $query->orderBy('id', $direction);
 
         $announcements = $query->paginate(10)->withQueryString();
 
