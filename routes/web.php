@@ -263,9 +263,9 @@ Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
 
 Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
     
-    // Dashboard - requires view_dashboard permission
+    // Dashboard - requires view_dashboard or view_forecast permission
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('permission:view_dashboard')
+        ->middleware('permission:view_dashboard|view_forecast')
         ->name('dashboard.index');
     
     Route::get('/forecast', [DashboardController::class, 'forecastRequests'])
@@ -273,7 +273,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         ->name('dashboard.forecast');
 
     Route::get('/dashboard/live-stats', [DashboardController::class, 'liveStats'])
-        ->middleware('permission:view_dashboard')
+        ->middleware('permission:view_dashboard|view_forecast')
         ->name('dashboard.live_stats');
 
     Route::post('/dashboard/refresh-forecast', [DashboardController::class, 'refreshForecast'])

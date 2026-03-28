@@ -338,7 +338,7 @@ return [
     'clearance_step2_title'      => 'Mga Kinakailangan sa Pag-upload',
     'clearance_step2_desc'       => 'I-submit ang mga kinakailangang dokumento at pagkakakilanlan.',
     'clearance_step3_title'      => 'Magbayad ng Bayarin',
-    'clearance_step3_desc'       => 'Magbayad ng processing fee online o sa barangay hall.',
+    'clearance_step3_desc'       => 'Magbayad ng processing sa barangay hall.',
     'clearance_step4_title'      => 'Tanggapin ang Clearance',
     'clearance_step4_desc'       => 'Kunin ang iyong barangay clearance sa pamamagitan ng email o kolektahin sa barangay.',
     'clearance_requirements_title'  => 'Mga Kinakailangan',

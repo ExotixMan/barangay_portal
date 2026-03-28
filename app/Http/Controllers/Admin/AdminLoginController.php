@@ -98,6 +98,7 @@ class AdminLoginController extends Controller
         
         // First, check if user has any specific module permissions
         $permissionRoutes = [
+            'view_forecast' => 'admin.dashboard.index',
             'view_dashboard' => 'admin.dashboard.index',
             'view_residents' => 'admin.residents.index',
             'view_residency' => 'admin.residency.index',

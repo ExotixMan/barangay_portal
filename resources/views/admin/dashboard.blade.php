@@ -376,12 +376,12 @@
         </div>
 
         {{-- Dashboard Link --}}
-        @admin_can('view_dashboard')
+        @if(auth('admin')->user()->hasAnyPermission(['view_dashboard', 'view_forecast']))
         <a href="{{ route('admin.dashboard.index') }}" class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
-        @endadmin_can
+        @endif
 
         <div class="menu-section">Administrative</div>
         

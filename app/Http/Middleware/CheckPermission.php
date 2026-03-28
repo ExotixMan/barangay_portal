@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckPermission
 {
-    public function handle(Request $request, Closure $next, $permission)
+    public function handle(Request $request, Closure $next, ...$permissions)
     {
         /** @var AdminUser|null $user */
         $user = Auth::guard('admin')->user();
@@ -21,10 +21,26 @@ class CheckPermission
         if ($user->role && $user->role->name === 'super_admin') {
             return $next($request);
         }
+
+        $requiredPermissions = collect($permissions)
+            ->flatMap(function ($permission) {
+                return explode('|', (string) $permission);
+            })
+            ->map(function ($permission) {
+                return trim($permission);
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($requiredPermissions)) {
+            return $next($request);
+        }
         
-        // Check permission
-        if (!$user->hasPermission($permission)) {
-            abort(403, "Unauthorized - Missing permission: {$permission}");
+        // Allow access when user has at least one required permission.
+        if (!$user->hasAnyPermission($requiredPermissions)) {
+            abort(403, 'Unauthorized - Missing one of permissions: ' . implode(', ', $requiredPermissions));
         }
         
         return $next($request);

@@ -338,7 +338,7 @@ return [
     'clearance_step2_title'      => 'Upload Requirements',
     'clearance_step2_desc'       => 'Submit required documents and identification',
     'clearance_step3_title'      => 'Pay Fees',
-    'clearance_step3_desc'       => 'Magbayad ng processing fee online o sa barangay hall.',
+    'clearance_step3_desc'       => 'Magbayad ng processing sa barangay hall.',
     'clearance_step4_title'      => 'Receive Clearance',
     'clearance_step4_desc'       => 'Get your barangay clearance via email or collect at barangay',
     'clearance_requirements_title'  => 'Requirements',
