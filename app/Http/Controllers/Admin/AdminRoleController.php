@@ -341,7 +341,7 @@ class AdminRoleController extends Controller
 
             return redirect()->route('admin.users.index', [
                 'tab' => 'permissions',
-                'selected_role' => $role->id,
+                'role_id' => $role->id,
             ])->with('success', 'Role permissions updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();

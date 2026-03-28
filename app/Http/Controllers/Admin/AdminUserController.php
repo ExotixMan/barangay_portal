@@ -99,8 +99,10 @@ class AdminUserController extends Controller
         // Get all permissions grouped by module
         $allPermissions = AdminPermission::all()->groupBy('module');
         
-        // Get selected role from request or default to first role
-        $selectedRoleId = $request->input('role_id', $roles->first()->id ?? null);
+        // Accept both role_id and legacy selected_role for compatibility.
+        $selectedRoleId = $request->input('role_id')
+            ?? $request->input('selected_role')
+            ?? ($roles->first()->id ?? null);
         $selectedRole = $selectedRoleId ? AdminRole::with('permissions')->find($selectedRoleId) : null;
         
         // Get permission IDs for the selected role
