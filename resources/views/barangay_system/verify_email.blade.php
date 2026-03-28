@@ -13,7 +13,7 @@
     <style>
 
     body{
-        background:url('/Images/bgnew.png') center/cover no-repeat;
+        background:url('/Images/bgnew(3).png') center/cover no-repeat;
         min-height:100vh;
         display:flex;
         align-items:center;

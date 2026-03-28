@@ -15,7 +15,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: url('/Images/bgnew.png') center/cover no-repeat;
+            background: url('/Images/bgnew(3).png') center/cover no-repeat;
             padding: 16px;
         }
 

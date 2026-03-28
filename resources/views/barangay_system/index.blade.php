@@ -713,6 +713,7 @@
         .event-details {
             flex: 1;
             overflow: visible; /* Allow content to be visible */
+            min-width: 0;
         }
 
         .event-details h3 {
@@ -723,6 +724,8 @@
             overflow: visible;
             text-overflow: clip;
             line-height: 1.4;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .event-location,
@@ -731,12 +734,19 @@
             color: #666;
             margin: 5px 0;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
             white-space: normal; /* Allow text to wrap */
             overflow: visible;
             text-overflow: clip;
             line-height: 1.4;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .event-details .read-more {
+            display: inline-flex;
+            margin-top: 10px;
         }
 
         .event-location i,
@@ -911,6 +921,10 @@
                 min-height: 140px;
                 padding: 15px;
             }
+
+            .event-item {
+                gap: 14px;
+            }
             
             .event-date {
                 min-width: 75px;
@@ -924,6 +938,31 @@
             .announcement-item h3,
             .event-details h3 {
                 font-size: 1.1rem;
+            }
+
+            .announcement-header {
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .announcement-item h3,
+            .announcement-item p {
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .announcement-item h3 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .announcement-item p {
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
             }
 
             /* Keep events grid height stable on mobile/tablet */
@@ -994,15 +1033,65 @@
             }
 
             .events-grid {
-                min-height: 550px;
-                height: 550px;
-                overflow-y: auto;
+                min-height: auto;
+                height: auto;
+                overflow-y: visible;
             }
 
             .announcement-grid {
-                min-height: 550px;
-                height: 550px;
-                overflow-y: auto;
+                min-height: auto;
+                height: auto;
+                overflow-y: visible;
+            }
+
+            .announcement-item {
+                min-height: 150px;
+            }
+
+            .announcement-item h3 {
+                font-size: 1rem;
+            }
+
+            .announcement-item p {
+                font-size: 0.9rem;
+            }
+
+            .event-item {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .event-date {
+                min-width: 0;
+                width: fit-content;
+                padding: 10px 12px;
+            }
+
+            .event-details {
+                width: 100%;
+            }
+
+            .event-details h3 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+
+            .event-location,
+            .event-time {
+                font-size: 0.88rem;
+                line-height: 1.45;
+            }
+
+            .event-status {
+                display: inline-flex;
+                width: fit-content;
+                margin-top: 8px;
+            }
+
+            .event-details .read-more {
+                display: inline-flex;
+                width: fit-content;
             }
             
             .section-btn {
@@ -1274,7 +1363,8 @@
                                                                 </span>
                                                             </div>
                                                             <h3>{{ $item->title ?? 'Barangay Announcement' }}</h3>
-                                                            <p>{{ Str::limit($item->content ?? $item->description ?? 'Stay tuned for important updates from your barangay.', 150) }}</p>
+                                                            <p>{{ Str::limit($item->content ?? $item->description ?? 'Stay tuned for important updates from your barangay.', 100) }}</p>
+                                                            <a href="{{ route('announcements') }}" class="read-more">Learn More <i class="fas fa-arrow-right"></i></a>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -1364,6 +1454,8 @@
                                                                 <span class="event-status {{ $status }}">
                                                                     {{ ucfirst($status) }}
                                                                 </span>
+
+                                                                <a href="{{ route('events_project') }}" class="read-more">Learn More <i class="fas fa-arrow-right"></i></a>
                                                             </div>
                                                         </div>
                                                     @endforeach

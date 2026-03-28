@@ -78,7 +78,6 @@ class AnnouncementController extends Controller
         }
 
         // Secondary sort follows selected direction so status-only buckets
-        // (e.g., filtered archived records) still visibly reorder.
         if ($sort !== 'created_at') {
             $query->orderBy('created_at', $direction);
         }
