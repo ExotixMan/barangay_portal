@@ -1377,7 +1377,7 @@
                                                 @if($step['status'] == 'completed')
                                                     <i class="fas fa-check"></i>
                                                 @elseif($step['status'] == 'active')
-                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                    <i class="fas fa-check"></i>
                                                 @else
                                                     <i class="fas fa-circle"></i>
                                                 @endif

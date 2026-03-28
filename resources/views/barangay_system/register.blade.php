@@ -1339,8 +1339,8 @@
                     <p>
                         Barangay Hulo Hall<br>
                         Hulong Duhat, Malabon City<br>
-                        Email: info@barangayhulo.gov.ph<br>
-                        Tel: (02) 1234-5678
+                        Email: barangayhulongduhat@gmail.com<br>
+                        Tel: 8-281-1373
                     </p>
                 </div>
                 <div class="modal-footer">

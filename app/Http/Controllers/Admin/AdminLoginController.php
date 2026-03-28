@@ -40,7 +40,7 @@ class AdminLoginController extends Controller
         $loginInput = (string) $request->input('login');
         $password = (string) $request->input('password');
 
-        // Support either email or username in one field.
+        // Email or Username in Admin Login Page
         $loginField = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $credentials = [
             $loginField => $loginInput,
@@ -51,7 +51,7 @@ class AdminLoginController extends Controller
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
             
-            // Get the authenticated admin user
+            // is the user admin?
             $user = Auth::guard('admin')->user();
             
             // Check if user is active
@@ -187,9 +187,7 @@ class AdminLoginController extends Controller
         }
     }
 
-    /**
-     * Check if user has a specific permission using your permission system
-     */
+    // Check if user has a specific permission using your permission system
     protected function checkPermission($user, $permissionName)
     {
         // If user is super admin, they have all permissions
@@ -207,9 +205,7 @@ class AdminLoginController extends Controller
         return false;
     }
 
-    /**
-     * Log user activity using AdminActivityLog model
-     */
+    // Log user activity using AdminActivityLog model
     protected function logActivity($user, $action, $module, $details = [])
     {
         try {
@@ -251,17 +247,13 @@ class AdminLoginController extends Controller
         return redirect()->route('admin.login');
     }
 
-    /**
-     * Store login time in session
-     */
+    // Store login time in session
     protected function storeLoginTime($request)
     {
         $request->session()->put('login_time', now());
     }
 
-    /**
-     * Calculate session duration
-     */
+    // Calculate session duration
     protected function getSessionDuration($request)
     {
         $loginTime = $request->session()->get('login_time');

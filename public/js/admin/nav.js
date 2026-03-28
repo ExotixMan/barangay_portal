@@ -288,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-Auto-Sync': '1',
                     'Cache-Control': 'no-cache'
                 },
                 signal: controller.signal
