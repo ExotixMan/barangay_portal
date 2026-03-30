@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Residents;
 use App\Models\Announcement;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ResidentsController extends Controller
 {
@@ -33,7 +34,6 @@ class ResidentsController extends Controller
 
     public function register_res(Request $request)
     {
-        // Normalize username casing before validation so uniqueness is checked consistently.
         $request->merge([
             'username' => strtolower((string) $request->input('username', '')),
         ]);
@@ -80,17 +80,25 @@ class ResidentsController extends Controller
         $otp = rand(100000, 999999);
 
         $data['password'] = Hash::make($data['password']);
-        
         $data['phone_otp'] = Hash::make($otp);
         $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
-        $data['phone_verified'] = 'false';
+        $data['phone_verified'] = false;
 
         $resident = Residents::create($data);
 
-        $resident->sendEmailVerificationNotification();
+        // Commented out legacy email verification:
+        // Auth::login($resident);
+        // $resident->sendEmailVerificationNotification();
+        // return redirect()->route('verification.notice')
+        //     ->with('success', 'Registration successful. Please verify your email.');
 
-        return redirect()->route('verification.notice')
-            ->with('success', 'Registration successful. Please verify your email.');
+        // Send OTP to mobile and redirect to OTP form
+        $this->dispatchOtpToResident($resident, $otp, 'register');
+        $request->session()->put('resident_id', $resident->id);
+        $request->session()->put('otp_purpose', 'register');
+
+        return redirect()->route('otp.form')
+            ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
     }
 
     public function login_res(Request $request)
@@ -100,36 +108,110 @@ class ResidentsController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $loginInput = (string) $request->login;
+        $loginInput = trim((string) $request->login);
+        $loginType = 'username';
 
-        // Determine if the login input is an email or username
-        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-
-        if ($loginType === 'username') {
+        // If input is a mobile number, use contact; else username/email
+        $mobileInput = preg_replace('/\D+/', '', $loginInput);
+        if (preg_match('/^(09\d{9}|9\d{9})$/', $mobileInput)) {
+            $loginType = 'contact';
+            $loginInput = str_starts_with($mobileInput, '0') ? $mobileInput : ('0' . $mobileInput);
+        } elseif (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+            $loginType = 'email';
+            $loginInput = strtolower($loginInput);
+        } else {
             $loginInput = strtolower($loginInput);
         }
-        
-        // Prepare credentials array
-        $credentials = [
-            $loginType => $loginInput,
-            'password' => $request->password,
-        ];
 
-        if (!Auth::attempt($credentials)) {
+        $resident = Residents::where($loginType, $loginInput)->first();
+
+        if (!$resident || !Hash::check((string) $request->password, (string) $resident->password)) {
             return back()
-                ->withErrors(['login' => 'Invalid username/email or password.'])
+                ->withErrors(['login' => 'Invalid username/mobile number or password.'])
                 ->onlyInput('login');
         }
 
-        $request->session()->regenerate();
-
-        $resident = Auth::user();
-
-        if (is_null($resident->email_verified_at)) {
-            return redirect()->route('verification.notice');
+        if (!$resident->phone_verified) {
+            $otp = rand(100000, 999999);
+            $resident->update([
+                'phone_otp' => Hash::make($otp),
+                'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
+            ]);
+            $this->dispatchOtpToResident($resident, $otp, 'login');
+            $request->session()->put('resident_id', $resident->id);
+            $request->session()->put('otp_purpose', 'login');
+            return redirect()->route('otp.form')
+                ->with('success', 'Please verify your mobile number with OTP to continue.');
         }
 
+        Auth::login($resident);
+        $request->session()->regenerate();
+
+        // Commented out legacy email verification:
+        // if (is_null($resident->email_verified_at)) {
+        //     return redirect()->route('verification.notice');
+        // }
+
         return redirect()->intended('/');
+    }
+    /**
+     * Dispatch OTP to resident's mobile number (SMS logic should be implemented here)
+     */
+    private function dispatchOtpToResident(Residents $resident, int $otp, string $context): void
+    {
+        // --- SMS sending logic (Semaphore) ---
+        $message = "Your Barangay Portal OTP is: $otp";
+        $number = $resident->contact;
+        if (app()->environment('local', 'development', 'testing')) {
+            Log::info('Resident OTP generated', [
+                'resident_id' => $resident->id,
+                'contact' => $number,
+                'context' => $context,
+                'otp' => $otp,
+            ]);
+            session()->flash('otp_debug_code', (string) $otp);
+        } else {
+            try {
+                $apiKey = env('SEMAPHORE_API_KEY');
+                $sender = env('SEMAPHORE_SENDER_NAME', 'SEMAPHORE');
+                $to = $number;
+                // Ensure number is in 639XXXXXXXXX format
+                if (str_starts_with($to, '0')) {
+                    $to = '63' . substr($to, 1);
+                }
+                if (!preg_match('/^63\d{10}$/', $to)) {
+                    Log::error('Semaphore: Invalid phone number format', ['to' => $to, 'original' => $number]);
+                    return;
+                }
+                $url = 'https://api.semaphore.co/api/v4/messages';
+                $payload = [
+                    'apikey' => $apiKey,
+                    'number' => $to,
+                    'message' => $message,
+                    'sendername' => $sender,
+                ];
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                Log::info('Semaphore API response', ['http_code' => $httpCode, 'response' => $response]);
+                $respArr = json_decode($response, true);
+                if ($httpCode === 200 && is_array($respArr) && isset($respArr[0]['status']) && $respArr[0]['status'] === 'Queued') {
+                    Log::info('OTP sent via Semaphore', ['to' => $to, 'context' => $context, 'response' => $response]);
+                } else {
+                    Log::error('Failed to send OTP via Semaphore', ['to' => $to, 'context' => $context, 'response' => $response, 'http_code' => $httpCode]);
+                }
+            } catch (\Throwable $e) {
+                Log::error('Failed to send OTP via Semaphore', [
+                    'error' => $e->getMessage(),
+                    'resident_id' => $resident->id,
+                    'contact' => $number,
+                ]);
+            }
+        }
     }
 
     public function destroy(Request $request)

@@ -1032,7 +1032,7 @@
 
                             <div class="col-6 col-md-2">
                                 <select name="featured" class="form-select">
-                                    <option value="">Featured</option>
+                                    <option>Featured</option>
                                     <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Featured Only</option>
                                     <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Not Featured</option>
                                 </select>
