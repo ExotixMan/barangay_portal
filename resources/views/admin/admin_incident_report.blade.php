@@ -1266,12 +1266,17 @@
                                                                 @csrf
                                                                 <input type="hidden" name="email" value="{{ $blotter->complainant_email ?? '' }}">
                                                                 <input type="hidden" name="name" value="{{ $blotter->complainant_name }}">
+                                                                <input type="hidden" name="status" value="{{ $blotter->status }}">
+                                                                <input type="hidden" name="remarks" value="">
+                                                                <input type="hidden" name="request_type" value="incident">
+                                                                <input type="hidden" name="request_id" value="{{ $blotter->id }}">
+                                                                <input type="hidden" name="reference_number" value="{{ $blotter->reference_number }}">
                                                                 @if($blotter->status == 'resolved')
                                                                 <input type="hidden" name="message" value="Your incident report (Ref: {{ $blotter->reference_number }}) has been RESOLVED. Please visit the barangay hall for further details.">
                                                                 @else
                                                                 <input type="hidden" name="message" value="Your incident report (Ref: {{ $blotter->reference_number }}) has been DROPPED. Please visit the barangay hall for further details or clarification.">
                                                                 @endif
-                                                                <button type="submit" class="dropdown-item" onclick="return confirm('Send {{ $blotter->status }} notification email to complainant?')">
+                                                                <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send {{ $blotter->status }} notification email to complainant?')">
                                                                     <i class="fas fa-envelope me-2"></i>Send Email
                                                                 </button>
                                                             </form>
@@ -1288,12 +1293,17 @@
                                                             <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                                 @csrf
                                                                 <input type="hidden" name="phone" value="+63{{ ltrim($blotter->complainant_contact ?? '', '0') }}">
+                                                                <input type="hidden" name="status" value="{{ $blotter->status }}">
+                                                                <input type="hidden" name="remarks" value="">
+                                                                <input type="hidden" name="request_type" value="incident">
+                                                                <input type="hidden" name="request_id" value="{{ $blotter->id }}">
+                                                                <input type="hidden" name="reference_number" value="{{ $blotter->reference_number }}">
                                                                 @if($blotter->status == 'resolved')
                                                                 <input type="hidden" name="message" value="Your incident report {{ $blotter->reference_number }} has been RESOLVED. Please visit the barangay hall for details.">
                                                                 @else
                                                                 <input type="hidden" name="message" value="Your incident report {{ $blotter->reference_number }} has been DROPPED. Please visit the barangay hall for details or clarification.">
                                                                 @endif
-                                                                <button type="submit" class="dropdown-item" onclick="return confirm('Send {{ $blotter->status }} notification SMS to complainant?')">
+                                                                <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send {{ $blotter->status }} notification SMS to complainant?')">
                                                                     <i class="fas fa-sms me-2"></i>Send SMS
                                                                 </button>
                                                             </form>
@@ -1301,6 +1311,12 @@
                                                         @endif
                                                     </ul>
                                                 </div>
+                                                @endif
+
+                                                @if($blotter->status == 'dropped' && (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" title="View Remarks History" onclick='viewRemarksHistory("incident", {{ $blotter->id }}, @js($blotter->reference_number))'>
+                                                    <i class="fas fa-clock-rotate-left"></i>
+                                                </button>
                                                 @endif
 
                                                 @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('approve_blotter'))
@@ -2399,6 +2415,71 @@
             });
             
             return false;
+        }
+
+        async function viewRemarksHistory(requestType, requestId, referenceNumber) {
+            try {
+                const params = new URLSearchParams({
+                    request_type: requestType,
+                    request_id: String(requestId)
+                });
+                const response = await fetch("{{ route('admin.notifications.remarksHistory') }}?" + params.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load remarks history.');
+                }
+
+                const payload = await response.json();
+                const history = Array.isArray(payload.history) ? payload.history : [];
+
+                if (history.length === 0) {
+                    alert('No saved remarks found for this request yet.');
+                    return;
+                }
+
+                const details = history
+                    .map(function(item, index) {
+                        const channel = item.channel ? item.channel.toUpperCase() : 'N/A';
+                        const status = item.status ? item.status.toUpperCase() : 'N/A';
+                        return (index + 1) + '. [' + status + '] ' + item.remarks + '\n   by ' + item.admin_name + ' via ' + channel + ' on ' + item.created_at;
+                    })
+                    .join('\n\n');
+
+                alert('Remarks History - ' + referenceNumber + '\n\n' + details);
+            } catch (error) {
+                alert(error.message || 'Unable to load remarks history right now.');
+            }
+        }
+
+        function prepareRemarksAndConfirm(event, form, confirmMessage) {
+            const statusInput = form.querySelector('input[name="status"]');
+            const remarksInput = form.querySelector('input[name="remarks"]');
+            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
+
+            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
+                const remarks = prompt('Please enter remarks before sending this notification:');
+                if (remarks === null) {
+                    event.preventDefault();
+                    return false;
+                }
+                if (remarks.trim() === '') {
+                    event.preventDefault();
+                    alert('Remarks are required for rejected or dropped notifications.');
+                    return false;
+                }
+                remarksInput.value = remarks.trim();
+            }
+
+            if (!confirm(confirmMessage)) {
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
         }
 
         // Update select all checkbox when individual checkboxes change

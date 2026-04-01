@@ -42,6 +42,7 @@ use App\Http\Controllers\EventProjectController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\TrackRequestController;
 use App\Models\AdminUser;
+use App\Models\Residents;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use Illuminate\Support\Facades\Auth;
@@ -173,6 +174,7 @@ Route::get('/register', function () {
 })->name('register');
 
 Route::post('/register', [ResidentsController::class, 'register_res'])->name('register.res');
+Route::get('/register/check-username', [ResidentsController::class, 'checkUsernameAvailability'])->name('register.check-username');
 
 // Forgot / Reset Password (public)
 Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('resident.password.request');
@@ -181,11 +183,36 @@ Route::get('/reset-password/{token}', [PasswordResetController::class, 'showRese
 Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('resident.password.update');
 
 // OTP (public)
-Route::get('/verify-otp', function () {
-    return view('barangay_system.verify_otp');
+Route::get('/verify-otp', function (Request $request) {
+    if (!$request->session()->has('resident_id')) {
+        return redirect()->route('login')->with('fail', 'OTP session expired. Please login again.');
+    }
+
+    $resident = Residents::find($request->session()->get('resident_id'));
+    $cooldownSeconds = 0;
+    $maskedContact = null;
+
+    if ($resident) {
+        if (!empty($resident->phone_otp_expires_at) && now()->lt($resident->phone_otp_expires_at)) {
+            $cooldownSeconds = max(0, now()->diffInSeconds($resident->phone_otp_expires_at, false));
+        }
+
+        $contactDigits = preg_replace('/\D+/', '', (string) $resident->contact);
+        if (strlen($contactDigits) >= 4) {
+            $maskedContact = '******' . substr($contactDigits, -4);
+        }
+    }
+
+    return view('barangay_system.verify_otp', [
+        'otpCooldownSeconds' => (int) $cooldownSeconds,
+        'maskedContact' => $maskedContact,
+    ]);
 })->name('otp.form');
 
 Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])->name('otp.verify');
+
+// Resend OTP (AJAX, returns JSON)
+Route::post('/resend-otp', [ResidentsController::class, 'resendOtp'])->name('otp.resend');
 
 // Email verification (requires auth)
 Route::get('/email/verify', function (Request $request) {
@@ -457,6 +484,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::post('/send-email', [NotificationController::class, 'sendEmail'])->middleware('permission:send_email')->name('sendEmail');
         Route::post('/send-sms', [NotificationController::class, 'sendSMS'])->middleware('permission:send_sms')->name('sendSMS');
+        Route::get('/remarks-history', [NotificationController::class, 'remarksHistory'])->middleware('permission:send_email|send_sms')->name('remarksHistory');
     });
 
     // // ==================== REQUEST STATUS MODULE ====================

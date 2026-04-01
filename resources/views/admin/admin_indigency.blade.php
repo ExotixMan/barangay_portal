@@ -1364,8 +1364,13 @@
                                                             @csrf
                                                             <input type="hidden" name="email" value="{{ $ind->email }}">
                                                             <input type="hidden" name="name" value="{{ $ind->first_name }} {{ $ind->last_name }}">
+                                                            <input type="hidden" name="status" value="{{ $ind->status }}">
+                                                            <input type="hidden" name="remarks" value="">
+                                                            <input type="hidden" name="request_type" value="indigency">
+                                                            <input type="hidden" name="request_id" value="{{ $ind->id }}">
+                                                            <input type="hidden" name="reference_number" value="{{ $ind->reference_number }}">
                                                             <input type="hidden" name="message" value="Your barangay indigency application (Ref: {{ $ind->reference_number }}) Status: {{ ucfirst(str_replace('_', ' ', $ind->status)) }}. Please check the barangay office for updates.">
-                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send email notification to {{ $ind->email }}?')">
+                                                            <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send email notification to {{ $ind->email }}?')">
                                                                 <i class="fas fa-envelope me-2"></i>Send Email
                                                             </button>
                                                         </form>
@@ -1377,8 +1382,13 @@
                                                         <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
                                                             @csrf
                                                             <input type="hidden" name="phone" value="+63{{ ltrim($ind->contact_number, '0') }}">
+                                                            <input type="hidden" name="status" value="{{ $ind->status }}">
+                                                            <input type="hidden" name="remarks" value="">
+                                                            <input type="hidden" name="request_type" value="indigency">
+                                                            <input type="hidden" name="request_id" value="{{ $ind->id }}">
+                                                            <input type="hidden" name="reference_number" value="{{ $ind->reference_number }}">
                                                             <input type="hidden" name="message" value="Barangay update: Your indigency application {{ $ind->reference_number }} status: {{ ucfirst(str_replace('_', ' ', $ind->status)) }}.">
-                                                            <button type="submit" class="dropdown-item" onclick="return confirm('Send SMS to {{ $ind->contact_number }}?')">
+                                                            <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send SMS to {{ $ind->contact_number }}?')">
                                                                 <i class="fas fa-sms me-2"></i>Send SMS
                                                             </button>
                                                         </form>
@@ -1386,6 +1396,12 @@
                                                     @endif
                                                 </ul>
                                             </div>
+                                            @endif
+
+                                            @if(in_array($ind->status, ['rejected']) && (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="View Remarks History" onclick='viewRemarksHistory("indigency", {{ $ind->id }}, @js($ind->reference_number))'>
+                                                <i class="fas fa-clock-rotate-left"></i>
+                                            </button>
                                             @endif
 
                                             <!-- Delete Button - Always visible if user has permission -->
@@ -2634,6 +2650,71 @@
 
     <!-- Fix dropdown clipping inside table-responsive -->
     <script>
+        async function viewRemarksHistory(requestType, requestId, referenceNumber) {
+            try {
+                const params = new URLSearchParams({
+                    request_type: requestType,
+                    request_id: String(requestId)
+                });
+                const response = await fetch("{{ route('admin.notifications.remarksHistory') }}?" + params.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load remarks history.');
+                }
+
+                const payload = await response.json();
+                const history = Array.isArray(payload.history) ? payload.history : [];
+
+                if (history.length === 0) {
+                    alert('No saved remarks found for this request yet.');
+                    return;
+                }
+
+                const details = history
+                    .map(function(item, index) {
+                        const channel = item.channel ? item.channel.toUpperCase() : 'N/A';
+                        const status = item.status ? item.status.toUpperCase() : 'N/A';
+                        return (index + 1) + '. [' + status + '] ' + item.remarks + '\n   by ' + item.admin_name + ' via ' + channel + ' on ' + item.created_at;
+                    })
+                    .join('\n\n');
+
+                alert('Remarks History - ' + referenceNumber + '\n\n' + details);
+            } catch (error) {
+                alert(error.message || 'Unable to load remarks history right now.');
+            }
+        }
+
+        function prepareRemarksAndConfirm(event, form, confirmMessage) {
+            const statusInput = form.querySelector('input[name="status"]');
+            const remarksInput = form.querySelector('input[name="remarks"]');
+            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
+
+            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
+                const remarks = prompt('Please enter remarks before sending this notification:');
+                if (remarks === null) {
+                    event.preventDefault();
+                    return false;
+                }
+                if (remarks.trim() === '') {
+                    event.preventDefault();
+                    alert('Remarks are required for rejected or dropped notifications.');
+                    return false;
+                }
+                remarksInput.value = remarks.trim();
+            }
+
+            if (!confirm(confirmMessage)) {
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var tableResponsive = document.querySelector('.table-responsive');
             if (!tableResponsive) return;

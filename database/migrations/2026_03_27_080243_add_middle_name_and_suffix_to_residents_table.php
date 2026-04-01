@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('residents', function (Blueprint $table) {
-            $table->string('middlename')->nullable()->after('firstname');
-            $table->string('suffix')->nullable()->after('lastname');
+            if (!Schema::hasColumn('residents', 'middlename')) {
+                $table->string('middlename')->nullable();
+            }
+
+            if (!Schema::hasColumn('residents', 'suffix')) {
+                $table->string('suffix')->nullable();
+            }
         });
     }
 
@@ -23,7 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('residents', function (Blueprint $table) {
-            $table->dropColumn(['middlename', 'suffix']);
+            if (Schema::hasColumn('residents', 'middlename')) {
+                $table->dropColumn('middlename');
+            }
+
+            if (Schema::hasColumn('residents', 'suffix')) {
+                $table->dropColumn('suffix');
+            }
         });
     }
 };

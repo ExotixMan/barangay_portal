@@ -1116,7 +1116,7 @@
                         <input type="text" id="username" name="username" value="{{ old('username') }}" required
                             placeholder="Choose a username" class="form-control @error('username') is-invalid @enderror"
                             autocomplete="username">
-                        <div class="form-hint">This will be your login username</div>
+                        <div class="form-hint" id="usernameHint">This will be your login username</div>
                         @error('username')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -1373,11 +1373,21 @@
             const matchText = document.getElementById('passwordMatchText');
             const termsCheckbox = document.getElementById('terms');
             const passwordChecklist = Array.from(document.querySelectorAll(".password-checklist li"));
+            const usernameHint = document.getElementById('usernameHint');
 
             const contactInput = document.getElementById("contact");
             const birthdateInput = document.getElementById("birthdate");
             const validIdInput = document.getElementById("valid_id");
             const fileUploadText = document.getElementById("fileUploadText");
+
+            let usernameCheckTimer = null;
+            let usernameCheckSeq = 0;
+            let isProgrammaticSubmit = false;
+            const usernameCheckState = {
+                value: '',
+                status: 'idle',
+                message: '',
+            };
 
             let currentStep = 1;
             const totalSteps = 2;
@@ -1448,18 +1458,123 @@
                 usernameField.addEventListener('input', function(e) {
                     // Replace spaces with empty string
                     this.value = this.value.replace(/\s/g, '');
-                    
+
                     // Clear error
                     this.classList.remove('is-invalid');
                     const existingError = this.parentNode.querySelector('.error-message');
                     if (existingError) {
                         existingError.remove();
                     }
+
+                    if (usernameHint) {
+                        usernameHint.textContent = 'Checking username availability...';
+                        usernameHint.classList.remove('good', 'bad');
+                    }
+
+                    if (usernameCheckTimer) {
+                        clearTimeout(usernameCheckTimer);
+                    }
+
+                    usernameCheckTimer = setTimeout(() => {
+                        checkUsernameAvailability(this.value);
+                    }, 350);
                 });
 
                 usernameField.addEventListener('blur', function() {
                     validateUsernameField(this);
+                    checkUsernameAvailability(this.value, true);
                 });
+            }
+
+            async function checkUsernameAvailability(rawUsername, force = false) {
+                const username = String(rawUsername || '').trim().toLowerCase();
+
+                if (!force && username === usernameCheckState.value && (usernameCheckState.status === 'available' || usernameCheckState.status === 'unavailable')) {
+                    return usernameCheckState.status === 'available';
+                }
+
+                if (username === '') {
+                    usernameCheckState.value = username;
+                    usernameCheckState.status = 'idle';
+                    usernameCheckState.message = '';
+                    if (usernameHint) {
+                        usernameHint.textContent = 'This will be your login username';
+                        usernameHint.classList.remove('good', 'bad');
+                    }
+                    return false;
+                }
+
+                const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+                if (!usernameRegex.test(username) || username.length < 4) {
+                    usernameCheckState.value = username;
+                    usernameCheckState.status = 'invalid';
+                    usernameCheckState.message = 'Username format is invalid';
+                    if (usernameHint) {
+                        usernameHint.textContent = username.length < 4
+                            ? 'Username must be at least 4 characters long'
+                            : 'Only letters, numbers, underscore, dot, and hyphen are allowed';
+                        usernameHint.classList.remove('good');
+                        usernameHint.classList.add('bad');
+                    }
+                    return false;
+                }
+
+                const requestId = ++usernameCheckSeq;
+                usernameCheckState.value = username;
+                usernameCheckState.status = 'checking';
+                usernameCheckState.message = 'Checking username availability...';
+
+                if (usernameHint) {
+                    usernameHint.textContent = 'Checking username availability...';
+                    usernameHint.classList.remove('good', 'bad');
+                }
+
+                try {
+                    const response = await fetch(`{{ route('register.check-username') }}?username=${encodeURIComponent(username)}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (requestId !== usernameCheckSeq) {
+                        return false;
+                    }
+
+                    if (response.ok && data.available) {
+                        usernameCheckState.status = 'available';
+                        usernameCheckState.message = data.message || 'Username is available';
+                        if (usernameHint) {
+                            usernameHint.textContent = usernameCheckState.message;
+                            usernameHint.classList.remove('bad');
+                            usernameHint.classList.add('good');
+                        }
+                        return true;
+                    }
+
+                    usernameCheckState.status = 'unavailable';
+                    usernameCheckState.message = data.message || 'Username is already taken';
+                    if (usernameHint) {
+                        usernameHint.textContent = usernameCheckState.message;
+                        usernameHint.classList.remove('good');
+                        usernameHint.classList.add('bad');
+                    }
+                    return false;
+                } catch (error) {
+                    if (requestId !== usernameCheckSeq) {
+                        return false;
+                    }
+
+                    usernameCheckState.status = 'error';
+                    usernameCheckState.message = 'Unable to check username right now';
+                    if (usernameHint) {
+                        usernameHint.textContent = usernameCheckState.message;
+                        usernameHint.classList.remove('good');
+                        usernameHint.classList.add('bad');
+                    }
+                    return false;
+                }
             }
 
             function validateUsernameField(field) {
@@ -1597,6 +1712,9 @@
                         } else if (fieldValue.length < 4) {
                             isValid = false;
                             showFieldError(field, 'Username must be at least 4 characters long');
+                        } else if (usernameCheckState.value === fieldValue.toLowerCase() && usernameCheckState.status === 'unavailable') {
+                            isValid = false;
+                            showFieldError(field, 'Username is already taken');
                         }
                     }
 
@@ -1886,10 +2004,14 @@
 
             // Form submission
             if (form) {
-                form.addEventListener("submit", (event) => {
-                    if (!validateStep(currentStep)) {
-                        event.preventDefault();
+                form.addEventListener("submit", async (event) => {
+                    if (isProgrammaticSubmit) {
+                        return;
+                    }
 
+                    event.preventDefault();
+
+                    if (!validateStep(currentStep)) {
                         document.querySelectorAll('.is-invalid').forEach(field => {
                             const group = field.closest('.form-group') || field.closest('.file-upload-wrapper');
                             if (group) {
@@ -1900,12 +2022,28 @@
                         return;
                     }
 
+                    if (usernameField) {
+                        const usernameAvailable = await checkUsernameAvailability(usernameField.value, true);
+                        if (!usernameAvailable) {
+                            showFieldError(usernameField, usernameCheckState.message || 'Username is already taken');
+                            const group = usernameField.closest('.form-group');
+                            if (group) {
+                                group.classList.add('shake');
+                                setTimeout(() => group.classList.remove('shake'), 400);
+                            }
+                            return;
+                        }
+                    }
+
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.classList.add("loading");
                         const btnText = submitBtn.querySelector(".btn-text");
                         if (btnText) btnText.textContent = "Creating account...";
                     }
+
+                    isProgrammaticSubmit = true;
+                    form.submit();
                 });
             }
 

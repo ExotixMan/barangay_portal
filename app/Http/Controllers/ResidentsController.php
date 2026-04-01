@@ -9,11 +9,17 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use App\Models\Residents;
 use App\Models\Announcement;
+use App\Services\OtpSmsService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class ResidentsController extends Controller
 {
+    private const REGISTER_OTP_MAX_ATTEMPTS = 3;
+
+    public function __construct(private OtpSmsService $otpSmsService)
+    {
+    }
+
     public function showLogin(){
         if (Auth::check()) {
             return redirect()->intended(route('barangay_system.index'));
@@ -46,7 +52,7 @@ class ResidentsController extends Controller
             'email' => 'required|email|unique:residents,email',
             'address' => 'required|string|max:500',
             'birthdate' => 'required|date|before:18 years ago',
-            'contact' => 'required|string|max:11|regex:/^09\d{9}$/',
+            'contact' => 'required|string|max:11|regex:/^09\d{9}$/|unique:residents,contact',
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
             'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
@@ -57,6 +63,7 @@ class ResidentsController extends Controller
             'lastname.regex' => 'Last name may only contain letters, spaces, dots, apostrophes, and hyphens',
             'suffix.in' => 'Please select a valid suffix',
             'contact.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
+            'contact.unique' => 'This contact number is already registered',
             'birthdate.before' => 'You must be at least 18 years old to register',
             'password.min' => 'Password must be at least 8 characters long',
             'password.regex' => 'Password cannot contain spaces',
@@ -77,7 +84,7 @@ class ResidentsController extends Controller
             $data['suffix'] = null;
         }
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
 
         $data['password'] = Hash::make($data['password']);
         $data['phone_otp'] = Hash::make($otp);
@@ -93,12 +100,45 @@ class ResidentsController extends Controller
         //     ->with('success', 'Registration successful. Please verify your email.');
 
         // Send OTP to mobile and redirect to OTP form
-        $this->dispatchOtpToResident($resident, $otp, 'register');
+        $this->otpSmsService->sendOtp($resident, $otp, 'register');
         $request->session()->put('resident_id', $resident->id);
         $request->session()->put('otp_purpose', 'register');
 
         return redirect()->route('otp.form')
             ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
+    }
+
+    public function checkUsernameAvailability(Request $request)
+    {
+        $username = strtolower(trim((string) $request->query('username', '')));
+
+        if ($username === '') {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username is required',
+            ], 422);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9_.-]+$/', $username)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username may only contain letters, numbers, underscores (_), dots (.), and hyphens (-)',
+            ], 422);
+        }
+
+        if (strlen($username) < 4) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username must be at least 4 characters long',
+            ], 422);
+        }
+
+        $exists = Residents::where('username', $username)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Username is already taken' : 'Username is available',
+        ]);
     }
 
     public function login_res(Request $request)
@@ -131,89 +171,78 @@ class ResidentsController extends Controller
                 ->onlyInput('login');
         }
 
-        if (!$resident->phone_verified) {
-            $otp = rand(100000, 999999);
-            $resident->update([
-                'phone_otp' => Hash::make($otp),
-                'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
-            ]);
-            $this->dispatchOtpToResident($resident, $otp, 'login');
-            $request->session()->put('resident_id', $resident->id);
-            $request->session()->put('otp_purpose', 'login');
-            return redirect()->route('otp.form')
-                ->with('success', 'Please verify your mobile number with OTP to continue.');
-        }
-
-        Auth::login($resident);
-        $request->session()->regenerate();
-
-        // Commented out legacy email verification:
-        // if (is_null($resident->email_verified_at)) {
-        //     return redirect()->route('verification.notice');
-        // }
-
-        return redirect()->intended('/');
+        // Always require OTP on login
+        $otp = random_int(100000, 999999);
+        $resident->update([
+            'phone_otp' => Hash::make($otp),
+            'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
+        ]);
+        $this->otpSmsService->sendOtp($resident, $otp, 'login');
+        $request->session()->put('resident_id', $resident->id);
+        $request->session()->put('otp_purpose', 'login');
+        return redirect()->route('otp.form')
+            ->with('success', 'Please verify your mobile number with OTP to continue.');
     }
-    /**
-     * Dispatch OTP to resident's mobile number (SMS logic should be implemented here)
-     */
-    private function dispatchOtpToResident(Residents $resident, int $otp, string $context): void
+        /**
+         * Resend OTP for login or registration (no countdown)
+         */
+    public function resendOtp(Request $request)
     {
-        // --- SMS sending logic (Semaphore) ---
-        $message = "Your Barangay Portal OTP is: $otp";
-        $number = $resident->contact;
-        if (app()->environment('local', 'development', 'testing')) {
-            Log::info('Resident OTP generated', [
-                'resident_id' => $resident->id,
-                'contact' => $number,
-                'context' => $context,
-                'otp' => $otp,
-            ]);
-            session()->flash('otp_debug_code', (string) $otp);
-        } else {
-            try {
-                $apiKey = env('SEMAPHORE_API_KEY');
-                $sender = env('SEMAPHORE_SENDER_NAME', 'SEMAPHORE');
-                $to = $number;
-                // Ensure number is in 639XXXXXXXXX format
-                if (str_starts_with($to, '0')) {
-                    $to = '63' . substr($to, 1);
-                }
-                if (!preg_match('/^63\d{10}$/', $to)) {
-                    Log::error('Semaphore: Invalid phone number format', ['to' => $to, 'original' => $number]);
-                    return;
-                }
-                $url = 'https://api.semaphore.co/api/v4/messages';
-                $payload = [
-                    'apikey' => $apiKey,
-                    'number' => $to,
-                    'message' => $message,
-                    'sendername' => $sender,
-                ];
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                Log::info('Semaphore API response', ['http_code' => $httpCode, 'response' => $response]);
-                $respArr = json_decode($response, true);
-                if ($httpCode === 200 && is_array($respArr) && isset($respArr[0]['status']) && $respArr[0]['status'] === 'Queued') {
-                    Log::info('OTP sent via Semaphore', ['to' => $to, 'context' => $context, 'response' => $response]);
-                } else {
-                    Log::error('Failed to send OTP via Semaphore', ['to' => $to, 'context' => $context, 'response' => $response, 'http_code' => $httpCode]);
-                }
-            } catch (\Throwable $e) {
-                Log::error('Failed to send OTP via Semaphore', [
-                    'error' => $e->getMessage(),
-                    'resident_id' => $resident->id,
-                    'contact' => $number,
-                ]);
-            }
-        }
-    }
+        $residentId = $request->session()->get('resident_id');
+        $otpPurpose = $request->session()->get('otp_purpose', 'login');
 
+        if (!$residentId) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'OTP session expired. Please login again.'], 422);
+            }
+
+            return redirect()->route('login')->with('fail', 'OTP session expired. Please login again.');
+        }
+
+        $resident = Residents::find($residentId);
+        if (!$resident) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Resident not found.'], 404);
+            }
+
+            return redirect()->route('login')->with('fail', 'Resident not found.');
+        }
+
+        if (!empty($resident->phone_otp) && !empty($resident->phone_otp_expires_at) && Carbon::now()->lt($resident->phone_otp_expires_at)) {
+            $retryAfter = Carbon::now()->diffInSeconds($resident->phone_otp_expires_at, false);
+            $retryAfter = max(1, (int) $retryAfter);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Please wait before requesting another OTP.',
+                    'retry_after' => $retryAfter,
+                ], 429);
+            }
+
+            return back()->with('fail', 'Please wait before requesting another OTP.');
+        }
+
+        $otp = random_int(100000, 999999);
+        $resident->update([
+            'phone_otp' => Hash::make($otp),
+            'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
+        ]);
+
+        $this->otpSmsService->sendOtp($resident, $otp, $otpPurpose);
+
+        if ($otpPurpose === 'register') {
+            $request->session()->forget('register_otp_attempts_' . $resident->id);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => 'A new OTP has been sent to your mobile number.',
+                'retry_after' => 300,
+            ]);
+        }
+
+        return back()->with('success', 'A new OTP has been sent to your mobile number.');
+    }
     public function destroy(Request $request)
     {
         Auth::logout();
@@ -228,20 +257,58 @@ class ResidentsController extends Controller
     {
         $request->validate([
             'otp' => 'required|digits:6',
-            'resident_id' => 'required|exists:residents,id'
+            'resident_id' => 'nullable|exists:residents,id'
         ]);
 
-        $resident = Residents::find($request->resident_id);
+        $otpPurpose = (string) $request->session()->get('otp_purpose', 'login');
+
+        $residentId = $request->session()->get('resident_id', $request->input('resident_id'));
+        if (!$residentId) {
+            return redirect()->route('login')->with('fail', 'OTP session expired. Please login again.');
+        }
+
+        $resident = Residents::find($residentId);
 
         if (!$resident) {
             return back()->with('fail', 'Resident not found.');
         }
 
+        if (empty($resident->phone_otp) || empty($resident->phone_otp_expires_at)) {
+            if ($otpPurpose === 'register') {
+                return $this->cancelPendingRegistration($request, $resident, 'OTP verification failed.');
+            }
+
+            return back()->with('fail', 'No active OTP found. Please request a new one.');
+        }
+
         if (Carbon::now()->gt($resident->phone_otp_expires_at)) {
+            if ($otpPurpose === 'register') {
+                return $this->cancelPendingRegistration($request, $resident, 'OTP expired.');
+            }
+
+            $resident->update([
+                'phone_otp' => null,
+                'phone_otp_expires_at' => null,
+            ]);
+
             return back()->with('fail', 'OTP expired.');
         }
 
-        if (!Hash::check($request->otp, $resident->phone_otp)) {
+        $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp', ''));
+        if (!Hash::check($otpInput, $resident->phone_otp)) {
+            if ($otpPurpose === 'register') {
+                $attemptKey = 'register_otp_attempts_' . $resident->id;
+                $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
+                $request->session()->put($attemptKey, $attempts);
+
+                if ($attempts >= self::REGISTER_OTP_MAX_ATTEMPTS) {
+                    return $this->cancelPendingRegistration($request, $resident, 'Too many invalid OTP attempts.');
+                }
+
+                $remaining = self::REGISTER_OTP_MAX_ATTEMPTS - $attempts;
+                return back()->with('fail', 'Invalid OTP. ' . $remaining . ' attempt(s) remaining.');
+            }
+
             return back()->with('fail', 'Invalid OTP.');
         }
 
@@ -251,6 +318,39 @@ class ResidentsController extends Controller
             'phone_otp_expires_at' => null
         ]);
 
-        return redirect('login')->with('success', 'Phone verified. You can now login.');
+        $request->session()->forget('register_otp_attempts_' . $resident->id);
+
+        $otpPurpose = (string) $request->session()->pull('otp_purpose', 'login');
+        $request->session()->forget('resident_id');
+
+        if ($otpPurpose === 'login') {
+            Auth::login($resident);
+            $request->session()->regenerate();
+            return redirect()->intended(route('barangay_system.index'))->with('success', 'Mobile OTP verified successfully.');
+        } else {
+            Auth::login($resident);
+            $request->session()->regenerate();
+            return redirect()->intended(route('barangay_system.index'))->with('success', 'Mobile number verified. Welcome!');
+        }
+    }
+
+    private function cancelPendingRegistration(Request $request, Residents $resident, string $reason)
+    {
+        if (!empty($resident->valid_id)) {
+            $validIdPath = public_path((string) $resident->valid_id);
+            if (is_file($validIdPath)) {
+                @unlink($validIdPath);
+            }
+        }
+
+        $resident->delete();
+        $request->session()->forget([
+            'resident_id',
+            'otp_purpose',
+            'register_otp_attempts_' . $resident->id,
+        ]);
+
+        return redirect()->route('register')
+            ->with('fail', $reason . ' Registration has been cancelled. Please register again.');
     }
 }
