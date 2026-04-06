@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,8 +84,18 @@
         }
 
         .alert-danger li::before {
-            content: 'âš ï¸';
+            content: '⚠️';
             margin-right: 0.5rem;
+        }
+
+        .quick-edit-form .form-control,
+        .quick-edit-form .form-select {
+            min-height: 44px;
+        }
+
+        .quick-edit-form textarea.form-control {
+            min-height: 96px;
+            resize: vertical;
         }
 
         /* Stats Cards */
@@ -158,12 +168,21 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1200px;
+            width: 100%;
+            min-width: 980px;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 1400px) {
+            .table {
+                min-width: 900px;
+            }
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 1100px;
+                min-width: 820px;
+                font-size: 0.8rem;
             }
         }
 
@@ -171,19 +190,22 @@
             background: #f8f9fa;
             color: #495057;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.35px;
             border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.2;
+            padding: 0.65rem 0.5rem;
         }
 
         .table tbody td {
             vertical-align: middle;
-            padding: 1rem 0.75rem;
+            padding: 0.65rem 0.5rem;
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.25;
         }
 
         .table tbody tr:hover {
@@ -737,6 +759,198 @@
         .dropdown-item button:hover {
             background: none;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.35rem;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .action-btn {
+            min-height: 34px;
+            border-radius: 10px;
+            border: 1px solid #4a4f57;
+            background: #2f343b;
+            color: #f1f3f5;
+            padding: 0 0.55rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .action-btn.icon-only {
+            width: 34px;
+            padding: 0;
+            gap: 0;
+        }
+
+        .action-label {
+            font-size: 0.73rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .action-btn.action-view {
+            background: #2a2f36;
+            border-color: #4a4f57;
+            color: #ffffff;
+        }
+
+        .action-btn.action-update {
+            background: #d5f0ad;
+            border-color: #a9d772;
+            color: #2f4a11;
+        }
+
+        .action-btn.action-docs {
+            background: #d7ecff;
+            border-color: #95c5f2;
+            color: #0a4d86;
+        }
+
+        .action-btn.action-archive {
+            background: #ffdfe2;
+            border-color: #f1a8af;
+            color: #9f1f2e;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .action-divider {
+            color: #9aa0a6;
+            font-size: 0.9rem;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .view-modal-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .view-modal-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            background: #e5f4ff;
+            color: #0288d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .view-modal-meta {
+            min-width: 0;
+        }
+
+        .view-modal-name {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .view-modal-sub {
+            font-size: 0.82rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .view-tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin: 0 -1.5rem 1rem;
+            padding: 0 1.5rem;
+            gap: 0.25rem;
+        }
+
+        .view-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            background: transparent;
+        }
+
+        .view-tabs .nav-link.active {
+            color: #1e293b;
+            border-bottom-color: #1e293b;
+            background: transparent;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .status-option {
+            border: 1px solid #d0d5dd;
+            background: #fff;
+            border-radius: 12px;
+            padding: 0.5rem 0.6rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #344054;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+        }
+
+        .status-option .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-option.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.14);
+            color: var(--primary-dark);
+        }
+
+        .notify-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 0.65rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .notify-label {
+            line-height: 1.2;
+        }
+
+        .notify-label small {
+            color: #6c757d;
+            display: block;
+        }
+
+        .notify-switch.form-check.form-switch {
+            margin-bottom: 0;
+            padding-left: 0;
+        }
+
+        .notify-switch .form-check-input {
+            margin-left: 0;
+            width: 2.1rem;
+            height: 1.1rem;
+        }
         
         /* Permission denied message */
         .permission-denied {
@@ -1095,6 +1309,7 @@
                                     <option value="ready_pickup" {{ request('status') == 'ready_pickup' ? 'selected' : '' }}>Ready for Pickup</option>
                                     <option value="claimed" {{ request('status') == 'claimed' ? 'selected' : '' }}>Claimed</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Archived</option>
                                 </select>
                             </div>
 
@@ -1126,9 +1341,9 @@
                         @admin_can('delete_clearance')
                         <form id="bulkForm" method="POST" action="{{ route('admin.clearance.bulkDelete') }}" style="display: inline;">
                             @csrf
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                                <span class="d-none d-sm-inline">Bulk Archive</span>
                             </button>
                         </form>
                         @endadmin_can
@@ -1184,6 +1399,7 @@
                                     <th>Purpose</th>
                                     <th>Fee</th>
                                     <th>Status</th>
+                                    <th class="d-none d-lg-table-cell">Date Submitted</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -1228,7 +1444,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($app->status == 'approved')
+                                        @if($app->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($app->status == 'approved')
                                             <span class="badge bg-success-subtle text-success">Approved</span>
                                         @elseif($app->status == 'ready_pickup')
                                             <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
@@ -1244,233 +1462,73 @@
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
                                     </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <small>{{ $app->created_at ? $app->created_at->format('M d, Y h:i A') : 'N/A' }}</small>
+                                    </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View Button - Always visible -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View Details">
+                                        <div class="action-buttons">
+                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
+                                            <span class="action-divider">|</span>
+
                                             <!-- Status Change Dropdown - Always visible for all statuses (if user has permission) -->
-                                            @if(auth('admin')->user()->hasPermission('update_clearance') || 
+                                            @if(!$app->deleted_at && (auth('admin')->user()->hasPermission('update_clearance') || 
                                                 auth('admin')->user()->hasPermission('approve_clearance') || 
-                                                auth('admin')->user()->hasPermission('reject_clearance'))
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Change Status">
-                                                    <i class="fas fa-tag"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <!-- Pending -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="pending">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'pending' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Pending?')">
-                                                                <i class="fas fa-clock me-2 text-secondary"></i>Pending
-                                                                @if($app->status == 'pending')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Under Review -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="under_review">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'under_review' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Under Review?')">
-                                                                <i class="fas fa-search me-2 text-primary"></i>Under Review
-                                                                @if($app->status == 'under_review')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Processing -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="processing">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'processing' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Processing?')">
-                                                                <i class="fas fa-spinner me-2 text-warning"></i>Processing
-                                                                @if($app->status == 'processing')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Approved -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="approved">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'approved' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Approved?')">
-                                                                <i class="fas fa-check-circle me-2 text-success"></i>Approved
-                                                                @if($app->status == 'approved')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    
-                                                    <!-- Ready for Pickup -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="ready_pickup">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'ready_pickup' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Change status to Ready for Pickup?')">
-                                                                <i class="fas fa-store me-2 text-info"></i>Ready for Pickup
-                                                                @if($app->status == 'ready_pickup')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <!-- Claimed -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="claimed">
-                                                            <button type="submit" class="dropdown-item {{ $app->status == 'claimed' ? 'active' : '' }}" onclick="return delete(event, 'Change status to Claimed?')">
-                                                                <i class="fas fa-hand-peace me-2 text-success"></i>Claimed
-                                                                @if($app->status == 'claimed')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    
-                                                    <!-- Rejected -->
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="status" value="rejected">
-                                                            <button type="submit" class="dropdown-item text-danger {{ $app->status == 'rejected' ? 'active' : '' }}" onclick="return confirmDelete(event, 'Reject this application?')">
-                                                                <i class="fas fa-times-circle me-2"></i>Rejected
-                                                                @if($app->status == 'rejected')
-                                                                    <i class="fas fa-check ms-2 text-success"></i>
-                                                                @endif
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                                auth('admin')->user()->hasPermission('reject_clearance')))
+                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $app->id }}" title="Update">
+                                                <i class="fas fa-pen"></i>
+                                                <span class="action-label">Update</span>
+                                            </button>
+                                            @else
+                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update (No permission)">
+                                                <i class="fas fa-pen"></i>
+                                                <span class="action-label">Update</span>
+                                            </button>
                                             @endif
 
                                             <!-- Edit Button - Show for all statuses EXCEPT rejected and claimed -->
-                                            @if(auth('admin')->user()->hasPermission('update_clearance') && 
-                                                !in_array($app->status, ['rejected', 'claimed']))
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editClearanceModal{{ $app->id }}" title="Edit Application">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            @endif
-
-                                            <!-- Document Actions Dropdown - Show for approved, ready_pickup, claimed -->
-                                            @if(auth('admin')->user()->hasPermission('generate_clearance_document') && 
+                                            @if(!$app->deleted_at && auth('admin')->user()->hasPermission('generate_clearance_document') && 
                                                 in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Document Actions">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank" class="dropdown-item p-0">
-                                                            <input type="hidden" name="id" value="{{ $app->id }}">
-                                                            <button type="submit" name="action" value="download" class="dropdown-item">
-                                                                <i class="fas fa-download me-2"></i>Download Word
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank" class="dropdown-item p-0">
-                                                            <input type="hidden" name="id" value="{{ $app->id }}">
-                                                            <button type="submit" name="action" value="print" class="dropdown-item">
-                                                                <i class="fas fa-print me-2"></i>Print PDF
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            @endif
-
-                                            <!-- Communication Dropdown - Show for approved, rejected, claimed -->
-                                            @if((auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')) && 
-                                                in_array($app->status, ['approved', 'rejected', 'ready_pickup','claimed']))
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
-                                                    <i class="fas fa-bell"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    @if(auth('admin')->user()->hasPermission('send_email'))
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.notifications.sendEmail') }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="email" value="{{ $app->email }}">
-                                                            <input type="hidden" name="name" value="{{ $app->first_name }} {{ $app->last_name }}">
-                                                            <input type="hidden" name="status" value="{{ $app->status }}">
-                                                            <input type="hidden" name="remarks" value="">
-                                                            <input type="hidden" name="request_type" value="clearance">
-                                                            <input type="hidden" name="request_id" value="{{ $app->id }}">
-                                                            <input type="hidden" name="reference_number" value="{{ $app->reference_number }}">
-                                                            <input type="hidden" name="message" value="Your barangay clearance application (Ref: {{ $app->reference_number }}) status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Fee: {{ is_null($app->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $app->fee, 2) }}. Please check the barangay office for updates.">
-                                                            <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send email notification to {{ $app->email }}?')">
-                                                                <i class="fas fa-envelope me-2"></i>Send Email
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    @endif
-                                                    
-                                                    @if(auth('admin')->user()->hasPermission('send_sms'))
-                                                    <li>
-                                                        <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
-                                                            @csrf
-                                                            <input type="hidden" name="phone" value="+63{{ ltrim($app->contact_number, '0') }}">
-                                                            <input type="hidden" name="status" value="{{ $app->status }}">
-                                                            <input type="hidden" name="remarks" value="">
-                                                            <input type="hidden" name="request_type" value="clearance">
-                                                            <input type="hidden" name="request_id" value="{{ $app->id }}">
-                                                            <input type="hidden" name="reference_number" value="{{ $app->reference_number }}">
-                                                            <input type="hidden" name="message" value="Barangay update: Your clearance application {{ $app->reference_number }} status: {{ ucfirst(str_replace('_', ' ', $app->status)) }}. Fee: {{ is_null($app->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $app->fee, 2) }}.">
-                                                            <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send SMS to {{ $app->contact_number }}?')">
-                                                                <i class="fas fa-sms me-2"></i>Send SMS
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                            @endif
-
-                                            @if(in_array($app->status, ['rejected']) && (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="View Remarks History" onclick='viewRemarksHistory("clearance", {{ $app->id }}, @js($app->reference_number))'>
-                                                <i class="fas fa-clock-rotate-left"></i>
+                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $app->id }}" title="Docs">
+                                                <i class="fas fa-file-lines"></i>
+                                            </button>
+                                            @else
+                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Docs (Unavailable)">
+                                                <i class="fas fa-file-lines"></i>
                                             </button>
                                             @endif
+
+                                            <span class="action-divider">|</span>
 
                                             <!-- Delete Button - Always visible if user has permission -->
-                                            @if(auth('admin')->user()->hasPermission('delete_clearance'))
-                                            <form method="POST" action="{{ route('admin.clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this application permanently?')">
+                                            @if($app->deleted_at && auth('admin')->user()->hasPermission('delete_clearance'))
+                                            <form method="POST" action="{{ route('admin.clearance.restore', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this application?')">
                                                 @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
+                                                    <i class="fas fa-rotate-left"></i>
                                                 </button>
                                             </form>
+                                            @elseif(auth('admin')->user()->hasPermission('delete_clearance'))
+                                            <form method="POST" action="{{ route('admin.clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this application?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
+                                                    <i class="fas fa-box-archive"></i>
+                                                </button>
+                                            </form>
+                                            @else
+                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive (No permission)">
+                                                <i class="fas fa-box-archive"></i>
+                                            </button>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5">
+                                    <td colspan="10" class="text-center py-5">
                                         <div class="py-4">
                                             <i class="fas fa-file-contract fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No clearance applications found</h5>
@@ -1563,8 +1621,10 @@
                                             <option value="">None</option>
                                             <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
                                             <option value="Sr." {{ (session('form_type') == 'add' && old('suffix') == 'Sr.') ? 'selected' : '' }}>Sr.</option>
+                                            <option value="II" {{ (session('form_type') == 'add' && old('suffix') == 'II') ? 'selected' : '' }}>II</option>
                                             <option value="III" {{ (session('form_type') == 'add' && old('suffix') == 'III') ? 'selected' : '' }}>III</option>
                                             <option value="IV" {{ (session('form_type') == 'add' && old('suffix') == 'IV') ? 'selected' : '' }}>IV</option>
+                                            <option value="V" {{ (session('form_type') == 'add' && old('suffix') == 'V') ? 'selected' : '' }}>V</option>
                                         </select>
                                         @if(session('form_type') == 'add')
                                             @error('suffix')
@@ -1784,8 +1844,10 @@
                                                 <option value="">None</option>
                                                 <option value="Jr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
                                                 <option value="Sr." {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                <option value="II" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'II' ? 'selected' : '' }}>II</option>
                                                 <option value="III" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'III' ? 'selected' : '' }}>III</option>
                                                 <option value="IV" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                                <option value="V" {{ (session('form_type') == 'edit_' . $app->id ? old('suffix', $app->suffix) : $app->suffix) == 'V' ? 'selected' : '' }}>V</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $app->id)
                                                 @error('suffix')
@@ -1974,113 +2036,187 @@
             <!-- View Modals (always visible since they just show data) -->
             @foreach($clearances as $app)
             <div class="modal fade" id="viewModal{{ $app->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-file-contract me-2"></i>
-                                Clearance Details - {{ $app->reference_number }}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <h6 class="fw-semibold text-primary">Personal Information</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Full Name</label>
-                                    <p class="fw-semibold">{{ $app->first_name }} {{ $app->middle_name }} {{ $app->last_name }} {{ $app->suffix }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Birthdate</label>
-                                    <p>{{ \Carbon\Carbon::parse($app->birthdate)->format('F d, Y') }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Birth Place</label>
-                                    <p>{{ $app->birth_place ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Gender</label>
-                                    <p>{{ ucfirst($app->gender) }}</p>
-                                </div>
-
-                                <div class="col-12 mt-2">
-                                    <h6 class="fw-semibold text-primary">Contact Information</h6>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Email</label>
-                                    <p>{{ $app->email ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Contact Number</label>
-                                    <p>{{ $app->contact_number ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Address</label>
-                                    <p>{{ $app->address ?: 'N/A' }}</p>
-                                </div>
-
-                                <div class="col-12 mt-2">
-                                    <h6 class="fw-semibold text-primary">Clearance Details</h6>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Purpose</label>
-                                    <p class="purpose-badge d-inline-block p-2">{{ ucfirst(str_replace('_', ' ', $app->purpose)) }} {{ $app->purpose_other ? '(' . $app->purpose_other . ')' : '' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Fee</label>
-                                    <p>
-                                        @if(is_null($app->fee))
-                                            Depending on purpose
-                                        @else
-                                            PHP {{ number_format((float) $app->fee, 2) }}
-                                        @endif
-                                    </p>
-                                </div>
-                                @if($app->primary_proof)
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Proof of Residency</label>
-                                    <div>
-                                        <a href="{{ asset($app->primary_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-file me-2"></i>View Proof of Residency
-                                        </a>
-                                    </div>
-                                </div>
-                                @endif
-                                @if($app->valid_id_path)
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Valid ID</label>
-                                    <div>
-                                        <a href="{{ asset($app->valid_id_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-id-card me-2"></i>View ID Document
-                                        </a>
-                                    </div>
-                                </div>
-                                @endif
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Status</label>
-                                    <p>
+                            <div class="view-modal-head w-100">
+                                <div class="view-modal-avatar">{{ strtoupper(substr($app->first_name, 0, 1) . substr($app->last_name, 0, 1)) }}</div>
+                                <div class="view-modal-meta">
+                                    <div class="view-modal-name">{{ $app->first_name }} {{ $app->last_name }}</div>
+                                    <div class="view-modal-sub">{{ $app->reference_number }} - Clearance Certificate</div>
+                                    <div class="mt-1">
                                         @if($app->status == 'approved')
                                             <span class="badge bg-success-subtle text-success">Approved</span>
                                         @elseif($app->status == 'rejected')
                                             <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                        @elseif($app->status == 'ready_pickup')
+                                            <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                        @elseif($app->status == 'claimed')
+                                            <span class="badge bg-primary-subtle text-primary">Claimed</span>
+                                        @elseif($app->status == 'under_review')
+                                            <span class="badge bg-secondary-subtle text-secondary">Under Review</span>
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
-                                    </p>
+                                    </div>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Submitted At</label>
-                                    <p>{{ $app->created_at ? $app->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="nav view-tabs mb-3" id="viewTabs{{ $app->id }}" role="tablist">
+                                <li class="nav-item" role="presentation"><button class="nav-link active" id="details-tab-{{ $app->id }}" data-bs-toggle="pill" data-bs-target="#details-panel-{{ $app->id }}" type="button">Details</button></li>
+                                <li class="nav-item" role="presentation"><button class="nav-link" id="edit-tab-{{ $app->id }}" data-bs-toggle="pill" data-bs-target="#edit-panel-{{ $app->id }}" type="button">Edit info</button></li>
+                                <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab-{{ $app->id }}" data-bs-toggle="pill" data-bs-target="#history-panel-{{ $app->id }}" type="button">History</button></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="details-panel-{{ $app->id }}" role="tabpanel">
+                                    <div class="row g-3">
+                                        <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Personal Information</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Full Name</label><p class="fw-semibold">{{ $app->first_name }} {{ $app->middle_name }} {{ $app->last_name }} {{ $app->suffix }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Birthdate</label><p>{{ \Carbon\Carbon::parse($app->birthdate)->format('F d, Y') }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Gender</label><p>{{ ucfirst($app->gender) }}</p></div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Contact Information</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Email</label><p>{{ $app->email ?: 'N/A' }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Contact Number</label><p>{{ $app->contact_number ?: 'N/A' }}</p></div>
+                                        <div class="col-12"><label class="form-label text-muted">Address</label><p>{{ $app->address ?: 'N/A' }}</p></div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Clearance Details</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Purpose</label><p>{{ ucfirst(str_replace('_', ' ', $app->purpose)) }} {{ $app->purpose_other ? '(' . $app->purpose_other . ')' : '' }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Fee</label><p>{{ is_null($app->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $app->fee, 2) }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Status</label><p>@if($app->status == 'approved')<span class="badge bg-success-subtle text-success">Approved</span>@elseif($app->status == 'rejected')<span class="badge bg-danger-subtle text-danger">Rejected</span>@elseif($app->status == 'ready_pickup')<span class="badge bg-info-subtle text-info">Ready for Pickup</span>@elseif($app->status == 'claimed')<span class="badge bg-primary-subtle text-primary">Claimed</span>@elseif($app->status == 'under_review')<span class="badge bg-secondary-subtle text-secondary">Under Review</span>@else<span class="badge bg-warning-subtle text-warning">Processing</span>@endif</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Submitted At</label><p>{{ $app->created_at ? $app->created_at->format('F d, Y h:i A') : 'N/A' }}</p></div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Documents</h6></div>
+                                        <div class="col-12"><h6 class="fw-semibold text-primary">Proof of Residency</h6>@if($app->primary_proof)<img src="{{ asset($app->primary_proof) }}" class="img-fluid rounded shadow-sm" style="max-height:240px; cursor:pointer;" onclick="openZoomModal('{{ asset($app->primary_proof) }}')">@else<p class="text-muted">No proof uploaded</p>@endif</div>
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary">Valid ID</h6>@if($app->valid_id_path)<img src="{{ asset($app->valid_id_path) }}" class="img-fluid rounded shadow-sm" style="max-height:240px; cursor:pointer;" onclick="openZoomModal('{{ asset($app->valid_id_path) }}')">@else<p class="text-muted">No valid ID uploaded</p>@endif</div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="edit-panel-{{ $app->id }}" role="tabpanel">
+                                    <form method="POST" action="{{ route('admin.clearance.update', $app->id) }}" id="quickEditForm{{ $app->id }}" enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="row g-3 quick-edit-form">
+                                            <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Personal Information</h6></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">First Name</label><input type="text" name="first_name" class="form-control" value="{{ $app->first_name }}" maxlength="255" required></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Middle Name</label><input type="text" name="middle_name" class="form-control" value="{{ $app->middle_name }}" maxlength="255"></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-control" value="{{ $app->last_name }}" maxlength="255" required></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Suffix</label><select class="form-select" name="suffix"><option value="">None</option><option value="Jr." {{ $app->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option><option value="Sr." {{ $app->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option><option value="II" {{ $app->suffix == 'II' ? 'selected' : '' }}>II</option><option value="III" {{ $app->suffix == 'III' ? 'selected' : '' }}>III</option><option value="IV" {{ $app->suffix == 'IV' ? 'selected' : '' }}>IV</option><option value="V" {{ $app->suffix == 'V' ? 'selected' : '' }}>V</option></select></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $app->birthdate }}" required max="{{ date('Y-m-d') }}"></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Gender</label><select class="form-select" name="gender" required><option value="male" {{ $app->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $app->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $app->gender == 'other' ? 'selected' : '' }}>Other</option></select></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Contact Information</h6></div>
+                                            <div class="col-12 col-lg-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ $app->email }}" maxlength="255" required></div>
+                                            <div class="col-12 col-lg-6"><label class="form-label">Contact Number</label><input type="text" name="contact_number" class="form-control" value="{{ $app->contact_number }}" maxlength="11" inputmode="numeric" required></div>
+                                            <div class="col-12"><label class="form-label">Address</label><textarea name="address" class="form-control" rows="2" maxlength="500" required>{{ $app->address }}</textarea></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Clearance Details</h6></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Purpose</label><select class="form-select" name="purpose" required><option value="employment" {{ $app->purpose == 'employment' ? 'selected' : '' }}>Employment</option><option value="business" {{ $app->purpose == 'business' ? 'selected' : '' }}>Business Permit</option><option value="scholarship" {{ $app->purpose == 'scholarship' ? 'selected' : '' }}>Scholarship</option><option value="travel" {{ $app->purpose == 'travel' ? 'selected' : '' }}>Travel/Abroad</option><option value="bank" {{ $app->purpose == 'bank' ? 'selected' : '' }}>Bank Transaction</option><option value="government" {{ $app->purpose == 'government' ? 'selected' : '' }}>Government Transaction</option><option value="school" {{ $app->purpose == 'school' ? 'selected' : '' }}>School Requirement</option><option value="other" {{ $app->purpose == 'other' ? 'selected' : '' }}>Other</option></select></div>
+                                            <div class="col-12 col-lg-4 quick-purpose-other-field {{ $app->purpose === 'other' ? '' : 'd-none' }}"><label class="form-label">Purpose (Other)</label><input type="text" name="purpose_other" class="form-control" value="{{ $app->purpose_other }}" maxlength="255"></div>
+                                            <div class="col-12 col-lg-4"><label class="form-label">Fee (PHP)</label><input type="number" name="fee" class="form-control" min="0" step="0.01" inputmode="decimal" value="{{ $app->fee }}" placeholder="Leave empty if depends on purpose"></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Documents</h6><small class="text-muted">Leave empty to keep current file.</small></div>
+                                            <div class="col-12"><label class="form-label">Proof of Residency</label><input type="file" name="primary_proof" class="form-control" accept="image/*,.pdf"><small class="text-muted">Upload image or PDF (Max: 5MB)</small></div>
+                                            <div class="col-12"><label class="form-label">Valid ID</label><input type="file" name="valid_id_path" class="form-control" accept="image/*,.pdf"><small class="text-muted">Upload image or PDF (Max: 5MB)</small></div>
+                                            @if($app->primary_proof)
+                                            <div class="col-12"><small class="text-info"><i class="fas fa-info-circle me-1"></i>Current proof of residency: {{ basename($app->primary_proof) }}</small></div>
+                                            @endif
+                                            @if($app->valid_id_path)
+                                            <div class="col-12"><small class="text-info"><i class="fas fa-info-circle me-1"></i>Current valid ID: {{ basename($app->valid_id_path) }}</small></div>
+                                            @endif
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="history-panel-{{ $app->id }}" role="tabpanel">
+                                    <div class="mb-2">Recent status: @if($app->status == 'approved')<span class="badge bg-success-subtle text-success">Approved</span>@elseif($app->status == 'rejected')<span class="badge bg-danger-subtle text-danger">Rejected</span>@elseif($app->status == 'ready_pickup')<span class="badge bg-info-subtle text-info">Ready for Pickup</span>@elseif($app->status == 'claimed')<span class="badge bg-primary-subtle text-primary">Claimed</span>@elseif($app->status == 'under_review')<span class="badge bg-secondary-subtle text-secondary">Under Review</span>@else<span class="badge bg-warning-subtle text-warning">Processing</span>@endif</div>
+                                    <div id="historyList{{ $app->id }}" class="small text-muted">Loading history...</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Close
-                            </button>
+                        <div class="modal-footer" id="viewFooterDetails{{ $app->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-switch-tab="edit" data-app-id="{{ $app->id }}">Edit info</button>
                         </div>
+                        <div class="modal-footer d-none" id="viewFooterEdit{{ $app->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-switch-tab="details" data-app-id="{{ $app->id }}">Cancel</button>
+                            <button type="submit" form="quickEditForm{{ $app->id }}" class="btn btn-primary">Save changes</button>
+                        </div>
+                        <div class="modal-footer d-none" id="viewFooterHistory{{ $app->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="docsModal{{ $app->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-lines me-2"></i>Document Actions</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">@if(in_array($app->status, ['approved', 'ready_pickup', 'claimed']))<div class="d-grid gap-2"><form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank"><input type="hidden" name="id" value="{{ $app->id }}"><button type="submit" name="action" value="download" class="btn btn-outline-primary w-100">Download Word</button></form><form method="GET" action="{{ route('admin.clearance.document.clearance_only') }}" target="_blank"><input type="hidden" name="id" value="{{ $app->id }}"><button type="submit" name="action" value="print" class="btn btn-outline-success w-100">Print PDF</button></form></div>@else<p class="mb-0 text-muted">Documents are available only when status is Approved, Ready for Pickup, or Claimed.</p>@endif</div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button></div></div></div>
+            </div>
+
+            <div class="modal fade" id="updateStatusModal{{ $app->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update application status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ route('admin.clearance.status', $app->id) }}" onsubmit="return handleUpdateStatusSubmit(event, this)">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="mb-2 small text-muted">{{ $app->first_name }} {{ $app->last_name }} - {{ $app->reference_number }}</div>
+                                <div class="mb-2 small"><span class="text-muted">Purpose:</span> <span class="fw-semibold">{{ ucfirst(str_replace('_', ' ', $app->purpose)) }}{{ $app->purpose_other ? ' (' . $app->purpose_other . ')' : '' }}</span></div>
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase fw-semibold small">Fee (PHP)</label>
+                                    <input type="number" class="form-control" name="fee" min="0" step="0.01" value="{{ $app->fee }}" placeholder="Leave empty if depends on purpose">
+                                    <small class="text-muted">This fee will be saved when updating status.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase fw-semibold small">New status</label>
+                                    <input type="hidden" name="status" value="{{ $app->status }}" class="selected-status-input">
+                                    <div class="status-grid" data-current-status="{{ $app->status }}">
+                                        <button type="button" class="status-option" data-status="pending"><span class="dot" style="background:#ed6c02;"></span>Pending</button>
+                                        <button type="button" class="status-option" data-status="under_review"><span class="dot" style="background:#0288d1;"></span>Under review</button>
+                                        <button type="button" class="status-option" data-status="processing"><span class="dot" style="background:#5e35b1;"></span>Processing</button>
+                                        <button type="button" class="status-option" data-status="approved"><span class="dot" style="background:#2e7d32;"></span>Approved</button>
+                                        <button type="button" class="status-option" data-status="ready_pickup"><span class="dot" style="background:#00acc1;"></span>Ready for pickup</button>
+                                        <button type="button" class="status-option" data-status="claimed"><span class="dot" style="background:#43a047;"></span>Claimed</button>
+                                        <button type="button" class="status-option" data-status="rejected" style="grid-column: span 3;"><span class="dot" style="background:#d32f2f;"></span>Rejected</button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase fw-semibold small">Remarks <span class="text-muted fw-normal">(optional - required if rejected, max 40 chars)</span></label>
+                                    <textarea class="form-control" name="remarks" rows="3" maxlength="40" placeholder="Add a note about this status change..."></textarea>
+                                </div>
+                                <div class="{{ in_array($app->status, ['approved', 'ready_pickup', 'rejected']) ? '' : 'd-none' }}" data-notify-wrap data-has-email="{{ $app->email ? '1' : '0' }}" data-has-sms="{{ $app->contact_number ? '1' : '0' }}">
+                                    <label class="form-label text-uppercase fw-semibold small">Notify applicant</label>
+                                    <div class="notify-row">
+                                        <div class="notify-label">
+                                            <strong>Send email</strong>
+                                            <small>{{ $app->email ?: 'No email available' }}</small>
+                                        </div>
+                                        <div class="form-check form-switch notify-switch">
+                                            <input class="form-check-input" type="checkbox" name="notify_email" value="1" checked {{ !$app->email ? 'disabled' : '' }}>
+                                        </div>
+                                    </div>
+                                    <div class="notify-row mb-0">
+                                        <div class="notify-label">
+                                            <strong>Send SMS</strong>
+                                            <small>{{ $app->contact_number ?: 'No mobile number available' }}</small>
+                                        </div>
+                                        <div class="form-check form-switch notify-switch">
+                                            <input class="form-check-input" type="checkbox" name="notify_sms" value="1" checked {{ !$app->contact_number ? 'disabled' : '' }}>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">Notifications are available for Approved, Ready for Pickup, and Rejected status only.</small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Confirm &amp; save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -2124,7 +2260,7 @@
     <script src="{{ asset('js/admin/nav.js') }}"></script>
 
     <script>
-        // Bulk delete function
+        // Bulk Archive function
         function bulkDelete() {
 
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
@@ -2135,7 +2271,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one application to delete.',
+                    text: 'Please select at least one application to archive.',
                     confirmButtonColor: '#d33'
                 });
 
@@ -2144,13 +2280,13 @@
 
             // SweetAlert Confirmation
             Swal.fire({
-                title: 'Confirm Bulk Delete',
-                text: `Are you sure you want to delete ${checkboxes.length} selected application(s)?`,
+                title: 'Confirm Bulk Archive',
+                text: `Are you sure you want to archive ${checkboxes.length} selected application(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Delete'
+                confirmButtonText: 'Yes, Archive'
             }).then((result) => {
 
                 if (result.isConfirmed) {
@@ -2176,7 +2312,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected â†’ Ask to export all
+            // If nothing selected → Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2198,7 +2334,7 @@
                 return;
             }
 
-            // If selected â†’ Confirm export selected
+            // If selected → Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected application(s)?`,
@@ -2627,12 +2763,18 @@
                     event.preventDefault();
                     return false;
                 }
-                if (remarks.trim() === '') {
+                const trimmedRemarks = remarks.trim();
+                if (trimmedRemarks === '') {
                     event.preventDefault();
                     alert('Remarks are required for rejected or dropped notifications.');
                     return false;
                 }
-                remarksInput.value = remarks.trim();
+                if (trimmedRemarks.length > 40) {
+                    event.preventDefault();
+                    alert('Remarks must not exceed 40 characters.');
+                    return false;
+                }
+                remarksInput.value = trimmedRemarks;
             }
 
             if (!confirm(confirmMessage)) {
@@ -2643,7 +2785,446 @@
             return true;
         }
 
+        function setViewFooter(appId, tab) {
+            ['Details', 'Edit', 'History'].forEach(function(label) {
+                const el = document.getElementById('viewFooter' + label + appId);
+                if (el) el.classList.add('d-none');
+            });
+
+            const map = {
+                details: 'viewFooterDetails' + appId,
+                edit: 'viewFooterEdit' + appId,
+                history: 'viewFooterHistory' + appId
+            };
+            const target = document.getElementById(map[tab] || map.details);
+            if (target) target.classList.remove('d-none');
+        }
+
+        function renderHistoryList(container, payload) {
+            if (!container) return;
+            const timeline = Array.isArray(payload.timeline) ? payload.timeline : [];
+            if (timeline.length === 0) {
+                container.innerHTML = '<div class="text-muted">No activity found for this application yet.</div>';
+                return;
+            }
+            container.innerHTML = timeline.map(function(item) {
+                const title = (item.title || item.label || 'Activity').toString();
+                const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : (item.description ? '<div class="text-muted mt-1">' + item.description + '</div>' : '');
+                const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' - ' + (item.created_at || item.date || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || item.date || '') + '</div>';
+                return '<div class="activity-item py-2 border-bottom">' +
+                    '<div class="fw-semibold">' + title + '</div>' +
+                    actor +
+                    details +
+                    '</div>';
+            }).join('');
+        }
+
+        async function loadHistoryForClearance(appId, referenceNumber) {
+            const container = document.getElementById('historyList' + appId);
+            if (!container) return;
+
+            container.innerHTML = 'Loading history...';
+            try {
+                const params = new URLSearchParams({
+                    request_type: 'clearance',
+                    request_id: String(appId)
+                });
+
+                const response = await fetch("{{ route('admin.notifications.remarksHistory') }}?" + params.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!response.ok) throw new Error('Failed to load history.');
+                const payload = await response.json();
+                renderHistoryList(container, payload || {});
+            } catch (error) {
+                container.innerHTML = '<div class="text-danger">' + (error.message || 'Unable to load history.') + '</div>';
+            }
+        }
+
+        function handleUpdateStatusSubmit(event, form) {
+            const statusInput = form.querySelector('.selected-status-input');
+            const remarksInput = form.querySelector('textarea[name="remarks"]');
+            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
+            const remarks = remarksInput ? String(remarksInput.value || '').trim() : '';
+
+            if (remarks.length > 40) {
+                event.preventDefault();
+                alert('Remarks must not exceed 40 characters.');
+                return false;
+            }
+
+            if (status === 'rejected' && remarks.length === 0) {
+                event.preventDefault();
+                alert('Remarks are required when status is Rejected.');
+                return false;
+            }
+            return true;
+        }
+
+        function toggleNotifyOptions(form, status) {
+            const notifyWrap = form.querySelector('[data-notify-wrap]');
+            if (!notifyWrap) return;
+
+            const emailToggle = form.querySelector('input[name="notify_email"]');
+            const smsToggle = form.querySelector('input[name="notify_sms"]');
+            const hasEmail = notifyWrap.getAttribute('data-has-email') === '1';
+            const hasSms = notifyWrap.getAttribute('data-has-sms') === '1';
+            const allowNotify = ['approved', 'ready_pickup', 'rejected'].includes(String(status || '').toLowerCase());
+
+            notifyWrap.classList.toggle('d-none', !allowNotify);
+
+            if (emailToggle) {
+                emailToggle.disabled = !allowNotify || !hasEmail;
+                emailToggle.checked = allowNotify && hasEmail;
+            }
+            if (smsToggle) {
+                smsToggle.disabled = !allowNotify || !hasSms;
+                smsToggle.checked = allowNotify && hasSms;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            function setQuickEditValidity(field, message) {
+                if (!field) {
+                    return;
+                }
+
+                let feedback = field.parentNode ? field.parentNode.querySelector('.invalid-feedback.quick-edit-feedback') : null;
+                field.setCustomValidity(message || '');
+
+                if (message) {
+                    field.classList.add('is-invalid');
+                    if (!feedback) {
+                        feedback = document.createElement('div');
+                        feedback.className = 'invalid-feedback quick-edit-feedback';
+                        field.parentNode.appendChild(feedback);
+                    }
+                    feedback.textContent = message;
+                } else {
+                    field.classList.remove('is-invalid');
+                    if (feedback) {
+                        feedback.remove();
+                    }
+                }
+            }
+
+            function attachClearanceQuickEditValidation(form) {
+                const firstName = form.querySelector('input[name="first_name"]');
+                const middleName = form.querySelector('input[name="middle_name"]');
+                const lastName = form.querySelector('input[name="last_name"]');
+                const birthdate = form.querySelector('input[name="birthdate"]');
+                const email = form.querySelector('input[name="email"]');
+                const contact = form.querySelector('input[name="contact_number"]');
+                const address = form.querySelector('textarea[name="address"]');
+                const purpose = form.querySelector('select[name="purpose"]');
+                const purposeOtherWrap = form.querySelector('.quick-purpose-other-field');
+                const purposeOther = form.querySelector('input[name="purpose_other"]');
+                const fee = form.querySelector('input[name="fee"]');
+                const files = form.querySelectorAll('input[type="file"]');
+
+                const namePattern = /^[A-Za-z][A-Za-z .'-]*$/;
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const allowedMime = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                const allowedExt = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                function validateName(field, label, required) {
+                    if (!field) {
+                        return true;
+                    }
+
+                    const value = field.value.trim();
+
+                    if (!value) {
+                        if (required) {
+                            setQuickEditValidity(field, label + ' is required.');
+                            return false;
+                        }
+
+                        setQuickEditValidity(field, '');
+                        return true;
+                    }
+
+                    if (value.length < 2 || value.length > 255 || !namePattern.test(value)) {
+                        setQuickEditValidity(field, label + ' can only contain letters, spaces, apostrophes, periods, and hyphens.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(field, '');
+                    return true;
+                }
+
+                function validateBirthdate() {
+                    if (!birthdate) {
+                        return true;
+                    }
+
+                    if (!birthdate.value) {
+                        setQuickEditValidity(birthdate, 'Birthdate is required.');
+                        return false;
+                    }
+
+                    const selectedDate = new Date(birthdate.value + 'T00:00:00');
+                    const today = new Date();
+
+                    if (selectedDate > today) {
+                        setQuickEditValidity(birthdate, 'Birthdate cannot be in the future.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(birthdate, '');
+                    return true;
+                }
+
+                function validateEmail() {
+                    if (!email) {
+                        return true;
+                    }
+
+                    const value = email.value.trim();
+
+                    if (!value) {
+                        setQuickEditValidity(email, 'Email is required.');
+                        return false;
+                    }
+
+                    if (!emailPattern.test(value)) {
+                        setQuickEditValidity(email, 'Please enter a valid email address.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(email, '');
+                    return true;
+                }
+
+                function validateContact() {
+                    if (!contact) {
+                        return true;
+                    }
+
+                    contact.value = contact.value.replace(/\D/g, '').slice(0, 11);
+
+                    if (!contact.value) {
+                        setQuickEditValidity(contact, 'Contact number is required.');
+                        return false;
+                    }
+
+                    if (!/^09\d{9}$/.test(contact.value)) {
+                        setQuickEditValidity(contact, 'Contact number must start with 09 and contain exactly 11 digits.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(contact, '');
+                    return true;
+                }
+
+                function validateAddress() {
+                    if (!address) {
+                        return true;
+                    }
+
+                    const value = address.value.trim();
+
+                    if (!value) {
+                        setQuickEditValidity(address, 'Address is required.');
+                        return false;
+                    }
+
+                    if (value.length < 8 || value.length > 500) {
+                        setQuickEditValidity(address, 'Address must be between 8 and 500 characters.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(address, '');
+                    return true;
+                }
+
+                function validatePurposeOther() {
+                    if (!purpose || !purposeOther) {
+                        return true;
+                    }
+
+                    const isOther = purpose.value === 'other';
+                    const value = purposeOther.value.trim();
+
+                    if (!isOther) {
+                        setQuickEditValidity(purposeOther, '');
+                        return true;
+                    }
+
+                    if (!value) {
+                        setQuickEditValidity(purposeOther, 'Purpose (Other) is required.');
+                        return false;
+                    }
+
+                    if (value.length > 255) {
+                        setQuickEditValidity(purposeOther, 'Purpose (Other) must not exceed 255 characters.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(purposeOther, '');
+                    return true;
+                }
+
+                function validateFee() {
+                    if (!fee) {
+                        return true;
+                    }
+
+                    const value = fee.value.trim();
+
+                    if (!value) {
+                        setQuickEditValidity(fee, '');
+                        return true;
+                    }
+
+                    if (!/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/.test(value)) {
+                        setQuickEditValidity(fee, 'Fee must be a plain number with up to 2 decimals.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(fee, '');
+                    return true;
+                }
+
+                function validateFile(fileInput) {
+                    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+                        setQuickEditValidity(fileInput, '');
+                        return true;
+                    }
+
+                    const file = fileInput.files[0];
+                    const sizeMb = file.size / (1024 * 1024);
+                    const extension = (file.name.split('.').pop() || '').toLowerCase();
+                    const mimeOk = file.type ? allowedMime.includes(file.type) : true;
+                    const extOk = allowedExt.includes(extension);
+
+                    if (!mimeOk || !extOk) {
+                        setQuickEditValidity(fileInput, 'Only PDF, JPG, PNG, GIF, or WEBP files are allowed.');
+                        return false;
+                    }
+
+                    if (sizeMb > 5) {
+                        setQuickEditValidity(fileInput, 'File size must not exceed 5MB.');
+                        return false;
+                    }
+
+                    setQuickEditValidity(fileInput, '');
+                    return true;
+                }
+
+                function togglePurposeOther() {
+                    if (!purpose || !purposeOtherWrap || !purposeOther) {
+                        return;
+                    }
+
+                    const isOther = purpose.value === 'other';
+                    purposeOtherWrap.classList.toggle('d-none', !isOther);
+                    purposeOther.required = isOther;
+                    if (!isOther) {
+                        purposeOther.value = '';
+                        setQuickEditValidity(purposeOther, '');
+                    }
+                }
+
+                firstName?.addEventListener('input', function() { validateName(firstName, 'First name', true); });
+                middleName?.addEventListener('input', function() { validateName(middleName, 'Middle name', false); });
+                lastName?.addEventListener('input', function() { validateName(lastName, 'Last name', true); });
+                birthdate?.addEventListener('change', validateBirthdate);
+                email?.addEventListener('input', validateEmail);
+                contact?.addEventListener('input', validateContact);
+                address?.addEventListener('input', validateAddress);
+                purpose?.addEventListener('change', function() {
+                    togglePurposeOther();
+                    validatePurposeOther();
+                });
+                purposeOther?.addEventListener('input', validatePurposeOther);
+                fee?.addEventListener('input', validateFee);
+                files.forEach(function(fileInput) {
+                    fileInput.addEventListener('change', function() {
+                        validateFile(fileInput);
+                    });
+                });
+
+                togglePurposeOther();
+
+                form.addEventListener('submit', function(event) {
+                    const isValid = [
+                        validateName(firstName, 'First name', true),
+                        validateName(middleName, 'Middle name', false),
+                        validateName(lastName, 'Last name', true),
+                        validateBirthdate(),
+                        validateEmail(),
+                        validateContact(),
+                        validateAddress(),
+                        validatePurposeOther(),
+                        validateFee(),
+                        ...Array.from(files).map(validateFile)
+                    ].every(Boolean);
+
+                    if (!isValid) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+
+            document.querySelectorAll('form[id^="quickEditForm"]').forEach(function(form) {
+                attachClearanceQuickEditValidation(form);
+            });
+
+            document.querySelectorAll('[id^="viewModal"]').forEach(function(modalEl) {
+                modalEl.addEventListener('shown.bs.modal', function() {
+                    const appId = modalEl.id.replace('viewModal', '');
+                    setViewFooter(appId, 'details');
+                });
+            });
+
+            document.querySelectorAll('[data-switch-tab]').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const appId = button.getAttribute('data-app-id');
+                    const targetTab = button.getAttribute('data-switch-tab');
+                    const tabTrigger = document.querySelector('#' + targetTab + '-tab-' + appId);
+                    if (tabTrigger) {
+                        bootstrap.Tab.getOrCreateInstance(tabTrigger).show();
+                    }
+                });
+            });
+
+            document.querySelectorAll('[id^="details-tab-"], [id^="edit-tab-"], [id^="history-tab-"]').forEach(function(tabBtn) {
+                tabBtn.addEventListener('shown.bs.tab', function(event) {
+                    const id = event.target.id;
+                    const appId = id.split('-').pop();
+                    if (id.indexOf('details-tab-') === 0) setViewFooter(appId, 'details');
+                    if (id.indexOf('edit-tab-') === 0) setViewFooter(appId, 'edit');
+                    if (id.indexOf('history-tab-') === 0) {
+                        setViewFooter(appId, 'history');
+                        loadHistoryForClearance(appId, '');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.status-grid').forEach(function(grid) {
+                const input = grid.closest('form').querySelector('.selected-status-input');
+                const form = grid.closest('form');
+                const current = (grid.getAttribute('data-current-status') || '').toLowerCase();
+
+                const activate = function(value) {
+                    grid.querySelectorAll('.status-option').forEach(function(option) {
+                        option.classList.toggle('active', option.getAttribute('data-status') === value);
+                    });
+                    if (input) input.value = value;
+                    if (form) toggleNotifyOptions(form, value);
+                };
+
+                if (current) activate(current);
+
+                grid.querySelectorAll('.status-option').forEach(function(option) {
+                    option.addEventListener('click', function() {
+                        activate(option.getAttribute('data-status'));
+                    });
+                });
+            });
+
             var tableResponsive = document.querySelector('.table-responsive');
             if (!tableResponsive) return;
 

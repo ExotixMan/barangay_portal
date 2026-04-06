@@ -34,7 +34,7 @@ class BlotterController extends Controller
             'complainantName' => 'required|string|max:255',
             'complainantContact' => 'required|string|max:11',
             'complainantAddress' => 'required|string|max:255',
-            'complainantEmail' => 'nullable|email',
+            'complainantEmail' => 'required|email',
 
             // RESPONDENT OPTIONAL
             'respondentName' => 'nullable|string|max:255',

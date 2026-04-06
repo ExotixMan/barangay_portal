@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Traits\NotificationThrottler;
 use App\Models\StatusRemarkHistory;
+use App\Models\AdminActivityLog;
+use App\Models\Residency;
+use App\Models\IndigencyApplication;
+use App\Models\BarangayClearance;
+use App\Models\BlotterReport;
 
 class NotificationController extends Controller
 {
@@ -45,9 +50,154 @@ class NotificationController extends Controller
             })
             ->values();
 
+        $requestType = $validated['request_type'];
+        $requestId = (int) $validated['request_id'];
+        $context = $this->resolveRequestContext($requestType, $requestId);
+
+        $timeline = collect();
+
+        if ($context['record']) {
+            $timeline->push([
+                'title' => 'Application submitted',
+                'actor' => 'By applicant',
+                'details' => null,
+                'created_at' => optional($context['record']->created_at)->format('M d, Y h:i A'),
+                'timestamp' => optional($context['record']->created_at)?->timestamp ?? 0,
+            ]);
+        }
+
+        if ($context['module'] && $context['reference_number']) {
+            $allowedActions = ['APPROVAL_STATUS_CHANGE', 'APPLICATION_UPDATE', 'APPLICATION_ARCHIVED', 'APPLICATION_RESTORED'];
+            if ($requestType === 'incident') {
+                $allowedActions = array_merge($allowedActions, ['APPROVAL_INCIDENT_REPORT', 'REJECT_INCIDENT_REPORT', 'PROCESS_INCIDENT_REPORT']);
+            }
+
+            $moduleFilter = [$context['module']];
+            if ($requestType === 'incident') {
+                $moduleFilter[] = 'Incident Report';
+            }
+
+            $activityLogs = AdminActivityLog::query()
+                ->with('user:id,first_name,middle_initial,last_name')
+                ->whereIn('action', $allowedActions)
+                ->whereIn('module', $moduleFilter)
+                ->where('details', 'like', '%"reference_number":"' . $context['reference_number'] . '"%')
+                ->latest('id')
+                ->get();
+
+            foreach ($activityLogs as $log) {
+                $details = is_array($log->details) ? $log->details : [];
+                $isUpdate = $log->action === 'APPLICATION_UPDATE';
+                $isArchived = $log->action === 'APPLICATION_ARCHIVED';
+                $isRestored = $log->action === 'APPLICATION_RESTORED';
+                $isIncidentResolved = $log->action === 'APPROVAL_INCIDENT_REPORT';
+                $isIncidentDropped = $log->action === 'REJECT_INCIDENT_REPORT';
+                $isIncidentProcessing = $log->action === 'PROCESS_INCIDENT_REPORT';
+                $newStatus = isset($details['new_status']) ? str_replace('_', ' ', (string) $details['new_status']) : 'updated';
+                $oldStatus = isset($details['old_status']) ? str_replace('_', ' ', (string) $details['old_status']) : null;
+                $changedFields = $isUpdate && isset($details['changed_fields']) && is_array($details['changed_fields'])
+                    ? array_map(fn ($field) => str_replace('_', ' ', ucfirst((string) $field)), $details['changed_fields'])
+                    : [];
+
+                $title = $isUpdate
+                    ? 'Information updated'
+                    : ($isArchived
+                        ? 'Application archived'
+                        : ($isRestored
+                            ? 'Application restored'
+                            : ($isIncidentResolved
+                                ? 'Status changed to Resolved'
+                                : ($isIncidentDropped
+                                    ? 'Status changed to Dropped'
+                                    : ($isIncidentProcessing
+                                        ? 'Status changed to Processing'
+                                        : 'Status changed to ' . ucfirst($newStatus))))));
+
+                $logDetails = $isUpdate
+                    ? (!empty($changedFields) ? 'Updated fields: ' . implode(', ', $changedFields) : 'Application information was edited.')
+                    : ($isArchived
+                        ? 'The record was moved to archive.'
+                        : ($isRestored
+                            ? 'The record was restored from archive.'
+                            : (($isIncidentResolved || $isIncidentDropped || $isIncidentProcessing)
+                                ? ($oldStatus ? 'Previous status: ' . ucfirst($oldStatus) : null)
+                                : ($oldStatus ? 'Previous status: ' . ucfirst($oldStatus) : null))));
+
+                $timeline->push([
+                    'title' => $title,
+                    'actor' => 'Admin: ' . ($log->user?->full_name ?? 'Unknown Admin'),
+                    'details' => $logDetails,
+                    'created_at' => optional($log->created_at)->format('M d, Y h:i A'),
+                    'timestamp' => optional($log->created_at)?->timestamp ?? 0,
+                ]);
+            }
+        }
+
+        foreach ($history as $item) {
+            $title = match ($item['channel']) {
+                'email' => 'Email sent',
+                'sms' => 'SMS sent',
+                'system' => 'Status updated',
+                default => 'History update',
+            };
+
+            $timeline->push([
+                'title' => $title,
+                'actor' => 'Admin: ' . ($item['admin_name'] ?? 'Unknown Admin'),
+                'details' => $item['remarks'] ?: null,
+                'created_at' => $item['created_at'] ?? null,
+                'timestamp' => $this->parseTimestamp($item['created_at']),
+            ]);
+        }
+
+        $timeline = $timeline
+            ->sortByDesc('timestamp')
+            ->values()
+            ->map(function (array $row) {
+                unset($row['timestamp']);
+                return $row;
+            });
+
         return response()->json([
             'history' => $history,
+            'timeline' => $timeline,
         ]);
+    }
+
+    private function resolveRequestContext(string $requestType, int $requestId): array
+    {
+        $record = null;
+        $module = null;
+
+        if ($requestType === 'residency') {
+            $record = Residency::find($requestId);
+            $module = 'Residency';
+        } elseif ($requestType === 'indigency') {
+            $record = IndigencyApplication::find($requestId);
+            $module = 'Indigency';
+        } elseif ($requestType === 'clearance') {
+            $record = BarangayClearance::find($requestId);
+            $module = 'Clearance';
+        } elseif ($requestType === 'incident') {
+            $record = BlotterReport::find($requestId);
+            $module = 'Blotter';
+        }
+
+        return [
+            'record' => $record,
+            'module' => $module,
+            'reference_number' => $record?->reference_number,
+        ];
+    }
+
+    private function parseTimestamp(?string $createdAt): int
+    {
+        if (!$createdAt) {
+            return 0;
+        }
+
+        $parsed = \DateTime::createFromFormat('M d, Y h:i A', $createdAt);
+        return $parsed ? (int) $parsed->getTimestamp() : 0;
     }
 
     public function sendEmail(Request $request)
@@ -67,7 +217,7 @@ class NotificationController extends Controller
             'name'    => 'required|string',
             'message' => 'required|string',
             'status'  => 'nullable|string',
-            'remarks' => 'nullable|string|max:500',
+            'remarks' => 'nullable|string|max:40',
             'request_type' => 'nullable|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
             'request_id' => 'nullable|integer|min:1',
             'reference_number' => 'nullable|string|max:100',
@@ -128,7 +278,7 @@ class NotificationController extends Controller
             'phone' => 'required|string',
             'message' => 'required|string',
             'status' => 'nullable|string',
-            'remarks' => 'nullable|string|max:500',
+            'remarks' => 'nullable|string|max:40',
             'request_type' => 'nullable|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
             'request_id' => 'nullable|integer|min:1',
             'reference_number' => 'nullable|string|max:100',

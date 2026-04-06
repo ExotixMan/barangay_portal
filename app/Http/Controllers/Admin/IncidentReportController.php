@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Witness;
 use App\Models\ReportFile;
 use Carbon\Carbon;
+use App\Models\StatusRemarkHistory;
+use App\Mail\Notification as NotificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class IncidentReportController extends Controller
 {
@@ -272,7 +277,7 @@ class IncidentReportController extends Controller
             ],
             'complainantContact' => ['required', 'regex:/^09\d{9}$/'],
             'complainantAddress' => 'required|string|min:5|max:255',
-            'complainantEmail' => 'nullable|email:rfc',
+            'complainantEmail' => 'required|email:rfc',
 
             // Respondent fields are optional, but validated if provided.
             'respondentName' => [
@@ -364,22 +369,39 @@ class IncidentReportController extends Controller
         return $digits;
     }
 
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         $blotter = BlotterReport::findOrFail($id);
+        $request->validate([
+            'remarks' => 'nullable|string|max:40',
+        ]);
+
+        $remarks = trim((string) $request->input('remarks', ''));
         $oldStatus = $blotter->status;
         $blotter->update(['status' => 'resolved']);
 
+        StatusRemarkHistory::create([
+            'request_type' => 'incident',
+            'request_id' => $blotter->id,
+            'reference_number' => $blotter->reference_number,
+            'status' => 'resolved',
+            'remarks' => $remarks !== '' ? $remarks : 'Status updated by admin.',
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'resolved', $remarks);
+
         // Log approval
         if (auth('admin')->check()) {
-            $request = request();
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPROVAL_INCIDENT_REPORT',
-                'module' => 'Incident Report',
+                'module' => 'Blotter',
                 'details' => [
                     'blotter_id' => $blotter->id,
-                    'reference_number' => $blotter->id,
+                    'reference_number' => $blotter->reference_number,
                     'old_status' => $oldStatus,
                     'new_status' => 'resolved',
                     'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
@@ -390,25 +412,85 @@ class IncidentReportController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Incident report resolved.');
+        $deliverySummary = $this->formatIncidentDeliverySummary($deliveryResults);
+        return back()->with('success', 'Incident report resolved. Notifications: ' . $deliverySummary . '.');
     }
 
-    public function reject($id)
+    public function markProcessing(Request $request, $id)
     {
         $blotter = BlotterReport::findOrFail($id);
+        $request->validate([
+            'remarks' => 'nullable|string|max:40',
+        ]);
+
+        $remarks = trim((string) $request->input('remarks', ''));
+        $oldStatus = $blotter->status;
+        $blotter->update(['status' => 'processing']);
+
+        StatusRemarkHistory::create([
+            'request_type' => 'incident',
+            'request_id' => $blotter->id,
+            'reference_number' => $blotter->reference_number,
+            'status' => 'processing',
+            'remarks' => $remarks !== '' ? $remarks : 'Status set to processing by admin.',
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'PROCESS_INCIDENT_REPORT',
+                'module' => 'Blotter',
+                'details' => [
+                    'blotter_id' => $blotter->id,
+                    'reference_number' => $blotter->reference_number,
+                    'old_status' => $oldStatus,
+                    'new_status' => 'processing',
+                    'updated_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Incident report set to processing successfully.');
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $blotter = BlotterReport::findOrFail($id);
+        $request->validate([
+            'remarks' => 'required|string|max:40',
+        ]);
+
+        $remarks = trim((string) $request->input('remarks', ''));
         $oldStatus = $blotter->status;
         $blotter->update(['status' => 'dropped']);
 
+        StatusRemarkHistory::create([
+            'request_type' => 'incident',
+            'request_id' => $blotter->id,
+            'reference_number' => $blotter->reference_number,
+            'status' => 'dropped',
+            'remarks' => $remarks,
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'dropped', $remarks);
+
         // Log rejection
         if (auth('admin')->check()) {
-            $request = request();
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'REJECT_INCIDENT_REPORT',
-                'module' => 'Incident Report',
+                'module' => 'Blotter',
                 'details' => [
                     'blotter_id' => $blotter->id,
-                    'reference_number' => $blotter->id,
+                    'reference_number' => $blotter->reference_number,
                     'old_status' => $oldStatus,
                     'new_status' => 'dropped',
                     'rejected_by' => auth('admin')->user()?->full_name ?? 'Admin',
@@ -419,20 +501,138 @@ class IncidentReportController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Incident report dropped.');
+        $deliverySummary = $this->formatIncidentDeliverySummary($deliveryResults);
+        return back()->with('success', 'Incident report dropped. Notifications: ' . $deliverySummary . '.');
+    }
+
+    private function sendIncidentStatusNotifications(Request $request, BlotterReport $blotter, string $status, string $remarks): array
+    {
+        $results = ['email' => 'not selected', 'sms' => 'not selected'];
+        $statusLabel = ucfirst($status);
+        $remarksText = $remarks !== '' ? ' Remarks: ' . $remarks : '';
+
+        if ($request->boolean('notify_email')) {
+            if (empty($blotter->complainant_email)) {
+                $results['email'] = 'failed (missing email)';
+            } else {
+                try {
+                    $message = "Your incident report (Ref: {$blotter->reference_number}) status is now {$statusLabel}.{$remarksText}";
+                    Mail::to($blotter->complainant_email)->send(new NotificationMail($blotter->complainant_name ?? 'Complainant', $message));
+
+                    $this->storeIncidentNotificationHistory($blotter, $status, $remarks !== '' ? $remarks : 'Email status update sent.', 'email', $blotter->complainant_email);
+                    $results['email'] = 'sent';
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending incident status email.', ['error' => $e->getMessage(), 'id' => $blotter->id]);
+                    $results['email'] = 'failed';
+                }
+            }
+        }
+
+        if ($request->boolean('notify_sms')) {
+            if (empty($blotter->complainant_contact)) {
+                $results['sms'] = 'failed (missing mobile number)';
+            } else {
+                try {
+                    $recipient = preg_replace('/\D/', '', (string) $blotter->complainant_contact);
+                    if (substr($recipient, 0, 1) === '0') {
+                        $recipient = '63' . substr($recipient, 1);
+                    } elseif (substr($recipient, 0, 1) === '9') {
+                        $recipient = '63' . $recipient;
+                    }
+
+                    $smsMessage = "Incident {$blotter->reference_number}: status {$statusLabel}.{$remarksText}";
+                    $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                        'apikey' => env('SMS_API_KEY'),
+                        'number' => $recipient,
+                        'message' => $smsMessage,
+                        'sendername' => env('SMS_SENDER_NAME'),
+                    ]);
+
+                    if ($response->successful()) {
+                        $this->storeIncidentNotificationHistory($blotter, $status, $remarks !== '' ? $remarks : 'SMS status update sent.', 'sms', $recipient);
+                        $results['sms'] = 'sent';
+                    } else {
+                        $results['sms'] = 'failed';
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending incident status SMS.', ['error' => $e->getMessage(), 'id' => $blotter->id]);
+                    $results['sms'] = 'failed';
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    private function storeIncidentNotificationHistory(BlotterReport $blotter, string $status, string $remarks, string $channel, ?string $recipient): void
+    {
+        try {
+            StatusRemarkHistory::create([
+                'request_type' => 'incident',
+                'request_id' => $blotter->id,
+                'reference_number' => $blotter->reference_number,
+                'status' => $status,
+                'remarks' => $remarks,
+                'channel' => $channel,
+                'recipient' => $recipient,
+                'admin_user_id' => auth('admin')->id(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed storing incident notification history.', ['error' => $e->getMessage(), 'id' => $blotter->id]);
+        }
+    }
+
+    private function formatIncidentDeliverySummary(array $results): string
+    {
+        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
     }
 
     public function destroy($id)
     {
         $report = BlotterReport::findOrFail($id);
+        $reference = $report->reference_number;
         $report->delete();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_ARCHIVED',
+                'module' => 'Blotter',
+                'details' => [
+                    'blotter_id' => $report->id,
+                    'reference_number' => $reference,
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
         return back()->with('success', 'Incident report deleted.');
     }
 
     public function restore($id)
     {
         $report = BlotterReport::withTrashed()->findOrFail($id);
+        $reference = $report->reference_number;
         $report->restore();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_RESTORED',
+                'module' => 'Blotter',
+                'details' => [
+                    'blotter_id' => $report->id,
+                    'reference_number' => $reference,
+                    'restored_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
         
         return back()->with('success', 'Incident report restored successfully.');
     }
@@ -468,7 +668,7 @@ class IncidentReportController extends Controller
 
         BlotterReport::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', 'Selected records moved to trash.');
+        return back()->with('success', 'Selected records archived.');
     }
 
     public function bulkRestore(Request $request)

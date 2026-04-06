@@ -31,8 +31,12 @@ class AnnouncementController extends Controller
 
         // Status filter
         $status = strtolower(trim((string) $request->get('status', '')));
-        if ($status !== '' && in_array($status, ['published', 'draft', 'archived'], true)) {
-            $query->where('status', $status);
+        if ($status !== '' && in_array($status, ['published', 'draft', 'archived', 'deleted'], true)) {
+            if ($status === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         // Category filter
@@ -50,7 +54,7 @@ class AnnouncementController extends Controller
         }
 
         // Stats
-        $total_count = Announcement::count();
+        $total_count = Announcement::withTrashed()->count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
         $featured_count = Announcement::whereRaw('is_featured IS TRUE')->count();
@@ -210,15 +214,10 @@ class AnnouncementController extends Controller
     {
         $announcement = Announcement::findOrFail($id);
 
-        // Delete image
-        if ($announcement->image && file_exists(public_path($announcement->image))) {
-            unlink(public_path($announcement->image));
-        }
-
         $title = $announcement->title;
         $announcement->delete();
 
-        return back()->with('success', 'Announcement "' . $title . '" deleted successfully.');
+        return back()->with('success', 'Announcement "' . $title . '" archived successfully.');
     }
 
     public function bulkDelete(Request $request)
@@ -228,18 +227,18 @@ class AnnouncementController extends Controller
             'ids.*' => 'exists:announcements,id'
         ]);
 
-        $announcements = Announcement::whereIn('id', $request->ids)->get();
-
-        // Delete images
-        foreach ($announcements as $announcement) {
-            if ($announcement->image && file_exists(public_path($announcement->image))) {
-                unlink(public_path($announcement->image));
-            }
-        }
-
         Announcement::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', count($request->ids) . ' selected announcement(s) deleted successfully.');
+        return back()->with('success', count($request->ids) . ' selected announcement(s) archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $announcement = Announcement::withTrashed()->findOrFail($id);
+        $title = $announcement->title;
+        $announcement->restore();
+
+        return back()->with('success', 'Announcement "' . $title . '" restored successfully.');
     }
 
     public function toggleFeature($id)

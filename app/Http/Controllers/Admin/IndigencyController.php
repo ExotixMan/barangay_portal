@@ -10,6 +10,11 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\StatusRemarkHistory;
+use App\Mail\Notification as NotificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class IndigencyController extends Controller
 {
@@ -31,14 +36,18 @@ class IndigencyController extends Controller
 
         // Status filter
         if ($request->status) {
-            $query->where('status', $request->status);
+            if ($request->status === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
         }
         // Filter by Income
         if ($request->monthly_income && in_array($request->monthly_income, ['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])) {
             $query->where('monthly_income', $request->monthly_income);
         }
 
-        $total_count = IndigencyApplication::count(); // FIXED: removed all()
+        $total_count = IndigencyApplication::withTrashed()->count(); // Includes archived records
         $processing_count = IndigencyApplication::where('status', 'processing')->count();
         $approved_count   = IndigencyApplication::where('status', 'approved')->count();
         $rejected_count   = IndigencyApplication::where('status', 'rejected')->count();
@@ -92,7 +101,7 @@ class IndigencyController extends Controller
             'contact_number' => ['required','regex:/^09\d{9}$/'],
             'email' => 'required|email',
             'monthly_income' => 'required',
-            'household_members' => 'required|integer|min:1|max:20',
+            'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
             'purpose' => 'required|in:medical,scholarship,government,legal,employment,burial,other',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
@@ -157,7 +166,7 @@ class IndigencyController extends Controller
             'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email|max:255',
             'monthly_income' => 'required|in:below 5k,5k-8k,8k-10k,10k-15k,no income',
-            'household_members' => 'required|integer|min:1|max:20',
+            'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
             'purpose' => 'required|in:medical,scholarship,government,legal,employment,burial,other',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
@@ -206,11 +215,13 @@ class IndigencyController extends Controller
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses)
+            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'remarks' => 'nullable|required_if:status,rejected|string|max:40',
         ]);
 
         $newStatus = $request->status;
         $oldStatus = $application->status;
+        $remarks = trim((string) $request->input('remarks', ''));
 
         // Optional: Add business logic rules for status transitions
         // For example, prevent certain transitions if needed
@@ -219,6 +230,19 @@ class IndigencyController extends Controller
         $application->status = $newStatus;
         $application->status_updated_at = now();
         $application->save();
+
+        StatusRemarkHistory::create([
+            'request_type' => 'indigency',
+            'request_id' => $application->id,
+            'reference_number' => $application->reference_number,
+            'status' => $newStatus,
+            'remarks' => $remarks !== '' ? $remarks : 'Status updated by admin.',
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
         // Log approval/status update
         if (auth('admin')->check()) {
@@ -241,8 +265,113 @@ class IndigencyController extends Controller
         // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
+        $deliverySummary = $this->formatDeliverySummary($deliveryResults);
+
         return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}.");
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Notifications: {$deliverySummary}.");
+    }
+
+    private function sendStatusNotifications(Request $request, IndigencyApplication $application, string $status, string $remarks): array
+    {
+        $results = ['email' => 'not selected', 'sms' => 'not selected'];
+        $allowed = ['approved', 'ready_pickup', 'rejected'];
+        if (!in_array($status, $allowed, true)) {
+            return ['email' => 'not available for status', 'sms' => 'not available for status'];
+        }
+
+        $statusLabel = ucfirst(str_replace('_', ' ', $status));
+        $remarksText = ($status === 'rejected' && $remarks !== '') ? " Remarks: {$remarks}" : '';
+
+        if ($request->boolean('notify_email')) {
+            if (empty($application->email)) {
+                $results['email'] = 'failed (missing email)';
+            } else {
+            try {
+                $message = "Your barangay indigency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
+                Mail::to($application->email)->send(new NotificationMail(trim($application->first_name . ' ' . $application->last_name), $message));
+
+                $this->storeNotificationHistory(
+                    'indigency',
+                    (int) $application->id,
+                    (string) $application->reference_number,
+                    $status,
+                    $remarks !== '' ? $remarks : 'Email status update sent.',
+                    'email',
+                    $application->email
+                );
+                $results['email'] = 'sent';
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending indigency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['email'] = 'failed';
+            }
+            }
+        }
+
+        if ($request->boolean('notify_sms')) {
+            if (empty($application->contact_number)) {
+                $results['sms'] = 'failed (missing mobile number)';
+            } else {
+            try {
+                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                if (substr($recipient, 0, 1) === '0') {
+                    $recipient = '63' . substr($recipient, 1);
+                } elseif (substr($recipient, 0, 1) === '9') {
+                    $recipient = '63' . $recipient;
+                }
+
+                $smsMessage = "Indigency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
+                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                    'apikey' => env('SMS_API_KEY'),
+                    'number' => $recipient,
+                    'message' => $smsMessage,
+                    'sendername' => env('SMS_SENDER_NAME'),
+                ]);
+
+                if ($response->successful()) {
+                    $this->storeNotificationHistory(
+                        'indigency',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'SMS status update sent.',
+                        'sms',
+                        $recipient
+                    );
+                    $results['sms'] = 'sent';
+                } else {
+                    $results['sms'] = 'failed';
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending indigency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['sms'] = 'failed';
+            }
+            }
+        }
+
+        return $results;
+    }
+
+    private function formatDeliverySummary(array $results): string
+    {
+        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+    }
+
+    private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
+    {
+        try {
+            StatusRemarkHistory::create([
+                'request_type' => $requestType,
+                'request_id' => $requestId,
+                'reference_number' => $reference,
+                'status' => $status,
+                'remarks' => $remarks,
+                'channel' => $channel,
+                'recipient' => $recipient,
+                'admin_user_id' => auth('admin')->id(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed storing indigency notification history.', ['error' => $e->getMessage(), 'id' => $requestId]);
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -252,37 +381,25 @@ class IndigencyController extends Controller
             'ids.*' => 'exists:indigency_applications,id'
         ]);
 
-        $applications = IndigencyApplication::whereIn('id', $request->ids)->get();
-
-        foreach ($applications as $application) {
-            if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-                unlink(public_path($application->primary_proof));
-            }
-
-            if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
-                unlink(public_path($application->valid_id_path));
-            }
-        }
-
         IndigencyApplication::whereIn('id', $request->ids)->delete();
 
         // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
-                'action' => 'BULK_DELETE',
+                'action' => 'BULK_ARCHIVE',
                 'module' => 'Indigency',
                 'details' => [
                     'ids' => $request->ids,
                     'count' => count($request->ids),
-                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
         }
 
-        return back()->with('success', count($request->ids) . ' selected application(s) deleted successfully.');
+        return back()->with('success', count($request->ids) . ' selected application(s) archived successfully.');
     }
 
     public function export(Request $request)
@@ -407,18 +524,51 @@ class IndigencyController extends Controller
     {
         $application = IndigencyApplication::findOrFail($id);
 
-        if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-            unlink(public_path($application->primary_proof));
-        }
-
-        if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
-            unlink(public_path($application->valid_id_path));
-        }
-
         $reference = $application->reference_number;
         $application->delete();
 
-        return back()->with('success', 'Application #' . $reference . ' deleted successfully.');
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_ARCHIVED',
+                'module' => 'Indigency',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Application #' . $reference . ' archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $application = IndigencyApplication::withTrashed()->findOrFail($id);
+        $reference = $application->reference_number;
+        $application->restore();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_RESTORED',
+                'module' => 'Indigency',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'restored_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
     }
 
     public function generate(Request $request)

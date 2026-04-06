@@ -13,6 +13,11 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\StatusRemarkHistory;
+use App\Mail\Notification as NotificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ResidencyController extends Controller
 {
@@ -33,9 +38,13 @@ class ResidencyController extends Controller
         }
 
         // Filter by status - UPDATED to include all statuses
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
-        if ($request->status && in_array($request->status, $allowedStatuses)) {
-            $query->where('status', $request->status);
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected', 'deleted'];
+        if ($request->status && in_array($request->status, $allowedStatuses, true)) {
+            if ($request->status === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         // Filter by residency type
@@ -44,7 +53,7 @@ class ResidencyController extends Controller
         }
 
         // UPDATED counts for new statuses
-        $total_count = Residency::count();
+        $total_count = Residency::withTrashed()->count();
         $pending_count = Residency::where('status', 'pending')->count();
         $under_review_count = Residency::where('status', 'under_review')->count();
         $processing_count = Residency::where('status', 'processing')->count();
@@ -117,7 +126,7 @@ class ResidencyController extends Controller
             'residency_type' => 'required',
             'contact_number' => ['required','regex:/^09\d{9}$/'],
             'email' => 'required|email',
-            'household_members' => 'required|integer|min:1|max:20',
+            'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
@@ -171,11 +180,13 @@ class ResidencyController extends Controller
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses)
+            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'remarks' => 'nullable|required_if:status,rejected|string|max:40',
         ]);
 
         $newStatus = $request->status;
         $oldStatus = $application->status;
+        $remarks = trim((string) $request->input('remarks', ''));
 
         // Optional: Add business logic rules for status transitions
         // For example, prevent certain transitions if needed
@@ -184,6 +195,19 @@ class ResidencyController extends Controller
         $application->status = $newStatus;
         $application->status_updated_at = now();
         $application->save();
+
+        StatusRemarkHistory::create([
+            'request_type' => 'residency',
+            'request_id' => $application->id,
+            'reference_number' => $application->reference_number,
+            'status' => $newStatus,
+            'remarks' => $remarks !== '' ? $remarks : 'Status updated by admin.',
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
         // Log approval/status update
         if (auth('admin')->check()) {
@@ -206,13 +230,123 @@ class ResidencyController extends Controller
         // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
+        $deliverySummary = $this->formatDeliverySummary($deliveryResults);
+
         return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}.");
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Notifications: {$deliverySummary}.");
+    }
+
+    private function sendStatusNotifications(Request $request, Residency $application, string $status, string $remarks): array
+    {
+        $results = ['email' => 'not selected', 'sms' => 'not selected'];
+        $allowed = ['approved', 'ready_pickup', 'rejected'];
+        if (!in_array($status, $allowed, true)) {
+            return ['email' => 'not available for status', 'sms' => 'not available for status'];
+        }
+
+        $statusLabel = ucfirst(str_replace('_', ' ', $status));
+        $remarksText = ($status === 'rejected' && $remarks !== '') ? " Remarks: {$remarks}" : '';
+
+        if ($request->boolean('notify_email')) {
+            if (empty($application->email)) {
+                $results['email'] = 'failed (missing email)';
+            } else {
+            try {
+                $message = "Your barangay residency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
+                Mail::to($application->email)->send(new NotificationMail(trim($application->first_name . ' ' . $application->last_name), $message));
+
+                $this->storeNotificationHistory(
+                    'residency',
+                    (int) $application->id,
+                    (string) $application->reference_number,
+                    $status,
+                    $remarks !== '' ? $remarks : 'Email status update sent.',
+                    'email',
+                    $application->email
+                );
+                $results['email'] = 'sent';
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending residency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['email'] = 'failed';
+            }
+            }
+        }
+
+        if ($request->boolean('notify_sms')) {
+            if (empty($application->contact_number)) {
+                $results['sms'] = 'failed (missing mobile number)';
+            } else {
+            try {
+                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                if (substr($recipient, 0, 1) === '0') {
+                    $recipient = '63' . substr($recipient, 1);
+                } elseif (substr($recipient, 0, 1) === '9') {
+                    $recipient = '63' . $recipient;
+                }
+
+                $smsMessage = "Residency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
+                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                    'apikey' => env('SMS_API_KEY'),
+                    'number' => $recipient,
+                    'message' => $smsMessage,
+                    'sendername' => env('SMS_SENDER_NAME'),
+                ]);
+
+                if ($response->successful()) {
+                    $this->storeNotificationHistory(
+                        'residency',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'SMS status update sent.',
+                        'sms',
+                        $recipient
+                    );
+                    $results['sms'] = 'sent';
+                } else {
+                    $results['sms'] = 'failed';
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending residency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['sms'] = 'failed';
+            }
+            }
+        }
+
+        return $results;
+    }
+
+    private function formatDeliverySummary(array $results): string
+    {
+        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+    }
+
+    private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
+    {
+        try {
+            StatusRemarkHistory::create([
+                'request_type' => $requestType,
+                'request_id' => $requestId,
+                'reference_number' => $reference,
+                'status' => $status,
+                'remarks' => $remarks,
+                'channel' => $channel,
+                'recipient' => $recipient,
+                'admin_user_id' => auth('admin')->id(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed storing residency notification history.', ['error' => $e->getMessage(), 'id' => $requestId]);
+        }
     }
 
     public function update(Request $request, $id)
     {
         $application = Residency::findOrFail($id);
+        $originalValues = $application->only([
+            'first_name', 'middle_name', 'last_name', 'suffix', 'birthdate', 'birth_place', 'gender',
+            'civil_status', 'email', 'contact_number', 'address', 'years_residing', 'residency_type',
+            'household_members', 'purpose', 'purpose_other'
+        ]);
         
         // Store form type in session with application ID
         session()->flash('form_type', 'edit_' . $application->id);
@@ -242,7 +376,7 @@ class ResidencyController extends Controller
             // Residency Details
             'years_residing' => 'required|in:less1,1-3,3-5,5-10,10-20,20+',
             'residency_type' => 'required|in:owner,renter,family,relative,boarder',
-            'household_members' => 'required|integer|min:1|max:20',
+            'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
 
             // Purpose
             'purpose' => 'required|in:government,school,employment,legal,bank,scholarship,pwd,senior,other',
@@ -300,7 +434,36 @@ class ResidencyController extends Controller
                 $application->government_id = 'uploads/valid_id/residency/' . $gip_name;
             }
 
+            $updatedValues = $application->only([
+                'first_name', 'middle_name', 'last_name', 'suffix', 'birthdate', 'birth_place', 'gender',
+                'civil_status', 'email', 'contact_number', 'address', 'years_residing', 'residency_type',
+                'household_members', 'purpose', 'purpose_other'
+            ]);
+
             $application->save();
+
+            $changedFields = [];
+            foreach ($updatedValues as $field => $value) {
+                if ((string) ($originalValues[$field] ?? '') !== (string) $value) {
+                    $changedFields[] = $field;
+                }
+            }
+
+            if (!empty($changedFields) && auth('admin')->check()) {
+                \App\Models\AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'APPLICATION_UPDATE',
+                    'module' => 'Residency',
+                    'details' => [
+                        'application_id' => $application->id,
+                        'reference_number' => $application->reference_number,
+                        'changed_fields' => $changedFields,
+                        'updated_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
 
             return redirect()->route('admin.residency.index')
                 ->with('success', 'Residency application #' . $application->reference_number . ' updated successfully.');
@@ -318,39 +481,26 @@ class ResidencyController extends Controller
             'ids.*' => 'exists:residency_applications,id'
         ]);
 
-        // Get applications to delete their files
-        $applications = Residency::whereIn('id', $request->ids)->get();
-
-        foreach ($applications as $application) {
-            // Delete associated files
-            if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-                unlink(public_path($application->primary_proof));
-            }
-            if ($application->government_id && file_exists(public_path($application->government_id))) {
-                unlink(public_path($application->government_id));
-            }
-        }
-
-        // Delete the records
+        // Archive the records (soft delete)
         Residency::whereIn('id', $request->ids)->delete();
 
         // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
-                'action' => 'BULK_DELETE',
+                'action' => 'BULK_ARCHIVE',
                 'module' => 'Residency',
                 'details' => [
                     'ids' => $request->ids,
                     'count' => count($request->ids),
-                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
         }
 
-        return back()->with('success', count($request->ids) . ' selected application(s) deleted successfully.');
+        return back()->with('success', count($request->ids) . ' selected application(s) archived successfully.');
     }
 
     public function export(Request $request)
@@ -445,18 +595,51 @@ class ResidencyController extends Controller
     {
         $application = Residency::findOrFail($id);
 
-        // Delete associated files
-        if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-            unlink(public_path($application->primary_proof));
-        }
-        if ($application->government_id && file_exists(public_path($application->government_id))) {
-            unlink(public_path($application->government_id));
-        }
-
         $reference = $application->reference_number;
         $application->delete();
 
-        return back()->with('success', 'Application #' . $reference . ' deleted successfully.');
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_ARCHIVED',
+                'module' => 'Residency',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Application #' . $reference . ' archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $application = Residency::withTrashed()->findOrFail($id);
+        $reference = $application->reference_number;
+        $application->restore();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_RESTORED',
+                'module' => 'Residency',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'restored_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
     }
 
     public function generate(Request $request)

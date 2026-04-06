@@ -388,6 +388,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{application}', [ResidencyController::class, 'update'])->middleware('permission:update_residency')->name('update');
         Route::post('/{id}/status', [ResidencyController::class, 'updateStatus'])->middleware('permission:approve_residency')->name('status');
         Route::delete('/{id}', [ResidencyController::class, 'destroy'])->middleware('permission:delete_residency')->name('destroy');
+        Route::post('/{id}/restore', [ResidencyController::class, 'restore'])->middleware('permission:delete_residency')->name('restore');
         Route::get('/generate-document', [ResidencyController::class, 'generate'])->middleware('permission:generate_residency_document')->name('document');
         Route::get('/generate-document-residency-only', [DocumentController::class, 'generateResidencyOnly'])->middleware('permission:generate_residency_document')->name('document.residency_only');
     });
@@ -406,6 +407,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{application}', [IndigencyController::class, 'update'])->middleware('permission:update_indigency')->name('update');
         Route::post('/{id}/status', [IndigencyController::class, 'updateStatus'])->middleware('permission:approve_indigency')->name('status');
         Route::delete('/{id}', [IndigencyController::class, 'destroy'])->middleware('permission:delete_indigency')->name('destroy');
+        Route::post('/{id}/restore', [IndigencyController::class, 'restore'])->middleware('permission:delete_indigency')->name('restore');
         // Route::get('/generate-document', [IndigencyController::class, 'generate'])->middleware('permission:generate_indigency_document')->name('document');
         Route::get('/generate-document-indigency-only', [DocumentController::class, 'generateIndigencyOnly'])->middleware('permission:generate_indigency_document')->name('document.indigency_only');
     });
@@ -419,6 +421,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{application}', [ClearanceController::class, 'update'])->middleware('permission:update_clearance')->name('update');
         Route::post('/{id}/status', [ClearanceController::class, 'updateStatus'])->middleware('permission:approve_clearance')->name('status');
         Route::delete('/{id}', [ClearanceController::class, 'destroy'])->middleware('permission:delete_clearance')->name('destroy');
+        Route::post('/{id}/restore', [ClearanceController::class, 'restore'])->middleware('permission:delete_clearance')->name('restore');
         Route::get('/generate-document', [ClearanceController::class, 'generate'])->middleware('permission:generate_clearance_document')->name('document');
         Route::get('/generate-document-clearance-only', [DocumentController::class, 'generateClearanceOnly'])->middleware('permission:generate_clearance_document')->name('document.clearance_only');
     });
@@ -431,6 +434,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-delete', [IncidentReportController::class, 'bulkDelete'])->middleware('permission:delete_blotter')->name('bulkDelete');
         Route::post('/export', [IncidentReportController::class, 'export'])->middleware('permission:export_blotter')->name('export');
         Route::put('/{application}', [IncidentReportController::class, 'update'])->middleware('permission:update_blotter')->name('update');
+        Route::post('/{id}/processing', [IncidentReportController::class, 'markProcessing'])->middleware('permission:approve_blotter')->name('processing');
         Route::post('/{id}/approve', [IncidentReportController::class, 'approve'])->middleware('permission:approve_blotter')->name('approve');
         Route::post('/{id}/reject', [IncidentReportController::class, 'reject'])->middleware('permission:reject_blotter')->name('reject');
         Route::delete('/{id}', [IncidentReportController::class, 'destroy'])->middleware('permission:delete_blotter')->name('destroy');
@@ -455,6 +459,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{id}', [AdminAnnouncement::class, 'update'])->middleware('permission:update_announcements')->name('update');
         Route::delete('/{id}', [AdminAnnouncement::class, 'destroy'])->middleware('permission:delete_announcements')->name('destroy');
         Route::post('/bulk-delete', [AdminAnnouncement::class, 'bulkDelete'])->middleware('permission:delete_announcements')->name('bulkDelete');
+        Route::post('/{id}/restore', [AdminAnnouncement::class, 'restore'])->middleware('permission:delete_announcements')->name('restore');
         Route::post('/{id}/toggle-feature', [AdminAnnouncement::class, 'toggleFeature'])->middleware('permission:feature_announcements')->name('toggle-feature');
     });
 
@@ -465,6 +470,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{id}', [EventController::class, 'update'])->middleware('permission:update_events')->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->middleware('permission:delete_events')->name('destroy');
         Route::post('/bulk-delete', [EventController::class, 'bulkDelete'])->middleware('permission:delete_events')->name('bulkDelete');
+        Route::post('/{id}/restore', [EventController::class, 'restore'])->middleware('permission:delete_events')->name('restore');
         Route::post('/{id}/duplicate', [EventController::class, 'duplicate'])->middleware('permission:duplicate_events')->name('duplicate');
         Route::get('/{id}', [EventController::class, 'show'])->middleware('permission:view_events')->name('show');
     });
@@ -476,6 +482,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{id}', [ProjectController::class, 'update'])->middleware('permission:update_projects')->name('update');
         Route::delete('/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete_projects')->name('destroy');
         Route::post('/bulk-delete', [ProjectController::class, 'bulkDelete'])->middleware('permission:delete_projects')->name('bulkDelete');
+        Route::post('/{id}/restore', [ProjectController::class, 'restore'])->middleware('permission:delete_projects')->name('restore');
         Route::get('/{id}', [ProjectController::class, 'show'])->middleware('permission:view_projects')->name('show');
         Route::patch('/{id}/progress', [ProjectController::class, 'updateProgress'])->middleware('permission:update_project_progress')->name('progress');
     });

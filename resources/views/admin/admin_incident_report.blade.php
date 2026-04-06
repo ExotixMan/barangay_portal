@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -88,7 +88,7 @@
         }
 
         .alert-danger li::before {
-            content: 'âš ï¸';
+            content: '⚠️';
             margin-right: 0.5rem;
         }
 
@@ -162,12 +162,21 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1300px;
+            width: 100%;
+            min-width: 980px;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 1400px) {
+            .table {
+                min-width: 900px;
+            }
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 1100px;
+                min-width: 820px;
+                font-size: 0.8rem;
             }
         }
 
@@ -175,19 +184,22 @@
             background: #f8f9fa;
             color: #495057;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.35px;
             border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.2;
+            padding: 0.65rem 0.5rem;
         }
 
         .table tbody td {
             vertical-align: middle;
-            padding: 1rem 0.75rem;
+            padding: 0.65rem 0.5rem;
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.25;
         }
 
         .table tbody tr:hover {
@@ -758,6 +770,224 @@
         .dropdown-item button:hover {
             background: none;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.35rem;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .action-btn {
+            min-height: 34px;
+            border-radius: 10px;
+            border: 1px solid #4a4f57;
+            background: #2f343b;
+            color: #f1f3f5;
+            padding: 0 0.55rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .action-btn.icon-only {
+            width: 34px;
+            padding: 0;
+            gap: 0;
+        }
+
+        .action-label {
+            font-size: 0.73rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .action-btn.action-view {
+            background: #2a2f36;
+            border-color: #4a4f57;
+            color: #ffffff;
+        }
+
+        .action-btn.action-update {
+            background: #d5f0ad;
+            border-color: #a9d772;
+            color: #2f4a11;
+        }
+
+        .action-btn.action-docs {
+            background: #d7ecff;
+            border-color: #95c5f2;
+            color: #0a4d86;
+        }
+
+        .action-btn.action-archive {
+            background: #ffdfe2;
+            border-color: #f1a8af;
+            color: #9f1f2e;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .action-divider {
+            color: #9aa0a6;
+            font-size: 0.9rem;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .view-modal-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .view-modal-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            background: #e5f4ff;
+            color: #0288d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .view-modal-meta {
+            min-width: 0;
+        }
+
+        .view-modal-name {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .view-modal-sub {
+            font-size: 0.82rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .view-modal-refrow {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .view-modal-tag {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: inherit;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        .view-tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin: 0 -1.5rem 1rem;
+            padding: 0 1.5rem;
+            gap: 0.25rem;
+        }
+
+        .view-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            background: transparent;
+        }
+
+        .view-tabs .nav-link.active {
+            color: #1e293b;
+            border-bottom-color: #1e293b;
+            background: transparent;
+        }
+
+        .quick-edit-form .form-control,
+        .quick-edit-form .form-select {
+            min-height: 44px;
+        }
+
+        .quick-edit-form textarea.form-control {
+            min-height: 92px;
+            resize: vertical;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .status-option {
+            border: 1px solid #d0d5dd;
+            background: #fff;
+            border-radius: 12px;
+            padding: 0.5rem 0.6rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #344054;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+        }
+
+        .status-option.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.14);
+            color: var(--primary-dark);
+        }
+
+        .status-option .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .notify-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 0.65rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .notify-label {
+            line-height: 1.2;
+        }
+
+        .notify-label small {
+            color: #6c757d;
+            display: block;
+        }
+
+        .notify-switch.form-check.form-switch {
+            margin-bottom: 0;
+            padding-left: 0;
+        }
+
+        .notify-switch .form-check-input {
+            margin-left: 0;
+            width: 2.1rem;
+            height: 1.1rem;
+        }
     </style>
 </head>
 <body>
@@ -1091,9 +1321,9 @@
                         @admin_can('delete_blotter')
                         <form id="bulkForm" method="POST" action="{{ route('admin.blotter.bulkDelete') }}" style="display: inline;">
                             @csrf
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                                <span class="d-none d-sm-inline">Bulk Archive</span>
                             </button>
                         </form>
                         @endadmin_can
@@ -1189,6 +1419,7 @@
                                             @endif
                                         </a>
                                     </th>
+                                    <th class="d-none d-lg-table-cell">Date Submitted</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -1238,131 +1469,57 @@
                                             @endif
                                         @endif
                                     </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <small>{{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}</small>
+                                    </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View Button (everyone with view_blotter can view) -->
-                                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ $blotter->id }}" title="View Details">
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $blotter->id }}" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            @if(!$blotter->deleted_at)
-                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('update_blotter'))
-                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editIncidentModal{{ $blotter->id }}" title="Edit Report">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                @endif
+                                            <span class="action-divider">|</span>
 
-                                                @if(($blotter->status == 'resolved' || $blotter->status == 'dropped') && 
-                                                    (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Send Notification">
-                                                        <i class="fas fa-bell"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        @if(auth('admin')->user()->hasPermission('send_email'))
-                                                        <li>
-                                                            @if(!empty($blotter->complainant_email))
-                                                            <form method="POST" action="{{ route('admin.notifications.sendEmail') }}" class="dropdown-item p-0">
-                                                                @csrf
-                                                                <input type="hidden" name="email" value="{{ $blotter->complainant_email ?? '' }}">
-                                                                <input type="hidden" name="name" value="{{ $blotter->complainant_name }}">
-                                                                <input type="hidden" name="status" value="{{ $blotter->status }}">
-                                                                <input type="hidden" name="remarks" value="">
-                                                                <input type="hidden" name="request_type" value="incident">
-                                                                <input type="hidden" name="request_id" value="{{ $blotter->id }}">
-                                                                <input type="hidden" name="reference_number" value="{{ $blotter->reference_number }}">
-                                                                @if($blotter->status == 'resolved')
-                                                                <input type="hidden" name="message" value="Your incident report (Ref: {{ $blotter->reference_number }}) has been RESOLVED. Please visit the barangay hall for further details.">
-                                                                @else
-                                                                <input type="hidden" name="message" value="Your incident report (Ref: {{ $blotter->reference_number }}) has been DROPPED. Please visit the barangay hall for further details or clarification.">
-                                                                @endif
-                                                                <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send {{ $blotter->status }} notification email to complainant?')">
-                                                                    <i class="fas fa-envelope me-2"></i>Send Email
-                                                                </button>
-                                                            </form>
-                                                            @else
-                                                            <span class="dropdown-item text-muted" title="No complainant email available">
-                                                                <i class="fas fa-envelope me-2"></i>Send Email (No email)
-                                                            </span>
-                                                            @endif
-                                                        </li>
-                                                        @endif
-                                                        
-                                                        @if(auth('admin')->user()->hasPermission('send_sms'))
-                                                        <li>
-                                                            <form method="POST" action="{{ route('admin.notifications.sendSMS') }}" class="dropdown-item p-0">
-                                                                @csrf
-                                                                <input type="hidden" name="phone" value="+63{{ ltrim($blotter->complainant_contact ?? '', '0') }}">
-                                                                <input type="hidden" name="status" value="{{ $blotter->status }}">
-                                                                <input type="hidden" name="remarks" value="">
-                                                                <input type="hidden" name="request_type" value="incident">
-                                                                <input type="hidden" name="request_id" value="{{ $blotter->id }}">
-                                                                <input type="hidden" name="reference_number" value="{{ $blotter->reference_number }}">
-                                                                @if($blotter->status == 'resolved')
-                                                                <input type="hidden" name="message" value="Your incident report {{ $blotter->reference_number }} has been RESOLVED. Please visit the barangay hall for details.">
-                                                                @else
-                                                                <input type="hidden" name="message" value="Your incident report {{ $blotter->reference_number }} has been DROPPED. Please visit the barangay hall for details or clarification.">
-                                                                @endif
-                                                                <button type="submit" class="dropdown-item" onclick="return prepareRemarksAndConfirm(event, this.form, 'Send {{ $blotter->status }} notification SMS to complainant?')">
-                                                                    <i class="fas fa-sms me-2"></i>Send SMS
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                                @endif
-
-                                                @if($blotter->status == 'dropped' && (auth('admin')->user()->hasPermission('send_email') || auth('admin')->user()->hasPermission('send_sms')))
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" title="View Remarks History" onclick='viewRemarksHistory("incident", {{ $blotter->id }}, @js($blotter->reference_number))'>
-                                                    <i class="fas fa-clock-rotate-left"></i>
-                                                </button>
-                                                @endif
-
-                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('approve_blotter'))
-                                                <form method="POST" action="{{ route('admin.blotter.approve', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Resolve this incident report?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                                
-                                                @if($blotter->status == 'processing' && auth('admin')->user()->hasPermission('reject_blotter'))
-                                                <form method="POST" action="{{ route('admin.blotter.reject', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Drop this case?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Drop Case">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                                
-                                                @if(auth('admin')->user()->hasPermission('delete_blotter'))
-                                                <form method="POST" action="{{ route('admin.blotter.destroy', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this incident report? It can be restored later.')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
+                                            @if(!$blotter->deleted_at && (auth('admin')->user()->hasPermission('approve_blotter') || auth('admin')->user()->hasPermission('reject_blotter')))
+                                            <button class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $blotter->id }}" title="Update">
+                                                <i class="fas fa-pen"></i>
+                                                <span class="action-label">Update</span>
+                                            </button>
                                             @else
-                                                <!-- Restore Button for deleted records -->
-                                                @if(auth('admin')->user()->hasPermission('restore_blotter'))
-                                                <form method="POST" action="{{ route('admin.blotter.restore', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this incident report?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
-                                                        <i class="fas fa-undo"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
+                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update (Unavailable)">
+                                                <i class="fas fa-pen"></i>
+                                                <span class="action-label">Update</span>
+                                            </button>
+                                            @endif
+
+                                            <span class="action-divider">|</span>
+
+                                            @if(!$blotter->deleted_at && auth('admin')->user()->hasPermission('delete_blotter'))
+                                            <form method="POST" action="{{ route('admin.blotter.destroy', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this incident report?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
+                                                    <i class="fas fa-box-archive"></i>
+                                                </button>
+                                            </form>
+                                            @elseif($blotter->deleted_at && auth('admin')->user()->hasPermission('restore_blotter'))
+                                            <form method="POST" action="{{ route('admin.blotter.restore', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this incident report?')">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm action-btn action-restore icon-only" title="Restore">
+                                                    <i class="fas fa-rotate-left"></i>
+                                                </button>
+                                            </form>
+                                            @else
+                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive (Unavailable)">
+                                                <i class="fas fa-box-archive"></i>
+                                            </button>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5">
+                                    <td colspan="10" class="text-center py-5">
                                         <div class="py-4">
                                             <i class="fas fa-book fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No incident reports found</h5>
@@ -1506,7 +1663,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('complainantName') is-invalid @enderror @endif" 
-                                            name="complainantName" value="{{ session('form_type') == 'add' ? old('complainantName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
+                                            name="complainantName" value="{{ session('form_type') == 'add' ? old('complainantName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
                                         @if(session('form_type') == 'add')
                                             @error('complainantName')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1535,9 +1692,9 @@
                                         @endif
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Email (Optional)</label>
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
                                         <input type="email" class="form-control @if(session('form_type') == 'add') @error('complainantEmail') is-invalid @enderror @endif" 
-                                            name="complainantEmail" value="{{ session('form_type') == 'add' ? old('complainantEmail') : '' }}" placeholder="email@example.com">
+                                            name="complainantEmail" value="{{ session('form_type') == 'add' ? old('complainantEmail') : '' }}" placeholder="email@example.com" required>
                                         @if(session('form_type') == 'add')
                                             @error('complainantEmail')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1552,7 +1709,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Respondent Name</label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('respondentName') is-invalid @enderror @endif" 
-                                            name="respondentName" value="{{ session('form_type') == 'add' ? old('respondentName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                                            name="respondentName" value="{{ session('form_type') == 'add' ? old('respondentName') : '' }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                         @if(session('form_type') == 'add')
                                             @error('respondentName')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1793,7 +1950,7 @@
                                             <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantName') is-invalid @enderror @endif" 
                                                 id="edit_complainant_name_{{ $blotter->id }}"
-                                                name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
+                                                name="complainantName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantName', $blotter->complainant_name) : $blotter->complainant_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only." required>
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('complainantName')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1823,10 +1980,10 @@
                                             @endif
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label">Email (Optional)</label>
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
                                             <input type="email" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('complainantEmail') is-invalid @enderror @endif" 
                                                 id="edit_complainant_email_{{ $blotter->id }}"
-                                                name="complainantEmail" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantEmail', $blotter->complainant_email) : $blotter->complainant_email }}" placeholder="email@example.com">
+                                                name="complainantEmail" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('complainantEmail', $blotter->complainant_email) : $blotter->complainant_email }}" placeholder="email@example.com" required>
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('complainantEmail')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1842,7 +1999,7 @@
                                             <label class="form-label">Respondent Name</label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $blotter->id) @error('respondentName') is-invalid @enderror @endif" 
                                                 id="edit_respondent_name_{{ $blotter->id }}"
-                                                name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                                                name="respondentName" value="{{ session('form_type') == 'edit_' . $blotter->id ? old('respondentName', $blotter->respondent_name) : $blotter->respondent_name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                             @if(session('form_type') == 'edit_' . $blotter->id)
                                                 @error('respondentName')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1906,7 +2063,7 @@
                                                         <div class="row g-3">
                                                             <div class="col-md-6">
                                                                 <label class="form-label">Witness Name</label>
-                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                                                                <input type="text" class="form-control" name="witnesses[{{ $index }}][name]" value="{{ $witness->name }}" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <label class="form-label">Contact Number</label>
@@ -2032,215 +2189,269 @@
             <!-- View Modals (always visible since they just show data) -->
             @foreach($incidents as $blotter)
             <div class="modal fade" id="viewModal{{ $blotter->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-book me-2"></i>
-                                Incident Details - {{ $blotter->reference_number }}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Incident Details -->
-                            <h6 class="fw-semibold text-primary mb-3">Incident Details</h6>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <strong>Report Type:</strong>
-                                    <p>{{ ucfirst($blotter->report_type) }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Confidentiality:</strong>
-                                    <p>
-                                        @if($blotter->confidentiality == 'high')
-                                            <span class="badge bg-danger-subtle text-danger">Anonymous Report</span>
-                                        @elseif($blotter->confidentiality == 'medium')
-                                            <span class="badge bg-warning-subtle text-warning">Confidential Report</span>
-                                        @else
-                                            <span class="badge bg-info-subtle text-info">Public Report</span>
-                                        @endif
-                                    </p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Incident Date:</strong>
-                                    <p>{{ \Carbon\Carbon::parse($blotter->incident_date)->format('F d, Y') }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Incident Time:</strong>
-                                    <p>{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('h:i A') : 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <strong>Location:</strong>
-                                    <p>{{ $blotter->location ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <strong>Description:</strong>
-                                    <p>{{ $blotter->description ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <strong>Immediate Action:</strong>
-                                    <p>{{ $blotter->immediate_action ?: 'N/A' }}</p>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Complainant Information -->
-                            <h6 class="fw-semibold text-primary mb-3">Complainant Information</h6>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <strong>Name:</strong>
-                                    <p>{{ $blotter->complainant_name }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Contact:</strong>
-                                    <p>{{ $blotter->complainant_contact ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Email:</strong>
-                                    <p>{{ $blotter->complainant_email ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <strong>Address:</strong>
-                                    <p>{{ $blotter->complainant_address ?: 'N/A' }}</p>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Respondent Information -->
-                            <h6 class="fw-semibold text-primary mb-3">Respondent Information</h6>
-                            @if($blotter->respondent_name)
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <strong>Name:</strong>
-                                    <p>{{ $blotter->respondent_name }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Contact:</strong>
-                                    <p>{{ $blotter->respondent_contact ?: 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <strong>Address:</strong>
-                                    <p>{{ $blotter->respondent_address ?: 'N/A' }}</p>
-                                </div>
-                                @if($blotter->respondent_description)
-                                <div class="col-12">
-                                    <strong>Description:</strong>
-                                    <p>{{ $blotter->respondent_description }}</p>
-                                </div>
-                                @endif
-                            </div>
-                            @else
-                                <p class="text-muted">No respondent information provided.</p>
-                            @endif
-
-                            <hr>
-
-                            <!-- Witnesses Section -->
-                            @if($blotter->witnesses && $blotter->witnesses->count() > 0)
-                            <h6 class="fw-semibold text-primary mb-3">Witnesses</h6>
-                            @foreach($blotter->witnesses as $witness)
-                                <div class="witness-card">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <strong>Name:</strong>
-                                            <p>{{ $witness->name ?? 'N/A' }}</p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <strong>Contact:</strong>
-                                            <p>{{ $witness->contact ?? 'N/A' }}</p>
-                                        </div>
-                                        <div class="col-12">
-                                            <strong>Statement:</strong>
-                                            <p>{{ $witness->statement ?? 'N/A' }}</p>
-                                        </div>
+                            <div class="view-modal-head w-100">
+                                <div class="view-modal-avatar">{{ strtoupper(substr($blotter->complainant_name, 0, 1)) }}</div>
+                                <div class="view-modal-meta">
+                                    <div class="view-modal-name">{{ $blotter->complainant_name }}</div>
+                                    <div class="view-modal-refrow">
+                                        <div class="view-modal-sub">Ref: {{ $blotter->reference_number }}</div>
+                                        <span class="view-modal-tag">Incident Report</span>
                                     </div>
-                                </div>
-                            @endforeach
-                            <hr>
-                            @endif
-
-                            <!-- Files/Evidence Section -->
-                            @if($blotter->files && $blotter->files->count() > 0)
-                            <h6 class="fw-semibold text-primary mb-3">Files / Evidence</h6>
-                            <div class="row g-3 mb-3">
-                                @foreach($blotter->files as $file)
-                                <div class="col-md-4">
-                                    <div class="border rounded p-2">
-                                        @php
-                                            $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
-                                            $fileUrl = asset($file->file_path);
-                                        @endphp
-                                        
-                                        @if(in_array($extension, ['jpg', 'jpeg', 'png', 'gif']))
-                                            <strong>Photo:</strong>
-                                            <div class="mt-2">
-                                                <img src="{{ $fileUrl }}" class="img-fluid rounded" style="max-height: 150px; cursor: pointer;" onclick="openZoomModal('{{ $fileUrl }}')">
-                                            </div>
-                                        @elseif(in_array($extension, ['mp4', 'avi', 'mov', 'wmv', 'mkv']))
-                                            <strong>Video:</strong>
-                                            <div class="mt-2 text-center">
-                                                <i class="fas fa-video fa-4x text-muted"></i>
-                                            </div>
-                                        @else
-                                            <strong>Document:</strong>
-                                            <div class="mt-2 text-center">
-                                                <i class="fas fa-file-pdf fa-4x text-muted"></i>
-                                            </div>
-                                        @endif
-                                        
-                                        <div class="mt-2 small">
-                                            <span class="text-truncate d-block">{{ basename($file->file_path) }}</span>
-                                            <span class="badge bg-info">{{ $file->file_type }}</span>
-                                            <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2 w-100">
-                                                <i class="fas fa-download"></i> View
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            <hr>
-                            @endif
-
-                            @if($blotter->additional_info)
-                            <div class="row g-3 mb-3">
-                                <div class="col-12">
-                                    <h6 class="fw-semibold text-primary mb-2">Additional Information</h6>
-                                    <div class="border rounded p-3 bg-light">
-                                        <p class="mb-0">{{ $blotter->additional_info }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            @endif
-                            
-                            <!-- Status -->
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <strong>Status:</strong>
-                                    <p>
-                                        @if($blotter->status == 'resolved')
+                                    <div class="mt-1">
+                                        @if($blotter->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($blotter->status == 'resolved')
                                             <span class="badge bg-success-subtle text-success">Resolved</span>
                                         @elseif($blotter->status == 'dropped')
                                             <span class="badge bg-danger-subtle text-danger">Dropped</span>
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
-                                    </p>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <strong>Submitted At:</strong>
-                                    <p>{{ $blotter->created_at ? $blotter->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="nav view-tabs mb-3" id="viewTabs{{ $blotter->id }}" role="tablist">
+                                <li class="nav-item" role="presentation"><button class="nav-link active" id="details-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#details-panel-{{ $blotter->id }}" type="button">Details</button></li>
+                                <li class="nav-item" role="presentation"><button class="nav-link" id="edit-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#edit-panel-{{ $blotter->id }}" type="button">Edit info</button></li>
+                                <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#history-panel-{{ $blotter->id }}" type="button">History</button></li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="details-panel-{{ $blotter->id }}" role="tabpanel">
+                                    <div class="row g-3">
+                                        <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Incident Details</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Report Type</label><p>{{ ucfirst($blotter->report_type) }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Confidentiality</label><p>{{ ucfirst($blotter->confidentiality) }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Incident Date</label><p>{{ \Carbon\Carbon::parse($blotter->incident_date)->format('F d, Y') }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Incident Time</label><p>{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('h:i A') : 'N/A' }}</p></div>
+                                        <div class="col-12"><label class="form-label text-muted">Location</label><p>{{ $blotter->location ?: 'N/A' }}</p></div>
+                                        <div class="col-12"><label class="form-label text-muted">Description</label><p>{{ $blotter->description ?: 'N/A' }}</p></div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Complainant Information</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Complainant</label><p>{{ $blotter->complainant_name }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Contact</label><p>{{ $blotter->complainant_contact ?: 'N/A' }}</p></div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Case Status</h6></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Status</label><p class="text-capitalize">{{ $blotter->status }}</p></div>
+                                        <div class="col-md-6"><label class="form-label text-muted">Submitted At</label><p>{{ $blotter->created_at ? $blotter->created_at->format('F d, Y h:i A') : 'N/A' }}</p></div>
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Documents</h6></div>
+                                        <div class="col-12">
+                                            @if($blotter->files && $blotter->files->count() > 0)
+                                            <div class="row g-2">
+                                                @foreach($blotter->files as $file)
+                                                <div class="col-md-6">
+                                                    <div class="border rounded p-2 h-100">
+                                                        <div class="fw-semibold text-truncate">{{ basename($file->file_path) }}</div>
+                                                        <div class="small text-muted mb-2">{{ ucfirst($file->file_type) }}</div>
+                                                        <a href="{{ asset($file->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye me-1"></i>Open file
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                            @else
+                                            <p class="text-muted mb-0">No uploaded documents available for this incident report.</p>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Witnesses</h6></div>
+                                        <div class="col-12">
+                                            @if($blotter->witnesses && $blotter->witnesses->count() > 0)
+                                                @foreach($blotter->witnesses as $witness)
+                                                <div class="border rounded p-2 mb-2">
+                                                    <div class="fw-semibold">{{ $witness->name ?: 'Unnamed witness' }}</div>
+                                                    <div class="small text-muted">{{ $witness->contact ?: 'No contact' }}</div>
+                                                    <div class="small mt-1">{{ $witness->statement ?: 'No statement provided.' }}</div>
+                                                </div>
+                                                @endforeach
+                                            @else
+                                            <p class="text-muted mb-0">No witnesses recorded.</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="edit-panel-{{ $blotter->id }}" role="tabpanel">
+                                    <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="quickEditForm{{ $blotter->id }}" enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="row g-3 quick-edit-form">
+                                            <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Incident Details</h6></div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Report Type</label>
+                                                <select class="form-select" name="reportType" required>
+                                                    <option value="dispute" {{ $blotter->report_type === 'dispute' ? 'selected' : '' }}>Community Dispute</option>
+                                                    <option value="security" {{ $blotter->report_type === 'security' ? 'selected' : '' }}>Security Concern</option>
+                                                    <option value="public" {{ $blotter->report_type === 'public' ? 'selected' : '' }}>Public Safety</option>
+                                                    <option value="other" {{ $blotter->report_type === 'other' ? 'selected' : '' }}>Other Concern</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Confidentiality</label>
+                                                <select class="form-select" name="confidentiality" required>
+                                                    <option value="low" {{ $blotter->confidentiality === 'low' ? 'selected' : '' }}>Public Report</option>
+                                                    <option value="medium" {{ $blotter->confidentiality === 'medium' ? 'selected' : '' }}>Confidential Report</option>
+                                                    <option value="high" {{ $blotter->confidentiality === 'high' ? 'selected' : '' }}>Anonymous Report</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6"><label class="form-label">Incident Date</label><input type="date" class="form-control" name="incidentDate" value="{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d') : '' }}" required></div>
+                                            <div class="col-md-6"><label class="form-label">Incident Time</label><input type="time" class="form-control" name="incidentTime" value="{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('H:i') : '' }}" required></div>
+                                            <div class="col-12"><label class="form-label">Incident Location</label><input type="text" class="form-control" name="incidentLocation" value="{{ $blotter->location }}" required></div>
+                                            <div class="col-12"><label class="form-label">Incident Description</label><textarea class="form-control" name="incidentDescription" rows="3" required>{{ $blotter->description }}</textarea></div>
+                                            <div class="col-12"><label class="form-label">Immediate Action</label><textarea class="form-control" name="immediateAction" rows="2">{{ $blotter->immediate_action }}</textarea></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Complainant Information</h6></div>
+                                            <div class="col-md-6"><label class="form-label">Complainant Name</label><input type="text" class="form-control" name="complainantName" value="{{ $blotter->complainant_name }}" required></div>
+                                            <div class="col-md-6"><label class="form-label">Complainant Contact</label><input type="text" class="form-control" name="complainantContact" value="{{ $blotter->complainant_contact }}" maxlength="11" required></div>
+                                            <div class="col-md-6"><label class="form-label">Complainant Email</label><input type="email" class="form-control" name="complainantEmail" value="{{ $blotter->complainant_email }}"></div>
+                                            <div class="col-12"><label class="form-label">Complainant Address</label><input type="text" class="form-control" name="complainantAddress" value="{{ $blotter->complainant_address }}" required></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Respondent Information</h6></div>
+                                            <div class="col-md-6"><label class="form-label">Respondent Name</label><input type="text" class="form-control" name="respondentName" value="{{ $blotter->respondent_name }}"></div>
+                                            <div class="col-md-6"><label class="form-label">Respondent Contact</label><input type="text" class="form-control" name="respondentContact" value="{{ $blotter->respondent_contact }}" maxlength="11"></div>
+                                            <div class="col-12"><label class="form-label">Respondent Address</label><input type="text" class="form-control" name="respondentAddress" value="{{ $blotter->respondent_address }}"></div>
+                                            <div class="col-12"><label class="form-label">Respondent Description</label><textarea class="form-control" name="respondentDescription" rows="2">{{ $blotter->respondent_description }}</textarea></div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Additional Details</h6></div>
+                                            <div class="col-12"><label class="form-label">Additional Info</label><textarea class="form-control" name="additionalInfo" rows="2">{{ $blotter->additional_info }}</textarea></div>
+
+                                            <div class="col-12 mt-2 d-flex justify-content-between align-items-center">
+                                                <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
+                                                <button type="button" class="btn btn-sm btn-outline-primary js-add-quick-witness" data-blotter-id="{{ $blotter->id }}" onclick="addQuickEditWitnessField({{ $blotter->id }}, this); return false;">
+                                                    <i class="fas fa-plus me-1"></i>Add Witness
+                                                </button>
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted d-block mb-2">Add witnesses if you need to include more statements.</small>
+                                                <div id="quick-edit-witnesses-container-{{ $blotter->id }}">
+                                                    @if($blotter->witnesses && $blotter->witnesses->count() > 0)
+                                                        @foreach($blotter->witnesses as $witnessIndex => $witness)
+                                                        <div class="witness-card mb-3" id="quick-edit-witness-{{ $blotter->id }}-{{ $witnessIndex }}">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <h6 class="fw-semibold">Witness</h6>
+                                                                @if(auth('admin')->user()->hasPermission('delete_witness'))
+                                                                <button type="button" class="btn btn-sm btn-outline-danger js-remove-quick-witness" data-blotter-id="{{ $blotter->id }}" data-witness-id="{{ $witnessIndex }}">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                                @endif
+                                                            </div>
+                                                            <div class="row g-2">
+                                                                <div class="col-md-4"><label class="form-label">Witness Name</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][name]" value="{{ $witness->name }}"></div>
+                                                                <div class="col-md-4"><label class="form-label">Witness Contact</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][contact]" value="{{ $witness->contact }}" maxlength="11" inputmode="numeric"></div>
+                                                                <div class="col-md-4"><label class="form-label">Witness Statement</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][statement]" value="{{ $witness->statement }}"></div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Upload Evidence</h6><small class="text-muted">Leave empty to keep existing files.</small></div>
+                                            <div class="col-12"><label class="form-label">Photos</label><input type="file" class="form-control" name="photos[]" accept="image/*" multiple></div>
+                                            <div class="col-12"><label class="form-label">Videos</label><input type="file" class="form-control" name="videos[]" accept="video/*" multiple></div>
+                                            <div class="col-12"><label class="form-label">Documents</label><input type="file" class="form-control" name="documents[]" accept=".pdf,.doc,.docx" multiple></div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="history-panel-{{ $blotter->id }}" role="tabpanel">
+                                    <div class="mb-3">
+                                        <span class="text-muted">Recent status:</span>
+                                        @if($blotter->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($blotter->status == 'resolved')
+                                            <span class="badge bg-success-subtle text-success">Resolved</span>
+                                        @elseif($blotter->status == 'dropped')
+                                            <span class="badge bg-danger-subtle text-danger">Dropped</span>
+                                        @else
+                                            <span class="badge bg-warning-subtle text-warning">Processing</span>
+                                        @endif
+                                    </div>
+                                    <div id="historyList{{ $blotter->id }}" class="small text-muted">Loading history...</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Close
-                            </button>
+                        <div class="modal-footer" id="viewFooterDetails{{ $blotter->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-switch-tab="edit" data-app-id="{{ $blotter->id }}">Edit info</button>
                         </div>
+                        <div class="modal-footer d-none" id="viewFooterEdit{{ $blotter->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-switch-tab="details" data-app-id="{{ $blotter->id }}">Cancel</button>
+                            <button type="submit" form="quickEditForm{{ $blotter->id }}" class="btn btn-primary">Save changes</button>
+                        </div>
+                        <div class="modal-footer d-none" id="viewFooterHistory{{ $blotter->id }}">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="updateStatusModal{{ $blotter->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update incident status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ route('admin.blotter.approve', $blotter->id) }}" data-processing-url="{{ route('admin.blotter.processing', $blotter->id) }}" data-approve-url="{{ route('admin.blotter.approve', $blotter->id) }}" data-reject-url="{{ route('admin.blotter.reject', $blotter->id) }}" onsubmit="return handleIncidentStatusSubmit(event, this)">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="mb-2 small text-muted">{{ $blotter->reference_number }} - {{ $blotter->complainant_name }}</div>
+                                <p class="mb-2">Current status: <span class="fw-semibold text-capitalize">{{ $blotter->status }}</span></p>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase fw-semibold small">New status</label>
+                                    <input type="hidden" name="status" value="{{ $blotter->status }}" class="selected-incident-status">
+                                    <div class="status-grid" data-current-status="{{ $blotter->status }}">
+                                        <button type="button" class="status-option" data-status="processing"><span class="dot" style="background:#5e35b1;"></span>Processing</button>
+                                        @if(auth('admin')->user()->hasPermission('approve_blotter'))
+                                        <button type="button" class="status-option" data-status="resolved"><span class="dot" style="background:#2e7d32;"></span>Resolved</button>
+                                        @endif
+                                        @if(auth('admin')->user()->hasPermission('reject_blotter'))
+                                        <button type="button" class="status-option" data-status="dropped"><span class="dot" style="background:#d32f2f;"></span>Dropped</button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase fw-semibold small">Remarks <span class="text-muted fw-normal">(required if dropped, max 40 chars)</span></label>
+                                    <textarea class="form-control" name="remarks" rows="3" maxlength="40" placeholder="Add a note about this status change..."></textarea>
+                                </div>
+
+                                <div data-notify-wrap data-has-email="{{ $blotter->complainant_email ? '1' : '0' }}" data-has-sms="{{ $blotter->complainant_contact ? '1' : '0' }}">
+                                    <label class="form-label text-uppercase fw-semibold small">Notify complainant</label>
+                                    <div class="notify-row">
+                                        <div class="notify-label">
+                                            <strong>Send email</strong>
+                                            <small>{{ $blotter->complainant_email ?: 'No email available' }}</small>
+                                        </div>
+                                        <div class="form-check form-switch notify-switch">
+                                            <input class="form-check-input" type="checkbox" name="notify_email" value="1" {{ auth('admin')->user()->hasPermission('send_email') ? 'checked' : '' }} {{ !$blotter->complainant_email || !auth('admin')->user()->hasPermission('send_email') ? 'disabled' : '' }} {{ !auth('admin')->user()->hasPermission('send_email') ? 'data-permission-disabled="1"' : '' }}>
+                                        </div>
+                                    </div>
+                                    <div class="notify-row mb-0">
+                                        <div class="notify-label">
+                                            <strong>Send SMS</strong>
+                                            <small>{{ $blotter->complainant_contact ?: 'No mobile number available' }}</small>
+                                        </div>
+                                        <div class="form-check form-switch notify-switch">
+                                            <input class="form-check-input" type="checkbox" name="notify_sms" value="1" {{ auth('admin')->user()->hasPermission('send_sms') ? 'checked' : '' }} {{ !$blotter->complainant_contact || !auth('admin')->user()->hasPermission('send_sms') ? 'disabled' : '' }} {{ !auth('admin')->user()->hasPermission('send_sms') ? 'data-permission-disabled="1"' : '' }}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Confirm &amp; save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -2284,7 +2495,7 @@
     <script src="{{ asset('js/admin/nav.js') }}"></script>
 
     <script>
-        // Bulk delete function
+        // Bulk Archive function
         function bulkDelete() {
 
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
@@ -2295,7 +2506,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one incident report to delete.',
+                    text: 'Please select at least one incident report to archive.',
                     confirmButtonColor: '#d33'
                 });
 
@@ -2304,13 +2515,13 @@
 
             // SweetAlert Confirmation
             Swal.fire({
-                title: 'Confirm Bulk Delete',
-                text: `Are you sure you want to delete ${checkboxes.length} selected incident report(s)?`,
+                title: 'Confirm Bulk Archive',
+                text: `Are you sure you want to archive ${checkboxes.length} selected incident report(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Delete'
+                confirmButtonText: 'Yes, Archive'
             }).then((result) => {
 
                 if (result.isConfirmed) {
@@ -2336,7 +2547,7 @@
             const checkboxes = document.querySelectorAll('.application-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected â†’ Ask to export all
+            // If nothing selected → Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -2358,7 +2569,7 @@
                 return;
             }
 
-            // If selected â†’ Confirm export selected
+            // If selected → Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected incident report(s)?`,
@@ -2466,12 +2677,18 @@
                     event.preventDefault();
                     return false;
                 }
-                if (remarks.trim() === '') {
+                const trimmedRemarks = remarks.trim();
+                if (trimmedRemarks === '') {
                     event.preventDefault();
                     alert('Remarks are required for rejected or dropped notifications.');
                     return false;
                 }
-                remarksInput.value = remarks.trim();
+                if (trimmedRemarks.length > 40) {
+                    event.preventDefault();
+                    alert('Remarks must not exceed 40 characters.');
+                    return false;
+                }
+                remarksInput.value = trimmedRemarks;
             }
 
             if (!confirm(confirmMessage)) {
@@ -2480,6 +2697,146 @@
             }
 
             return true;
+        }
+
+        async function loadApplicationHistory(appId) {
+            const list = document.getElementById('historyList' + appId);
+            if (!list) {
+                return;
+            }
+
+            list.innerHTML = 'Loading history...';
+
+            try {
+                const params = new URLSearchParams({
+                    request_type: 'incident',
+                    request_id: String(appId)
+                });
+
+                const response = await fetch("{{ route('admin.notifications.remarksHistory') }}?" + params.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load history.');
+                }
+
+                const payload = await response.json();
+                const timeline = Array.isArray(payload.timeline) ? payload.timeline : [];
+
+                if (timeline.length === 0) {
+                    list.innerHTML = '<div class="text-muted">No activity found for this report yet.</div>';
+                    return;
+                }
+
+                list.innerHTML = timeline.map(function(item) {
+                    const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : '';
+                    const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' - ' + (item.created_at || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || '') + '</div>';
+                    return '<div class="activity-item py-2 border-bottom">' +
+                        '<div class="fw-semibold">' + (item.title || 'Activity') + '</div>' +
+                        actor +
+                        details +
+                        '</div>';
+                }).join('');
+            } catch (error) {
+                list.innerHTML = '<div class="text-danger">Unable to load history right now.</div>';
+            }
+        }
+
+        function toggleIncidentNotifyOptions(form, status) {
+            const notifyWrap = form.querySelector('[data-notify-wrap]');
+            if (!notifyWrap) {
+                return;
+            }
+
+            const emailToggle = form.querySelector('input[name="notify_email"]');
+            const smsToggle = form.querySelector('input[name="notify_sms"]');
+            const hasEmail = notifyWrap.getAttribute('data-has-email') === '1';
+            const hasSms = notifyWrap.getAttribute('data-has-sms') === '1';
+            const allowNotify = ['resolved', 'dropped'].includes(String(status || '').toLowerCase());
+
+            notifyWrap.classList.toggle('d-none', !allowNotify);
+
+            if (emailToggle) {
+                const canUseEmail = allowNotify && hasEmail && !emailToggle.hasAttribute('data-permission-disabled');
+                emailToggle.disabled = !canUseEmail;
+                emailToggle.checked = canUseEmail;
+            }
+
+            if (smsToggle) {
+                const canUseSms = allowNotify && hasSms && !smsToggle.hasAttribute('data-permission-disabled');
+                smsToggle.disabled = !canUseSms;
+                smsToggle.checked = canUseSms;
+            }
+        }
+
+        function handleIncidentStatusSubmit(event, form) {
+            const statusInput = form.querySelector('.selected-incident-status');
+            const remarksInput = form.querySelector('textarea[name="remarks"]');
+            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
+            const remarks = remarksInput ? String(remarksInput.value || '').trim() : '';
+
+            if (!status) {
+                event.preventDefault();
+                alert('Please select a status.');
+                return false;
+            }
+
+            if (remarks.length > 40) {
+                event.preventDefault();
+                alert('Remarks must not exceed 40 characters.');
+                return false;
+            }
+
+            if (status === 'dropped' && remarks === '') {
+                event.preventDefault();
+                alert('Remarks are required when status is Dropped.');
+                return false;
+            }
+
+            const processingUrl = form.getAttribute('data-processing-url');
+            const approveUrl = form.getAttribute('data-approve-url');
+            const rejectUrl = form.getAttribute('data-reject-url');
+            if (status === 'processing') {
+                form.action = processingUrl;
+            } else if (status === 'dropped') {
+                form.action = rejectUrl;
+            } else {
+                form.action = approveUrl;
+            }
+
+            return confirm('Confirm status update to ' + status.charAt(0).toUpperCase() + status.slice(1) + '?');
+        }
+
+        function switchViewTab(appId, tabName) {
+            const tabButton = document.getElementById(tabName + '-tab-' + appId);
+            if (tabButton) {
+                bootstrap.Tab.getOrCreateInstance(tabButton).show();
+            }
+        }
+
+        function toggleViewFooter(appId, activeTab) {
+            const detailsFooter = document.getElementById('viewFooterDetails' + appId);
+            const editFooter = document.getElementById('viewFooterEdit' + appId);
+            const historyFooter = document.getElementById('viewFooterHistory' + appId);
+
+            if (!detailsFooter || !editFooter || !historyFooter) {
+                return;
+            }
+
+            detailsFooter.classList.add('d-none');
+            editFooter.classList.add('d-none');
+            historyFooter.classList.add('d-none');
+
+            if (activeTab === 'details') {
+                detailsFooter.classList.remove('d-none');
+            } else if (activeTab === 'edit') {
+                editFooter.classList.remove('d-none');
+            } else {
+                historyFooter.classList.remove('d-none');
+            }
         }
 
         // Update select all checkbox when individual checkboxes change
@@ -2538,6 +2895,289 @@
                     });
                 });
             }
+
+            document.querySelectorAll('[id^="viewModal"]').forEach(function(modalEl) {
+                const appId = modalEl.id.replace('viewModal', '');
+
+                modalEl.querySelectorAll('[data-bs-toggle="pill"]').forEach(function(tabBtn) {
+                    tabBtn.addEventListener('shown.bs.tab', function() {
+                        if (tabBtn.id.indexOf('details-tab-') === 0) {
+                            toggleViewFooter(appId, 'details');
+                        } else if (tabBtn.id.indexOf('edit-tab-') === 0) {
+                            toggleViewFooter(appId, 'edit');
+                        } else {
+                            toggleViewFooter(appId, 'history');
+                            loadApplicationHistory(appId);
+                        }
+                    });
+                });
+
+                modalEl.addEventListener('shown.bs.modal', function() {
+                    toggleViewFooter(appId, 'details');
+                });
+            });
+
+            document.querySelectorAll('[data-switch-tab]').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const appId = button.getAttribute('data-app-id');
+                    const tabName = button.getAttribute('data-switch-tab');
+                    switchViewTab(appId, tabName);
+                });
+            });
+
+            document.querySelectorAll('[id^="updateStatusModal"]').forEach(function(modalEl) {
+                const form = modalEl.querySelector('form');
+                const statusInput = form ? form.querySelector('.selected-incident-status') : null;
+                if (!form || !statusInput) {
+                    return;
+                }
+
+                modalEl.querySelectorAll('.status-option').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const nextStatus = btn.getAttribute('data-status');
+                        if (!nextStatus) {
+                            return;
+                        }
+
+                        modalEl.querySelectorAll('.status-option').forEach(function(other) {
+                            other.classList.remove('active');
+                        });
+                        btn.classList.add('active');
+                        statusInput.value = nextStatus;
+                        toggleIncidentNotifyOptions(form, nextStatus);
+                    });
+                });
+
+                modalEl.addEventListener('shown.bs.modal', function() {
+                    const gridEl = modalEl.querySelector('.status-grid');
+                    const current = ((gridEl ? gridEl.getAttribute('data-current-status') : '') || '').toLowerCase();
+                    const buttons = Array.from(modalEl.querySelectorAll('.status-option'));
+                    const activeButton = buttons.find(function(btn) {
+                        return btn.getAttribute('data-status') === current;
+                    }) || buttons[0];
+
+                    if (activeButton) {
+                        buttons.forEach(function(btn) { btn.classList.remove('active'); });
+                        activeButton.classList.add('active');
+                        statusInput.value = activeButton.getAttribute('data-status') || 'processing';
+                    }
+
+                    toggleIncidentNotifyOptions(form, statusInput.value);
+                });
+            });
+
+            function setFieldValidity(field, message) {
+                if (!field) return;
+                let feedback = field.parentNode.querySelector('.invalid-feedback.dynamic-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback dynamic-feedback';
+                    field.parentNode.appendChild(feedback);
+                }
+
+                field.setCustomValidity(message || '');
+                if (message) {
+                    field.classList.add('is-invalid');
+                    feedback.textContent = message;
+                } else {
+                    field.classList.remove('is-invalid');
+                    feedback.textContent = '';
+                }
+            }
+
+            function attachIncidentQuickEditValidation(form) {
+                if (!form) return;
+
+                const namePattern = /^[A-Za-z\s\-\.',]+$/;
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                const complainantName = form.querySelector('input[name="complainantName"]');
+                const complainantContact = form.querySelector('input[name="complainantContact"]');
+                const complainantEmail = form.querySelector('input[name="complainantEmail"]');
+                const complainantAddress = form.querySelector('input[name="complainantAddress"]');
+                const incidentDate = form.querySelector('input[name="incidentDate"]');
+                const incidentTime = form.querySelector('input[name="incidentTime"]');
+                const incidentLocation = form.querySelector('input[name="incidentLocation"]');
+                const incidentDescription = form.querySelector('textarea[name="incidentDescription"]');
+                const respondentContact = form.querySelector('input[name="respondentContact"]');
+
+                const validateName = function(field, label, required) {
+                    if (!field) return true;
+                    const v = field.value.trim();
+                    if (!v && required) {
+                        setFieldValidity(field, label + ' is required.');
+                        return false;
+                    }
+                    if (!v && !required) {
+                        setFieldValidity(field, '');
+                        return true;
+                    }
+                    if (v.length < 2 || !namePattern.test(v)) {
+                        setFieldValidity(field, label + ' must be valid letters and punctuation only.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                const validatePhone = function(field, required) {
+                    if (!field) return true;
+                    field.value = (field.value || '').replace(/[^0-9]/g, '').slice(0, 12);
+                    if (field.value.startsWith('63') && field.value.length === 12) {
+                        field.value = '0' + field.value.slice(2);
+                    }
+                    const v = field.value;
+                    if (!v && required) {
+                        setFieldValidity(field, 'Contact number is required.');
+                        return false;
+                    }
+                    if (!v && !required) {
+                        setFieldValidity(field, '');
+                        return true;
+                    }
+                    if (!/^09[0-9]{9}$/.test(v)) {
+                        setFieldValidity(field, 'Contact number must be 11 digits and start with 09.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                const validateEmail = function(field) {
+                    if (!field) return true;
+                    const v = field.value.trim();
+                    if (!v) {
+                        setFieldValidity(field, 'Email is required.');
+                        return false;
+                    }
+                    if (!emailPattern.test(v)) {
+                        setFieldValidity(field, 'Please enter a valid email address.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                const validateText = function(field, label, minLen, required) {
+                    if (!field) return true;
+                    const v = field.value.trim();
+                    if (!v && required) {
+                        setFieldValidity(field, label + ' is required.');
+                        return false;
+                    }
+                    if (!v && !required) {
+                        setFieldValidity(field, '');
+                        return true;
+                    }
+                    if (v.length < minLen) {
+                        setFieldValidity(field, label + ' must be at least ' + minLen + ' characters.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                const validateDate = function(field) {
+                    if (!field) return true;
+                    if (!field.value) {
+                        setFieldValidity(field, 'Incident date is required.');
+                        return false;
+                    }
+                    const selected = new Date(field.value + 'T00:00:00');
+                    const today = new Date();
+                    today.setHours(23, 59, 59, 999);
+                    if (selected > today) {
+                        setFieldValidity(field, 'Incident date cannot be in the future.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                const validateTime = function(field) {
+                    if (!field) return true;
+                    if (!field.value) {
+                        setFieldValidity(field, 'Incident time is required.');
+                        return false;
+                    }
+                    setFieldValidity(field, '');
+                    return true;
+                };
+
+                if (complainantName) complainantName.addEventListener('input', function() { validateName(complainantName, 'Complainant name', true); });
+                if (complainantContact) complainantContact.addEventListener('input', function() { validatePhone(complainantContact, true); });
+                if (respondentContact) respondentContact.addEventListener('input', function() { validatePhone(respondentContact, false); });
+                if (complainantEmail) complainantEmail.addEventListener('input', function() { validateEmail(complainantEmail); });
+                if (complainantAddress) complainantAddress.addEventListener('input', function() { validateText(complainantAddress, 'Complainant address', 8, true); });
+                if (incidentDate) incidentDate.addEventListener('change', function() { validateDate(incidentDate); });
+                if (incidentTime) incidentTime.addEventListener('change', function() { validateTime(incidentTime); });
+                if (incidentLocation) incidentLocation.addEventListener('input', function() { validateText(incidentLocation, 'Incident location', 3, true); });
+                if (incidentDescription) incidentDescription.addEventListener('input', function() { validateText(incidentDescription, 'Incident description', 10, true); });
+
+                form.addEventListener('input', function(event) {
+                    if (event.target.matches('input[name*="[contact]"]')) {
+                        validatePhone(event.target, false);
+                    }
+                    if (event.target.matches('input[name*="[name]"]')) {
+                        validateName(event.target, 'Witness name', false);
+                    }
+                });
+
+                form.addEventListener('change', function(event) {
+                    const target = event.target;
+                    if (!(target instanceof HTMLInputElement)) {
+                        return;
+                    }
+
+                    if (!target.matches('input[type="file"]')) {
+                        return;
+                    }
+
+                    const files = Array.from(target.files || []);
+                    if (files.length === 0) {
+                        setFieldValidity(target, '');
+                        return;
+                    }
+
+                    let limitMb = 5;
+                    if (target.name === 'photos[]') limitMb = 10;
+                    if (target.name === 'videos[]') limitMb = 50;
+
+                    const tooLarge = files.find(function(file) {
+                        return (file.size / (1024 * 1024)) > limitMb;
+                    });
+                    if (tooLarge) {
+                        setFieldValidity(target, 'Each file must be below ' + limitMb + 'MB.');
+                        return;
+                    }
+
+                    setFieldValidity(target, '');
+                });
+
+                form.addEventListener('submit', function(event) {
+                    const valid = [
+                        validateName(complainantName, 'Complainant name', true),
+                        validatePhone(complainantContact, true),
+                        validatePhone(respondentContact, false),
+                        validateEmail(complainantEmail),
+                        validateText(complainantAddress, 'Complainant address', 8, true),
+                        validateDate(incidentDate),
+                        validateTime(incidentTime),
+                        validateText(incidentLocation, 'Incident location', 3, true),
+                        validateText(incidentDescription, 'Incident description', 10, true)
+                    ].every(Boolean);
+
+                    if (!valid) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+
+            document.querySelectorAll('form[id^="quickEditForm"]').forEach(function(form) {
+                bindClearInvalidOnEdit(form);
+                attachIncidentQuickEditValidation(form);
+            });
 
             // Add loading animation to filter form
             const searchForm = document.getElementById('searchForm');
@@ -2652,8 +3292,14 @@
                         if (!contact.value) { sf(contact, 'Contact number is required.'); valid = false; }
                         else if (!contact.value.startsWith('09') || contact.value.length !== 11) { sf(contact, 'Contact must be 11 digits starting with 09.'); valid = false; }
                     }
-                    if (complainantEmail && complainantEmail.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(complainantEmail.value.trim())) {
-                        sf(complainantEmail, 'Enter a valid email address.'); valid = false;
+                    if (complainantEmail) {
+                        const emailValue = complainantEmail.value.trim();
+                        if (!emailValue) {
+                            sf(complainantEmail, 'Email is required.');
+                            valid = false;
+                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                            sf(complainantEmail, 'Enter a valid email address.'); valid = false;
+                        }
                     }
                     if (incidentDate) {
                         const selected = new Date(incidentDate.value);
@@ -2676,12 +3322,15 @@
 
         // Auto-submit search after typing (optional)
         let searchTimeout;
-        document.getElementById('globalSearch')?.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('searchForm').submit();
-            }, 500);
-        });
+        const globalSearch = document.getElementById('globalSearch');
+        if (globalSearch) {
+            globalSearch.addEventListener('keyup', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    document.getElementById('searchForm').submit();
+                }, 500);
+            });
+        }
 
         function openZoomModal(imageUrl) {
             const zoomImage = document.getElementById('zoomedImage');
@@ -2709,7 +3358,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Witness Name</label>
-                            <input type="text" class="form-control" name="witnesses[${witnessCount}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                            <input type="text" class="form-control" name="witnesses[${witnessCount}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contact Number</label>
@@ -2971,7 +3620,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Witness Name</label>
-                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                            <input type="text" class="form-control" name="witnesses[${editWitnessCount[blotterId]}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contact Number</label>
@@ -2994,6 +3643,113 @@
                 witnessElement.remove();
             }
         }
+
+        var quickEditWitnessCount = window.quickEditWitnessCount || {};
+        window.quickEditWitnessCount = quickEditWitnessCount;
+
+        function resolveQuickEditWitnessContainer(blotterId, triggerElement) {
+            let container = document.getElementById(`quick-edit-witnesses-container-${blotterId}`)
+                || document.getElementById(`edit-witnesses-container-${blotterId}`);
+
+            if (!container && triggerElement) {
+                const modal = triggerElement.closest('.modal');
+                if (modal) {
+                    container = modal.querySelector(`#quick-edit-witnesses-container-${blotterId}`)
+                        || modal.querySelector('#quick-edit-witnesses-container-' + blotterId)
+                        || modal.querySelector('[id^="quick-edit-witnesses-container-"]')
+                        || modal.querySelector('[id^="edit-witnesses-container-"]');
+                }
+            }
+
+            if (!container) {
+                const activeModal = document.querySelector('.modal.show');
+                if (activeModal) {
+                    container = activeModal.querySelector('[id^="quick-edit-witnesses-container-"]')
+                        || activeModal.querySelector('[id^="edit-witnesses-container-"]');
+                }
+            }
+
+            return container;
+        }
+
+        function addQuickEditWitnessField(blotterId, triggerElement) {
+            const witnessCountState = window.quickEditWitnessCount || (window.quickEditWitnessCount = {});
+            const container = resolveQuickEditWitnessContainer(blotterId, triggerElement);
+            if (!container) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unable to add witness',
+                        text: 'Witness fields container was not found. Please reopen the modal and try again.'
+                    });
+                }
+                return false;
+            }
+
+            if (!witnessCountState[blotterId]) {
+                witnessCountState[blotterId] = container.querySelectorAll('.witness-card').length;
+            }
+            witnessCountState[blotterId]++;
+
+            const idx = witnessCountState[blotterId];
+
+            const witnessHtml = `
+                <div class="witness-card mb-3" id="quick-edit-witness-${blotterId}-${idx}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-semibold">Witness</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger js-remove-quick-witness" data-blotter-id="${blotterId}" data-witness-id="${idx}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Witness Name</label>
+                            <input type="text" class="form-control" name="witnesses[${idx}][name]" placeholder="Full name" minlength="2" maxlength="255" pattern="[A-Za-z .,'\\-]+" title="Use letters, spaces, apostrophes, commas, periods, and hyphens only.">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Witness Contact</label>
+                            <input type="text" class="form-control" name="witnesses[${idx}][contact]" placeholder="09XXXXXXXXX" inputmode="numeric" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter 11 digits starting with 09.">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Witness Statement</label>
+                            <input type="text" class="form-control" name="witnesses[${idx}][statement]" placeholder="What did the witness see/hear?">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', witnessHtml);
+            return true;
+        }
+
+        function removeQuickEditWitnessField(blotterId, id) {
+            const witnessElement = document.getElementById(`quick-edit-witness-${blotterId}-${id}`);
+            if (witnessElement) {
+                witnessElement.remove();
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const addBtn = event.target.closest('.js-add-quick-witness');
+            if (addBtn) {
+                event.preventDefault();
+                const blotterId = Number(addBtn.getAttribute('data-blotter-id'));
+                if (!Number.isNaN(blotterId) && blotterId > 0) {
+                    addQuickEditWitnessField(blotterId, addBtn);
+                }
+                return;
+            }
+
+            const removeBtn = event.target.closest('.js-remove-quick-witness');
+            if (removeBtn) {
+                event.preventDefault();
+                const blotterId = Number(removeBtn.getAttribute('data-blotter-id'));
+                const witnessId = Number(removeBtn.getAttribute('data-witness-id'));
+                if (!Number.isNaN(blotterId) && !Number.isNaN(witnessId) && blotterId > 0 && witnessId >= 0) {
+                    removeQuickEditWitnessField(blotterId, witnessId);
+                }
+            }
+        });
 
         function removeEvidence(evidenceId) {
             Swal.fire({

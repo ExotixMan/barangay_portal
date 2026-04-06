@@ -14,7 +14,7 @@
     <input type="text" name="contact_number" value="{{ $request->contact_number }}"><br><br>
 
     <label>Remarks</label><br>
-    <textarea name="remarks">{{ $request->remarks }}</textarea><br><br>
+    <textarea name="remarks" maxlength="40">{{ $request->remarks }}</textarea><br><br>
 
     <button type="submit">Update</button>
 </form>

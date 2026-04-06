@@ -25,8 +25,12 @@ class EventController extends Controller
         }
 
         // Type filter (upcoming/past)
-        if ($request->type && in_array($request->type, ['upcoming', 'past'])) {
-            $query->where('type', $request->type);
+        if ($request->type && in_array($request->type, ['upcoming', 'past', 'deleted'], true)) {
+            if ($request->type === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('type', $request->type);
+            }
         }
 
         // Month filter
@@ -40,7 +44,7 @@ class EventController extends Controller
         }
 
         // Stats
-        $total_count = Event::count();
+        $total_count = Event::withTrashed()->count();
         $upcoming_count = Event::where('type', 'upcoming')->count();
         $past_count = Event::where('type', 'past')->count();
         $total_attendees = Event::sum('attendees');
@@ -157,15 +161,10 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        // Delete image
-        if ($event->image && file_exists(public_path($event->image))) {
-            unlink(public_path($event->image));
-        }
-
         $title = $event->title;
         $event->delete();
 
-        return back()->with('success', 'Event "' . $title . '" deleted successfully.');
+        return back()->with('success', 'Event "' . $title . '" archived successfully.');
     }
 
     public function bulkDelete(Request $request)
@@ -175,18 +174,18 @@ class EventController extends Controller
             'ids.*' => 'exists:events,id'
         ]);
 
-        $events = Event::whereIn('id', $request->ids)->get();
-
-        // Delete images
-        foreach ($events as $event) {
-            if ($event->image && file_exists(public_path($event->image))) {
-                unlink(public_path($event->image));
-            }
-        }
-
         Event::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', count($request->ids) . ' selected event(s) deleted successfully.');
+        return back()->with('success', count($request->ids) . ' selected event(s) archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $event = Event::withTrashed()->findOrFail($id);
+        $title = $event->title;
+        $event->restore();
+
+        return back()->with('success', 'Event "' . $title . '" restored successfully.');
     }
 
     public function show($id)

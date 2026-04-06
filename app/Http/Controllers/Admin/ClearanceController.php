@@ -13,6 +13,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\File;
+use App\Models\StatusRemarkHistory;
+use App\Mail\Notification as NotificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ClearanceController extends Controller
 {
@@ -34,14 +39,18 @@ class ClearanceController extends Controller
 
         // Status filter
         if ($request->status) {
-            $query->where('status', $request->status);
+            if ($request->status === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
         }
         // Filter by Purpose
         if ($request->purpose && in_array($request->purpose, ['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])) {
             $query->where('purpose', $request->purpose);
         }
 
-        $total_count = BarangayClearance::count(); // FIXED: removed all() since count() works directly
+        $total_count = BarangayClearance::withTrashed()->count(); // Includes archived records
         $processing_count = BarangayClearance::where('status', 'processing')->count();
         $approved_count   = BarangayClearance::where('status', 'approved')->count();
         $rejected_count   = BarangayClearance::where('status', 'rejected')->count();
@@ -83,7 +92,7 @@ class ClearanceController extends Controller
             'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
-            'fee' => 'nullable|numeric|min:0|max:99999.99',
+            'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);
 
         try {
@@ -153,7 +162,7 @@ class ClearanceController extends Controller
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
-            'fee' => 'nullable|numeric|min:0|max:99999.99',
+            'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);
 
         try {
@@ -205,19 +214,37 @@ class ClearanceController extends Controller
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses)
+            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'remarks' => 'nullable|required_if:status,rejected|string|max:40',
+            'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,5})(?:\.\d{1,2})?$/'],
         ]);
 
         $newStatus = $request->status;
         $oldStatus = $application->status;
+        $remarks = trim((string) $request->input('remarks', ''));
+        $feeValue = $request->filled('fee') ? (float) $request->input('fee') : null;
 
         // Optional: Add business logic rules for status transitions
         // For example, prevent certain transitions if needed
         
         // Update status and timestamp
         $application->status = $newStatus;
+        $application->fee = $feeValue;
         $application->status_updated_at = now();
         $application->save();
+
+        StatusRemarkHistory::create([
+            'request_type' => 'clearance',
+            'request_id' => $application->id,
+            'reference_number' => $application->reference_number,
+            'status' => $newStatus,
+            'remarks' => $remarks !== '' ? $remarks : 'Status updated by admin.',
+            'channel' => 'system',
+            'recipient' => null,
+            'admin_user_id' => auth('admin')->id(),
+        ]);
+
+        $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
         // Log approval/status update
         if (auth('admin')->check()) {
@@ -244,8 +271,114 @@ class ClearanceController extends Controller
             ? 'Depending on purpose'
             : 'PHP ' . number_format((float) $application->fee, 2);
 
+        $deliverySummary = $this->formatDeliverySummary($deliveryResults);
+
         return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Current fee: {$feeText}.");
+            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Current fee: {$feeText}. Notifications: {$deliverySummary}.");
+    }
+
+    private function sendStatusNotifications(Request $request, BarangayClearance $application, string $status, string $remarks): array
+    {
+        $results = ['email' => 'not selected', 'sms' => 'not selected'];
+        $allowed = ['approved', 'ready_pickup', 'rejected'];
+        if (!in_array($status, $allowed, true)) {
+            return ['email' => 'not available for status', 'sms' => 'not available for status'];
+        }
+
+        $statusLabel = ucfirst(str_replace('_', ' ', $status));
+        $feeText = is_null($application->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $application->fee, 2);
+        $remarksText = ($status === 'rejected' && $remarks !== '') ? " Remarks: {$remarks}" : '';
+
+        if ($request->boolean('notify_email')) {
+            if (empty($application->email)) {
+                $results['email'] = 'failed (missing email)';
+            } else {
+            try {
+                $message = "Your barangay clearance application (Ref: {$application->reference_number}) status is now {$statusLabel}. Fee: {$feeText}.{$remarksText}";
+                Mail::to($application->email)->send(new NotificationMail(trim($application->first_name . ' ' . $application->last_name), $message));
+
+                $this->storeNotificationHistory(
+                    'clearance',
+                    (int) $application->id,
+                    (string) $application->reference_number,
+                    $status,
+                    $remarks !== '' ? $remarks : 'Email status update sent.',
+                    'email',
+                    $application->email
+                );
+                $results['email'] = 'sent';
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending clearance status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['email'] = 'failed';
+            }
+            }
+        }
+
+        if ($request->boolean('notify_sms')) {
+            if (empty($application->contact_number)) {
+                $results['sms'] = 'failed (missing mobile number)';
+            } else {
+            try {
+                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                if (substr($recipient, 0, 1) === '0') {
+                    $recipient = '63' . substr($recipient, 1);
+                } elseif (substr($recipient, 0, 1) === '9') {
+                    $recipient = '63' . $recipient;
+                }
+
+                $smsMessage = "Clearance {$application->reference_number}: status {$statusLabel}. Fee {$feeText}.{$remarksText}";
+                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                    'apikey' => env('SMS_API_KEY'),
+                    'number' => $recipient,
+                    'message' => $smsMessage,
+                    'sendername' => env('SMS_SENDER_NAME'),
+                ]);
+
+                if ($response->successful()) {
+                    $this->storeNotificationHistory(
+                        'clearance',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'SMS status update sent.',
+                        'sms',
+                        $recipient
+                    );
+                    $results['sms'] = 'sent';
+                } else {
+                    $results['sms'] = 'failed';
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Failed sending clearance status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                $results['sms'] = 'failed';
+            }
+            }
+        }
+
+        return $results;
+    }
+
+    private function formatDeliverySummary(array $results): string
+    {
+        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+    }
+
+    private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
+    {
+        try {
+            StatusRemarkHistory::create([
+                'request_type' => $requestType,
+                'request_id' => $requestId,
+                'reference_number' => $reference,
+                'status' => $status,
+                'remarks' => $remarks,
+                'channel' => $channel,
+                'recipient' => $recipient,
+                'admin_user_id' => auth('admin')->id(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed storing clearance notification history.', ['error' => $e->getMessage(), 'id' => $requestId]);
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -254,18 +387,6 @@ class ClearanceController extends Controller
             'ids' => 'required|array',
             'ids.*' => 'exists:barangay_clearances,id'
         ]);
-
-        $applications = BarangayClearance::whereIn('id', $request->ids)->get();
-
-        foreach ($applications as $application) {
-            if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-                unlink(public_path($application->primary_proof));
-            }
-
-            if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
-                unlink(public_path($application->valid_id_path));
-            }
-        }
         
         BarangayClearance::whereIn('id', $request->ids)->delete();
 
@@ -273,19 +394,19 @@ class ClearanceController extends Controller
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
-                'action' => 'BULK_DELETE',
+                'action' => 'BULK_ARCHIVE',
                 'module' => 'Clearance',
                 'details' => [
                     'ids' => $request->ids,
                     'count' => count($request->ids),
-                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
         }
 
-        return back()->with('success', count($request->ids) . ' selected application(s) deleted successfully.');
+        return back()->with('success', count($request->ids) . ' selected application(s) archived successfully.');
     }
 
     public function export(Request $request)
@@ -399,18 +520,51 @@ class ClearanceController extends Controller
     {
         $application = BarangayClearance::findOrFail($id);
 
-        if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-            unlink(public_path($application->primary_proof));
-        }
-
-        if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
-            unlink(public_path($application->valid_id_path));
-        }
-
         $reference = $application->reference_number;
         $application->delete();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_ARCHIVED',
+                'module' => 'Clearance',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
         
-        return back()->with('success', 'Application #' . $reference . ' deleted successfully.');
+        return back()->with('success', 'Application #' . $reference . ' archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $application = BarangayClearance::withTrashed()->findOrFail($id);
+        $reference = $application->reference_number;
+        $application->restore();
+
+        if (auth('admin')->check()) {
+            $request = request();
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'APPLICATION_RESTORED',
+                'module' => 'Clearance',
+                'details' => [
+                    'application_id' => $application->id,
+                    'reference_number' => $reference,
+                    'restored_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
     }
 
     public function generate(Request $request)

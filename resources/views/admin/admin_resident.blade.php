@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -147,7 +147,7 @@
         }
 
         .alert-danger li::before {
-            content: 'âš ï¸';
+            content: '⚠️';
             margin-right: 0.5rem;
         }
 
@@ -894,9 +894,9 @@
                         @if(auth('admin')->user()->hasAnyPermission(['delete_residents', 'bulk_delete_residents']))
                         <form id="bulkForm" method="POST" action="{{ route('admin.residents.bulkDelete') }}" style="display: inline;">
                             @csrf
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                                <span class="d-none d-sm-inline">Bulk Archive</span>
                             </button>
                         </form>
                         @endif
@@ -1728,7 +1728,7 @@
     <script src="{{ asset('js/admin/nav.js') }}"></script>
 
     <script>
-        // Bulk delete function
+        // Bulk Archive function
         function bulkDelete() {
 
             const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
@@ -1739,7 +1739,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one resident to delete.',
+                    text: 'Please select at least one resident to archive.',
                     confirmButtonColor: '#d33'
                 });
 
@@ -1748,13 +1748,13 @@
 
             // SweetAlert Confirmation
             Swal.fire({
-                title: 'Confirm Bulk Delete',
-                text: `Are you sure you want to delete ${checkboxes.length} selected resident(s)?`,
+                title: 'Confirm Bulk Archive',
+                text: `Are you sure you want to archive ${checkboxes.length} selected resident(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Delete'
+                confirmButtonText: 'Yes, Archive'
             }).then((result) => {
 
                 if (result.isConfirmed) {
@@ -1780,7 +1780,7 @@
             const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
             const exportForm = document.getElementById('exportForm');
 
-            // If nothing selected â†’ Ask to export all
+            // If nothing selected → Ask to export all
             if (checkboxes.length === 0) {
 
                 Swal.fire({
@@ -1802,7 +1802,7 @@
                 return;
             }
 
-            // If selected â†’ Confirm export selected
+            // If selected → Confirm export selected
             Swal.fire({
                 title: 'Export Selected?',
                 text: `Export ${checkboxes.length} selected resident(s)?`,

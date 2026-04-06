@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +84,7 @@
         }
 
         .alert-danger li::before {
-            content: 'âš ï¸';
+            content: '⚠️';
             margin-right: 0.5rem;
         }
 
@@ -158,12 +158,21 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1200px;
+            width: 100%;
+            min-width: 960px;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 1400px) {
+            .table {
+                min-width: 880px;
+            }
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 1000px;
+                min-width: 800px;
+                font-size: 0.8rem;
             }
         }
 
@@ -171,19 +180,22 @@
             background: #f8f9fa;
             color: #495057;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.35px;
             border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.2;
+            padding: 0.65rem 0.5rem;
         }
 
         .table tbody td {
             vertical-align: middle;
-            padding: 1rem 0.75rem;
+            padding: 0.65rem 0.5rem;
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.25;
         }
 
         .table tbody tr:hover {
@@ -1008,6 +1020,7 @@
                                     <option value="">All Types</option>
                                     <option value="upcoming" {{ request('type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
                                     <option value="past" {{ request('type') == 'past' ? 'selected' : '' }}>Past</option>
+                                    <option value="deleted" {{ request('type') == 'deleted' ? 'selected' : '' }}>Archived</option>
                                 </select>
                             </div>
 
@@ -1039,9 +1052,9 @@
                         <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_events'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                                <span class="d-none d-sm-inline">Bulk Archive</span>
                             </button>
                         </div>
                         @endif
@@ -1062,7 +1075,7 @@
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="eventsTable">
                             <thead class="table-light">
-                                <tr>
+                                <tr class="{{ $event->deleted_at ? 'table-danger' : '' }}">
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
@@ -1169,7 +1182,9 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if($event->type == 'upcoming')
+                                        @if($event->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($event->type == 'upcoming')
                                             <span class="badge bg-success-subtle text-success">Upcoming</span>
                                         @else
                                             <span class="badge bg-secondary-subtle text-secondary">Past</span>
@@ -1183,21 +1198,32 @@
                                             </button>
 
                                             <!-- Edit (requires update_events permission) -->
+                                            @if(!$event->deleted_at)
                                             @admin_can('update_events')
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}" title="Edit Event">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endadmin_can
+                                            @endif
 
                                             <!-- Delete (requires delete_events permission) -->
                                             @admin_can('delete_events')
-                                            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this event permanently?')">
+                                            @if($event->deleted_at)
+                                            <form method="POST" action="{{ route('admin.events.restore', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this event?')">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                                    <i class="fas fa-rotate-left"></i>
+                                                </button>
+                                            </form>
+                                            @else
+                                            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this event?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                             @endadmin_can
                                         </div>
                                     </td>
@@ -1656,14 +1682,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Bulk delete function
+        // Bulk Archive function
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.event-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
             const idsContainer = document.getElementById('bulkIdsContainer');
 
             if (!bulkForm || !idsContainer) {
-                alert('Bulk delete form is unavailable. Please refresh the page.');
+                alert('Bulk Archive form is unavailable. Please refresh the page.');
                 return;
             }
 
@@ -1672,11 +1698,11 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'No Selection',
-                        text: 'Please select at least one event to delete.',
+                        text: 'Please select at least one event to archive.',
                         confirmButtonColor: '#d33'
                     });
                 } else {
-                    alert('Please select at least one event to delete.');
+                    alert('Please select at least one event to archive.');
                 }
                 return;
             }
@@ -1694,20 +1720,20 @@
 
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: 'Confirm Bulk Delete',
-                    text: `Are you sure you want to delete ${checkboxes.length} selected event(s)?`,
+                    title: 'Confirm Bulk Archive',
+                    text: `Are you sure you want to archive ${checkboxes.length} selected event(s)?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Delete'
+                    confirmButtonText: 'Yes, Archive'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         bulkForm.submit();
                     }
                 });
             } else {
-                if (confirm(`Are you sure you want to delete ${checkboxes.length} event(s)?`)) {
+                if (confirm(`Are you sure you want to archive ${checkboxes.length} event(s)?`)) {
                     bulkForm.submit();
                 }
             }

@@ -289,26 +289,26 @@ class ResidentController extends Controller
 
         foreach ($residents as $resident) {
             $resident->delete();
-            $this->log($resident, 'Bulk Deleted');
+            $this->log($resident, 'Bulk Archived');
         }
 
         // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
-                'action' => 'BULK_DELETE',
+                'action' => 'BULK_ARCHIVE',
                 'module' => 'Residents',
                 'details' => [
                     'ids' => $request->ids,
                     'count' => count($request->ids),
-                    'deleted_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
         }
 
-        return back()->with('success', 'Selected residents deleted.');
+        return back()->with('success', 'Selected residents archived.');
     }
 
     public function export(Request $request)

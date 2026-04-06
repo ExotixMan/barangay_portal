@@ -33,7 +33,7 @@ class RequestsController extends Controller
             "specify_others" => "nullable|string|max:255", 
             "valid_id_path" => "nullable|file",          
             "proof_of_residency_path" => "nullable|file",
-            "remarks" => "nullable|string"
+            "remarks" => "nullable|string|max:40"
         ]);
 
         $data['resident_id'] = $user->id;

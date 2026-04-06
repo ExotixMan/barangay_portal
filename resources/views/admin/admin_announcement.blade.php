@@ -162,12 +162,21 @@
 
         .table {
             margin-bottom: 0;
-            min-width: 1200px;
+            width: 100%;
+            min-width: 960px;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 1400px) {
+            .table {
+                min-width: 880px;
+            }
         }
 
         @media (max-width: 768px) {
             .table {
-                min-width: 1000px;
+                min-width: 800px;
+                font-size: 0.8rem;
             }
         }
 
@@ -175,19 +184,22 @@
             background: #f8f9fa;
             color: #495057;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.35px;
             border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.2;
+            padding: 0.65rem 0.5rem;
         }
 
         .table tbody td {
             vertical-align: middle;
-            padding: 1rem 0.75rem;
+            padding: 0.65rem 0.5rem;
             color: #4a5568;
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.25;
         }
 
         .table tbody tr:hover {
@@ -1016,6 +1028,7 @@
                                     <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
                                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                                     <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
+                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deleted (Archive Bin)</option>
                                 </select>
                             </div>
 
@@ -1048,9 +1061,9 @@
                         <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_announcements'))
                         <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Delete">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Delete</span>
+                                <span class="d-none d-sm-inline">Bulk Archive</span>
                             </button>
                         </div>
                         @endif
@@ -1071,7 +1084,7 @@
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="announcementsTable">
                             <thead class="table-light">
-                                <tr>
+                                <tr class="{{ $ann->deleted_at ? 'table-danger' : '' }}">
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
@@ -1187,7 +1200,9 @@
                                         {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : '���' }}
                                     </td>
                                     <td>
-                                        @if($ann->status == 'published')
+                                        @if($ann->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($ann->status == 'published')
                                             <span class="badge bg-success-subtle text-success">Published</span>
                                         @elseif($ann->status == 'draft')
                                             <span class="badge bg-warning-subtle text-warning">Draft</span>
@@ -1203,14 +1218,16 @@
                                             </button>
 
                                             <!-- Edit (requires update_announcements permission) -->
+                                            @if(!$ann->deleted_at)
                                             @admin_can('update_announcements')
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ $ann->id }}" title="Edit Announcement">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             @endadmin_can
+                                            @endif
 
                                             <!-- Feature/Unfeature (requires feature_announcements permission) -->
-                                            @if($ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
+                                            @if(!$ann->deleted_at && $ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
                                                 <form method="POST" action="{{ route('admin.announcements.toggle-feature', $ann->id) }}" style="display: inline;">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ $ann->is_featured ? 'Remove Featured' : 'Mark as Featured' }}" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
@@ -1221,13 +1238,22 @@
 
                                             <!-- Delete (requires delete_announcements permission) -->
                                             @admin_can('delete_announcements')
-                                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this announcement permanently?')">
+                                            @if($ann->deleted_at)
+                                            <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this announcement?')">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                                    <i class="fas fa-rotate-left"></i>
+                                                </button>
+                                            </form>
+                                            @else
+                                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this announcement?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                             @endadmin_can
                                         </div>
                                     </td>
@@ -1659,14 +1685,14 @@
     <script src="{{ asset('js/admin/nav.js') }}"></script>
 
     <script>
-        // Bulk delete function
+        // Bulk Archive function
         function bulkDelete() {
             const checkboxes = document.querySelectorAll('.announcement-checkbox:checked');
             const bulkForm = document.getElementById('bulkForm');
             const idsContainer = document.getElementById('bulkIdsContainer');
 
             if (!bulkForm || !idsContainer) {
-                alert('Bulk delete form is unavailable. Please refresh the page.');
+                alert('Bulk Archive form is unavailable. Please refresh the page.');
                 return;
             }
 
@@ -1675,11 +1701,11 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'No Selection',
-                        text: 'Please select at least one announcement to delete.',
+                        text: 'Please select at least one announcement to archive.',
                         confirmButtonColor: '#d33'
                     });
                 } else {
-                    alert('Please select at least one announcement to delete.');
+                    alert('Please select at least one announcement to archive.');
                 }
                 return;
             }
@@ -1696,20 +1722,20 @@
 
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: 'Confirm Bulk Delete',
-                    text: `Are you sure you want to delete ${checkboxes.length} selected announcement(s)?`,
+                    title: 'Confirm Bulk Archive',
+                    text: `Are you sure you want to archive ${checkboxes.length} selected announcement(s)?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Delete'
+                    confirmButtonText: 'Yes, Archive'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         bulkForm.submit();
                     }
                 });
             } else {
-                if (confirm(`Are you sure you want to delete ${checkboxes.length} announcement(s)?`)) {
+                if (confirm(`Are you sure you want to archive ${checkboxes.length} announcement(s)?`)) {
                     bulkForm.submit();
                 }
             }

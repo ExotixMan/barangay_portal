@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BarangayClearance extends Model
 {
+    use SoftDeletes;
+
 
     protected $table = 'barangay_clearances';
     

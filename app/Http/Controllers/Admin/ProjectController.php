@@ -26,8 +26,12 @@ class ProjectController extends Controller
         }
 
         // Status filter
-        if ($request->status && in_array($request->status, ['ongoing', 'completed'])) {
-            $query->where('status', $request->status);
+        if ($request->status && in_array($request->status, ['ongoing', 'completed', 'deleted'], true)) {
+            if ($request->status === 'deleted') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         // Progress range filter
@@ -58,7 +62,7 @@ class ProjectController extends Controller
         }
 
         // Stats
-        $total_count = Project::count();
+        $total_count = Project::withTrashed()->count();
         $ongoing_count = Project::where('status', 'ongoing')->count();
         $completed_count = Project::where('status', 'completed')->count();
         $avg_progress = round(Project::avg('progress') ?? 0);
@@ -151,7 +155,7 @@ class ProjectController extends Controller
         $title = $project->title;
         $project->delete();
 
-        return back()->with('success', 'Project "' . $title . '" deleted successfully.');
+        return back()->with('success', 'Project "' . $title . '" archived successfully.');
     }
 
     public function bulkDelete(Request $request)
@@ -164,7 +168,16 @@ class ProjectController extends Controller
         $count = count($request->ids);
         Project::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', $count . ' selected project(s) deleted successfully.');
+        return back()->with('success', $count . ' selected project(s) archived successfully.');
+    }
+
+    public function restore($id)
+    {
+        $project = Project::withTrashed()->findOrFail($id);
+        $title = $project->title;
+        $project->restore();
+
+        return back()->with('success', 'Project "' . $title . '" restored successfully.');
     }
 
     public function show($id)
