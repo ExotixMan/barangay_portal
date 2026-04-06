@@ -89,7 +89,7 @@ class ResidentsController extends Controller
         $data['password'] = Hash::make($data['password']);
         $data['phone_otp'] = Hash::make($otp);
         $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
-        $data['phone_verified'] = false;
+        $data['phone_verified'] = 'false';
 
         $resident = Residents::create($data);
 
@@ -313,7 +313,7 @@ class ResidentsController extends Controller
         }
 
         $resident->update([
-            'phone_verified' => true,
+            'phone_verified' => 'true',
             'phone_otp' => null,
             'phone_otp_expires_at' => null
         ]);
