@@ -660,6 +660,19 @@
             text-decoration: underline;
         }
 
+        .captcha-section {
+            margin: 1.5rem 0;
+            padding: 1.2rem;
+            background: var(--surface-soft);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .captcha-box {
+            display: inline-block;
+            max-width: 100%;
+        }
+
         /* Form Actions */
         .form-actions {
             margin-top: 2.5rem;
@@ -929,6 +942,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
+
+            @php
+                $recaptchaSiteKey = config('services.recaptcha.site_key');
+            @endphp
 
             <form method="POST" action="{{ route('register.res') }}" id="registerForm" enctype="multipart/form-data" novalidate>
                 @csrf
@@ -1214,6 +1231,24 @@
                         @enderror
                     </div>
 
+                    <div class="captcha-section">
+                        <label for="recaptchaBox" class="mb-2">
+                            <i class="fas fa-shield-alt"></i> Security Check *
+                        </label>
+
+                        @if (!empty($recaptchaSiteKey))
+                            <div class="captcha-box" id="recaptchaBox">
+                                <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+                            </div>
+                        @else
+                            <div class="error-message">CAPTCHA is not configured. Please contact support.</div>
+                        @endif
+
+                        @error('g-recaptcha-response')
+                            <div class="error-message" id="captchaError">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn-prev" data-prev="step1">
                             <i class="fas fa-arrow-left"></i> {{ __('messages.register_prev_btn') }}
@@ -1351,6 +1386,9 @@
     </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
+    @if (!empty($recaptchaSiteKey))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
 
@@ -1379,6 +1417,8 @@
             const birthdateInput = document.getElementById("birthdate");
             const validIdInput = document.getElementById("valid_id");
             const fileUploadText = document.getElementById("fileUploadText");
+            const recaptchaBox = document.getElementById("recaptchaBox");
+            const recaptchaEnabled = {!! !empty($recaptchaSiteKey) ? 'true' : 'false' !!};
 
             let usernameCheckTimer = null;
             let usernameCheckSeq = 0;
@@ -1803,6 +1843,26 @@
             }
 
             // ============= OTHER FUNCTIONS (unchanged) =============
+            function clearCaptchaError() {
+                const existingError = document.getElementById('captchaError');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+
+            function showCaptchaError(message) {
+                clearCaptchaError();
+                const parent = recaptchaBox ? recaptchaBox.parentNode : document.querySelector('.captcha-section');
+                if (!parent) {
+                    return;
+                }
+
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'error-message';
+                errorMessage.id = 'captchaError';
+                errorMessage.textContent = message;
+                parent.appendChild(errorMessage);
+            }
             
             // Set max date for birthdate
             if (birthdateInput) {
@@ -2035,6 +2095,21 @@
                         }
                     }
 
+                    if (recaptchaEnabled) {
+                        const captchaToken = window.grecaptcha ? window.grecaptcha.getResponse() : '';
+                        if (!captchaToken) {
+                            showCaptchaError('Please complete the CAPTCHA verification');
+                            const captchaSection = document.querySelector('.captcha-section');
+                            if (captchaSection) {
+                                captchaSection.classList.add('shake');
+                                setTimeout(() => captchaSection.classList.remove('shake'), 400);
+                            }
+                            return;
+                        }
+
+                        clearCaptchaError();
+                    }
+
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.classList.add("loading");
@@ -2065,11 +2140,7 @@
             updatePasswordMatchUI();
 
             // Auto-navigate to step 2 if server returned errors for step 2 fields
-            const step2Fields = ['username', 'password'];
-            const hasStep2Errors = step2Fields.some(id => {
-                const el = document.getElementById(id);
-                return el && el.classList.contains('is-invalid');
-            });
+            const hasStep2Errors = {!! $errors->hasAny(['username', 'password', 'password_confirmation', 'terms', 'g-recaptcha-response']) ? 'true' : 'false' !!};
             if (hasStep2Errors) {
                 goToStep('step2');
             }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Http;
 use App\Models\Residents;
 use App\Models\Announcement;
 use App\Services\OtpSmsService;
@@ -57,6 +58,7 @@ class ResidentsController extends Controller
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
             'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
             'terms' => 'accepted',
+            'g-recaptcha-response' => 'required|string',
         ], [
             'firstname.regex' => 'First name may only contain letters, spaces, dots, apostrophes, and hyphens',
             'middlename.regex' => 'Middle name may only contain letters, spaces, dots, apostrophes, and hyphens',
@@ -70,7 +72,14 @@ class ResidentsController extends Controller
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
             'username.min' => 'Username must be at least 4 characters long',
             'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',
+            'g-recaptcha-response.required' => 'Please complete the CAPTCHA verification',
         ]);
+
+        if (!$this->verifyRecaptcha((string) $request->input('g-recaptcha-response'), (string) $request->ip())) {
+            return back()
+                ->withErrors(['g-recaptcha-response' => 'CAPTCHA verification failed. Please try again.'])
+                ->withInput();
+        }
 
         if ($request->hasFile('valid_id')) {
             $file = $request->file('valid_id');
@@ -106,6 +115,34 @@ class ResidentsController extends Controller
 
         return redirect()->route('otp.form')
             ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
+    }
+
+    private function verifyRecaptcha(string $token, string $ip): bool
+    {
+        $secret = (string) config('services.recaptcha.secret_key');
+
+        if ($secret === '' || $token === '') {
+            return false;
+        }
+
+        try {
+            $response = Http::asForm()
+                ->timeout(8)
+                ->post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret' => $secret,
+                    'response' => $token,
+                    'remoteip' => $ip,
+                ]);
+
+            if (!$response->ok()) {
+                return false;
+            }
+
+            $payload = $response->json();
+            return (bool) data_get($payload, 'success', false);
+        } catch (\Throwable $exception) {
+            return false;
+        }
     }
 
     public function checkUsernameAvailability(Request $request)
