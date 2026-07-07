@@ -2548,14 +2548,14 @@
         <div class="menu-section">System</div>
         
         @admin_can('view_users')
-        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.users.index') }}" class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users & Roles</span>
         </a>
         @endadmin_can
 
         @admin_can('manage_chatbot')
-        <a href="{{ route('admin.chatbot.index') }}" class="active" onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
