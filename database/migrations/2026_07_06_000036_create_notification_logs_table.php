@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('notification_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('channel'); // sms, email, ai
+            $table->string('recipient')->nullable();
+            $table->string('subject')->nullable();
+            $table->string('status')->default('pending'); // pending, sent, failed
+            $table->text('message')->nullable();
+            $table->text('error_message')->nullable();
+            $table->string('reference_type')->nullable();
+            $table->unsignedBigInteger('reference_id')->nullable();
+            $table->unsignedBigInteger('sent_by')->nullable();
+            $table->timestamp('sent_at')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->index(['channel', 'status', 'sent_at']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('notification_logs');
+    }
+};

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
+use App\Services\AdminSettingsService;
 
 class ResidentController extends Controller
 {
@@ -176,11 +177,11 @@ class ResidentController extends Controller
 
         $this->log($resident, 'Created');
 
-        return redirect()->route('admin.residents.index') // FIXED: added redirect with proper route
+        return redirect()->route('admin.residents.index')
             ->with('success', 'Resident added successfully.');
     }
 
-    public function update(Request $request, $id) // FIXED: changed parameter to $id
+    public function update(Request $request, int $id) // FIXED: changed parameter to $id
     {
         $resident = Residents::findOrFail($id);
         
@@ -225,20 +226,22 @@ class ResidentController extends Controller
             'address'   => $request->address,
         ]);
 
+        $this->log($resident, 'Updated');
+
         return back()->with('success', 'Resident updated successfully');
     }
 
-    public function destroy($id) // FIXED: changed parameter to $id
+    public function destroy(int $id)
     {
         $resident = Residents::findOrFail($id);
-        $resident->delete(); // Soft delete
-        $this->log($resident, 'Soft Deleted');
-        $message = 'Resident moved to trash.';
+        $resident->delete();
+        $this->log($resident, 'Deactivated');
+        $message = 'Resident moved to archive.';
     
         return redirect()->back()->with('success', $message);
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $resident = Residents::withTrashed()->findOrFail($id);
         $resident->restore();
@@ -247,7 +250,7 @@ class ResidentController extends Controller
         return redirect()->back()->with('success', 'Resident restored successfully.');
     }
 
-    public function verifyValidId($id)
+    public function verifyValidId(int $id)
     {
         $resident = Residents::withTrashed()->findOrFail($id);
 
@@ -323,12 +326,12 @@ class ResidentController extends Controller
         if ($request->ids) {
             $query->whereIn('id', $request->ids);
         } else {
-            $query->whereIn('id', Residents::pluck('id')); // FIXED: simplified
+            $query->whereIn('id', Residents::pluck('id'));
         }
 
         $residents = $query->get();
 
-        $filename = 'residents_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
+        $filename = 'residents_' . now()->format('Y-m-d_His') . '.csv'; 
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -376,12 +379,12 @@ class ResidentController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function log($resident, $action)
+    private function log(Residents $resident, string $action) : void
     {
         ResidentActivity::create([
             'residents_id' => $resident->id,
             'action' => $action,
-            'description' => $action . " by admin"
+            'description' => $action . " by " . (auth('admin')->user()?->full_name),
         ]);
     }
 }

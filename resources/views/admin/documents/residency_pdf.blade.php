@@ -15,6 +15,7 @@
             color: #000;
             margin: 0;
             padding: 0;
+            zoom: 0.7;
         }
 
         .document {

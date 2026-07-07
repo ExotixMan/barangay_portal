@@ -19,7 +19,9 @@ class ResidencyApplicationController extends Controller
             ]);
         }
 
-        return view('barangay_system.residency_form');
+        $resident = Auth::user();
+
+        return view('barangay_system.residency_form',compact('resident'));
     }
 
     public function store(Request $request)

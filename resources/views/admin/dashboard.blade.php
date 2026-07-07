@@ -39,6 +39,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            zoom: 0.75;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--gray-bg);

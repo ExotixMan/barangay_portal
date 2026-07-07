@@ -9,6 +9,25 @@
     --border-color: #e9ecef;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
+    --primary-soft: #fff5f5;
+    --success-soft: #eefaf2;
+    --warning-soft: #fff7ed;
+    --danger: #dc2626;
+    --danger-soft: #fff1f2;
+    --info-soft: #eff6ff;
+    --page-bg: #f8fafc;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #667085;
+    --muted-2: #98a2b3;
+    --line: #e5e7eb;
+    --line-strong: #d0d5dd;
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+    --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+    --radius-xl: 22px;
+    --radiuss-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
 }
 
 /* Thin Red Scrollbar Styles */
@@ -89,16 +108,25 @@
 
 /* Header */
 .header {
-    padding: 1rem 1.5rem;
-    background: white;
-    border-bottom: 1px solid var(--border-color);
+    min-height: 70px;
+    padding: .9rem 1.5rem;
+    background: rgba(255, 255, 255, .94);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 18;
 }
 
 .page-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 0;
+    color: var(--text);
+    font-size: 1.18rem;
+    font-weight: 800;
+    letter-spacing: -.025em;
 }
 
 @media (max-width: 768px) {
@@ -139,7 +167,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100vh; /* changed from 135vh */
     width: var(--sidebar-width);
     background: white;
     box-shadow: 2px 0 10px rgba(0,0,0,0.05);
@@ -148,6 +176,9 @@
     transition: all 0.3s ease;
     z-index: 1000;
     white-space: nowrap;
+
+    display: flex;
+    flex-direction: column;
 }
 
 /* Collapsed Sidebar - ICONS ONLY (Desktop) */
@@ -325,8 +356,8 @@
 }
 
 .logo {
-    width: 45px;
-    height: 45px;
+    width: 35px;
+    height: 35px;
     border-radius: 12px;
     object-fit: cover;
 }
@@ -732,4 +763,107 @@
         overflow-wrap: anywhere;
         word-break: break-word;
     }
+}
+
+/* Sidebar Admin Profile */
+.sidebar-account {
+    margin-top: auto;
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    background: white;
+}
+
+.sidebar-user-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 14px;
+    background: var(--primary-light);
+    color: #1e293b;
+}
+
+.sidebar-user-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+.sidebar-user-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    color: #1e293b;
+}
+
+.sidebar-user-role {
+    display: inline-flex;
+    margin-top: 0.25rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: white;
+    color: var(--primary-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.sidebar-user-email {
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+
+.sidebar-logout-form {
+    margin-top: 0.75rem;
+}
+
+.sidebar-logout-btn {
+    width: 100%;
+    border: 1px solid rgba(211, 47, 47, 0.2);
+    outline: none;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    background: white;
+    color: var(--primary);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-logout-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Collapsed sidebar profile */
+.sidebar.collapsed .sidebar-user-details,
+.sidebar.collapsed .sidebar-logout-text {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-account {
+    padding: 0.75rem 0.5rem;
+}
+
+.sidebar.collapsed .sidebar-user-card,
+.sidebar.collapsed .sidebar-logout-btn {
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.sidebar.collapsed .sidebar-user-icon {
+    width: 38px;
+    height: 38px;
 }

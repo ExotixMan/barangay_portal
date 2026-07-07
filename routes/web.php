@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminPermissionController;
 
 use App\Http\Controllers\Admin\RequestStatusController;
+use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\AIncidentReportsController;
@@ -175,6 +176,7 @@ Route::get('/register', function () {
 
 Route::post('/register', [ResidentsController::class, 'register_res'])->name('register.res');
 Route::get('/register/check-username', [ResidentsController::class, 'checkUsernameAvailability'])->name('register.check-username');
+Route::get('/register/check-availability', [ResidentsController::class, 'checkAccountAvailability'])->name('register.check-availability');
 
 // Forgot / Reset Password (public)
 Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('resident.password.request');
@@ -551,6 +553,20 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
             ->where('file', '[A-Za-z0-9._-]+')
             ->name('destroy');
     });
+
+    Route::get('/settings', [SystemSettingsController::class, 'index'])->middleware('permission:view_users')->name('settings.index');
+    Route::put('/settings', [SystemSettingsController::class, 'update'])->middleware('permission:view_users')->name('settings.update');
+    Route::prefix('settings/document-templates')
+    ->name('settings.templates.')
+    ->group(function () {
+        Route::get('/{type}/download', [SystemSettingsController::class, 'downloadDocumentTemplate'])
+            ->name('download');
+
+        Route::post('/{type}/upload', [SystemSettingsController::class, 'uploadDocumentTemplate'])
+            ->name('upload');
+    });
+    Route::post('/settings/semaphore/refresh', [SystemSettingsController::class, 'refreshSemaphoreStats'])
+    ->name('settings.semaphore.refresh');
 });
 use Illuminate\Support\Facades\Http;
 

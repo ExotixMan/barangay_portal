@@ -15,10 +15,15 @@ use App\Models\Residency;
 use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
+use App\Services\AdminSettingsService;
 
 class NotificationController extends Controller
 {
     use NotificationThrottler;
+
+    public function __construct(private AdminSettingsService $settings)
+    {
+    }
 
     private const REMARKED_STATUSES = ['rejected', 'dropped'];
     private const ALLOWED_REQUEST_TYPES = ['residency', 'indigency', 'clearance', 'incident'];
@@ -232,6 +237,18 @@ class NotificationController extends Controller
             $validated['message'] .= "\n\nRemarks: " . $validated['remarks'];
         }
 
+        $emailSettings = $this->settings->section('email');
+        config([
+            'mail.default' => $emailSettings['mailer'] ?? config('mail.default'),
+            'mail.mailers.smtp.host' => $emailSettings['host'] ?? config('mail.mailers.smtp.host'),
+            'mail.mailers.smtp.port' => $emailSettings['port'] ?? config('mail.mailers.smtp.port'),
+            'mail.mailers.smtp.username' => $emailSettings['username'] ?? config('mail.mailers.smtp.username'),
+            'mail.mailers.smtp.password' => $emailSettings['password'] ?? config('mail.mailers.smtp.password'),
+            'mail.mailers.smtp.encryption' => $emailSettings['encryption'] ?? config('mail.mailers.smtp.encryption'),
+            'mail.from.address' => $emailSettings['from_address'] ?? config('mail.from.address'),
+            'mail.from.name' => $emailSettings['from_name'] ?? config('mail.from.name'),
+        ]);
+
         // Check throttle limits before sending email
         if (!$this->canSendNotification('email', $validated['email'], 'email_channel')) {
             return back()->with('error', 'Too many emails sent. Please try again in a few moments.');
@@ -246,6 +263,7 @@ class NotificationController extends Controller
         // Record the notification for throttling tracking
         $this->recordNotification('email', $validated['email'], 'email_channel');
         $this->storeStatusRemarkHistory($validated, 'email', $validated['email']);
+        $this->settings->incrementUsage('email');
 
         // Log notification
         if (auth('admin')->check()) {
@@ -310,13 +328,15 @@ class NotificationController extends Controller
         }
 
         try {
-            $apiKey = env('SMS_API_KEY');
+            $smsSettings = $this->settings->section('sms');
+            $apiKey = (string) ($smsSettings['api_key'] ?? '');
 
             if (empty($apiKey)) {
                 return back()->with('error', 'SMS API key is missing.');
             }
 
-            $senderName = env('SMS_SENDER_NAME');
+            $senderName = (string) ($smsSettings['sender_name'] ?? 'HULONGDUHAT');
+            $endpoint = (string) ($smsSettings['api_base_url'] ?? 'https://api.semaphore.co/api/v4/messages');
 
             // Match Semaphore payload format used in debug route
             $payload = [
@@ -326,12 +346,13 @@ class NotificationController extends Controller
                 'sendername' => $senderName,
             ];
 
-            $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', $payload);
+            $response = Http::asForm()->post($endpoint, $payload);
 
             if ($response->successful()) {
                 // Record the notification for throttling tracking
                 $this->recordNotification('sms', $recipient, 'sms_channel');
                 $this->storeStatusRemarkHistory($validated, 'sms', $recipient);
+                $this->settings->incrementUsage('sms');
 
                 // Log notification
                 if (auth('admin')->check()) {

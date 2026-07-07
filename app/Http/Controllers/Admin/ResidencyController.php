@@ -285,11 +285,12 @@ class ResidencyController extends Controller
                 }
 
                 $smsMessage = "Residency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
-                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
-                    'apikey' => env('SMS_API_KEY'),
+                $smsConfig = config('services.sms', []);
+                $response = Http::asForm()->post((string) ($smsConfig['api_base_url'] ?? 'https://semaphore.co/api/v4/messages'), [
+                    'apikey' => (string) ($smsConfig['api_key'] ?? ''),
                     'number' => $recipient,
                     'message' => $smsMessage,
-                    'sendername' => env('SMS_SENDER_NAME'),
+                    'sendername' => (string) ($smsConfig['sender_name'] ?? 'HULONGDUHAT'),
                 ]);
 
                 if ($response->successful()) {

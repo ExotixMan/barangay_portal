@@ -8,13 +8,19 @@ use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\ResidencyApplication;
 use App\Models\RequestRecord;
+use App\Services\AdminSettingsService;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class DocumentController extends Controller
 {
+    public function __construct(private AdminSettingsService $settings)
+    {
+    }
+
     public function document()
     {
         return view('admin.adocumentdoc');
@@ -26,6 +32,11 @@ class DocumentController extends Controller
         $action = $request->query('action', 'download');
 
         $record = RequestRecord::findOrFail($request_id);
+
+        $templateText = trim((string) $this->settings->get('document.request_template', ''));
+        if ($templateText !== '') {
+            return $this->generateCustomRequestDocument($record, $templateText, $action);
+        }
 
         $templatePath = public_path('document_template/Doc2.docx');
 
@@ -61,6 +72,82 @@ class DocumentController extends Controller
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
+    }
+
+    private function generateCustomRequestDocument(RequestRecord $record, string $templateText, string $action)
+    {
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection([
+            'marginTop' => 900,
+            'marginBottom' => 900,
+            'marginLeft' => 900,
+            'marginRight' => 900,
+        ]);
+
+        $settings = $this->settings->all();
+        $title = (string) data_get($settings, 'document.request_title', 'Barangay Request Certificate');
+        $footer = (string) data_get($settings, 'document.request_footer', 'Prepared by Barangay Hulo Administration');
+
+        $section->addText($title, ['bold' => true, 'size' => 16], ['alignment' => 'center']);
+        $section->addTextBreak(1);
+        $section->addText('Request ID: ' . $record->request_id, ['bold' => true]);
+        $section->addText('Request Type: ' . ucfirst((string) $record->request_type));
+        $section->addText('Submitted On: ' . Carbon::parse($record->date_submitted)->format('F d, Y'));
+        $section->addTextBreak(1);
+
+        $renderedTemplate = $this->renderTemplateText($templateText, $record, $footer);
+        foreach (preg_split('/\R{2,}/', trim($renderedTemplate)) as $paragraph) {
+            $paragraph = trim($paragraph);
+            if ($paragraph !== '') {
+                $section->addText($paragraph);
+                $section->addTextBreak(1);
+            }
+        }
+
+        $fileName = 'certificate_' . $record->request_id . '.docx';
+        $outputDir = storage_path('app/generated');
+        if (!is_dir($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
+
+        $docxPath = $outputDir . '/' . $fileName;
+        IOFactory::createWriter($phpWord, 'Word2007')->save($docxPath);
+
+        if ($action === 'print') {
+            $phpWord = IOFactory::load($docxPath);
+            $objWriter = IOFactory::createWriter($phpWord, 'HTML');
+
+            $tempHtml = $outputDir . '/temp.html';
+            $objWriter->save($tempHtml);
+
+            $htmlContent = file_get_contents($tempHtml);
+            $pdf = Pdf::loadHTML($htmlContent);
+            $pdfFileName = 'certificate_' . $record->request_id . '.pdf';
+            $pdfPath = $outputDir . '/' . $pdfFileName;
+            $pdf->save($pdfPath);
+
+            return $this->renderPrintPreviewPage($pdfFileName);
+        }
+
+        return response()->download($docxPath)->deleteFileAfterSend(true);
+    }
+
+    private function renderTemplateText(string $templateText, RequestRecord $record, string $footer): string
+    {
+        $replacements = [
+            '{{full_name}}' => (string) data_get($record, 'full_name', 'N/A'),
+            '{{request_type}}' => (string) data_get($record, 'request_type', 'N/A'),
+            '{{request_id}}' => (string) data_get($record, 'request_id', 'N/A'),
+            '{{date_submitted}}' => Carbon::parse((string) data_get($record, 'date_submitted', now()))->format('F d, Y'),
+            '{{complete_address}}' => (string) data_get($record, 'complete_address', 'N/A'),
+            '{{contact_number}}' => (string) data_get($record, 'contact_number', 'N/A'),
+            '{{email_address}}' => (string) data_get($record, 'email_address', 'N/A'),
+            '{{purpose_of_request}}' => (string) data_get($record, 'purpose_of_request', 'N/A'),
+            '{{remarks}}' => (string) data_get($record, 'remarks', 'N/A'),
+            '{{footer}}' => $footer,
+        ];
+
+        return strtr($templateText, $replacements);
     }
 
     public function generateIndigencyOnly(Request $request)

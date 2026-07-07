@@ -42,6 +42,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            font-size: 70%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--gray-bg);
@@ -695,6 +699,36 @@
             <span>Backup Settings</span>
         </a>
         @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -709,31 +743,6 @@
                     <i class="fas fa-users me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
                     Residents
                 </h1>
-            </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
             </div>
         </header>
 
@@ -867,7 +876,7 @@
                                 <select name="status" class="form-select">
                                     <option value="">All Status</option>
                                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deleted</option>
+                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deactivated</option>
                                 </select>
                             </div>
 
@@ -894,9 +903,9 @@
                         @if(auth('admin')->user()->hasAnyPermission(['delete_residents', 'bulk_delete_residents']))
                         <form id="bulkForm" method="POST" action="{{ route('admin.residents.bulkDelete') }}" style="display: inline;">
                             @csrf
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Deactivate">
                                 <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Archive</span>
+                                <span class="d-none d-sm-inline">Bulk Deactivate</span>
                             </button>
                         </form>
                         @endif
@@ -1009,9 +1018,9 @@
                                     </td>
                                     <td>
                                         @if($resident->deleted_at)
-                                            <span class="badge bg-danger-subtle text-danger">Deleted</span>
+                                            <span class="badge bg-danger-subtle text-danger d-block">Deactivated</span>
                                         @else
-                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                            <span class="badge bg-success-subtle text-success d-block">Active</span>
                                         @endif
                                         @if($resident->valid_id)
                                             @if($resident->valid_id_verified)
@@ -1040,12 +1049,12 @@
                                                 <i class="fas fa-history"></i>
                                             </button>
 
-                                            <!-- Delete (for non-deleted and if user has delete_residents permission) -->
+                                            <!-- Deactivate (for non-deleted and if user has delete_residents permission) -->
                                             @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
-                                                <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Are you sure you want to delete this resident?')">
+                                                <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Deactivate this resident account? Their record and transactions will remain archived.')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Deactivate">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -1698,10 +1707,10 @@
                                             </span>
                                         @else
                                             <span class="badge bg-danger-subtle text-danger">
-                                                <i class="fas fa-times-circle me-1"></i>Deleted
+                                                <i class="fas fa-times-circle me-1"></i>Deactivated
                                             </span>
                                             <small class="text-muted d-block mt-1">
-                                                Deleted at: {{ $resident->deleted_at->format('F d, Y h:i A') }}
+                                                Deactivated at: {{ $resident->deleted_at->format('F d, Y h:i A') }}
                                             </small>
                                         @endif
                                     </p>
@@ -1739,7 +1748,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Selection',
-                    text: 'Please select at least one resident to archive.',
+                    text: 'Please select at least one resident to deactivate.',
                     confirmButtonColor: '#d33'
                 });
 
@@ -1748,13 +1757,13 @@
 
             // SweetAlert Confirmation
             Swal.fire({
-                title: 'Confirm Bulk Archive',
-                text: `Are you sure you want to archive ${checkboxes.length} selected resident(s)?`,
+                title: 'Confirm Bulk Deactivate',
+                text: `Are you sure you want to deactivate ${checkboxes.length} selected resident(s)?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Archive'
+                confirmButtonText: 'Yes, Deactivate'
             }).then((result) => {
 
                 if (result.isConfirmed) {

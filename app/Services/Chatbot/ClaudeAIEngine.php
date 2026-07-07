@@ -3,6 +3,7 @@
 namespace App\Services\Chatbot;
 
 use App\Models\ChatbotKnowledge;
+use App\Services\AdminSettingsService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -41,15 +42,16 @@ class ClaudeAIEngine
         ],
     ];
 
-    public function __construct()
+    public function __construct(private ?AdminSettingsService $settings = null)
     {
-        $this->provider    = strtolower(env('AI_PROVIDER', 'gemini'));
+        $this->settings    = $this->settings ?? app(AdminSettingsService::class);
+        $this->provider    = strtolower((string) $this->settings->get('ai.provider', env('AI_PROVIDER', 'gemini')));
         $this->orgName     = config('chatbot.org_name', 'our local government unit');
         $this->orgLocation = config('chatbot.org_location', 'Philippines');
 
         // Load the API key for the selected provider
         $envKey        = $this->providers[$this->provider]['env'] ?? 'GEMINI_API_KEY';
-        $this->apiKey  = env($envKey, '');
+        $this->apiKey  = (string) $this->settings->get('ai.keys.' . $this->provider, env($envKey, ''));
     }
 
     public function isAvailable(): bool
@@ -107,7 +109,7 @@ class ClaudeAIEngine
     private function providerOrder(): array
     {
         $primary = strtolower(trim($this->provider));
-        $fallbackRaw = strtolower((string) env('AI_FALLBACK_PROVIDERS', ''));
+        $fallbackRaw = strtolower((string) $this->settings->get('ai.fallback_providers', env('AI_FALLBACK_PROVIDERS', '')));
 
         $order = [$primary];
         if ($fallbackRaw !== '') {
@@ -138,7 +140,7 @@ class ClaudeAIEngine
     private function providerApiKey(string $provider): string
     {
         $envKey = $this->providers[$provider]['env'] ?? '';
-        return $envKey ? (string) env($envKey, '') : '';
+        return (string) $this->settings->get('ai.keys.' . $provider, $envKey ? (string) env($envKey, '') : '');
     }
 
     private function isProviderConfigured(string $provider): bool
@@ -152,7 +154,7 @@ class ClaudeAIEngine
             return false;
         }
 
-        if ($provider === 'cloudflare' && empty(env('CLOUDFLARE_ACCOUNT_ID', ''))) {
+        if ($provider === 'cloudflare' && empty((string) $this->settings->get('ai.cloudflare_account_id', env('CLOUDFLARE_ACCOUNT_ID', '')))) {
             return false;
         }
 
@@ -277,7 +279,7 @@ class ClaudeAIEngine
 
     private function callCloudflare(string $system, array $history, string $message): ?string
     {
-        $accountId = env('CLOUDFLARE_ACCOUNT_ID', '');
+        $accountId = (string) $this->settings->get('ai.cloudflare_account_id', env('CLOUDFLARE_ACCOUNT_ID', ''));
         if (empty($accountId)) {
             Log::error('[Cloudflare] CLOUDFLARE_ACCOUNT_ID not set in .env');
             return null;

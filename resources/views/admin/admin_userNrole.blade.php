@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
 
     <style>
@@ -885,6 +885,1567 @@
             max-width: 400px;
             margin: 0 auto;
         }
+
+
+        /* ==========================================================
+           Clean Backup-style redesign for Users & Roles page
+           Keeps existing sidebar, header, routes, Blade variables, and forms.
+        ========================================================== */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-light: #fff5f5;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-light: #eefaf2;
+            --warning: #d97706;
+            --warning-light: #fff7ed;
+            --danger: #dc2626;
+            --danger-light: #fff1f2;
+            --info: #0369a1;
+            --info-light: #eff6ff;
+            --gray-bg: #f8fafc;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --border-color: #e5e7eb;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        html {
+            font-size: 70%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .min-w-0 {
+            min-width: 0 !important;
+        }
+
+        .users-page {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .users-alert,
+        main > .alert,
+        .users-page > .alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .users-alert.fade:not(.show),
+        main > .alert.fade:not(.show),
+        .users-page > .alert.fade:not(.show) {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .users-hero,
+        .users-panel,
+        .stat-card,
+        .role-card,
+        .permission-module,
+        .card.border-0,
+        .permission-denied {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .users-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            padding: clamp(1.15rem, 2vw, 1.65rem);
+        }
+
+        .users-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(135deg, rgba(211, 47, 47, .04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .users-hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 920px;
+        }
+
+        .users-hero-icon,
+        .users-panel-icon,
+        .stat-icon,
+        .user-avatar,
+        .empty-state-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .users-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .8rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .14);
+            border-radius: 14px;
+            font-size: 1.15rem;
+        }
+
+        .users-kicker,
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .users-hero h2 {
+            margin: .55rem 0 .55rem;
+            color: var(--text);
+            font-size: clamp(1.75rem, 3vw, 2.55rem);
+            font-weight: 850;
+            line-height: 1.05;
+            letter-spacing: -.055em;
+        }
+
+        .users-hero p,
+        .panel-copy,
+        .empty-state p,
+        .permission-denied p {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .users-hero p {
+            max-width: 760px;
+            margin: 0;
+            font-size: .96rem;
+        }
+
+        .users-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .65rem;
+            margin-top: 1.15rem;
+        }
+
+        .users-stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem;
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+        }
+
+        .users-stats-row > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+        }
+
+        .stat-card {
+            height: 100%;
+            padding: 1rem !important;
+            gap: .85rem;
+            overflow: visible;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .stat-card::before {
+            display: none !important;
+        }
+
+        .stat-card:hover,
+        .role-card:hover,
+        .permission-module:hover,
+        .users-panel:hover,
+        .card.border-0:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-card:hover,
+        .role-card:hover {
+            transform: translateY(-1px) !important;
+        }
+
+        .stat-card > div:first-child {
+            min-width: 0;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            order: 1;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            display: block;
+            margin-top: .28rem;
+            color: var(--text);
+            font-size: clamp(1.3rem, 2vw, 1.75rem);
+            font-weight: 850;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-card small {
+            display: block !important;
+            margin-top: .42rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .tab-navigation {
+            display: inline-flex !important;
+            align-items: center;
+            gap: .35rem;
+            margin-bottom: 1rem;
+            padding: .35rem;
+            max-width: 100%;
+            overflow-x: auto;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            box-shadow: var(--shadow-xs);
+            scrollbar-width: thin;
+        }
+
+        .tab-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .45rem;
+            min-height: 38px;
+            padding: .55rem .85rem;
+            color: var(--muted);
+            background: transparent;
+            border: 0;
+            border-radius: 999px;
+            font-size: .82rem;
+            font-weight: 820;
+            white-space: nowrap;
+            transition: background .16s ease, color .16s ease, box-shadow .16s ease;
+            cursor: pointer;
+        }
+
+        .tab-link i {
+            margin-right: 0 !important;
+        }
+
+        .tab-link:hover {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+        }
+
+        .tab-link.active {
+            color: #ffffff;
+            background: var(--primary);
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
+        }
+
+        .users-panel {
+            overflow: hidden;
+        }
+
+        .users-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .users-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .users-panel-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .users-panel-header h3 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .panel-copy {
+            margin: 0;
+            font-size: .86rem;
+        }
+
+        .users-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .users-filter-body {
+            padding: 1rem;
+        }
+
+        .users-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.6fr) minmax(175px, .75fr) minmax(170px, .75fr) auto auto;
+            gap: .65rem;
+            align-items: center;
+        }
+
+        .users-search-field {
+            position: relative;
+            min-width: 0;
+        }
+
+        .users-search-field i {
+            position: absolute;
+            top: 50%;
+            left: .9rem;
+            transform: translateY(-50%);
+            color: var(--muted-2);
+            pointer-events: none;
+        }
+
+        .users-search-field .form-control {
+            padding-left: 2.4rem !important;
+        }
+
+        .btn,
+        .btn-small,
+        .btn-create-role {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 760;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+        }
+
+        .btn:hover,
+        .btn-small:hover,
+        .btn-create-role:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:focus-visible,
+        .btn-small:focus-visible,
+        .form-control:focus,
+        .form-select:focus,
+        .form-check-input:focus {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none !important;
+        }
+
+        .btn-primary,
+        .btn-danger,
+        .btn-create-role {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-danger:hover,
+        .btn-danger:focus,
+        .btn-create-role:hover,
+        .btn-create-role:focus {
+            color: #ffffff !important;
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+            box-shadow: 0 12px 26px rgba(211, 47, 47, .22);
+        }
+
+        .btn-light-soft,
+        .btn-secondary,
+        .btn-outline-secondary,
+        .btn-small {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover,
+        .btn-secondary:hover,
+        .btn-outline-secondary:hover,
+        .btn-small:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211, 47, 47, .22) !important;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary) !important;
+            background: var(--card) !important;
+            border-color: rgba(211, 47, 47, .25) !important;
+        }
+
+        .btn-outline-primary:hover {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border-color: rgba(220, 38, 38, .25) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success,
+        .btn-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border-color: rgba(22, 128, 60, .25) !important;
+        }
+
+        .btn-outline-success:hover,
+        .btn-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-sm,
+        .btn-group-sm > .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            border-radius: 11px;
+            font-size: .82rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+            color: var(--text);
+            background-color: #ffffff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            padding: .62rem .9rem;
+            font-size: .9rem;
+            font-weight: 650;
+        }
+
+        .form-control::placeholder {
+            color: var(--muted-2);
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0 !important;
+        }
+
+        .table {
+            min-width: 980px;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            padding: .85rem .95rem;
+            color: #475467;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--line);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--line);
+            font-size: .86rem;
+        }
+
+        .table tbody tr {
+            transition: background .16s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #fcfcfd;
+        }
+
+        .user-avatar {
+            flex: 0 0 auto;
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid rgba(211, 47, 47, .12);
+            font-weight: 850;
+            font-size: .88rem;
+        }
+
+        .badge,
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .badge.bg-success-subtle {
+            color: var(--success) !important;
+            background: var(--success-light) !important;
+            border: 1px solid rgba(22, 128, 60, .14);
+        }
+
+        .badge.bg-danger-subtle {
+            color: var(--danger) !important;
+            background: var(--danger-light) !important;
+            border: 1px solid rgba(220, 38, 38, .14);
+        }
+
+        .badge.bg-warning-subtle {
+            color: #9a3412 !important;
+            background: var(--warning-light) !important;
+            border: 1px solid #fed7aa;
+        }
+
+        .badge.bg-info-subtle {
+            color: var(--info) !important;
+            background: var(--info-light) !important;
+            border: 1px solid #dbeafe;
+        }
+
+        .badge.bg-secondary-subtle {
+            color: #344054 !important;
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+        }
+
+        .role-badge,
+        .role-badge.staff,
+        .role-badge.barangay_secretary,
+        .role-badge.custom,
+        .role-badge.super_admin,
+        .role-badge.barangay_captain {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211, 47, 47, .12);
+        }
+
+        .role-card {
+            overflow: hidden;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .role-header,
+        .role-header.super_admin,
+        .role-header.barangay_captain,
+        .role-header.staff,
+        .role-header.barangay_secretary,
+        .role-header.custom {
+            padding: 1rem;
+            color: var(--text);
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .role-header h3 {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .role-header h3 i {
+            color: var(--primary);
+        }
+
+        .role-count {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-weight: 820;
+        }
+
+        .role-body {
+            padding: 1rem;
+        }
+
+        .permission-item {
+            color: var(--muted);
+            border-bottom: 1px dashed var(--line-strong);
+            line-height: 1.45;
+        }
+
+        .permissions-grid,
+        .roles-grid {
+            gap: 1rem;
+        }
+
+        .permission-module {
+            overflow: hidden;
+        }
+
+        .module-header,
+        .modal .module-header {
+            padding: .9rem 1rem;
+            background: #f9fafb !important;
+            border-bottom: 1px solid var(--line) !important;
+        }
+
+        .module-header h4,
+        .modal .module-header h4 {
+            color: var(--text) !important;
+            font-size: .95rem;
+            font-weight: 850;
+            letter-spacing: -.02em;
+        }
+
+        .module-header h4 i,
+        .modal .module-header h4 i {
+            color: var(--primary) !important;
+        }
+
+        .module-permissions,
+        .modal .module-permissions {
+            padding: 1rem;
+        }
+
+        .perm-item,
+        .modal .perm-check,
+        .perm-check {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: .65rem;
+            transition: background .16s ease, border-color .16s ease;
+        }
+
+        .perm-item:hover,
+        .modal .perm-check:hover,
+        .perm-check:hover {
+            background: #fffafa;
+            border-color: rgba(211, 47, 47, .18);
+        }
+
+        .perm-item input[type="checkbox"],
+        .perm-check input[type="checkbox"],
+        .modal .perm-check input[type="checkbox"] {
+            accent-color: var(--primary);
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18) !important;
+        }
+
+        .modal-header {
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        }
+
+        .modal-header .btn-close {
+            filter: none !important;
+            opacity: .72;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin: 0;
+            color: var(--text) !important;
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            gap: .55rem;
+            padding: 0 1rem 1rem !important;
+            border-top: 0 !important;
+        }
+
+        .modal .permission-module {
+            border-radius: var(--radius-lg) !important;
+            box-shadow: none !important;
+        }
+
+        .modal .permission-checklist,
+        .permission-checklist {
+            gap: .65rem;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 240px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--danger) !important;
+            outline-color: rgba(220, 38, 38, .16);
+        }
+
+        .invalid-feedback {
+            color: var(--danger);
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .users-stats-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .users-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) minmax(180px, .7fr) minmax(180px, .7fr);
+            }
+
+            .users-filter-toolbar .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .users-panel-header {
+                flex-direction: column;
+            }
+
+            .users-panel-actions,
+            .users-panel-actions .btn {
+                width: 100%;
+            }
+
+            .users-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .table {
+                min-width: 860px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: .85rem 1rem;
+            }
+
+            .page-title {
+                font-size: 1.02rem;
+            }
+
+            .users-page {
+                max-width: 100%;
+            }
+
+            .users-hero,
+            .users-panel,
+            .stat-card,
+            .role-card,
+            .permission-module,
+            .card.border-0 {
+                border-radius: 16px !important;
+            }
+
+            .users-hero,
+            .users-panel-header,
+            .users-filter-body,
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: .9rem !important;
+            }
+
+            .users-hero-actions,
+            .users-hero-actions .btn {
+                width: 100%;
+            }
+
+            .users-stats-row {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .tab-navigation {
+                width: 100%;
+                border-radius: 16px;
+            }
+
+            .tab-link {
+                flex: 1 0 auto;
+            }
+        }
+
+        @media (max-width: 575px) {
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .users-hero h2 {
+                font-size: 1.75rem;
+            }
+        }
+
+    
+        /* ==========================================================
+           UX pass v2: cleaner layout + modal experience
+           - keeps existing routes, IDs, forms, permissions, sidebar, header
+        ========================================================== */
+        .users-page {
+            max-width: 1440px;
+        }
+
+        .users-hero {
+            margin-bottom: .9rem;
+            padding: 1rem 1.1rem !important;
+        }
+
+        .users-hero-content {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+                "icon kicker actions"
+                "icon title actions"
+                "icon copy actions";
+            gap: .25rem .9rem;
+            align-items: center;
+            max-width: none;
+        }
+
+        .users-hero-icon {
+            grid-area: icon;
+            width: 48px;
+            height: 48px;
+            margin: 0;
+            border-radius: 16px;
+        }
+
+        .users-kicker {
+            grid-area: kicker;
+        }
+
+        .users-hero h2 {
+            grid-area: title;
+            margin: .08rem 0;
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            letter-spacing: -.045em;
+        }
+
+        .users-hero p {
+            grid-area: copy;
+            max-width: 780px;
+            font-size: .88rem;
+            line-height: 1.55;
+        }
+
+        .users-hero-actions {
+            grid-area: actions;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0;
+            min-width: max-content;
+        }
+
+        .users-stats-row {
+            margin-bottom: 1rem !important;
+        }
+
+        .stat-card {
+            align-items: center !important;
+        }
+
+        .stat-card small {
+            max-width: 220px;
+        }
+
+        .tab-navigation {
+            margin-bottom: .85rem;
+        }
+
+        .tab-link {
+            min-width: 108px;
+        }
+
+        .users-panel {
+            margin-bottom: 1rem;
+        }
+
+        .users-panel-header {
+            align-items: center;
+            padding: .95rem 1rem;
+        }
+
+        .users-panel-title {
+            align-items: center;
+        }
+
+        .users-panel-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+        }
+
+        .users-panel-header h3 {
+            margin-top: .1rem;
+            font-size: 1rem;
+        }
+
+        .users-panel-actions .btn {
+            min-height: 40px;
+        }
+
+        .users-filter-body {
+            background: #fbfcfd;
+            border-top: 1px solid var(--line);
+        }
+
+        .users-filter-toolbar {
+            grid-template-columns: minmax(330px, 2fr) minmax(165px, .72fr) minmax(160px, .7fr) auto auto;
+            gap: .6rem;
+        }
+
+        .users-search-field .form-control,
+        .users-filter-toolbar .form-select,
+        .users-filter-toolbar .btn {
+            min-height: 42px;
+        }
+
+        .users-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            background: #ffffff;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .users-table-title {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 0;
+        }
+
+        .users-table-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .users-table-title h3 {
+            margin: 0;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .users-table-title p {
+            margin: .15rem 0 0;
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .users-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            width: fit-content;
+            white-space: nowrap;
+            padding: .42rem .68rem;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 820;
+        }
+
+        .table {
+            min-width: 1040px;
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .table tbody td {
+            white-space: nowrap;
+        }
+
+        .table tbody td:nth-child(2),
+        .table tbody td:nth-child(3) {
+            white-space: normal;
+        }
+
+        .table tbody td:nth-child(3) {
+            max-width: 260px;
+            overflow-wrap: anywhere;
+        }
+
+        .table .d-flex.gap-1,
+        .table .d-flex.gap-sm-2 {
+            flex-wrap: nowrap;
+        }
+
+        .roles-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        }
+
+        .role-card {
+            min-height: 100%;
+        }
+
+        .role-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .permission-list {
+            display: grid;
+            gap: .45rem;
+        }
+
+        .permission-item {
+            padding: .55rem .65rem;
+            background: #fbfcfd;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .permissions-grid {
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+        }
+
+        .module-permissions {
+            display: grid;
+            gap: .55rem;
+        }
+
+        .perm-item {
+            align-items: flex-start;
+        }
+
+        .perm-item label,
+        .perm-check label {
+            line-height: 1.4;
+        }
+
+        .modal-backdrop.show {
+            opacity: .38;
+        }
+
+        .modal-dialog {
+            margin-top: 1.1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .modal .modal-dialog.modal-lg,
+        .modal-dialog-scrollable {
+            max-width: min(920px, calc(100% - 2rem)) !important;
+        }
+
+        #addUserModal .modal-dialog,
+        [id^="editUserModal"] .modal-dialog,
+        #addRoleModal .modal-dialog,
+        [id^="editRoleModal"] .modal-dialog,
+        [id^="userPermissionsModal"] .modal-dialog {
+            max-width: min(980px, calc(100% - 2rem)) !important;
+        }
+
+        #viewUserModal .modal-dialog,
+        [id^="viewUserModal"] .modal-dialog,
+        #resetPasswordModal .modal-dialog {
+            max-width: min(620px, calc(100% - 2rem)) !important;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border: 1px solid rgba(208, 213, 221, .8) !important;
+        }
+
+        .modal-header {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "title close"
+                "subtitle close";
+            align-items: start !important;
+            column-gap: .9rem;
+            row-gap: .25rem;
+            padding: 1.05rem 1.15rem !important;
+        }
+
+        .modal-title {
+            grid-area: title;
+            font-size: 1.05rem !important;
+            line-height: 1.25;
+        }
+
+        .modal-title i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            margin-right: .45rem !important;
+            color: var(--primary) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 12px;
+        }
+
+        .modal-header .btn-close {
+            grid-area: close;
+            margin: .15rem 0 0 !important;
+            width: 36px;
+            height: 36px;
+            padding: .55rem;
+            background-color: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .ux-modal-subtitle {
+            grid-area: subtitle;
+            margin: 0 0 0 3.28rem;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: .82rem;
+            line-height: 1.45;
+        }
+
+        .modal-body {
+            padding: 1.05rem 1.15rem !important;
+            background:
+                linear-gradient(180deg, #fbfcfd 0%, #ffffff 42%);
+        }
+
+        .modal-body form > .row.g-3,
+        .modal-body > .row.g-3 {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .modal-body form > .row.g-3 > [class*="col-"],
+        .modal-body > .row.g-3 > [class*="col-"] {
+            padding-left: .4rem;
+            padding-right: .4rem;
+        }
+
+        .modal h6.fw-semibold,
+        .modal h6 {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            width: 100%;
+            margin: .1rem 0 .2rem;
+            padding: .72rem .82rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+            font-size: .8rem;
+            font-weight: 850 !important;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+        }
+
+        .modal h6::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            flex: 0 0 auto;
+            background: var(--primary);
+            border-radius: 999px;
+        }
+
+        .modal .form-label {
+            margin-bottom: .38rem;
+        }
+
+        .modal .form-control,
+        .modal .form-select {
+            min-height: 44px;
+            background: #ffffff;
+        }
+
+        .modal small.text-muted {
+            display: block;
+            margin-top: .35rem;
+            color: var(--muted-2) !important;
+            font-size: .76rem;
+            line-height: 1.4;
+        }
+
+        .modal .input-group {
+            border-radius: 12px;
+        }
+
+        .modal .input-group .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .modal .input-group .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .modal .alert {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: none;
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            background: #ffffff;
+            border-top: 1px solid var(--line) !important;
+            padding: .85rem 1.15rem !important;
+        }
+
+        .modal-footer .btn {
+            min-width: 116px;
+        }
+
+        .modal .text-center.mb-4 {
+            padding: 1rem;
+            background: #fbfcfd;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+        }
+
+        .modal .user-avatar.mx-auto {
+            border-radius: 22px !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .ux-permission-search {
+            position: sticky;
+            top: -1.05rem;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin: -1.05rem -1.15rem 1rem;
+            padding: .85rem 1.15rem;
+            background: #ffffff;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .ux-permission-search .users-search-field {
+            flex: 1 1 auto;
+        }
+
+        .ux-permission-search .users-count-pill {
+            flex: 0 0 auto;
+        }
+
+        .modal .permission-checklist,
+        .permission-checklist {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .modal .permission-module {
+            margin-bottom: .85rem;
+        }
+
+        .modal .module-permissions {
+            background: #ffffff;
+        }
+
+        .modal .perm-check,
+        .modal .perm-item {
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal .perm-check.is-hidden,
+        .modal .perm-item.is-hidden,
+        .modal .permission-module.is-empty {
+            display: none !important;
+        }
+
+        #auditLogDetailsModal pre {
+            background: #0f172a !important;
+            color: #e5e7eb;
+            border: 0 !important;
+            border-radius: 16px !important;
+            font-size: .8rem;
+        }
+
+        @media (max-width: 1199px) {
+            .users-hero-content {
+                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-areas:
+                    "icon kicker"
+                    "icon title"
+                    "icon copy"
+                    "actions actions";
+            }
+
+            .users-hero-actions {
+                justify-content: flex-start;
+                margin-top: .7rem;
+                min-width: 0;
+            }
+
+            .users-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) minmax(180px, .6fr) minmax(180px, .6fr);
+            }
+
+            .users-filter-toolbar .search-submit-btn,
+            .users-filter-toolbar .filter-submit-btn {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .users-table-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .users-count-pill {
+                align-self: flex-start;
+            }
+
+            .modal .permission-checklist,
+            .permission-checklist {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .ux-permission-search {
+                align-items: stretch;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .users-hero-content {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas:
+                    "icon"
+                    "kicker"
+                    "title"
+                    "copy"
+                    "actions";
+            }
+
+            .users-hero-icon {
+                width: 46px;
+                height: 46px;
+            }
+
+            .users-hero-actions {
+                width: 100%;
+            }
+
+            .users-hero-actions .btn {
+                width: 100%;
+            }
+
+            .users-panel-header {
+                align-items: stretch;
+            }
+
+            .users-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .users-filter-toolbar .btn {
+                width: 100%;
+            }
+
+            .users-table-title {
+                align-items: flex-start;
+            }
+
+            .modal .modal-dialog,
+            .modal .modal-dialog.modal-lg,
+            .modal-dialog-scrollable,
+            #addUserModal .modal-dialog,
+            [id^="editUserModal"] .modal-dialog,
+            #addRoleModal .modal-dialog,
+            [id^="editRoleModal"] .modal-dialog,
+            [id^="userPermissionsModal"] .modal-dialog,
+            #viewUserModal .modal-dialog,
+            [id^="viewUserModal"] .modal-dialog,
+            #resetPasswordModal .modal-dialog {
+                max-width: calc(100% - 1rem) !important;
+                margin: .5rem auto;
+            }
+
+            .modal-header {
+                padding: .9rem !important;
+            }
+
+            .ux-modal-subtitle {
+                margin-left: 0;
+            }
+
+            .modal-title i {
+                width: 32px;
+                height: 32px;
+            }
+
+            .modal-footer {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1062,10 +2623,11 @@
 
         <!-- Main Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="users-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show users-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -1073,7 +2635,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show users-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -1084,8 +2646,30 @@
                 </div>
             @endif
 
+
+            <section class="users-hero">
+                <div class="users-hero-content">
+                    <div class="users-hero-icon"><i class="fas fa-users-cog"></i></div>
+                    <div class="users-kicker"><i class="fas fa-circle-check"></i> Access Control Center</div>
+                    <h2>Manage users, roles, and permissions clearly.</h2>
+                    <p>Review administrator accounts, assign roles, configure permissions, and audit activity using the same clean card layout used in Backup Settings.</p>
+                    <div class="users-hero-actions">
+                        @admin_can('create_users')
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="fas fa-user-plus"></i>Add User
+                        </button>
+                        @endadmin_can
+                        @admin_can('create_roles')
+                        <button type="button" class="btn btn-light-soft" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+                            <i class="fas fa-shield-alt"></i>Create Role
+                        </button>
+                        @endadmin_can
+                    </div>
+                </div>
+            </section>
+
             <!-- Stats Cards -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 users-stats-row">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -1164,79 +2748,96 @@
 
             <!-- USERS TAB -->
             <div id="usersTab" class="tab-content active">
+
                 <!-- Filters and Actions -->
-                <div class="card border-0 mb-4">
-                    <div class="card-body">
-                        <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm">
-                            <input type="hidden" name="tab" value="users">
-                            <div class="row g-3 align-items-center mb-3">
-                                <div class="col-12 col-md-6">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i class="fas fa-filter me-2 text-primary"></i>Filter Users
-                                    </h6>
-                                </div>
-                                <div class="col-12 col-md-6 text-md-end">
-                                    <div class="d-flex gap-2 justify-content-md-end">
-                                        @admin_can('create_users')
-                                        <button type="button" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                                            <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add User</span>
-                                        </button>
-                                        @endadmin_can
-                                        <a href="{{ route('admin.users.index', ['tab' => 'users']) }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
-                                            <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
-                                        </a>
-                                    </div>
+                <div class="users-panel mb-4">
+                    <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm">
+                        <input type="hidden" name="tab" value="users">
+
+                        <div class="users-panel-header">
+                            <div class="users-panel-title">
+                                <div class="users-panel-icon"><i class="fas fa-filter"></i></div>
+                                <div class="min-w-0">
+                                    <div class="section-kicker"><i class="fas fa-users"></i> User Directory</div>
+                                    <h3>Filter Users</h3>
+                                    <p class="panel-copy">Search by name or email, then narrow the list by role and account status.</p>
                                 </div>
                             </div>
-                            
-                            <!-- Search and Filter Row -->
-                            <div class="row g-3">
-                                <div class="col-12 col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0">
-                                            <i class="fas fa-search text-muted"></i>
-                                        </span>
-                                        <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name, email..." value="{{ request('search') }}">
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fas fa-search d-sm-none"></i>
-                                            <span class="d-none d-sm-inline">Search</span>
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <div class="col-6 col-md-3">
-                                    <select name="role" class="form-select" onchange="this.form.submit()">
-                                        <option value="">All Roles</option>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
-                                                {{ $role->display_name ?? $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-6 col-md-3">
-                                    <select name="status" class="form-select" onchange="this.form.submit()">
-                                        <option value="">All Status</option>
-                                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                        <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-12 col-md-2">
-                                    <button type="submit" class="btn btn-outline-secondary w-100">
-                                        <i class="fas fa-filter me-2"></i>Apply
-                                    </button>
-                                </div>
+                            <div class="users-panel-actions">
+                                @admin_can('create_users')
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                    <i class="fas fa-plus"></i>Add User
+                                </button>
+                                @endadmin_can
+                                <a href="{{ route('admin.users.index', ['tab' => 'users']) }}" class="btn btn-light-soft">
+                                    <i class="fas fa-rotate"></i>Reset
+                                </a>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+
+                        <div class="users-filter-body">
+                            <div class="users-filter-toolbar">
+                                <div class="users-search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text"
+                                           name="search"
+                                           id="globalSearch"
+                                           class="form-control"
+                                           placeholder="Search name, email, or username..."
+                                           value="{{ request('search') }}"
+                                           autocomplete="off"
+                                           aria-label="Search users">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary search-submit-btn">
+                                    <i class="fas fa-search"></i>Search
+                                </button>
+
+                                <select name="role" class="form-select" aria-label="Filter by role">
+                                    <option value="">All roles</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
+                                            {{ $role->display_name ?? $role->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <select name="status" class="form-select" aria-label="Filter by status">
+                                    <option value="">All status</option>
+                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                                </select>
+
+                                <button type="submit" class="btn btn-light-soft filter-submit-btn">
+                                    <i class="fas fa-filter"></i>Apply
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Users Table -->
-                <div class="card border-0">
+                <div class="card border-0 users-table-panel">
                     <div class="card-body p-0">
+                        <div class="users-table-header">
+                            <div class="users-table-title">
+                                <span class="users-table-icon"><i class="fas fa-users"></i></span>
+                                <div class="min-w-0">
+                                    <h3>User Accounts</h3>
+                                    <p>Review account details, roles, status, and quick actions in one clean table.</p>
+                                </div>
+                            </div>
+                            <span class="users-count-pill">
+                                <i class="fas fa-list"></i>
+                                @if(isset($users))
+                                    {{ $users->total() }} users
+                                @else
+                                    0 users
+                                @endif
+                            </span>
+                        </div>
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
                                 <thead class="table-light">
@@ -1332,7 +2933,17 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <div>
+                                                    <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
+                                                    <h4>No users found</h4>
+                                                    <p>No user accounts match the current search and filters.</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -1427,8 +3038,18 @@
                         </div>
                     </div>
                     @empty
-                    
-                    @endforelse
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <div>
+                                                    <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
+                                                    <h4>No users found</h4>
+                                                    <p>No user accounts match the current search and filters.</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
                 </div>
             </div>
 
@@ -2709,6 +4330,7 @@
                 @endif
             @endif
 
+            </div>
         </main>
     </div>
 
@@ -2731,6 +4353,21 @@
                 new bootstrap.Modal(modalEl).show();
             }
         });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userSearch = document.getElementById('globalSearch');
+            if (!userSearch) return;
+
+            document.addEventListener('keydown', function(event) {
+                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+                    event.preventDefault();
+                    userSearch.focus();
+                    userSearch.select();
+                }
+            });
+        });
+
     </script>
     @endif
 
@@ -3313,6 +4950,140 @@
             @endif
         });
     </script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const modalCopy = [
+                ['addUserModal', 'Create an administrator account, assign a role, and set the first login details.'],
+                ['resetPasswordModal', 'Set a secure temporary password and choose whether to send reset instructions.'],
+                ['addRoleModal', 'Create a role with only the permissions needed for that responsibility.'],
+                ['auditLogDetailsModal', 'Review the recorded action, actor, timestamp, module, and stored event details.']
+            ];
+
+            function resolveModalSubtitle(modal) {
+                const id = modal.getAttribute('id') || '';
+
+                for (const [key, copy] of modalCopy) {
+                    if (id === key) return copy;
+                }
+
+                if (id.startsWith('viewUserModal')) {
+                    return 'View account profile, role, contact, and activity information without editing anything.';
+                }
+
+                if (id.startsWith('editUserModal')) {
+                    return 'Update only the account fields that need to change, then save the user record.';
+                }
+
+                if (id.startsWith('userPermissionsModal')) {
+                    return 'Grant or remove direct user permissions. Use search to quickly find a permission.';
+                }
+
+                if (id.startsWith('editRoleModal')) {
+                    return 'Update the role name, description, and permission set for this role.';
+                }
+
+                if (id.startsWith('viewRoleMembersModal')) {
+                    return 'Review the administrator accounts currently assigned to this role.';
+                }
+
+                return 'Review the details below before saving changes.';
+            }
+
+            function enhanceModalHeaders() {
+                document.querySelectorAll('.modal').forEach((modal) => {
+                    const header = modal.querySelector('.modal-header');
+                    const title = modal.querySelector('.modal-title');
+
+                    if (!header || !title || header.querySelector('.ux-modal-subtitle')) {
+                        return;
+                    }
+
+                    const subtitle = document.createElement('p');
+                    subtitle.className = 'ux-modal-subtitle';
+                    subtitle.textContent = resolveModalSubtitle(modal);
+
+                    const closeBtn = header.querySelector('.btn-close');
+                    if (closeBtn) {
+                        header.insertBefore(subtitle, closeBtn);
+                    } else {
+                        header.appendChild(subtitle);
+                    }
+                });
+            }
+
+            function addPermissionSearch() {
+                document.querySelectorAll('.modal').forEach((modal) => {
+                    const id = modal.getAttribute('id') || '';
+                    const hasPermissions = modal.querySelector('.permission-checklist, .module-permissions');
+
+                    if (!hasPermissions || modal.querySelector('.ux-permission-search')) {
+                        return;
+                    }
+
+                    if (!id.includes('Permission') && !id.includes('Role')) {
+                        return;
+                    }
+
+                    const body = modal.querySelector('.modal-body');
+                    if (!body) {
+                        return;
+                    }
+
+                    const modules = Array.from(modal.querySelectorAll('.permission-module'));
+                    const checks = Array.from(modal.querySelectorAll('.perm-check, .perm-item'));
+                    const search = document.createElement('div');
+                    search.className = 'ux-permission-search';
+                    search.innerHTML = `
+                        <div class="users-search-field">
+                            <i class="fas fa-search"></i>
+                            <input type="search" class="form-control ux-permission-input" placeholder="Search permission..." aria-label="Search permissions">
+                        </div>
+                        <span class="users-count-pill"><i class="fas fa-shield-alt"></i>${checks.length} permissions</span>
+                    `;
+
+                    body.insertBefore(search, body.firstElementChild);
+
+                    const input = search.querySelector('.ux-permission-input');
+
+                    input.addEventListener('input', () => {
+                        const query = input.value.trim().toLowerCase();
+
+                        checks.forEach((item) => {
+                            const match = item.textContent.toLowerCase().includes(query);
+                            item.classList.toggle('is-hidden', query !== '' && !match);
+                        });
+
+                        modules.forEach((module) => {
+                            const visible = Array.from(module.querySelectorAll('.perm-check, .perm-item'))
+                                .some((item) => !item.classList.contains('is-hidden'));
+                            module.classList.toggle('is-empty', !visible);
+                        });
+                    });
+                });
+            }
+
+            function keepModalFocusClean() {
+                document.querySelectorAll('.modal').forEach((modal) => {
+                    modal.addEventListener('shown.bs.modal', () => {
+                        const first = modal.querySelector('input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])');
+                        if (first && !modal.querySelector('.ux-permission-input')) {
+                            setTimeout(() => first.focus(), 80);
+                        }
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                enhanceModalHeaders();
+                addPermissionSearch();
+                keepModalFocusClean();
+            });
+        })();
+    </script>
+
 </body>
 </html>
 

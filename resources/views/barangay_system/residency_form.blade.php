@@ -71,6 +71,7 @@
                                 <i class="fas fa-user"></i> First Name *
                             </label>
                             <input type="text" id="firstName" name="first_name" required
+                                value="{{ old('first_name', $resident?->firstname) }}"
                                 placeholder="Enter your first name" class="form-control">
                             <div class="form-hint">As it appears on your ID</div>
                         </div>
@@ -80,6 +81,7 @@
                                 <i class="fas fa-user"></i> Middle Name
                             </label>
                             <input type="text" id="middleName" name="middle_name"
+                                value="{{ old('middle_name', $resident?->middlename) }}"
                                 placeholder="Enter your middle name" class="form-control">
                         </div>
 
@@ -88,6 +90,7 @@
                                 <i class="fas fa-user"></i> Last Name *
                             </label>
                             <input type="text" id="lastName" name="last_name" required
+                                value="{{ old('last_name', $resident?->lastname) }}"
                                 placeholder="Enter your last name" class="form-control">
                         </div>
 
@@ -97,11 +100,11 @@
                             </label>
                             <select id="suffix" name="suffix" class="form-control">
                                 <option value="">Select suffix</option>
-                                <option value="Jr.">Jr.</option>
-                                <option value="Sr.">Sr.</option>
-                                <option value="II">II</option>
-                                <option value="III">III</option>
-                                <option value="IV">IV</option>
+                                <option value="Jr." {{ old('suffix', $resident?->suffix) === 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                <option value="Sr." {{ old('suffix', $resident?->suffix) === 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                <option value="II" {{ old('suffix', $resident?->suffix) === 'II' ? 'selected' : '' }}>II</option>
+                                <option value="III" {{ old('suffix', $resident?->suffix) === 'III' ? 'selected' : '' }}>III</option>
+                                <option value="IV" {{ old('suffix', $resident?->suffix) === 'IV' ? 'selected' : '' }}>IV</option>
                             </select>
                         </div>
                     </div>
@@ -111,7 +114,7 @@
                             <label for="birthdate">
                                 <i class="fas fa-birthday-cake"></i> Date of Birth *
                             </label>
-                            <input type="date" id="birthdate" name="birthdate" required min="{{ now()->subYears(130)->toDateString() }}" max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
+                            <input type="date" id="birthdate" name="birthdate" required value="{{ old('birthdate', $resident?->birthdate) }}" min="{{ now()->subYears(130)->toDateString() }}" max="{{ now()->subYears(5)->toDateString() }}" class="form-control">
                         </div>
 
                         <div class="form-group col-md-12">
@@ -168,8 +171,8 @@
                         <label for="address">
                             <i class="fas fa-map-marker-alt"></i> Complete Address in Barangay Hulo *
                         </label>
-                        <textarea id="address" name="address" required rows="3"
-                            placeholder="House No., Street, Subdivision/Village, Barangay Hulo, Malabon City" class="form-control"></textarea>
+                            <textarea id="address" name="address" required rows="3"
+                            placeholder="House No., Street, Subdivision/Village, Barangay Hulo, Malabon City" class="form-control">{{ old('address', $resident?->address) }}</textarea>
                         <div class="form-hint">Include specific landmarks for accurate verification</div>
                         <div id="addressError" class="error-message" style="display:none;color:#ff4444;font-size:0.85rem;margin-top:5px;"></div>
                     </div>
@@ -211,6 +214,7 @@
                                 <i class="fas fa-phone"></i> Contact Number *
                             </label>
                             <input type="tel" id="contactNumber" name="contact_number" required
+                                value="{{ old('contact_number', $resident?->contact) }}"
                                 placeholder="09XX XXX XXXX" class="form-control">
                         </div>
 
@@ -219,6 +223,7 @@
                                 <i class="fas fa-envelope"></i> Email Address *
                             </label>
                             <input type="email" id="email" name="email" required
+                                value="{{ old('email', $resident?->email) }}"
                                 placeholder="your.email@example.com" class="form-control">
                         </div>
 

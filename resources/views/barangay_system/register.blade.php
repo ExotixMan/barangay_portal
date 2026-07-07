@@ -1,9 +1,19 @@
+@php
+    $adminSettings = app(\App\Services\AdminSettingsService::class);
+
+    $portalName = $adminSettings->get('general.portal_name', 'Barangay Hulo Portal');
+    $primaryColor = $adminSettings->get('general.primary_color', '#c62828');
+    $secondaryColor = $adminSettings->get('general.secondary_color', '#8e0000');
+
+    $captchaEnabled = (bool) $adminSettings->get('security.captcha_enabled', false);
+    $recaptchaSiteKey = $adminSettings->get('security.recaptcha_site_key', '');
+@endphp
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+<html lang="{{ app()->getLocale() }}" style="--primary: {{ $primaryColor }}; --primary-dark: {{ $secondaryColor }};">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Barangay Hulo Portal</title>
+    <title>Register - {{ $portalName }}</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -943,9 +953,15 @@
                 </div>
             @endif
 
-            @php
-                $recaptchaSiteKey = config('services.recaptcha.site_key');
-            @endphp
+            @if($captchaEnabled)
+                <div class="form-group">
+                    <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+
+                    @error('g-recaptcha-response')
+                        <div class="error-message mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('register.res') }}" id="registerForm" enctype="multipart/form-data" novalidate>
                 @csrf
@@ -1056,7 +1072,7 @@
                                 <input type="tel" id="contact" name="contact" value="{{ old('contact') }}" required
                                     placeholder="09XX XXX XXXX" class="form-control @error('contact') is-invalid @enderror"
                                     pattern="[0-9]{11}" maxlength="11" inputmode="numeric">
-                                <div class="form-hint">Use 11 digits only (e.g., 09123456789)</div>
+                                <div class="form-hint" id="contactHint">Use 11 digits only (e.g., 09123456789). We will check this before submission.</div>
                                 @error('contact')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -1071,6 +1087,7 @@
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required
                             placeholder="your.email@example.com" class="form-control @error('email') is-invalid @enderror"
                             autocomplete="email">
+                        <div class="form-hint" id="emailHint">We will verify this email for account updates and notifications.</div>
                         @error('email')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -1412,8 +1429,11 @@
             const termsCheckbox = document.getElementById('terms');
             const passwordChecklist = Array.from(document.querySelectorAll(".password-checklist li"));
             const usernameHint = document.getElementById('usernameHint');
+            const emailHint = document.getElementById('emailHint');
+            const contactHint = document.getElementById('contactHint');
 
             const contactInput = document.getElementById("contact");
+            const emailInput = document.getElementById("email");
             const birthdateInput = document.getElementById("birthdate");
             const validIdInput = document.getElementById("valid_id");
             const fileUploadText = document.getElementById("fileUploadText");
@@ -1526,6 +1546,28 @@
                 });
             }
 
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    this.value = this.value.trim().toLowerCase();
+                    checkAccountAvailability('email', this.value, emailHint, 'Email');
+                });
+
+                emailInput.addEventListener('blur', function() {
+                    checkAccountAvailability('email', this.value, emailHint, 'Email', true);
+                });
+            }
+
+            if (contactInput) {
+                contactInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/\D/g, '').slice(0, 11);
+                    checkAccountAvailability('contact', this.value, contactHint, 'Contact number');
+                });
+
+                contactInput.addEventListener('blur', function() {
+                    checkAccountAvailability('contact', this.value, contactHint, 'Contact number', true);
+                });
+            }
+
             async function checkUsernameAvailability(rawUsername, force = false) {
                 const username = String(rawUsername || '').trim().toLowerCase();
 
@@ -1612,6 +1654,72 @@
                         usernameHint.textContent = usernameCheckState.message;
                         usernameHint.classList.remove('good');
                         usernameHint.classList.add('bad');
+                    }
+                    return false;
+                }
+            }
+
+            let accountCheckSeq = 0;
+
+            async function checkAccountAvailability(field, rawValue, hintEl, label, force = false) {
+                const normalized = field === 'contact'
+                    ? String(rawValue || '').replace(/\D/g, '')
+                    : String(rawValue || '').trim().toLowerCase();
+
+                if (normalized === '') {
+                    if (hintEl) {
+                        hintEl.textContent = field === 'contact'
+                            ? 'Use 11 digits only (e.g., 09123456789). We will check this before submission.'
+                            : 'We will verify this email for account updates and notifications.';
+                        hintEl.classList.remove('good', 'bad');
+                    }
+                    return false;
+                }
+
+                const requestId = ++accountCheckSeq;
+
+                if (hintEl) {
+                    hintEl.textContent = `Checking ${label.toLowerCase()} availability...`;
+                    hintEl.classList.remove('good', 'bad');
+                }
+
+                try {
+                    const response = await fetch(`{{ route('register.check-availability') }}?field=${encodeURIComponent(field)}&value=${encodeURIComponent(normalized)}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (requestId !== accountCheckSeq) {
+                        return false;
+                    }
+
+                    if (response.ok && data.available) {
+                        if (hintEl) {
+                            hintEl.textContent = data.message || `${label} is available`;
+                            hintEl.classList.remove('bad');
+                            hintEl.classList.add('good');
+                        }
+                        return true;
+                    }
+
+                    if (hintEl) {
+                        hintEl.textContent = data.message || `${label} is already taken`;
+                        hintEl.classList.remove('good');
+                        hintEl.classList.add('bad');
+                    }
+                    return false;
+                } catch (error) {
+                    if (requestId !== accountCheckSeq) {
+                        return false;
+                    }
+
+                    if (hintEl) {
+                        hintEl.textContent = `${label} availability check failed. Please try again.`;
+                        hintEl.classList.remove('good');
+                        hintEl.classList.add('bad');
                     }
                     return false;
                 }
@@ -2146,6 +2254,9 @@
             }
         });
     </script>
+    @if($captchaEnabled)
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 </body>
 
 </html>

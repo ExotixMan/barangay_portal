@@ -10,13 +10,43 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AdminRoleController extends Controller
 {
+    private const LOOKUP_CACHE_SECONDS = 300;
+
+    private function getRolesWithPermissions()
+    {
+        return Cache::remember('admin_user_role.roles_with_permissions_count', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminRole::withCount('users')
+                ->with('permissions')
+                ->get();
+        });
+    }
+
+    private function getGroupedPermissions()
+    {
+        return Cache::remember('admin_user_role.permissions_grouped', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminPermission::orderBy('module')
+                ->orderBy('name')
+                ->get()
+                ->groupBy('module');
+        });
+    }
+
+    private function clearUserRoleLookupCache(): void
+    {
+        Cache::forget('admin_user_role.roles_with_permissions_count');
+        Cache::forget('admin_user_role.permissions_grouped');
+        Cache::forget('admin_user_role.audit_actions');
+        Cache::forget('admin_user_role.audit_modules');
+    }
+
     public function index()
     {
-        $roles = AdminRole::withCount('users')->with('permissions')->get();
-        $permissions = AdminPermission::all()->groupBy('module');
+        $roles = $this->getRolesWithPermissions();
+        $permissions = $this->getGroupedPermissions();
 
         return view('admin.roles.index', compact('roles', 'permissions'));
     }
@@ -70,6 +100,7 @@ class AdminRoleController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role created successfully.');
@@ -82,7 +113,7 @@ class AdminRoleController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request,int $id)
     {
         $role = AdminRole::findOrFail($id);
 
@@ -131,6 +162,7 @@ class AdminRoleController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role updated successfully.');
@@ -142,7 +174,7 @@ class AdminRoleController extends Controller
         }
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request,int $id)
     {
         $role = AdminRole::findOrFail($id);
 
@@ -153,7 +185,7 @@ class AdminRoleController extends Controller
         }
 
         // Check if role has users
-        if ($role->users()->count() > 0) {
+        if ($role->users()->exists()) {
             return redirect()->back()
                 ->with('error', 'Cannot delete role with assigned users.');
         }
@@ -174,6 +206,7 @@ class AdminRoleController extends Controller
             $role->delete();
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'Role deleted successfully.');
@@ -185,7 +218,7 @@ class AdminRoleController extends Controller
         }
     }
 
-    public function addMember(Request $request, $roleId)
+    public function addMember(Request $request,int $roleId)
     {
         $role = AdminRole::findOrFail($roleId);
         
@@ -221,6 +254,7 @@ class AdminRoleController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'User added to role successfully.');
@@ -232,7 +266,7 @@ class AdminRoleController extends Controller
         }
     }
 
-    public function removeMember(Request $request, $roleId, $userId)
+    public function removeMember(Request $request, int $roleId, int $userId)
     {
         $role = AdminRole::findOrFail($roleId);
         $user = AdminUser::findOrFail($userId);
@@ -260,6 +294,7 @@ class AdminRoleController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'roles'])
                 ->with('success', 'User removed from role successfully.');
@@ -271,7 +306,7 @@ class AdminRoleController extends Controller
         }
     }
 
-    public function getPermissions(Request $request, $id)
+    public function getPermissions(Request $request,int $id)
     {
         $role = AdminRole::with('permissions')->findOrFail($id);
 
@@ -286,6 +321,7 @@ class AdminRoleController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
+        $this->clearUserRoleLookupCache();
 
         return response()->json([
             'success' => true,
@@ -298,7 +334,7 @@ class AdminRoleController extends Controller
         ]);
     }
 
-    public function updatePermissions(Request $request, $id)
+    public function updatePermissions(Request $request,int $id)
     {
         $role = AdminRole::findOrFail($id);
 
@@ -338,6 +374,7 @@ class AdminRoleController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', [
                 'tab' => 'permissions',

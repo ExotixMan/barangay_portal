@@ -1,113 +1,225 @@
-<nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar">
-    <div class="position-sticky pt-3">
-        <div class="text-center py-4 border-bottom">
-            <i class="fas fa-shield-alt fa-3x text-primary mb-2"></i>
-            <h5 class="fw-bold mb-0">Admin Panel</h5>
-            <small class="text-muted">{{ config('app.name') }}</small>
-        </div>
-        
-        <ul class="nav flex-column mt-3">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.dashboard.index') ? 'active' : '' }}" 
-                   href="{{ route('admin.dashboard.index') }}">
-                    <i class="fas fa-tachometer-alt me-2"></i>
-                    Dashboard
-                </a>
-            </li>
-            
-            @admin_can('view_users')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.users.index') }}">
-                    <i class="fas fa-users me-2"></i>
-                    Users
-                </a>
-            </li>
-            @endadmin_can
-            
-            @admin_can('view_roles')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.roles.index') }}">
-                    <i class="fas fa-user-tag me-2"></i>
-                    Roles & Permissions
-                </a>
-            </li>
-            @endadmin_can
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-            @admin_can('view_users')
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.backup.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.backup.index') }}">
-                    <i class="fas fa-database me-2"></i>
-                    Backup Settings
-                </a>
-            </li>
-            @endadmin_can
-            
-            @if(Route::has('admin.activities'))
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.activities') ? 'active' : '' }}" 
-                   href="{{ route('admin.activities') }}">
-                    <i class="fas fa-history me-2"></i>
-                    Activity Logs
-                </a>
-            </li>
-            @endif
-            
-            <li class="nav-item mt-4">
-                <form method="POST" action="{{ route('admin.logout') }}">
-                    @csrf
-                    <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
-                        <i class="fas fa-sign-out-alt me-2"></i>
-                        Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
-        
-        @admin_role('super_admin')
-        <div class="bg-light rounded p-3 m-3">
-            <small class="text-uppercase text-muted">System Info</small>
-            <div class="small mt-2">
-                <i class="fas fa-database me-2"></i> v1.0.0
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <div class="brand-left">
+            <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo">
+
+            <div class="brand-text">
+                <div class="brand-title">BISIG Hulong Duhat</div>
+                <div class="brand-sub">Administrator</div>
             </div>
         </div>
-        @endadmin_role
-    </div>
-</nav>
 
-<style>
-    .sidebar {
-        min-height: 100vh;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-        padding: 0;
-    }
-    
-    .sidebar .nav-link {
-        color: #3a3b45;
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-    
-    .sidebar .nav-link:hover {
-        background-color: #eaecf4;
-        color: #4e73df;
-    }
-    
-    .sidebar .nav-link.active {
-        background: linear-gradient(90deg, #4e73df 0%, #224abe 100%);
-        color: white;
-    }
-    
-    .sidebar .nav-link i {
-        width: 1.5rem;
-        font-size: 1rem;
-    }
-</style>
+        <button type="button" class="sidebar-toggle-btn" id="collapseBtn" title="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-menu">
+        @admin_can('view_dashboard')
+            <a href="{{ route('admin.dashboard.index') }}"
+               class="{{ request()->routeIs('admin.dashboard.*') ? 'active' : '' }}">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+        @endadmin_can
+
+        <div class="menu-section">Administrative</div>
+
+        @php
+            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
+                'view_residents',
+                'view_residency',
+                'view_indigency'
+            ]);
+
+            $registryActive = request()->routeIs(
+                'admin.residents.*',
+                'admin.residency.*',
+                'admin.indigency.*'
+            );
+        @endphp
+
+        @if($hasRegistryAccess)
+            <button type="button" class="dropdown-btn {{ $registryActive ? 'active' : '' }}">
+                <i class="fas fa-users"></i>
+                <span>Registry</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+            </button>
+
+            <div class="submenu {{ $registryActive ? 'show' : '' }}">
+                @admin_can('view_residents')
+                    <a href="{{ route('admin.residents.index') }}"
+                       class="{{ request()->routeIs('admin.residents.*') ? 'active' : '' }}">
+                        <i class="fas fa-user"></i>
+                        <span>Residents</span>
+                    </a>
+                @endadmin_can
+
+                @admin_can('view_residency')
+                    <a href="{{ route('admin.residency.index') }}"
+                       class="{{ request()->routeIs('admin.residency.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Residency Applications</span>
+                    </a>
+                @endadmin_can
+
+                @admin_can('view_indigency')
+                    <a href="{{ route('admin.indigency.index') }}"
+                       class="{{ request()->routeIs('admin.indigency.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Indigency</span>
+                    </a>
+                @endadmin_can
+            </div>
+        @endif
+
+        <div class="menu-section">Legal</div>
+
+        @php
+            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
+                'view_clearance',
+                'view_blotter'
+            ]);
+
+            $recordsActive = request()->routeIs(
+                'admin.clearance.*',
+                'admin.blotter.*'
+            );
+        @endphp
+
+        @if($hasRecordsAccess)
+            <button type="button" class="dropdown-btn {{ $recordsActive ? 'active' : '' }}">
+                <i class="fas fa-scale-balanced"></i>
+                <span>Records</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+            </button>
+
+            <div class="submenu {{ $recordsActive ? 'show' : '' }}">
+                @admin_can('view_clearance')
+                    <a href="{{ route('admin.clearance.index') }}"
+                       class="{{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Clearances</span>
+                    </a>
+                @endadmin_can
+
+                @admin_can('view_blotter')
+                    <a href="{{ route('admin.blotter.index') }}"
+                       class="{{ request()->routeIs('admin.blotter.*') ? 'active' : '' }}">
+                        <i class="fas fa-book"></i>
+                        <span>Incident Reports</span>
+                    </a>
+                @endadmin_can
+            </div>
+        @endif
+
+        <div class="menu-section">Community</div>
+
+        @php
+            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
+                'view_announcements',
+                'view_events',
+                'view_projects'
+            ]);
+
+            $communityActive = request()->routeIs(
+                'admin.announcements.*',
+                'admin.events.*',
+                'admin.projects.*'
+            );
+        @endphp
+
+        @if($hasCommunityAccess)
+            <button type="button" class="dropdown-btn {{ $communityActive ? 'active' : '' }}">
+                <i class="fas fa-bullhorn"></i>
+                <span>Community</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+            </button>
+
+            <div class="submenu {{ $communityActive ? 'show' : '' }}">
+                @admin_can('view_announcements')
+                    <a href="{{ route('admin.announcements.index') }}"
+                       class="{{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Announcements</span>
+                    </a>
+                @endadmin_can
+
+                @admin_can('view_events')
+                    <a href="{{ route('admin.events.index') }}"
+                       class="{{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar"></i>
+                        <span>Events</span>
+                    </a>
+                @endadmin_can
+
+                @admin_can('view_projects')
+                    <a href="{{ route('admin.projects.index') }}"
+                       class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Projects</span>
+                    </a>
+                @endadmin_can
+            </div>
+        @endif
+
+        <div class="menu-section">System</div>
+
+        @admin_can('view_users')
+            <a href="{{ route('admin.users.index') }}"
+               class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <i class="fas fa-user-shield"></i>
+                <span>Users & Roles</span>
+            </a>
+        @endadmin_can
+
+        @admin_can('manage_chatbot')
+            <a href="{{ route('admin.chatbot.index') }}"
+               class="{{ request()->routeIs('admin.chatbot.*') ? 'active' : '' }}">
+                <i class="fas fa-robot"></i>
+                <span>Chatbot</span>
+            </a>
+        @endadmin_can
+
+        @admin_can('view_backup')
+            <a href="{{ route('admin.backup.index') }}"
+               class="{{ request()->routeIs('admin.backup.*') ? 'active' : '' }}">
+                <i class="fas fa-database"></i>
+                <span>Backup Settings</span>
+            </a>
+        @endadmin_can
+    </nav>
+
+    <div class="sidebar-account">
+        <div class="sidebar-user-card">
+            <div class="sidebar-user-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+
+            <div class="sidebar-user-details">
+                <div class="sidebar-user-name">
+                    {{ Auth::guard('admin')->user()->full_name }}
+                </div>
+
+                <div class="sidebar-user-role">
+                    {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                </div>
+
+                <div class="sidebar-user-email">
+                    {{ Auth::guard('admin')->user()->email }}
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+            @csrf
+
+            <button type="submit" class="sidebar-logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="sidebar-logout-text">Logout</span>
+            </button>
+        </form>
+    </div>
+</aside>

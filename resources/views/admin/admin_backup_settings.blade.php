@@ -9,270 +9,858 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
 
     <style>
         :root {
             --primary: #d32f2f;
-            --primary-light: #ffebee;
-            --primary-dark: #b71c1c;
-            --primary-gradient: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            --success: #2e7d32;
-            --warning: #ed6c02;
-            --info: #0288d1;
-            --gray-bg: #f8f9fa;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
-            --border-color: #e9ecef;
+            --primary-dark: #a91f1f;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-soft: #eefaf2;
+            --warning: #d97706;
+            --warning-soft: #fff7ed;
+            --danger: #dc2626;
+            --danger-soft: #fff1f2;
+            --info: #0369a1;
+            --info-soft: #eff6ff;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            font-size: 70%;
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--gray-bg);
-            color: #1e293b;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
             overflow-x: hidden;
         }
 
-        .header {
-            padding: 1rem 1.5rem;
-            background: white;
-            border-bottom: 1px solid var(--border-color);
+        .min-w-0 {
+            min-width: 0 !important;
         }
 
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #1e293b;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-
-        .profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: #f8f9fa;
-            border-radius: 40px;
-            font-weight: 500;
-            color: #1e293b;
-        }
-
-        .role-badge {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        #userDropdown {
-            color: var(--primary);
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--hover-shadow);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #6c757d;
-        }
-
-        .stat-number {
-            color: #1e293b;
-            font-size: 2rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .table-card {
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            background: #f8f9fa;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table {
-            margin-bottom: 0;
-            min-width: 860px;
-        }
-
-        .table thead th {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .table tbody td {
-            vertical-align: middle;
-            padding: 1rem 0.75rem;
-            color: #4a5568;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .backup-time {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            line-height: 1.2;
-        }
-
-        .backup-time-main {
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .backup-time-sub {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .table tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        .btn {
-            border-radius: 10px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .restore-upload-row .form-control {
-            min-height: 46px;
-        }
-
-        .restore-upload-row .btn {
-            height: 46px;
-            width: 100%;
+        .title-icon,
+        .hero-icon,
+        .backup-stat-icon,
+        .restore-icon,
+        .schedule-icon,
+        .archive-icon,
+        .empty-icon,
+        .modal-warning-icon,
+        .restore-upload-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
 
+        .title-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .38rem .5rem .38rem .78rem;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            box-shadow: var(--shadow-xs);
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        #userDropdown {
+            color: var(--text);
+        }
+
+        .role-badge {
+            padding: .28rem .65rem;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 800;
+        }
+
+        .backup-page {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .backup-alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .backup-alert.fade:not(.show) {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .hero-panel,
+        .schedule-panel,
+        .restore-panel,
+        .backup-stat,
+        .archive-panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .backup-hero {
+            margin-bottom: 1rem;
+        }
+
+        .hero-panel {
+            position: relative;
+            overflow: hidden;
+            min-height: auto;
+            padding: clamp(1.15rem, 2vw, 1.65rem);
+        }
+
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(135deg, rgba(211, 47, 47, .04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 920px;
+        }
+
+        .hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .8rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .14);
+            border-radius: 14px;
+            font-size: 1.15rem;
+        }
+
+        .hero-kicker,
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .hero-panel h2 {
+            margin: .55rem 0 .55rem;
+            color: var(--text);
+            font-size: clamp(1.75rem, 3vw, 2.55rem);
+            font-weight: 850;
+            line-height: 1.05;
+            letter-spacing: -.055em;
+        }
+
+        .hero-panel p,
+        .schedule-panel p,
+        .panel-header p,
+        .archive-header p,
+        .empty-state p {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .hero-panel p {
+            max-width: 720px;
+            margin: 0;
+            font-size: .96rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .65rem;
+            margin-top: 1.15rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 760;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:focus-visible,
+        .restore-dropzone:focus-within {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+        }
+
         .btn-primary {
             background: var(--primary);
             border-color: var(--primary);
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover,
+        .btn-primary:focus {
             background: var(--primary-dark);
             border-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+            box-shadow: 0 12px 26px rgba(211, 47, 47, .22);
+        }
+
+        .btn-light-soft {
+            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover {
+            color: var(--primary-dark);
+            background: #fffafa;
+            border-color: rgba(211, 47, 47, .22);
+        }
+
+        .btn-warning {
+            color: #7c2d12;
+            background: var(--warning-soft);
+            border-color: #fed7aa;
+        }
+
+        .btn-warning:hover {
+            color: #7c2d12;
+            background: #ffedd5;
+            border-color: #fdba74;
         }
 
         .btn-outline-primary {
             color: var(--primary);
-            border-color: var(--primary);
+            background: var(--card);
+            border-color: rgba(211, 47, 47, .25);
         }
 
         .btn-outline-primary:hover {
+            color: #ffffff;
             background: var(--primary);
             border-color: var(--primary);
         }
 
         .btn-outline-danger {
-            color: var(--primary);
-            border-color: var(--primary);
+            color: var(--danger);
+            background: var(--card);
+            border-color: rgba(220, 38, 38, .25);
         }
 
         .btn-outline-danger:hover {
-            background: var(--primary);
-            border-color: var(--primary);
+            color: #ffffff;
+            background: var(--danger);
+            border-color: var(--danger);
         }
 
-        .schedule-card {
-            border: 1px solid #b6dcff;
-            background: #eef7ff;
+        .backup-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem;
+            margin-bottom: .9rem;
+        }
+
+        .backup-stat {
+            display: flex;
+            gap: .85rem;
+            padding: 1rem;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .backup-stat:hover,
+        .archive-row:hover,
+        .restore-panel:hover,
+        .archive-panel:hover {
+            border-color: var(--line-strong);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .backup-stat:hover,
+        .archive-row:hover {
+            transform: translateY(-1px);
+        }
+
+        .backup-stat-icon {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+            font-size: 1rem;
+        }
+
+        .backup-stat span {
+            display: block;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .backup-stat strong {
+            display: block;
+            margin-top: .28rem;
+            color: var(--text);
+            font-size: clamp(1.3rem, 2vw, 1.75rem);
+            font-weight: 850;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+            overflow-wrap: anywhere;
+        }
+
+        .backup-stat small {
+            display: block;
+            margin-top: .42rem;
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .schedule-panel {
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .schedule-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--info);
+            background: var(--info-soft);
+            border: 1px solid #dbeafe;
             border-radius: 14px;
-            padding: 1rem 1.25rem;
         }
 
-        .schedule-title {
-            color: #0b63ad;
+        .schedule-panel h3 {
+            margin: 0 0 .2rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 820;
+        }
+
+        .schedule-panel p {
+            margin: 0;
+            font-size: .88rem;
+        }
+
+        .schedule-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            width: fit-content;
+            padding: .42rem .65rem;
+            border-radius: 999px;
+            color: #075985;
+            background: var(--info-soft);
+            border: 1px solid #bae6fd;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .backup-workspace {
+            display: grid;
+            grid-template-columns: minmax(300px, 385px) minmax(0, 1fr);
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .restore-panel {
+            position: sticky;
+            top: 92px;
+            overflow: hidden;
+        }
+
+        .panel-header,
+        .archive-header {
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .archive-header {
+            justify-content: space-between;
+        }
+
+        .restore-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .panel-header h3,
+        .archive-header h3 {
+            margin: .18rem 0 0;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .panel-header p,
+        .archive-header p {
+            margin: .25rem 0 0;
+            font-size: .86rem;
+        }
+
+        .restore-body {
+            padding: 1rem;
+        }
+
+        .restore-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: .65rem;
+            margin-bottom: .9rem;
+            padding: .8rem;
+            color: #7c2d12;
+            background: var(--warning-soft);
+            border: 1px solid #fed7aa;
+            border-radius: 14px;
+            font-size: .84rem;
+            line-height: 1.55;
+        }
+
+        .restore-dropzone {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 176px;
+            padding: 1rem;
+            color: var(--muted);
+            background: #f9fafb;
+            border: 1.5px dashed var(--line-strong);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            text-align: center;
+            transition: border-color .16s ease, background .16s ease, transform .16s ease;
+        }
+
+        .restore-dropzone:hover,
+        .restore-dropzone.is-dragover {
+            background: var(--primary-soft);
+            border-color: rgba(211, 47, 47, .45);
+            transform: translateY(-1px);
+        }
+
+        .restore-dropzone input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .restore-upload-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            box-shadow: var(--shadow-xs);
+            font-size: 1.15rem;
+        }
+
+        .restore-dropzone strong,
+        .restore-dropzone span,
+        .restore-dropzone small {
+            display: block;
+        }
+
+        .restore-dropzone strong {
+            color: var(--text);
+            font-size: .94rem;
+            font-weight: 820;
+        }
+
+        .restore-dropzone span {
+            display: flex;
+            margin-top: .22rem;
+            font-size: .84rem;
+            line-height: 1.45;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .restore-dropzone small {
+            margin-top: .45rem;
+            color: var(--muted-2);
+            font-size: .75rem;
             font-weight: 700;
         }
 
-        .empty-state {
-            padding: 2.25rem;
-            text-align: center;
-            color: #6c757d;
+        #restoreValidationMessage {
+            min-height: 22px;
+            margin-top: .65rem;
+            font-weight: 760;
         }
 
-        .mobile-only {
-            display: none;
+        .restore-submit-btn {
+            width: 100%;
+            margin-top: .65rem;
+        }
+
+        .backup-checklist {
+            display: grid;
+            gap: .58rem;
+            margin-top: .95rem;
+            padding-top: .95rem;
+            border-top: 1px dashed var(--line-strong);
+        }
+
+        .backup-checklist div {
+            display: flex;
+            align-items: flex-start;
+            gap: .55rem;
+            color: var(--muted);
+            font-size: .82rem;
+            line-height: 1.45;
+        }
+
+        .backup-checklist i {
+            margin-top: .14rem;
+            color: var(--success);
+        }
+
+        .archive-panel {
+            overflow: hidden;
+        }
+
+        .archive-count {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            flex: 0 0 auto;
+            padding: .42rem .68rem;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .archive-list {
+            display: grid;
+            gap: .72rem;
+            padding: .9rem;
+        }
+
+        .archive-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "file actions"
+                "meta actions"
+                "size actions";
+            gap: .48rem 1rem;
+            align-items: center;
+            padding: .95rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .archive-file {
+            grid-area: file;
+            display: flex;
+            align-items: center;
+            gap: .72rem;
+            min-width: 0;
+        }
+
+        .archive-icon {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+        }
+
+        .archive-file strong,
+        .archive-file small,
+        .archive-meta span,
+        .archive-meta strong {
+            display: block;
+        }
+
+        .archive-file strong {
+            max-width: 100%;
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 820;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .archive-file small {
+            margin-top: .12rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+        }
+
+        .archive-meta {
+            grid-area: meta;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .22rem .45rem;
+            min-width: 0;
+            padding-left: 54px;
+        }
+
+        .archive-meta strong {
+            color: var(--text);
+            font-size: .82rem;
+            font-weight: 760;
+            line-height: 1.35;
+        }
+
+        .archive-meta span {
+            margin-top: 0;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .archive-size-cell {
+            grid-area: size;
+            padding-left: 54px;
+        }
+
+        .archive-size-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            padding: .38rem .62rem;
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .archive-actions {
+            grid-area: actions;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: .42rem;
+            white-space: nowrap;
+        }
+
+        .archive-actions .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            font-size: .82rem;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 300px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        .empty-state h4 {
+            margin-bottom: .35rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 820;
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            margin: 0;
+            font-size: .88rem;
+        }
+
+        .modal-content {
+            border: 0;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18);
+        }
+
+        .modal-warning-icon {
+            flex: 0 0 auto;
+            width: 52px;
+            height: 52px;
+            color: #9a3412;
+            background: var(--warning-soft);
+            border: 1px solid #fed7aa;
+            border-radius: 16px;
+            font-size: 1.2rem;
+        }
+
+        .modal-title {
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-body p {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .backup-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .backup-workspace {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .restore-panel {
+                position: relative;
+                top: auto;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .archive-row {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas:
+                    "file"
+                    "meta"
+                    "size"
+                    "actions";
+                align-items: stretch;
+            }
+
+            .archive-meta,
+            .archive-size-cell {
+                padding-left: 54px;
+            }
+
+            .archive-actions {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                justify-content: stretch;
+            }
+
+            .archive-actions .btn,
+            .archive-actions form {
+                width: 100%;
+            }
         }
 
         @media (max-width: 768px) {
@@ -280,31 +868,106 @@
                 display: inline-flex;
             }
 
-            .profile-badge span {
+            .profile-badge span:not(.role-badge) {
                 display: none;
             }
 
-            .mobile-only {
-                display: inline-flex;
+            .header {
+                padding: .85rem 1rem;
             }
 
-            .stat-number {
-                font-size: 1.5rem;
+            .page-title {
+                font-size: 1.02rem;
             }
 
-            .restore-upload-row .btn {
-                margin-top: 0.25rem;
+            .backup-page {
+                max-width: 100%;
+            }
+
+            .hero-panel,
+            .schedule-panel,
+            .restore-panel,
+            .backup-stat,
+            .archive-panel {
+                border-radius: 16px;
+            }
+
+            .hero-panel,
+            .schedule-panel,
+            .panel-header,
+            .restore-body,
+            .archive-header,
+            .archive-list {
+                padding: .9rem;
+            }
+
+            .hero-actions,
+            .hero-actions form,
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .backup-stats-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .backup-stat {
+                min-height: auto;
+            }
+
+            .schedule-panel {
+                align-items: flex-start;
+            }
+
+            .archive-header {
+                flex-direction: column;
+            }
+
+            .archive-meta,
+            .archive-size-cell {
+                padding-left: 0;
+            }
+
+            .archive-actions {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 575px) {
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .role-badge {
+                display: none;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .hero-panel h2 {
+                font-size: 1.75rem;
+            }
+
+            .restore-dropzone {
+                min-height: 158px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
+    <!-- Sidebar with Permission Checks -->
     <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
         <div class="brand">
             <div class="brand-left">
-                <img class="logo" src="{{ asset('Images/logo.png') }}" alt="Logo">
+                <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo">
                 <div class="brand-text">
                     <div class="brand-title">BISIG Hulong Duhat</div>
                     <div class="brand-sub">Administrator</div>
@@ -321,13 +984,14 @@
         @endadmin_can
 
         <div class="menu-section">Administrative</div>
-
+        
+        <!-- Registry Dropdown -->
         @php
             $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
                 'view_residents', 'view_residency', 'view_indigency'
             ]);
         @endphp
-
+        
         @if($hasRegistryAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-users"></i>
@@ -338,9 +1002,11 @@
             @admin_can('view_residents')
             <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
             @endadmin_can
+            
             @admin_can('view_residency')
             <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
             @endadmin_can
+            
             @admin_can('view_indigency')
             <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
             @endadmin_can
@@ -348,13 +1014,14 @@
         @endif
 
         <div class="menu-section">Legal</div>
-
+        
+        <!-- Records Dropdown -->
         @php
             $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
                 'view_clearance', 'view_blotter'
             ]);
         @endphp
-
+        
         @if($hasRecordsAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-scale-balanced"></i>
@@ -365,6 +1032,7 @@
             @admin_can('view_clearance')
             <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
             @endadmin_can
+            
             @admin_can('view_blotter')
             <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
             @endadmin_can
@@ -372,13 +1040,14 @@
         @endif
 
         <div class="menu-section">Community</div>
-
+        
+        <!-- Community Dropdown -->
         @php
             $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
                 'view_announcements', 'view_events', 'view_projects'
             ]);
         @endphp
-
+        
         @if($hasCommunityAccess)
         <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
             <i class="fas fa-bullhorn"></i>
@@ -389,9 +1058,11 @@
             @admin_can('view_announcements')
             <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
             @endadmin_can
+            
             @admin_can('view_events')
             <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
             @endadmin_can
+            
             @admin_can('view_projects')
             <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
             @endadmin_can
@@ -399,7 +1070,7 @@
         @endif
 
         <div class="menu-section">System</div>
-
+        
         @admin_can('view_users')
         <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
@@ -415,240 +1086,362 @@
         @endadmin_can
 
         @admin_can('view_backup')
-        <a href="{{ route('admin.backup.index') }}" class="active" onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.backup.index') }}"  class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
         </a>
         @endadmin_can
+
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content" id="mainContent">
+        <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
                 <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
-                    <i class="fas fa-bars"></i>
+                    <i class="fas fa-cog"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-database me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
+                    <span class="title-icon"><i class="fas fa-database"></i></span>
                     Backup Settings
                 </h1>
             </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
         </header>
 
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+            @php
+                $latestBackup = $backups->isNotEmpty() ? $backups->first() : null;
+                $totalSizeMb = $backups->sum('size') / 1024 / 1024;
+                $displayTz = $displayTimezone ?? 'Asia/Manila';
+            @endphp
 
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ $errors->first() }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('restore_status') && session('restore_message'))
-                <div id="restoreResultPanel" class="alert {{ session('restore_status') === 'success' ? 'alert-success' : 'alert-danger' }} border-2 shadow-sm mb-4" role="alert">
-                    <div class="d-flex flex-column gap-1">
-                        <div class="fw-bold">
-                            <i class="fas {{ session('restore_status') === 'success' ? 'fa-circle-check' : 'fa-circle-xmark' }} me-2"></i>
-                            Restore Result
-                        </div>
-                        <div>{{ session('restore_message') }}</div>
-                        <small class="opacity-75">Time: {{ session('restore_time') }}</small>
-                    </div>
-                </div>
-            @endif
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-                <div>
-                    <h5 class="mb-1">System Backups</h5>
-                    <div class="text-muted">Create and manage full backup archives.</div>
-                </div>
-                <form method="POST" action="{{ route('admin.backup.store') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-database me-2"></i>Create New Backup
-                    </button>
-                </form>
-            </div>
-
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h6 class="mb-2">Restore Backup Archive</h6>
-                    <p class="text-muted mb-3">
-                        Upload a backup zip and restore in one click. This will overwrite current database and backup-managed files.
-                    </p>
-
-                    <form method="POST" action="{{ route('admin.backup.restore') }}" enctype="multipart/form-data" onsubmit="return validateUploadAndConfirmRestore(event, this);">
-                        @csrf
-                        <div class="row g-2 align-items-center restore-upload-row">
-                            <div class="col-12 col-md-8 col-lg-9">
-                                <input type="file" name="backup_archive" id="restoreArchiveInput" accept=".zip" class="form-control" required>
-                                <div class="form-text">Accepted: .zip, max 500 MB.</div>
-                                <div id="restoreValidationMessage" class="form-text"></div>
-                            </div>
-                            <div class="col-12 col-md-4 col-lg-3 d-grid align-self-stretch">
-                                <button type="submit" class="btn btn-warning">
-                                    <i class="fas fa-rotate-left me-2"></i>Upload and Restore
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="row g-3 g-lg-4 mb-4">
-                <div class="col-6 col-lg-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Backups</div>
-                        <div class="stat-number">{{ $backups->count() }}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Backup Type</div>
-                        <div class="stat-number" style="font-size:1.25rem;">Full Archive</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Storage Path</div>
-                        <div class="stat-number" style="font-size:1.1rem;">storage/app/backups</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Included Data</div>
-                        <div class="stat-number" style="font-size:1rem;">DB + uploads + docs</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="schedule-card mb-4">
-                <div class="d-flex align-items-start gap-2">
-                    <i class="fas fa-clock mt-1" style="color:#0b63ad;"></i>
-                    <div>
-                        <div class="schedule-title">Automatic Weekly Backup Enabled</div>
-                        <div>Scheduled every Sunday at 12:00 AM (Asia/Manila).</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-card">
-                <div class="table-header">
-                    <h6 class="mb-0">Available Backups</h6>
-                    <span class="badge text-bg-secondary">{{ $backups->count() }}</span>
-                </div>
-
-                @if($backups->isEmpty())
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open fa-2x mb-2 text-muted"></i>
-                        <div>No backups found yet.</div>
-                    </div>
-                @else
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>File Name</th>
-                                    <th>Last Modified ({{ $displayTimezone ?? 'Asia/Manila' }})</th>
-                                    <th>Size</th>
-                                    <th class="text-end pe-4">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($backups as $backup)
-                                    <tr>
-                                        <td class="fw-semibold">{{ $backup['name'] }}</td>
-                                        <td>
-                                            <div class="backup-time">
-                                                <span class="backup-time-main">{{ $backup['modified_at'] }}</span>
-                                                <span class="backup-time-sub">{{ $backup['modified_relative'] }}</span>
-                                            </div>
-                                        </td>
-                                        <td>{{ number_format($backup['size'] / 1024 / 1024, 2) }} MB</td>
-                                        <td class="text-end pe-4">
-                                            <a href="{{ route('admin.backup.download', $backup['name']) }}" class="btn btn-sm btn-outline-primary me-2">
-                                                <i class="fas fa-download me-1"></i>Download
-                                            </a>
-                                            <form method="POST" action="{{ route('admin.backup.restore') }}" class="d-inline" onsubmit="return confirmRestore(event);">
-                                                @csrf
-                                                <input type="hidden" name="file" value="{{ $backup['name'] }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-warning me-2">
-                                                    <i class="fas fa-rotate-left me-1"></i>Restore
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('admin.backup.destroy', $backup['name']) }}" class="d-inline" onsubmit="return confirmDelete(event, 'Delete this backup file?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash me-1"></i>Delete
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+            <div class="backup-page">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show backup-alert" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show backup-alert" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show backup-alert" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ $errors->first() }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('restore_status') && session('restore_message'))
+                    <div id="restoreResultPanel" class="alert {{ session('restore_status') === 'success' ? 'alert-success' : 'alert-danger' }} backup-alert border-0 mb-4" role="alert">
+                        <div class="d-flex flex-column gap-1">
+                            <div class="fw-bold">
+                                <i class="fas {{ session('restore_status') === 'success' ? 'fa-circle-check' : 'fa-circle-xmark' }} me-2"></i>
+                                Restore Result
+                            </div>
+                            <div>{{ session('restore_message') }}</div>
+                            <small class="opacity-75">Time: {{ session('restore_time') }}</small>
+                        </div>
+                    </div>
+                @endif
+
+                <section class="backup-hero">
+                    <div class="hero-panel">
+                        <div class="hero-content">
+                            <div class="hero-icon"><i class="fas fa-shield-halved"></i></div>
+                            <div class="hero-kicker"><i class="fas fa-circle-check"></i> Backup Control Center</div>
+                            <h2>Protect your barangay records.</h2>
+                            <p>Create full archive backups, restore verified ZIP files, and manage existing backup copies in a cleaner workspace designed for quick admin decisions.</p>
+                            <div class="hero-actions">
+                                <form method="POST" action="{{ route('admin.backup.store') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-plus-circle"></i>Create New Backup
+                                    </button>
+                                </form>
+                                <a href="#backupArchives" class="btn btn-light-soft">
+                                    <i class="fas fa-folder-open"></i>View Archives
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="backup-stats-grid" aria-label="Backup overview">
+                    <div class="backup-stat">
+                        <div class="backup-stat-icon"><i class="fas fa-box-archive"></i></div>
+                        <div>
+                            <span>Total Backups</span>
+                            <strong>{{ $backups->count() }}</strong>
+                            <small>Available archive files in storage.</small>
+                        </div>
+                    </div>
+
+                    <div class="backup-stat">
+                        <div class="backup-stat-icon"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <span>Backup Type</span>
+                            <strong style="font-size:1.25rem;">Full Archive</strong>
+                            <small>Database, uploads, and managed documents.</small>
+                        </div>
+                    </div>
+
+                    <div class="backup-stat">
+                        <div class="backup-stat-icon"><i class="fas fa-hard-drive"></i></div>
+                        <div>
+                            <span>Total Storage</span>
+                            <strong style="font-size:1.35rem;">{{ number_format($totalSizeMb, 2) }} MB</strong>
+                            <small>Combined size of listed backup files.</small>
+                        </div>
+                    </div>
+
+                    <div class="backup-stat">
+                        <div class="backup-stat-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                        <div>
+                            <span>Latest Backup</span>
+                            <strong style="font-size:1.05rem;">
+                                {{ $latestBackup ? $latestBackup['modified_relative'] : 'No backup yet' }}
+                            </strong>
+                            <small>{{ $latestBackup ? $latestBackup['modified_at'] : 'Create your first full archive.' }}</small>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="schedule-panel">
+                    <div class="schedule-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h3>Automatic weekly backup <span class="schedule-chip"><i class="fas fa-calendar-check"></i>Every Sunday, 12:00 AM</span></h3>
+                        <p>Your system is scheduled to create a backup using {{ $displayTz }} timezone.</p>
+                    </div>
+                </div>
+
+                <section class="backup-workspace">
+                    <aside class="restore-panel" id="restoreBackup">
+                        <div class="panel-header">
+                            <div class="restore-icon"><i class="fas fa-rotate-left"></i></div>
+                            <div>
+                                <div class="section-kicker">Restore</div>
+                                <h3>Restore backup archive</h3>
+                                <p>Upload a trusted backup ZIP file before restoring database and backup-managed files.</p>
+                            </div>
+                        </div>
+
+                        <div class="restore-body">
+                            <div class="restore-warning">
+                                <i class="fas fa-triangle-exclamation mt-1"></i>
+                                <div>This action overwrites current database data and backup-managed files. Use only a verified backup file.</div>
+                            </div>
+
+                            <form method="POST" action="{{ route('admin.backup.restore') }}" enctype="multipart/form-data" onsubmit="return validateUploadAndConfirmRestore(event, this);">
+                                @csrf
+                                <label class="restore-dropzone" id="restoreDropzone" for="restoreArchiveInput">
+                                    <input type="file" name="backup_archive" id="restoreArchiveInput" accept=".zip" required>
+                                    <span class="restore-upload-icon"><i class="fas fa-file-zipper"></i></span>
+                                    <strong id="restoreFileLabel">Choose backup ZIP file</strong>
+                                    <span>Click to browse or drag a .zip archive here.</span>
+                                    <small>Accepted: .zip only, maximum 500 MB</small>
+                                </label>
+                                <div id="restoreValidationMessage" class="form-text"></div>
+                                <button type="submit" class="btn btn-warning restore-submit-btn">
+                                    <i class="fas fa-upload"></i>Upload and Restore
+                                </button>
+                            </form>
+
+                            <div class="backup-checklist">
+                                <div><i class="fas fa-check-circle"></i><span>Confirm the file came from this system.</span></div>
+                                <div><i class="fas fa-check-circle"></i><span>Download the latest backup before restoring older data.</span></div>
+                                <div><i class="fas fa-check-circle"></i><span>Restore during low system activity when possible.</span></div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <section class="archive-panel" id="backupArchives">
+                        <div class="archive-header">
+                            <div>
+                                <div class="section-kicker"><i class="fas fa-folder-open"></i> Archives</div>
+                                <h3>Available backups</h3>
+                                <p>Review file age, size, and actions before downloading, restoring, or deleting an archive.</p>
+                            </div>
+                            <span class="archive-count"><i class="fas fa-box-archive"></i>{{ $backups->count() }} files</span>
+                        </div>
+
+                        @if($backups->isEmpty())
+                            <div class="empty-state">
+                                <div>
+                                    <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                                    <h4>No backups found yet</h4>
+                                    <p>Create a new backup to protect your database, uploads, and generated documents.</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="archive-list">
+                                @foreach($backups as $backup)
+                                    <div class="archive-row">
+                                        <div class="archive-file">
+                                            <div class="archive-icon"><i class="fas fa-file-zipper"></i></div>
+                                            <div class="min-w-0">
+                                                <strong title="{{ $backup['name'] }}">{{ $backup['name'] }}</strong>
+                                                <small>Full system archive</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="archive-meta">
+                                            <strong>{{ $backup['modified_at'] }}</strong>
+                                            <span>{{ $backup['modified_relative'] }} · {{ $displayTz }}</span>
+                                        </div>
+
+                                        <div class="archive-size-cell">
+                                            <span class="archive-size-pill">{{ number_format($backup['size'] / 1024 / 1024, 2) }} MB</span>
+                                        </div>
+
+                                        <div class="archive-actions">
+                                            <a href="{{ route('admin.backup.download', $backup['name']) }}" class="btn btn-sm btn-outline-primary" title="Download backup">
+                                                <i class="fas fa-download"></i><span>Download</span>
+                                            </a>
+
+                                            <form method="POST" action="{{ route('admin.backup.restore') }}" onsubmit="return confirmRestore(event, this);">
+                                                @csrf
+                                                <input type="hidden" name="file" value="{{ $backup['name'] }}">
+                                                <button type="submit" class="btn btn-sm btn-warning" title="Restore backup">
+                                                    <i class="fas fa-rotate-left"></i><span>Restore</span>
+                                                </button>
+                                            </form>
+
+                                            <form method="POST" action="{{ route('admin.backup.destroy', $backup['name']) }}" onsubmit="return confirmDelete(event, this, 'Delete this backup file? This cannot be undone.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete backup">
+                                                    <i class="fas fa-trash"></i><span>Delete</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </section>
+                </section>
             </div>
         </main>
+    </div>
+
+    <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-4">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="modal-warning-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                        <div class="min-w-0">
+                            <h5 class="modal-title" id="confirmActionTitle">Confirm action</h5>
+                            <p class="mt-2 mb-0" id="confirmActionMessage">Are you sure you want to continue?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light-soft" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmActionButton">Continue</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/admin/nav.js') }}"></script>
     <script>
-        function confirmDelete(event, message) {
-            if (!confirm(message || 'Are you sure?')) {
-                event.preventDefault();
-                return false;
+        var pendingActionForm = null;
+        var confirmModalInstance = null;
+        var isSubmittingConfirmedAction = false;
+
+        function showConfirmModal(form, title, message, confirmLabel) {
+            pendingActionForm = form;
+
+            var titleEl = document.getElementById('confirmActionTitle');
+            var messageEl = document.getElementById('confirmActionMessage');
+            var confirmBtn = document.getElementById('confirmActionButton');
+            var modalEl = document.getElementById('confirmActionModal');
+
+            if (!modalEl || !confirmBtn) {
+                return window.confirm(message || 'Are you sure you want to continue?');
             }
-            return true;
+
+            if (titleEl) titleEl.textContent = title || 'Confirm action';
+            if (messageEl) messageEl.textContent = message || 'Are you sure you want to continue?';
+            if (confirmBtn) confirmBtn.textContent = confirmLabel || 'Continue';
+
+            confirmModalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            confirmModalInstance.show();
+            return false;
         }
 
-        function confirmRestore(event) {
-            var message = 'This will overwrite current database and files with backup content. Continue restore?';
-            if (!confirm(message)) {
-                event.preventDefault();
-                return false;
+        function confirmDelete(event, form, message) {
+            if (isSubmittingConfirmedAction) {
+                return true;
             }
-            return true;
+
+            event.preventDefault();
+            return showConfirmModal(
+                form,
+                'Delete backup file?',
+                message || 'Delete this backup file? This cannot be undone.',
+                'Delete Backup'
+            );
+        }
+
+        function confirmRestore(event, form) {
+            if (isSubmittingConfirmedAction) {
+                return true;
+            }
+
+            event.preventDefault();
+            return showConfirmModal(
+                form,
+                'Restore backup archive?',
+                'This will overwrite the current database and backup-managed files with the selected archive. Continue only if the backup file is verified.',
+                'Restore Backup'
+            );
         }
 
         function validateUploadAndConfirmRestore(event, form) {
@@ -661,7 +1454,6 @@
                     validationMessage.className = 'form-text text-danger';
                     validationMessage.textContent = 'Please select a backup zip file first.';
                 }
-                alert('Please select a backup zip file first.');
                 return false;
             }
 
@@ -676,7 +1468,6 @@
                     validationMessage.className = 'form-text text-danger';
                     validationMessage.textContent = 'Invalid file type. Please upload a .zip backup file.';
                 }
-                alert('Invalid file type. Please upload a .zip backup file.');
                 return false;
             }
 
@@ -686,7 +1477,6 @@
                     validationMessage.className = 'form-text text-danger';
                     validationMessage.textContent = 'Backup file is too large. Maximum allowed size is 500 MB.';
                 }
-                alert('Backup file is too large. Maximum allowed size is 500 MB.');
                 return false;
             }
 
@@ -695,59 +1485,109 @@
                 validationMessage.textContent = 'File is valid and ready to restore.';
             }
 
-            return confirmRestore(event);
+            return confirmRestore(event, form);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            var fileInput = document.getElementById('restoreArchiveInput');
+        function updateRestoreFileState(fileInput) {
             var validationMessage = document.getElementById('restoreValidationMessage');
-            var restoreResultPanel = document.getElementById('restoreResultPanel');
-
-            if (restoreResultPanel) {
-                restoreResultPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            var fileLabel = document.getElementById('restoreFileLabel');
 
             if (!fileInput || !validationMessage) {
                 return;
             }
 
-            fileInput.addEventListener('change', function () {
-                if (!fileInput.files || fileInput.files.length === 0) {
-                    validationMessage.className = 'form-text';
-                    validationMessage.textContent = '';
-                    return;
-                }
+            if (!fileInput.files || fileInput.files.length === 0) {
+                validationMessage.className = 'form-text';
+                validationMessage.textContent = '';
+                if (fileLabel) fileLabel.textContent = 'Choose backup ZIP file';
+                return;
+            }
 
-                var file = fileInput.files[0];
-                var maxBytes = 500 * 1024 * 1024;
-                var isZipByType = file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.type === 'multipart/x-zip';
-                var isZipByName = /\.zip$/i.test(file.name || '');
+            var file = fileInput.files[0];
+            var maxBytes = 500 * 1024 * 1024;
+            var isZipByType = file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.type === 'multipart/x-zip';
+            var isZipByName = /\.zip$/i.test(file.name || '');
 
-                if (!isZipByType && !isZipByName) {
-                    validationMessage.className = 'form-text text-danger';
-                    validationMessage.textContent = 'Invalid file type. Please upload a .zip backup file.';
-                    return;
-                }
+            if (fileLabel) {
+                fileLabel.textContent = file.name || 'Selected backup file';
+            }
 
-                if (file.size > maxBytes) {
-                    validationMessage.className = 'form-text text-danger';
-                    validationMessage.textContent = 'Backup file is too large. Maximum allowed size is 500 MB.';
-                    return;
-                }
+            if (!isZipByType && !isZipByName) {
+                validationMessage.className = 'form-text text-danger';
+                validationMessage.textContent = 'Invalid file type. Please upload a .zip backup file.';
+                return;
+            }
 
-                validationMessage.className = 'form-text text-success';
-                validationMessage.textContent = 'File is valid and ready to restore.';
-            });
+            if (file.size > maxBytes) {
+                validationMessage.className = 'form-text text-danger';
+                validationMessage.textContent = 'Backup file is too large. Maximum allowed size is 500 MB.';
+                return;
+            }
+
+            validationMessage.className = 'form-text text-success';
+            validationMessage.textContent = 'File is valid and ready to restore.';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var fileInput = document.getElementById('restoreArchiveInput');
+            var restoreDropzone = document.getElementById('restoreDropzone');
+            var restoreResultPanel = document.getElementById('restoreResultPanel');
+            var confirmBtn = document.getElementById('confirmActionButton');
+
+            if (restoreResultPanel) {
+                restoreResultPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    updateRestoreFileState(fileInput);
+                });
+            }
+
+            if (restoreDropzone && fileInput) {
+                ['dragenter', 'dragover'].forEach(function (eventName) {
+                    restoreDropzone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        restoreDropzone.classList.add('is-dragover');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(function (eventName) {
+                    restoreDropzone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        restoreDropzone.classList.remove('is-dragover');
+                    });
+                });
+
+                restoreDropzone.addEventListener('drop', function (event) {
+                    if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+                        fileInput.files = event.dataTransfer.files;
+                        updateRestoreFileState(fileInput);
+                    }
+                });
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', function () {
+                    if (!pendingActionForm) {
+                        return;
+                    }
+
+                    isSubmittingConfirmedAction = true;
+                    if (confirmModalInstance) {
+                        confirmModalInstance.hide();
+                    }
+                    pendingActionForm.submit();
+                });
+            }
 
             setTimeout(function () {
-                document.querySelectorAll('.alert').forEach(function (alertEl) {
+                document.querySelectorAll('.backup-alert.alert-dismissible').forEach(function (alertEl) {
                     var bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
                     bsAlert.close();
                 });
             }, 6000);
         });
-
     </script>
 </body>
 </html>
-

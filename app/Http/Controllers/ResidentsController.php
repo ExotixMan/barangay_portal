@@ -12,13 +12,18 @@ use App\Models\Residents;
 use App\Models\Announcement;
 use App\Services\OtpSmsService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use App\Services\AdminSettingsService;
 
 class ResidentsController extends Controller
 {
     private const REGISTER_OTP_MAX_ATTEMPTS = 3;
 
-    public function __construct(private OtpSmsService $otpSmsService)
-    {
+    public function __construct(
+        private OtpSmsService $otpSmsService,
+        private AdminSettingsService $settings
+    ) {
     }
 
     public function showLogin(){
@@ -45,7 +50,9 @@ class ResidentsController extends Controller
             'username' => strtolower((string) $request->input('username', '')),
         ]);
 
-        $data = $request->validate([
+        $captchaEnabled = (bool) $this->settings->get('security.captcha_enabled', false);
+
+        $rules = [
             'firstname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'middlename' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'lastname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
@@ -58,8 +65,13 @@ class ResidentsController extends Controller
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
             'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
             'terms' => 'accepted',
-            'g-recaptcha-response' => 'required|string',
-        ], [
+        ];
+
+        if ($captchaEnabled) {
+            $rules['g-recaptcha-response'] = 'required|string';
+        }
+
+        $messages = [
             'firstname.regex' => 'First name may only contain letters, spaces, dots, apostrophes, and hyphens',
             'middlename.regex' => 'Middle name may only contain letters, spaces, dots, apostrophes, and hyphens',
             'lastname.regex' => 'Last name may only contain letters, spaces, dots, apostrophes, and hyphens',
@@ -73,9 +85,14 @@ class ResidentsController extends Controller
             'username.min' => 'Username must be at least 4 characters long',
             'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',
             'g-recaptcha-response.required' => 'Please complete the CAPTCHA verification',
-        ]);
+        ];
 
-        if (!$this->verifyRecaptcha((string) $request->input('g-recaptcha-response'), (string) $request->ip())) {
+        $data = $request->validate($rules, $messages);
+
+        if ($captchaEnabled && ! $this->verifyRecaptcha(
+            (string) $request->input('g-recaptcha-response'),
+            (string) $request->ip()
+        )) {
             return back()
                 ->withErrors(['g-recaptcha-response' => 'CAPTCHA verification failed. Please try again.'])
                 ->withInput();
@@ -109,7 +126,7 @@ class ResidentsController extends Controller
         //     ->with('success', 'Registration successful. Please verify your email.');
 
         // Send OTP to mobile and redirect to OTP form
-        $this->otpSmsService->sendOtp($resident, $otp, 'register');
+        $this->sendOtpAndLog($resident, $otp, 'register');
         $request->session()->put('resident_id', $resident->id);
         $request->session()->put('otp_purpose', 'register');
 
@@ -119,7 +136,10 @@ class ResidentsController extends Controller
 
     private function verifyRecaptcha(string $token, string $ip): bool
     {
-        $secret = (string) config('services.recaptcha.secret_key');
+        $secret = (string) $this->settings->get(
+            'security.recaptcha_secret_key',
+            config('services.recaptcha.secret_key', '')
+        );
 
         if ($secret === '' || $token === '') {
             return false;
@@ -178,6 +198,73 @@ class ResidentsController extends Controller
         ]);
     }
 
+    public function checkAccountAvailability(Request $request)
+    {
+        $field = (string) $request->query('field', 'username');
+        $value = trim((string) $request->query('value', ''));
+
+        if ($value === '') {
+            return response()->json([
+                'available' => false,
+                'message' => 'Value is required',
+            ], 422);
+        }
+
+        $rules = [
+            'username' => [
+                'label' => 'Username',
+                'normalize' => fn (string $input) => strtolower($input),
+                'pattern' => '/^[a-zA-Z0-9_.-]+$/',
+                'min' => 4,
+                'column' => 'username',
+            ],
+            'email' => [
+                'label' => 'Email',
+                'normalize' => fn (string $input) => strtolower($input),
+                'pattern' => '/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                'min' => 6,
+                'column' => 'email',
+            ],
+            'contact' => [
+                'label' => 'Contact number',
+                'normalize' => fn (string $input) => preg_replace('/\D+/', '', $input),
+                'pattern' => '/^09\d{9}$/',
+                'min' => 11,
+                'column' => 'contact',
+            ],
+        ];
+
+        if (!isset($rules[$field])) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Unsupported field',
+            ], 422);
+        }
+
+        $rule = $rules[$field];
+        $normalized = ($rule['normalize'])($value);
+
+        if (!preg_match($rule['pattern'], $normalized) || strlen($normalized) < $rule['min']) {
+            return response()->json([
+                'available' => false,
+                'message' => $field === 'contact'
+                    ? 'Please enter a valid Philippine mobile number (09XXXXXXXXX)'
+                    : ($field === 'email'
+                        ? 'Please enter a valid email address'
+                        : 'Invalid ' . strtolower($rule['label']) . ' format'),
+            ], 422);
+        }
+
+        $exists = Residents::where($rule['column'], $normalized)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists
+                ? $rule['label'] . ' is already taken'
+                : $rule['label'] . ' is available',
+        ]);
+    }
+
     public function login_res(Request $request)
     {
         $request->validate([
@@ -208,21 +295,33 @@ class ResidentsController extends Controller
                 ->onlyInput('login');
         }
 
-        // Always require OTP on login
+                $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', false);
+
+        if (! $loginOtpEnabled) {
+            Auth::login($resident);
+            $request->session()->regenerate();
+
+            return redirect()
+                ->intended(route('barangay_system.index'))
+                ->with('success', 'Logged in successfully.');
+        }
+
         $otp = random_int(100000, 999999);
+
         $resident->update([
             'phone_otp' => Hash::make($otp),
             'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
-        $this->otpSmsService->sendOtp($resident, $otp, 'login');
+
+        $this->sendOtpAndLog($resident, $otp, 'login');
+
         $request->session()->put('resident_id', $resident->id);
         $request->session()->put('otp_purpose', 'login');
+
         return redirect()->route('otp.form')
             ->with('success', 'Please verify your mobile number with OTP to continue.');
     }
-        /**
-         * Resend OTP for login or registration (no countdown)
-         */
+    
     public function resendOtp(Request $request)
     {
         $residentId = $request->session()->get('resident_id');
@@ -265,7 +364,7 @@ class ResidentsController extends Controller
             'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
 
-        $this->otpSmsService->sendOtp($resident, $otp, $otpPurpose);
+        $this->sendOtpAndLog($resident, $otp, $otpPurpose);
 
         if ($otpPurpose === 'register') {
             $request->session()->forget('register_otp_attempts_' . $resident->id);
@@ -369,6 +468,57 @@ class ResidentsController extends Controller
             $request->session()->regenerate();
             return redirect()->intended(route('barangay_system.index'))->with('success', 'Mobile number verified. Welcome!');
         }
+    }
+
+    private function sendOtpAndLog(Residents $resident, int $otp, string $purpose): void
+    {
+        try {
+            $this->otpSmsService->sendOtp($resident, $otp, $purpose);
+
+            $this->logOtpSms(
+                resident: $resident,
+                purpose: $purpose,
+                status: 'sent'
+            );
+        } catch (\Throwable $exception) {
+            $this->logOtpSms(
+                resident: $resident,
+                purpose: $purpose,
+                status: 'failed',
+                errorMessage: $exception->getMessage()
+            );
+
+            throw $exception;
+        }
+    }
+
+    private function logOtpSms(
+        Residents $resident,
+        string $purpose,
+        string $status,
+        ?string $errorMessage = null
+    ): void {
+        if (! Schema::hasTable('notification_logs')) {
+            return;
+        }
+
+        DB::table('notification_logs')->insert([
+            'channel' => 'sms',
+            'recipient' => $resident->contact,
+            'status' => $status,
+            'message' => match ($purpose) {
+                'register' => 'Registration OTP sent.',
+                'login' => 'Login OTP sent.',
+                default => 'OTP sent.',
+            },
+            'error_message' => $errorMessage,
+            'reference_type' => 'otp_' . $purpose,
+            'reference_id' => $resident->id,
+            'sent_by' => null,
+            'sent_at' => $status === 'sent' ? now('Asia/Manila') : null,
+            'created_at' => now('Asia/Manila'),
+            'updated_at' => now('Asia/Manila'),
+        ]);
     }
 
     private function cancelPendingRegistration(Request $request, Residents $resident, string $reason)

@@ -18,7 +18,9 @@ class BarangayClearanceController extends Controller
             ]);
         }
 
-        return view('barangay_system.clearance_form');
+        $resident = Auth::user();
+
+        return view('barangay_system.clearance_form', compact('resident'));
     }
 
     public function store(Request $request)

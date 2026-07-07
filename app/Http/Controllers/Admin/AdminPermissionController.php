@@ -9,18 +9,48 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AdminPermissionController extends Controller
 {
+    private const LOOKUP_CACHE_SECONDS = 300;
+
+    private function getRolesWithPermissions()
+    {
+        return Cache::remember('admin_user_role.roles_with_permissions_count', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminRole::with('permissions')
+                ->withCount('users')
+                ->get();
+        });
+    }
+
+    private function getGroupedPermissions()
+    {
+        return Cache::remember('admin_user_role.permissions_grouped', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminPermission::orderBy('module')
+                ->orderBy('name')
+                ->get()
+                ->groupBy('module');
+        });
+    }
+
+    private function clearUserRoleLookupCache(): void
+    {
+        Cache::forget('admin_user_role.roles_with_permissions_count');
+        Cache::forget('admin_user_role.permissions_grouped');
+        Cache::forget('admin_user_role.audit_actions');
+        Cache::forget('admin_user_role.audit_modules');
+    }
+
     public function index()
     {
-        $permissions = AdminPermission::all()->groupBy('module');
-        $roles = AdminRole::with('permissions')->get();
+        $permissions = $this->getGroupedPermissions();
+        $roles = $this->getRolesWithPermissions();
 
         return view('admin.permissions.index', compact('permissions', 'roles'));
     }
 
-    public function updateRolePermissions(Request $request, $roleId)
+    public function updateRolePermissions(Request $request,int $roleId)
     {
         $role = AdminRole::findOrFail($roleId);
         $adminId = Auth::guard('admin')->id();
@@ -65,6 +95,7 @@ class AdminPermissionController extends Controller
             }
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'permissions', 'role_id' => $roleId])
                 ->with('success', 'Role permissions updated successfully.');
@@ -82,10 +113,20 @@ class AdminPermissionController extends Controller
         DB::beginTransaction();
 
         try {
-            // Define default permissions for each role based on your CSV data
+            $permissionsByName = AdminPermission::pluck('id', 'name');
+            $permissionIdsFor = function (array $names) use ($permissionsByName) {
+                return collect($names)
+                    ->map(fn ($name) => $permissionsByName->get($name))
+                    ->filter()
+                    ->values()
+                    ->all();
+            };
+
+            // Define default permissions for each role based on your CSV data.
+            // Permissions are read once and mapped in memory to avoid repeated table scans.
             $defaultPermissions = [
-                'super_admin' => AdminPermission::pluck('id')->toArray(),
-                'barangay_captain' => AdminPermission::whereIn('name', [
+                'super_admin' => $permissionsByName->values()->all(),
+                'barangay_captain' => $permissionIdsFor([
                     'view_dashboard', 'view_forecast',
                     'view_residents', 'create_residents', 'update_residents',
                     'view_residency', 'approve_residency',
@@ -96,9 +137,9 @@ class AdminPermissionController extends Controller
                     'view_events', 'create_events',
                     'view_projects', 'create_projects',
                     'view_requests', 'update_requests'
-                ])->pluck('id')->toArray(),
-                
-                'barangay_secretary' => AdminPermission::whereIn('name', [
+                ]),
+
+                'barangay_secretary' => $permissionIdsFor([
                     'view_dashboard',
                     'view_residents', 'create_residents', 'update_residents',
                     'view_residency', 'approve_residency', 'generate_residency_document',
@@ -107,9 +148,9 @@ class AdminPermissionController extends Controller
                     'view_blotter', 'create_blotter',
                     'view_announcements', 'create_announcements',
                     'view_events', 'create_events'
-                ])->pluck('id')->toArray(),
-                
-                'barangay_treasurer' => AdminPermission::whereIn('name', [
+                ]),
+
+                'barangay_treasurer' => $permissionIdsFor([
                     'view_dashboard',
                     'view_residents',
                     'view_residency',
@@ -118,9 +159,9 @@ class AdminPermissionController extends Controller
                     'view_requests',
                     'send_request_email', 'send_request_sms',
                     'send_email', 'send_sms'
-                ])->pluck('id')->toArray(),
-                
-                'barangay_kagawad' => AdminPermission::whereIn('name', [
+                ]),
+
+                'barangay_kagawad' => $permissionIdsFor([
                     'view_dashboard', 'view_forecast',
                     'view_residents',
                     'view_residency',
@@ -134,33 +175,33 @@ class AdminPermissionController extends Controller
                     'view_users',
                     'view_roles',
                     'view_permissions'
-                ])->pluck('id')->toArray(),
-                
-                'staff' => AdminPermission::whereIn('name', [
+                ]),
+
+                'staff' => $permissionIdsFor([
                     'view_residents', 'create_residents', 'update_residents',
                     'view_residency', 'view_indigency', 'view_clearance',
                     'view_blotter', 'create_blotter',
                     'view_announcements', 'view_events', 'view_projects'
-                ])->pluck('id')->toArray(),
-                
-                'records_officer' => AdminPermission::whereIn('name', [
+                ]),
+
+                'records_officer' => $permissionIdsFor([
                     'view_residents', 'create_residents', 'update_residents', 'delete_residents',
                     'view_residency', 'view_indigency', 'view_clearance',
                     'view_blotter', 'view_announcements', 'view_events', 'view_projects'
-                ])->pluck('id')->toArray(),
-                
-                'certificate_encoder' => AdminPermission::whereIn('name', [
+                ]),
+
+                'certificate_encoder' => $permissionIdsFor([
                     'view_residency', 'approve_residency', 'reject_residency', 'generate_residency_document',
                     'view_indigency', 'approve_indigency', 'reject_indigency', 'generate_indigency_document',
                     'view_clearance', 'approve_clearance', 'reject_clearance', 'generate_clearance_document'
-                ])->pluck('id')->toArray(),
-                
-                'complaints_officer' => AdminPermission::whereIn('name', [
+                ]),
+
+                'complaints_officer' => $permissionIdsFor([
                     'view_blotter', 'create_blotter', 'update_blotter', 'delete_blotter',
                     'add_witness', 'delete_witness'
-                ])->pluck('id')->toArray(),
-                
-                'viewer' => AdminPermission::whereIn('name', [
+                ]),
+
+                'viewer' => $permissionIdsFor([
                     'view_dashboard', 'view_forecast',
                     'view_residents',
                     'view_residency',
@@ -174,11 +215,15 @@ class AdminPermissionController extends Controller
                     'view_users',
                     'view_roles',
                     'view_permissions'
-                ])->pluck('id')->toArray(),
+                ]),
             ];
 
+            $rolesByName = AdminRole::whereIn('name', array_keys($defaultPermissions))
+                ->get()
+                ->keyBy('name');
+
             foreach ($defaultPermissions as $roleName => $permissionIds) {
-                $role = AdminRole::where('name', $roleName)->first();
+                $role = $rolesByName->get($roleName);
                 if ($role) {
                     $role->permissions()->sync($permissionIds);
                 }
@@ -197,6 +242,7 @@ class AdminPermissionController extends Controller
             }
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             $roleId = $request->input('role_id');
 
@@ -215,27 +261,40 @@ class AdminPermissionController extends Controller
     
     private function seedDefaultPermissions()
     {
-        // Define default permissions for each role
+        // Define default permissions for each role.
+        $permissionsByName = AdminPermission::pluck('id', 'name');
+        $permissionIdsFor = function (array $names) use ($permissionsByName) {
+            return collect($names)
+                ->map(fn ($name) => $permissionsByName->get($name))
+                ->filter()
+                ->values()
+                ->all();
+        };
+
         $defaultPermissions = [
-            'super_admin' => AdminPermission::pluck('id')->toArray(),
-            'admin' => AdminPermission::whereIn('name', [
+            'super_admin' => $permissionsByName->values()->all(),
+            'admin' => $permissionIdsFor([
                 'view_residents', 'add_residents', 'edit_residents',
                 'view_requests', 'create_requests', 'approve_requests',
                 'view_reports', 'create_reports',
                 'manage_content'
-            ])->pluck('id')->toArray(),
-            'staff' => AdminPermission::whereIn('name', [
+            ]),
+            'staff' => $permissionIdsFor([
                 'view_residents', 'view_requests', 'create_requests',
                 'view_reports'
-            ])->pluck('id')->toArray(),
-            'secretary' => AdminPermission::whereIn('name', [
+            ]),
+            'secretary' => $permissionIdsFor([
                 'view_residents', 'view_requests', 'create_requests',
                 'manage_content'
-            ])->pluck('id')->toArray(),
+            ]),
         ];
 
+        $rolesByName = AdminRole::whereIn('name', array_keys($defaultPermissions))
+            ->get()
+            ->keyBy('name');
+
         foreach ($defaultPermissions as $roleName => $permissionIds) {
-            $role = AdminRole::where('name', $roleName)->first();
+            $role = $rolesByName->get($roleName);
             if ($role) {
                 $role->permissions()->sync($permissionIds);
             }

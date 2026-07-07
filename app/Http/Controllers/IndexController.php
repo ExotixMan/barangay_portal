@@ -25,5 +25,6 @@ class IndexController extends Controller
             ->get();
 
         return view('barangay_system.index', compact('announcements', 'events'));
+
     }
 }

@@ -9,6 +9,7 @@ use App\Models\ChatbotUnmatched;
 use App\Services\Chatbot\ClaudeAIEngine;
 use App\Services\Chatbot\HybridAgent;
 use App\Services\Chatbot\InputGuard;
+use App\Services\AdminSettingsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -57,6 +58,11 @@ class ChatbotController extends Controller
 
         try {
             $result = $this->agent->process(trim($request->message), $request->session_id);
+
+            if (($result['source'] ?? null) === 'ai') {
+                app(AdminSettingsService::class)->incrementUsage('ai');
+            }
+
             return response()->json(['success' => true, 'data' => $result]);
         } catch (\Throwable $e) {
             Log::error('[Chatbot] sendMessage: ' . $e->getMessage(), [
@@ -74,21 +80,14 @@ class ChatbotController extends Controller
     public function aiStatus(): JsonResponse
     {
         $ai       = app(ClaudeAIEngine::class);
-        $provider = strtolower(env('AI_PROVIDER', 'gemini'));
-
-        $keyMap = [
-            'gemini'     => 'GEMINI_API_KEY',
-            'groq'       => 'GROQ_API_KEY',
-            'cloudflare' => 'CLOUDFLARE_API_TOKEN',
-        ];
-
-        $envKey   = $keyMap[$provider] ?? 'GEMINI_API_KEY';
-        $keyValue = env($envKey, '');
+        $settings = app(AdminSettingsService::class);
+        $provider = strtolower((string) $settings->get('ai.provider', env('AI_PROVIDER', 'gemini')));
+        $keyValue = (string) $settings->get('ai.keys.' . $provider, '');
 
         return response()->json([
             'available'     => $ai->isAvailable(),
             'provider'      => $provider,
-            'env_key'       => $envKey,
+            'env_key'       => $provider,
             'key_set'       => !empty($keyValue),
             'key_preview'   => !empty($keyValue) ? substr($keyValue, 0, 8) . '...' : null,
         ]);

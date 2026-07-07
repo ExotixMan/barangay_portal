@@ -11,21 +11,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\WelcomeEmail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class AdminUserController extends Controller
 {
+    private const LOOKUP_CACHE_SECONDS = 300;
+
     private function getAuditLogsBaseQuery()
     {
-        return AdminActivityLog::with('user')
-            ->orderBy('created_at', 'desc');
+        return AdminActivityLog::query()
+            ->with('user')
+            ->orderByDesc('created_at');
     }
 
-    private function applyAuditFilters($query, Request $request)
+    private function applyAuditFilters(Builder $query, Request $request) : Builder
     {
         if ($request->filled('log_action')) {
             $query->where('action', $request->input('log_action'));
@@ -40,10 +44,82 @@ class AdminUserController extends Controller
         }
 
         if ($request->filled('log_date')) {
-            $query->whereDate('created_at', $request->input('log_date'));
+            $date = \Illuminate\Support\Carbon::parse($request->input('log_date'));
+
+            $query->whereBetween('created_at', [
+                $date->copy()->startOfDay(),
+                $date->copy()->endOfDay(),
+            ]);
         }
 
         return $query;
+    }
+
+    private function getRolesWithPermissions()
+    {
+        return Cache::remember('admin_user_role.roles_with_permissions_count', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminRole::with('permissions')
+                ->withCount('users')
+                ->get();
+        });
+    }
+
+    private function getGroupedPermissions()
+    {
+        return Cache::remember('admin_user_role.permissions_grouped', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminPermission::orderBy('module')
+                ->orderBy('name')
+                ->get()
+                ->groupBy('module');
+        });
+    }
+
+    private function getAuditActions()
+    {
+        return Cache::remember('admin_user_role.audit_actions', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            $predefinedActions = [
+                'CREATE',
+                'READ',
+                'UPDATE',
+                'DELETE',
+                'VIEW',
+                'APPROVE',
+                'REJECT',
+                'EMAIL',
+                'SMS',
+                'EXPORT',
+                'DOWNLOAD',
+                'BULK_DELETE',
+                'APPROVAL_STATUS_CHANGE'
+            ];
+
+            $dbActions = AdminActivityLog::select('action')
+                ->distinct()
+                ->pluck('action')
+                ->toArray();
+
+            return collect(array_unique(array_merge($predefinedActions, $dbActions)))
+                ->sort()
+                ->values();
+        });
+    }
+
+    private function getAuditModules()
+    {
+        return Cache::remember('admin_user_role.audit_modules', now()->addSeconds(self::LOOKUP_CACHE_SECONDS), function () {
+            return AdminActivityLog::select('module')
+                ->distinct()
+                ->orderBy('module')
+                ->pluck('module');
+        });
+    }
+
+    private function clearUserRoleLookupCache(): void
+    {
+        Cache::forget('admin_user_role.roles_with_permissions_count');
+        Cache::forget('admin_user_role.permissions_grouped');
+        Cache::forget('admin_user_role.audit_actions');
+        Cache::forget('admin_user_role.audit_modules');
     }
 
     public function index(Request $request)
@@ -91,66 +167,58 @@ class AdminUserController extends Controller
 
         $users = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        // Get all roles with user counts using the correct relationship
-        $roles = AdminRole::with('permissions')
-            ->withCount('users')
-            ->get();
-        
-        // Get all permissions grouped by module
-        $allPermissions = AdminPermission::all()->groupBy('module');
+        // Load stable lookup data from a short cache instead of rebuilding it on every reload.
+        $roles = $this->getRolesWithPermissions();
+        $allPermissions = $this->getGroupedPermissions();
         
         // Accept both role_id and legacy selected_role for compatibility.
         $selectedRoleId = $request->input('role_id')
             ?? $request->input('selected_role')
             ?? ($roles->first()->id ?? null);
-        $selectedRole = $selectedRoleId ? AdminRole::with('permissions')->find($selectedRoleId) : null;
+        $selectedRole = $selectedRoleId ? $roles->firstWhere('id', (int) $selectedRoleId) : null;
+        
+        if (!$selectedRole && $selectedRoleId) {
+            $selectedRole = AdminRole::with('permissions')->find($selectedRoleId);
+        }
         
         // Get permission IDs for the selected role
         $selectedRolePermissionIds = $selectedRole ? $selectedRole->permissions->pluck('id')->toArray() : [];
 
-        $allUsers = AdminUser::all();
+        $allUsers = AdminUser::query()
+            ->select([
+                'id',
+                'user_id',
+                'first_name',
+                'middle_initial',
+                'last_name',
+                'email',
+                'username',
+                'role_id',
+                'department',
+                'status',
+            ])
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
 
         // Stats
-        $total_users = AdminUser::count();
-        $active_users = AdminUser::where('status', 'active')->count();
+        $userStats = AdminUser::query()
+            ->selectRaw('COUNT(*) as total_users')
+            ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_users")
+            ->first();
+
+        $total_users = (int) ($userStats->total_users ?? 0);
+        $active_users = (int) ($userStats->active_users ?? 0);
         $super_admins = AdminUser::whereHas('role', function($q) {
             $q->where('name', 'super_admin');
         })->count();
-        $total_roles = AdminRole::count();
+        $total_roles = $roles->count();
 
         $auditLogsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
-        $auditLogs = $auditLogsQuery->orderBy('created_at', 'desc')->paginate(10, ['*'], 'logs_page');
+        $auditLogs = $auditLogsQuery->paginate(10, ['*'], 'logs_page');
 
-        // Get all possible audit actions (predefined + from database)
-        $predefinedActions = [
-            'CREATE',
-            'READ',
-            'UPDATE',
-            'DELETE',
-            'VIEW',
-            'APPROVE',
-            'REJECT',
-            'EMAIL',
-            'SMS',
-            'EXPORT',
-            'DOWNLOAD',
-            'BULK_DELETE',
-            'APPROVAL_STATUS_CHANGE'
-        ];
-        
-        $dbActions = AdminActivityLog::select('action')
-            ->distinct()
-            ->pluck('action')
-            ->toArray();
-        
-        $auditActions = collect(array_unique(array_merge($predefinedActions, $dbActions)))
-            ->sort()
-            ->values();
-
-        $auditModules = AdminActivityLog::select('module')
-            ->distinct()
-            ->orderBy('module')
-            ->pluck('module');
+        $auditActions = $this->getAuditActions();
+        $auditModules = $this->getAuditModules();
         
 
         return view('admin.admin_userNrole', compact(
@@ -174,28 +242,28 @@ class AdminUserController extends Controller
     {
         $fileName = 'admin_user_role_audit_logs_' . now()->format('Ymd_His') . '.csv';
 
-        $logs = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $logsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
 
-        return response()->streamDownload(function () use ($logs) {
+        return response()->streamDownload(function () use ($logsQuery) {
             $handle = fopen('php://output', 'w');
 
             fputcsv($handle, ['Date/Time', 'User', 'Action', 'Module', 'Details', 'IP Address', 'User Agent']);
 
-            foreach ($logs as $log) {
-                $details = is_array($log->details) ? $log->details : (json_decode((string) $log->details, true) ?: $log->details);
+            $logsQuery->chunk(500, function ($logs) use ($handle) {
+                foreach ($logs as $log) {
+                    $details = is_array($log->details) ? $log->details : (json_decode((string) $log->details, true) ?: $log->details);
 
-                fputcsv($handle, [
-                    optional($log->created_at)->format('Y-m-d H:i:s'),
-                    $log->user?->full_name ?? 'Unknown User',
-                    $log->action,
-                    $log->module,
-                    is_array($details) ? json_encode($details) : (string) $details,
-                    $log->ip_address,
-                    $log->user_agent,
-                ]);
-            }
+                    fputcsv($handle, [
+                        optional($log->created_at)->format('Y-m-d H:i:s'),
+                        $log->user?->full_name ?? 'Unknown User',
+                        $log->action,
+                        $log->module,
+                        is_array($details) ? json_encode($details) : (string) $details,
+                        $log->ip_address,
+                        $log->user_agent,
+                    ]);
+                }
+            });
 
             fclose($handle);
         }, $fileName, [
@@ -270,6 +338,7 @@ class AdminUserController extends Controller
             }
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User created successfully.');
@@ -282,7 +351,7 @@ class AdminUserController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
 
@@ -346,6 +415,7 @@ class AdminUserController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User updated successfully.');
@@ -358,7 +428,7 @@ class AdminUserController extends Controller
         }
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
 
@@ -390,6 +460,7 @@ class AdminUserController extends Controller
             $user->delete();
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index') // FIXED: changed from 'users.index' to 'admin.users.index'
                 ->with('success', 'User deleted successfully.');
@@ -401,7 +472,7 @@ class AdminUserController extends Controller
         }
     }
     
-    public function resetPassword(Request $request, $id)
+    public function resetPassword(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
 
@@ -446,6 +517,7 @@ class AdminUserController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index')
                 ->with('success', 'Password reset successfully. New password: ' . $newPassword);
@@ -457,7 +529,7 @@ class AdminUserController extends Controller
         }
     }
 
-    public function updatePermissions(Request $request, $id)
+    public function updatePermissions(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
 
@@ -513,6 +585,7 @@ class AdminUserController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index', ['tab' => 'users'])
                 ->with('success', 'User permissions updated successfully.');
@@ -574,6 +647,7 @@ class AdminUserController extends Controller
             ]);
 
             DB::commit();
+            $this->clearUserRoleLookupCache();
 
             return response()->json(['success' => true, 'message' => 'Bulk action completed successfully.']);
 
