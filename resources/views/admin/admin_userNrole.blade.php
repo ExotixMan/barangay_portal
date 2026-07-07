@@ -670,19 +670,6 @@
         }
 
         /* Header Styling */
-        .header {
-            padding: 1rem 1.5rem;
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0;
-        }
-
         .profile-badge {
             display: flex;
             align-items: center;
@@ -2561,14 +2548,14 @@
         <div class="menu-section">System</div>
         
         @admin_can('view_users')
-        <a href="{{ route('admin.users.index') }}" class="active" onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
             <i class="fas fa-user"></i>
             <span>Users & Roles</span>
         </a>
         @endadmin_can
 
         @admin_can('manage_chatbot')
-        <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.chatbot.index') }}" class="active" onclick="handleLinkClick(event, this)">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
@@ -2579,49 +2566,62 @@
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
         </a>
-        @endadmin_can    </div>
+        @endadmin_can
+
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-users-cog me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
+                    <span class="title-icon"><i class="fas fa-users-cog"></i></span>
                     Users & Roles Management
                 </h1>
             </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
             <div class="users-page">
 
