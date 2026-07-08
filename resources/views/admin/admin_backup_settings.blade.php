@@ -809,6 +809,8 @@
             line-height: 1.65;
         }
 
+
+
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -957,7 +959,711 @@
                 min-height: 158px;
             }
         }
-    </style>
+        /* ==========================================================
+           Mobile responsiveness hardening
+           Add this after the existing responsive rules so it overrides
+           older desktop spacing without changing Laravel logic.
+        ========================================================== */
+        .main-content,
+        .header,
+        .backup-page,
+        .backup-workspace,
+        .archive-panel,
+        .restore-panel {
+            min-width: 0;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 0;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .page-title .title-icon {
+            flex: 0 0 auto;
+        }
+
+        .btn {
+            white-space: normal;
+        }
+
+        .archive-file,
+        .archive-meta,
+        .archive-actions {
+            min-width: 0;
+        }
+
+        .archive-actions form {
+            margin: 0;
+        }
+
+        .schedule-panel h3 {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .45rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 1020;
+                min-height: 64px;
+                background: rgba(248, 250, 252, .96);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--line);
+            }
+
+            .header > .d-flex {
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+
+            .archive-actions {
+                gap: .5rem;
+            }
+
+            .archive-actions .btn {
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            html {
+                font-size: 65%;
+            }
+
+            body {
+                width: 100%;
+                min-width: 0;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .header {
+                padding: .75rem .85rem !important;
+            }
+
+            .page-title {
+                flex: 1 1 auto;
+                font-size: 1rem;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 11px;
+            }
+
+            .backup-alert {
+                margin-bottom: .75rem;
+                padding: .85rem 1rem;
+                border-radius: 14px;
+                font-size: .88rem;
+            }
+
+            .hero-panel {
+                padding: 1rem;
+            }
+
+            .hero-icon {
+                width: 42px;
+                height: 42px;
+                margin-bottom: .7rem;
+            }
+
+            .hero-panel h2 {
+                font-size: clamp(1.55rem, 8vw, 2rem);
+                line-height: 1.08;
+                letter-spacing: -.04em;
+            }
+
+            .hero-panel p {
+                font-size: .9rem;
+                line-height: 1.55;
+            }
+
+            .hero-actions {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .55rem;
+            }
+
+            .hero-actions form,
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .backup-stats-grid {
+                gap: .65rem;
+                margin-bottom: .75rem;
+            }
+
+            .backup-stat {
+                align-items: flex-start;
+                gap: .7rem;
+                padding: .85rem;
+            }
+
+            .backup-stat-icon,
+            .schedule-icon,
+            .restore-icon,
+            .archive-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+            }
+
+            .backup-stat strong {
+                font-size: 1.35rem !important;
+                overflow-wrap: anywhere;
+            }
+
+            .schedule-panel {
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr);
+                align-items: flex-start;
+                gap: .7rem;
+                padding: .85rem;
+            }
+
+            .schedule-panel h3 {
+                display: grid;
+                gap: .4rem;
+                font-size: .95rem;
+                line-height: 1.35;
+            }
+
+            .schedule-chip {
+                max-width: 100%;
+                white-space: normal;
+                line-height: 1.35;
+            }
+
+            .backup-workspace {
+                gap: .85rem;
+            }
+
+            .panel-header,
+            .archive-header {
+                gap: .7rem;
+            }
+
+            .panel-header h3,
+            .archive-header h3 {
+                font-size: .98rem;
+            }
+
+            .panel-header p,
+            .archive-header p,
+            .schedule-panel p {
+                font-size: .82rem;
+                line-height: 1.5;
+            }
+
+            .restore-warning {
+                padding: .75rem;
+                font-size: .82rem;
+            }
+
+            .restore-dropzone {
+                min-height: 150px;
+                padding: .9rem;
+            }
+
+            .restore-upload-icon {
+                width: 44px;
+                height: 44px;
+                margin-bottom: .6rem;
+            }
+
+            .archive-header {
+                align-items: stretch;
+            }
+
+            .archive-count {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .archive-list {
+                gap: .6rem;
+                padding: .75rem;
+            }
+
+            .archive-row {
+                padding: .85rem;
+                gap: .55rem;
+            }
+
+            .archive-file {
+                align-items: flex-start;
+            }
+
+            .archive-file strong {
+                display: -webkit-box;
+                white-space: normal;
+                overflow: hidden;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                line-height: 1.35;
+            }
+
+            .archive-file small,
+            .archive-meta span,
+            .archive-meta strong {
+                font-size: .74rem;
+            }
+
+            .archive-meta {
+                display: grid;
+                gap: .18rem;
+            }
+
+            .archive-size-cell {
+                display: flex;
+            }
+
+            .archive-size-pill {
+                max-width: 100%;
+            }
+
+            .archive-actions {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                width: 100%;
+                gap: .45rem;
+                margin-top: .2rem;
+            }
+
+            .archive-actions .btn,
+            .archive-actions form,
+            .archive-actions button {
+                width: 100%;
+            }
+
+            .archive-actions .btn {
+                min-height: 40px;
+                justify-content: center;
+            }
+
+            .modal-dialog {
+                margin: .85rem;
+            }
+
+            .modal-body {
+                padding: 1rem !important;
+            }
+
+            .modal-body > .d-flex {
+                gap: .75rem !important;
+            }
+
+            .modal-warning-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+            }
+
+            .modal-footer {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .55rem;
+                padding: 0 1rem 1rem !important;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 420px) {
+            html {
+                font-size: 62.5%;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .65rem !important;
+            }
+
+            .header {
+                padding: .65rem !important;
+            }
+
+            .page-title {
+                font-size: .94rem;
+                gap: .55rem;
+            }
+
+            .hero-kicker,
+            .section-kicker {
+                font-size: .66rem;
+                letter-spacing: .07em;
+            }
+
+            .hero-panel,
+            .schedule-panel,
+            .restore-panel,
+            .backup-stat,
+            .archive-panel {
+                border-radius: 14px;
+            }
+
+            .hero-panel,
+            .schedule-panel,
+            .panel-header,
+            .restore-body,
+            .archive-header,
+            .archive-list {
+                padding: .72rem;
+            }
+
+            .backup-stat {
+                padding: .72rem;
+            }
+
+            .btn {
+                min-height: 40px;
+                padding: .58rem .75rem;
+                font-size: .84rem;
+            }
+
+            .archive-row {
+                padding: .72rem;
+            }
+        }
+
+
+    
+
+/* ==========================================================
+           POLISHED MOBILE UX PATCH - Backup Settings
+           Desktop remains unchanged. Phones get cleaner stacked panels.
+        ========================================================== */
+        @media (max-width: 767.98px) {
+            html {
+                font-size: 68%;
+            }
+
+            .main-content {
+                min-width: 0;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: .78rem .9rem !important;
+                background: rgba(255, 255, 255, .96);
+                backdrop-filter: blur(10px);
+            }
+
+            .header > div {
+                min-width: 0;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex !important;
+                flex: 0 0 40px;
+                width: 40px;
+                height: 40px;
+                padding: 0;
+            }
+
+            .page-title {
+                min-width: 0;
+                font-size: 1rem !important;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .title-icon,
+            .hero-icon,
+            .backup-stat-icon,
+            .restore-icon,
+            .schedule-icon,
+            .archive-icon {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .78rem !important;
+            }
+
+            .backup-page {
+                max-width: 100%;
+            }
+
+            .hero-panel,
+            .schedule-panel,
+            .restore-panel,
+            .backup-stat,
+            .archive-panel {
+                border-radius: 18px !important;
+            }
+
+            .hero-panel {
+                padding: 1rem !important;
+            }
+
+            .hero-panel h2 {
+                font-size: 1.52rem !important;
+                line-height: 1.12 !important;
+                letter-spacing: -.035em !important;
+            }
+
+            .hero-panel p {
+                font-size: .88rem !important;
+                line-height: 1.55 !important;
+            }
+
+            .hero-actions {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .55rem !important;
+                width: 100%;
+            }
+
+            .hero-actions form,
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .backup-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .65rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            .backup-stat {
+                padding: .85rem !important;
+                gap: .65rem !important;
+            }
+
+            .backup-stat span {
+                font-size: .66rem !important;
+            }
+
+            .backup-stat strong {
+                font-size: 1.18rem !important;
+                line-height: 1.15 !important;
+            }
+
+            .backup-stat small {
+                display: none !important;
+            }
+
+            .schedule-panel {
+                align-items: flex-start !important;
+                padding: .95rem !important;
+                gap: .75rem !important;
+            }
+
+            .schedule-panel h3 {
+                display: grid;
+                gap: .45rem;
+                font-size: .95rem !important;
+                line-height: 1.35 !important;
+            }
+
+            .schedule-chip {
+                max-width: 100%;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            .schedule-panel p {
+                font-size: .82rem !important;
+                line-height: 1.5 !important;
+            }
+
+            .backup-workspace {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .85rem !important;
+            }
+
+            .restore-panel {
+                position: relative !important;
+                top: auto !important;
+            }
+
+            .panel-header,
+            .archive-header {
+                padding: .95rem !important;
+                gap: .65rem !important;
+            }
+
+            .archive-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            .archive-count {
+                justify-content: center;
+                width: fit-content;
+            }
+
+            .restore-body,
+            .archive-list {
+                padding: .85rem !important;
+            }
+
+            .restore-warning {
+                padding: .75rem !important;
+                font-size: .8rem !important;
+            }
+
+            .restore-dropzone {
+                min-height: 150px !important;
+                padding: .9rem !important;
+                border-radius: 16px !important;
+            }
+
+            .restore-upload-icon {
+                width: 44px !important;
+                height: 44px !important;
+            }
+
+            .backup-checklist {
+                gap: .5rem !important;
+            }
+
+            .archive-row {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                grid-template-areas:
+                    "file"
+                    "meta"
+                    "size"
+                    "actions" !important;
+                gap: .72rem !important;
+                padding: .95rem !important;
+                border-radius: 18px !important;
+            }
+
+            .archive-file {
+                align-items: flex-start !important;
+            }
+
+            .archive-file strong {
+                font-size: .92rem !important;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+                line-height: 1.3;
+                word-break: break-word;
+            }
+
+            .archive-meta,
+            .archive-size-cell {
+                padding-left: 0 !important;
+            }
+
+            .archive-meta {
+                display: grid !important;
+                gap: .25rem !important;
+                padding: .65rem .75rem !important;
+                background: #f9fafb;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+            }
+
+            .archive-meta::before {
+                content: "Modified";
+                color: var(--muted);
+                font-size: .68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+            }
+
+            .archive-size-cell {
+                display: flex;
+                justify-content: flex-start;
+            }
+
+            .archive-actions {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: .55rem !important;
+                justify-content: stretch !important;
+                padding-top: .72rem;
+                border-top: 1px dashed var(--line-strong);
+            }
+
+            .archive-actions form,
+            .archive-actions .btn {
+                width: 100%;
+            }
+
+            .archive-actions .btn {
+                min-height: 40px;
+                padding: .55rem .45rem !important;
+                font-size: .78rem;
+            }
+
+            .modal-dialog {
+                margin: .65rem !important;
+            }
+
+            .modal-content {
+                border-radius: 18px !important;
+            }
+
+            .modal-body {
+                padding: 1rem !important;
+            }
+
+            .modal-body .d-flex {
+                gap: .75rem !important;
+            }
+
+            .modal-footer {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .55rem !important;
+                padding: .8rem 1rem 1rem !important;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 389.98px) {
+            .backup-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .archive-actions {
+                grid-template-columns: 1fr !important;
+            }
+        }
+</style>
 </head>
 <body>
     <!-- Mobile Overlay -->
@@ -1135,8 +1841,8 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
-                    <i class="fas fa-cog"></i>
+                <button type="button" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
+                    <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
                     <span class="title-icon"><i class="fas fa-database"></i></span>

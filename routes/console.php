@@ -5,44 +5,81 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 use App\Services\BackupArchiveService;
+use Symfony\Component\Process\Process;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
 Artisan::command('analytics:refresh-forecast', function () {
-    $pythonExe = 'python';
+    $pythonExe = 'C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python312\\python.exe';
     $scriptPath = base_path('analytics/analytics.py');
+    $forecastPath = public_path('analytics/forecast.json');
 
-    if (!file_exists($scriptPath)) {
+    if (! file_exists($pythonExe)) {
+        $this->error('Python not found: ' . $pythonExe);
+        Log::error('Analytics refresh failed: python not found', ['python' => $pythonExe]);
+        return 1;
+    }
+
+    if (! file_exists($scriptPath)) {
         $this->error('Analytics script not found: ' . $scriptPath);
         Log::error('Analytics refresh failed: script not found', ['path' => $scriptPath]);
-        return;
+        return 1;
     }
 
-    // Run Python invisibly on Windows
-    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        // Windows: Use PowerShell to run without visible window
-        $command = sprintf(
-            'powershell -NoWindow -Command "python \"%s\" 2>&1"',
-            str_replace('"', '\"', $scriptPath)
-        );
-    } else {
-        // Linux/Mac: Standard execution
-        $command = "\"$pythonExe\" \"$scriptPath\" 2>&1";
+    $process = new Process([$pythonExe, $scriptPath], base_path(), [
+        'DB_PASSWORD' => env('DB_PASSWORD'),
+        'PYTHONIOENCODING' => 'utf-8',
+        'SYSTEMROOT' => getenv('SYSTEMROOT') ?: 'C:\\Windows',
+        'WINDIR' => getenv('WINDIR') ?: 'C:\\Windows',
+        'PATH' => getenv('PATH'),
+    ]);
+
+    $process->setTimeout(300);
+    $process->run();
+
+    $output = trim($process->getOutput());
+    $error = trim($process->getErrorOutput());
+
+    if (! $process->isSuccessful()) {
+        $this->error('Analytics refresh failed.');
+        $this->line($error ?: $output ?: 'No Python output.');
+
+        Log::error('Analytics refresh failed', [
+            'python' => $pythonExe,
+            'script' => $scriptPath,
+            'output' => $output,
+            'error' => $error,
+        ]);
+
+        return 1;
     }
 
-    $output = shell_exec($command);
+    clearstatcache(true, $forecastPath);
 
-    if ($output === null) {
-        $this->error('Analytics refresh failed: no output from Python process.');
-        Log::error('Analytics refresh failed: no output from python process');
-        return;
+    if (! file_exists($forecastPath)) {
+        $this->error('Analytics ran, but forecast.json was not created.');
+        Log::error('Analytics refresh failed: forecast.json missing', [
+            'forecast_path' => $forecastPath,
+            'output' => $output,
+        ]);
+        return 1;
     }
 
     $this->info('Analytics refresh completed.');
-    $this->line(trim($output));
-    Log::info('Analytics refresh completed', ['output' => trim($output)]);
+    $this->line($output ?: 'Forecast file generated.');
+    $this->info('Forecast updated: ' . \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath))
+        ->timezone('Asia/Manila')
+        ->format('M d, Y h:i A') . ' PHT');
+
+    Log::info('Analytics refresh completed', [
+        'python' => $pythonExe,
+        'forecast_path' => $forecastPath,
+        'output' => $output,
+    ]);
+
+    return 0;
 })->purpose('Regenerate dashboard forecast JSON file');
 
 Artisan::command('backup:weekly', function () {

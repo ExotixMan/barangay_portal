@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Services\AdminSettingsService;
+use App\Models\AdminUser;
+use Illuminate\Support\Facades\Mail;
 
 class ResidentsController extends Controller
 {
@@ -61,7 +63,12 @@ class ResidentsController extends Controller
             'address' => 'required|string|max:500',
             'birthdate' => 'required|date|before:18 years ago',
             'contact' => 'required|string|max:11|regex:/^09\d{9}$/|unique:residents,contact',
+
+            // ID scanner fields. These may come from the camera auto-crop or manual upload fallback.
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_back' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_selfie' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
             'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
             'terms' => 'accepted',
@@ -83,6 +90,14 @@ class ResidentsController extends Controller
             'password.regex' => 'Password cannot contain spaces',
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
             'username.min' => 'Username must be at least 4 characters long',
+            'valid_id.required' => 'Please scan or upload the front side of your valid ID.',
+            'valid_id_back.required' => 'Please scan or upload the back side of your valid ID.',
+            'valid_id.mimes' => 'The front valid ID must be a JPG, JPEG, PNG, or PDF file.',
+            'valid_id_back.mimes' => 'The back valid ID must be a JPG, JPEG, PNG, or PDF file.',
+            'valid_id_selfie.mimes' => 'The selfie holding ID must be a JPG, JPEG, or PNG file.',
+            'valid_id.max' => 'The front valid ID must not be larger than 5MB.',
+            'valid_id_back.max' => 'The back valid ID must not be larger than 5MB.',
+            'valid_id_selfie.max' => 'The selfie holding ID must not be larger than 5MB.',
             'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',
             'g-recaptcha-response.required' => 'Please complete the CAPTCHA verification',
         ];
@@ -98,40 +113,64 @@ class ResidentsController extends Controller
                 ->withInput();
         }
 
-        if ($request->hasFile('valid_id')) {
-            $file = $request->file('valid_id');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move(public_path('uploads/valid_id/residents'), $filename);
-            $data['valid_id'] = 'uploads/valid_id/residents/' . $filename;
+        // Remove non-database fields before creating the resident.
+        unset($data['terms'], $data['g-recaptcha-response'], $data['password_confirmation']);
+
+        $uploadedPaths = [];
+
+        try {
+            foreach (['valid_id', 'valid_id_back', 'valid_id_selfie'] as $field) {
+                if ($request->hasFile($field)) {
+                    $data[$field] = $this->storeResidentValidIdFile($request, $field);
+                    $uploadedPaths[] = $data[$field];
+                }
+            }
+
+            if (isset($data['suffix']) && $data['suffix'] === 'None') {
+                $data['suffix'] = null;
+            }
+
+            $otp = random_int(100000, 999999);
+
+            $data['password'] = Hash::make($data['password']);
+            $data['phone_otp'] = Hash::make($otp);
+            $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
+
+            $data['phone_verified'] = 'false';
+            $data['valid_id_verified'] = 'false';
+
+            // Admin must approve the scanned ID manually.
+            $data['valid_id_status'] = 'for_verification';
+            $data['valid_id_verified_at'] = null;
+            $data['valid_id_verified_by'] = null;
+            $data['valid_id_rejection_reason'] = null;
+
+            $resident = Residents::create($data);
+
+            try {
+                $this->sendOtpAndLog($resident, $otp, 'register');
+            } catch (\Throwable $exception) {
+                // Avoid leaving an unverified account and uploaded IDs when OTP sending fails.
+                $this->deleteResidentValidIdFiles($resident);
+                $resident->forceDelete();
+
+                throw $exception;
+            }
+
+            $request->session()->put('resident_id', $resident->id);
+            $request->session()->put('otp_purpose', 'register');
+
+            return redirect()->route('otp.form')
+                ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
+        } catch (\Throwable $exception) {
+            foreach ($uploadedPaths as $path) {
+                $this->deleteResidentValidIdFile($path);
+            }
+
+            return back()
+                ->with('fail', 'Registration failed. Please try again. ' . $exception->getMessage())
+                ->withInput();
         }
-
-        if (isset($data['suffix']) && $data['suffix'] === 'None') {
-            $data['suffix'] = null;
-        }
-
-        $otp = random_int(100000, 999999);
-
-        $data['password'] = Hash::make($data['password']);
-        $data['phone_otp'] = Hash::make($otp);
-        $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
-        $data['phone_verified'] = 'false';
-
-        $resident = Residents::create($data);
-
-        // Commented out legacy email verification:
-        // Auth::login($resident);
-        // $resident->sendEmailVerificationNotification();
-        // return redirect()->route('verification.notice')
-        //     ->with('success', 'Registration successful. Please verify your email.');
-
-        // Send OTP to mobile and redirect to OTP form
-        $this->sendOtpAndLog($resident, $otp, 'register');
-        $request->session()->put('resident_id', $resident->id);
-        $request->session()->put('otp_purpose', 'register');
-
-        return redirect()->route('otp.form')
-            ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
     }
 
     private function verifyRecaptcha(string $token, string $ip): bool
@@ -272,11 +311,65 @@ class ResidentsController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $loginInput = trim((string) $request->login);
+        $rawLoginInput = trim((string) $request->input('login'));
+        $password = (string) $request->input('password');
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Try Admin Credentials First
+        |--------------------------------------------------------------------------
+        | Important: Do NOT use Auth::guard('admin')->attempt() here because that
+        | logs the admin in immediately. We only verify the password first.
+        */
+        $adminLoginField = filter_var($rawLoginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $admin = AdminUser::where($adminLoginField, $rawLoginInput)->first();
+
+        if ($admin && Hash::check($password, (string) $admin->password)) {
+            if ($admin->status !== 'active') {
+                return back()
+                    ->withErrors(['login' => 'Your admin account is not active. Please contact the administrator.'])
+                    ->onlyInput('login');
+            }
+
+            $otp = random_int(100000, 999999);
+
+            $request->session()->put([
+                'otp_account_type' => 'admin',
+                'admin_otp_user_id' => $admin->id,
+                'admin_otp_hash' => Hash::make((string) $otp),
+                'admin_otp_expires_at' => now('Asia/Manila')->addMinutes(5)->toDateTimeString(),
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Admin OTP delivery
+            |--------------------------------------------------------------------------
+            | This sends OTP to admin email.
+            | If you want admin SMS OTP instead, your admin_users table needs a contact
+            | number and you need an SMS method for AdminUser.
+            */
+            //this is sms if ever for otp currently using email
+            // $this->sendAdminOtpSms($admin, $otp);
+            Mail::raw("Your admin login OTP is: {$otp}. This OTP will expire in 5 minutes.", function ($message) use ($admin) {
+                $message->to($admin->email)
+                    ->subject('Admin Login OTP');
+            });
+
+            return redirect()->route('otp.form')
+                ->with('success', 'Admin OTP has been sent to your email.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Try Resident Credentials
+        |--------------------------------------------------------------------------
+        */
+        $loginInput = $rawLoginInput;
         $loginType = 'username';
 
-        // If input is a mobile number, use contact; else username/email
         $mobileInput = preg_replace('/\D+/', '', $loginInput);
+
         if (preg_match('/^(09\d{9}|9\d{9})$/', $mobileInput)) {
             $loginType = 'contact';
             $loginInput = str_starts_with($mobileInput, '0') ? $mobileInput : ('0' . $mobileInput);
@@ -289,32 +382,33 @@ class ResidentsController extends Controller
 
         $resident = Residents::where($loginType, $loginInput)->first();
 
-        if (!$resident || !Hash::check((string) $request->password, (string) $resident->password)) {
+        if (!$resident || !Hash::check($password, (string) $resident->password)) {
             return back()
-                ->withErrors(['login' => 'Invalid username/mobile number or password.'])
+                ->withErrors(['login' => 'Invalid username/email/mobile number or password.'])
                 ->onlyInput('login');
         }
 
-                $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', false);
-
-        if (! $loginOtpEnabled) {
-            Auth::login($resident);
-            $request->session()->regenerate();
-
-            return redirect()
-                ->intended(route('barangay_system.index'))
-                ->with('success', 'Logged in successfully.');
+        if ($message = $this->validIdLoginBlockMessage($resident)) {
+            return back()
+                ->withErrors(['login' => $message])
+                ->onlyInput('login');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Resident OTP is now always required
+        |--------------------------------------------------------------------------
+        */
         $otp = random_int(100000, 999999);
 
         $resident->update([
-            'phone_otp' => Hash::make($otp),
+            'phone_otp' => Hash::make((string) $otp),
             'phone_otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
 
         $this->sendOtpAndLog($resident, $otp, 'login');
 
+        $request->session()->put('otp_account_type', 'resident');
         $request->session()->put('resident_id', $resident->id);
         $request->session()->put('otp_purpose', 'login');
 
@@ -393,14 +487,87 @@ class ResidentsController extends Controller
     {
         $request->validate([
             'otp' => 'required|digits:6',
-            'resident_id' => 'nullable|exists:residents,id'
+            'resident_id' => 'nullable|exists:residents,id',
         ]);
 
+        $accountType = (string) $request->session()->get('otp_account_type', 'resident');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Admin OTP Verification
+        |--------------------------------------------------------------------------
+        */
+        if ($accountType === 'admin') {
+            $adminId = $request->session()->get('admin_otp_user_id');
+            $otpHash = $request->session()->get('admin_otp_hash');
+            $expiresAt = $request->session()->get('admin_otp_expires_at');
+
+            if (!$adminId || !$otpHash || !$expiresAt) {
+                return redirect()->route('login')
+                    ->with('fail', 'OTP session expired. Please login again.');
+            }
+
+            if (now('Asia/Manila')->gt(Carbon::parse($expiresAt))) {
+                $request->session()->forget([
+                    'otp_account_type',
+                    'admin_otp_user_id',
+                    'admin_otp_hash',
+                    'admin_otp_expires_at',
+                ]);
+
+                return redirect()->route('login')
+                    ->with('fail', 'Admin OTP expired. Please login again.');
+            }
+
+            $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp'));
+
+            if (!Hash::check($otpInput, $otpHash)) {
+                return back()->with('fail', 'Invalid OTP.');
+            }
+
+            $admin = AdminUser::find($adminId);
+
+            if (!$admin) {
+                return redirect()->route('login')
+                    ->with('fail', 'Admin account not found.');
+            }
+
+            if ($admin->status !== 'active') {
+                return redirect()->route('login')
+                    ->withErrors(['login' => 'Your admin account is not active. Please contact the administrator.']);
+            }
+
+            Auth::guard('admin')->login($admin);
+            $request->session()->regenerate();
+
+            DB::table('admin_users')
+                ->where('id', $admin->id)
+                ->update(['last_login_at' => now()]);
+
+            $request->session()->put('login_time', now());
+
+            $request->session()->forget([
+                'otp_account_type',
+                'admin_otp_user_id',
+                'admin_otp_hash',
+                'admin_otp_expires_at',
+            ]);
+
+            return $this->redirectAdminBasedOnRole($admin);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resident OTP Verification
+        |--------------------------------------------------------------------------
+        */
         $otpPurpose = (string) $request->session()->get('otp_purpose', 'login');
 
         $residentId = $request->session()->get('resident_id', $request->input('resident_id'));
+
         if (!$residentId) {
-            return redirect()->route('login')->with('fail', 'OTP session expired. Please login again.');
+            return redirect()->route('login')
+                ->with('fail', 'OTP session expired. Please login again.');
         }
 
         $resident = Residents::find($residentId);
@@ -430,7 +597,8 @@ class ResidentsController extends Controller
             return back()->with('fail', 'OTP expired.');
         }
 
-        $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp', ''));
+        $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp'));
+
         if (!Hash::check($otpInput, $resident->phone_otp)) {
             if ($otpPurpose === 'register') {
                 $attemptKey = 'register_otp_attempts_' . $resident->id;
@@ -442,6 +610,7 @@ class ResidentsController extends Controller
                 }
 
                 $remaining = self::REGISTER_OTP_MAX_ATTEMPTS - $attempts;
+
                 return back()->with('fail', 'Invalid OTP. ' . $remaining . ' attempt(s) remaining.');
             }
 
@@ -449,25 +618,38 @@ class ResidentsController extends Controller
         }
 
         $resident->update([
-            'phone_verified' => 'true',
+            'phone_verified' => true,
             'phone_otp' => null,
-            'phone_otp_expires_at' => null
+            'phone_otp_expires_at' => null,
         ]);
 
         $request->session()->forget('register_otp_attempts_' . $resident->id);
 
         $otpPurpose = (string) $request->session()->pull('otp_purpose', 'login');
-        $request->session()->forget('resident_id');
+
+        $request->session()->forget([
+            'resident_id',
+            'otp_account_type',
+        ]);
 
         if ($otpPurpose === 'login') {
+            if ($message = $this->validIdLoginBlockMessage($resident)) {
+                return redirect()
+                    ->route('login')
+                    ->withErrors(['login' => $message]);
+            }
+
             Auth::login($resident);
             $request->session()->regenerate();
-            return redirect()->intended(route('barangay_system.index'))->with('success', 'Mobile OTP verified successfully.');
-        } else {
-            Auth::login($resident);
-            $request->session()->regenerate();
-            return redirect()->intended(route('barangay_system.index'))->with('success', 'Mobile number verified. Welcome!');
+
+            return redirect()
+                ->intended(route('barangay_system.index'))
+                ->with('success', 'Mobile OTP verified successfully.');
         }
+
+        return redirect()
+            ->route('login')
+            ->with('success', 'Mobile number verified. Your account is now waiting for admin valid ID approval.');
     }
 
     private function sendOtpAndLog(Residents $resident, int $otp, string $purpose): void
@@ -523,12 +705,7 @@ class ResidentsController extends Controller
 
     private function cancelPendingRegistration(Request $request, Residents $resident, string $reason)
     {
-        if (!empty($resident->valid_id)) {
-            $validIdPath = public_path((string) $resident->valid_id);
-            if (is_file($validIdPath)) {
-                @unlink($validIdPath);
-            }
-        }
+        $this->deleteResidentValidIdFiles($resident);
 
         $resident->delete();
         $request->session()->forget([
@@ -539,5 +716,145 @@ class ResidentsController extends Controller
 
         return redirect()->route('register')
             ->with('fail', $reason . ' Registration has been cancelled. Please register again.');
+    }
+
+    private function validIdLoginBlockMessage(Residents $resident): ?string
+    {
+        if (empty($resident->valid_id) || empty($resident->valid_id_back)) {
+            return 'Your account cannot login yet because the front and back valid ID scans are incomplete.';
+        }
+
+        if ($resident->valid_id_status === 'rejected') {
+            $reason = trim((string) $resident->valid_id_rejection_reason);
+
+            return $reason !== ''
+                ? 'Your valid ID was rejected. Reason: ' . $reason
+                : 'Your valid ID was rejected. Please contact the barangay office or upload a clearer ID.';
+        }
+
+        if ((bool) $resident->valid_id_verified !== true || $resident->valid_id_status !== 'verified') {
+            return 'Your account cannot login yet. Please wait until the admin approves your valid ID.';
+        }
+
+        return null;
+    }
+
+    private function storeResidentValidIdFile(Request $request, string $field): string
+    {
+        $file = $request->file($field);
+
+        if (!$file || !$file->isValid()) {
+            throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
+        }
+
+        $uploadDirectory = public_path('uploads/valid_id/residents');
+
+        if (!is_dir($uploadDirectory)) {
+            mkdir($uploadDirectory, 0755, true);
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+
+        $file->move($uploadDirectory, $filename);
+
+        return 'uploads/valid_id/residents/' . $filename;
+    }
+
+    private function deleteResidentValidIdFiles(Residents $resident): void
+    {
+        foreach (['valid_id', 'valid_id_back', 'valid_id_selfie'] as $field) {
+            $this->deleteResidentValidIdFile((string) $resident->{$field});
+        }
+    }
+
+    private function deleteResidentValidIdFile(?string $path): void
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $fullPath = public_path($path);
+
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+
+    private function redirectAdminBasedOnRole(AdminUser $user)
+    {
+        if (method_exists($user, 'load')) {
+            $user->load('role');
+        }
+
+        $permissionRoutes = [
+            'view_forecast' => 'admin.dashboard.index',
+            'view_dashboard' => 'admin.dashboard.index',
+            'view_residents' => 'admin.residents.index',
+            'view_residency' => 'admin.residency.index',
+            'view_indigency' => 'admin.indigency.index',
+            'view_clearance' => 'admin.clearance.index',
+            'view_blotter' => 'admin.blotter.index',
+            'view_announcements' => 'admin.announcements.index',
+            'view_events' => 'admin.events.index',
+            'view_projects' => 'admin.projects.index',
+            'view_requests' => 'admin.request.index',
+            'view_users' => 'admin.users.index',
+            'view_roles' => 'admin.roles.index',
+            'view_permissions' => 'admin.permissions.index',
+        ];
+
+        foreach ($permissionRoutes as $permission => $route) {
+            if ($this->adminHasPermission($user, $permission)) {
+                return redirect()->intended(route($route));
+            }
+        }
+
+        return redirect()->intended(route('admin.dashboard.index'));
+    }
+
+    private function adminHasPermission(AdminUser $user, string $permissionName): bool
+    {
+        if ($user->role && $user->role->name === 'super_admin') {
+            return true;
+        }
+
+        if ($user->role && method_exists($user->role, 'permissions')) {
+            return $user->role->permissions()
+                ->where('name', $permissionName)
+                ->exists();
+        }
+
+        return false;
+    }
+
+    private function sendAdminOtpSms(AdminUser $admin, int $otp): void
+    {
+        $contact = preg_replace('/\D+/', '', (string) $admin->contact_number);
+
+        if (str_starts_with($contact, '09')) {
+            $contact = '63' . substr($contact, 1);
+        } elseif (str_starts_with($contact, '9')) {
+            $contact = '63' . $contact;
+        }
+
+        if (!preg_match('/^639\d{9}$/', $contact)) {
+            throw new \RuntimeException('Admin contact number is invalid or missing.');
+        }
+
+        $message = "Your admin login OTP is {$otp}. It will expire in 5 minutes.";
+
+        $response = Http::asForm()
+            ->timeout(15)
+            ->post('https://api.semaphore.co/api/v4/messages', [
+                'apikey' => env('SMS_API_KEY'),
+                'number' => $contact,
+                'message' => $message,
+                'sendername' => env('SMS_SENDER_NAME', 'HULONGDUHAT'),
+            ]);
+
+        if (!$response->successful()) {
+            throw new \RuntimeException('Failed to send admin OTP SMS: ' . $response->body());
+        }
     }
 }

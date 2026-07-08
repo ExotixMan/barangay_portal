@@ -57,7 +57,7 @@ class AnnouncementController extends Controller
         )->with('fragment', 'announcements');
     }
 
-    public function show($slug)
+    public function show(int $slug)
     {
         $announcement = Announcement::where('slug',$slug)->firstOrFail();
 

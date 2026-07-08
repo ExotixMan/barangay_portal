@@ -13,7 +13,7 @@ use App\Notifications\CustomVerifyEmail;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, MustVerifyEmailTrait, SoftDeletes; 
+    use Notifiable, MustVerifyEmailTrait, SoftDeletes;
 
     protected $table = 'residents';
     protected $primaryKey = 'id';
@@ -29,8 +29,19 @@ class Residents extends Authenticatable implements MustVerifyEmail
         'contact',
         'username',
         'password',
-        'valid_id',
+
+        // Valid ID scanner files
+        'valid_id',          // Front ID
+        'valid_id_back',     // Back ID
+        'valid_id_selfie',   // Optional: resident holding ID
+
+        // Admin verification
         'valid_id_verified',
+        'valid_id_status',
+        'valid_id_verified_at',
+        'valid_id_verified_by',
+        'valid_id_rejection_reason',
+
         'profile_photo',
         'phone_otp',
         'phone_otp_expires_at',
@@ -41,8 +52,15 @@ class Residents extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'phone_verified' => 'boolean',
         'valid_id_verified' => 'boolean',
+        'birthdate' => 'date',
         'phone_otp_expires_at' => 'datetime',
         'email_verified_at' => 'datetime',
+        'valid_id_verified_at' => 'datetime',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     public function getFullNameAttribute()
@@ -53,7 +71,23 @@ class Residents extends Authenticatable implements MustVerifyEmail
             $this->lastname,
             $this->suffix,
         ]);
+
         return implode(' ', $parts);
+    }
+
+    public function getValidIdStatusLabelAttribute()
+    {
+        return match ($this->valid_id_status) {
+            'verified' => 'Verified',
+            'rejected' => 'Rejected',
+            'for_verification' => 'For Verification',
+            default => 'Not Submitted',
+        };
+    }
+
+    public function getHasCompleteValidIdAttribute()
+    {
+        return !empty($this->valid_id) && !empty($this->valid_id_back);
     }
 
     public function sendEmailVerificationNotification()
@@ -79,9 +113,4 @@ class Residents extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ResidentActivity::class);
     }
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 }

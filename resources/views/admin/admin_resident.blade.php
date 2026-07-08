@@ -21,123 +21,101 @@
     <style>
         :root {
             --primary: #d32f2f;
-            --primary-light: #ffebee;
-            --primary-dark: #b71c1c;
-            --primary-gradient: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            --success: #2e7d32;
-            --success-light: #e8f5e8;
-            --warning: #ed6c02;
-            --warning-light: #fff4e5;
-            --info: #0288d1;
-            --info-light: #e5f4ff;
-            --gray-bg: #f8f9fa;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
-            --border-color: #e9ecef;
+            --primary-dark: #a91f1f;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-soft: #eefaf2;
+            --warning: #d97706;
+            --warning-soft: #fff7ed;
+            --danger: #dc2626;
+            --danger-soft: #fff1f2;
+            --info: #0369a1;
+            --info-soft: #eff6ff;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --shadow-md: 0 18px 40px rgba(16, 24, 40, .10);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 11px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html {
             font-size: 70%;
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--gray-bg);
-            color: #1e293b;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
             overflow-x: hidden;
         }
 
-        /* Stats Cards */
-        .stat-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
+        .min-w-0 { min-width: 0 !important; }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--hover-shadow);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #6c757d;
-        }
-
-        .stat-number {
-            color: #1e293b;
-            font-size: 2rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .stat-icon {
-            color: var(--primary);
-            background: var(--primary-light);
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
+        .residency-hero-icon,
+        .stat-icon,
+        .table-head-icon,
+        .empty-state-icon,
+        .section-icon {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
         }
 
-        /* Validation Styles */
-        .is-invalid {
-            border-color: var(--primary) !important;
-            background-image: none !important;
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xs);
         }
 
-        .is-invalid:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        .mobile-menu-btn:hover {
+            color: var(--primary-dark);
+            border-color: rgba(211, 47, 47, .22);
+            background: #fffafa;
         }
 
-        .invalid-feedback {
-            color: var(--primary);
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            display: block;
+        .residency-page {
+            width: 100%;
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .residency-alert,
+        .alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success {
+            color: var(--success);
+            background: var(--success-soft);
+            border: 1px solid rgba(22, 128, 60, .14);
         }
 
         .alert-danger {
-            background-color: var(--primary-light);
-            border-color: var(--primary);
-            color: var(--primary-dark);
-            border-radius: 10px;
-            padding: 1rem;
+            color: var(--danger);
+            background: var(--danger-soft);
+            border: 1px solid rgba(220, 38, 38, .16);
         }
 
         .alert-danger ul {
@@ -147,341 +125,360 @@
         }
 
         .alert-danger li {
-            padding: 0.25rem 0;
+            position: relative;
+            padding: .25rem 0 .25rem 1.15rem;
+            color: #991b1b;
+            font-weight: 650;
         }
 
         .alert-danger li::before {
-            content: '⚠️';
-            margin-right: 0.5rem;
+            content: '';
+            position: absolute;
+            left: 0;
+            top: .78rem;
+            width: 6px;
+            height: 6px;
+            background: var(--danger);
+            border-radius: 999px;
         }
 
-        /* Table Styling - Mobile Optimized */
-        .table-responsive {
-            border-radius: 16px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        /* HERO */
+        .residency-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            padding: clamp(1rem, 1.8vw, 1.55rem);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xs);
         }
 
-        .table {
-            margin-bottom: 0;
-            min-width: 800px;
+        .residency-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 95% 0%, rgba(211,47,47,.11), transparent 32%),
+                radial-gradient(circle at 10% 100%, rgba(3,105,161,.08), transparent 30%),
+                linear-gradient(135deg, rgba(211,47,47,.04), transparent 42%);
+            pointer-events: none;
         }
 
-        @media (max-width: 768px) {
-            .table {
-                min-width: 700px;
-            }
+        .residency-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .table thead th {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            font-size: 0.85rem;
+        .residency-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.14);
+            border-radius: 15px;
+            font-size: 1.05rem;
+        }
+
+        .residency-kicker,
+        .table-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 850;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
+            letter-spacing: .09em;
         }
 
-        .table tbody td {
-            vertical-align: middle;
-            padding: 1rem 0.75rem;
-            color: #4a5568;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+        .residency-hero h2 {
+            margin: .45rem 0 .4rem;
+            color: var(--text);
+            font-size: clamp(1.55rem, 2.4vw, 2.25rem);
+            font-weight: 850;
+            line-height: 1.08;
+            letter-spacing: -.055em;
         }
 
-        .table tbody tr:hover {
-            background: #f8f9fa;
+        .residency-hero p {
+            max-width: 760px;
+            margin: 0;
+            color: var(--muted);
+            font-size: .93rem;
+            line-height: 1.6;
         }
 
-        .badge {
-            padding: 0.5rem 0.75rem;
-            font-weight: 500;
-            border-radius: 8px;
-            white-space: nowrap;
+        .residency-hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .6rem;
         }
 
-        .badge.bg-success-subtle {
-            background: var(--success-light) !important;
+        /* KPI CARDS */
+        .residency-stats,
+        .residency-page > .row.g-3.g-lg-4.mb-4 {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .residency-page > .row.g-3.g-lg-4.mb-4 > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            flex: unset !important;
+            padding: 0 !important;
+        }
+
+        .stat-card {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: .85rem;
+            height: 100%;
+            padding: 1rem;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xs);
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-1px);
+            border-color: var(--line-strong);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .73rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            margin-top: .18rem;
+            color: var(--text);
+            font-size: clamp(1.5rem, 2.2vw, 2.05rem);
+            font-weight: 850;
+            line-height: 1;
+            letter-spacing: -.055em;
+        }
+
+        .stat-card small {
+            display: inline-flex;
+            align-items: center;
+            gap: .28rem;
+            margin-top: .7rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: 1rem;
+        }
+
+        .residency-page > .row.g-3.g-lg-4.mb-4 > div:nth-child(2) .stat-icon {
             color: var(--success);
+            background: var(--success-soft);
+            border-color: rgba(22,128,60,.14);
         }
 
-        .badge.bg-danger-subtle {
-            background: var(--primary-light) !important;
+        .residency-page > .row.g-3.g-lg-4.mb-4 > div:nth-child(3) .stat-icon {
+            color: var(--info);
+            background: var(--info-soft);
+            border-color: #dbeafe;
+        }
+
+        .residency-page > .row.g-3.g-lg-4.mb-4 > div:nth-child(4) .stat-icon {
+            color: var(--warning);
+            background: var(--warning-soft);
+            border-color: #fed7aa;
+        }
+
+        /* PANELS */
+        .card,
+        .residency-filter-card,
+        .residency-table-card {
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+            transition: box-shadow .16s ease, border-color .16s ease, transform .16s ease;
+        }
+
+        .card:hover,
+        .residency-filter-card:hover,
+        .residency-table-card:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .residency-filter-card .card-body {
+            padding: 1rem;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            margin-bottom: .9rem;
+        }
+
+        .table-head-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .table-head-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
             color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
         }
 
-        /* Button Styling - Mobile Optimized */
-        .btn {
-            border-radius: 10px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
+        .table-head-title h3,
+        .residency-filter-card h6 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
         }
 
-        @media (max-width: 576px) {
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            .btn-sm {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.8rem;
-            }
+        .table-head-title p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .86rem;
+            line-height: 1.55;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            border-color: var(--primary);
+        .residency-filter-card .row.g-3.align-items-center.mb-3 {
+            margin-bottom: .9rem !important;
+            padding-bottom: .9rem;
+            border-bottom: 1px solid var(--line);
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            border-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        .residency-filter-card .row.g-3.align-items-center.mb-3 h6 {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
         }
 
-        .btn-outline-primary {
-            color: var(--primary);
-            border-color: var(--primary);
+        .residency-filter-card .row.g-3.align-items-center.mb-3 h6 i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            margin: 0 !important;
+            color: var(--primary) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 12px;
         }
 
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            border-color: var(--primary);
+        .form-control,
+        .form-select {
+            min-height: 44px;
+            color: var(--text);
+            background-color: #ffffff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            font-size: .9rem;
+            font-weight: 650;
+            transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
         }
 
-        .btn-outline-danger {
-            color: var(--primary);
-            border-color: var(--primary);
+        .form-control::placeholder { color: var(--muted-2); }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(211, 47, 47, .36);
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none;
         }
 
-        .btn-outline-danger:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-outline-success {
-            color: var(--success);
-            border-color: var(--success);
-        }
-
-        .btn-outline-success:hover {
-            background: var(--success);
-            border-color: var(--success);
-        }
-
-        .btn-outline-secondary {
-            border-color: var(--border-color);
-            color: #6c757d;
-        }
-
-        .btn-outline-secondary:hover {
-            background: #f8f9fa;
-            color: #1e293b;
-            border-color: #ced4da;
-        }
-
-        .btn-danger {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-danger:hover {
-            background: var(--primary-dark);
-            border-color: var(--primary-dark);
-        }
-
-        /* Card Styling */
-        .card {
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: var(--hover-shadow);
-        }
-
-        /* Form Styling - Mobile Optimized */
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            padding: 0.6rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.15);
+        .input-group {
+            border-radius: 12px;
         }
 
         .input-group-text {
-            border-radius: 10px 0 0 10px;
-            border: 1px solid var(--border-color);
+            min-height: 44px;
+            color: var(--muted-2);
+            background: #ffffff !important;
+            border: 1px solid var(--line-strong);
+            border-right: 0;
+            border-radius: 12px 0 0 12px !important;
         }
 
-        /* Modal Styling - Mobile Optimized */
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        .input-group .form-control {
+            border-left: 0 !important;
+            border-radius: 0 !important;
         }
 
-        .modal-header {
-            background: var(--primary-gradient);
-            color: white;
-            border-radius: 20px 20px 0 0;
-            padding: 1.5rem;
+        .input-group .btn {
+            border-radius: 0 12px 12px 0 !important;
         }
 
-        @media (max-width: 576px) {
-            .modal-header {
-                padding: 1rem;
-            }
-            
-            .modal-body {
-                padding: 1rem;
-            }
-            
-            .modal-footer {
-                padding: 1rem;
-            }
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
         }
 
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
+        textarea.form-control {
+            min-height: 120px;
+            line-height: 1.65;
+            resize: vertical;
         }
 
-        .modal-header .btn-close:hover {
-            opacity: 1;
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
         }
 
-        .modal-title {
-            font-weight: 600;
+        .is-invalid:focus {
+            border-color: var(--danger) !important;
+            outline-color: rgba(220, 38, 38, .16);
+            box-shadow: none !important;
         }
 
-        .modal-body {
-            padding: 1.5rem;
+        .invalid-feedback {
+            display: block;
+            margin-top: .35rem;
+            color: var(--danger);
+            font-size: .76rem;
+            font-weight: 760;
         }
 
-        .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Pagination Styling - Mobile Optimized */
-        .pagination {
-            gap: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .page-link {
-            border-radius: 8px !important;
-            border: 1px solid var(--border-color);
-            color: var(--primary);
-            padding: 0.5rem 0.75rem;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 576px) {
-            .page-link {
-                padding: 0.4rem 0.6rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        .page-link:hover {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            border-color: var(--primary);
-        }
-
-        .page-item.active .page-link {
-            background: var(--primary-gradient);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: #f8f9fa;
-            border-radius: 40px;
-            font-weight: 500;
-            color: #1e293b;
-            z-index: 1;
-        }
-
-        .profile-badge i {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-        
-        .role-badge {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        #userDropdown{
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {     
-            .stat-number {
-                font-size: 1.5rem;
-            }
-
-            .stat-label {
-                font-size: 11px;
-            }
-
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .profile-badge span {
-                display: none;
-            }
-
-            .profile-badge {
-                padding: 0.5rem;
-                border-radius: 50%;
-            }
-
-            .d-flex.gap-2.justify-content-end {
-                flex-wrap: wrap;
-            }
-        }
-
-        /* Filter Section - Mobile Optimized */
-        @media (max-width: 768px) {
-            .row.g-3 > [class*="col-"] {
-                margin-bottom: 0.5rem;
-            }
-            
-            .btn.w-100 {
-                margin-top: 0.5rem;
-            }
-        }
-
-        /* Checkbox Styling */
         input[type="checkbox"] {
             width: 18px;
             height: 18px;
@@ -489,82 +486,745 @@
             accent-color: var(--primary);
         }
 
-        /* Activity Log Styling */
-        .activity-item {
-            border-left: 3px solid var(--primary);
-            padding-left: 1rem;
-            margin-bottom: 1rem;
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 800;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
         }
 
-        .activity-item:last-child {
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn:focus-visible {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none;
+        }
+
+        .btn-primary,
+        .btn-danger {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211,47,47,.18);
+        }
+
+        .btn-primary:hover,
+        .btn-danger:hover {
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+        }
+
+        .btn-success {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+            box-shadow: 0 10px 22px rgba(22,128,60,.16);
+        }
+
+        .btn-light-soft,
+        .btn-secondary,
+        .btn-outline-secondary {
+            color: var(--text) !important;
+            background: #ffffff !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover,
+        .btn-secondary:hover,
+        .btn-outline-secondary:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211,47,47,.22) !important;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary) !important;
+            background: var(--card) !important;
+            border-color: rgba(211, 47, 47, .25) !important;
+        }
+
+        .btn-outline-primary:hover {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-outline-info {
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border-color: #dbeafe !important;
+        }
+
+        .btn-outline-info:hover {
+            color: #ffffff !important;
+            background: var(--info) !important;
+            border-color: var(--info) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--success-soft) !important;
+            border-color: rgba(22, 128, 60, .18) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border-color: rgba(220, 38, 38, .18) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-sm,
+        .btn-group-sm > .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            border-radius: 11px;
+            font-size: .82rem;
+        }
+
+        /* TABLE */
+        .residency-table-card .card-body { background: #ffffff; }
+
+        .residency-table-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .residency-table-head h3 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .residency-table-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .86rem;
+            line-height: 1.55;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            min-width: 920px;
             margin-bottom: 0;
         }
 
-        .activity-time {
-            font-size: 0.8rem;
-            color: #6c757d;
+        .table thead th {
+            padding: .85rem .95rem;
+            color: #475467;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--line);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            white-space: nowrap;
         }
 
-        /* Loading Animation */
+        .table thead th a {
+            color: #475467 !important;
+            font-weight: 850;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--line);
+            font-size: .86rem;
+            white-space: nowrap;
+        }
+
+        .table tbody tr {
+            transition: background .16s ease;
+        }
+
+        .table tbody tr:hover { background: #fcfcfd; }
+
+        .table-danger,
+        .table-danger > * {
+            --bs-table-bg: #fff7f7;
+            --bs-table-striped-bg: #fff7f7;
+            --bs-table-hover-bg: #fff1f2;
+        }
+
+        .table .rounded-circle,
+        .resident-avatar {
+            border: 1px solid var(--line) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            white-space: nowrap;
+            font-weight: 820;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+        }
+
+        .badge.bg-success-subtle {
+            color: var(--success) !important;
+            background: var(--success-soft) !important;
+            border: 1px solid rgba(22, 128, 60, .14);
+        }
+
+        .badge.bg-danger-subtle {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border: 1px solid rgba(220, 38, 38, .14);
+        }
+
+        .pagination {
+            gap: .35rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            min-width: 36px;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px !important;
+            border: 1px solid var(--line);
+            color: var(--primary);
+            font-size: .82rem;
+            font-weight: 800;
+        }
+
+        .page-link:hover {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border-color: rgba(211,47,47,.22);
+        }
+
+        .page-item.active .page-link {
+            color: #ffffff;
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* EMPTY */
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        /* MODALS */
+        .modal-backdrop.show { opacity: .38; }
+
+        .modal-dialog {
+            padding: .75rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(180deg, #ffffff, #fbfdff);
+            border-bottom: 1px solid var(--line);
+            border-radius: 0;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: .62rem;
+            margin: .08rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.08rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: .95rem;
+        }
+
+        .modal-header .btn-close {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            margin: 0;
+            background-color: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xs);
+            opacity: 1;
+            filter: none;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            background: #ffffff;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: .55rem;
+            padding: 1rem;
+            background: #ffffff;
+            border-top: 1px solid var(--line);
+        }
+
+        .modal-body h6.fw-semibold {
+            display: flex;
+            align-items: center;
+            gap: .48rem;
+            margin: .25rem 0 .85rem;
+            padding: .75rem .85rem !important;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12) !important;
+            border-radius: 14px;
+            font-size: .88rem;
+            font-weight: 850;
+        }
+
+        .modal-body label.form-label.text-muted {
+            display: block;
+            color: var(--muted) !important;
+            font-size: .72rem !important;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .modal-body label.form-label.text-muted + p,
+        .modal-body .col-md-6 > p,
+        .modal-body .col-12 > p {
+            margin: .15rem 0 .6rem;
+            color: var(--text);
+            font-weight: 720;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .activity-item {
+            position: relative;
+            margin-bottom: .75rem;
+            padding: .85rem .9rem .85rem 1rem;
+            background: #fbfdff;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--primary);
+            border-radius: 14px;
+        }
+
+        .activity-time {
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 650;
+        }
+
+        .img-thumbnail {
+            border: 1px solid var(--line);
+            border-radius: 16px !important;
+            box-shadow: var(--shadow-xs);
+        }
+
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid var(--border-color);
+            border: 3px solid var(--line);
             border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin .8s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Mobile Action Buttons */
-        @media (max-width: 480px) {
-            .btn-outline-danger.d-flex span,
-            .btn-outline-success.d-flex span {
-                display: none;
-            }
-            
-            .btn-outline-danger.d-flex,
-            .btn-outline-success.d-flex {
-                padding: 0.5rem;
-            }
-            
-            .btn-outline-danger.d-flex i,
-            .btn-outline-success.d-flex i {
-                margin: 0;
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
             }
         }
 
-        /* Improved Touch Targets for Mobile */
+        @media (max-width: 1199px) {
+            .residency-stats,
+            .residency-page > .row.g-3.g-lg-4.mb-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 991px) {
+            .residency-hero-content {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .residency-hero-actions {
+                justify-content: flex-start;
+            }
+
+            .panel-heading,
+            .residency-table-head {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .residency-filter-card .row.g-3.align-items-center.mb-3 > div:last-child,
+            .residency-filter-card .row.g-3.align-items-center.mb-3 > div:last-child .d-flex,
+            .residency-filter-card .row.g-3.align-items-center.mb-3 > div:last-child .btn,
+            .residency-filter-card form[action*="residents"] + div,
+            .residency-filter-card form[action*="residents"] + div form,
+            .residency-filter-card form[action*="residents"] + div .btn {
+                width: 100%;
+            }
+
+            .table { min-width: 860px; }
+        }
+
         @media (max-width: 768px) {
-            .btn, 
-            .page-link,
-            .form-control,
-            .form-select,
-            .input-group-text {
-                min-height: 44px;
+            html { font-size: 78%; }
+
+            .mobile-menu-btn { display: inline-flex; }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: .85rem 1rem !important;
             }
-            
+
+            .page-title {
+                min-width: 0;
+                font-size: 1.02rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .residency-page { max-width: 100%; }
+
+            .residency-hero,
+            .stat-card,
+            .card,
+            .residency-filter-card,
+            .residency-table-card {
+                border-radius: 16px !important;
+            }
+
+            .residency-stats,
+            .residency-page > .row.g-3.g-lg-4.mb-4 {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .stat-card { min-height: auto; }
+
+            .residency-hero-actions,
+            .residency-hero-actions .btn,
+            .residency-filter-card .btn,
+            .modal-footer .btn {
+                width: 100%;
+            }
+
+            .residency-filter-card .row.g-3.align-items-center.mb-3 .d-flex,
+            .residency-filter-card form[action*="residents"] + div {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .modal-dialog {
+                margin: .45rem;
+                padding: 0;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: .9rem;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-title {
+                font-size: .98rem;
+                line-height: 1.25;
+            }
+
+            .modal-title i {
+                width: 38px;
+                height: 38px;
+            }
+
             input[type="checkbox"] {
                 width: 22px;
                 height: 22px;
             }
-            
+
             .table td .btn-sm {
                 min-height: 36px;
                 min-width: 36px;
-                padding: 0.5rem;
+                padding: .5rem;
             }
         }
 
-        /* Container Padding for Mobile */
-        @media (max-width: 768px) {
-            .p-lg-4 {
-                padding: 0.75rem !important;
-            }
+        @media (max-width: 575px) {
+            .residency-hero h2 { font-size: 1.55rem; }
+            .residency-hero-icon { width: 40px; height: 40px; }
+            .input-group { display: grid; grid-template-columns: 44px 1fr; }
+            .input-group .btn { grid-column: 1 / -1; border-radius: 12px !important; margin-top: .55rem; }
+            .input-group .form-control { border-radius: 0 12px 12px 0 !important; }
         }
+    
+
+        /* ==========================================================
+           RESIDENTS PAGE - RESIDENCY APPLICATION DESIGN PATCH
+           Keeps residents data/actions but matches residency UI + modals.
+        ========================================================== */
+        .residency-page { width: 100%; max-width: 1380px; margin: 0 auto; }
+
+        .residency-alert,
+        .alert {
+            border: 0 !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .residency-hero,
+        .residency-filter-card,
+        .residency-table-card,
+        .modal-content {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .residency-hero { position: relative; overflow: hidden; padding: clamp(1rem, 1.8vw, 1.6rem); margin-bottom: 1rem; }
+        .residency-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 96% 0%, rgba(211,47,47,.11), transparent 31%),
+                radial-gradient(circle at 10% 100%, rgba(3,105,161,.08), transparent 30%),
+                linear-gradient(135deg, rgba(211,47,47,.04), transparent 42%);
+            pointer-events: none;
+        }
+        .residency-hero-content { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: center; }
+        .residency-hero-icon,
+        .table-head-icon,
+        .modal-heading-icon,
+        .empty-state-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .residency-hero-icon { width: 46px; height: 46px; margin-bottom: .75rem; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.14); border-radius: 15px; font-size: 1.05rem; }
+        .residency-kicker,
+        .table-kicker,
+        .modal-section-title { display: inline-flex; align-items: center; gap: .45rem; color: var(--primary-dark); font-size: .73rem; font-weight: 850; text-transform: uppercase; letter-spacing: .09em; }
+        .residency-hero h2 { margin: .45rem 0 .4rem; color: var(--text); font-size: clamp(1.55rem, 2.4vw, 2.25rem); font-weight: 850; line-height: 1.08; letter-spacing: -.055em; }
+        .residency-hero p { max-width: 790px; margin: 0; color: var(--muted); font-size: .93rem; line-height: 1.6; }
+        .residency-hero-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; }
+        .residency-hero-meta { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; color: var(--muted); font-size: .8rem; font-weight: 700; }
+        .residency-hero-meta span { display: inline-flex; align-items: center; gap: .42rem; padding: .42rem .68rem; background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: 999px; }
+
+        .residency-stats,
+        .residency-page > .row.g-3.g-lg-4.mb-4 { margin-bottom: 1rem !important; }
+        .stat-card { border: 1px solid var(--line) !important; border-radius: var(--radius-xl) !important; box-shadow: var(--shadow-xs) !important; }
+        .stat-card::before { display: none !important; }
+        .stat-card:hover,
+        .residency-filter-card:hover,
+        .residency-table-card:hover { transform: translateY(-1px) !important; border-color: var(--line-strong) !important; box-shadow: var(--shadow-sm) !important; }
+
+        .residency-filter-card { overflow: hidden; margin-bottom: 1rem !important; }
+        .residency-filter-card .card-body { padding: 1rem !important; }
+
+        .residency-table-card { overflow: hidden; }
+        .residency-table-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .9rem; padding: 1rem; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #ffffff, #fbfdff); }
+        .table-head-title { display: flex; align-items: flex-start; gap: .8rem; min-width: 0; }
+        .table-head-icon { flex: 0 0 auto; width: 44px; height: 44px; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 14px; }
+        .residency-table-head h3 { margin: .15rem 0 .12rem; color: var(--text); font-size: 1.02rem; font-weight: 850; letter-spacing: -.025em; }
+        .residency-table-head p { margin: 0; color: var(--muted); font-size: .84rem; font-weight: 600; line-height: 1.5; }
+        #residentsTable { min-width: 820px !important; }
+        .residency-table-card .table thead th { padding: .85rem .95rem !important; color: #475467 !important; background: #f9fafb !important; border-bottom: 1px solid var(--line) !important; font-size: .72rem !important; font-weight: 850 !important; text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; }
+        .residency-table-card .table tbody td { padding: .95rem !important; color: var(--text) !important; border-bottom: 1px solid var(--line) !important; vertical-align: middle; }
+        .application-primary { display: flex; align-items: center; gap: .75rem; min-width: 230px; }
+        .application-avatar { flex: 0 0 auto; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; color: var(--primary-dark); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.14); border-radius: 14px; font-weight: 850; overflow: hidden; }
+        .application-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .application-name { color: var(--text); font-weight: 850; line-height: 1.25; }
+        .application-ref,
+        .application-muted-line { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-top: .18rem; color: var(--muted); font-size: .76rem; font-weight: 650; line-height: 1.35; }
+        .ref-pill { display: inline-flex; align-items: center; gap: .32rem; width: fit-content; max-width: 100%; padding: .28rem .5rem; color: #344054; background: #f9fafb; border: 1px solid var(--line); border-radius: 999px; font-size: .72rem; font-weight: 850; white-space: nowrap; }
+        .info-stack { display: grid; gap: .25rem; min-width: 150px; }
+        .info-label-mini { color: var(--muted-2); font-size: .68rem; font-weight: 850; text-transform: uppercase; letter-spacing: .08em; }
+        .info-main { color: var(--text); font-size: .84rem; font-weight: 820; line-height: 1.35; overflow-wrap: anywhere; }
+        .info-sub { color: var(--muted); font-size: .76rem; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+        .status-cell { display: grid; gap: .35rem; justify-items: flex-start; }
+        .empty-state-box { padding: 2.6rem 1rem; text-align: center; }
+        .empty-state-icon { width: 64px; height: 64px; margin: 0 auto 1rem; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 20px; font-size: 1.35rem; }
+
+        .action-buttons { display: flex; gap: .35rem; justify-content: flex-end; align-items: center; }
+        .action-btn { min-height: 34px; border-radius: 10px; border: 1px solid #4a4f57; background: #2f343b; color: #f1f3f5; padding: 0 .55rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+        .action-btn.icon-only { width: 34px; padding: 0; gap: 0; }
+        .action-label { font-size: .73rem; font-weight: 700; line-height: 1; }
+        .action-btn.action-view { background: #2a2f36; border-color: #4a4f57; color: #ffffff; }
+        .action-btn.action-update { background: #d5f0ad; border-color: #a9d772; color: #2f4a11; }
+        .action-btn.action-docs { background: #d7ecff; border-color: #95c5f2; color: #0a4d86; }
+        .action-btn.action-archive { background: #ffdfe2; border-color: #f1a8af; color: #9f1f2e; }
+        .action-divider { color: #9aa0a6; font-size: .9rem; line-height: 1; user-select: none; }
+
+        .modal-backdrop.show { opacity: .38; }
+        .modal-dialog { padding: .75rem; }
+        .modal-content { overflow: hidden; border: 0 !important; border-radius: var(--radius-xl) !important; box-shadow: 0 24px 70px rgba(16,24,40,.18) !important; }
+        .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem !important; color: var(--text) !important; background: radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%), linear-gradient(180deg, #ffffff, #fbfdff) !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; }
+        .modal-title { display: flex; align-items: center; gap: .62rem; margin: .08rem 0 .15rem; color: var(--text) !important; font-size: 1.08rem; font-weight: 850; letter-spacing: -.025em; }
+        .modal-title i { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; color: var(--primary) !important; background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 14px; font-size: .95rem; }
+        .modal-header .btn-close { width: 38px; height: 38px; padding: 0; margin: 0; background-color: #ffffff; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-xs); opacity: 1; filter: none !important; }
+        .modal-body { padding: 1rem !important; background: #ffffff; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: .55rem; padding: 1rem !important; background: #ffffff; border-top: 1px solid var(--line) !important; }
+
+        .application-modal-summary { display: grid; grid-template-columns: 1.35fr repeat(3, minmax(0,.75fr)); gap: .75rem; margin-bottom: 1rem; }
+        .modal-summary-card,
+        .detail-section-card,
+        .document-preview-card,
+        .status-flow-card { background: #ffffff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-xs); }
+        .modal-summary-card { display: grid; align-content: start; gap: .25rem; padding: .85rem; }
+        .modal-summary-card.is-primary { background: linear-gradient(135deg, var(--primary-soft), #ffffff 58%); border-color: rgba(211,47,47,.16); }
+        .summary-label { color: var(--muted); font-size: .7rem; font-weight: 850; text-transform: uppercase; letter-spacing: .07em; }
+        .summary-value { color: var(--text); font-size: .92rem; font-weight: 850; line-height: 1.25; overflow-wrap: anywhere; }
+        .summary-sub { color: var(--muted); font-size: .78rem; font-weight: 650; line-height: 1.35; }
+        .detail-section-card { overflow: hidden; margin-bottom: .85rem; }
+        .detail-section-head { display: flex; align-items: center; gap: .6rem; padding: .85rem .9rem; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #ffffff, #fbfdff); }
+        .detail-section-icon { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 13px; }
+        .detail-section-title { margin: 0; color: var(--text); font-size: .94rem; font-weight: 850; letter-spacing: -.018em; }
+        .detail-section-help { margin: .1rem 0 0; color: var(--muted); font-size: .78rem; font-weight: 650; }
+        .detail-section-body { padding: .9rem; }
+        .detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .72rem; }
+        .detail-item { min-width: 0; padding: .72rem; background: #fbfdff; border: 1px solid var(--line); border-radius: 14px; }
+        .detail-item.is-wide { grid-column: 1 / -1; }
+        .detail-label { display: flex; align-items: center; gap: .38rem; margin-bottom: .32rem; color: var(--muted); font-size: .7rem; font-weight: 850; text-transform: uppercase; letter-spacing: .07em; }
+        .detail-value { color: var(--text); font-size: .86rem; font-weight: 720; line-height: 1.5; overflow-wrap: anywhere; }
+        .document-preview-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; }
+        .document-preview-card { overflow: hidden; }
+        .document-preview-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .75rem .8rem; border-bottom: 1px solid var(--line); background: #fbfdff; }
+        .document-preview-title { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--text); font-size: .84rem; font-weight: 850; }
+        .document-preview-body { padding: .8rem; }
+        .document-thumb { width: 100%; max-height: 190px; object-fit: cover; border: 1px solid var(--line); border-radius: 14px; cursor: zoom-in; box-shadow: var(--shadow-xs); }
+        .document-empty { display: grid; place-items: center; min-height: 120px; color: var(--muted); background: #f9fafb; border: 1px dashed var(--line-strong); border-radius: 14px; font-size: .84rem; font-weight: 700; }
+        .edit-info-banner { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .75rem; align-items: center; margin-bottom: .9rem; padding: .85rem; background: radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%), linear-gradient(180deg,#ffffff,#fbfdff); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-xs); }
+        .edit-info-banner .application-avatar { width: 46px; height: 46px; border-radius: 15px; }
+        .edit-info-title { color: var(--text); font-size: .98rem; font-weight: 850; line-height: 1.25; letter-spacing: -.02em; }
+        .edit-info-subtitle { margin-top: .18rem; color: var(--muted); font-size: .8rem; font-weight: 650; line-height: 1.45; }
+        .modern-edit-form { display: grid; gap: .85rem; padding: .95rem; background: #fbfdff; border: 1px solid var(--line); border-radius: 20px; }
+        .edit-section-card { overflow: hidden; background: #ffffff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-xs); }
+        .edit-section-head { display: flex; align-items: flex-start; gap: .65rem; padding: .85rem .9rem; background: linear-gradient(180deg,#ffffff,#fbfdff); border-bottom: 1px solid var(--line); }
+        .edit-section-icon { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 13px; }
+        .edit-section-title { margin: .05rem 0 .12rem; color: var(--text); font-size: .92rem; font-weight: 850; letter-spacing: -.018em; }
+        .edit-section-help { margin: 0; color: var(--muted); font-size: .78rem; font-weight: 650; line-height: 1.45; }
+        .edit-section-body { padding: .9rem; }
+        .edit-form-grid { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: .75rem; }
+        .edit-col-3 { grid-column: span 3; }
+        .edit-col-4 { grid-column: span 4; }
+        .edit-col-6 { grid-column: span 6; }
+        .edit-col-12 { grid-column: span 12; }
+        .activity-timeline { display: grid; gap: .65rem; }
+        .activity-item { position: relative; margin: 0; padding: .85rem .9rem .85rem 1rem; background: #fbfdff; border: 1px solid var(--line); border-left: 4px solid var(--primary); border-radius: 14px; }
+        .activity-time { color: var(--muted); font-size: .78rem; font-weight: 650; }
+
+        @media (max-width: 991px) {
+            .residency-hero-content { grid-template-columns: minmax(0, 1fr); }
+            .residency-hero-actions { justify-content: flex-start; }
+            .residency-table-head { flex-direction: column; align-items: stretch; }
+            .application-modal-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+            .detail-grid,
+            .document-preview-grid { grid-template-columns: minmax(0,1fr); }
+            .edit-col-3,
+            .edit-col-4,
+            .edit-col-6 { grid-column: span 6; }
+        }
+        @media (max-width: 768px) {
+            #residentsTable { min-width: 720px !important; }
+            .application-modal-summary { grid-template-columns: minmax(0,1fr); }
+            .edit-col-3,
+            .edit-col-4,
+            .edit-col-6,
+            .edit-col-12 { grid-column: span 12; }
+            .modal-footer { flex-direction: column-reverse; }
+            .modal-footer .btn { width: 100%; }
+        }
+
     </style>
 </head>
 <body>
@@ -740,7 +1400,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-users me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
+                    <span class="title-icon"><i class="fas fa-users"></i></span>
                     Residents
                 </h1>
             </div>
@@ -748,10 +1408,11 @@
 
         <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="residency-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show residency-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -759,7 +1420,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show residency-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -770,8 +1431,39 @@
                 </div>
             @endif
 
+            <section class="residency-hero">
+                <div class="residency-hero-content">
+                    <div class="min-w-0">
+                        <div class="residency-hero-icon"><i class="fas fa-users"></i></div>
+                        <div class="residency-kicker"><i class="fas fa-circle-check"></i> Resident registry</div>
+                        <h2>Manage resident profiles, account status, valid IDs, and contact records in one clean workspace.</h2>
+                        <p>Search, verify, update, and manage resident profiles with the same clean workflow used in residency applications.</p>
+                    </div>
+                    <div class="residency-hero-actions">
+                        @admin_can('create_residents')
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addResidentModal">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Resident</span>
+                        </a>
+                        @endadmin_can
+                        @admin_can('export_residents')
+                        <button type="button" onclick="exportCSV()" class="btn btn-light-soft">
+                            <i class="fas fa-file-csv"></i>
+                            <span>Export CSV</span>
+                        </button>
+                        @endadmin_can
+                    </div>
+                </div>
+                <div class="residency-hero-meta">
+                    <span><i class="fas fa-users"></i> Total: <strong>{{ number_format($totalResidents) }}</strong></span>
+                    <span><i class="fas fa-user-check"></i> Active: <strong>{{ number_format($activeResidents) }}</strong></span>
+                    <span><i class="fas fa-user-plus"></i> New: <strong>{{ number_format($newResidents) }}</strong></span>
+                    <span><i class="fas fa-user-shield"></i> Seniors: <strong>{{ number_format($seniorResidents) }}</strong></span>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 residency-stats">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -834,14 +1526,16 @@
             </div>
 
             <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
+            <div class="card border-0 mb-4 residency-filter-card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.residents.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
                                 <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Residents
+                                    <i class="fas fa-filter me-2 text-primary"></i>
+                                    <span>Filter Residents</span>
                                 </h6>
+                                <p class="text-muted small mb-0 mt-2">Find residents by name, username, email, status, or age group.</p>
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
@@ -924,20 +1618,31 @@
                 </div>
             </div>
 
-            <!-- Residents Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <!-- Residents Table - Residency Style Compact View -->
+            <div class="card border-0 residency-table-card">
                 <div class="card-body p-0">
+                    <div class="residency-table-head">
+                        <div class="table-head-title">
+                            <span class="table-head-icon"><i class="fas fa-users-viewfinder"></i></span>
+                            <div class="min-w-0">
+                                <span class="table-kicker"><i class="fas fa-list-check"></i> Records table</span>
+                                <h3>Resident directory</h3>
+                                <p>Compact view for resident identity, contact details, verification state, and account actions.</p>
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-dark"><i class="fas fa-database me-1"></i>{{ $residents->total() }} records</span>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="residentsTable">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
-                                    <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'firstname', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Resident
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'firstname', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Resident / ID
                                             @if(request('sort') == 'firstname')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -945,32 +1650,9 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'username', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Username
-                                            @if(request('sort') == 'username')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="d-none d-lg-table-cell">Address</th>
-                                    <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'age', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Age
-                                            @if(request('sort') == 'age')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="d-none d-md-table-cell">Email</th>
-                                    <th class="d-none d-md-table-cell">Contact</th>
-                                    <th>Status</th>
+                                    <th>Contact Details</th>
+                                    <th>Age / Address</th>
+                                    <th>Status / Verification</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -981,91 +1663,91 @@
                                     <td class="ps-4">
                                         <input type="checkbox" value="{{ $resident->id }}" class="resident-checkbox">
                                     </td>
-                                    <td class="ps-0">
-                                        <div class="d-flex align-items-center">
-                                            @if($resident->profile_photo)
-                                                <img src="{{ asset($resident->profile_photo) }}" alt="Photo"
-                                                     class="rounded-circle me-2 object-fit-cover"
-                                                     style="width:36px;height:36px;border:2px solid #e9ecef;"
-                                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                                                <div class="bg-light rounded-circle d-none align-items-center justify-content-center me-2" style="width:36px;height:36px;">
-                                                    <i class="fas fa-user text-primary"></i>
+                                    <td>
+                                        <div class="application-primary">
+                                            <div class="application-avatar">
+                                                @if($resident->profile_photo)
+                                                    <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" onerror="this.remove();">
+                                                @else
+                                                    <span>{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="application-name">{{ $resident->full_name }}</div>
+                                                <div class="application-ref">
+                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>ID {{ $resident->id }}</span>
+                                                    <span>@</i>{{ $resident->username }}</span>
                                                 </div>
-                                            @else
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width:36px;height:36px;">
-                                                    <i class="fas fa-user text-primary"></i>
-                                                </div>
-                                            @endif
-                                            <div>
-                                                <div class="fw-semibold">{{ $resident->full_name }}</div>
-                                                <small class="text-muted d-lg-none">ID: #{{ $resident->id }}</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $resident->username }}</td>
-                                    <td class="d-none d-lg-table-cell">
-                                        <i class="fas fa-map-marker-alt text-muted me-1" style="font-size: 0.8rem;"></i>
-                                        {{ Str::limit($resident->address, 20) }}
+                                    <td>
+                                        <div class="info-stack">
+                                            <span class="info-label-mini">Email</span>
+                                            <span class="info-main">{{ $resident->email ?? 'N/A' }}</span>
+                                            <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $resident->contact ?? 'N/A' }}</span>
+                                        </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark">{{ $resident->age }}</span>
-                                    </td>
-                                    <td class="d-none d-md-table-cell">
-                                        <small>{{ Str::limit($resident->email, 15) }}</small>
-                                    </td>
-                                    <td class="d-none d-md-table-cell">
-                                        <small>{{ $resident->contact }}</small>
+                                        <div class="info-stack">
+                                            <span class="info-label-mini">Age</span>
+                                            <span class="info-main">{{ $resident->age }} years old</span>
+                                            <span class="info-sub"><i class="fas fa-location-dot me-1"></i>{{ Str::limit($resident->address, 36) }}</span>
+                                        </div>
                                     </td>
                                     <td>
-                                        @if($resident->deleted_at)
-                                            <span class="badge bg-danger-subtle text-danger d-block">Deactivated</span>
-                                        @else
-                                            <span class="badge bg-success-subtle text-success d-block">Active</span>
-                                        @endif
-                                        @if($resident->valid_id)
-                                            @if($resident->valid_id_verified)
-                                                <span class="badge mt-1 d-block" style="background:#e8f5e8;color:#2e7d32;font-size:0.7rem;"><i class="fas fa-id-card me-1"></i>ID Verified</span>
+                                        <div class="status-cell">
+                                            @if($resident->deleted_at)
+                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-user-slash me-1"></i>Deactivated</span>
                                             @else
-                                                <span class="badge mt-1 d-block" style="background:#fff4e5;color:#ed6c02;font-size:0.7rem;"><i class="fas fa-id-card me-1"></i>ID Pending</span>
+                                                <span class="badge bg-success-subtle text-success"><i class="fas fa-circle-check me-1"></i>Active</span>
                                             @endif
-                                        @endif
+
+                                            @if($resident->valid_id)
+                                                @if($resident->valid_id_verified)
+                                                    <span class="badge bg-success-subtle text-success"><i class="fas fa-id-card me-1"></i>ID Verified</span>
+                                                @else
+                                                    <span class="badge bg-warning-subtle text-warning"><i class="fas fa-id-card me-1"></i>ID Pending</span>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-secondary-subtle text-secondary"><i class="fas fa-id-card me-1"></i>No ID</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (everyone with view_residents can view) -->
-                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View">
+                                        <div class="action-buttons">
+                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View details">
                                                 <i class="fa-regular fa-eye"></i>
                                             </button>
 
-                                            <!-- Edit (only for non-deleted and if user has update_residents permission) -->
                                             @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('update_residents'))
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit">
-                                                <i class="fas fa-edit"></i>
+                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit resident">
+                                                <i class="fas fa-pen"></i>
+                                                <span class="action-label">Edit</span>
                                             </button>
                                             @endif
 
-                                            <!-- Activity (always visible) -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#activityModal{{ $resident->id }}" title="Activity">
-                                                <i class="fas fa-history"></i>
+                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#activityModal{{ $resident->id }}" title="Activity log">
+                                                <i class="fas fa-clock-rotate-left"></i>
                                             </button>
 
-                                            <!-- Deactivate (for non-deleted and if user has delete_residents permission) -->
+                                            <span class="action-divider">|</span>
+
                                             @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
                                                 <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Deactivate this resident account? Their record and transactions will remain archived.')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Deactivate">
-                                                        <i class="fas fa-trash"></i>
+                                                    <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Deactivate">
+                                                        <i class="fas fa-user-slash"></i>
                                                     </button>
                                                 </form>
                                             @endif
 
-                                            <!-- Restore (for deleted and if user has restore_residents permission) -->
                                             @if($resident->deleted_at && auth('admin')->user()->hasPermission('restore_residents'))
                                                 <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this resident?')">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
-                                                        <i class="fas fa-undo"></i>
+                                                    <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
+                                                        <i class="fas fa-rotate-left"></i>
                                                     </button>
                                                 </form>
                                             @endif
@@ -1074,11 +1756,11 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-users fa-4x text-muted mb-3 opacity-50"></i>
+                                    <td colspan="6">
+                                        <div class="empty-state-box">
+                                            <div class="empty-state-icon"><i class="fas fa-users"></i></div>
                                             <h5 class="text-muted">No residents found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                            <p class="text-muted mb-3 small">Try adjusting your search or filter.</p>
                                             @admin_can('create_residents')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addResidentModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
@@ -1092,7 +1774,6 @@
                         </table>
                     </div>
 
-                    <!-- Pagination - Mobile Responsive -->
                     <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <small class="text-muted order-2 order-md-1">
                             <i class="fas fa-list me-1"></i>
@@ -1106,215 +1787,214 @@
                 </div>
             </div>
 
-            <!-- Add Resident Modal with Validation - Only if user has create_residents permission -->
+            <!-- Add Resident Modal with Residency-style Design -->
             @admin_can('create_residents')
             <div class="modal fade" id="addResidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-user-plus me-2"></i>
+                                <i class="fas fa-user-plus"></i>
                                 Add New Resident
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+
                         <div class="modal-body">
-                        <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm">
-                            @csrf
-                            <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_firstname" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('firstname') is-invalid @enderror @endif" 
-                                               name="firstname" id="add_firstname" 
-                                               value="{{ session('form_type') == 'add' ? old('firstname') : '' }}" 
-                                               required placeholder="Enter first name">
-                                        @if(session('form_type') == 'add')
-                                            @error('firstname')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                            <div class="edit-info-banner">
+                                <div class="application-avatar"><i class="fas fa-user-plus"></i></div>
+                                <div class="min-w-0">
+                                    <div class="edit-info-title">Create a resident profile</div>
+                                    <div class="edit-info-subtitle">Enter identity, contact, account, and address details using the same clean modal style as residency applications.</div>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm" class="modern-edit-form">
+                                @csrf
+                                <input type="hidden" name="form_type" value="add">
+
+                                <div class="edit-section-card">
+                                    <div class="edit-section-head">
+                                        <span class="edit-section-icon"><i class="fas fa-id-card"></i></span>
+                                        <div>
+                                            <div class="edit-section-title">Personal Information</div>
+                                            <p class="edit-section-help">Basic identity details for the resident record.</p>
+                                        </div>
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_middlename" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('middlename') is-invalid @enderror @endif" 
-                                               name="middlename" id="add_middlename" 
-                                               value="{{ session('form_type') == 'add' ? old('middlename') : '' }}" 
-                                               placeholder="Enter middle name (optional)">
-                                        @if(session('form_type') == 'add')
-                                            @error('middlename')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_lastname" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('lastname') is-invalid @enderror @endif" 
-                                               name="lastname" id="add_lastname" 
-                                               value="{{ session('form_type') == 'add' ? old('lastname') : '' }}" 
-                                               required placeholder="Enter last name">
-                                        @if(session('form_type') == 'add')
-                                            @error('lastname')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_suffix" class="form-label">Suffix</label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
-                                                name="suffix" id="add_suffix">
-                                            <option value="">None</option>
-                                            <option value="Jr." {{ session('form_type') == 'add' && old('suffix') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                            <option value="Sr." {{ session('form_type') == 'add' && old('suffix') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                            <option value="II" {{ session('form_type') == 'add' && old('suffix') == 'II' ? 'selected' : '' }}>II</option>
-                                            <option value="III" {{ session('form_type') == 'add' && old('suffix') == 'III' ? 'selected' : '' }}>III</option>
-                                            <option value="IV" {{ session('form_type') == 'add' && old('suffix') == 'IV' ? 'selected' : '' }}>IV</option>
-                                            <option value="V" {{ session('form_type') == 'add' && old('suffix') == 'V' ? 'selected' : '' }}>V</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('suffix')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_username" class="form-label">Username <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('username') is-invalid @enderror @endif" 
-                                               name="username" id="add_username" 
-                                               value="{{ session('form_type') == 'add' ? old('username') : '' }}" 
-                                               required placeholder="Choose a username">
-                                        @if(session('form_type') == 'add')
-                                            @error('username')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_email" class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
-                                               name="email" id="add_email" 
-                                               value="{{ session('form_type') == 'add' ? old('email') : '' }}" 
-                                               required placeholder="email@example.com">
-                                        @if(session('form_type') == 'add')
-                                            @error('email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact') is-invalid @enderror @endif" 
-                                               name="contact" id="add_contact" 
-                                               value="{{ session('form_type') == 'add' ? old('contact') : '' }}" 
-                                               required placeholder="09XXXXXXXXX" maxlength="11">
-                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('contact')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_birthdate" class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
-                                               name="birthdate" id="add_birthdate" 
-                                               value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" 
-                                               required max="{{ now()->subYears(18)->format('Y-m-d') }}">
-                                        <small class="text-muted">Resident must be 18 years old or above.</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('birthdate')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="add_address" class="form-label">Complete Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
-                                                  name="address" id="add_address" 
-                                                  rows="2" required placeholder="House/Block/Lot No., Street, Subdivision, Barangay">{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
-                                        @if(session('form_type') == 'add')
-                                            @error('address')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" 
-                                               name="password" id="add_password" 
-                                               required minlength="8"
-                                               onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
-                                        <small class="text-muted">Minimum 8 characters with uppercase, lowercase, number, and special character. <strong>No spaces allowed.</strong></small>
-                                        @if(session('form_type') == 'add')
-                                            @error('password')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="password_confirmation" class="form-control" 
-                                               id="add_password_confirmation" required
-                                               onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
-                                        <div class="invalid-feedback" id="add_pwc_feedback"></div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-check mt-1">
-                                            <input class="form-check-input" type="checkbox" id="toggle_add_passwords">
-                                            <label class="form-check-label" for="toggle_add_passwords">
-                                                Show password and confirm password
-                                            </label>
+                                    <div class="edit-section-body">
+                                        <div class="edit-form-grid">
+                                            <div class="edit-col-6">
+                                                <label for="add_firstname" class="form-label">First Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'add') @error('firstname') is-invalid @enderror @endif" name="firstname" id="add_firstname" value="{{ session('form_type') == 'add' ? old('firstname') : '' }}" required placeholder="Enter first name">
+                                                @if(session('form_type') == 'add') @error('firstname') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_middlename" class="form-label">Middle Name</label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'add') @error('middlename') is-invalid @enderror @endif" name="middlename" id="add_middlename" value="{{ session('form_type') == 'add' ? old('middlename') : '' }}" placeholder="Enter middle name (optional)">
+                                                @if(session('form_type') == 'add') @error('middlename') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_lastname" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'add') @error('lastname') is-invalid @enderror @endif" name="lastname" id="add_lastname" value="{{ session('form_type') == 'add' ? old('lastname') : '' }}" required placeholder="Enter last name">
+                                                @if(session('form_type') == 'add') @error('lastname') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_suffix" class="form-label">Suffix</label>
+                                                <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" name="suffix" id="add_suffix">
+                                                    <option value="">None</option>
+                                                    <option value="Jr." {{ session('form_type') == 'add' && old('suffix') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                    <option value="Sr." {{ session('form_type') == 'add' && old('suffix') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                    <option value="II" {{ session('form_type') == 'add' && old('suffix') == 'II' ? 'selected' : '' }}>II</option>
+                                                    <option value="III" {{ session('form_type') == 'add' && old('suffix') == 'III' ? 'selected' : '' }}>III</option>
+                                                    <option value="IV" {{ session('form_type') == 'add' && old('suffix') == 'IV' ? 'selected' : '' }}>IV</option>
+                                                    <option value="V" {{ session('form_type') == 'add' && old('suffix') == 'V' ? 'selected' : '' }}>V</option>
+                                                </select>
+                                                @if(session('form_type') == 'add') @error('suffix') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_birthdate" class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                                <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" name="birthdate" id="add_birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ now()->subYears(18)->format('Y-m-d') }}">
+                                                <small class="text-muted">Resident must be 18 years old or above.</small>
+                                                @if(session('form_type') == 'add') @error('birthdate') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                        </form>
+
+                                <div class="edit-section-card">
+                                    <div class="edit-section-head">
+                                        <span class="edit-section-icon"><i class="fas fa-address-book"></i></span>
+                                        <div>
+                                            <div class="edit-section-title">Contact & Address</div>
+                                            <p class="edit-section-help">Contact channels and full address for future document requests.</p>
+                                        </div>
+                                    </div>
+                                    <div class="edit-section-body">
+                                        <div class="edit-form-grid">
+                                            <div class="edit-col-6">
+                                                <label for="add_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                                <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" name="email" id="add_email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" required placeholder="email@example.com">
+                                                @if(session('form_type') == 'add') @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact') is-invalid @enderror @endif" name="contact" id="add_contact" value="{{ session('form_type') == 'add' ? old('contact') : '' }}" required placeholder="09XXXXXXXXX" maxlength="11">
+                                                <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                                @if(session('form_type') == 'add') @error('contact') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-12">
+                                                <label for="add_address" class="form-label">Complete Address <span class="text-danger">*</span></label>
+                                                <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" name="address" id="add_address" rows="2" required placeholder="House/Block/Lot No., Street, Subdivision, Barangay">{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
+                                                @if(session('form_type') == 'add') @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="edit-section-card">
+                                    <div class="edit-section-head">
+                                        <span class="edit-section-icon"><i class="fas fa-lock"></i></span>
+                                        <div>
+                                            <div class="edit-section-title">Account Credentials</div>
+                                            <p class="edit-section-help">Login username and secure password for the resident portal.</p>
+                                        </div>
+                                    </div>
+                                    <div class="edit-section-body">
+                                        <div class="edit-form-grid">
+                                            <div class="edit-col-6">
+                                                <label for="add_username" class="form-label">Username <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'add') @error('username') is-invalid @enderror @endif" name="username" id="add_username" value="{{ session('form_type') == 'add' ? old('username') : '' }}" required placeholder="Choose a username">
+                                                @if(session('form_type') == 'add') @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
+                                                <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" name="password" id="add_password" required minlength="8" onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
+                                                <small class="text-muted">Minimum 8 characters. No spaces allowed.</small>
+                                                @if(session('form_type') == 'add') @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                            </div>
+                                            <div class="edit-col-6">
+                                                <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                                <input type="password" name="password_confirmation" class="form-control" id="add_password_confirmation" required onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
+                                                <div class="invalid-feedback" id="add_pwc_feedback"></div>
+                                            </div>
+                                            <div class="edit-col-12">
+                                                <div class="form-check mt-1">
+                                                    <input class="form-check-input" type="checkbox" id="toggle_add_passwords">
+                                                    <label class="form-check-label" for="toggle_add_passwords">Show password and confirm password</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
+
                         <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" form="addResidentForm" class="btn btn-success" id="submitAddForm">
-                                    <i class="fas fa-save me-2"></i>Save Resident
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <button type="submit" form="addResidentForm" class="btn btn-success" id="submitAddForm">
+                                <i class="fas fa-save me-2"></i>Save Resident
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             @endadmin_can
 
-            <!-- Activity Log Modals (always visible) -->
+            <!-- Activity Log Modals - Residency-style Timeline -->
             @foreach($residents as $resident)
             <div class="modal fade" id="activityModal{{ $resident->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title small">
-                                <i class="fas fa-history me-2"></i>
-                                Activity Log - {{ $resident->full_name }}
+                            <h5 class="modal-title">
+                                <i class="fas fa-history"></i>
+                                Activity Log
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
                         <div class="modal-body">
-                            @forelse($resident->activities as $activity)
-                                <div class="activity-item">
-                                    <strong class="small">{{ $activity->action }}</strong>
-                                    <div class="small text-muted mb-1">{{ $activity->description }}</div>
-                                    <div class="activity-time small">
-                                        <i class="far fa-clock me-1"></i>
-                                        {{ $activity->created_at->format('M d, Y h:i A') }}
+                            <div class="edit-info-banner">
+                                <div class="application-avatar">{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</div>
+                                <div class="min-w-0">
+                                    <div class="edit-info-title">{{ $resident->full_name }}</div>
+                                    <div class="edit-info-subtitle">Recent changes and account activity for this resident record.</div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section-card mb-0">
+                                <div class="detail-section-head">
+                                    <span class="detail-section-icon"><i class="fas fa-clock-rotate-left"></i></span>
+                                    <div>
+                                        <div class="detail-section-title">Timeline</div>
+                                        <p class="detail-section-help">Latest recorded actions for this resident.</p>
                                     </div>
                                 </div>
-                            @empty
-                                <div class="text-center py-4">
-                                    <i class="fas fa-history fa-3x text-muted mb-3 opacity-50"></i>
-                                    <p class="text-muted small mb-0">No activity found for this resident</p>
+                                <div class="detail-section-body">
+                                    <div class="activity-timeline">
+                                        @forelse($resident->activities as $activity)
+                                            <div class="activity-item">
+                                                <strong class="small">{{ $activity->action }}</strong>
+                                                <div class="small text-muted mb-1">{{ $activity->description }}</div>
+                                                <div class="activity-time small">
+                                                    <i class="far fa-clock me-1"></i>
+                                                    {{ $activity->created_at->format('M d, Y h:i A') }}
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="document-empty">
+                                                <span><i class="fas fa-history me-1"></i>No activity found for this resident</span>
+                                            </div>
+                                        @endforelse
+                                    </div>
                                 </div>
-                            @endforelse
+                            </div>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
                                 <i class="fas fa-times me-2"></i>Close
                             </button>
                         </div>
@@ -1323,7 +2003,7 @@
             </div>
             @endforeach
 
-           <!-- Edit Resident Modals with Validation - Only if user has update_residents permission -->
+           <!-- Edit Resident Modals with Residency-style Design -->
             @if(auth('admin')->user()->hasPermission('update_residents'))
                 @foreach($residents as $resident)
                 <div class="modal fade" id="editResidentModal{{ $resident->id }}" tabindex="-1" data-bs-backdrop="static">
@@ -1331,397 +2011,343 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-user-edit me-2"></i>
-                                    Edit Resident - {{ $resident->full_name }}
+                                    <i class="fas fa-user-edit"></i>
+                                    Edit Resident
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
 
                             <div class="modal-body">
-                            <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
+                                <div class="edit-info-banner">
+                                    <div class="application-avatar">{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</div>
+                                    <div class="min-w-0">
+                                        <div class="edit-info-title">{{ $resident->full_name }}</div>
+                                        <div class="edit-info-subtitle">Update resident identity, contact, and address information using the same form pattern as residency applications.</div>
+                                    </div>
+                                </div>
 
-                                    <div class="row g-3">
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') is-invalid @enderror @endif"
-                                                name="firstname"
-                                                id="edit_firstname_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('firstname', $resident->firstname) : $resident->firstname }}"
-                                                required>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('firstname')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}" class="modern-edit-form">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
+
+                                    <div class="edit-section-card">
+                                        <div class="edit-section-head">
+                                            <span class="edit-section-icon"><i class="fas fa-id-card"></i></span>
+                                            <div>
+                                                <div class="edit-section-title">Personal Information</div>
+                                                <p class="edit-section-help">Core identity details displayed across resident records and request workflows.</p>
+                                            </div>
                                         </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Middle Name</label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('middlename') is-invalid @enderror @endif"
-                                                name="middlename"
-                                                id="edit_middlename_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('middlename', $resident->middlename) : $resident->middlename }}">
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('middlename')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif"
-                                                name="lastname"
-                                                id="edit_lastname_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('lastname', $resident->lastname) : $resident->lastname }}"
-                                                required>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('lastname')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Suffix</label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') is-invalid @enderror @endif"
-                                                    name="suffix"
-                                                    id="edit_suffix_{{ $resident->id }}">
-                                                <option value="">None</option>
-                                                <option value="Jr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                                <option value="Sr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                                <option value="II" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'II' ? 'selected' : '' }}>II</option>
-                                                <option value="III" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'III' ? 'selected' : '' }}>III</option>
-                                                <option value="IV" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
-                                                <option value="V" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'V' ? 'selected' : '' }}>V</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('suffix')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Username <span class="text-danger">*</span></label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('username') is-invalid @enderror @endif"
-                                                name="username"
-                                                id="edit_username_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('username', $resident->username) : $resident->username }}"
-                                                required>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('username')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                                            <input type="email"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('email') is-invalid @enderror @endif"
-                                                name="email"
-                                                id="edit_email_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('email', $resident->email) : $resident->email }}"
-                                                required>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('email')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                            <input type="text"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('contact') is-invalid @enderror @endif"
-                                                name="contact"
-                                                id="edit_contact_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('contact', $resident->contact) : $resident->contact }}"
-                                                required
-                                                maxlength="11">
-                                            <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('contact')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                            <input type="date"
-                                                class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif"
-                                                name="birthdate"
-                                                id="edit_birthdate_{{ $resident->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}"
-                                                required
-                                                max="{{ date('Y-m-d') }}">
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('birthdate')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label class="form-label">Complete Address <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('address') is-invalid @enderror @endif"
-                                                    name="address"
-                                                    id="edit_address_{{ $resident->id }}"
-                                                    rows="2"
-                                                    required>{{ session('form_type') == 'edit_' . $resident->id ? old('address', $resident->address) : $resident->address }}</textarea>
-                                            @if(session('form_type') == 'edit_' . $resident->id)
-                                                @error('address')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                        <div class="edit-section-body">
+                                            <div class="edit-form-grid">
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') is-invalid @enderror @endif" name="firstname" id="edit_firstname_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('firstname', $resident->firstname) : $resident->firstname }}" required>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('firstname') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Middle Name</label>
+                                                    <input type="text" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('middlename') is-invalid @enderror @endif" name="middlename" id="edit_middlename_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('middlename', $resident->middlename) : $resident->middlename }}">
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('middlename') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') is-invalid @enderror @endif" name="lastname" id="edit_lastname_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('lastname', $resident->lastname) : $resident->lastname }}" required>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('lastname') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Suffix</label>
+                                                    <select class="form-select @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') is-invalid @enderror @endif" name="suffix" id="edit_suffix_{{ $resident->id }}">
+                                                        <option value="">None</option>
+                                                        <option value="Jr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                        <option value="Sr." {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                        <option value="II" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'II' ? 'selected' : '' }}>II</option>
+                                                        <option value="III" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                                        <option value="IV" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                                        <option value="V" {{ (session('form_type') == 'edit_' . $resident->id ? old('suffix', $resident->suffix) : $resident->suffix) == 'V' ? 'selected' : '' }}>V</option>
+                                                    </select>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('suffix') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Birthdate <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif" name="birthdate" id="edit_birthdate_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}" required max="{{ date('Y-m-d') }}">
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                            </form>
+
+                                    <div class="edit-section-card">
+                                        <div class="edit-section-head">
+                                            <span class="edit-section-icon"><i class="fas fa-address-book"></i></span>
+                                            <div>
+                                                <div class="edit-section-title">Contact & Address</div>
+                                                <p class="edit-section-help">Keep contact records accurate for notifications and barangay transactions.</p>
+                                            </div>
+                                        </div>
+                                        <div class="edit-section-body">
+                                            <div class="edit-form-grid">
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                    <input type="email" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('email') is-invalid @enderror @endif" name="email" id="edit_email_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('email', $resident->email) : $resident->email }}" required>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('contact') is-invalid @enderror @endif" name="contact" id="edit_contact_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('contact', $resident->contact) : $resident->contact }}" required maxlength="11">
+                                                    <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('contact') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-12">
+                                                    <label class="form-label">Complete Address <span class="text-danger">*</span></label>
+                                                    <textarea class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('address') is-invalid @enderror @endif" name="address" id="edit_address_{{ $resident->id }}" rows="2" required>{{ session('form_type') == 'edit_' . $resident->id ? old('address', $resident->address) : $resident->address }}</textarea>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="edit-section-card">
+                                        <div class="edit-section-head">
+                                            <span class="edit-section-icon"><i class="fas fa-user-lock"></i></span>
+                                            <div>
+                                                <div class="edit-section-title">Account</div>
+                                                <p class="edit-section-help">Username used for resident portal login.</p>
+                                            </div>
+                                        </div>
+                                        <div class="edit-section-body">
+                                            <div class="edit-form-grid">
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('username') is-invalid @enderror @endif" name="username" id="edit_username_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('username', $resident->username) : $resident->username }}" required>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
 
-                                <div class="modal-footer">
-                                    <button type="button"
-                                            class="btn btn-outline-secondary"
-                                            data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-
-                                    <button type="submit" form="editResidentForm{{ $resident->id }}" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
-                                        <i class="fas fa-save me-2"></i>Update Resident
-                                    </button>
-                                </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" form="editResidentForm{{ $resident->id }}" class="btn btn-primary" id="submitEditForm{{ $resident->id }}">
+                                    <i class="fas fa-save me-2"></i>Update Resident
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @endforeach
             @endif
 
-            <!-- View Resident Modals (always visible) -->
+            <!-- View Resident Modals - Residency-style Details -->
             @foreach($residents as $resident)
             <div class="modal fade" id="viewResidentModal{{ $resident->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fa-solid fa-user me-2"></i>
-                                Resident Details - {{ $resident->full_name }}
+                                <i class="fa-solid fa-user"></i>
+                                Resident Details
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
                         <div class="modal-body">
-                            <div class="row g-3">
-                                <!-- Personal Information -->
-                                <div class="col-12">
-                                    <h6 class="fw-semibold text-primary border-bottom pb-2">
-                                        <i class="fas fa-id-card me-2"></i>Personal Information
-                                    </h6>
+                            <div class="application-modal-summary">
+                                <div class="modal-summary-card is-primary">
+                                    <span class="summary-label">Resident</span>
+                                    <span class="summary-value">{{ $resident->full_name }}</span>
+                                    <span class="summary-sub"><i class="fas fa-user-tag me-1"></i>{{ $resident->username }} · ID #{{ $resident->id }}</span>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">First Name</label>
-                                    <p class="fw-semibold">{{ $resident->firstname }}</p>
+                                <div class="modal-summary-card">
+                                    <span class="summary-label">Age</span>
+                                    <span class="summary-value">{{ $resident->age }}</span>
+                                    <span class="summary-sub">years old</span>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Middle Name</label>
-                                    <p class="fw-semibold">{{ $resident->middlename ?? 'N/A' }}</p>
+                                <div class="modal-summary-card">
+                                    <span class="summary-label">Account</span>
+                                    <span class="summary-value">{{ $resident->deleted_at ? 'Deactivated' : 'Active' }}</span>
+                                    <span class="summary-sub">Current status</span>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Last Name</label>
-                                    <p class="fw-semibold">{{ $resident->lastname }}</p>
+                                <div class="modal-summary-card">
+                                    <span class="summary-label">Valid ID</span>
+                                    <span class="summary-value">{{ $resident->valid_id ? ($resident->valid_id_verified ? 'Verified' : 'Pending') : 'None' }}</span>
+                                    <span class="summary-sub">Identity check</span>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Suffix</label>
-                                    <p class="fw-semibold">{{ $resident->suffix ?? 'N/A' }}</p>
+                            <div class="detail-section-card">
+                                <div class="detail-section-head">
+                                    <span class="detail-section-icon"><i class="fas fa-id-card"></i></span>
+                                    <div>
+                                        <div class="detail-section-title">Personal Information</div>
+                                        <p class="detail-section-help">Basic resident identity details.</p>
+                                    </div>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Username</label>
-                                    <p>{{ $resident->username }}</p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Age</label>
-                                    <p>{{ $resident->age }} years old</p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Birthdate</label>
-                                    <p>
-                                        {{ $resident->birthdate 
-                                            ? \Carbon\Carbon::parse($resident->birthdate)->format('F d, Y') 
-                                            : 'N/A' }}
-                                    </p>
-                                </div>
-
-                                <!-- Contact Information -->
-                                <div class="col-12 mt-2">
-                                    <h6 class="fw-semibold text-primary border-bottom pb-2">
-                                        <i class="fas fa-address-card me-2"></i>Contact Information
-                                    </h6>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Email</label>
-                                    <p>
-                                        <i class="fas fa-envelope text-muted me-1"></i>
-                                        {{ $resident->email ?? 'N/A' }}
-                                    </p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Contact Number</label>
-                                    <p>
-                                        <i class="fas fa-phone text-muted me-1"></i>
-                                        {{ $resident->contact ?? 'N/A' }}
-                                    </p>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label text-muted small mb-1">Complete Address</label>
-                                    <p>
-                                        <i class="fas fa-map-marker-alt text-muted me-1"></i>
-                                        {{ $resident->address ?? 'N/A' }}
-                                    </p>
-                                </div>
-
-                                <!-- Profile Photo & Valid ID -->
-                                <div class="col-12 mt-2">
-                                    <h6 class="fw-semibold text-primary border-bottom pb-2">
-                                        <i class="fas fa-image me-2"></i>Profile Photo &amp; Valid ID
-                                    </h6>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Profile Photo</label>
-                                    @if($resident->profile_photo)
-                                        <div>
-                                            <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo"
-                                                 class="img-thumbnail object-fit-cover"
-                                                 style="width:120px;height:120px;border-radius:12px;cursor:pointer;"
-                                                 onclick="document.getElementById('profilePhotoFull{{ $resident->id }}').style.display='flex'"
-                                                 onerror="this.parentElement.innerHTML='<span class=\'text-muted small\'>Photo unavailable</span>';">
+                                <div class="detail-section-body">
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-user"></i>First Name</div>
+                                            <div class="detail-value">{{ $resident->firstname }}</div>
                                         </div>
-                                        <!-- Full-screen overlay -->
-                                        <div id="profilePhotoFull{{ $resident->id }}" onclick="this.style.display='none'"
-                                             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                            <img src="{{ asset($resident->profile_photo) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-user"></i>Middle Name</div>
+                                            <div class="detail-value">{{ $resident->middlename ?? 'N/A' }}</div>
                                         </div>
-                                    @else
-                                        <p class="text-muted small fst-italic"><i class="fas fa-image me-1"></i>No profile photo uploaded</p>
-                                    @endif
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-user"></i>Last Name</div>
+                                            <div class="detail-value">{{ $resident->lastname }}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-tag"></i>Suffix</div>
+                                            <div class="detail-value">{{ $resident->suffix ?? 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-cake-candles"></i>Birthdate</div>
+                                            <div class="detail-value">{{ $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('F d, Y') : 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-calendar"></i>Age</div>
+                                            <div class="detail-value">{{ $resident->age }} years old</div>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Valid ID</label>
-                                    @if($resident->valid_id)
-                                        @php $idExt = strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)); @endphp
-                                        @if(in_array($idExt, ['jpg','jpeg','png','webp']))
-                                            <div>
-                                                <img src="{{ asset($resident->valid_id) }}" alt="Valid ID"
-                                                     class="img-thumbnail object-fit-cover"
-                                                     style="width:120px;height:80px;border-radius:12px;cursor:pointer;"
-                                                     onclick="document.getElementById('validIdFull{{ $resident->id }}').style.display='flex'"
-                                                     onerror="this.parentElement.innerHTML='<span class=\'text-muted small\'>Image unavailable</span>';">
-                                                <div id="validIdFull{{ $resident->id }}" onclick="this.style.display='none'"
-                                                     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                    <img src="{{ asset($resident->valid_id) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
-                                                </div>
+                            <div class="detail-section-card">
+                                <div class="detail-section-head">
+                                    <span class="detail-section-icon"><i class="fas fa-address-book"></i></span>
+                                    <div>
+                                        <div class="detail-section-title">Contact Information</div>
+                                        <p class="detail-section-help">Communication and address details.</p>
+                                    </div>
+                                </div>
+                                <div class="detail-section-body">
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-envelope"></i>Email</div>
+                                            <div class="detail-value">{{ $resident->email ?? 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="fas fa-phone"></i>Contact Number</div>
+                                            <div class="detail-value">{{ $resident->contact ?? 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item is-wide">
+                                            <div class="detail-label"><i class="fas fa-map-marker-alt"></i>Complete Address</div>
+                                            <div class="detail-value">{{ $resident->address ?? 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="detail-section-head">
+                                    <span class="detail-section-icon"><i class="fas fa-image"></i></span>
+                                    <div>
+                                        <div class="detail-section-title">Profile Photo & Valid ID</div>
+                                        <p class="detail-section-help">Uploaded identity assets and verification action.</p>
+                                    </div>
+                                </div>
+                                <div class="detail-section-body">
+                                    <div class="document-preview-grid">
+                                        <div class="document-preview-card">
+                                            <div class="document-preview-head">
+                                                <h6 class="document-preview-title"><i class="fas fa-user-circle"></i>Profile Photo</h6>
                                             </div>
-                                        @else
-                                            <a href="{{ asset($resident->valid_id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fas fa-file-pdf me-1"></i>View PDF
-                                            </a>
-                                        @endif
-                                        <div class="mt-2">
-                                            @if($resident->valid_id_verified)
-                                                <span class="badge" style="background:#e8f5e8;color:#2e7d32;">
-                                                    <i class="fas fa-check-circle me-1"></i>Verified
-                                                </span>
-                                            @else
-                                                <span class="badge" style="background:#fff4e5;color:#ed6c02;">
-                                                    <i class="fas fa-clock me-1"></i>Pending Verification
-                                                </span>
-                                                @if(auth('admin')->user()->hasPermission('update_residents'))
-                                                    <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}" style="display:inline;">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm ms-1"
-                                                                style="background:#e8f5e8;color:#2e7d32;border:1px solid #c8e6c9;border-radius:8px;"
-                                                                onclick="return confirm('Approve and verify the Valid ID for {{ addslashes($resident->full_name) }}?')">
-                                                            <i class="fas fa-check me-1"></i>Approve ID
-                                                        </button>
-                                                    </form>
+                                            <div class="document-preview-body">
+                                                @if($resident->profile_photo)
+                                                    <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo" class="document-thumb" onclick="document.getElementById('profilePhotoFull{{ $resident->id }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Photo unavailable</div>'">
+                                                    <div id="profilePhotoFull{{ $resident->id }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                        <img src="{{ asset($resident->profile_photo) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                    </div>
+                                                @else
+                                                    <div class="document-empty"><span><i class="fas fa-user-circle me-1"></i>No profile photo uploaded</span></div>
                                                 @endif
-                                            @endif
+                                            </div>
                                         </div>
-                                    @else
-                                        <p class="text-muted small fst-italic"><i class="fas fa-id-card me-1"></i>No valid ID uploaded</p>
-                                    @endif
-                                </div>
 
-                                <!-- Account Information -->
-                                <div class="col-12 mt-2">
-                                    <h6 class="fw-semibold text-primary border-bottom pb-2">
-                                        <i class="fas fa-cog me-2"></i>Account Information
-                                    </h6>
-                                </div>
+                                        <div class="document-preview-card">
+                                            <div class="document-preview-head">
+                                                <h6 class="document-preview-title"><i class="fas fa-id-card"></i>Valid ID</h6>
+                                                @if($resident->valid_id)
+                                                    @if($resident->valid_id_verified)
+                                                        <span class="badge bg-success-subtle text-success">Verified</span>
+                                                    @else
+                                                        <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                            <div class="document-preview-body">
+                                                @if($resident->valid_id)
+                                                    @php $idExt = strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)); @endphp
+                                                    @if(in_array($idExt, ['jpg','jpeg','png','webp']))
+                                                        <img src="{{ asset($resident->valid_id) }}" alt="Valid ID" class="document-thumb" onclick="document.getElementById('validIdFull{{ $resident->id }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
+                                                        <div id="validIdFull{{ $resident->id }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                            <img src="{{ asset($resident->valid_id) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                        </div>
+                                                    @else
+                                                        <a href="{{ asset($resident->valid_id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                            <i class="fas fa-file-pdf me-1"></i>View PDF
+                                                        </a>
+                                                    @endif
 
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Registered At</label>
-                                    <p>
-                                        <i class="far fa-calendar-alt text-muted me-1"></i>
-                                        {{ $resident->created_at 
-                                            ? $resident->created_at->format('F d, Y h:i A') 
-                                            : 'N/A' }}
-                                    </p>
+                                                    @if(!$resident->valid_id_verified && auth('admin')->user()->hasPermission('update_residents'))
+                                                        <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}" class="mt-2">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Approve and verify the Valid ID for {{ addslashes($resident->full_name) }}?')">
+                                                                <i class="fas fa-check me-1"></i>Approve ID
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @else
+                                                    <div class="document-empty"><span><i class="fas fa-id-card me-1"></i>No valid ID uploaded</span></div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Last Updated</label>
-                                    <p>
-                                        <i class="far fa-clock text-muted me-1"></i>
-                                        {{ $resident->updated_at 
-                                            ? $resident->updated_at->format('F d, Y h:i A') 
-                                            : 'N/A' }}
-                                    </p>
+                            <div class="detail-section-card mb-0">
+                                <div class="detail-section-head">
+                                    <span class="detail-section-icon"><i class="fas fa-cog"></i></span>
+                                    <div>
+                                        <div class="detail-section-title">Account Information</div>
+                                        <p class="detail-section-help">Record timestamps and active/deactivated status.</p>
+                                    </div>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small mb-1">Status</label>
-                                    <p>
-                                        @if(!$resident->deleted_at)
-                                            <span class="badge bg-success-subtle text-success">
-                                                <i class="fas fa-check-circle me-1"></i>Active
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger-subtle text-danger">
-                                                <i class="fas fa-times-circle me-1"></i>Deactivated
-                                            </span>
-                                            <small class="text-muted d-block mt-1">
-                                                Deactivated at: {{ $resident->deleted_at->format('F d, Y h:i A') }}
-                                            </small>
-                                        @endif
-                                    </p>
+                                <div class="detail-section-body">
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="far fa-calendar-alt"></i>Registered At</div>
+                                            <div class="detail-value">{{ $resident->created_at ? $resident->created_at->format('F d, Y h:i A') : 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label"><i class="far fa-clock"></i>Last Updated</div>
+                                            <div class="detail-value">{{ $resident->updated_at ? $resident->updated_at->format('F d, Y h:i A') : 'N/A' }}</div>
+                                        </div>
+                                        <div class="detail-item is-wide">
+                                            <div class="detail-label"><i class="fas fa-circle-check"></i>Status</div>
+                                            <div class="detail-value">
+                                                @if(!$resident->deleted_at)
+                                                    <span class="badge bg-success-subtle text-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                                @else
+                                                    <span class="badge bg-danger-subtle text-danger"><i class="fas fa-times-circle me-1"></i>Deactivated</span>
+                                                    <small class="text-muted d-block mt-1">Deactivated at: {{ $resident->deleted_at->format('F d, Y h:i A') }}</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button"
-                                    class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                 <i class="fas fa-times me-2"></i>Close
                             </button>
                         </div>
@@ -1730,6 +2356,7 @@
             </div>
             @endforeach
             
+            </div>
         </main>
     </div>
 

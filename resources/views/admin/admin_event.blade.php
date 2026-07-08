@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
@@ -708,6 +708,2051 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        /* ==========================================================
+           Events UX redesign - compact Backup-style layout
+           Keeps existing sidebar, header, Blade routes, permissions, and forms.
+        ========================================================== */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-soft: #eefaf2;
+            --warning: #d97706;
+            --warning-soft: #fff7ed;
+            --danger: #dc2626;
+            --danger-soft: #fff1f2;
+            --info: #0369a1;
+            --info-soft: #eff6ff;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --border-color: #e5e7eb;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        html {
+            font-size: 70%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .events-page {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .events-alert,
+        .events-page > .alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .events-page > .alert.fade:not(.show) {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .events-hero,
+        .events-panel,
+        .stat-card {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .events-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            padding: clamp(1.1rem, 2vw, 1.55rem);
+        }
+
+        .events-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(135deg, rgba(211, 47, 47, .04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .events-hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 920px;
+        }
+
+        .events-hero-icon,
+        .events-panel-icon,
+        .empty-state-icon,
+        .event-thumb,
+        .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .events-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .14);
+            border-radius: 14px;
+            font-size: 1.1rem;
+        }
+
+        .events-kicker,
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .events-hero h2 {
+            margin: .5rem 0 .5rem;
+            color: var(--text);
+            font-size: clamp(1.7rem, 3vw, 2.45rem);
+            font-weight: 850;
+            line-height: 1.05;
+            letter-spacing: -.055em;
+        }
+
+        .events-hero p,
+        .events-panel-copy,
+        .empty-state p {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .events-hero p {
+            max-width: 760px;
+            margin: 0;
+            font-size: .95rem;
+        }
+
+        .events-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .65rem;
+            margin-top: 1rem;
+        }
+
+        .events-stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem;
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+            margin-bottom: .9rem !important;
+        }
+
+        .events-stats-row > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+        }
+
+        .stat-card {
+            height: 100%;
+            padding: 1rem !important;
+            gap: .85rem;
+            overflow: visible !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .stat-card::before {
+            display: none !important;
+        }
+
+        .stat-card:hover,
+        .events-panel:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-1px) !important;
+        }
+
+        .stat-card > div:first-child {
+            min-width: 0;
+            order: 2;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            order: 1;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            display: block;
+            margin-top: .28rem;
+            color: var(--text);
+            font-size: clamp(1.3rem, 2vw, 1.75rem);
+            font-weight: 850;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-card small {
+            display: block !important;
+            margin-top: .42rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .events-panel {
+            overflow: hidden;
+        }
+
+        .events-filter-panel {
+            margin-bottom: .75rem !important;
+        }
+
+        .events-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .events-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .events-panel-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .events-panel-header h3 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .events-panel-copy {
+            margin: 0;
+            font-size: .86rem;
+        }
+
+        .events-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .events-filter-body {
+            padding: .85rem 1rem 1rem;
+        }
+
+        .events-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(300px, 1.45fr) minmax(160px, .55fr) minmax(190px, .7fr) auto;
+            gap: .65rem;
+            align-items: center;
+        }
+
+        .events-search-group {
+            display: flex;
+            align-items: stretch;
+            min-width: 0;
+        }
+
+        .events-search-control {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .events-search-control i {
+            position: absolute;
+            top: 50%;
+            left: .9rem;
+            transform: translateY(-50%);
+            color: var(--muted-2);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .events-search-control .form-control {
+            height: 44px;
+            padding-left: 2.45rem !important;
+            border-radius: 12px 0 0 12px !important;
+            border-right: 0 !important;
+        }
+
+        .events-search-btn {
+            height: 44px;
+            border-radius: 0 12px 12px 0 !important;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+
+        .selected-count-pill,
+        .events-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            width: fit-content;
+            padding: .42rem .68rem;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .events-count-pill {
+            color: #344054;
+            background: #f9fafb;
+            border-color: var(--line);
+        }
+
+        .events-table-panel {
+            margin-top: 0 !important;
+        }
+
+        .events-table-panel .card-body {
+            padding: 0 !important;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 760;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:focus-visible,
+        .form-control:focus,
+        .form-select:focus,
+        .form-check-input:focus {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none !important;
+        }
+
+        .btn-primary,
+        .btn-danger {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
+        }
+
+        .btn-primary:hover,
+        .btn-danger:hover,
+        .btn-primary:focus,
+        .btn-danger:focus {
+            color: #ffffff !important;
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+            box-shadow: 0 12px 26px rgba(211, 47, 47, .22);
+        }
+
+        .btn-light-soft,
+        .btn-secondary,
+        .btn-outline-secondary,
+        .btn-outline-primary {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover,
+        .btn-secondary:hover,
+        .btn-outline-secondary:hover,
+        .btn-outline-primary:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211, 47, 47, .22) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border-color: rgba(220, 38, 38, .25) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border-color: rgba(22, 128, 60, .25) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-sm,
+        .btn-group-sm > .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            border-radius: 11px;
+            font-size: .82rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+            color: var(--text);
+            background-color: #ffffff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            padding: .62rem .9rem;
+            font-size: .9rem;
+            font-weight: 650;
+        }
+
+        .form-control::placeholder {
+            color: var(--muted-2);
+        }
+
+        textarea.form-control {
+            line-height: 1.65;
+            resize: vertical;
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+        }
+
+        .form-hint,
+        .modal small.text-muted {
+            display: block;
+            margin-top: .35rem;
+            color: var(--muted-2) !important;
+            font-size: .75rem;
+            font-weight: 650;
+            line-height: 1.4;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0 !important;
+        }
+
+        .table {
+            min-width: 960px;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            padding: .85rem .95rem;
+            color: #475467;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--line);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--line);
+            font-size: .86rem;
+        }
+
+        .table tbody tr {
+            transition: background .16s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #fcfcfd;
+        }
+
+        .event-thumb {
+            flex: 0 0 auto;
+            width: 40px !important;
+            height: 40px !important;
+            color: var(--primary);
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px !important;
+            overflow: hidden;
+        }
+
+        .event-thumb img {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 14px !important;
+            object-fit: cover;
+        }
+
+        .badge,
+        .role-badge,
+        .attendees-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .badge.bg-success-subtle {
+            color: var(--success) !important;
+            background: var(--success-soft) !important;
+            border: 1px solid rgba(22, 128, 60, .14);
+        }
+
+        .badge.bg-danger-subtle {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border: 1px solid rgba(220, 38, 38, .14);
+        }
+
+        .badge.bg-secondary-subtle {
+            color: #344054 !important;
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+        }
+
+        .attendees-badge {
+            color: var(--info);
+            background: var(--info-soft);
+            border: 1px solid #dbeafe;
+        }
+
+        .location-text {
+            display: inline-block;
+            max-width: 210px;
+            color: var(--text);
+            font-weight: 650;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 240px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        .empty-state h4 {
+            margin-bottom: .35rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 820;
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            margin: 0 auto 1rem;
+            font-size: .88rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18) !important;
+        }
+
+        .modal-header {
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        }
+
+        .modal-header .btn-close {
+            filter: none !important;
+            opacity: .72;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin: 0;
+            color: var(--text) !important;
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            color: var(--primary);
+        }
+
+        .modal-title::after {
+            display: block;
+            margin-left: .1rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            letter-spacing: 0;
+        }
+
+        #viewModal .modal-title::after,
+        [id^="viewModal"] .modal-title::after {
+            content: 'Quick overview of schedule, location, attendees, and description.';
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            gap: .55rem;
+            padding: .85rem 1rem !important;
+            background: rgba(255, 255, 255, .96);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .modal .row.g-3 {
+            --bs-gutter-x: .9rem;
+            --bs-gutter-y: .9rem;
+        }
+
+        .modal .col-12.mt-3 h6 {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin: .45rem 0 0;
+            padding-top: .85rem;
+            color: var(--text) !important;
+            border-top: 1px dashed var(--line-strong);
+            font-size: .9rem;
+            font-weight: 850;
+        }
+
+        .modal .col-12.mt-3 h6::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .modal .bg-light.rounded,
+        .modal .p-3.bg-light.rounded {
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md) !important;
+            color: var(--text);
+            line-height: 1.65;
+        }
+
+        .form-control[type="file"] {
+            padding: 1rem;
+            background: #f9fafb;
+            border-style: dashed;
+            align-items: center;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 10px;
+            border: 1px solid var(--line-strong);
+            background: #ffffff;
+            padding: .48rem .75rem;
+            margin-right: .75rem;
+            color: var(--text);
+            font-weight: 760;
+            transition: all .16s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            color: var(--primary-dark);
+            background: #fffafa;
+            border-color: rgba(211, 47, 47, .22);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 16px;
+            margin-top: .65rem;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-xs);
+            object-fit: cover;
+        }
+
+        .modal .img-fluid.rounded {
+            width: 100%;
+            max-height: 320px !important;
+            object-fit: cover;
+            border-radius: 18px !important;
+            border: 1px solid var(--line);
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--danger) !important;
+            outline-color: rgba(220, 38, 38, .16);
+        }
+
+        .invalid-feedback {
+            color: var(--danger);
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        .alert-danger li::before {
+            content: '•';
+            color: var(--danger);
+            margin-right: .45rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .events-stats-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .events-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) minmax(170px, .5fr) minmax(190px, .6fr);
+            }
+
+            .events-filter-toolbar .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .events-panel-header {
+                flex-direction: column;
+            }
+
+            .events-panel-actions,
+            .events-panel-actions .btn {
+                width: 100%;
+            }
+
+            .events-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .events-search-group {
+                width: 100%;
+            }
+
+            .table {
+                min-width: 860px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: .85rem 1rem;
+            }
+
+            .page-title {
+                font-size: 1.02rem;
+            }
+
+            .events-page {
+                max-width: 100%;
+            }
+
+            .events-hero,
+            .events-panel,
+            .stat-card {
+                border-radius: 16px !important;
+            }
+
+            .events-hero,
+            .events-panel-header,
+            .events-filter-body,
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: .9rem !important;
+            }
+
+            .events-hero-actions,
+            .events-hero-actions .btn {
+                width: 100%;
+            }
+
+            .events-stats-row {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .events-search-group {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 575px) {
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .events-hero h2 {
+                font-size: 1.75rem;
+            }
+
+            .events-search-btn span {
+                display: none;
+            }
+        }
+
+    
+        /* ==========================================================
+           Events design aligned with Projects page
+           Consistent hero, filters, table, and modal UX.
+        ========================================================== */
+        .events-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: center;
+            max-width: none !important;
+        }
+
+        .events-hero {
+            margin-bottom: 1rem !important;
+            padding: clamp(1.1rem, 1.8vw, 1.5rem) !important;
+        }
+
+        .events-hero h2 {
+            font-size: clamp(1.65rem, 2.6vw, 2.25rem) !important;
+            line-height: 1.08 !important;
+            margin: .48rem 0 .42rem !important;
+        }
+
+        .events-hero p {
+            max-width: 720px !important;
+            font-size: .93rem !important;
+        }
+
+        .events-hero-actions {
+            justify-content: flex-end;
+            margin-top: 0 !important;
+        }
+
+        .events-stats-row {
+            margin-bottom: 1rem !important;
+        }
+
+        .events-filter-panel {
+            margin-bottom: .75rem !important;
+        }
+
+        .events-filter-panel .events-panel-header {
+            padding-bottom: .85rem !important;
+        }
+
+        .events-filter-panel .events-filter-body {
+            padding-top: .85rem !important;
+            padding-bottom: .85rem !important;
+        }
+
+        .events-filter-toolbar {
+            grid-template-columns: minmax(360px, 1.55fr) minmax(155px, .65fr) minmax(170px, .72fr) auto !important;
+            gap: .55rem !important;
+            align-items: stretch !important;
+        }
+
+        .events-search-group {
+            display: flex;
+            align-items: stretch;
+            min-width: 0;
+        }
+
+        .events-search-group .events-search-control {
+            flex: 1 1 auto;
+        }
+
+        .events-search-group .form-control {
+            height: 100%;
+            border-right: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .events-search-group .events-search-btn {
+            flex: 0 0 auto;
+            min-width: 104px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+
+        .events-bulk-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+            margin-top: .85rem;
+            padding-top: .85rem;
+            border-top: 1px dashed var(--line-strong);
+        }
+
+        .selected-count {
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .events-table-panel {
+            margin-top: 0 !important;
+        }
+
+        .event-thumb {
+            width: 40px !important;
+            height: 40px !important;
+            color: var(--primary);
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px !important;
+            overflow: hidden;
+        }
+
+        .event-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px !important;
+        }
+
+        .event-date-badge,
+        .event-time-badge,
+        .attendees-badge,
+        .location-text,
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .location-text {
+            max-width: 220px;
+            color: var(--info);
+            background: var(--info-soft);
+            border: 1px solid #dbeafe;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .event-date-badge,
+        .event-time-badge {
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18) !important;
+        }
+
+        .modal-header {
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        }
+
+        .modal-header .btn-close {
+            filter: none !important;
+            opacity: .72;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .72rem;
+            margin: 0;
+            color: var(--text) !important;
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            margin: 0 !important;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .modal-title-stack {
+            display: grid;
+            gap: .18rem;
+        }
+
+        .modal-subtitle {
+            display: block;
+            max-width: 620px;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 600;
+            line-height: 1.55;
+            letter-spacing: 0;
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .modal-body .row.g-3 {
+            padding: .95rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            gap: .55rem;
+            padding: .85rem 1rem 1rem !important;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .92), #ffffff);
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .event-view-body .row.g-3 {
+            border: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+
+        .event-detail-title {
+            margin-bottom: .25rem;
+            color: var(--text);
+            font-size: 1.35rem;
+            font-weight: 850;
+            letter-spacing: -.035em;
+        }
+
+        .event-view-body .col-md-6 {
+            padding: .85rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .event-view-body .col-md-6 label {
+            display: block;
+            margin-bottom: .4rem;
+            color: var(--muted) !important;
+            font-size: .72rem;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .event-view-body .col-md-6 p {
+            margin: 0;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .event-view-body .bg-light.rounded,
+        .description-box {
+            padding: .95rem !important;
+            color: var(--text);
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+            border-radius: 14px !important;
+            line-height: 1.65;
+        }
+
+        .event-image-card {
+            padding: .7rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+        .event-image-card img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 14px !important;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border: 1px solid var(--line);
+            object-fit: cover;
+        }
+
+        @media (max-width: 991px) {
+            .events-hero-content {
+                display: block !important;
+            }
+
+            .events-hero-actions,
+            .events-panel-actions,
+            .events-panel-actions .btn {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .events-hero-actions {
+                margin-top: 1rem !important;
+            }
+
+            .events-hero-actions .btn {
+                flex: 1 1 180px;
+            }
+
+            .events-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            .events-search-group {
+                width: 100%;
+            }
+
+            .events-search-group .events-search-btn {
+                min-width: 96px;
+            }
+
+            .events-filter-toolbar .filter-submit-btn {
+                width: 100%;
+            }
+
+            .events-bulk-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .events-hero,
+            .events-panel,
+            .stat-card,
+            .card.border-0 {
+                border-radius: 16px !important;
+            }
+
+            .events-hero,
+            .events-panel-header,
+            .events-filter-body,
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: .9rem !important;
+            }
+
+            .events-hero-actions,
+            .events-hero-actions .btn {
+                width: 100%;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+
+
+        /* ==========================================================
+           FINAL MOBILE UX PATCH - cleaner Events mobile layout
+           Paste-safe: CSS only, no Blade route/form changes.
+        ========================================================== */
+        .title-icon {
+            flex: 0 0 auto;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 12px;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            min-width: 0;
+            line-height: 1.15;
+        }
+
+        .header > .d-flex {
+            min-width: 0;
+        }
+
+        @media (max-width: 1199.98px) {
+            .events-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) minmax(150px, .5fr) minmax(170px, .55fr) !important;
+            }
+
+            .events-filter-toolbar .filter-submit-btn {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .events-hero-content {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            .events-hero-actions {
+                width: 100%;
+                justify-content: stretch !important;
+            }
+
+            .events-hero-actions .btn,
+            .events-panel-actions .btn,
+            .events-panel-actions .events-count-pill {
+                flex: 1 1 auto;
+            }
+
+            .events-filter-toolbar {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            .events-search-group {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            body {
+                background: #f8fafc;
+            }
+
+            .main-content {
+                min-width: 0;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: .78rem .85rem !important;
+                background: rgba(255, 255, 255, .96);
+                backdrop-filter: blur(10px);
+            }
+
+            .mobile-menu-btn {
+                flex: 0 0 auto;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                padding: 0 !important;
+                color: var(--text);
+                background: #ffffff;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                box-shadow: var(--shadow-xs);
+            }
+
+            .title-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+            }
+
+            .page-title {
+                max-width: calc(100vw - 112px);
+                font-size: 1rem !important;
+                font-weight: 850;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            .events-page {
+                max-width: 100% !important;
+            }
+
+            .events-hero,
+            .events-panel,
+            .stat-card {
+                border-radius: 18px !important;
+            }
+
+            .events-hero {
+                padding: 1rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            .events-hero-icon {
+                width: 42px;
+                height: 42px;
+                margin-bottom: .65rem;
+                border-radius: 13px;
+            }
+
+            .events-kicker,
+            .section-kicker {
+                font-size: .66rem;
+                letter-spacing: .08em;
+            }
+
+            .events-hero h2 {
+                max-width: 100%;
+                margin: .45rem 0 .4rem !important;
+                font-size: 1.55rem !important;
+                line-height: 1.08 !important;
+                letter-spacing: -.045em;
+            }
+
+            .events-hero p {
+                font-size: .86rem !important;
+                line-height: 1.55;
+            }
+
+            .events-hero-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: .55rem;
+                margin-top: .9rem !important;
+            }
+
+            .events-hero-actions .btn {
+                width: 100%;
+                min-height: 42px;
+                padding: .62rem .7rem;
+            }
+
+            .events-stats-row {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .65rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            .events-stats-row > [class*="col-"] {
+                width: auto !important;
+                max-width: none !important;
+                padding: 0 !important;
+            }
+
+            .stat-card {
+                align-items: center !important;
+                min-height: 92px;
+                padding: .82rem !important;
+                gap: .65rem !important;
+            }
+
+            .stat-card > div:first-child {
+                min-width: 0;
+            }
+
+            .stat-icon {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 13px !important;
+                font-size: 1rem !important;
+            }
+
+            .stat-label {
+                font-size: .65rem !important;
+                letter-spacing: .06em;
+            }
+
+            .stat-number {
+                margin-top: .18rem;
+                font-size: 1.45rem !important;
+                line-height: 1;
+            }
+
+            .stat-card small {
+                display: none !important;
+            }
+
+            .events-panel-header {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .75rem;
+                padding: .9rem !important;
+            }
+
+            .events-panel-title {
+                gap: .65rem;
+            }
+
+            .events-panel-icon {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 13px !important;
+            }
+
+            .events-panel-header h3 {
+                font-size: .96rem !important;
+            }
+
+            .events-panel-copy {
+                font-size: .8rem !important;
+                line-height: 1.5;
+            }
+
+            .events-filter-panel .events-panel-actions {
+                display: none !important;
+            }
+
+            .events-filter-body {
+                padding: .85rem !important;
+            }
+
+            .events-filter-toolbar {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+                gap: .6rem !important;
+            }
+
+            .events-search-group {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) 48px;
+                align-items: stretch;
+                min-width: 0;
+            }
+
+            .events-search-control .form-control,
+            .events-search-group .form-control {
+                height: 44px !important;
+                min-height: 44px !important;
+                border-radius: 12px 0 0 12px !important;
+                border-right: 0 !important;
+                font-size: .86rem;
+            }
+
+            .events-search-btn,
+            .events-search-group .events-search-btn {
+                min-width: 48px !important;
+                width: 48px !important;
+                height: 44px !important;
+                padding: 0 !important;
+                border-radius: 0 12px 12px 0 !important;
+                box-shadow: none !important;
+            }
+
+            .events-search-btn span {
+                display: none !important;
+            }
+
+            .form-control,
+            .form-select {
+                min-height: 44px;
+                font-size: .87rem;
+                border-radius: 12px;
+            }
+
+            .filter-submit-btn {
+                width: 100%;
+            }
+
+            .events-bulk-row {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .55rem;
+                margin-top: .75rem;
+                padding-top: .75rem;
+            }
+
+            .selected-count {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 40px;
+                padding: .55rem .7rem;
+                background: #f9fafb;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                text-align: center;
+                font-size: .78rem;
+            }
+
+            .events-bulk-row .btn {
+                width: 100%;
+            }
+
+            .events-table-panel .events-panel-header {
+                border-bottom: 0;
+            }
+
+            .events-table-panel .events-panel-actions {
+                width: 100%;
+            }
+
+            .events-count-pill {
+                width: 100%;
+                justify-content: center;
+                min-height: 38px;
+            }
+
+            .events-table-panel .table-responsive {
+                overflow: visible !important;
+                border-radius: 0 !important;
+            }
+
+            #eventsTable {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                border: 0 !important;
+            }
+
+            #eventsTable thead {
+                display: none !important;
+            }
+
+            #eventsTable tbody {
+                display: grid !important;
+                gap: .75rem;
+                padding: .75rem;
+                background: #f8fafc;
+            }
+
+            #eventsTable tbody tr {
+                display: grid !important;
+                grid-template-columns: 34px minmax(0, 1fr) auto;
+                grid-template-areas:
+                    "check title status"
+                    "date date date"
+                    "time time time"
+                    "location location location"
+                    "attendees attendees attendees"
+                    "actions actions actions";
+                gap: .5rem .6rem;
+                align-items: start;
+                padding: .85rem;
+                background: #ffffff !important;
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                box-shadow: 0 8px 20px rgba(16, 24, 40, .045);
+            }
+
+            #eventsTable tbody tr:hover {
+                background: #ffffff !important;
+                transform: none !important;
+            }
+
+            #eventsTable tbody td,
+            #eventsTable tbody td.d-none,
+            #eventsTable tbody td.d-md-table-cell,
+            #eventsTable tbody td.d-lg-table-cell {
+                width: 100% !important;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent !important;
+                text-align: left !important;
+                white-space: normal !important;
+            }
+
+            #eventsTable tbody td:nth-child(1) {
+                grid-area: check;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                padding-top: .25rem !important;
+            }
+
+            #eventsTable tbody td:nth-child(1)::before,
+            #eventsTable tbody td:nth-child(2)::before,
+            #eventsTable tbody td:nth-child(7)::before,
+            #eventsTable tbody td:nth-child(8)::before {
+                display: none !important;
+            }
+
+            #eventsTable tbody td:nth-child(1) input[type="checkbox"] {
+                width: 22px;
+                height: 22px;
+                margin: 0;
+            }
+
+            #eventsTable tbody td:nth-child(2) {
+                grid-area: title;
+                display: block !important;
+                min-width: 0;
+            }
+
+            #eventsTable tbody td:nth-child(2) > .d-flex {
+                width: 100%;
+                min-width: 0;
+                gap: .65rem;
+                align-items: center !important;
+            }
+
+            #eventsTable tbody td:nth-child(2) .fw-semibold {
+                max-width: 100%;
+                color: var(--text);
+                font-size: .94rem;
+                font-weight: 850;
+                line-height: 1.28;
+                letter-spacing: -.018em;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+            }
+
+            #eventsTable tbody td:nth-child(2) small.d-md-none {
+                display: none !important;
+            }
+
+            #eventsTable tbody td:nth-child(7) {
+                grid-area: status;
+                display: flex !important;
+                justify-content: flex-end;
+                align-items: flex-start;
+                min-width: max-content;
+            }
+
+            #eventsTable tbody td:nth-child(3) { grid-area: date; }
+            #eventsTable tbody td:nth-child(4) { grid-area: time; }
+            #eventsTable tbody td:nth-child(5) { grid-area: location; }
+            #eventsTable tbody td:nth-child(6) { grid-area: attendees; }
+
+            #eventsTable tbody td:nth-child(3),
+            #eventsTable tbody td:nth-child(4),
+            #eventsTable tbody td:nth-child(5),
+            #eventsTable tbody td:nth-child(6) {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                gap: .8rem;
+                min-height: 38px;
+                padding: .52rem .65rem !important;
+                background: #f9fafb !important;
+                border: 1px solid var(--line) !important;
+                border-radius: 13px;
+                color: var(--text);
+                font-size: .82rem;
+                font-weight: 700;
+            }
+
+            #eventsTable tbody td:nth-child(3)::before,
+            #eventsTable tbody td:nth-child(4)::before,
+            #eventsTable tbody td:nth-child(5)::before,
+            #eventsTable tbody td:nth-child(6)::before {
+                flex: 0 0 auto;
+                color: var(--muted);
+                font-size: .66rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+
+            #eventsTable tbody td:nth-child(3)::before { content: 'Date'; }
+            #eventsTable tbody td:nth-child(4)::before { content: 'Time'; }
+            #eventsTable tbody td:nth-child(5)::before { content: 'Location'; }
+            #eventsTable tbody td:nth-child(6)::before { content: 'Attendees'; }
+
+            #eventsTable tbody td:nth-child(8) {
+                grid-area: actions;
+                display: block !important;
+                margin-top: .15rem;
+                padding-top: .65rem !important;
+                border-top: 1px dashed var(--line-strong) !important;
+            }
+
+            #eventsTable tbody td:nth-child(8) > .d-flex {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: .45rem !important;
+                width: 100%;
+                justify-content: stretch !important;
+            }
+
+            #eventsTable tbody td:nth-child(8) .btn,
+            #eventsTable tbody td:nth-child(8) form,
+            #eventsTable tbody td:nth-child(8) button {
+                width: 100% !important;
+            }
+
+            #eventsTable tbody td:nth-child(8) .btn-sm {
+                min-height: 40px;
+                padding: .5rem .55rem;
+                border-radius: 12px;
+            }
+
+            #eventsTable tbody td[colspan] {
+                display: block !important;
+                grid-column: 1 / -1;
+                padding: 0 !important;
+            }
+
+            .event-thumb {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 14px !important;
+            }
+
+            .event-thumb img {
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 13px !important;
+            }
+
+            .badge,
+            .event-date-badge,
+            .event-time-badge,
+            .attendees-badge,
+            .location-text {
+                max-width: 100%;
+                min-height: 30px;
+                padding: .34rem .55rem;
+                font-size: .7rem;
+                line-height: 1.25;
+                white-space: normal;
+            }
+
+            .location-text {
+                justify-content: flex-end;
+                max-width: 58vw !important;
+                overflow: hidden;
+                text-align: right;
+                text-overflow: ellipsis;
+                white-space: nowrap !important;
+            }
+
+            .attendees-badge {
+                flex: 0 0 auto;
+            }
+
+            .empty-state {
+                min-height: 220px;
+                padding: 1.4rem .75rem;
+            }
+
+            .events-table-panel .border-top.d-flex {
+                padding: .85rem !important;
+            }
+
+            .events-table-panel nav,
+            .events-table-panel nav .pagination {
+                width: 100%;
+            }
+
+            .pagination {
+                gap: .35rem;
+                justify-content: center;
+            }
+
+            .page-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 38px;
+                min-height: 38px;
+                padding: .38rem .55rem;
+                font-size: .8rem;
+            }
+
+            .modal-dialog,
+            .modal-dialog.modal-lg,
+            .modal-dialog.modal-dialog-centered,
+            .modal-dialog.modal-dialog-scrollable {
+                width: auto !important;
+                max-width: none !important;
+                min-height: 0 !important;
+                margin: .6rem !important;
+            }
+
+            .modal-content {
+                max-height: calc(100dvh - 1.2rem) !important;
+                border-radius: 20px !important;
+            }
+
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                padding: .85rem !important;
+            }
+
+            .modal-title {
+                align-items: flex-start;
+                gap: .6rem;
+                font-size: .95rem !important;
+                line-height: 1.25;
+            }
+
+            .modal-title i {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 13px !important;
+            }
+
+            .modal-subtitle {
+                display: none !important;
+            }
+
+            .modal-body {
+                padding: .85rem !important;
+                max-height: calc(100dvh - 142px) !important;
+            }
+
+            .modal-body .row.g-3 {
+                padding: .8rem !important;
+                border-radius: 16px !important;
+            }
+
+            .modal-footer {
+                position: sticky;
+                bottom: 0;
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .5rem !important;
+                padding: .8rem !important;
+                background: #ffffff !important;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                min-height: 44px;
+            }
+
+            textarea.form-control {
+                min-height: 112px;
+            }
+
+            .form-control[type="file"] {
+                padding: .75rem !important;
+            }
+
+            .form-control[type="file"]::file-selector-button {
+                display: block;
+                width: 100%;
+                margin: 0 0 .5rem 0 !important;
+            }
+
+            .image-preview,
+            .modal .img-fluid.rounded,
+            .event-image-card img {
+                width: 100%;
+                max-height: 230px !important;
+                object-fit: cover;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .events-hero-actions {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .events-stats-row {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            .stat-card {
+                min-height: 78px;
+            }
+
+            #eventsTable tbody {
+                padding: .65rem;
+            }
+
+            #eventsTable tbody tr {
+                grid-template-columns: 30px minmax(0, 1fr);
+                grid-template-areas:
+                    "check status"
+                    "title title"
+                    "date date"
+                    "time time"
+                    "location location"
+                    "attendees attendees"
+                    "actions actions";
+                padding: .78rem;
+            }
+
+            #eventsTable tbody td:nth-child(7) {
+                justify-content: flex-end;
+            }
+
+            #eventsTable tbody td:nth-child(2) {
+                padding-top: .2rem !important;
+            }
+
+            #eventsTable tbody td:nth-child(3),
+            #eventsTable tbody td:nth-child(4),
+            #eventsTable tbody td:nth-child(5),
+            #eventsTable tbody td:nth-child(6) {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: .28rem;
+            }
+
+            .location-text {
+                justify-content: flex-start;
+                max-width: 100% !important;
+                width: 100%;
+                text-align: left;
+                white-space: normal !important;
+            }
+
+            #eventsTable tbody td:nth-child(8) > .d-flex {
+                grid-template-columns: repeat(3, minmax(42px, 1fr));
+            }
+
+            .modal-dialog,
+            .modal-dialog.modal-lg {
+                margin: .4rem !important;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -841,7 +2886,44 @@
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
         </a>
-        @endadmin_can    
+        @endadmin_can
+
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -849,47 +2931,23 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-calendar me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
-                    Events
+                    <span class="title-icon"><i class="fas fa-calendar"></i></span>
+                    Event Management
                 </h1>
-            </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="events-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show events-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -897,7 +2955,7 @@
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show events-alert" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -905,7 +2963,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show events-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -916,10 +2974,32 @@
                 </div>
             @endif
 
+
+            <section class="events-hero">
+                <div class="events-hero-content">
+                    <div class="min-w-0">
+                        <div class="events-hero-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="events-kicker"><i class="fas fa-circle-check"></i> Event Control Center</div>
+                        <h2>Manage community events with a cleaner workflow.</h2>
+                        <p>Review upcoming and past activities, filter schedules, manage event images, and archive records without cluttering the page.</p>
+                    </div>
+                    <div class="events-hero-actions">
+                        @admin_can('create_events')
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                            <i class="fas fa-plus"></i>Add Event
+                        </button>
+                        @endadmin_can
+                        <a href="{{ route('admin.events.index') }}" class="btn btn-light-soft">
+                            <i class="fas fa-rotate"></i>Reset View
+                        </a>
+                    </div>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 events-stats-row">
                 <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
+                    <div class="stat-card d-flex align-items-center">
                         <div>
                             <div class="stat-label text-muted mb-1">Total</div>
                             <div class="stat-number">{{ $total_count ?? 0 }}</div>
@@ -933,7 +3013,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
+                    <div class="stat-card d-flex align-items-center">
                         <div>
                             <div class="stat-label text-muted mb-1">Upcoming</div>
                             <div class="stat-number">{{ $upcoming_count ?? 0 }}</div>
@@ -947,7 +3027,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
+                    <div class="stat-card d-flex align-items-center">
                         <div>
                             <div class="stat-label text-muted mb-1">Past</div>
                             <div class="stat-number">{{ $past_count ?? 0 }}</div>
@@ -961,7 +3041,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
+                    <div class="stat-card d-flex align-items-center">
                         <div>
                             <div class="stat-label text-muted mb-1">Attendees</div>
                             <div class="stat-number">{{ $total_attendees ?? 0 }}</div>
@@ -976,90 +3056,90 @@
                 </div>
             </div>
 
-            <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.events.index') }}" id="searchForm">
-                        <div class="row g-3 align-items-center mb-3">
-                            <div class="col-12 col-md-6">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Events
-                                </h6>
-                            </div>
-                            <div class="col-12 col-md-6 text-md-end">
-                                <div class="d-flex gap-2 justify-content-md-end">
-                                    @admin_can('create_events')
-                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Event</span>
-                                    </a>
-                                    @endadmin_can
-                                    <a href="{{ route('admin.events.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
-                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
-                                    </a>
-                                </div>
+            <!-- Filters - Compact UX -->
+            <div class="events-panel events-filter-panel">
+                <form method="GET" action="{{ route('admin.events.index') }}" id="searchForm">
+                    <div class="events-panel-header">
+                        <div class="events-panel-title">
+                            <div class="events-panel-icon"><i class="fas fa-filter"></i></div>
+                            <div class="min-w-0">
+                                <div class="section-kicker"><i class="fas fa-calendar"></i> Event Directory</div>
+                                <h3>Search and filter events</h3>
+                                <p class="events-panel-copy">Search by title, description, or location. Use filters only when you need a narrower list.</p>
                             </div>
                         </div>
-                        
-                        <!-- Search and Filter Row -->
-                        <div class="row g-3">
-                            <div class="col-12 col-md-5">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0">
-                                        <i class="fas fa-search text-muted"></i>
-                                    </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by event title, description, location..." value="{{ request('search') }}">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search d-sm-none"></i>
-                                        <span class="d-none d-sm-inline">Search</span>
-                                    </button>
+
+                        <div class="events-panel-actions">
+                            @admin_can('create_events')
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                                <i class="fas fa-plus"></i>Add Event
+                            </button>
+                            @endadmin_can
+                            <a href="{{ route('admin.events.index') }}" class="btn btn-light-soft">
+                                <i class="fas fa-rotate"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="events-filter-body">
+                        <div class="events-filter-toolbar">
+                            <div class="events-search-group">
+                                <div class="events-search-control">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text"
+                                           name="search"
+                                           id="globalSearch"
+                                           class="form-control"
+                                           placeholder="Search title, description, or location..."
+                                           value="{{ request('search') }}"
+                                           autocomplete="off"
+                                           aria-label="Search events">
                                 </div>
-                            </div>
-
-                            <div class="col-6 col-md-2">
-                                <select name="type" class="form-select">
-                                    <option value="">All Types</option>
-                                    <option value="upcoming" {{ request('type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                                    <option value="past" {{ request('type') == 'past' ? 'selected' : '' }}>Past</option>
-                                    <option value="deleted" {{ request('type') == 'deleted' ? 'selected' : '' }}>Archived</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <select name="month" class="form-select">
-                                    <option value="">All Months</option>
-                                    <option value="01" {{ request('month') == '01' ? 'selected' : '' }}>January</option>
-                                    <option value="02" {{ request('month') == '02' ? 'selected' : '' }}>February</option>
-                                    <option value="03" {{ request('month') == '03' ? 'selected' : '' }}>March</option>
-                                    <option value="04" {{ request('month') == '04' ? 'selected' : '' }}>April</option>
-                                    <option value="05" {{ request('month') == '05' ? 'selected' : '' }}>May</option>
-                                    <option value="06" {{ request('month') == '06' ? 'selected' : '' }}>June</option>
-                                    <option value="07" {{ request('month') == '07' ? 'selected' : '' }}>July</option>
-                                    <option value="08" {{ request('month') == '08' ? 'selected' : '' }}>August</option>
-                                    <option value="09" {{ request('month') == '09' ? 'selected' : '' }}>September</option>
-                                    <option value="10" {{ request('month') == '10' ? 'selected' : '' }}>October</option>
-                                    <option value="11" {{ request('month') == '11' ? 'selected' : '' }}>November</option>
-                                    <option value="12" {{ request('month') == '12' ? 'selected' : '' }}>December</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-filter me-2"></i>Apply
+                                <button class="btn btn-primary events-search-btn" type="submit">
+                                    <i class="fas fa-search"></i><span>Search</span>
                                 </button>
                             </div>
+
+                            <select name="type" class="form-select" aria-label="Filter by type">
+                                <option value="">All types</option>
+                                <option value="upcoming" {{ request('type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                <option value="past" {{ request('type') == 'past' ? 'selected' : '' }}>Past</option>
+                                <option value="deleted" {{ request('type') == 'deleted' ? 'selected' : '' }}>Archived</option>
+                            </select>
+
+                            <select name="month" class="form-select" aria-label="Filter by month">
+                                <option value="">All months</option>
+                                <option value="01" {{ request('month') == '01' ? 'selected' : '' }}>January</option>
+                                <option value="02" {{ request('month') == '02' ? 'selected' : '' }}>February</option>
+                                <option value="03" {{ request('month') == '03' ? 'selected' : '' }}>March</option>
+                                <option value="04" {{ request('month') == '04' ? 'selected' : '' }}>April</option>
+                                <option value="05" {{ request('month') == '05' ? 'selected' : '' }}>May</option>
+                                <option value="06" {{ request('month') == '06' ? 'selected' : '' }}>June</option>
+                                <option value="07" {{ request('month') == '07' ? 'selected' : '' }}>July</option>
+                                <option value="08" {{ request('month') == '08' ? 'selected' : '' }}>August</option>
+                                <option value="09" {{ request('month') == '09' ? 'selected' : '' }}>September</option>
+                                <option value="10" {{ request('month') == '10' ? 'selected' : '' }}>October</option>
+                                <option value="11" {{ request('month') == '11' ? 'selected' : '' }}>November</option>
+                                <option value="12" {{ request('month') == '12' ? 'selected' : '' }}>December</option>
+                            </select>
+
+                            <button type="submit" class="btn btn-light-soft filter-submit-btn">
+                                <i class="fas fa-filter"></i>Apply filters
+                            </button>
                         </div>
 
-                        <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_events'))
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
-                                <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Archive</span>
+                        <div class="events-bulk-row">
+                            <div class="selected-count" id="selectedCount">
+                                <i class="fas fa-square-check me-1"></i>No events selected
+                            </div>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger" title="Bulk Archive">
+                                <i class="fas fa-trash-alt"></i>Archive Selected
                             </button>
                         </div>
                         @endif
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             @if(auth('admin')->user()->hasPermission('delete_events'))
@@ -1070,12 +3150,32 @@
             @endif
 
             <!-- Events Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <div class="events-panel events-table-panel">
+                <div class="events-panel-header">
+                    <div class="events-panel-title">
+                        <div class="events-panel-icon"><i class="fas fa-calendar-days"></i></div>
+                        <div class="min-w-0">
+                            <div class="section-kicker"><i class="fas fa-list"></i> Results</div>
+                            <h3>Event List</h3>
+                            <p class="events-panel-copy">View, edit, archive, or restore event records from one clean table.</p>
+                        </div>
+                    </div>
+                    <div class="events-panel-actions">
+                        <span class="events-count-pill">
+                            <i class="fas fa-calendar"></i>
+                            @if(isset($events) && method_exists($events, 'total'))
+                                {{ $events->total() }} events
+                            @else
+                                {{ count($events ?? []) }} events
+                            @endif
+                        </span>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="eventsTable">
                             <thead class="table-light">
-                                <tr class="{{ $event->deleted_at ? 'table-danger' : '' }}">
+                                <tr>
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
@@ -1147,7 +3247,7 @@
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                            <div class="event-thumb me-2">
                                                 @if($event->image)
                                                     <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
                                                 @else
@@ -1230,16 +3330,18 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-calendar fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No events found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            @admin_can('create_events')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                                                <i class="fas fa-plus me-2"></i>Add New Event
-                                            </button>
-                                            @endadmin_can
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <div>
+                                                <div class="empty-state-icon"><i class="fas fa-calendar-xmark"></i></div>
+                                                <h4>No events found</h4>
+                                                <p>No event records match the current search and filters.</p>
+                                                @admin_can('create_events')
+                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                                                    <i class="fas fa-plus"></i>Add Event
+                                                </button>
+                                                @endadmin_can
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -1271,8 +3373,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                New Event
+                                <i class="fas fa-calendar-plus"></i>
+                                <span class="modal-title-stack">
+                                    <span>New Event</span>
+                                    <span class="modal-subtitle">Add a clear event record with schedule, location, attendees, type, and image.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1416,8 +3521,11 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-edit me-2"></i>
-                                    Edit Event
+                                    <i class="fas fa-edit"></i>
+                                    <span class="modal-title-stack">
+                                        <span>Edit Event</span>
+                                        <span class="modal-subtitle">Update event details, schedule, location, attendees, type, and image.</span>
+                                    </span>
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -1568,21 +3676,26 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-calendar-alt me-2"></i>
-                                Event Details
+                                <i class="fas fa-calendar-alt"></i>
+                                <span class="modal-title-stack">
+                                    <span>Event Details</span>
+                                    <span class="modal-subtitle">Review event schedule, location, attendees, image, and description.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body event-view-body">
                             <div class="row g-3">
                                 @if($event->image)
                                 <div class="col-12 text-center">
-                                    <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                    <div class="event-image-card">
+                                        <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" class="img-fluid rounded">
+                                    </div>
                                 </div>
                                 @endif
                                 
                                 <div class="col-12">
-                                    <h4 class="fw-bold">{{ $event->title }}</h4>
+                                    <h4 class="fw-bold event-detail-title">{{ $event->title }}</h4>
                                 </div>
                                 
                                 <div class="col-md-6">
@@ -1672,6 +3785,7 @@
                     });
                 </script>
             @endif
+            </div>
         </main>
     </div>
 
@@ -2115,6 +4229,49 @@
             });
         });
     });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedCount = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = () => Array.from(document.querySelectorAll('.event-checkbox'));
+
+            function updateSelectedCount() {
+                if (!selectedCount) {
+                    return;
+                }
+
+                const count = checkboxes().filter(cb => cb.checked).length;
+                selectedCount.innerHTML = count ? `<i class="fas fa-square-check me-1"></i>${count} event${count === 1 ? '' : 's'} selected` : '<i class="fas fa-square-check me-1"></i>No events selected';
+
+                if (selectAll) {
+                    const total = checkboxes().length;
+                    selectAll.checked = total > 0 && count === total;
+                    selectAll.indeterminate = count > 0 && count < total;
+                }
+            }
+
+            checkboxes().forEach(cb => cb.addEventListener('change', updateSelectedCount));
+
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    checkboxes().forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                    updateSelectedCount();
+                });
+            }
+
+            updateSelectedCount();
+
+            document.querySelectorAll('.events-alert').forEach(alert => {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 250);
+                }, 4500);
+            });
+        });
     </script>
 </body>
 </html>

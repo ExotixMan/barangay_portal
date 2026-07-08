@@ -487,25 +487,6 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        @media (max-width: 768px) {
-            .header {
-                padding: 0.75rem 1rem;
-            }
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0;
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 1.2rem;
-            }
-        }
-
         .profile-badge {
             display: flex;
             align-items: center;
@@ -988,6 +969,1777 @@
             width: 2.1rem;
             height: 1.1rem;
         }
+    /* ==========================================================
+           UI/UX REDESIGN OVERRIDE - Incident Reports adopted from Residency design
+           Consistent with the redesigned Dashboard/Residents pages.
+        ========================================================== */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-soft: #eefaf2;
+            --warning: #d97706;
+            --warning-soft: #fff7ed;
+            --danger: #dc2626;
+            --danger-soft: #fff1f2;
+            --info: #0369a1;
+            --info-soft: #eff6ff;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --shadow-md: 0 18px 42px rgba(16, 24, 40, .10);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 11px;
+        }
+
+        html {
+            font-size: 70% !important;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--page-bg) !important;
+            color: var(--text) !important;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }
+
+        .min-w-0 { min-width: 0 !important; }
+        .residency-hero-icon,
+        .stat-icon,
+        .table-head-icon,
+        .modal-heading-icon,
+        .empty-state-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .mobile-menu-btn:hover {
+            color: var(--primary-dark);
+            background: #fffafa;
+            border-color: rgba(211,47,47,.22);
+        }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .38rem .5rem .38rem .78rem !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line);
+            border-radius: 999px !important;
+            box-shadow: var(--shadow-xs);
+            color: var(--text) !important;
+            font-weight: 700;
+        }
+
+        #userDropdown { color: var(--text) !important; }
+
+        .role-badge {
+            padding: .28rem .65rem !important;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 999px !important;
+            font-size: .72rem !important;
+            font-weight: 850 !important;
+        }
+
+        .residency-page {
+            width: 100%;
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .residency-alert,
+        .alert {
+            border: 0 !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success {
+            color: #14532d !important;
+            background: var(--success-soft) !important;
+            border: 1px solid rgba(22,128,60,.14) !important;
+        }
+
+        .alert-danger {
+            color: #991b1b !important;
+            background: var(--danger-soft) !important;
+            border: 1px solid rgba(220,38,38,.16) !important;
+        }
+
+        .residency-hero,
+        .stat-card,
+        .residency-filter-card,
+        .residency-table-card,
+        .modal-content {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .residency-hero {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(1rem, 1.8vw, 1.6rem);
+            margin-bottom: 1rem;
+        }
+
+        .residency-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 96% 0%, rgba(211,47,47,.11), transparent 31%),
+                radial-gradient(circle at 10% 100%, rgba(3,105,161,.08), transparent 30%),
+                linear-gradient(135deg, rgba(211,47,47,.04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .residency-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .residency-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.14);
+            border-radius: 15px;
+            font-size: 1.05rem;
+        }
+
+        .residency-kicker,
+        .table-kicker,
+        .modal-section-title {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .residency-hero h2 {
+            margin: .45rem 0 .4rem;
+            color: var(--text);
+            font-size: clamp(1.55rem, 2.4vw, 2.25rem);
+            font-weight: 850;
+            line-height: 1.08;
+            letter-spacing: -.055em;
+        }
+
+        .residency-hero p {
+            max-width: 790px;
+            margin: 0;
+            color: var(--muted);
+            font-size: .93rem;
+            line-height: 1.6;
+        }
+
+        .residency-hero-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .residency-hero-meta {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .65rem;
+            margin-top: 1rem;
+            color: var(--muted);
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .residency-hero-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: .42rem;
+            padding: .42rem .68rem;
+            background: rgba(255,255,255,.75);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+        }
+
+        .residency-stats {
+            margin-bottom: 1rem !important;
+        }
+
+        .stat-card {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: .9rem;
+            padding: 1rem !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+        }
+
+        .stat-card::before { display: none !important; }
+
+        .stat-card:hover,
+        .residency-filter-card:hover,
+        .residency-table-card:hover {
+            transform: translateY(-1px) !important;
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .73rem !important;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            color: var(--text) !important;
+            font-size: clamp(1.5rem, 2.2vw, 2.05rem) !important;
+            font-weight: 850 !important;
+            line-height: 1 !important;
+            letter-spacing: -.055em;
+        }
+
+        .stat-card small {
+            display: inline-flex !important;
+            align-items: center;
+            gap: .32rem;
+            margin-top: .5rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem !important;
+            font-weight: 650;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            width: 44px !important;
+            height: 44px !important;
+            color: var(--primary) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px !important;
+            font-size: 1rem !important;
+        }
+
+        .residency-stats > div:nth-child(2) .stat-icon { color: var(--warning) !important; background: var(--warning-soft) !important; border-color: #fed7aa; }
+        .residency-stats > div:nth-child(3) .stat-icon { color: var(--success) !important; background: var(--success-soft) !important; border-color: rgba(22,128,60,.14); }
+        .residency-stats > div:nth-child(4) .stat-icon { color: var(--danger) !important; background: var(--danger-soft) !important; border-color: rgba(220,38,38,.14); }
+
+        .residency-filter-card {
+            overflow: hidden;
+            margin-bottom: 1rem !important;
+        }
+
+        .residency-filter-card .card-body {
+            padding: 1rem !important;
+        }
+
+        .filter-title-block h6 {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin: 0;
+            color: var(--text);
+            font-size: .98rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .filter-title-block p {
+            margin: .25rem 0 0;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .filter-title-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 12px;
+        }
+
+        .form-control,
+        .form-select,
+        .input-group-text {
+            min-height: 42px;
+            color: var(--text) !important;
+            background-color: #ffffff !important;
+            border: 1px solid var(--line-strong) !important;
+            border-radius: 12px !important;
+            font-size: .88rem !important;
+            font-weight: 650;
+        }
+
+        .input-group .input-group-text {
+            border-radius: 12px 0 0 12px !important;
+            border-right: 0 !important;
+        }
+
+        .input-group .form-control {
+            border-left: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .input-group .btn {
+            border-radius: 0 12px 12px 0 !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(211,47,47,.45) !important;
+            outline: 3px solid rgba(211,47,47,.16) !important;
+            outline-offset: 1px;
+            box-shadow: none !important;
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+            margin-bottom: .38rem;
+        }
+
+        textarea.form-control {
+            min-height: 96px;
+            line-height: 1.55;
+            resize: vertical;
+        }
+
+        .btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem !important;
+            border-radius: 12px !important;
+            font-weight: 800 !important;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease !important;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary,
+        .btn-danger,
+        .btn-success {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211,47,47,.18);
+        }
+
+        .btn-primary:hover,
+        .btn-danger:hover,
+        .btn-success:hover {
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+        }
+
+        .btn-outline-primary,
+        .btn-outline-secondary,
+        .btn-light-soft {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-secondary:hover,
+        .btn-light-soft:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211,47,47,.22) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border: 1px solid rgba(220,38,38,.24) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border: 1px solid rgba(22,128,60,.24) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .residency-table-card {
+            overflow: hidden;
+        }
+
+        .residency-table-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .table-head-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .table-head-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+        }
+
+        .residency-table-head h3 {
+            margin: .15rem 0 .12rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .residency-table-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .table-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            flex: 0 0 auto;
+            width: fit-content;
+            padding: .42rem .68rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .table-responsive {
+            border-radius: 0 !important;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            min-width: 1060px !important;
+            margin-bottom: 0 !important;
+            font-size: .86rem !important;
+        }
+
+        .table thead th {
+            padding: .85rem .95rem !important;
+            color: #475467 !important;
+            background: #f9fafb !important;
+            border-bottom: 1px solid var(--line) !important;
+            font-size: .72rem !important;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .07em !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th a {
+            color: #475467 !important;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem !important;
+            color: var(--text) !important;
+            border-bottom: 1px solid var(--line) !important;
+            font-size: .86rem !important;
+            line-height: 1.45 !important;
+            white-space: nowrap !important;
+        }
+
+        .table tbody tr {
+            transition: background .16s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #fcfcfd !important;
+        }
+
+        .table .fw-semibold,
+        .table .fw-bold {
+            color: var(--text) !important;
+            font-weight: 820 !important;
+        }
+
+        .badge {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            padding: .42rem .62rem !important;
+            border-radius: 999px !important;
+            font-size: .73rem !important;
+            font-weight: 820 !important;
+            white-space: nowrap;
+        }
+
+        .badge.bg-success-subtle,
+        .badge.text-success { color: var(--success) !important; background: var(--success-soft) !important; border: 1px solid rgba(22,128,60,.14); }
+        .badge.bg-danger-subtle,
+        .badge.text-danger { color: var(--danger) !important; background: var(--danger-soft) !important; border: 1px solid rgba(220,38,38,.14); }
+        .badge.bg-warning-subtle,
+        .badge.text-warning { color: #9a3412 !important; background: var(--warning-soft) !important; border: 1px solid #fed7aa; }
+        .badge.bg-info-subtle,
+        .badge.text-info { color: var(--info) !important; background: var(--info-soft) !important; border: 1px solid #dbeafe; }
+        .badge.bg-secondary-subtle,
+        .badge.text-secondary { color: #475467 !important; background: #f9fafb !important; border: 1px solid var(--line); }
+        .badge.bg-primary-subtle,
+        .badge.text-primary { color: var(--primary-dark) !important; background: var(--primary-soft) !important; border: 1px solid rgba(211,47,47,.12); }
+        .badge.bg-light { color: #344054 !important; background: #f9fafb !important; border: 1px solid var(--line) !important; }
+
+        .action-buttons {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            flex-wrap: nowrap !important;
+            gap: .35rem !important;
+            padding: .25rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .action-divider { display: none !important; }
+
+        .action-btn {
+            min-width: 36px !important;
+            min-height: 36px !important;
+            padding: 0 .62rem !important;
+            border-radius: 11px !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: none !important;
+            font-weight: 850 !important;
+        }
+
+        .action-btn.icon-only {
+            width: 36px !important;
+            padding: 0 !important;
+        }
+
+        .action-btn.action-view {
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border-color: #dbeafe !important;
+        }
+
+        .action-btn.action-update {
+            color: var(--success) !important;
+            background: var(--success-soft) !important;
+            border-color: rgba(22,128,60,.18) !important;
+        }
+
+        .action-btn.action-docs {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.14) !important;
+        }
+
+        .action-btn.action-archive {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border-color: rgba(220,38,38,.16) !important;
+        }
+
+        .action-btn:disabled {
+            opacity: .45 !important;
+            filter: grayscale(.15);
+            cursor: not-allowed;
+        }
+
+        .pagination {
+            gap: .35rem !important;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            min-width: 36px;
+            border-radius: 11px !important;
+            border: 1px solid var(--line) !important;
+            color: var(--muted) !important;
+            background: #ffffff !important;
+            font-weight: 800;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .page-link:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211,47,47,.22) !important;
+        }
+
+        .page-item.active .page-link {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* Modal redesign */
+        .modal-backdrop.show { opacity: .42; }
+
+        .modal-dialog {
+            padding: .75rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            box-shadow: 0 24px 70px rgba(16,24,40,.18) !important;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background:
+                radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%),
+                linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: 0 !important;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin: 0 !important;
+            color: var(--text) !important;
+            font-size: 1.05rem !important;
+            font-weight: 850 !important;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 13px;
+        }
+
+        .modal-header .btn-close {
+            width: 38px;
+            height: 38px;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            filter: none !important;
+            opacity: 1 !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            background: #ffffff;
+            max-height: min(72vh, 760px) !important;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: .55rem;
+            padding: 1rem !important;
+            background: #ffffff;
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .modal-body h6,
+        .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin: 1rem 0 .75rem !important;
+            padding: .72rem .85rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: .82rem !important;
+            font-weight: 850 !important;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+        .modal-body h6:first-child { margin-top: 0 !important; }
+
+        .modal-body p {
+            margin-bottom: .7rem !important;
+            padding: .65rem .75rem !important;
+            color: var(--text) !important;
+            background: #f9fafb;
+            border: 1px solid var(--line) !important;
+            border-radius: 12px;
+        }
+
+        .modal-body strong {
+            color: #344054 !important;
+            font-size: .84rem !important;
+            font-weight: 850 !important;
+        }
+
+        .view-modal-name { color: var(--text) !important; }
+        .view-modal-sub { color: var(--muted) !important; opacity: 1 !important; }
+
+        .view-modal-avatar {
+            color: var(--primary) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+        }
+
+        .view-tabs {
+            margin: 0 0 1rem !important;
+            padding: .35rem !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 999px;
+            background: #f9fafb;
+        }
+
+        .view-tabs .nav-link {
+            border: 0 !important;
+            border-radius: 999px !important;
+            color: var(--muted) !important;
+            font-weight: 850 !important;
+        }
+
+        .view-tabs .nav-link.active {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211,47,47,.18);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .6rem !important;
+        }
+
+        .status-option {
+            min-height: 48px;
+            padding: .68rem .75rem !important;
+            color: var(--text) !important;
+            background: #ffffff !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            font-size: .84rem !important;
+            font-weight: 820 !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .status-option:hover {
+            transform: translateY(-1px);
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .status-option.active {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.28) !important;
+            box-shadow: 0 0 0 3px rgba(211,47,47,.10) !important;
+        }
+
+        .notify-row {
+            padding: .7rem .78rem !important;
+            background: #ffffff;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+        }
+
+        .invalid-feedback {
+            color: var(--danger) !important;
+            font-size: .76rem !important;
+            font-weight: 760;
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            outline-color: rgba(220,38,38,.16) !important;
+            box-shadow: none !important;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .dropdown-menu {
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            box-shadow: var(--shadow-sm) !important;
+            padding: .45rem !important;
+        }
+
+        .dropdown-item {
+            border-radius: 10px !important;
+            font-weight: 650;
+        }
+
+        .dropdown-item:hover {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+        }
+
+        @media (max-width: 1199px) {
+            .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 991px) {
+            .residency-hero-content { grid-template-columns: minmax(0, 1fr); }
+            .residency-hero-actions { justify-content: flex-start; }
+            .residency-table-head { flex-direction: column; }
+            .table-count-pill { align-self: flex-start; }
+            .profile-badge span:not(.role-badge) { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            html { font-size: 78% !important; }
+            .mobile-menu-btn { display: inline-flex !important; }
+            .title-icon, .mobile-menu-btn { width: 38px; height: 38px; }
+            .profile-badge { display: none !important; }
+            main.p-3, main.p-lg-4 { padding: .85rem !important; }
+            .residency-page { max-width: 100%; }
+            .residency-hero, .stat-card, .residency-filter-card, .residency-table-card, .modal-content { border-radius: 16px !important; }
+            .residency-stats > div { margin-bottom: .75rem; }
+            .residency-filter-card .d-flex.gap-2 { width: 100%; }
+            .residency-filter-card .d-flex.gap-2 .btn,
+            .residency-filter-card form[id="bulkForm"],
+            .residency-filter-card form[id="exportForm"] { flex: 1 1 140px; }
+            .residency-filter-card form[id="bulkForm"] .btn,
+            .residency-filter-card form[id="exportForm"] .btn { width: 100%; }
+            .table { min-width: 980px !important; }
+            .modal-dialog { padding: .45rem; }
+            .modal-body, .modal-header, .modal-footer { padding: .9rem !important; }
+            .modal-footer, .modal-footer .btn { width: 100%; }
+            .modal-footer { flex-direction: column-reverse; }
+            .status-grid { grid-template-columns: minmax(0, 1fr); }
+            .view-tabs { border-radius: 16px; overflow-x: auto; flex-wrap: nowrap; }
+            .view-tabs .nav-link { white-space: nowrap; }
+        }
+
+        @media (max-width: 575px) {
+            .residency-hero h2 { font-size: 1.55rem; }
+            .residency-hero-actions .btn { width: 100%; }
+            .stat-card { min-height: auto; }
+            .action-label { display: none !important; }
+            .action-btn.action-update { width: 36px !important; padding: 0 !important; }
+        }
+
+
+        /* ==========================================================
+           SIMPLIFIED RESIDENCY MANAGEMENT UX PATCH
+           Shows only high-value information in the table and moves
+           full details into cleaner modals.
+        ========================================================== */
+        .residency-table-card .table {
+            min-width: 780px !important;
+        }
+
+        .application-primary {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 240px;
+        }
+
+        .application-avatar {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.14);
+            border-radius: 14px;
+            font-weight: 850;
+            letter-spacing: -.03em;
+        }
+
+        .application-name {
+            color: var(--text);
+            font-weight: 850;
+            line-height: 1.25;
+        }
+
+        .application-ref,
+        .application-muted-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem;
+            margin-top: .18rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .ref-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .32rem;
+            width: fit-content;
+            max-width: 100%;
+            padding: .28rem .5rem;
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .info-stack {
+            display: grid;
+            gap: .25rem;
+            min-width: 150px;
+        }
+
+        .info-label-mini {
+            color: var(--muted-2);
+            font-size: .68rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .075em;
+        }
+
+        .info-main {
+            color: var(--text);
+            font-size: .86rem;
+            font-weight: 820;
+            line-height: 1.3;
+        }
+
+        .info-sub {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .status-cell {
+            display: grid;
+            gap: .34rem;
+            justify-items: start;
+        }
+
+        .status-date {
+            color: var(--muted);
+            font-size: .74rem;
+            font-weight: 650;
+        }
+
+        .action-buttons {
+            gap: .42rem !important;
+        }
+
+        .action-divider {
+            display: none !important;
+        }
+
+        .action-btn {
+            min-height: 36px !important;
+            border-radius: 12px !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .action-btn.action-view {
+            color: var(--text) !important;
+            background: #ffffff !important;
+            border-color: var(--line-strong) !important;
+        }
+
+        .action-btn.action-update {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.18) !important;
+        }
+
+        .action-btn.action-docs {
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border-color: #dbeafe !important;
+        }
+
+        .action-btn.action-archive {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border-color: rgba(220,38,38,.16) !important;
+        }
+
+        .application-modal-summary {
+            display: grid;
+            grid-template-columns: 1.35fr repeat(3, minmax(0, .75fr));
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-summary-card,
+        .detail-section-card,
+        .document-preview-card,
+        .status-flow-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .modal-summary-card {
+            display: grid;
+            align-content: start;
+            gap: .25rem;
+            padding: .85rem;
+        }
+
+        .modal-summary-card.is-primary {
+            background: linear-gradient(135deg, var(--primary-soft), #ffffff 58%);
+            border-color: rgba(211,47,47,.16);
+        }
+
+        .modal-summary-label {
+            color: var(--muted);
+            font-size: .7rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .modal-summary-value {
+            color: var(--text);
+            font-size: .95rem;
+            font-weight: 850;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        .modal-summary-help {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .detail-section-card {
+            padding: .95rem;
+            margin-bottom: .85rem;
+        }
+
+        .detail-section-title {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin-bottom: .75rem;
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 850;
+        }
+
+        .detail-section-title i {
+            color: var(--primary);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .65rem;
+        }
+
+        .detail-item {
+            padding: .72rem;
+            background: #fbfdff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: .18rem;
+            color: var(--muted);
+            font-size: .69rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .075em;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-size: .86rem;
+            font-weight: 750;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+
+        .document-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .document-preview-card {
+            overflow: hidden;
+        }
+
+        .document-preview-card .doc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            padding: .72rem .8rem;
+            border-bottom: 1px solid var(--line);
+            font-weight: 850;
+            color: var(--text);
+        }
+
+        .document-preview-card .doc-body {
+            display: grid;
+            place-items: center;
+            min-height: 190px;
+            padding: .8rem;
+            background: #f9fafb;
+        }
+
+        .document-preview-card img {
+            max-height: 210px;
+            width: auto;
+            max-width: 100%;
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            cursor: zoom-in;
+            object-fit: contain;
+        }
+
+        .empty-doc-note {
+            display: grid;
+            place-items: center;
+            gap: .35rem;
+            color: var(--muted);
+            text-align: center;
+            min-height: 140px;
+            font-size: .82rem;
+            font-weight: 650;
+        }
+
+        .empty-doc-note i {
+            font-size: 1.5rem;
+            color: var(--muted-2);
+        }
+
+        .modal-body h6.fw-semibold.text-primary {
+            display: flex;
+            align-items: center;
+            gap: .42rem;
+            margin: .25rem 0 .65rem;
+            padding: .65rem .75rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: .84rem;
+            font-weight: 850 !important;
+        }
+
+        .modal-body h6.fw-semibold.text-primary::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--primary);
+        }
+
+        .status-flow-card {
+            padding: .85rem;
+            margin-bottom: .85rem;
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .status-flow-person {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .status-flow-person .application-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 13px;
+            font-size: .78rem;
+        }
+
+        .status-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: .55rem !important;
+        }
+
+        .status-option {
+            min-height: 52px;
+            padding: .72rem .78rem !important;
+            border-radius: 14px !important;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .status-option:hover {
+            transform: translateY(-1px);
+            border-color: rgba(211,47,47,.24);
+            background: #fffafa;
+        }
+
+        .status-option.active {
+            color: var(--primary-dark);
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.36) !important;
+        }
+
+        @media (max-width: 991px) {
+            .application-modal-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .detail-grid,
+            .document-preview-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .residency-table-card .table {
+                min-width: 720px !important;
+            }
+            .application-primary {
+                min-width: 210px;
+            }
+            .application-modal-summary,
+            .status-grid {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            .modal-summary-card {
+                min-height: auto;
+            }
+        }
+
+
+        /* ==========================================================
+           EDIT INFO MODAL UX PATCH
+           Cleaner, card-based edit form inside the View modal.
+        ========================================================== */
+        .edit-info-pane {
+            animation: fadeEditPanel .18s ease both;
+        }
+
+        @keyframes fadeEditPanel {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-info-banner {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: .75rem;
+            align-items: center;
+            margin-bottom: .9rem;
+            padding: .85rem;
+            background:
+                radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%),
+                linear-gradient(180deg, #ffffff, #fbfdff);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .edit-info-banner .application-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
+        }
+
+        .edit-info-title {
+            color: var(--text);
+            font-size: .98rem;
+            font-weight: 850;
+            line-height: 1.25;
+            letter-spacing: -.02em;
+        }
+
+        .edit-info-subtitle {
+            margin-top: .18rem;
+            color: var(--muted);
+            font-size: .8rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .modern-edit-form {
+            display: grid;
+            gap: .85rem;
+            padding: .95rem;
+            background: #fbfdff;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+        }
+
+        .edit-section-card {
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .edit-section-head {
+            display: flex;
+            align-items: flex-start;
+            gap: .65rem;
+            padding: .85rem .9rem;
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .edit-section-icon {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 13px;
+        }
+
+        .edit-section-title {
+            margin: .05rem 0 .12rem;
+            color: var(--text);
+            font-size: .92rem;
+            font-weight: 850;
+            letter-spacing: -.018em;
+        }
+
+        .edit-section-help {
+            margin: 0;
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .edit-section-body {
+            padding: .9rem;
+        }
+
+        .edit-form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .edit-field {
+            min-width: 0;
+        }
+
+        .edit-col-3 { grid-column: span 3; }
+        .edit-col-4 { grid-column: span 4; }
+        .edit-col-6 { grid-column: span 6; }
+        .edit-col-12 { grid-column: span 12; }
+
+        .edit-field .form-label {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            margin-bottom: .38rem;
+            color: #344054;
+            font-size: .78rem;
+            font-weight: 850 !important;
+            letter-spacing: -.005em;
+        }
+
+        .edit-field .form-label i {
+            color: var(--primary);
+            font-size: .8rem;
+        }
+        
+        .form-control[type="file"] {
+            padding: 1rem;
+        }
+
+        .edit-field .form-control,
+        .edit-field .form-select {
+            width: 100%;
+            min-height: 44px;
+            border-radius: 13px !important;
+        }
+
+        .edit-field textarea.form-control {
+            min-height: 96px;
+        }
+
+        .edit-field small {
+            display: block;
+            margin-top: .35rem;
+            color: var(--muted);
+            font-size: .74rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .edit-file-card {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: .45rem;
+            padding: .75rem;
+            background: #f9fafb;
+            border: 1px dashed var(--line-strong);
+            border-radius: 16px;
+        }
+
+        .edit-current-file {
+            display: inline-flex;
+            align-items: center;
+            gap: .38rem;
+            width: fit-content;
+            max-width: 100%;
+            padding: .38rem .58rem;
+            color: var(--info);
+            background: var(--info-soft);
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+            font-size: .74rem;
+            font-weight: 850;
+            overflow-wrap: anywhere;
+        }
+
+        .edit-required-note {
+            display: inline-flex;
+            align-items: center;
+            gap: .42rem;
+            width: fit-content;
+            margin-top: .15rem;
+            padding: .5rem .65rem;
+            color: #9a3412;
+            background: var(--warning-soft);
+            border: 1px solid #fed7aa;
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        .modal-footer[id^="viewFooterEdit"] .btn-primary {
+            min-width: 150px;
+        }
+
+        @media (max-width: 991px) {
+            .edit-col-3,
+            .edit-col-4 {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .edit-info-banner,
+            .modern-edit-form,
+            .edit-section-card {
+                border-radius: 16px;
+            }
+
+            .modern-edit-form {
+                padding: .75rem;
+            }
+
+            .edit-section-head,
+            .edit-section-body {
+                padding: .8rem;
+            }
+
+            .edit-col-3,
+            .edit-col-4,
+            .edit-col-6,
+            .edit-col-12 {
+                grid-column: span 12;
+            }
+        }
+
+    
+
+        /* ==========================================================
+           INCIDENT REPORT MANAGEMENT UX PATCH
+           Keeps the incident data, but uses the Residency-style compact table.
+        ========================================================== */
+        .incident-page .residency-hero-icon,
+        .incident-page .table-head-icon {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .incident-table-card .table {
+            min-width: 820px !important;
+        }
+
+        .incident-type-pill,
+        .confidentiality-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            width: fit-content;
+            max-width: 100%;
+            padding: .35rem .6rem;
+            border-radius: 999px;
+            font-size: .74rem;
+            font-weight: 850;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .incident-type-pill {
+            color: var(--info);
+            background: var(--info-soft);
+            border: 1px solid rgba(3,105,161,.14);
+        }
+
+        .confidentiality-pill.confidentiality-low,
+        .confidentiality-pill.confidentiality-public {
+            color: var(--success);
+            background: var(--success-soft);
+            border: 1px solid rgba(22,128,60,.14);
+        }
+
+        .confidentiality-pill.confidentiality-medium {
+            color: var(--warning);
+            background: var(--warning-soft);
+            border: 1px solid #fed7aa;
+        }
+
+        .confidentiality-pill.confidentiality-high {
+            color: var(--danger);
+            background: var(--danger-soft);
+            border: 1px solid rgba(220,38,38,.14);
+        }
+
+        .case-description-preview {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.4;
+        }
+
+        .party-stack {
+            display: grid;
+            gap: .28rem;
+            min-width: 190px;
+        }
+
+        .party-line {
+            display: flex;
+            align-items: flex-start;
+            gap: .35rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .party-line strong {
+            color: var(--text);
+            font-weight: 850;
+        }
+
+        .action-btn.action-restore {
+            background: #d5f0ad;
+            border-color: #a9d772;
+            color: #2f4a11;
+        }
+
+        .incident-page .permission-denied {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+
+        /* Incident modal cards adopted from the Residency modal design */
+        .incident-file-grid,
+        .incident-witness-list,
+        .incident-edit-witness-list {
+            display: grid;
+            gap: .75rem;
+        }
+
+        .incident-file-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .incident-file-card,
+        .incident-witness-card {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .78rem;
+            background: #fbfdff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .incident-file-icon,
+        .incident-witness-avatar {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-weight: 850;
+        }
+
+        .incident-file-info {
+            flex: 1 1 auto;
+        }
+
+        .incident-file-name,
+        .incident-witness-name {
+            color: var(--text);
+            font-size: .86rem;
+            font-weight: 850;
+            overflow-wrap: anywhere;
+        }
+
+        .incident-file-type,
+        .incident-witness-meta,
+        .incident-witness-statement {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.4;
+        }
+
+        .incident-witness-card {
+            align-items: flex-start;
+        }
+
+        .incident-edit-witness-list .witness-card {
+            margin-bottom: .75rem !important;
+        }
+
+        @media (max-width: 768px) {
+            .incident-file-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .incident-file-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1122,6 +2874,43 @@
             <span>Backup Settings</span>
         </a>
         @endadmin_can
+    
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -1129,43 +2918,19 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button type="button" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-book me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
+                    <span class="title-icon"><i class="fas fa-book"></i></span>
                     Incident Reports
                 </h1>
             </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="residency-page incident-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
@@ -1188,8 +2953,39 @@
                 </div>
             @endif
 
+
+            <section class="residency-hero">
+                <div class="residency-hero-content">
+                    <div class="min-w-0">
+                        <div class="residency-hero-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="residency-kicker"><i class="fas fa-circle-check"></i> Incident report management</div>
+                        <h2>Review incident reports with a cleaner, focused workspace.</h2>
+                        <p>Keep the table easy to scan while still giving access to full case details, parties involved, evidence, witnesses, status updates, and archive actions from the modals.</p>
+                    </div>
+
+                    <div class="residency-hero-actions">
+                        @admin_can('create_blotter')
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
+                            <i class="fas fa-plus"></i>
+                            New Incident
+                        </a>
+                        @endadmin_can
+                        <a href="{{ route('admin.blotter.index') }}" class="btn btn-light-soft">
+                            <i class="fas fa-rotate"></i>
+                            Reset View
+                        </a>
+                    </div>
+                </div>
+                <div class="residency-hero-meta">
+                    <span><i class="fas fa-list-check"></i> Total: <strong>{{ $total_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-clock"></i> Processing: <strong>{{ $processing_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-check-circle"></i> Resolved: <strong>{{ $resolved_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-times-circle"></i> Dropped: <strong>{{ $dropped_count ?? 0 }}</strong></span>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 residency-stats">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -1249,23 +3045,24 @@
             </div>
 
             <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
+            <div class="card border-0 mb-4 residency-filter-card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.blotter.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Incident Reports
-                                </h6>
+                                <div class="filter-title-block">
+                                    <h6><span class="filter-title-icon"><i class="fas fa-filter"></i></span> Filter Incident Reports</h6>
+                                    <p>Search references, report type, parties involved, confidentiality, and status.</p>
+                                </div>
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
                                     @admin_can('create_blotter')
-                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
+                                    <a href="#" class="btn btn-primary flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
                                         <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Incident Report</span>
                                     </a>
                                     @endadmin_can
-                                    <a href="{{ route('admin.blotter.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
+                                    <a href="{{ route('admin.blotter.index') }}" class="btn btn-light-soft flex-fill flex-md-grow-0">
                                         <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
@@ -1342,9 +3139,20 @@
                 </div>
             </div>
 
-            <!-- Incident Reports Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <!-- Incident Reports Table - Consistent Management View -->
+            <div class="card border-0 residency-table-card incident-table-card">
                 <div class="card-body p-0">
+                    <div class="residency-table-head">
+                        <div class="table-head-title">
+                            <span class="table-head-icon"><i class="fas fa-list-check"></i></span>
+                            <div>
+                                <span class="table-kicker">Case queue</span>
+                                <h3>Incident reports</h3>
+                                <p>Only high-value case details are shown here. Open the modal for full statements, witnesses, evidence files, and complete history.</p>
+                            </div>
+                        </div>
+                        <span class="table-count-pill"><i class="fas fa-book"></i>{{ $incidents->total() ?? 0 }} records</span>
+                    </div>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="blotterTable">
                             <thead class="table-light">
@@ -1353,9 +3161,8 @@
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'reference_number', 'direction' => request('sort') === 'reference_number' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Reference #
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'reference_number', 'direction' => request('sort') === 'reference_number' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Incident / Reference
                                             @if(request('sort') == 'reference_number')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -1364,31 +3171,8 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'report_type', 'direction' => request('sort') === 'report_type' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Report Type
-                                            @if(request('sort') == 'report_type')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="d-none d-lg-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'incident_date', 'direction' => request('sort') === 'incident_date' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Incident Date
-                                            @if(request('sort') == 'incident_date')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('sort') === 'complainant_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Complainant
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('sort') === 'complainant_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Parties / Location
                                             @if(request('sort') == 'complainant_name')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -1396,11 +3180,9 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th class="d-none d-md-table-cell">Respondent</th>
-                                    <th class="d-none d-md-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'confidentiality', 'direction' => request('sort') === 'confidentiality' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Confidentiality
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'confidentiality', 'direction' => request('sort') === 'confidentiality' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Classification
                                             @if(request('sort') == 'confidentiality')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -1409,9 +3191,8 @@
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Status
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Status / Submitted
                                             @if(request('sort') == 'status')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -1419,7 +3200,6 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th class="d-none d-lg-table-cell">Date Submitted</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -1431,46 +3211,48 @@
                                         <input type="checkbox" value="{{ $blotter->id }}" class="application-checkbox">
                                     </td>
                                     <td class="ps-0">
-                                        <span class="fw-semibold">{{ $blotter->reference_number }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-exclamation-triangle text-primary"></i>
+                                        <div class="application-primary">
+                                            <div class="application-avatar">
+                                                <i class="fas fa-book"></i>
                                             </div>
-                                            <div>
-                                                <div class="fw-semibold">{{ $blotter->report_type }}</div>
-                                                <small class="text-muted d-lg-none">{{ \Carbon\Carbon::parse($blotter->incident_date)->format('M d, Y') }}</small>
+                                            <div class="min-w-0">
+                                                <div class="application-name">{{ ucfirst(str_replace('_', ' ', $blotter->report_type)) }}</div>
+                                                <div class="application-ref">
+                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $blotter->reference_number }}</span>
+                                                    <span>{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('M d, Y') : 'N/A' }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">{{ \Carbon\Carbon::parse($blotter->incident_date)->format('M d, Y') }}</td>
-                                    <td>{{ $blotter->complainant_name }}</td>
-                                    <td class="d-none d-md-table-cell">{{ $blotter->respondent_name ?? 'N/A' }}</td>
-                                    <td class="d-none d-md-table-cell">
-                                        @if($blotter->confidentiality == 'public')
-                                            <span class="badge bg-danger-subtle text-danger">{{ ucfirst($blotter->confidentiality) }}</span>
-                                        @elseif($blotter->confidentiality == 'medium')
-                                            <span class="badge bg-warning-subtle text-warning">{{ ucfirst($blotter->confidentiality) }}</span>
-                                        @else
-                                            <span class="badge bg-info-subtle text-info">{{ ucfirst($blotter->confidentiality) }}</span>
-                                        @endif
+                                    <td>
+                                        <div class="party-stack">
+                                            <div class="party-line"><i class="fas fa-user"></i><span>Complainant: <strong>{{ $blotter->complainant_name }}</strong></span></div>
+                                            <div class="party-line"><i class="fas fa-user-shield"></i><span>Respondent: <strong>{{ $blotter->respondent_name ?: 'N/A' }}</strong></span></div>
+                                            <div class="party-line"><i class="fas fa-location-dot"></i><span>{{ $blotter->location ?: 'No location set' }}</span></div>
+                                        </div>
                                     </td>
                                     <td>
-                                        @if($blotter->deleted_at)
-                                            <span class="badge bg-danger-subtle text-danger">Deleted</span>
-                                        @else
-                                            @if($blotter->status == 'resolved')
-                                                <span class="badge bg-success-subtle text-success">Resolved</span>
-                                            @elseif($blotter->status == 'dropped')
-                                                <span class="badge bg-danger-subtle text-danger">Dropped</span>
-                                            @else
-                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                            @endif
-                                        @endif
+                                        <div class="info-stack">
+                                            <span class="info-label-mini">Type</span>
+                                            <span class="incident-type-pill"><i class="fas fa-triangle-exclamation"></i>{{ ucfirst(str_replace('_', ' ', $blotter->report_type)) }}</span>
+                                            <span class="confidentiality-pill confidentiality-{{ $blotter->confidentiality }}">
+                                                <i class="fas fa-lock"></i>{{ ucfirst($blotter->confidentiality) }}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
-                                        <small>{{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}</small>
+                                    <td>
+                                        <div class="status-cell">
+                                            @if($blotter->deleted_at)
+                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-box-archive me-1"></i>Archived</span>
+                                            @elseif($blotter->status == 'resolved')
+                                                <span class="badge bg-success-subtle text-success"><i class="fas fa-check-circle me-1"></i>Resolved</span>
+                                            @elseif($blotter->status == 'dropped')
+                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-times-circle me-1"></i>Dropped</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning"><i class="fas fa-clock me-1"></i>Processing</span>
+                                            @endif
+                                            <span class="status-date"><i class="fas fa-calendar-plus"></i>{{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
+                                        </div>
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="action-buttons">
@@ -1519,11 +3301,11 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="10" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-book fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No incident reports found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="empty-state-box">
+                                            <div class="empty-state-icon"><i class="fas fa-book"></i></div>
+                                            <h5>No incident reports found</h5>
+                                            <p>Try adjusting your search or filters, or add a new report.</p>
                                             @admin_can('create_blotter')
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
                                                 <i class="fas fa-plus me-2"></i>Add New
@@ -1751,7 +3533,7 @@
                                     @if(auth('admin')->user()->hasPermission('add_witness'))
                                     <div class="col-12 mt-3">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
+                                            <div class="modal-section-title"><i class="fas fa-users"></i> Witnesses</div>
                                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addWitnessField()">
                                                 <i class="fas fa-plus me-1"></i>Add Witness
                                             </button>
@@ -2041,7 +3823,7 @@
                                         @if(auth('admin')->user()->hasPermission('add_witness'))
                                         <div class="col-12 mt-3">
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
+                                                <div class="modal-section-title"><i class="fas fa-users"></i> Witnesses</div>
                                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEditWitnessField({{ $blotter->id }})">
                                                     <i class="fas fa-plus me-1"></i>Add Witness
                                                 </button>
@@ -2193,14 +3975,13 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <div class="view-modal-head w-100">
-                                <div class="view-modal-avatar">{{ strtoupper(substr($blotter->complainant_name, 0, 1)) }}</div>
+                                <div class="view-modal-avatar">
+                                    {{ strtoupper(substr($blotter->complainant_name, 0, 1)) }}
+                                </div>
                                 <div class="view-modal-meta">
                                     <div class="view-modal-name">{{ $blotter->complainant_name }}</div>
-                                    <div class="view-modal-refrow">
-                                        <div class="view-modal-sub">Ref: {{ $blotter->reference_number }}</div>
-                                        <span class="view-modal-tag">Incident Report</span>
-                                    </div>
-                                    <div class="mt-1">
+                                    <div class="view-modal-sub">{{ $blotter->reference_number }} - Incident Report</div>
+                                    <div class="mt-1 d-flex flex-wrap gap-2">
                                         @if($blotter->deleted_at)
                                             <span class="badge bg-danger-subtle text-danger">Archived</span>
                                         @elseif($blotter->status == 'resolved')
@@ -2210,6 +3991,7 @@
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
+                                        <span class="badge bg-info-subtle text-info">{{ ucwords(str_replace('_', ' ', $blotter->report_type)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -2217,164 +3999,390 @@
                         </div>
                         <div class="modal-body">
                             <ul class="nav view-tabs mb-3" id="viewTabs{{ $blotter->id }}" role="tablist">
-                                <li class="nav-item" role="presentation"><button class="nav-link active" id="details-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#details-panel-{{ $blotter->id }}" type="button">Details</button></li>
-                                <li class="nav-item" role="presentation"><button class="nav-link" id="edit-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#edit-panel-{{ $blotter->id }}" type="button">Edit info</button></li>
-                                <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#history-panel-{{ $blotter->id }}" type="button">History</button></li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="details-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#details-panel-{{ $blotter->id }}" type="button" role="tab" aria-controls="details-panel-{{ $blotter->id }}" aria-selected="true">Details</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="edit-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#edit-panel-{{ $blotter->id }}" type="button" role="tab" aria-controls="edit-panel-{{ $blotter->id }}" aria-selected="false">Edit info</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="history-tab-{{ $blotter->id }}" data-bs-toggle="pill" data-bs-target="#history-panel-{{ $blotter->id }}" type="button" role="tab" aria-controls="history-panel-{{ $blotter->id }}" aria-selected="false">History</button>
+                                </li>
                             </ul>
 
                             <div class="tab-content">
-                                <div class="tab-pane fade show active" id="details-panel-{{ $blotter->id }}" role="tabpanel">
-                                    <div class="row g-3">
-                                        <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Incident Details</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Report Type</label><p>{{ ucfirst($blotter->report_type) }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Confidentiality</label><p>{{ ucfirst($blotter->confidentiality) }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Incident Date</label><p>{{ \Carbon\Carbon::parse($blotter->incident_date)->format('F d, Y') }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Incident Time</label><p>{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('h:i A') : 'N/A' }}</p></div>
-                                        <div class="col-12"><label class="form-label text-muted">Location</label><p>{{ $blotter->location ?: 'N/A' }}</p></div>
-                                        <div class="col-12"><label class="form-label text-muted">Description</label><p>{{ $blotter->description ?: 'N/A' }}</p></div>
+                                <div class="tab-pane fade show active" id="details-panel-{{ $blotter->id }}" role="tabpanel" aria-labelledby="details-tab-{{ $blotter->id }}">
+                                    <div class="application-modal-summary">
+                                        <div class="modal-summary-card is-primary">
+                                            <span class="modal-summary-label">Complainant</span>
+                                            <span class="modal-summary-value">{{ $blotter->complainant_name }}</span>
+                                            <span class="modal-summary-help"><i class="fas fa-hashtag me-1"></i>{{ $blotter->reference_number }}</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Current Status</span>
+                                            <span class="modal-summary-value">
+                                                @if($blotter->deleted_at) Archived
+                                                @elseif($blotter->status == 'resolved') Resolved
+                                                @elseif($blotter->status == 'dropped') Dropped
+                                                @else Processing
+                                                @endif
+                                            </span>
+                                            <span class="modal-summary-help">Incident progress</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Incident Date</span>
+                                            <span class="modal-summary-value">{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('M d, Y') : 'N/A' }}</span>
+                                            <span class="modal-summary-help">{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('h:i A') : 'No time recorded' }}</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Submitted</span>
+                                            <span class="modal-summary-value">{{ $blotter->created_at ? $blotter->created_at->format('M d, Y') : 'N/A' }}</span>
+                                            <span class="modal-summary-help">{{ $blotter->created_at ? $blotter->created_at->format('h:i A') : '' }}</span>
+                                        </div>
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Complainant Information</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Complainant</label><p>{{ $blotter->complainant_name }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Contact</label><p>{{ $blotter->complainant_contact ?: 'N/A' }}</p></div>
+                                    <div class="detail-section-card">
+                                        <div class="detail-section-title"><i class="fas fa-triangle-exclamation"></i>Incident details</div>
+                                        <div class="detail-grid">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Report type</span>
+                                                <div class="detail-value">{{ $blotter->report_type ? ucwords(str_replace('_', ' ', $blotter->report_type)) : 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Confidentiality</span>
+                                                <div class="detail-value">{{ $blotter->confidentiality ? ucfirst($blotter->confidentiality) : 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Incident date</span>
+                                                <div class="detail-value">{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('F d, Y') : 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Incident time</span>
+                                                <div class="detail-value">{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('h:i A') : 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                                <span class="detail-label">Location</span>
+                                                <div class="detail-value">{{ $blotter->location ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                                <span class="detail-label">Description</span>
+                                                <div class="detail-value">{{ $blotter->description ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                                <span class="detail-label">Immediate action</span>
+                                                <div class="detail-value">{{ $blotter->immediate_action ?: 'N/A' }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Case Status</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Status</label><p class="text-capitalize">{{ $blotter->status }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Submitted At</label><p>{{ $blotter->created_at ? $blotter->created_at->format('F d, Y h:i A') : 'N/A' }}</p></div>
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Documents</h6></div>
-                                        <div class="col-12">
-                                            @if($blotter->files && $blotter->files->count() > 0)
-                                            <div class="row g-2">
-                                                @foreach($blotter->files as $file)
-                                                <div class="col-md-6">
-                                                    <div class="border rounded p-2 h-100">
-                                                        <div class="fw-semibold text-truncate">{{ basename($file->file_path) }}</div>
-                                                        <div class="small text-muted mb-2">{{ ucfirst($file->file_type) }}</div>
-                                                        <a href="{{ asset($file->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye me-1"></i>Open file
-                                                        </a>
+                                    <div class="detail-section-card">
+                                        <div class="detail-section-title"><i class="fas fa-users"></i>People involved</div>
+                                        <div class="detail-grid">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Complainant</span>
+                                                <div class="detail-value">{{ $blotter->complainant_name ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Complainant contact</span>
+                                                <div class="detail-value">{{ $blotter->complainant_contact ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Complainant email</span>
+                                                <div class="detail-value">{{ $blotter->complainant_email ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Respondent</span>
+                                                <div class="detail-value">{{ $blotter->respondent_name ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                                <span class="detail-label">Complainant address</span>
+                                                <div class="detail-value">{{ $blotter->complainant_address ?: 'N/A' }}</div>
+                                            </div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                                <span class="detail-label">Respondent address / description</span>
+                                                <div class="detail-value">{{ $blotter->respondent_address ?: 'N/A' }} {{ $blotter->respondent_description ? ' - ' . $blotter->respondent_description : '' }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-section-card">
+                                        <div class="detail-section-title"><i class="fas fa-user-group"></i>Witnesses</div>
+                                        @if($blotter->witnesses && $blotter->witnesses->count() > 0)
+                                            <div class="incident-witness-list">
+                                                @foreach($blotter->witnesses as $witness)
+                                                <div class="incident-witness-card">
+                                                    <div class="incident-witness-avatar">{{ strtoupper(substr($witness->name ?: 'W', 0, 1)) }}</div>
+                                                    <div class="min-w-0">
+                                                        <div class="incident-witness-name">{{ $witness->name ?: 'Unnamed witness' }}</div>
+                                                        <div class="incident-witness-meta">{{ $witness->contact ?: 'No contact' }}</div>
+                                                        <div class="incident-witness-statement">{{ $witness->statement ?: 'No statement provided.' }}</div>
                                                     </div>
                                                 </div>
                                                 @endforeach
                                             </div>
-                                            @else
-                                            <p class="text-muted mb-0">No uploaded documents available for this incident report.</p>
-                                            @endif
-                                        </div>
+                                        @else
+                                            <div class="empty-doc-note"><i class="fas fa-user-slash"></i><span>No witnesses recorded.</span></div>
+                                        @endif
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Witnesses</h6></div>
-                                        <div class="col-12">
-                                            @if($blotter->witnesses && $blotter->witnesses->count() > 0)
-                                                @foreach($blotter->witnesses as $witness)
-                                                <div class="border rounded p-2 mb-2">
-                                                    <div class="fw-semibold">{{ $witness->name ?: 'Unnamed witness' }}</div>
-                                                    <div class="small text-muted">{{ $witness->contact ?: 'No contact' }}</div>
-                                                    <div class="small mt-1">{{ $witness->statement ?: 'No statement provided.' }}</div>
+                                    <div class="detail-section-card mb-0">
+                                        <div class="detail-section-title"><i class="fas fa-folder-open"></i>Evidence and documents</div>
+                                        @if($blotter->files && $blotter->files->count() > 0)
+                                            <div class="incident-file-grid">
+                                                @foreach($blotter->files as $file)
+                                                <div class="incident-file-card">
+                                                    <div class="incident-file-icon"><i class="fas fa-file-lines"></i></div>
+                                                    <div class="incident-file-info min-w-0">
+                                                        <div class="incident-file-name">{{ basename($file->file_path) }}</div>
+                                                        <div class="incident-file-type">{{ ucfirst($file->file_type) }}</div>
+                                                    </div>
+                                                    <a href="{{ asset($file->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye me-1"></i>Open
+                                                    </a>
                                                 </div>
                                                 @endforeach
-                                            @else
-                                            <p class="text-muted mb-0">No witnesses recorded.</p>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No uploaded evidence available for this incident report.</span></div>
+                                        @endif
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="edit-panel-{{ $blotter->id }}" role="tabpanel">
-                                    <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="quickEditForm{{ $blotter->id }}" enctype="multipart/form-data">
+                                <div class="tab-pane fade edit-info-pane" id="edit-panel-{{ $blotter->id }}" role="tabpanel" aria-labelledby="edit-tab-{{ $blotter->id }}">
+                                    <div class="edit-info-banner">
+                                        <div class="application-avatar">{{ strtoupper(substr($blotter->complainant_name, 0, 1)) }}</div>
+                                        <div class="min-w-0">
+                                            <div class="edit-info-title">Edit incident report for {{ $blotter->complainant_name }}</div>
+                                            <div class="edit-info-subtitle">
+                                                Reference {{ $blotter->reference_number }} · Update incident classification, involved parties, witnesses, and supporting files.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{{ route('admin.blotter.update', $blotter->id) }}" id="quickEditForm{{ $blotter->id }}" enctype="multipart/form-data" class="quick-edit-form modern-edit-form">
                                         @csrf
                                         @method('PUT')
-                                        <div class="row g-3 quick-edit-form">
-                                            <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Incident Details</h6></div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Report Type</label>
-                                                <select class="form-select" name="reportType" required>
-                                                    <option value="dispute" {{ $blotter->report_type === 'dispute' ? 'selected' : '' }}>Community Dispute</option>
-                                                    <option value="security" {{ $blotter->report_type === 'security' ? 'selected' : '' }}>Security Concern</option>
-                                                    <option value="public" {{ $blotter->report_type === 'public' ? 'selected' : '' }}>Public Safety</option>
-                                                    <option value="other" {{ $blotter->report_type === 'other' ? 'selected' : '' }}>Other Concern</option>
-                                                </select>
+
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head">
+                                                <span class="edit-section-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                                                <div>
+                                                    <div class="edit-section-title">Incident Details</div>
+                                                    <p class="edit-section-help">Keep the report classification, date, time, and narrative accurate.</p>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Confidentiality</label>
-                                                <select class="form-select" name="confidentiality" required>
-                                                    <option value="low" {{ $blotter->confidentiality === 'low' ? 'selected' : '' }}>Public Report</option>
-                                                    <option value="medium" {{ $blotter->confidentiality === 'medium' ? 'selected' : '' }}>Confidential Report</option>
-                                                    <option value="high" {{ $blotter->confidentiality === 'high' ? 'selected' : '' }}>Anonymous Report</option>
-                                                </select>
+                                            <div class="edit-section-body">
+                                                <div class="edit-form-grid">
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-list-check"></i>Report Type</label>
+                                                        <select class="form-select" name="reportType" required>
+                                                            <option value="dispute" {{ $blotter->report_type === 'dispute' ? 'selected' : '' }}>Community Dispute</option>
+                                                            <option value="security" {{ $blotter->report_type === 'security' ? 'selected' : '' }}>Security Concern</option>
+                                                            <option value="public" {{ $blotter->report_type === 'public' ? 'selected' : '' }}>Public Safety</option>
+                                                            <option value="other" {{ $blotter->report_type === 'other' ? 'selected' : '' }}>Other Concern</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-shield-halved"></i>Confidentiality</label>
+                                                        <select class="form-select" name="confidentiality" required>
+                                                            <option value="low" {{ $blotter->confidentiality === 'low' ? 'selected' : '' }}>Public Report</option>
+                                                            <option value="medium" {{ $blotter->confidentiality === 'medium' ? 'selected' : '' }}>Confidential Report</option>
+                                                            <option value="high" {{ $blotter->confidentiality === 'high' ? 'selected' : '' }}>Anonymous Report</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-calendar"></i>Incident Date</label>
+                                                        <input type="date" class="form-control" name="incidentDate" value="{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d') : '' }}" required>
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-clock"></i>Incident Time</label>
+                                                        <input type="time" class="form-control" name="incidentTime" value="{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('H:i') : '' }}" required>
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-location-dot"></i>Incident Location</label>
+                                                        <input type="text" class="form-control" name="incidentLocation" value="{{ $blotter->location }}" required>
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-align-left"></i>Incident Description</label>
+                                                        <textarea class="form-control" name="incidentDescription" rows="3" required>{{ $blotter->description }}</textarea>
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-bolt"></i>Immediate Action</label>
+                                                        <textarea class="form-control" name="immediateAction" rows="2">{{ $blotter->immediate_action }}</textarea>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6"><label class="form-label">Incident Date</label><input type="date" class="form-control" name="incidentDate" value="{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('Y-m-d') : '' }}" required></div>
-                                            <div class="col-md-6"><label class="form-label">Incident Time</label><input type="time" class="form-control" name="incidentTime" value="{{ $blotter->incident_time ? \Carbon\Carbon::parse($blotter->incident_time)->format('H:i') : '' }}" required></div>
-                                            <div class="col-12"><label class="form-label">Incident Location</label><input type="text" class="form-control" name="incidentLocation" value="{{ $blotter->location }}" required></div>
-                                            <div class="col-12"><label class="form-label">Incident Description</label><textarea class="form-control" name="incidentDescription" rows="3" required>{{ $blotter->description }}</textarea></div>
-                                            <div class="col-12"><label class="form-label">Immediate Action</label><textarea class="form-control" name="immediateAction" rows="2">{{ $blotter->immediate_action }}</textarea></div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Complainant Information</h6></div>
-                                            <div class="col-md-6"><label class="form-label">Complainant Name</label><input type="text" class="form-control" name="complainantName" value="{{ $blotter->complainant_name }}" required></div>
-                                            <div class="col-md-6"><label class="form-label">Complainant Contact</label><input type="text" class="form-control" name="complainantContact" value="{{ $blotter->complainant_contact }}" maxlength="11" required></div>
-                                            <div class="col-md-6"><label class="form-label">Complainant Email</label><input type="email" class="form-control" name="complainantEmail" value="{{ $blotter->complainant_email }}"></div>
-                                            <div class="col-12"><label class="form-label">Complainant Address</label><input type="text" class="form-control" name="complainantAddress" value="{{ $blotter->complainant_address }}" required></div>
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head">
+                                                <span class="edit-section-icon"><i class="fas fa-user"></i></span>
+                                                <div>
+                                                    <div class="edit-section-title">Complainant Information</div>
+                                                    <p class="edit-section-help">Used for follow-up, notices, and official report records.</p>
+                                                </div>
+                                            </div>
+                                            <div class="edit-section-body">
+                                                <div class="edit-form-grid">
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-user"></i>Complainant Name</label>
+                                                        <input type="text" class="form-control" name="complainantName" value="{{ $blotter->complainant_name }}" required>
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-phone"></i>Complainant Contact</label>
+                                                        <input type="text" class="form-control" name="complainantContact" value="{{ $blotter->complainant_contact }}" maxlength="11" required>
+                                                        <small>Use Philippine mobile format, for example 09XXXXXXXXX.</small>
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-envelope"></i>Complainant Email</label>
+                                                        <input type="email" class="form-control" name="complainantEmail" value="{{ $blotter->complainant_email }}">
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-map-marker-alt"></i>Complainant Address</label>
+                                                        <input type="text" class="form-control" name="complainantAddress" value="{{ $blotter->complainant_address }}" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Respondent Information</h6></div>
-                                            <div class="col-md-6"><label class="form-label">Respondent Name</label><input type="text" class="form-control" name="respondentName" value="{{ $blotter->respondent_name }}"></div>
-                                            <div class="col-md-6"><label class="form-label">Respondent Contact</label><input type="text" class="form-control" name="respondentContact" value="{{ $blotter->respondent_contact }}" maxlength="11"></div>
-                                            <div class="col-12"><label class="form-label">Respondent Address</label><input type="text" class="form-control" name="respondentAddress" value="{{ $blotter->respondent_address }}"></div>
-                                            <div class="col-12"><label class="form-label">Respondent Description</label><textarea class="form-control" name="respondentDescription" rows="2">{{ $blotter->respondent_description }}</textarea></div>
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head">
+                                                <span class="edit-section-icon"><i class="fas fa-user-shield"></i></span>
+                                                <div>
+                                                    <div class="edit-section-title">Respondent Information</div>
+                                                    <p class="edit-section-help">Add known respondent details if available.</p>
+                                                </div>
+                                            </div>
+                                            <div class="edit-section-body">
+                                                <div class="edit-form-grid">
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-user"></i>Respondent Name</label>
+                                                        <input type="text" class="form-control" name="respondentName" value="{{ $blotter->respondent_name }}">
+                                                    </div>
+                                                    <div class="edit-field edit-col-6">
+                                                        <label class="form-label"><i class="fas fa-phone"></i>Respondent Contact</label>
+                                                        <input type="text" class="form-control" name="respondentContact" value="{{ $blotter->respondent_contact }}" maxlength="11">
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-map-marker-alt"></i>Respondent Address</label>
+                                                        <input type="text" class="form-control" name="respondentAddress" value="{{ $blotter->respondent_address }}">
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-align-left"></i>Respondent Description</label>
+                                                        <textarea class="form-control" name="respondentDescription" rows="2">{{ $blotter->respondent_description }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Additional Details</h6></div>
-                                            <div class="col-12"><label class="form-label">Additional Info</label><textarea class="form-control" name="additionalInfo" rows="2">{{ $blotter->additional_info }}</textarea></div>
-
-                                            <div class="col-12 mt-2 d-flex justify-content-between align-items-center">
-                                                <h6 class="fw-semibold text-primary mb-0">Witnesses</h6>
-                                                <button type="button" class="btn btn-sm btn-outline-primary js-add-quick-witness" data-blotter-id="{{ $blotter->id }}" onclick="addQuickEditWitnessField({{ $blotter->id }}, this); return false;">
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head">
+                                                <span class="edit-section-icon"><i class="fas fa-users"></i></span>
+                                                <div>
+                                                    <div class="edit-section-title">Witnesses</div>
+                                                    <p class="edit-section-help">Record statements and contacts for supporting testimony.</p>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-auto js-add-quick-witness" data-blotter-id="{{ $blotter->id }}" onclick="addQuickEditWitnessField({{ $blotter->id }}, this); return false;">
                                                     <i class="fas fa-plus me-1"></i>Add Witness
                                                 </button>
                                             </div>
-                                            <div class="col-12">
-                                                <small class="text-muted d-block mb-2">Add witnesses if you need to include more statements.</small>
-                                                <div id="quick-edit-witnesses-container-{{ $blotter->id }}">
+                                            <div class="edit-section-body">
+                                                <div id="quick-edit-witnesses-container-{{ $blotter->id }}" class="incident-edit-witness-list">
                                                     @if($blotter->witnesses && $blotter->witnesses->count() > 0)
                                                         @foreach($blotter->witnesses as $witnessIndex => $witness)
-                                                        <div class="witness-card mb-3" id="quick-edit-witness-{{ $blotter->id }}-{{ $witnessIndex }}">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <h6 class="fw-semibold">Witness</h6>
+                                                        <div class="witness-card edit-file-card" id="quick-edit-witness-{{ $blotter->id }}-{{ $witnessIndex }}">
+                                                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                                                <strong>Witness {{ $witnessIndex + 1 }}</strong>
                                                                 @if(auth('admin')->user()->hasPermission('delete_witness'))
                                                                 <button type="button" class="btn btn-sm btn-outline-danger js-remove-quick-witness" data-blotter-id="{{ $blotter->id }}" data-witness-id="{{ $witnessIndex }}">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
                                                                 @endif
                                                             </div>
-                                                            <div class="row g-2">
-                                                                <div class="col-md-4"><label class="form-label">Witness Name</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][name]" value="{{ $witness->name }}"></div>
-                                                                <div class="col-md-4"><label class="form-label">Witness Contact</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][contact]" value="{{ $witness->contact }}" maxlength="11" inputmode="numeric"></div>
-                                                                <div class="col-md-4"><label class="form-label">Witness Statement</label><input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][statement]" value="{{ $witness->statement }}"></div>
+                                                            <div class="edit-form-grid">
+                                                                <div class="edit-field edit-col-4">
+                                                                    <label class="form-label"><i class="fas fa-user"></i>Name</label>
+                                                                    <input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][name]" value="{{ $witness->name }}">
+                                                                </div>
+                                                                <div class="edit-field edit-col-4">
+                                                                    <label class="form-label"><i class="fas fa-phone"></i>Contact</label>
+                                                                    <input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][contact]" value="{{ $witness->contact }}" maxlength="11" inputmode="numeric">
+                                                                </div>
+                                                                <div class="edit-field edit-col-4">
+                                                                    <label class="form-label"><i class="fas fa-comment-dots"></i>Statement</label>
+                                                                    <input type="text" class="form-control" name="witnesses[{{ $witnessIndex }}][statement]" value="{{ $witness->statement }}">
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         @endforeach
+                                                    @else
+                                                        <span class="edit-required-note"><i class="fas fa-circle-info"></i>No witnesses yet. Use Add Witness if needed.</span>
                                                     @endif
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Upload Evidence</h6><small class="text-muted">Leave empty to keep existing files.</small></div>
-                                            <div class="col-12"><label class="form-label">Photos</label><input type="file" class="form-control" name="photos[]" accept="image/*" multiple></div>
-                                            <div class="col-12"><label class="form-label">Videos</label><input type="file" class="form-control" name="videos[]" accept="video/*" multiple></div>
-                                            <div class="col-12"><label class="form-label">Documents</label><input type="file" class="form-control" name="documents[]" accept=".pdf,.doc,.docx" multiple></div>
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head">
+                                                <span class="edit-section-icon"><i class="fas fa-folder-open"></i></span>
+                                                <div>
+                                                    <div class="edit-section-title">Evidence Uploads</div>
+                                                    <p class="edit-section-help">Leave uploads empty to keep existing files.</p>
+                                                </div>
+                                            </div>
+                                            <div class="edit-section-body">
+                                                <div class="edit-form-grid">
+                                                    <div class="edit-field edit-col-12">
+                                                        <label class="form-label"><i class="fas fa-note-sticky"></i>Additional Info</label>
+                                                        <textarea class="form-control" name="additionalInfo" rows="2">{{ $blotter->additional_info }}</textarea>
+                                                    </div>
+                                                    <div class="edit-field edit-col-4">
+                                                        <div class="edit-file-card">
+                                                            <label class="form-label"><i class="fas fa-image"></i>Photos</label>
+                                                            <input type="file" class="form-control" name="photos[]" accept="image/*" multiple>
+                                                            <small>Upload images related to this incident.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-field edit-col-4">
+                                                        <div class="edit-file-card">
+                                                            <label class="form-label"><i class="fas fa-video"></i>Videos</label>
+                                                            <input type="file" class="form-control" name="videos[]" accept="video/*" multiple>
+                                                            <small>Upload video evidence if available.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-field edit-col-4">
+                                                        <div class="edit-file-card">
+                                                            <label class="form-label"><i class="fas fa-file-lines"></i>Documents</label>
+                                                            <input type="file" class="form-control" name="documents[]" accept=".pdf,.doc,.docx" multiple>
+                                                            <small>Upload PDF or Word documents.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-field edit-col-12">
+                                                        <span class="edit-required-note"><i class="fas fa-shield-halved"></i>Review details before saving. These records may be used for official blotter documentation.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
 
-                                <div class="tab-pane fade" id="history-panel-{{ $blotter->id }}" role="tabpanel">
-                                    <div class="mb-3">
-                                        <span class="text-muted">Recent status:</span>
-                                        @if($blotter->deleted_at)
-                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
-                                        @elseif($blotter->status == 'resolved')
-                                            <span class="badge bg-success-subtle text-success">Resolved</span>
-                                        @elseif($blotter->status == 'dropped')
-                                            <span class="badge bg-danger-subtle text-danger">Dropped</span>
-                                        @else
-                                            <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                        @endif
+                                <div class="tab-pane fade" id="history-panel-{{ $blotter->id }}" role="tabpanel" aria-labelledby="history-tab-{{ $blotter->id }}">
+                                    <div class="detail-section-card mb-0">
+                                        <div class="detail-section-title"><i class="fas fa-clock-rotate-left"></i>Status history</div>
+                                        <div class="mb-3">
+                                            <span class="detail-label">Recent status</span>
+                                            @if($blotter->deleted_at)
+                                                <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                            @elseif($blotter->status == 'resolved')
+                                                <span class="badge bg-success-subtle text-success">Resolved</span>
+                                            @elseif($blotter->status == 'dropped')
+                                                <span class="badge bg-danger-subtle text-danger">Dropped</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
+                                            @endif
+                                        </div>
+                                        <div id="historyList{{ $blotter->id }}" class="small text-muted">Loading history...</div>
                                     </div>
-                                    <div id="historyList{{ $blotter->id }}" class="small text-muted">Loading history...</div>
                                 </div>
                             </div>
                         </div>
@@ -2397,14 +4405,21 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Update incident status</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h5 class="modal-title"><i class="fas fa-pen-to-square me-2"></i>Update incident status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <form method="POST" action="{{ route('admin.blotter.approve', $blotter->id) }}" data-processing-url="{{ route('admin.blotter.processing', $blotter->id) }}" data-approve-url="{{ route('admin.blotter.approve', $blotter->id) }}" data-reject-url="{{ route('admin.blotter.reject', $blotter->id) }}" onsubmit="return handleIncidentStatusSubmit(event, this)">
                             @csrf
                             <div class="modal-body">
-                                <div class="mb-2 small text-muted">{{ $blotter->reference_number }} - {{ $blotter->complainant_name }}</div>
-                                <p class="mb-2">Current status: <span class="fw-semibold text-capitalize">{{ $blotter->status }}</span></p>
+                                <div class="status-flow-card">
+                                    <div class="status-flow-person">
+                                        <div class="application-avatar">{{ strtoupper(substr($blotter->complainant_name, 0, 1)) }}</div>
+                                        <div class="min-w-0">
+                                            <div class="fw-bold text-truncate">{{ $blotter->complainant_name }}</div>
+                                            <div class="small text-muted">{{ $blotter->reference_number }} · Current: {{ ucwords(str_replace('_', ' ', $blotter->status)) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="mb-3">
                                     <label class="form-label text-uppercase fw-semibold small">New status</label>
@@ -2488,6 +4503,7 @@
                     });
                 </script>
             @endif
+            </div>
         </main>
     </div>
 

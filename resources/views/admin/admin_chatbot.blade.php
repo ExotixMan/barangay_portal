@@ -1221,7 +1221,427 @@
                 font-size: 1.75rem;
             }
         }
-    </style>
+    
+
+/* ==========================================================
+           POLISHED MOBILE UX PATCH - Chatbot Management
+           Desktop remains unchanged. Phones get cleaner cards/tabs/forms.
+        ========================================================== */
+        @media (max-width: 767.98px) {
+            html {
+                font-size: 68%;
+            }
+
+            .main-content {
+                min-width: 0;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: .78rem .9rem !important;
+                background: rgba(255, 255, 255, .96);
+                backdrop-filter: blur(10px);
+            }
+
+            .header > div {
+                min-width: 0;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex !important;
+                flex: 0 0 40px;
+                width: 40px;
+                height: 40px;
+                padding: 0;
+            }
+
+            .page-title {
+                min-width: 0;
+                font-size: 1rem !important;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .title-icon,
+            .hero-icon,
+            .chatbot-stat-icon,
+            .panel-icon,
+            .empty-icon {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .78rem !important;
+            }
+
+            .chatbot-page {
+                max-width: 100%;
+            }
+
+            .hero-panel,
+            .chatbot-stat,
+            .chatbot-panel,
+            .training-note,
+            .permission-panel {
+                border-radius: 18px !important;
+            }
+
+            .hero-panel {
+                padding: 1rem !important;
+            }
+
+            .hero-panel h2 {
+                font-size: 1.52rem !important;
+                line-height: 1.12 !important;
+                letter-spacing: -.035em !important;
+            }
+
+            .hero-panel p {
+                font-size: .88rem !important;
+                line-height: 1.55 !important;
+            }
+
+            .hero-actions {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .55rem !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .chatbot-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .65rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            .chatbot-stat {
+                padding: .85rem !important;
+                gap: .65rem !important;
+            }
+
+            .chatbot-stat span {
+                font-size: .66rem !important;
+            }
+
+            .chatbot-stat strong {
+                font-size: 1.26rem !important;
+            }
+
+            .chatbot-stat small {
+                display: none !important;
+            }
+
+            .training-note {
+                align-items: flex-start !important;
+                padding: .95rem !important;
+                gap: .75rem !important;
+            }
+
+            .training-note h3 {
+                font-size: .95rem !important;
+            }
+
+            .training-note p {
+                font-size: .82rem !important;
+                line-height: 1.5 !important;
+            }
+
+            .tab-navigation {
+                display: grid !important;
+                grid-auto-flow: column;
+                grid-auto-columns: minmax(132px, 1fr);
+                width: 100%;
+                padding: .35rem !important;
+                border-radius: 16px !important;
+                overflow-x: auto;
+            }
+
+            .tab-link {
+                min-height: 40px;
+                padding: .55rem .75rem !important;
+                border-radius: 12px !important;
+                font-size: .78rem !important;
+            }
+
+            .panel-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: .8rem !important;
+                padding: .95rem !important;
+            }
+
+            .panel-title {
+                gap: .65rem !important;
+            }
+
+            .panel-copy {
+                font-size: .82rem !important;
+                line-height: 1.55 !important;
+            }
+
+            .panel-actions {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                width: 100%;
+                gap: .55rem !important;
+                justify-content: stretch !important;
+            }
+
+            .panel-actions .btn,
+            .panel-actions .chatbot-count {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .knowledge-toolbar {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .6rem !important;
+                padding: .85rem !important;
+            }
+
+            .search-submit-btn,
+            .filter-reset-btn,
+            .knowledge-add-btn,
+            .knowledge-toolbar .btn {
+                width: 100%;
+            }
+
+            .search-control .form-control,
+            .filter-control .form-select {
+                min-height: 44px;
+            }
+
+            .chatbot-panel .table-responsive {
+                overflow: visible !important;
+                border-radius: 0 !important;
+            }
+
+            #knowledge-table,
+            .chatbot-panel .table-responsive > table.table {
+                display: block !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                border-collapse: separate !important;
+                background: transparent !important;
+            }
+
+            #knowledge-table thead,
+            .chatbot-panel .table-responsive > table.table thead {
+                display: none !important;
+            }
+
+            #knowledge-table tbody,
+            .chatbot-panel .table-responsive > table.table tbody {
+                display: grid !important;
+                gap: .78rem !important;
+                padding: .78rem !important;
+                background: #f8fafc !important;
+            }
+
+            #knowledge-table tbody tr,
+            .chatbot-panel .table-responsive > table.table tbody tr {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: .65rem;
+                padding: .95rem !important;
+                background: #ffffff;
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                box-shadow: var(--shadow-xs);
+            }
+
+            #knowledge-table tbody tr:hover,
+            .chatbot-panel .table-responsive > table.table tbody tr:hover {
+                background: #ffffff !important;
+                box-shadow: var(--shadow-sm);
+            }
+
+            #knowledge-table tbody td,
+            .chatbot-panel .table-responsive > table.table tbody td {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                border: 0 !important;
+                color: var(--text);
+                font-size: .86rem;
+                text-align: left !important;
+                white-space: normal !important;
+            }
+
+            #knowledge-table .kb-question,
+            .chatbot-panel .unmatched-query {
+                color: var(--text);
+                font-size: .96rem;
+                font-weight: 850;
+                line-height: 1.35;
+                word-break: break-word;
+            }
+
+            #knowledge-table .kb-answer,
+            #knowledge-table .keyword-text {
+                max-width: 100% !important;
+                color: var(--muted) !important;
+                font-size: .82rem !important;
+                line-height: 1.55 !important;
+                word-break: break-word;
+            }
+
+            #knowledge-table tbody td:nth-child(2),
+            #knowledge-table tbody td:nth-child(3),
+            #knowledge-table tbody td:nth-child(4),
+            #knowledge-table tbody td:nth-child(5),
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(2),
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(3),
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(4) {
+                padding: .55rem .7rem !important;
+                background: #f9fafb;
+                border: 1px solid var(--line) !important;
+                border-radius: 12px;
+            }
+
+            #knowledge-table tbody td:nth-child(2)::before { content: "Answer"; }
+            #knowledge-table tbody td:nth-child(3)::before { content: "Keywords"; }
+            #knowledge-table tbody td:nth-child(4)::before { content: "Category"; }
+            #knowledge-table tbody td:nth-child(5)::before { content: "Uses"; }
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(2)::before { content: "Session"; }
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(3)::before { content: "Time"; }
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(4)::before { content: "Status"; }
+
+            #knowledge-table tbody td:nth-child(2)::before,
+            #knowledge-table tbody td:nth-child(3)::before,
+            #knowledge-table tbody td:nth-child(4)::before,
+            #knowledge-table tbody td:nth-child(5)::before,
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(2)::before,
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(3)::before,
+            .chatbot-panel .table-responsive > table.table:not(#knowledge-table) tbody td:nth-child(4)::before {
+                display: block;
+                margin-bottom: .28rem;
+                color: var(--muted);
+                font-size: .68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+            }
+
+            #knowledge-table tbody td:last-child,
+            .chatbot-panel .table-responsive > table.table tbody td:last-child {
+                padding-top: .72rem !important;
+                border-top: 1px dashed var(--line-strong) !important;
+            }
+
+            #knowledge-table .btn-group,
+            .chatbot-panel .table-responsive > table.table .btn-group {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: .55rem !important;
+                width: 100%;
+            }
+
+            #knowledge-table .btn-group .btn,
+            .chatbot-panel .table-responsive > table.table .btn-group .btn {
+                width: 100%;
+                min-height: 40px;
+                border-radius: 11px !important;
+                font-size: .78rem;
+            }
+
+            #knowledge-table .btn[title]::after {
+                content: attr(title);
+                margin-left: .3rem;
+            }
+
+            #knowledge-table tbody tr:has(td[colspan]),
+            .chatbot-panel .table-responsive > table.table tbody tr:has(td[colspan]) {
+                display: block !important;
+                padding: 0 !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+
+            #knowledge-table tbody td[colspan],
+            .chatbot-panel .table-responsive > table.table tbody td[colspan] {
+                display: block !important;
+                padding: 0 !important;
+            }
+
+            .empty-state {
+                min-height: 210px;
+                padding: 1.4rem !important;
+                border: 1px dashed var(--line-strong);
+                border-radius: 18px;
+                background: #ffffff;
+            }
+
+            .modal-dialog {
+                margin: .65rem !important;
+            }
+
+            .modal-content {
+                max-height: calc(100dvh - 1.3rem);
+                border-radius: 18px !important;
+            }
+
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                padding: .9rem !important;
+                background: #ffffff !important;
+                border-bottom: 1px solid var(--line) !important;
+            }
+
+            .modal-title {
+                font-size: .96rem !important;
+                line-height: 1.25;
+            }
+
+            .modal-body {
+                max-height: calc(100dvh - 155px) !important;
+                padding: .9rem !important;
+            }
+
+            .modal-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 3;
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .55rem !important;
+                padding: .8rem .9rem !important;
+                background: #ffffff !important;
+                border-top: 1px solid var(--line) !important;
+            }
+
+            .modal-footer .btn,
+            .modal-footer form {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 389.98px) {
+            .chatbot-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            #knowledge-table .btn-group,
+            .chatbot-panel .table-responsive > table.table .btn-group {
+                grid-template-columns: 1fr !important;
+            }
+        }
+</style>
 </head>
 <body>
     <!-- Mobile Overlay -->

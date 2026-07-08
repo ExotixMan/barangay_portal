@@ -2433,7 +2433,741 @@
             }
         }
 
-    </style>
+    
+        /* ==========================================================
+           FINAL MOBILE RESPONSIVE FIX - Users & Roles
+           Added safely at the end so desktop stays unchanged.
+           Targets: users table, audit logs, role member tables, tabs, filters, modals.
+        ========================================================== */
+        @media (max-width: 768px) {
+            body {
+                background: #f8fafc;
+            }
+
+            .main-content {
+                min-width: 0 !important;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 900;
+                min-height: 64px;
+                padding: .75rem .9rem !important;
+                background: rgba(255, 255, 255, .96);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid var(--line, #e5e7eb);
+            }
+
+            .header > .d-flex,
+            .header .page-title {
+                min-width: 0;
+            }
+
+            .page-title {
+                max-width: calc(100vw - 94px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 1rem !important;
+                line-height: 1.2;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                flex: 0 0 auto;
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+            }
+
+            main.p-3,
+            main.p-lg-4 {
+                padding: .85rem !important;
+            }
+
+            .users-page {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .users-hero {
+                padding: 1rem !important;
+                border-radius: 18px !important;
+            }
+
+            .users-hero-content {
+                display: grid !important;
+                grid-template-columns: 44px minmax(0, 1fr) !important;
+                grid-template-areas:
+                    "icon kicker"
+                    "icon title"
+                    "copy copy"
+                    "actions actions" !important;
+                gap: .35rem .75rem !important;
+                align-items: center !important;
+            }
+
+            .users-hero-icon {
+                grid-area: icon;
+                width: 44px !important;
+                height: 44px !important;
+                margin: 0 !important;
+                border-radius: 14px !important;
+            }
+
+            .users-kicker {
+                grid-area: kicker;
+                min-width: 0;
+                font-size: .66rem !important;
+                letter-spacing: .07em !important;
+                white-space: normal;
+            }
+
+            .users-hero h2 {
+                grid-area: title;
+                margin: 0 !important;
+                font-size: 1.42rem !important;
+                line-height: 1.1 !important;
+                letter-spacing: -.04em !important;
+            }
+
+            .users-hero p {
+                grid-area: copy;
+                max-width: none !important;
+                margin-top: .45rem !important;
+                font-size: .86rem !important;
+                line-height: 1.55 !important;
+            }
+
+            .users-hero-actions {
+                grid-area: actions;
+                display: grid !important;
+                grid-template-columns: 1fr;
+                width: 100%;
+                gap: .55rem !important;
+                margin-top: .55rem !important;
+            }
+
+            .users-hero-actions .btn,
+            .users-panel-actions .btn,
+            .users-filter-toolbar .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .users-stats-row {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .65rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            .users-stats-row > [class*="col-"] {
+                width: auto !important;
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .stat-card {
+                padding: .85rem !important;
+                align-items: flex-start !important;
+                gap: .65rem !important;
+                border-radius: 16px !important;
+            }
+
+            .stat-card .stat-icon {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+                font-size: .95rem !important;
+            }
+
+            .stat-label {
+                font-size: .66rem !important;
+                line-height: 1.2 !important;
+            }
+
+            .stat-number {
+                font-size: 1.28rem !important;
+            }
+
+            .stat-card small {
+                display: none !important;
+            }
+
+            .tab-navigation {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+                padding: .4rem !important;
+                gap: .35rem !important;
+                border-radius: 18px !important;
+                overflow: visible !important;
+            }
+
+            .tab-link {
+                min-width: 0 !important;
+                width: 100%;
+                min-height: 40px !important;
+                padding: .58rem .55rem !important;
+                font-size: .78rem !important;
+                border-radius: 14px !important;
+            }
+
+            .tab-link i {
+                margin-right: .25rem !important;
+            }
+
+            .users-panel,
+            .card.border-0,
+            .role-card,
+            .permission-module {
+                border-radius: 18px !important;
+                overflow: hidden;
+            }
+
+            .users-panel-header,
+            .users-table-header {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .8rem !important;
+                padding: .9rem !important;
+            }
+
+            .users-panel-title,
+            .users-table-title {
+                align-items: flex-start !important;
+                min-width: 0;
+            }
+
+            .users-panel-icon,
+            .users-table-icon {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 13px !important;
+            }
+
+            .users-panel-header h3,
+            .users-table-title h3 {
+                font-size: .98rem !important;
+            }
+
+            .panel-copy,
+            .users-table-title p {
+                font-size: .8rem !important;
+                line-height: 1.45 !important;
+            }
+
+            .users-panel-actions {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                width: 100%;
+                gap: .55rem !important;
+            }
+
+            .users-filter-body {
+                padding: .85rem !important;
+            }
+
+            .users-filter-toolbar {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+                gap: .65rem !important;
+            }
+
+            .users-search-field .form-control,
+            .users-filter-toolbar .form-select,
+            .users-filter-toolbar .btn,
+            #auditTab .form-control,
+            #auditTab .form-select,
+            #auditTab .btn {
+                min-height: 44px !important;
+                border-radius: 12px !important;
+            }
+
+            .users-count-pill {
+                align-self: flex-start;
+                white-space: normal !important;
+                line-height: 1.35;
+            }
+
+            /* Users table becomes clean cards */
+            .users-table-panel .table-responsive,
+            #auditTab .table-responsive,
+            [id^="viewRoleMembersModal"] .table-responsive {
+                overflow: visible !important;
+                border-radius: 0 !important;
+            }
+
+            .users-table-panel table,
+            #auditTab table,
+            [id^="viewRoleMembersModal"] table {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+
+            .users-table-panel thead,
+            #auditTab thead,
+            [id^="viewRoleMembersModal"] thead {
+                display: none !important;
+            }
+
+            .users-table-panel tbody,
+            #auditTab tbody,
+            [id^="viewRoleMembersModal"] tbody {
+                display: grid !important;
+                gap: .75rem;
+                padding: .85rem;
+                background: #f8fafc;
+            }
+
+            .users-table-panel tbody tr,
+            #auditTab tbody tr,
+            [id^="viewRoleMembersModal"] tbody tr {
+                display: grid !important;
+                width: 100% !important;
+                gap: 0;
+                padding: .85rem;
+                background: #ffffff;
+                border: 1px solid var(--line, #e5e7eb);
+                border-radius: 18px;
+                box-shadow: var(--shadow-xs, 0 1px 2px rgba(16,24,40,.05));
+            }
+
+            .users-table-panel tbody tr:hover,
+            #auditTab tbody tr:hover,
+            [id^="viewRoleMembersModal"] tbody tr:hover {
+                background: #ffffff !important;
+            }
+
+            .users-table-panel tbody td,
+            #auditTab tbody td,
+            [id^="viewRoleMembersModal"] tbody td {
+                display: flex !important;
+                align-items: flex-start !important;
+                justify-content: space-between !important;
+                gap: .9rem;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                padding: .58rem 0 !important;
+                border: 0 !important;
+                border-bottom: 1px dashed var(--line, #e5e7eb) !important;
+                color: var(--text, #111827) !important;
+                white-space: normal !important;
+                text-align: right !important;
+                overflow-wrap: anywhere;
+            }
+
+            .users-table-panel tbody td:last-child,
+            #auditTab tbody td:last-child,
+            [id^="viewRoleMembersModal"] tbody td:last-child {
+                border-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+
+            .users-table-panel tbody td::before,
+            #auditTab tbody td::before,
+            [id^="viewRoleMembersModal"] tbody td::before {
+                flex: 0 0 95px;
+                color: var(--muted, #667085);
+                font-size: .72rem;
+                font-weight: 850;
+                text-align: left;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+            }
+
+            .users-table-panel tbody td:nth-child(1)::before { content: "Select"; }
+            .users-table-panel tbody td:nth-child(2)::before { content: "User"; }
+            .users-table-panel tbody td:nth-child(3)::before { content: "Email"; }
+            .users-table-panel tbody td:nth-child(4)::before { content: "Role"; }
+            .users-table-panel tbody td:nth-child(5)::before { content: "Department"; }
+            .users-table-panel tbody td:nth-child(6)::before { content: "Joined"; }
+            .users-table-panel tbody td:nth-child(7)::before { content: "Status"; }
+            .users-table-panel tbody td:nth-child(8)::before { content: "Actions"; }
+
+            #auditTab tbody td:nth-child(1)::before { content: "When"; }
+            #auditTab tbody td:nth-child(2)::before { content: "User"; }
+            #auditTab tbody td:nth-child(3)::before { content: "Action"; }
+            #auditTab tbody td:nth-child(4)::before { content: "Module"; }
+            #auditTab tbody td:nth-child(5)::before { content: "Details"; }
+            #auditTab tbody td:nth-child(6)::before { content: "IP"; }
+
+            [id^="viewRoleMembersModal"] tbody td:nth-child(1)::before { content: "User"; }
+            [id^="viewRoleMembersModal"] tbody td:nth-child(2)::before { content: "Email"; }
+            [id^="viewRoleMembersModal"] tbody td:nth-child(3)::before { content: "Department"; }
+            [id^="viewRoleMembersModal"] tbody td:nth-child(4)::before { content: "Status"; }
+            [id^="viewRoleMembersModal"] tbody td:nth-child(5)::before { content: "Actions"; }
+
+            .users-table-panel tbody td:nth-child(2) {
+                align-items: center !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
+                gap: .75rem;
+                padding-top: .1rem !important;
+                padding-bottom: .75rem !important;
+            }
+
+            .users-table-panel tbody td:nth-child(2)::before {
+                display: none;
+            }
+
+            .users-table-panel .user-avatar {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 15px !important;
+            }
+
+            .users-table-panel tbody td:nth-child(3),
+            #auditTab tbody td:nth-child(2) {
+                font-weight: 700;
+            }
+
+            .users-table-panel tbody td .d-flex.gap-1,
+            .users-table-panel tbody td .d-flex.gap-sm-2,
+            #auditTab tbody td .d-flex,
+            [id^="viewRoleMembersModal"] tbody td .d-flex {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+                gap: .45rem !important;
+                justify-content: stretch !important;
+            }
+
+            .users-table-panel tbody td:last-child {
+                display: block !important;
+                text-align: left !important;
+            }
+
+            .users-table-panel tbody td:last-child::before {
+                display: block;
+                margin-bottom: .45rem;
+                flex: initial;
+            }
+
+            .users-table-panel tbody td:last-child .btn,
+            .users-table-panel tbody td:last-child form,
+            [id^="viewRoleMembersModal"] tbody td:last-child .btn,
+            [id^="viewRoleMembersModal"] tbody td:last-child form {
+                width: 100% !important;
+            }
+
+            .users-table-panel tbody td:last-child .btn[title]::after {
+                content: attr(title);
+                margin-left: .35rem;
+                font-size: .78rem;
+                font-weight: 800;
+            }
+
+            .users-table-panel tbody td:last-child form[style] {
+                display: block !important;
+            }
+
+            .badge,
+            .role-badge {
+                max-width: 100%;
+                white-space: normal !important;
+                text-align: center;
+                line-height: 1.25;
+            }
+
+            .role-card {
+                border-radius: 18px !important;
+            }
+
+            .roles-grid,
+            .permissions-grid {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+                gap: .75rem !important;
+                margin-top: .85rem !important;
+            }
+
+            .role-header {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: .75rem;
+                align-items: start;
+                padding: .9rem !important;
+            }
+
+            .role-header h3 {
+                min-width: 0;
+                font-size: .96rem !important;
+                line-height: 1.3;
+            }
+
+            .role-count {
+                position: static !important;
+                white-space: nowrap;
+            }
+
+            .role-body {
+                padding: .9rem !important;
+            }
+
+            .permission-list {
+                gap: .4rem !important;
+            }
+
+            .permission-item {
+                display: flex;
+                align-items: flex-start;
+                gap: .45rem;
+                padding: .58rem .65rem !important;
+                line-height: 1.4;
+                font-size: .82rem;
+            }
+
+            .role-actions {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: .5rem !important;
+            }
+
+            .role-actions .btn-small {
+                width: 100%;
+            }
+
+            #rolesTab > .d-flex,
+            #permissionsTab > .d-flex {
+                align-items: stretch !important;
+                flex-direction: column !important;
+                gap: .65rem !important;
+                margin-bottom: .85rem !important;
+            }
+
+            #rolesTab > .d-flex .btn,
+            #permissionsTab > .d-flex .btn,
+            .permissions-footer .btn,
+            #permissionsForm > .mt-4 .btn {
+                width: 100%;
+            }
+
+            .permission-module {
+                border-radius: 18px !important;
+            }
+
+            .module-header,
+            .modal .module-header {
+                padding: .75rem .85rem !important;
+            }
+
+            .module-permissions,
+            .modal .module-permissions {
+                display: grid;
+                gap: .45rem;
+                padding: .8rem !important;
+            }
+
+            .perm-item,
+            .perm-check,
+            .modal .perm-check {
+                display: flex !important;
+                align-items: flex-start !important;
+                gap: .55rem;
+                padding: .65rem !important;
+                min-height: 44px;
+            }
+
+            .perm-item input[type="checkbox"],
+            .perm-check input[type="checkbox"],
+            .modal .perm-check input[type="checkbox"],
+            input[type="checkbox"] {
+                flex: 0 0 auto;
+                width: 20px !important;
+                height: 20px !important;
+                margin-top: .05rem;
+            }
+
+            .perm-item label,
+            .perm-check label,
+            .modal .perm-check label {
+                min-width: 0;
+                line-height: 1.35;
+            }
+
+            #auditTab .card-body {
+                padding: .85rem !important;
+            }
+
+            #auditTab .card-body.p-0 {
+                padding: 0 !important;
+            }
+
+            #auditTab .row.g-3 > [class*="col-"] {
+                width: 100%;
+            }
+
+            #auditTab .d-flex.justify-content-end {
+                justify-content: stretch !important;
+            }
+
+            #auditTab .d-flex.justify-content-end .btn {
+                width: 100%;
+            }
+
+            #auditTab tbody td:nth-child(5) .btn {
+                width: auto;
+                min-width: 128px;
+            }
+
+            .pagination {
+                justify-content: center;
+                gap: .25rem;
+            }
+
+            .page-link {
+                min-height: 38px;
+                min-width: 38px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: .45rem .6rem !important;
+            }
+
+            /* Modals */
+            .modal-dialog,
+            .modal .modal-dialog,
+            .modal .modal-dialog.modal-lg,
+            .modal-dialog-scrollable,
+            #addUserModal .modal-dialog,
+            [id^="editUserModal"] .modal-dialog,
+            #addRoleModal .modal-dialog,
+            [id^="editRoleModal"] .modal-dialog,
+            [id^="userPermissionsModal"] .modal-dialog,
+            [id^="viewRoleMembersModal"] .modal-dialog,
+            #viewUserModal .modal-dialog,
+            [id^="viewUserModal"] .modal-dialog,
+            #resetPasswordModal .modal-dialog {
+                width: auto !important;
+                max-width: calc(100vw - 1rem) !important;
+                margin: .5rem auto !important;
+            }
+
+            .modal-content {
+                max-height: calc(100vh - 1rem);
+                border-radius: 18px !important;
+                overflow: hidden;
+            }
+
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) 38px;
+                gap: .65rem;
+                padding: .85rem !important;
+                background: #ffffff !important;
+            }
+
+            .modal-title {
+                min-width: 0;
+                font-size: .98rem !important;
+                line-height: 1.25 !important;
+            }
+
+            .modal-title i {
+                width: 30px !important;
+                height: 30px !important;
+                margin-right: .3rem !important;
+            }
+
+            .modal-header .btn-close {
+                width: 36px !important;
+                height: 36px !important;
+                margin: 0 !important;
+                border-radius: 12px !important;
+            }
+
+            .modal-body {
+                max-height: calc(100vh - 136px) !important;
+                padding: .85rem !important;
+                overflow-y: auto !important;
+            }
+
+            .modal-body form > .row.g-3 > [class*="col-"],
+            .modal-body > .row.g-3 > [class*="col-"],
+            .modal .col-6,
+            .modal .col-md-6,
+            .modal .col-md-4,
+            .modal .col-md-3,
+            .modal .col-md-2 {
+                width: 100% !important;
+            }
+
+            .modal-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 5;
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                gap: .55rem !important;
+                padding: .75rem .85rem !important;
+                background: #ffffff !important;
+                border-top: 1px solid var(--line, #e5e7eb) !important;
+            }
+
+            .modal-footer .btn {
+                width: 100% !important;
+                min-height: 44px;
+            }
+
+            .ux-permission-search {
+                position: sticky;
+                top: -.85rem;
+                z-index: 4;
+                margin: -.85rem -.85rem .85rem !important;
+                padding: .75rem .85rem !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: .55rem !important;
+            }
+
+            #auditLogDetailsModal pre {
+                max-width: 100%;
+                overflow-x: auto !important;
+                font-size: .76rem !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .users-stats-row {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            .tab-navigation {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .users-table-panel tbody td,
+            #auditTab tbody td,
+            [id^="viewRoleMembersModal"] tbody td {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                text-align: left !important;
+                gap: .25rem;
+            }
+
+            .users-table-panel tbody td::before,
+            #auditTab tbody td::before,
+            [id^="viewRoleMembersModal"] tbody td::before {
+                flex: initial;
+            }
+
+            .users-table-panel tbody td .d-flex.gap-1,
+            .users-table-panel tbody td .d-flex.gap-sm-2,
+            [id^="viewRoleMembersModal"] tbody td .d-flex {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+</style>
 </head>
 <body>
     <!-- Mobile Overlay -->
@@ -2611,7 +3345,7 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Open sidebar">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">

@@ -186,13 +186,55 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name(
 
 // OTP (public)
 Route::get('/verify-otp', function (Request $request) {
+    $accountType = $request->session()->get('otp_account_type', 'resident');
+
+    $cooldownSeconds = 0;
+    $maskedContact = null;
+
+    //Admin OTP Session
+
+    if ($accountType === 'admin') {
+        if (!$request->session()->has('admin_otp_user_id')) {
+            return redirect()->route('login')
+                ->with('fail', 'OTP session expired. Please login again.');
+        }
+
+        $admin = AdminUser::find($request->session()->get('admin_otp_user_id'));
+
+        if (!$admin) {
+            return redirect()->route('login')
+                ->with('fail', 'Admin account not found. Please login again.');
+        }
+
+        $expiresAt = $request->session()->get('admin_otp_expires_at');
+
+        if ($expiresAt && now('Asia/Manila')->lt(\Carbon\Carbon::parse($expiresAt))) {
+            $cooldownSeconds = max(
+                0,
+                now('Asia/Manila')->diffInSeconds(\Carbon\Carbon::parse($expiresAt), false)
+            );
+        }
+
+        $email = (string) $admin->email;
+        [$name, $domain] = array_pad(explode('@', $email, 2), 2, '');
+
+        $maskedContact = strlen($name) > 2
+            ? substr($name, 0, 2) . '****@' . $domain
+            : '****@' . $domain;
+
+        return view('barangay_system.verify_otp', [
+            'otpCooldownSeconds' => (int) $cooldownSeconds,
+            'maskedContact' => $maskedContact,
+        ]);
+    }
+
+    //Resident OTP Session
     if (!$request->session()->has('resident_id')) {
-        return redirect()->route('login')->with('fail', 'OTP session expired. Please login again.');
+        return redirect()->route('login')
+            ->with('fail', 'OTP session expired. Please login again.');
     }
 
     $resident = Residents::find($request->session()->get('resident_id'));
-    $cooldownSeconds = 0;
-    $maskedContact = null;
 
     if ($resident) {
         if (!empty($resident->phone_otp_expires_at) && now()->lt($resident->phone_otp_expires_at)) {
@@ -200,6 +242,7 @@ Route::get('/verify-otp', function (Request $request) {
         }
 
         $contactDigits = preg_replace('/\D+/', '', (string) $resident->contact);
+
         if (strlen($contactDigits) >= 4) {
             $maskedContact = '******' . substr($contactDigits, -4);
         }
@@ -336,7 +379,7 @@ Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
     
     // Admin login routes (public)
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
+    Route::post('/login', [ResidentsController::class, 'login_res'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 });
 
@@ -463,6 +506,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-delete', [AdminAnnouncement::class, 'bulkDelete'])->middleware('permission:delete_announcements')->name('bulkDelete');
         Route::post('/{id}/restore', [AdminAnnouncement::class, 'restore'])->middleware('permission:delete_announcements')->name('restore');
         Route::post('/{id}/toggle-feature', [AdminAnnouncement::class, 'toggleFeature'])->middleware('permission:feature_announcements')->name('toggle-feature');
+        Route::post('/announcements/bulk-notify-residents', [AdminAnnouncement::class, 'bulkNotifyResidents'])->middleware('permission:create_announcements')->name('bulkNotifyResidents');
     });
 
     // ==================== EVENTS MODULE ====================

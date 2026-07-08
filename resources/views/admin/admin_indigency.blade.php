@@ -491,32 +491,6 @@
             color: white;
         }
 
-        /* Header Styling - Mobile Optimized */
-        .header {
-            padding: 1rem 1.5rem;
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 0.75rem 1rem;
-            }
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0;
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 1.2rem;
-            }
-        }
-
         .profile-badge {
             display: flex;
             align-items: center;
@@ -679,7 +653,7 @@
 
         /* File Upload Styling */
         .form-control[type="file"] {
-            padding: 0.4rem 0.6rem;
+            padding: 1rem;
         }
 
         .form-control[type="file"]::file-selector-button {
@@ -957,6 +931,2392 @@
             width: 2.1rem;
             height: 1.1rem;
         }
+
+
+        :root {
+            --primary: #d32f2f;
+            --primary-light: #ffebee;
+            --primary-dark: #b71c1c;
+            --primary-gradient: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            --success: #2e7d32;
+            --success-light: #e8f5e8;
+            --warning: #ed6c02;
+            --warning-light: #fff4e5;
+            --info: #0288d1;
+            --info-light: #e5f4ff;
+            --gray-bg: #f8f9fa;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 15px 40px rgba(211, 47, 47, 0.12);
+            --border-color: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-bg);
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* Validation Styles */
+        .is-invalid {
+            border-color: var(--primary) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--primary);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert-danger {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .alert-danger ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .alert-danger li {
+            padding: 0.25rem 0;
+        }
+
+        .alert-danger li::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+
+        .stat-number {
+            color: #1e293b;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .stat-icon {
+            color: var(--primary);
+            background: var(--primary-light);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Table Styling - Mobile Optimized */
+        .table-responsive {
+            border-radius: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            margin-bottom: 0;
+            width: 100%;
+            min-width: 980px;
+            font-size: 0.86rem;
+            overflow: visible !important;
+        }
+
+        @media (max-width: 1400px) {
+            .table {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                min-width: 820px;
+                font-size: 0.8rem;
+            }
+
+            .dropdown-menu {
+                max-width: 90vw;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+
+        .table thead th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: normal;
+            line-height: 1.2;
+            padding: 0.65rem 0.5rem;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 0.65rem 0.5rem;
+            color: #4a5568;
+            border-bottom: 1px solid var(--border-color);
+            white-space: normal;
+            line-height: 1.25;
+            overflow: visible !important;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .badge.bg-success-subtle {
+            background: var(--success-light) !important;
+            color: var(--success);
+        }
+
+        .badge.bg-danger-subtle {
+            background: var(--primary-light) !important;
+            color: var(--primary);
+        }
+
+        .badge.bg-warning-subtle {
+            background: var(--warning-light) !important;
+            color: var(--warning);
+        }
+
+        .badge.bg-info-subtle {
+            background: #e5f4ff !important;
+            color: #0288d1;
+        }
+
+        .badge.bg-secondary-subtle {
+            background: #f1f3f4 !important;
+            color: #5f6368;
+        }
+
+        .badge.bg-primary-subtle {
+            background: #e8eaf6 !important;
+            color: #3949ab;
+        }
+
+        /* Button Styling - Mobile Optimized */
+        .btn {
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        @media (max-width: 576px) {
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .btn-sm {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-danger {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-success {
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-outline-success:hover {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--border-color);
+            color: #6c757d;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8f9fa;
+            color: #1e293b;
+            border-color: #ced4da;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #1e5e23;
+            border-color: #1e5e23;
+        }
+
+        .btn-danger {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-danger:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        /* Card Styling */
+        .card {
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        /* Form Styling - Mobile Optimized */
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.15);
+        }
+
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Modal Styling - Mobile Optimized */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .modal-header {
+                padding: 1rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                padding: 1rem;
+            }
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-body strong {
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .modal-body p {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .view-modal-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .view-modal-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            background: #e5f4ff;
+            color: #0288d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .view-modal-meta {
+            min-width: 0;
+        }
+
+        .view-modal-name {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .view-modal-sub {
+            font-size: 0.82rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .view-tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin: 0 -1.5rem 1rem;
+            padding: 0 1.5rem;
+            gap: 0.25rem;
+        }
+
+        .view-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            background: transparent;
+        }
+
+        .view-tabs .nav-link.active {
+            color: #1e293b;
+            border-bottom-color: #1e293b;
+            background: transparent;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .status-option {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 0.55rem;
+            background: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: left;
+            color: #1e293b;
+        }
+
+        .status-option.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px rgba(211, 47, 47, 0.15);
+            background: #fff5f5;
+        }
+
+        .status-option .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-right: 0.35rem;
+        }
+
+        .notify-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 0.65rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .notify-label {
+            line-height: 1.2;
+        }
+
+        .notify-label small {
+            color: #6c757d;
+            display: block;
+        }
+
+        .notify-switch.form-check.form-switch {
+            margin-bottom: 0;
+            padding-left: 0;
+        }
+
+        .notify-switch .form-check-input {
+            margin-left: 0;
+            width: 2.1rem;
+            height: 1.1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.35rem;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .action-btn {
+            min-height: 34px;
+            border-radius: 10px;
+            border: 1px solid #4a4f57;
+            background: #2f343b;
+            color: #f1f3f5;
+            padding: 0 0.55rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .action-label {
+            font-size: 0.73rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .action-btn.icon-only {
+            width: 34px;
+            padding: 0;
+            gap: 0;
+        }
+
+        .action-divider {
+            color: #9aa0a6;
+            font-size: 0.9rem;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: none;
+        }
+
+        .action-btn.action-view {
+            background: #2a2f36;
+            border-color: #4a4f57;
+            color: #ffffff;
+        }
+
+        .action-btn.action-update {
+            background: #d5f0ad;
+            border-color: #a9d772;
+            color: #2f4a11;
+        }
+
+        .action-btn.action-docs {
+            background: #d7ecff;
+            border-color: #95c5f2;
+            color: #0a4d86;
+        }
+
+        .action-btn.action-archive {
+            background: #ffdfe2;
+            border-color: #f1a8af;
+            color: #9f1f2e;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* Pagination Styling - Mobile Optimized */
+        .pagination {
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            border-radius: 8px !important;
+            border: 1px solid var(--border-color);
+            color: var(--primary);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 576px) {
+            .page-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .page-link:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: var(--primary);
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1e293b;
+            z-index: 1;
+        }
+
+        .profile-badge i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .role-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #userDropdown{
+            color: var(--primary);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #1e293b;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            background: #f8f9fa;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .profile-badge span {
+                display: none;
+            }
+
+            .profile-badge {
+                padding: 0.5rem;
+                border-radius: 50%;
+            }
+
+            .d-flex.gap-2.justify-content-end {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Filter Section - Mobile Optimized */
+        @media (max-width: 768px) {
+            .row.g-3 > [class*="col-"] {
+                margin-bottom: 0.5rem;
+            }
+            
+            .btn.w-100 {
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* Checkbox Styling */
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* Activity Log Styling */
+        .activity-item {
+            border-left: 3px solid var(--primary);
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile Action Buttons */
+        @media (max-width: 480px) {
+            .btn-outline-danger.d-flex span,
+            .btn-outline-success.d-flex span {
+                display: none;
+            }
+            
+            .btn-outline-danger.d-flex,
+            .btn-outline-success.d-flex {
+                padding: 0.5rem;
+            }
+            
+            .btn-outline-danger.d-flex i,
+            .btn-outline-success.d-flex i {
+                margin: 0;
+            }
+        }
+
+        /* Improved Touch Targets for Mobile */
+        @media (max-width: 768px) {
+            .btn, 
+            .page-link,
+            .form-control,
+            .form-select,
+            .input-group-text {
+                min-height: 44px;
+            }
+            
+            input[type="checkbox"] {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .table td .btn-sm {
+                min-height: 36px;
+                min-width: 36px;
+                padding: 0.5rem;
+            }
+        }
+
+        /* Container Padding for Mobile */
+        @media (max-width: 768px) {
+            .p-lg-4 {
+                padding: 0.75rem !important;
+            }
+        }
+
+        /* File Upload Styling */
+        .form-control[type="file"] {
+            padding: 1rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            margin-right: 1rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Dropdown button styling */
+        .btn-group .btn-sm {
+            padding: 0.3rem 0.6rem;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .table td .d-flex {
+            overflow: visible !important;
+        }
+
+        .table .dropdown-menu {
+            margin-top: 0.25rem;
+            z-index: 1055;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .table td .btn-group {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item form {
+            width: 100%;
+        }
+
+        .dropdown-item button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: inherit;
+        }
+
+        .dropdown-item button:hover {
+            background: none;
+        }
+
+        @media (max-width: 768px) {
+            .d-flex.gap-1.gap-sm-2.justify-content-end {
+                flex-wrap: wrap;
+                justify-content: flex-start !important;
+            }
+            
+            .btn-group {
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .dropdown-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .dropdown-item i {
+                width: 20px;
+                text-align: center;
+            }
+
+            .table .dropdown-menu {
+                max-width: 90vw;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+
+
+        /* ==========================================================
+           UI/UX REDESIGN OVERRIDE - Indigency Applications adopted from Residency design
+           Consistent with the redesigned Dashboard/Residents pages.
+        ========================================================== */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-soft: #eefaf2;
+            --warning: #d97706;
+            --warning-soft: #fff7ed;
+            --danger: #dc2626;
+            --danger-soft: #fff1f2;
+            --info: #0369a1;
+            --info-soft: #eff6ff;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --shadow-md: 0 18px 42px rgba(16, 24, 40, .10);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 11px;
+        }
+
+        html {
+            font-size: 70% !important;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--page-bg) !important;
+            color: var(--text) !important;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }
+
+        .min-w-0 { min-width: 0 !important; }
+        .residency-hero-icon,
+        .stat-icon,
+        .table-head-icon,
+        .modal-heading-icon,
+        .empty-state-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .mobile-menu-btn:hover {
+            color: var(--primary-dark);
+            background: #fffafa;
+            border-color: rgba(211,47,47,.22);
+        }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .38rem .5rem .38rem .78rem !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line);
+            border-radius: 999px !important;
+            box-shadow: var(--shadow-xs);
+            color: var(--text) !important;
+            font-weight: 700;
+        }
+
+        #userDropdown { color: var(--text) !important; }
+
+        .role-badge {
+            padding: .28rem .65rem !important;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 999px !important;
+            font-size: .72rem !important;
+            font-weight: 850 !important;
+        }
+
+        .residency-page {
+            width: 100%;
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .residency-alert,
+        .alert {
+            border: 0 !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success {
+            color: #14532d !important;
+            background: var(--success-soft) !important;
+            border: 1px solid rgba(22,128,60,.14) !important;
+        }
+
+        .alert-danger {
+            color: #991b1b !important;
+            background: var(--danger-soft) !important;
+            border: 1px solid rgba(220,38,38,.16) !important;
+        }
+
+        .residency-hero,
+        .stat-card,
+        .residency-filter-card,
+        .residency-table-card,
+        .modal-content {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .residency-hero {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(1rem, 1.8vw, 1.6rem);
+            margin-bottom: 1rem;
+        }
+
+        .residency-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 96% 0%, rgba(211,47,47,.11), transparent 31%),
+                radial-gradient(circle at 10% 100%, rgba(3,105,161,.08), transparent 30%),
+                linear-gradient(135deg, rgba(211,47,47,.04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .residency-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .residency-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.14);
+            border-radius: 15px;
+            font-size: 1.05rem;
+        }
+
+        .residency-kicker,
+        .table-kicker,
+        .modal-section-title {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .residency-hero h2 {
+            margin: .45rem 0 .4rem;
+            color: var(--text);
+            font-size: clamp(1.55rem, 2.4vw, 2.25rem);
+            font-weight: 850;
+            line-height: 1.08;
+            letter-spacing: -.055em;
+        }
+
+        .residency-hero p {
+            max-width: 790px;
+            margin: 0;
+            color: var(--muted);
+            font-size: .93rem;
+            line-height: 1.6;
+        }
+
+        .residency-hero-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .residency-hero-meta {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .65rem;
+            margin-top: 1rem;
+            color: var(--muted);
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .residency-hero-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: .42rem;
+            padding: .42rem .68rem;
+            background: rgba(255,255,255,.75);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+        }
+
+        .residency-stats {
+            margin-bottom: 1rem !important;
+        }
+
+        .stat-card {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: .9rem;
+            padding: 1rem !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+        }
+
+        .stat-card::before { display: none !important; }
+
+        .stat-card:hover,
+        .residency-filter-card:hover,
+        .residency-table-card:hover {
+            transform: translateY(-1px) !important;
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .73rem !important;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            color: var(--text) !important;
+            font-size: clamp(1.5rem, 2.2vw, 2.05rem) !important;
+            font-weight: 850 !important;
+            line-height: 1 !important;
+            letter-spacing: -.055em;
+        }
+
+        .stat-card small {
+            display: inline-flex !important;
+            align-items: center;
+            gap: .32rem;
+            margin-top: .5rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem !important;
+            font-weight: 650;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            width: 44px !important;
+            height: 44px !important;
+            color: var(--primary) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px !important;
+            font-size: 1rem !important;
+        }
+
+        .residency-stats > div:nth-child(2) .stat-icon { color: var(--warning) !important; background: var(--warning-soft) !important; border-color: #fed7aa; }
+        .residency-stats > div:nth-child(3) .stat-icon { color: var(--success) !important; background: var(--success-soft) !important; border-color: rgba(22,128,60,.14); }
+        .residency-stats > div:nth-child(4) .stat-icon { color: var(--danger) !important; background: var(--danger-soft) !important; border-color: rgba(220,38,38,.14); }
+
+        .residency-filter-card {
+            overflow: hidden;
+            margin-bottom: 1rem !important;
+        }
+
+        .residency-filter-card .card-body {
+            padding: 1rem !important;
+        }
+
+        .filter-title-block h6 {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin: 0;
+            color: var(--text);
+            font-size: .98rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .filter-title-block p {
+            margin: .25rem 0 0;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .filter-title-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 12px;
+        }
+
+        .form-control,
+        .form-select,
+        .input-group-text {
+            min-height: 42px;
+            color: var(--text) !important;
+            background-color: #ffffff !important;
+            border: 1px solid var(--line-strong) !important;
+            border-radius: 12px !important;
+            font-size: .88rem !important;
+            font-weight: 650;
+        }
+
+        .input-group .input-group-text {
+            border-radius: 12px 0 0 12px !important;
+            border-right: 0 !important;
+        }
+
+        .input-group .form-control {
+            border-left: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .input-group .btn {
+            border-radius: 0 12px 12px 0 !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(211,47,47,.45) !important;
+            outline: 3px solid rgba(211,47,47,.16) !important;
+            outline-offset: 1px;
+            box-shadow: none !important;
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+            margin-bottom: .38rem;
+        }
+
+        textarea.form-control {
+            min-height: 96px;
+            line-height: 1.55;
+            resize: vertical;
+        }
+
+        .btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem !important;
+            border-radius: 12px !important;
+            font-weight: 800 !important;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease !important;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary,
+        .btn-danger,
+        .btn-success {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211,47,47,.18);
+        }
+
+        .btn-primary:hover,
+        .btn-danger:hover,
+        .btn-success:hover {
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+        }
+
+        .btn-outline-primary,
+        .btn-outline-secondary,
+        .btn-light-soft {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-secondary:hover,
+        .btn-light-soft:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211,47,47,.22) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border: 1px solid rgba(220,38,38,.24) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border: 1px solid rgba(22,128,60,.24) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .residency-table-card {
+            overflow: hidden;
+        }
+
+        .residency-table-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .table-head-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .table-head-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+        }
+
+        .residency-table-head h3 {
+            margin: .15rem 0 .12rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .residency-table-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .table-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            flex: 0 0 auto;
+            width: fit-content;
+            padding: .42rem .68rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .table-responsive {
+            border-radius: 0 !important;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            min-width: 1060px !important;
+            margin-bottom: 0 !important;
+            font-size: .86rem !important;
+        }
+
+        .table thead th {
+            padding: .85rem .95rem !important;
+            color: #475467 !important;
+            background: #f9fafb !important;
+            border-bottom: 1px solid var(--line) !important;
+            font-size: .72rem !important;
+            font-weight: 850 !important;
+            text-transform: uppercase;
+            letter-spacing: .07em !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th a {
+            color: #475467 !important;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem !important;
+            color: var(--text) !important;
+            border-bottom: 1px solid var(--line) !important;
+            font-size: .86rem !important;
+            line-height: 1.45 !important;
+            white-space: nowrap !important;
+        }
+
+        .table tbody tr {
+            transition: background .16s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #fcfcfd !important;
+        }
+
+        .table .fw-semibold,
+        .table .fw-bold {
+            color: var(--text) !important;
+            font-weight: 820 !important;
+        }
+
+        .badge {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            padding: .42rem .62rem !important;
+            border-radius: 999px !important;
+            font-size: .73rem !important;
+            font-weight: 820 !important;
+            white-space: nowrap;
+        }
+
+        .badge.bg-success-subtle,
+        .badge.text-success { color: var(--success) !important; background: var(--success-soft) !important; border: 1px solid rgba(22,128,60,.14); }
+        .badge.bg-danger-subtle,
+        .badge.text-danger { color: var(--danger) !important; background: var(--danger-soft) !important; border: 1px solid rgba(220,38,38,.14); }
+        .badge.bg-warning-subtle,
+        .badge.text-warning { color: #9a3412 !important; background: var(--warning-soft) !important; border: 1px solid #fed7aa; }
+        .badge.bg-info-subtle,
+        .badge.text-info { color: var(--info) !important; background: var(--info-soft) !important; border: 1px solid #dbeafe; }
+        .badge.bg-secondary-subtle,
+        .badge.text-secondary { color: #475467 !important; background: #f9fafb !important; border: 1px solid var(--line); }
+        .badge.bg-primary-subtle,
+        .badge.text-primary { color: var(--primary-dark) !important; background: var(--primary-soft) !important; border: 1px solid rgba(211,47,47,.12); }
+        .badge.bg-light { color: #344054 !important; background: #f9fafb !important; border: 1px solid var(--line) !important; }
+
+        .action-buttons {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            flex-wrap: nowrap !important;
+            gap: .35rem !important;
+            padding: .25rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .action-divider { display: none !important; }
+
+        .action-btn {
+            min-width: 36px !important;
+            min-height: 36px !important;
+            padding: 0 .62rem !important;
+            border-radius: 11px !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: none !important;
+            font-weight: 850 !important;
+        }
+
+        .action-btn.icon-only {
+            width: 36px !important;
+            padding: 0 !important;
+        }
+
+        .action-btn.action-view {
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border-color: #dbeafe !important;
+        }
+
+        .action-btn.action-update {
+            color: var(--success) !important;
+            background: var(--success-soft) !important;
+            border-color: rgba(22,128,60,.18) !important;
+        }
+
+        .action-btn.action-docs {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.14) !important;
+        }
+
+        .action-btn.action-archive {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border-color: rgba(220,38,38,.16) !important;
+        }
+
+        .action-btn:disabled {
+            opacity: .45 !important;
+            filter: grayscale(.15);
+            cursor: not-allowed;
+        }
+
+        .pagination {
+            gap: .35rem !important;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            min-width: 36px;
+            border-radius: 11px !important;
+            border: 1px solid var(--line) !important;
+            color: var(--muted) !important;
+            background: #ffffff !important;
+            font-weight: 800;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .page-link:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211,47,47,.22) !important;
+        }
+
+        .page-item.active .page-link {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* Modal redesign */
+        .modal-backdrop.show { opacity: .42; }
+
+        .modal-dialog {
+            padding: .75rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            box-shadow: 0 24px 70px rgba(16,24,40,.18) !important;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background:
+                radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%),
+                linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: 0 !important;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin: 0 !important;
+            color: var(--text) !important;
+            font-size: 1.05rem !important;
+            font-weight: 850 !important;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 13px;
+        }
+
+        .modal-header .btn-close {
+            width: 38px;
+            height: 38px;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            filter: none !important;
+            opacity: 1 !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            background: #ffffff;
+            max-height: min(72vh, 760px) !important;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: .55rem;
+            padding: 1rem !important;
+            background: #ffffff;
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .modal-body h6,
+        .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin: 1rem 0 .75rem !important;
+            padding: .72rem .85rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: .82rem !important;
+            font-weight: 850 !important;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+        .modal-body h6:first-child { margin-top: 0 !important; }
+
+        .modal-body p {
+            margin-bottom: .7rem !important;
+            padding: .65rem .75rem !important;
+            color: var(--text) !important;
+            background: #f9fafb;
+            border: 1px solid var(--line) !important;
+            border-radius: 12px;
+        }
+
+        .modal-body strong {
+            color: #344054 !important;
+            font-size: .84rem !important;
+            font-weight: 850 !important;
+        }
+
+        .view-modal-name { color: var(--text) !important; }
+        .view-modal-sub { color: var(--muted) !important; opacity: 1 !important; }
+
+        .view-modal-avatar {
+            color: var(--primary) !important;
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211,47,47,.12);
+        }
+
+        .view-tabs {
+            margin: 0 0 1rem !important;
+            padding: .35rem !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 999px;
+            background: #f9fafb;
+        }
+
+        .view-tabs .nav-link {
+            border: 0 !important;
+            border-radius: 999px !important;
+            color: var(--muted) !important;
+            font-weight: 850 !important;
+        }
+
+        .view-tabs .nav-link.active {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211,47,47,.18);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .6rem !important;
+        }
+
+        .status-option {
+            min-height: 48px;
+            padding: .68rem .75rem !important;
+            color: var(--text) !important;
+            background: #ffffff !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            font-size: .84rem !important;
+            font-weight: 820 !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .status-option:hover {
+            transform: translateY(-1px);
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .status-option.active {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.28) !important;
+            box-shadow: 0 0 0 3px rgba(211,47,47,.10) !important;
+        }
+
+        .notify-row {
+            padding: .7rem .78rem !important;
+            background: #ffffff;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+        }
+
+        .invalid-feedback {
+            color: var(--danger) !important;
+            font-size: .76rem !important;
+            font-weight: 760;
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            outline-color: rgba(220,38,38,.16) !important;
+            box-shadow: none !important;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .dropdown-menu {
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            box-shadow: var(--shadow-sm) !important;
+            padding: .45rem !important;
+        }
+
+        .dropdown-item {
+            border-radius: 10px !important;
+            font-weight: 650;
+        }
+
+        .dropdown-item:hover {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+        }
+
+        @media (max-width: 1199px) {
+            .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 991px) {
+            .residency-hero-content { grid-template-columns: minmax(0, 1fr); }
+            .residency-hero-actions { justify-content: flex-start; }
+            .residency-table-head { flex-direction: column; }
+            .table-count-pill { align-self: flex-start; }
+            .profile-badge span:not(.role-badge) { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            html { font-size: 78% !important; }
+            .mobile-menu-btn { display: inline-flex !important; }
+            .title-icon, .mobile-menu-btn { width: 38px; height: 38px; }
+            .profile-badge { display: none !important; }
+            main.p-3, main.p-lg-4 { padding: .85rem !important; }
+            .residency-page { max-width: 100%; }
+            .residency-hero, .stat-card, .residency-filter-card, .residency-table-card, .modal-content { border-radius: 16px !important; }
+            .residency-stats > div { margin-bottom: .75rem; }
+            .residency-filter-card .d-flex.gap-2 { width: 100%; }
+            .residency-filter-card .d-flex.gap-2 .btn,
+            .residency-filter-card form[id="bulkForm"],
+            .residency-filter-card form[id="exportForm"] { flex: 1 1 140px; }
+            .residency-filter-card form[id="bulkForm"] .btn,
+            .residency-filter-card form[id="exportForm"] .btn { width: 100%; }
+            .table { min-width: 980px !important; }
+            .modal-dialog { padding: .45rem; }
+            .modal-body, .modal-header, .modal-footer { padding: .9rem !important; }
+            .modal-footer, .modal-footer .btn { width: 100%; }
+            .modal-footer { flex-direction: column-reverse; }
+            .status-grid { grid-template-columns: minmax(0, 1fr); }
+            .view-tabs { border-radius: 16px; overflow-x: auto; flex-wrap: nowrap; }
+            .view-tabs .nav-link { white-space: nowrap; }
+        }
+
+        @media (max-width: 575px) {
+            .residency-hero h2 { font-size: 1.55rem; }
+            .residency-hero-actions .btn { width: 100%; }
+            .stat-card { min-height: auto; }
+            .action-label { display: none !important; }
+            .action-btn.action-update { width: 36px !important; padding: 0 !important; }
+        }
+
+
+        /* ==========================================================
+           SIMPLIFIED INDIGENCY MANAGEMENT UX PATCH
+           Shows only high-value information in the table and moves
+           full details into cleaner modals.
+        ========================================================== */
+        .residency-table-card .table {
+            min-width: 780px !important;
+        }
+
+        .application-primary {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 240px;
+        }
+
+        .application-avatar {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.14);
+            border-radius: 14px;
+            font-weight: 850;
+            letter-spacing: -.03em;
+        }
+
+        .application-name {
+            color: var(--text);
+            font-weight: 850;
+            line-height: 1.25;
+        }
+
+        .application-ref,
+        .application-muted-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem;
+            margin-top: .18rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .ref-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .32rem;
+            width: fit-content;
+            max-width: 100%;
+            padding: .28rem .5rem;
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .info-stack {
+            display: grid;
+            gap: .25rem;
+            min-width: 150px;
+        }
+
+        .info-label-mini {
+            color: var(--muted-2);
+            font-size: .68rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .075em;
+        }
+
+        .info-main {
+            color: var(--text);
+            font-size: .86rem;
+            font-weight: 820;
+            line-height: 1.3;
+        }
+
+        .info-sub {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .status-cell {
+            display: grid;
+            gap: .34rem;
+            justify-items: start;
+        }
+
+        .status-date {
+            color: var(--muted);
+            font-size: .74rem;
+            font-weight: 650;
+        }
+
+        .action-buttons {
+            gap: .42rem !important;
+        }
+
+        .action-divider {
+            display: none !important;
+        }
+
+        .action-btn {
+            min-height: 36px !important;
+            border-radius: 12px !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .action-btn.action-view {
+            color: var(--text) !important;
+            background: #ffffff !important;
+            border-color: var(--line-strong) !important;
+        }
+
+        .action-btn.action-update {
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.18) !important;
+        }
+
+        .action-btn.action-docs {
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border-color: #dbeafe !important;
+        }
+
+        .action-btn.action-archive {
+            color: var(--danger) !important;
+            background: var(--danger-soft) !important;
+            border-color: rgba(220,38,38,.16) !important;
+        }
+
+        .application-modal-summary {
+            display: grid;
+            grid-template-columns: 1.35fr repeat(3, minmax(0, .75fr));
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-summary-card,
+        .detail-section-card,
+        .document-preview-card,
+        .status-flow-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .modal-summary-card {
+            display: grid;
+            align-content: start;
+            gap: .25rem;
+            padding: .85rem;
+        }
+
+        .modal-summary-card.is-primary {
+            background: linear-gradient(135deg, var(--primary-soft), #ffffff 58%);
+            border-color: rgba(211,47,47,.16);
+        }
+
+        .modal-summary-label {
+            color: var(--muted);
+            font-size: .7rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .modal-summary-value {
+            color: var(--text);
+            font-size: .95rem;
+            font-weight: 850;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        .modal-summary-help {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+
+        .detail-section-card {
+            padding: .95rem;
+            margin-bottom: .85rem;
+        }
+
+        .detail-section-title {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin-bottom: .75rem;
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 850;
+        }
+
+        .detail-section-title i {
+            color: var(--primary);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .65rem;
+        }
+
+        .detail-item {
+            padding: .72rem;
+            background: #fbfdff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: .18rem;
+            color: var(--muted);
+            font-size: .69rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .075em;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-size: .86rem;
+            font-weight: 750;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+
+        .document-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .document-preview-card {
+            overflow: hidden;
+        }
+
+        .document-preview-card .doc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            padding: .72rem .8rem;
+            border-bottom: 1px solid var(--line);
+            font-weight: 850;
+            color: var(--text);
+        }
+
+        .document-preview-card .doc-body {
+            display: grid;
+            place-items: center;
+            min-height: 190px;
+            padding: .8rem;
+            background: #f9fafb;
+        }
+
+        .document-preview-card img {
+            max-height: 210px;
+            width: auto;
+            max-width: 100%;
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            cursor: zoom-in;
+            object-fit: contain;
+        }
+
+        .empty-doc-note {
+            display: grid;
+            place-items: center;
+            gap: .35rem;
+            color: var(--muted);
+            text-align: center;
+            min-height: 140px;
+            font-size: .82rem;
+            font-weight: 650;
+        }
+
+        .empty-doc-note i {
+            font-size: 1.5rem;
+            color: var(--muted-2);
+        }
+
+        .modal-body h6.fw-semibold.text-primary {
+            display: flex;
+            align-items: center;
+            gap: .42rem;
+            margin: .25rem 0 .65rem;
+            padding: .65rem .75rem;
+            color: var(--primary-dark) !important;
+            background: var(--primary-soft);
+            border: 1px solid rgba(211,47,47,.12);
+            border-radius: 14px;
+            font-size: .84rem;
+            font-weight: 850 !important;
+        }
+
+        .modal-body h6.fw-semibold.text-primary::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--primary);
+        }
+
+        .status-flow-card {
+            padding: .85rem;
+            margin-bottom: .85rem;
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+        }
+
+        .status-flow-person {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .status-flow-person .application-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 13px;
+            font-size: .78rem;
+        }
+
+        .status-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: .55rem !important;
+        }
+
+        .status-option {
+            min-height: 52px;
+            padding: .72rem .78rem !important;
+            border-radius: 14px !important;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease;
+        }
+
+        .status-option:hover {
+            transform: translateY(-1px);
+            border-color: rgba(211,47,47,.24);
+            background: #fffafa;
+        }
+
+        .status-option.active {
+            color: var(--primary-dark);
+            background: var(--primary-soft) !important;
+            border-color: rgba(211,47,47,.36) !important;
+        }
+
+        @media (max-width: 991px) {
+            .application-modal-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .detail-grid,
+            .document-preview-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .residency-table-card .table {
+                min-width: 720px !important;
+            }
+            .application-primary {
+                min-width: 210px;
+            }
+            .application-modal-summary,
+            .status-grid {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            .modal-summary-card {
+                min-height: auto;
+            }
+        }
+
+    
+
+        /* Indigency-specific consistency adjustments */
+        .income-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            width: fit-content;
+            padding: .42rem .62rem;
+            color: var(--info) !important;
+            background: var(--info-soft) !important;
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        #indigencyTable {
+            min-width: 820px !important;
+        }
+
+        @media (max-width: 768px) {
+            #indigencyTable {
+                min-width: 720px !important;
+            }
+        }
+
+
+        /* Modern edit modal layout - matched with residency application design */
+        .edit-info-banner {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: .75rem;
+            align-items: center;
+            margin-bottom: .9rem;
+            padding: .85rem;
+            background:
+                radial-gradient(circle at top right, rgba(211,47,47,.08), transparent 34%),
+                linear-gradient(180deg, #ffffff, #fbfdff);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .edit-info-banner .application-avatar { width: 46px; height: 46px; border-radius: 15px; }
+        .edit-info-title { color: var(--text); font-size: .98rem; font-weight: 850; line-height: 1.25; letter-spacing: -.02em; }
+        .edit-info-subtitle { margin-top: .18rem; color: var(--muted); font-size: .8rem; font-weight: 650; line-height: 1.45; }
+        .modern-edit-form { display: grid; gap: .85rem; padding: .95rem; background: #fbfdff; border: 1px solid var(--line); border-radius: 20px; }
+        .edit-section-card { overflow: hidden; background: #ffffff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-xs); }
+        .edit-section-head { display: flex; align-items: flex-start; gap: .65rem; padding: .85rem .9rem; background: linear-gradient(180deg, #ffffff, #fbfdff); border-bottom: 1px solid var(--line); }
+        .edit-section-icon { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; color: var(--primary); background: var(--primary-soft); border: 1px solid rgba(211,47,47,.12); border-radius: 13px; }
+        .edit-section-title { margin: .05rem 0 .12rem; color: var(--text); font-size: .92rem; font-weight: 850; letter-spacing: -.018em; }
+        .edit-section-help { margin: 0; color: var(--muted); font-size: .78rem; font-weight: 650; line-height: 1.45; }
+        .edit-section-body { padding: .9rem; }
+        .edit-form-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .75rem; }
+        .edit-field { min-width: 0; }
+        .edit-col-3 { grid-column: span 3; }
+        .edit-col-4 { grid-column: span 4; }
+        .edit-col-6 { grid-column: span 6; }
+        .edit-col-12 { grid-column: span 12; }
+        .edit-field .form-label { display: flex; align-items: center; gap: .35rem; margin-bottom: .38rem; color: #344054; font-size: .78rem; font-weight: 850 !important; letter-spacing: -.005em; }
+        .edit-field .form-label i { color: var(--primary); font-size: .8rem; }
+        .edit-field .form-control, .edit-field .form-select { width: 100%; min-height: 44px; border-radius: 13px !important; }
+        .edit-field textarea.form-control { min-height: 96px; }
+        .edit-field small { display: block; margin-top: .35rem; color: var(--muted); font-size: .74rem; font-weight: 650; line-height: 1.35; }
+        .edit-file-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45rem; padding: .75rem; background: #f9fafb; border: 1px dashed var(--line-strong); border-radius: 16px; }
+        .edit-current-file { display: inline-flex; align-items: center; gap: .38rem; width: fit-content; max-width: 100%; padding: .38rem .58rem; color: var(--info); background: var(--info-soft); border: 1px solid #dbeafe; border-radius: 999px; font-size: .74rem; font-weight: 850; overflow-wrap: anywhere; }
+        .edit-required-note { display: inline-flex; align-items: center; gap: .42rem; width: fit-content; margin-top: .15rem; padding: .5rem .65rem; color: #9a3412; background: var(--warning-soft); border: 1px solid #fed7aa; border-radius: 999px; font-size: .76rem; font-weight: 760; }
+        .modal-footer[id^="viewFooterEdit"] .btn-primary { min-width: 150px; }
+        @media (max-width: 991px) { .edit-col-3, .edit-col-4 { grid-column: span 6; } }
+        @media (max-width: 768px) { .edit-info-banner, .modern-edit-form, .edit-section-card { border-radius: 16px; } .modern-edit-form { padding: .75rem; } .edit-section-head, .edit-section-body { padding: .8rem; } .edit-col-3, .edit-col-4, .edit-col-6, .edit-col-12 { grid-column: span 12; } }
+
     </style>
 </head>
 <body>
@@ -1091,6 +3451,43 @@
             <span>Backup Settings</span>
         </a>
         @endadmin_can
+    
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -1098,55 +3495,39 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button type="button" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-file-invoice me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
+                    <span class="title-icon"><i class="fas fa-file-invoice"></i></span>
                     Indigency Applications
                 </h1>
             </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="residency-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show residency-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show residency-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show residency-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -1157,8 +3538,39 @@
                 </div>
             @endif
 
+
+            <section class="residency-hero">
+                <div class="residency-hero-content">
+                    <div class="min-w-0">
+                        <div class="residency-hero-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="residency-kicker"><i class="fas fa-circle-check"></i> Indigency application management</div>
+                        <h2>Review assistance requests with only the details that matter.</h2>
+                        <p>Focus on the applicant, income bracket, household size, purpose, status, and next action. Full personal details and documents stay inside the modal for cleaner management.</p>
+                    </div>
+
+                    <div class="residency-hero-actions">
+                        @admin_can('create_indigency')
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                            <i class="fas fa-plus"></i>
+                            New Application
+                        </a>
+                        @endadmin_can
+                        <a href="{{ route('admin.indigency.index') }}" class="btn btn-light-soft">
+                            <i class="fas fa-rotate"></i>
+                            Reset View
+                        </a>
+                    </div>
+                </div>
+                <div class="residency-hero-meta">
+                    <span><i class="fas fa-list-check"></i> Total: <strong>{{ $total_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-clock"></i> Processing: <strong>{{ $processing_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-check-circle"></i> Approved: <strong>{{ $approved_count ?? 0 }}</strong></span>
+                    <span><i class="fas fa-times-circle"></i> Rejected: <strong>{{ $rejected_count ?? 0 }}</strong></span>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 residency-stats">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -1218,24 +3630,25 @@
             </div>
 
             <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
+            <div class="card border-0 mb-4 residency-filter-card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.indigency.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
                             <div class="col-12 col-md-6">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Applications
-                                </h6>
+                                <div class="filter-title-block">
+                                    <h6><span class="filter-title-icon"><i class="fas fa-filter"></i></span> Filter Applications</h6>
+                                    <p>Search by applicant, reference number, status, or income bracket.</p>
+                                </div>
                             </div>
                             <div class="col-12 col-md-6 text-md-end">
                                 <div class="d-flex gap-2 justify-content-md-end">
                                     @admin_can('create_indigency')
-                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Indigency Application</span>
+                                    <a href="#" class="btn btn-primary flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">New Application</span>
                                     </a>
                                     @endadmin_can
-                                    <a href="{{ route('admin.indigency.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
-                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
+                                    <a href="{{ route('admin.indigency.index') }}" class="btn btn-light-soft flex-fill flex-md-grow-0">
+                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset View</span>
                                     </a>
                                 </div>
                             </div>
@@ -1273,10 +3686,10 @@
                             <div class="col-6 col-md-3">
                                 <select name="monthly_income" class="form-select">
                                     <option value="">All Income</option>
-                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below ?5,000</option>
-                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>?5,000 - ?8,000</option>
-                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>?8,001 - ?10,000</option>
-                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>?10,001 - ?15,000</option>
+                                    <option value="below 5k" {{ request('monthly_income') == 'below 5k' ? 'selected' : '' }}>Below &#8369;5,000</option>
+                                    <option value="5k-8k" {{ request('monthly_income') == '5k-8k' ? 'selected' : '' }}>&#8369;5,000 - &#8369;8,000</option>
+                                    <option value="8k-10k" {{ request('monthly_income') == '8k-10k' ? 'selected' : '' }}>&#8369;8,001 - &#8369;10,000</option>
+                                    <option value="10k-15k" {{ request('monthly_income') == '10k-15k' ? 'selected' : '' }}>&#8369;10,001 - &#8369;15,000</option>
                                     <option value="no income" {{ request('monthly_income') == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                 </select>
                             </div>
@@ -1316,9 +3729,20 @@
                 </div>
             </div>
 
-            <!-- Indigency Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <!-- Indigency Table - Simplified Management View -->
+            <div class="card border-0 residency-table-card">
                 <div class="card-body p-0">
+                    <div class="residency-table-head">
+                        <div class="table-head-title">
+                            <span class="table-head-icon"><i class="fas fa-list-check"></i></span>
+                            <div>
+                                <span class="table-kicker">Application queue</span>
+                                <h3>Indigency requests</h3>
+                                <p>Only the important management details are shown here. Open the modal for documents and full profile details.</p>
+                            </div>
+                        </div>
+                        <span class="table-count-pill"><i class="fas fa-file-invoice"></i>{{ $indigency->total() ?? 0 }} records</span>
+                    </div>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="indigencyTable">
                             <thead class="table-light">
@@ -1327,9 +3751,8 @@
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Reference #
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                            Applicant / Reference
                                             @if(request('sort') == 'created_at')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -1337,43 +3760,9 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'first_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Full Name
-                                            @if(request('sort') == 'first_name')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="d-none d-lg-table-cell">Birthdate</th>
-                                    <th class="d-none d-md-table-cell">Gender</th>
-                                    <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'monthly_income', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Monthly Income
-                                            @if(request('sort') == 'monthly_income')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th class="d-none d-md-table-cell">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'household_members', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
-                                        class="text-decoration-none text-dark">
-                                            Household
-                                            @if(request('sort') == 'household_members')
-                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                            @else
-                                                <i class="fas fa-sort text-muted ms-1"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th>Status</th>
-                                    <th class="d-none d-lg-table-cell">Date Submitted</th>
+                                    <th>Income / Household</th>
+                                    <th>Purpose / Contact</th>
+                                    <th>Status / Submitted</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -1384,83 +3773,96 @@
                                     <td class="ps-4">
                                         <input type="checkbox" value="{{ $ind->id }}" class="application-checkbox">
                                     </td>
+
                                     <td class="ps-0">
-                                        <span class="fw-semibold">{{ $ind->reference_number }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-user text-primary"></i>
+                                        <div class="application-primary">
+                                            <div class="application-avatar">
+                                                {{ strtoupper(substr($ind->first_name, 0, 1) . substr($ind->last_name, 0, 1)) }}
                                             </div>
-                                            <div>
-                                                <div class="fw-semibold">{{ $ind->first_name }} {{ $ind->last_name }}</div>
-                                                @if($ind->suffix)
-                                                    <small class="text-muted d-lg-none">{{ $ind->suffix }}</small>
-                                                @endif
+                                            <div class="min-w-0">
+                                                <div class="application-name">{{ $ind->first_name }} {{ $ind->last_name }} {{ $ind->suffix }}</div>
+                                                <div class="application-ref">
+                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $ind->reference_number }}</span>
+                                                    <span>{{ $ind->created_at ? $ind->created_at->format('M d, Y') : 'N/A' }}</span>
+                                                </div>
+                                                <div class="application-muted-line d-lg-none">
+                                                    <i class="fas fa-phone"></i>{{ $ind->contact_number ?: 'No contact' }}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">{{ \Carbon\Carbon::parse($ind->birthdate)->format('M d, Y') }}</td>
-                                    <td class="d-none d-md-table-cell">{{ ucfirst($ind->gender) }}</td>
+
                                     <td>
-                                        <span class="income-badge">{{ $ind->monthly_income }}</span>
+                                        <div class="info-stack">
+                                            <span class="info-label-mini">Financial profile</span>
+                                            <span class="income-badge"><i class="fas fa-wallet"></i>{{ $ind->monthly_income ?: 'N/A' }}</span>
+                                            <span class="info-sub"><i class="fas fa-users me-1"></i>{{ $ind->household_members ?: 'N/A' }} household member(s)</span>
+                                        </div>
                                     </td>
-                                    <td class="d-none d-md-table-cell">
-                                        <span class="badge bg-light text-dark">{{ $ind->household_members }}</span>
-                                    </td>
+
                                     <td>
-                                        @if($ind->deleted_at)
-                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
-                                        @elseif($ind->status == 'approved')
-                                            <span class="badge bg-success-subtle text-success">Approved</span>
-                                        @elseif($ind->status == 'ready_pickup')
-                                            <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
-                                        @elseif($ind->status == 'claimed')
-                                            <span class="badge bg-success-subtle text-success">Claimed</span>
-                                        @elseif($ind->status == 'rejected')
-                                            <span class="badge bg-danger-subtle text-danger">Rejected</span>
-                                        @elseif($ind->status == 'pending')
-                                            <span class="badge bg-secondary-subtle text-secondary">Pending</span>
-                                        @elseif($ind->status == 'under_review')
-                                            <span class="badge bg-primary-subtle text-primary">Under Review</span>
-                                        @else
-                                            <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                        @endif
+                                        <div class="info-stack">
+                                            <span class="info-label-mini">Purpose</span>
+                                            <span class="info-main">
+                                                {{ $ind->purpose ? ucwords(str_replace('_', ' ', $ind->purpose)) : 'N/A' }}
+                                            </span>
+                                            @if($ind->purpose_other)
+                                                <span class="info-sub">{{ $ind->purpose_other }}</span>
+                                            @endif
+                                            <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $ind->contact_number ?: 'No contact' }}</span>
+                                        </div>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
-                                        <small>{{ $ind->created_at ? $ind->created_at->format('M d, Y h:i A') : 'N/A' }}</small>
+
+                                    <td>
+                                        <div class="status-cell">
+                                            @if($ind->deleted_at)
+                                                <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                            @elseif($ind->status == 'approved')
+                                                <span class="badge bg-success-subtle text-success">Approved</span>
+                                            @elseif($ind->status == 'ready_pickup')
+                                                <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                            @elseif($ind->status == 'claimed')
+                                                <span class="badge bg-success-subtle text-success">Claimed</span>
+                                            @elseif($ind->status == 'rejected')
+                                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                            @elseif($ind->status == 'pending')
+                                                <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                            @elseif($ind->status == 'under_review')
+                                                <span class="badge bg-primary-subtle text-primary">Under Review</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
+                                            @endif
+                                            <span class="status-date"><i class="far fa-calendar me-1"></i>{{ $ind->created_at ? $ind->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
+                                        </div>
                                     </td>
+
                                     <td class="text-end pe-4">
                                         <div class="action-buttons">
-                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ind->id }}" title="View">
+                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ind->id }}" title="View full details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
 
-                                            <span class="action-divider">|</span>
-
                                             @if(!$ind->deleted_at && (auth('admin')->user()->hasPermission('update_indigency') || auth('admin')->user()->hasPermission('approve_indigency') || auth('admin')->user()->hasPermission('reject_indigency')))
-                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $ind->id }}" title="Update">
+                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $ind->id }}" title="Update status">
                                                 <i class="fas fa-pen"></i>
                                                 <span class="action-label">Update</span>
                                             </button>
                                             @else
-                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update (No permission)">
+                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update unavailable">
                                                 <i class="fas fa-pen"></i>
                                                 <span class="action-label">Update</span>
                                             </button>
                                             @endif
 
                                             @if(!$ind->deleted_at && auth('admin')->user()->hasPermission('generate_indigency_document') && in_array($ind->status, ['approved', 'ready_pickup', 'claimed']))
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $ind->id }}" title="Docs">
+                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $ind->id }}" title="Generate documents">
                                                 <i class="fas fa-file-lines"></i>
                                             </button>
                                             @else
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Docs (Unavailable)">
+                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Documents unavailable">
                                                 <i class="fas fa-file-lines"></i>
                                             </button>
                                             @endif
-
-                                            <span class="action-divider">|</span>
 
                                             @if($ind->deleted_at && auth('admin')->user()->hasPermission('delete_indigency'))
                                             <form method="POST" action="{{ route('admin.indigency.restore', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this application?')">
@@ -1478,7 +3880,7 @@
                                                 </button>
                                             </form>
                                             @else
-                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive (No permission)">
+                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive unavailable">
                                                 <i class="fas fa-box-archive"></i>
                                             </button>
                                             @endif
@@ -1487,7 +3889,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="10" class="text-center py-5">
+                                    <td colspan="6" class="text-center py-5">
                                         <div class="py-4">
                                             <i class="fas fa-file-invoice fa-4x text-muted mb-3 opacity-50"></i>
                                             <h5 class="text-muted">No applications found</h5>
@@ -1661,10 +4063,10 @@
                                         <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
                                                name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
                                                <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below ?5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>?5,000 - ?8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>?8,001 - ?10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>?10,001 - ?15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below &#8369;5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>&#8369;5,000 - &#8369;8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>&#8369;8,001 - &#8369;10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>&#8369;10,001 - &#8369;15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
                                         </select>
                                         @if(session('form_type') == 'add')
@@ -1748,11 +4150,10 @@
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </button>
-                                <button type="submit" form="addApplicationForm" class="btn btn-success" id="submitAddForm">
+                                <button type="submit" form="addApplicationForm" class="btn btn-primary" id="submitAddForm">
                                     <i class="fas fa-save me-2"></i>Save Application
                                 </button>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1913,10 +4314,10 @@
                                             <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif" 
                                                 name="monthly_income" id="edit_monthly_income_{{ $ind->id }}" required>
                                                 <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below ?5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>?5,000 - ?8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>?8,001 - ?10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>?10,001 - ?15,000</option>
+                                                <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below &#8369;5,000</option>
+                                                <option value="5k-8k" {{ (session('form_type') == 'edit_'. $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '5k-8k' ? 'selected' : '' }}>&#8369;5,000 - &#8369;8,000</option>
+                                                <option value="8k-10k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '8k-10k' ? 'selected' : '' }}>&#8369;8,001 - &#8369;10,000</option>
+                                                <option value="10k-15k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == '10k-15k' ? 'selected' : '' }}>&#8369;10,001 - &#8369;15,000</option>
                                                 <option value="no income" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income)  == 'no income' ? 'selected' : '' }}>No fixed income</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -2024,7 +4425,6 @@
                                         <i class="fas fa-save me-2"></i>Update Application
                                     </button>
                                 </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2069,62 +4469,132 @@
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="details-panel-{{ $ind->id }}" role="tabpanel">
-                                    <div class="row g-3">
-                                        <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Personal Information</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Full Name</label><p class="fw-semibold">{{ $ind->first_name }} {{ $ind->middle_name }} {{ $ind->last_name }} {{ $ind->suffix }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Birthdate</label><p>{{ \Carbon\Carbon::parse($ind->birthdate)->format('F d, Y') }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Gender</label><p>{{ ucfirst($ind->gender) }}</p></div>
+                                    <div class="application-modal-summary">
+                                        <div class="modal-summary-card is-primary">
+                                            <span class="modal-summary-label">Applicant</span>
+                                            <span class="modal-summary-value">{{ $ind->first_name }} {{ $ind->middle_name }} {{ $ind->last_name }} {{ $ind->suffix }}</span>
+                                            <span class="modal-summary-help"><i class="fas fa-hashtag me-1"></i>{{ $ind->reference_number }}</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Current Status</span>
+                                            <span class="modal-summary-value">
+                                                @if($ind->deleted_at) Archived
+                                                @elseif($ind->status == 'ready_pickup') Ready for Pickup
+                                                @else {{ ucwords(str_replace('_', ' ', $ind->status)) }}
+                                                @endif
+                                            </span>
+                                            <span class="modal-summary-help">Application progress</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Income / Household</span>
+                                            <span class="modal-summary-value">{{ $ind->monthly_income ?: 'N/A' }}</span>
+                                            <span class="modal-summary-help">{{ $ind->household_members ?: 'N/A' }} household member(s)</span>
+                                        </div>
+                                        <div class="modal-summary-card">
+                                            <span class="modal-summary-label">Submitted</span>
+                                            <span class="modal-summary-value">{{ $ind->created_at ? $ind->created_at->format('M d, Y') : 'N/A' }}</span>
+                                            <span class="modal-summary-help">{{ $ind->created_at ? $ind->created_at->format('h:i A') : '' }}</span>
+                                        </div>
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Contact Information</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Email</label><p>{{ $ind->email ?: 'N/A' }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Contact Number</label><p>{{ $ind->contact_number ?: 'N/A' }}</p></div>
-                                        <div class="col-12"><label class="form-label text-muted">Address</label><p>{{ $ind->address ?: 'N/A' }}</p></div>
+                                    <div class="detail-section-card">
+                                        <div class="detail-section-title"><i class="fas fa-user-check"></i>Important applicant information</div>
+                                        <div class="detail-grid">
+                                            <div class="detail-item"><span class="detail-label">Birthdate</span><div class="detail-value">{{ $ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('F d, Y') : 'N/A' }}</div></div>
+                                            <div class="detail-item"><span class="detail-label">Gender</span><div class="detail-value">{{ ucfirst($ind->gender) }}</div></div>
+                                            <div class="detail-item"><span class="detail-label">Email</span><div class="detail-value">{{ $ind->email ?: 'N/A' }}</div></div>
+                                            <div class="detail-item"><span class="detail-label">Contact number</span><div class="detail-value">{{ $ind->contact_number ?: 'N/A' }}</div></div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;"><span class="detail-label">Address</span><div class="detail-value">{{ $ind->address ?: 'N/A' }}</div></div>
+                                        </div>
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Indigency Details</h6></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Monthly Income</label><p>{{ $ind->monthly_income }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Household Members</label><p>{{ $ind->household_members ?: 'N/A' }}</p></div>
-                                        <div class="col-12"><label class="form-label text-muted">Purpose</label><p>{{ $ind->purpose }} {{ $ind->purpose_other ? '(' . $ind->purpose_other . ')' : '' }}</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Status</label><p>@if($ind->status == 'approved')<span class="badge bg-success-subtle text-success">Approved</span>@elseif($ind->status == 'rejected')<span class="badge bg-danger-subtle text-danger">Rejected</span>@elseif($ind->status == 'ready_pickup')<span class="badge bg-info-subtle text-info">Ready for Pickup</span>@elseif($ind->status == 'claimed')<span class="badge bg-primary-subtle text-primary">Claimed</span>@elseif($ind->status == 'under_review')<span class="badge bg-secondary-subtle text-secondary">Under Review</span>@else<span class="badge bg-warning-subtle text-warning">Processing</span>@endif</p></div>
-                                        <div class="col-md-6"><label class="form-label text-muted">Submitted At</label><p>{{ $ind->created_at ? $ind->created_at->format('F d, Y h:i A') : 'N/A' }}</p></div>
+                                    <div class="detail-section-card">
+                                        <div class="detail-section-title"><i class="fas fa-hand-holding-heart"></i>Indigency request</div>
+                                        <div class="detail-grid">
+                                            <div class="detail-item"><span class="detail-label">Monthly income</span><div class="detail-value">{{ $ind->monthly_income ?: 'N/A' }}</div></div>
+                                            <div class="detail-item"><span class="detail-label">Household members</span><div class="detail-value">{{ $ind->household_members ?: 'N/A' }}</div></div>
+                                            <div class="detail-item" style="grid-column: 1 / -1;"><span class="detail-label">Purpose</span><div class="detail-value">{{ $ind->purpose ? ucwords(str_replace('_', ' ', $ind->purpose)) : 'N/A' }} {{ $ind->purpose_other ? '(' . $ind->purpose_other . ')' : '' }}</div></div>
+                                        </div>
+                                    </div>
 
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Documents</h6></div>
-                                        <div class="col-12"><h6 class="fw-semibold text-primary">Proof of Residency</h6>@if($ind->primary_proof)<img src="{{ asset($ind->primary_proof) }}" class="img-fluid rounded shadow-sm" style="max-height:240px; cursor:pointer;" onclick="openZoomModal('{{ asset($ind->primary_proof) }}')">@else<p class="text-muted">No proof uploaded</p>@endif</div>
-                                        <div class="col-12 mt-2"><h6 class="fw-semibold text-primary">Valid ID</h6>@if($ind->valid_id_path)<img src="{{ asset($ind->valid_id_path) }}" class="img-fluid rounded shadow-sm" style="max-height:240px; cursor:pointer;" onclick="openZoomModal('{{ asset($ind->valid_id_path) }}')">@else<p class="text-muted">No valid ID uploaded</p>@endif</div>
+                                    <div class="detail-section-card mb-0">
+                                        <div class="detail-section-title"><i class="fas fa-folder-open"></i>Required documents</div>
+                                        <div class="document-preview-grid">
+                                            <div class="document-preview-card">
+                                                <div class="doc-head"><span><i class="fas fa-house me-1"></i>Proof of Residency</span></div>
+                                                <div class="doc-body">
+                                                    @if($ind->primary_proof)
+                                                        <img src="{{ asset($ind->primary_proof) }}" alt="Proof of residency" onclick="openZoomModal('{{ asset($ind->primary_proof) }}')">
+                                                    @else
+                                                        <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No proof uploaded</span></div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="document-preview-card">
+                                                <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID</span></div>
+                                                <div class="doc-body">
+                                                    @if($ind->valid_id_path)
+                                                        <img src="{{ asset($ind->valid_id_path) }}" alt="Valid ID" onclick="openZoomModal('{{ asset($ind->valid_id_path) }}')">
+                                                    @else
+                                                        <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No valid ID uploaded</span></div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="edit-panel-{{ $ind->id }}" role="tabpanel">
-                                    <form method="POST" action="{{ route('admin.indigency.update', $ind->id) }}" id="quickEditForm{{ $ind->id }}" enctype="multipart/form-data">
+
+                                <div class="tab-pane fade edit-info-pane" id="edit-panel-{{ $ind->id }}" role="tabpanel">
+                                    <div class="edit-info-banner">
+                                        <div class="application-avatar">{{ strtoupper(substr($ind->first_name, 0, 1) . substr($ind->last_name, 0, 1)) }}</div>
+                                        <div class="min-w-0">
+                                            <div class="edit-info-title">Edit information for {{ $ind->first_name }} {{ $ind->last_name }}</div>
+                                            <div class="edit-info-subtitle">Reference {{ $ind->reference_number }} · Update applicant details, income profile, purpose, and replacement documents.</div>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{{ route('admin.indigency.update', $ind->id) }}" id="quickEditForm{{ $ind->id }}" enctype="multipart/form-data" class="quick-edit-form modern-edit-form">
                                         @csrf
                                         @method('PUT')
-                                        <div class="row g-3 quick-edit-form">
-                                            <div class="col-12"><h6 class="fw-semibold text-primary mb-0">Personal Information</h6></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">First Name</label><input type="text" name="first_name" class="form-control" value="{{ $ind->first_name }}" required></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">Middle Name</label><input type="text" name="middle_name" class="form-control" value="{{ $ind->middle_name }}"></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-control" value="{{ $ind->last_name }}" required></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">Suffix</label><select class="form-select" name="suffix"><option value="">None</option><option value="Jr." {{ $ind->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option><option value="Sr." {{ $ind->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option><option value="II" {{ $ind->suffix == 'II' ? 'selected' : '' }}>II</option><option value="III" {{ $ind->suffix == 'III' ? 'selected' : '' }}>III</option><option value="IV" {{ $ind->suffix == 'IV' ? 'selected' : '' }}>IV</option><option value="V" {{ $ind->suffix == 'V' ? 'selected' : '' }}>V</option></select></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $ind->birthdate }}" required max="{{ date('Y-m-d') }}"></div>
-                                            <div class="col-12 col-md-4"><label class="form-label">Gender</label><select class="form-select" name="gender" required><option value="male" {{ $ind->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $ind->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $ind->gender == 'other' ? 'selected' : '' }}>Other</option></select></div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Contact Information</h6></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ $ind->email }}" required></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Contact Number</label><input type="text" name="contact_number" class="form-control" value="{{ $ind->contact_number }}" maxlength="11" required></div>
-                                            <div class="col-12"><label class="form-label">Address</label><textarea name="address" class="form-control" rows="2" required>{{ $ind->address }}</textarea></div>
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head"><span class="edit-section-icon"><i class="fas fa-user"></i></span><div><div class="edit-section-title">Personal Information</div><p class="edit-section-help">Keep the applicant identity accurate for document generation.</p></div></div>
+                                            <div class="edit-section-body"><div class="edit-form-grid">
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>First Name</label><input type="text" name="first_name" class="form-control" value="{{ $ind->first_name }}" required></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>Middle Name</label><input type="text" name="middle_name" class="form-control" value="{{ $ind->middle_name }}"></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>Last Name</label><input type="text" name="last_name" class="form-control" value="{{ $ind->last_name }}" required></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-signature"></i>Suffix</label><select class="form-select" name="suffix"><option value="">None</option><option value="Jr." {{ $ind->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option><option value="Sr." {{ $ind->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option><option value="II" {{ $ind->suffix == 'II' ? 'selected' : '' }}>II</option><option value="III" {{ $ind->suffix == 'III' ? 'selected' : '' }}>III</option><option value="IV" {{ $ind->suffix == 'IV' ? 'selected' : '' }}>IV</option><option value="V" {{ $ind->suffix == 'V' ? 'selected' : '' }}>V</option></select></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-calendar"></i>Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $ind->birthdate }}" required max="{{ date('Y-m-d') }}"></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-venus-mars"></i>Gender</label><select class="form-select" name="gender" required><option value="male" {{ $ind->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $ind->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $ind->gender == 'other' ? 'selected' : '' }}>Other</option></select></div>
+                                            </div></div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Application Details</h6></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Monthly Income</label><select class="form-select" name="monthly_income" required><option value="below 5k" {{ $ind->monthly_income == 'below 5k' ? 'selected' : '' }}>Below PHP 5,000</option><option value="5k-8k" {{ $ind->monthly_income == '5k-8k' ? 'selected' : '' }}>PHP 5,000 - PHP 8,000</option><option value="8k-10k" {{ $ind->monthly_income == '8k-10k' ? 'selected' : '' }}>PHP 8,001 - PHP 10,000</option><option value="10k-15k" {{ $ind->monthly_income == '10k-15k' ? 'selected' : '' }}>PHP 10,001 - PHP 15,000</option><option value="no income" {{ $ind->monthly_income == 'no income' ? 'selected' : '' }}>No fixed income</option></select></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Household Members</label><input type="number" name="household_members" class="form-control" min="1" max="20" value="{{ $ind->household_members }}" required></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Purpose</label><select class="form-select" name="purpose" required><option value="medical" {{ $ind->purpose == 'medical' ? 'selected' : '' }}>Medical / Hospital assistance</option><option value="scholarship" {{ $ind->purpose == 'scholarship' ? 'selected' : '' }}>Scholarship / Financial aid</option><option value="government" {{ $ind->purpose == 'government' ? 'selected' : '' }}>Government program</option><option value="legal" {{ $ind->purpose == 'legal' ? 'selected' : '' }}>Legal assistance</option><option value="employment" {{ $ind->purpose == 'employment' ? 'selected' : '' }}>Employment requirement</option><option value="burial" {{ $ind->purpose == 'burial' ? 'selected' : '' }}>Burial assistance</option><option value="other" {{ $ind->purpose == 'other' ? 'selected' : '' }}>Other</option></select></div>
-                                            <div class="col-12 col-md-6"><label class="form-label">Purpose (Other)</label><input type="text" name="purpose_other" class="form-control" value="{{ $ind->purpose_other }}"></div>
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head"><span class="edit-section-icon"><i class="fas fa-address-book"></i></span><div><div class="edit-section-title">Contact Information</div><p class="edit-section-help">Used for applicant notification and request follow-up.</p></div></div>
+                                            <div class="edit-section-body"><div class="edit-form-grid">
+                                                <div class="edit-field edit-col-6"><label class="form-label"><i class="fas fa-envelope"></i>Email</label><input type="email" name="email" class="form-control" value="{{ $ind->email }}" required></div>
+                                                <div class="edit-field edit-col-6"><label class="form-label"><i class="fas fa-phone"></i>Contact Number</label><input type="text" name="contact_number" class="form-control" value="{{ $ind->contact_number }}" maxlength="11" required><small>Use Philippine mobile format, for example 09XXXXXXXXX.</small></div>
+                                                <div class="edit-field edit-col-12"><label class="form-label"><i class="fas fa-map-marker-alt"></i>Complete Address</label><textarea name="address" class="form-control" rows="2" required>{{ $ind->address }}</textarea></div>
+                                            </div></div>
+                                        </div>
 
-                                            <div class="col-12 mt-2"><h6 class="fw-semibold text-primary mb-0">Upload Documents</h6><small class="text-muted">Leave empty to keep current file.</small></div>
-                                            <div class="col-12"><label class="form-label">Proof of Residency</label><input type="file" name="primary_proof" class="form-control" accept="image/*,.pdf"><small class="text-muted">Upload image or PDF (Max: 5MB)</small></div>
-                                            <div class="col-12"><label class="form-label">Valid ID</label><input type="file" name="valid_id_path" class="form-control" accept="image/*,.pdf"><small class="text-muted">Upload image or PDF (Max: 5MB)</small></div>
-                                            @if($ind->primary_proof)
-                                            <div class="col-12"><small class="text-info"><i class="fas fa-info-circle me-1"></i>Current proof of residency: {{ basename($ind->primary_proof) }}</small></div>
-                                            @endif
-                                            @if($ind->valid_id_path)
-                                            <div class="col-12"><small class="text-info"><i class="fas fa-info-circle me-1"></i>Current valid ID: {{ basename($ind->valid_id_path) }}</small></div>
-                                            @endif
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head"><span class="edit-section-icon"><i class="fas fa-hand-holding-heart"></i></span><div><div class="edit-section-title">Indigency Details</div><p class="edit-section-help">These values describe the basis of the indigency certificate.</p></div></div>
+                                            <div class="edit-section-body"><div class="edit-form-grid">
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-wallet"></i>Monthly Income</label><select class="form-select" name="monthly_income" required><option value="below 5k" {{ $ind->monthly_income == 'below 5k' ? 'selected' : '' }}>Below PHP 5,000</option><option value="5k-8k" {{ $ind->monthly_income == '5k-8k' ? 'selected' : '' }}>PHP 5,000 - PHP 8,000</option><option value="8k-10k" {{ $ind->monthly_income == '8k-10k' ? 'selected' : '' }}>PHP 8,001 - PHP 10,000</option><option value="10k-15k" {{ $ind->monthly_income == '10k-15k' ? 'selected' : '' }}>PHP 10,001 - PHP 15,000</option><option value="no income" {{ $ind->monthly_income == 'no income' ? 'selected' : '' }}>No fixed income</option></select></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-users"></i>Household Members</label><input type="number" name="household_members" class="form-control" min="1" max="20" value="{{ $ind->household_members }}" required></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-bullseye"></i>Purpose</label><select class="form-select" name="purpose" required><option value="medical" {{ $ind->purpose == 'medical' ? 'selected' : '' }}>Medical / Hospital assistance</option><option value="scholarship" {{ $ind->purpose == 'scholarship' ? 'selected' : '' }}>Scholarship / Financial aid</option><option value="government" {{ $ind->purpose == 'government' ? 'selected' : '' }}>Government program</option><option value="legal" {{ $ind->purpose == 'legal' ? 'selected' : '' }}>Legal assistance</option><option value="employment" {{ $ind->purpose == 'employment' ? 'selected' : '' }}>Employment requirement</option><option value="burial" {{ $ind->purpose == 'burial' ? 'selected' : '' }}>Burial assistance</option><option value="other" {{ $ind->purpose == 'other' ? 'selected' : '' }}>Other</option></select></div>
+                                                <div class="edit-field edit-col-12"><label class="form-label"><i class="fas fa-pen-line"></i>Purpose Other</label><input type="text" name="purpose_other" class="form-control" value="{{ $ind->purpose_other }}" placeholder="Please specify if purpose is other"></div>
+                                            </div></div>
+                                        </div>
+
+                                        <div class="edit-section-card">
+                                            <div class="edit-section-head"><span class="edit-section-icon"><i class="fas fa-folder-open"></i></span><div><div class="edit-section-title">Documents</div><p class="edit-section-help">Leave uploads empty to keep the current submitted files.</p></div></div>
+                                            <div class="edit-section-body"><div class="edit-form-grid">
+                                                <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-file-image"></i>Proof of Residency</label><input type="file" name="primary_proof" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->primary_proof)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->primary_proof) }}</span>@endif</div></div>
+                                                <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-id-card"></i>Valid ID</label><input type="file" name="valid_id_path" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->valid_id_path)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->valid_id_path) }}</span>@endif</div></div>
+                                                <div class="edit-field edit-col-12"><span class="edit-required-note"><i class="fas fa-circle-info"></i> Only replace documents when the applicant submitted corrected files.</span></div>
+                                            </div></div>
                                         </div>
                                     </form>
                                 </div>
@@ -2175,13 +4645,21 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Update application status</h5>
+                            <h5 class="modal-title"><i class="fas fa-pen-to-square me-2"></i>Update application status</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" onsubmit="return handleUpdateStatusSubmit(event, this)">
                             @csrf
                             <div class="modal-body">
-                                <div class="mb-2 small text-muted">{{ $ind->first_name }} {{ $ind->last_name }} - {{ $ind->reference_number }}</div>
+                                <div class="status-flow-card">
+                                    <div class="status-flow-person">
+                                        <div class="application-avatar">{{ strtoupper(substr($ind->first_name, 0, 1) . substr($ind->last_name, 0, 1)) }}</div>
+                                        <div class="min-w-0">
+                                            <div class="application-name">{{ $ind->first_name }} {{ $ind->last_name }}</div>
+                                            <div class="application-ref"><span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $ind->reference_number }}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="mb-3"><label class="form-label text-uppercase fw-semibold small">New status</label><input type="hidden" name="status" value="{{ $ind->status }}" class="selected-status-input"><div class="status-grid" data-current-status="{{ $ind->status }}"><button type="button" class="status-option" data-status="pending"><span class="dot" style="background:#ed6c02;"></span>Pending</button><button type="button" class="status-option" data-status="under_review"><span class="dot" style="background:#0288d1;"></span>Under review</button><button type="button" class="status-option" data-status="processing"><span class="dot" style="background:#5e35b1;"></span>Processing</button><button type="button" class="status-option" data-status="approved"><span class="dot" style="background:#2e7d32;"></span>Approved</button><button type="button" class="status-option" data-status="ready_pickup"><span class="dot" style="background:#00acc1;"></span>Ready for pickup</button><button type="button" class="status-option" data-status="claimed"><span class="dot" style="background:#43a047;"></span>Claimed</button><button type="button" class="status-option" data-status="rejected" style="grid-column: span 3;"><span class="dot" style="background:#d32f2f;"></span>Rejected</button></div></div>
                                 <div class="mb-3"><label class="form-label text-uppercase fw-semibold small">Remarks <span class="text-muted fw-normal">(optional - required if rejected, max 40 chars)</span></label><textarea class="form-control" name="remarks" rows="3" maxlength="40" placeholder="Add a note about this status change..."></textarea></div>
                                 <div class="{{ in_array($ind->status, ['approved', 'ready_pickup', 'rejected']) ? '' : 'd-none' }}" data-notify-wrap data-has-email="{{ $ind->email ? '1' : '0' }}" data-has-sms="{{ $ind->contact_number ? '1' : '0' }}">
@@ -2245,7 +4723,9 @@
                     });
                 </script>
             @endif
-        </main>
+                    </div>
+
+</main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

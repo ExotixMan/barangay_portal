@@ -88,7 +88,7 @@
         }
 
         .alert-danger li::before {
-            content: '���️';
+            content: '';
             margin-right: 0.5rem;
         }
 
@@ -623,23 +623,27 @@
 
         /* File Upload Styling */
         .form-control[type="file"] {
-            padding: 0.4rem 0.6rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-style: dashed;
+            align-items: center;
         }
 
         .form-control[type="file"]::file-selector-button {
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: #f8f9fa;
-            padding: 0.4rem 0.8rem;
-            margin-right: 1rem;
-            color: #1e293b;
-            transition: all 0.2s ease;
+            border-radius: 10px;
+            border: 1px solid var(--line-strong);
+            background: #ffffff;
+            padding: .48rem .75rem;
+            margin-right: .75rem;
+            color: var(--text);
+            font-weight: 760;
+            transition: all .16s ease;
         }
 
         .form-control[type="file"]::file-selector-button:hover {
-            background: var(--primary-light);
-            color: var(--primary);
-            border-color: var(--primary);
+            color: var(--primary-dark);
+            background: #fffafa;
+            border-color: rgba(211, 47, 47, .22);
         }
 
         @media (max-width: 768px) {
@@ -714,7 +718,1401 @@
             margin-top: 10px;
             border: 1px solid var(--border-color);
         }
-    </style>
+
+
+        /* ==========================================================
+           Announcements UX redesign override
+           Matches the Projects page layout, spacing, tables, and modals.
+           Keeps existing sidebar/header/routes/forms/permissions intact.
+        ========================================================== */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-light: #fff5f5;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-light: #eefaf2;
+            --warning: #d97706;
+            --warning-light: #fff7ed;
+            --danger: #dc2626;
+            --danger-light: #fff1f2;
+            --info: #0369a1;
+            --info-light: #eff6ff;
+            --secondary: #667085;
+            --secondary-light: #f9fafb;
+            --gray-bg: #f8fafc;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --border-color: #e5e7eb;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        html { font-size: 70%; scroll-behavior: smooth; }
+
+        body {
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .min-w-0 { min-width: 0 !important; }
+
+        .announcements-page {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .announcements-alert,
+        .announcements-page > .alert,
+        main > .alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .announcements-alert.fade:not(.show),
+        .announcements-page > .alert.fade:not(.show),
+        main > .alert.fade:not(.show) {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .alert-danger li::before { content: ''; margin-right: 0; }
+
+        .announcements-hero,
+        .announcements-panel,
+        .stat-card,
+        .card.border-0 {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .announcements-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            padding: clamp(1.1rem, 1.8vw, 1.5rem);
+        }
+
+        .announcements-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(135deg, rgba(211, 47, 47, .04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .announcements-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .announcements-hero-icon,
+        .announcements-panel-icon,
+        .stat-icon,
+        .announcement-icon,
+        .empty-state-icon,
+        .modal-title i,
+        .detail-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .announcements-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .14);
+            border-radius: 14px;
+            font-size: 1.12rem;
+        }
+
+        .announcements-kicker,
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .announcements-hero h2 {
+            margin: .48rem 0 .42rem;
+            color: var(--text);
+            font-size: clamp(1.65rem, 2.6vw, 2.25rem);
+            font-weight: 850;
+            line-height: 1.08;
+            letter-spacing: -.055em;
+        }
+
+        .announcements-hero p,
+        .panel-copy,
+        .empty-state p,
+        .modal-subtitle,
+        .field-hint {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .announcements-hero p {
+            max-width: 720px;
+            margin: 0;
+            font-size: .93rem;
+        }
+
+        .announcements-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: .65rem;
+        }
+
+        .announcements-stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem;
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .announcements-stats-row > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+        }
+
+        .notification-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .notification-summary-card {
+            padding: .9rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .notification-summary-card span {
+            display: block;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .notification-summary-card strong {
+            display: block;
+            margin-top: .25rem;
+            color: var(--text);
+            font-size: 1.45rem;
+            font-weight: 850;
+            letter-spacing: -.04em;
+        }
+
+        .notification-preview-box {
+            overflow: hidden;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .notification-preview-header {
+            display: flex;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .75rem .9rem;
+            color: var(--text);
+            background: #ffffff;
+            border-bottom: 1px solid var(--line);
+            font-size: .78rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .notification-preview-header span {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+        }
+
+        .notification-preview-header span:last-child {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            padding: .28rem .55rem;
+        }
+
+        .notification-preview-box p {
+            min-height: 90px;
+            margin: 0;
+            padding: .95rem;
+            color: var(--text);
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .notification-warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: .75rem;
+            padding: .85rem;
+            color: #7c2d12;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 16px;
+            line-height: 1.5;
+        }
+
+        .notification-warning-box i {
+            margin-top: .12rem;
+        }
+
+        @media (max-width: 991px) {
+            .notification-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 575px) {
+            .notification-summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            height: 100%;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            gap: .85rem;
+            padding: 1rem !important;
+            overflow: visible !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .stat-card::before { display: none !important; }
+
+        .stat-card:hover,
+        .announcements-panel:hover,
+        .card.border-0:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-card:hover { transform: translateY(-1px) !important; }
+
+        .stat-card > div:first-child { min-width: 0; order: 2; }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            order: 1;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            display: block;
+            margin-top: .26rem;
+            color: var(--text);
+            font-size: clamp(1.3rem, 2vw, 1.75rem);
+            font-weight: 850;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-card small {
+            display: block !important;
+            margin-top: .42rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .announcements-panel { overflow: hidden; }
+
+        .announcements-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .announcements-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .announcements-panel-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .announcements-panel-header h3 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .panel-copy { margin: 0; font-size: .86rem; }
+
+        .announcements-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .announcements-count-pill,
+        .selected-count {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            width: fit-content;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .announcements-count-pill { padding: .42rem .68rem; }
+        .selected-count { padding: .42rem .68rem; color: var(--muted); background: #f9fafb; border-color: var(--line); }
+
+        .announcements-filter-panel { margin-bottom: .75rem !important; }
+        .announcements-filter-panel .announcements-panel-header { padding-bottom: .85rem; }
+        .announcements-filter-body { padding: .85rem 1rem; }
+
+        .announcements-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(360px, 1.55fr) minmax(145px, .62fr) minmax(145px, .62fr) minmax(145px, .62fr) auto;
+            gap: .55rem;
+            align-items: stretch;
+        }
+
+        .announcements-search-group {
+            display: flex;
+            align-items: stretch;
+            min-width: 0;
+        }
+
+        .announcements-search-field {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .announcements-search-field i {
+            position: absolute;
+            top: 50%;
+            left: .9rem;
+            transform: translateY(-50%);
+            color: var(--muted-2);
+            pointer-events: none;
+        }
+
+        .announcements-search-group .form-control {
+            height: 100%;
+            padding-left: 2.4rem !important;
+            border-right: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .announcements-search-group .search-submit-btn {
+            flex: 0 0 auto;
+            min-width: 104px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+
+        .filter-submit-btn { white-space: nowrap; }
+
+        .announcements-bulk-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+            margin-top: .85rem;
+            padding-top: .85rem;
+            border-top: 1px dashed var(--line-strong);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 760;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn:focus-visible,
+        .form-control:focus,
+        .form-select:focus,
+        input[type="checkbox"]:focus-visible {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none !important;
+        }
+
+        .btn-primary,
+        .btn-danger,
+        .btn-success {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-danger:hover,
+        .btn-danger:focus,
+        .btn-success:hover,
+        .btn-success:focus {
+            color: #ffffff !important;
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+            box-shadow: 0 12px 26px rgba(211, 47, 47, .22);
+        }
+
+        .btn-light-soft,
+        .btn-secondary,
+        .btn-outline-secondary {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover,
+        .btn-secondary:hover,
+        .btn-outline-secondary:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211, 47, 47, .22) !important;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary) !important;
+            background: var(--card) !important;
+            border-color: rgba(211, 47, 47, .25) !important;
+        }
+
+        .btn-outline-primary:hover {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border-color: rgba(220, 38, 38, .25) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border-color: rgba(22, 128, 60, .25) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-outline-warning {
+            color: #9a3412 !important;
+            background: var(--card) !important;
+            border-color: #fed7aa !important;
+        }
+
+        .btn-outline-warning:hover {
+            color: #7c2d12 !important;
+            background: #fff7ed !important;
+            border-color: #fdba74 !important;
+        }
+
+        .btn-sm,
+        .btn-group-sm > .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            border-radius: 11px;
+            font-size: .82rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+            color: var(--text);
+            background-color: #ffffff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            padding: .62rem .9rem;
+            font-size: .9rem;
+            font-weight: 650;
+        }
+
+        .form-control::placeholder { color: var(--muted-2); }
+
+        textarea.form-control {
+            min-height: 150px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: .35rem;
+            font-size: .75rem;
+            font-weight: 650;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0 !important;
+        }
+
+        .table { min-width: 980px; margin-bottom: 0; }
+
+        .table thead th {
+            padding: .85rem .95rem;
+            color: #475467;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--line);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--line);
+            font-size: .86rem;
+        }
+
+        .table tbody tr { transition: background .16s ease; }
+        .table tbody tr:hover { background: #fcfcfd; }
+
+        .announcement-icon {
+            flex: 0 0 auto;
+            width: 40px !important;
+            height: 40px !important;
+            color: var(--primary);
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px !important;
+            overflow: hidden;
+        }
+
+        .announcement-icon img {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 14px !important;
+            object-fit: cover;
+        }
+
+
+        .photo-view-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            color: inherit;
+            background: transparent;
+            border: 0;
+            border-radius: inherit;
+            cursor: zoom-in;
+        }
+
+        .photo-view-btn:focus-visible {
+            outline: 3px solid rgba(211, 47, 47, .18);
+            outline-offset: 3px;
+        }
+
+        .photo-view-btn:hover img,
+        .zoomable-image:hover {
+            filter: brightness(.94);
+        }
+
+        .announcement-icon .photo-view-btn {
+            width: 100%;
+            height: 100%;
+        }
+
+        .photo-view-main {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 18px;
+        }
+
+        .zoom-hint {
+            position: absolute;
+            right: .75rem;
+            bottom: .75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .42rem .68rem;
+            color: #ffffff;
+            background: rgba(17, 24, 39, .72);
+            border-radius: 999px;
+            font-size: .74rem;
+            font-weight: 800;
+            backdrop-filter: blur(8px);
+        }
+
+        .image-zoom-modal .modal-dialog {
+            max-width: min(1080px, calc(100% - 1.5rem));
+        }
+
+        .image-zoom-modal .modal-content {
+            background: #ffffff;
+        }
+
+        .zoomed-image {
+            width: auto;
+            max-width: 100%;
+            max-height: calc(100vh - 150px);
+            object-fit: contain;
+            border-radius: 16px;
+        }
+
+        .badge,
+        .date-badge,
+        .views-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .views-badge,
+        .date-badge {
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+        }
+
+        .badge.bg-success-subtle {
+            color: var(--success) !important;
+            background: var(--success-light) !important;
+            border: 1px solid rgba(22, 128, 60, .14);
+        }
+
+        .badge.bg-danger-subtle {
+            color: var(--danger) !important;
+            background: var(--danger-light) !important;
+            border: 1px solid rgba(220, 38, 38, .14);
+        }
+
+        .badge.bg-warning-subtle {
+            color: #9a3412 !important;
+            background: var(--warning-light) !important;
+            border: 1px solid #fed7aa;
+        }
+
+        .badge.bg-info-subtle {
+            color: var(--info) !important;
+            background: var(--info-light) !important;
+            border: 1px solid #dbeafe;
+        }
+
+        .badge.bg-secondary-subtle {
+            color: #344054 !important;
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 240px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        .empty-state h4 {
+            margin-bottom: .35rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 820;
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            margin: 0 auto 1rem;
+            font-size: .88rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18) !important;
+        }
+
+        .modal-header {
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        }
+
+        .modal-header .btn-close {
+            filter: none !important;
+            opacity: .72;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .72rem;
+            margin: 0;
+            color: var(--text) !important;
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            margin: 0 !important;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .modal-title-stack {
+            display: grid;
+            gap: .18rem;
+        }
+
+        .modal-subtitle {
+            display: block;
+            max-width: 620px;
+            font-size: .82rem;
+            font-weight: 600;
+            letter-spacing: 0;
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            gap: .55rem;
+            padding: .85rem 1rem 1rem !important;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .92), #ffffff);
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .modal-form-grid,
+        .modal-body form > .row.g-3,
+        .modal-body > .row.g-3 {
+            padding: .95rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+        .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .85rem;
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 850;
+            letter-spacing: -.02em;
+        }
+
+        .modal-section-title i { color: var(--primary); }
+
+        .announcement-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .detail-card {
+            padding: .85rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .detail-card label {
+            display: block;
+            margin-bottom: .4rem;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .detail-card p { margin: 0; color: var(--text); font-weight: 700; }
+
+        .description-box {
+            padding: .95rem;
+            color: var(--text);
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            line-height: 1.65;
+        }
+
+        .image-preview,
+        .announcement-image-preview {
+            width: 100%;
+            max-height: 260px;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .modal-image-hero {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--danger) !important;
+            outline-color: rgba(220, 38, 38, .16);
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: var(--danger);
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .announcements-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .announcements-filter-toolbar { grid-template-columns: minmax(0, 1fr) minmax(145px, .65fr) minmax(145px, .65fr); }
+            .announcements-filter-toolbar .filter-submit-btn { width: 100%; }
+        }
+
+        @media (max-width: 991px) {
+            .announcements-hero-content,
+            .announcements-panel-header { grid-template-columns: minmax(0, 1fr); }
+            .announcements-hero-content { display: block; }
+            .announcements-hero-actions,
+            .announcements-panel-actions,
+            .announcements-panel-actions .btn { width: 100%; justify-content: stretch; }
+            .announcements-hero-actions .btn { flex: 1 1 180px; }
+            .announcements-filter-toolbar { grid-template-columns: minmax(0, 1fr); }
+            .announcements-search-group { width: 100%; }
+            .announcements-search-group .search-submit-btn { min-width: 96px; }
+            .announcements-filter-toolbar .filter-submit-btn { width: 100%; }
+            .announcements-bulk-row { flex-direction: column; align-items: stretch; }
+            .table { min-width: 860px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: .85rem 1rem; }
+            .page-title { font-size: 1.02rem; }
+            .announcements-page { max-width: 100%; }
+            .announcements-hero,
+            .announcements-panel,
+            .stat-card,
+            .card.border-0 { border-radius: 16px !important; }
+            .announcements-hero,
+            .announcements-panel-header,
+            .announcements-filter-body,
+            .modal-header,
+            .modal-body,
+            .modal-footer { padding: .9rem !important; }
+            .announcements-hero-actions,
+            .announcements-hero-actions .btn { width: 100%; }
+            .announcements-stats-row { grid-template-columns: minmax(0, 1fr); }
+            .announcement-detail-grid { grid-template-columns: minmax(0, 1fr); }
+            .modal-footer .btn { width: 100%; }
+        }
+
+        @media (max-width: 575px) {
+            main.p-3,
+            main.p-lg-4 { padding: .85rem !important; }
+            .announcements-hero h2 { font-size: 1.7rem; }
+        }
+
+    
+
+        /* ==========================================================
+           FINAL MOBILE POLISH V2 - Announcements
+           Clean card UX on phones. Desktop/tablet table stays unchanged.
+        ========================================================== */
+        @media (max-width: 767.98px) {
+            html { font-size: 78% !important; }
+            body { background: #f8fafc !important; }
+
+            .main-content { min-width: 0 !important; }
+            main.p-3,
+            main.p-lg-4 { padding: .75rem !important; }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 99;
+                padding: .75rem .85rem !important;
+                background: rgba(255,255,255,.96) !important;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 1px 0 var(--line);
+            }
+
+            .page-title {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                min-width: 0;
+                font-size: 1rem !important;
+                font-weight: 850 !important;
+                letter-spacing: -.02em;
+                line-height: 1.2;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                flex: 0 0 auto;
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                background: #ffffff !important;
+                border: 1px solid var(--line) !important;
+                box-shadow: var(--shadow-xs);
+                font-size: 1rem !important;
+            }
+
+            .announcements-page { max-width: 100% !important; }
+
+            .announcements-hero,
+            .announcements-panel,
+            .stat-card,
+            .card.border-0 {
+                border-radius: 18px !important;
+            }
+
+            .announcements-hero { padding: 1rem !important; margin-bottom: .75rem !important; }
+            .announcements-hero-content { display: block !important; }
+            .announcements-hero-icon { width: 42px !important; height: 42px !important; margin-bottom: .65rem !important; }
+            .announcements-hero h2 { font-size: 1.45rem !important; line-height: 1.12 !important; letter-spacing: -.04em !important; }
+            .announcements-hero p { font-size: .88rem !important; line-height: 1.55 !important; }
+            .announcements-hero-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: .55rem !important; margin-top: .9rem !important; }
+            .announcements-hero-actions .btn { width: 100% !important; min-height: 42px !important; padding: .62rem .65rem !important; }
+
+            .announcements-stats-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .55rem !important;
+                margin-bottom: .75rem !important;
+            }
+
+            .stat-card {
+                min-height: 98px;
+                padding: .85rem !important;
+                gap: .6rem !important;
+                align-items: flex-start !important;
+            }
+
+            .stat-icon {
+                width: 36px !important;
+                height: 36px !important;
+                border-radius: 12px !important;
+                font-size: .95rem !important;
+            }
+
+            .stat-label { font-size: .66rem !important; letter-spacing: .06em !important; }
+            .stat-number { font-size: 1.45rem !important; }
+            .stat-card small { display: none !important; }
+
+            .announcements-panel-header {
+                display: block !important;
+                padding: .9rem !important;
+            }
+
+            .announcements-panel-title { gap: .7rem !important; }
+            .announcements-panel-icon { width: 40px !important; height: 40px !important; border-radius: 13px !important; }
+            .announcements-panel-header h3 { font-size: .98rem !important; }
+            .panel-copy { font-size: .82rem !important; margin-top: .12rem !important; }
+            .announcements-panel-actions { justify-content: flex-start !important; margin-top: .75rem !important; width: 100% !important; }
+            .announcements-panel-actions .btn,
+            .announcements-panel-actions .announcements-count-pill { width: 100% !important; justify-content: center !important; }
+
+            .announcements-filter-body { padding: .85rem !important; }
+            .announcements-filter-toolbar { display: grid !important; grid-template-columns: 1fr !important; gap: .6rem !important; }
+            .announcements-search-group { display: grid !important; grid-template-columns: 1fr !important; gap: .55rem !important; width: 100% !important; }
+            .announcements-search-group .form-control,
+            .announcements-search-group .search-submit-btn,
+            .announcements-search-field .form-control,
+            .announcements-filter-toolbar .form-select,
+            .filter-submit-btn {
+                width: 100% !important;
+                min-height: 44px !important;
+                border-radius: 13px !important;
+                border: 1px solid var(--line-strong) !important;
+            }
+            .announcements-search-group .form-control { border-right: 1px solid var(--line-strong) !important; }
+            .announcements-search-group .search-submit-btn { min-width: 0 !important; }
+
+            .announcements-bulk-row {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .6rem !important;
+                margin-top: .7rem !important;
+                padding-top: .7rem !important;
+            }
+            .announcements-bulk-row .selected-count,
+            .announcements-bulk-row .btn { width: 100% !important; justify-content: center !important; }
+
+            /* Real mobile cards for the Announcements table */
+            .announcements-panel .card-body { background: #f8fafc !important; }
+            #announcementsTable {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                border-collapse: separate !important;
+            }
+            #announcementsTable thead { display: none !important; }
+            #announcementsTable tbody {
+                display: grid !important;
+                gap: .8rem !important;
+                padding: .85rem !important;
+                background: #f8fafc !important;
+            }
+            #announcementsTable tbody tr {
+                display: grid !important;
+                grid-template-columns: 32px minmax(0, 1fr) auto;
+                grid-template-areas:
+                    "select title status"
+                    "category category category"
+                    "featured featured featured"
+                    "views views views"
+                    "published published published"
+                    "actions actions actions";
+                gap: .62rem .65rem;
+                align-items: start;
+                padding: .9rem !important;
+                background: #ffffff !important;
+                border: 1px solid var(--line) !important;
+                border-radius: 18px !important;
+                box-shadow: 0 8px 20px rgba(16,24,40,.045) !important;
+            }
+            #announcementsTable tbody tr:hover { background: #ffffff !important; transform: none !important; }
+            #announcementsTable tbody td {
+                display: block !important;
+                width: auto !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                text-align: left !important;
+                white-space: normal !important;
+            }
+            #announcementsTable tbody td[colspan] { grid-column: 1 / -1 !important; }
+
+            #announcementsTable tbody td:nth-child(1) { grid-area: select; padding-top: .28rem !important; }
+            #announcementsTable tbody td:nth-child(1) input { width: 22px !important; height: 22px !important; }
+
+            #announcementsTable tbody td:nth-child(2) { grid-area: title; }
+            #announcementsTable tbody td:nth-child(2) .d-flex { align-items: flex-start !important; gap: .65rem !important; }
+            #announcementsTable tbody td:nth-child(2) .announcement-icon { width: 42px !important; height: 42px !important; border-radius: 14px !important; margin-right: 0 !important; }
+            #announcementsTable tbody td:nth-child(2) .announcement-icon img { width: 42px !important; height: 42px !important; border-radius: 14px !important; }
+            #announcementsTable tbody td:nth-child(2) .fw-semibold {
+                color: var(--text) !important;
+                font-size: 1rem !important;
+                font-weight: 850 !important;
+                line-height: 1.25 !important;
+                white-space: normal !important;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            #announcementsTable tbody td:nth-child(2) small { display: none !important; }
+
+            #announcementsTable tbody td:nth-child(7) {
+                grid-area: status;
+                display: flex !important;
+                justify-content: flex-end !important;
+                align-self: start;
+            }
+            #announcementsTable tbody td:nth-child(7) .badge { padding: .42rem .62rem !important; font-size: .72rem !important; }
+
+            #announcementsTable tbody td:nth-child(3),
+            #announcementsTable tbody td:nth-child(4),
+            #announcementsTable tbody td:nth-child(5),
+            #announcementsTable tbody td:nth-child(6) {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                gap: .75rem;
+                padding: .68rem .75rem !important;
+                background: #ffffff;
+                border: 1px solid var(--line) !important;
+                border-radius: 14px;
+            }
+            #announcementsTable tbody td:nth-child(3) { grid-area: category; }
+            #announcementsTable tbody td:nth-child(4) { grid-area: featured; }
+            #announcementsTable tbody td:nth-child(5) { grid-area: views; }
+            #announcementsTable tbody td:nth-child(6) { grid-area: published; }
+            #announcementsTable tbody td:nth-child(3)::before { content: "Category"; }
+            #announcementsTable tbody td:nth-child(4)::before { content: "Featured"; }
+            #announcementsTable tbody td:nth-child(5)::before { content: "Views"; }
+            #announcementsTable tbody td:nth-child(6)::before { content: "Published"; }
+            #announcementsTable tbody td:nth-child(3)::before,
+            #announcementsTable tbody td:nth-child(4)::before,
+            #announcementsTable tbody td:nth-child(5)::before,
+            #announcementsTable tbody td:nth-child(6)::before {
+                flex: 0 0 auto;
+                color: var(--muted);
+                font-size: .68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+            #announcementsTable tbody td:nth-child(3) .badge,
+            #announcementsTable tbody td:nth-child(4) .badge,
+            #announcementsTable tbody td:nth-child(5) .views-badge,
+            #announcementsTable tbody td:nth-child(6) .date-badge {
+                max-width: 58%;
+                justify-content: flex-end;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            #announcementsTable tbody td:nth-child(8) { grid-area: actions; padding-top: .2rem !important; }
+            #announcementsTable tbody td:nth-child(8) > .d-flex {
+                display: grid !important;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: .5rem !important;
+                justify-content: stretch !important;
+            }
+            #announcementsTable tbody td:nth-child(8) form { display: block !important; width: 100% !important; }
+            #announcementsTable tbody td:nth-child(8) .btn {
+                width: 100% !important;
+                min-height: 42px !important;
+                padding: .58rem .42rem !important;
+                border-radius: 13px !important;
+                font-size: .78rem !important;
+            }
+            #announcementsTable tbody td:nth-child(8) .btn::after { margin-left: .25rem; font-weight: 800; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="View Details"]::after { content: "View"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Edit Announcement"]::after { content: "Edit"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Archive"]::after { content: "Archive"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Restore from deleted bin"]::after { content: "Restore"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Publish again"]::after { content: "Publish"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Mark as Featured"]::after { content: "Feature"; }
+            #announcementsTable tbody td:nth-child(8) .btn[title="Remove Featured"]::after { content: "Unstar"; }
+
+            .empty-state { min-height: 210px !important; padding: 1.25rem !important; }
+
+            .border-top.d-flex.flex-column.flex-md-row {
+                padding: .85rem !important;
+                background: #ffffff;
+                border-radius: 0 0 18px 18px;
+            }
+            .pagination { justify-content: center !important; gap: .35rem !important; }
+            .page-link { min-width: 38px; min-height: 38px; padding: .45rem .62rem !important; }
+
+            .modal-dialog { margin: .65rem !important; }
+            .modal-content {
+                max-height: calc(100vh - 1.3rem) !important;
+                border-radius: 20px !important;
+            }
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                padding: .9rem !important;
+            }
+            .modal-title { font-size: .98rem !important; }
+            .modal-title i { width: 38px !important; height: 38px !important; border-radius: 13px !important; }
+            .modal-subtitle { font-size: .76rem !important; line-height: 1.4 !important; }
+            .modal-body { padding: .85rem !important; max-height: calc(100vh - 150px) !important; }
+            .modal-body .row.g-3 { padding: .8rem !important; border-radius: 16px !important; }
+            .modal-footer {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                padding: .85rem !important;
+            }
+            .modal-footer .btn { width: 100% !important; }
+
+            .image-preview,
+            .modal .img-fluid.rounded,
+            .photo-view-main img,
+            .event-image-card img {
+                max-height: 240px !important;
+                object-fit: cover !important;
+                border-radius: 16px !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            #announcementsTable tbody td:nth-child(8) > .d-flex {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .announcements-hero-actions { grid-template-columns: 1fr !important; }
+            .announcements-stats-row { grid-template-columns: 1fr !important; }
+            #announcementsTable tbody tr {
+                grid-template-columns: 28px minmax(0, 1fr);
+                grid-template-areas:
+                    "select status"
+                    "title title"
+                    "category category"
+                    "featured featured"
+                    "views views"
+                    "published published"
+                    "actions actions";
+            }
+        }
+
+</style>
 </head>
 <body>
     <!-- Mobile Overlay -->
@@ -849,6 +2247,42 @@
         </a>
         @endadmin_can
 
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -856,47 +2290,23 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-bullhorn me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
-                    Announcements
+                    <span class="title-icon"><i class="fas fa-bullhorn"></i></span>
+                    Announcement Management
                 </h1>
-            </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="announcements-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show announcements-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -904,7 +2314,7 @@
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show announcements-alert" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -912,7 +2322,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show announcements-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -923,8 +2333,36 @@
                 </div>
             @endif
 
+
+
+            <section class="announcements-hero">
+                <div class="announcements-hero-content">
+                    <div class="min-w-0">
+                        <div class="announcements-hero-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="announcements-kicker"><i class="fas fa-circle-check"></i> Announcement Center</div>
+                        <h2>Publish barangay announcements with a cleaner workflow.</h2>
+                        <p>Manage public advisories, featured posts, drafts, and archived records using the same compact design used in Projects.</p>
+                    </div>
+                    <div class="announcements-hero-actions">
+                        @admin_can('create_announcements')
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                            <i class="fas fa-plus"></i>Add Announcement
+                        </button>
+                        @endadmin_can
+                        <a href="{{ route('admin.announcements.index') }}" class="btn btn-light-soft">
+                            <i class="fas fa-rotate"></i>Reset View
+                        </a>
+                        @admin_can('create_announcements')
+                        <button type="button" class="btn btn-light-soft" data-bs-toggle="modal" data-bs-target="#bulkNotifyResidentsModal">
+                            <i class="fas fa-paper-plane"></i>Notify Residents
+                        </button>
+                        @endadmin_can
+                    </div>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 announcements-stats-row">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -983,92 +2421,90 @@
                 </div>
             </div>
 
-            <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.announcements.index') }}" id="searchForm">
-                        <div class="row g-3 align-items-center mb-3">
-                            <div class="col-12 col-md-6">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Announcements
-                                </h6>
-                            </div>
-                            <div class="col-12 col-md-6 text-md-end">
-                                <div class="d-flex gap-2 justify-content-md-end">
-                                    @admin_can('create_announcements')
-                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Announcement</span>
-                                    </a>
-                                    @endadmin_can
-                                    <a href="{{ route('admin.announcements.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
-                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
-                                    </a>
-                                </div>
+            <!-- Filters - UX Improved -->
+            <div class="announcements-panel announcements-filter-panel">
+                <form method="GET" action="{{ route('admin.announcements.index') }}" id="searchForm">
+                    <div class="announcements-panel-header">
+                        <div class="announcements-panel-title">
+                            <div class="announcements-panel-icon"><i class="fas fa-filter"></i></div>
+                            <div class="min-w-0">
+                                <div class="section-kicker"><i class="fas fa-bullhorn"></i> Announcement Directory</div>
+                                <h3>Search and filter announcements</h3>
+                                <p class="panel-copy">Find announcements by title or content, then filter by status, category, or featured visibility.</p>
                             </div>
                         </div>
-                        
-                        <!-- Search and Filter Row -->
-                        <div class="row g-3">
-                            <div class="col-12 col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0">
-                                        <i class="fas fa-search text-muted"></i>
-                                    </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by title, content..." value="{{ request('search') }}">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search d-sm-none"></i>
-                                        <span class="d-none d-sm-inline">Search</span>
-                                    </button>
+
+                        <div class="announcements-panel-actions">
+                            @admin_can('create_announcements')
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                                <i class="fas fa-plus"></i>Add Announcement
+                            </button>
+                            @endadmin_can
+                            <a href="{{ route('admin.announcements.index') }}" class="btn btn-light-soft">
+                                <i class="fas fa-rotate"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="announcements-filter-body">
+                        <div class="announcements-filter-toolbar">
+                            <div class="announcements-search-group">
+                                <div class="announcements-search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text"
+                                           name="search"
+                                           id="globalSearch"
+                                           class="form-control"
+                                           placeholder="Search title, content, or category..."
+                                           value="{{ request('search') }}"
+                                           autocomplete="off"
+                                           aria-label="Search announcements">
                                 </div>
-                            </div>
-
-                            <div class="col-6 col-md-2">
-                                <select name="status" class="form-select">
-                                    <option value="">All Status</option>
-                                    <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
-                                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                                    <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
-                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deleted (Archive Bin)</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 col-md-2">
-                                <select name="category" class="form-select">
-                                    <option value="">All Categories</option>
-                                    <option value="important" {{ request('category') == 'important' ? 'selected' : '' }}>Important</option>
-                                    <option value="events" {{ request('category') == 'events' ? 'selected' : '' }}>Events</option>
-                                    <option value="health" {{ request('category') == 'health' ? 'selected' : '' }}>Health</option>
-                                    <option value="services" {{ request('category') == 'services' ? 'selected' : '' }}>Services</option>
-                                    <option value="other" {{ request('category') == 'other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 col-md-2">
-                                <select name="featured" class="form-select">
-                                    <option>Featured</option>
-                                    <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Featured Only</option>
-                                    <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Not Featured</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-filter me-2"></i>Apply
+                                <button type="submit" class="btn btn-primary search-submit-btn">
+                                    <i class="fas fa-search"></i>Search
                                 </button>
                             </div>
+
+                            <select name="status" class="form-select" aria-label="Filter by status">
+                                <option value="">All status</option>
+                                <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
+                                <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
+                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deleted bin</option>
+                            </select>
+
+                            <select name="category" class="form-select" aria-label="Filter by category">
+                                <option value="">All categories</option>
+                                <option value="important" {{ request('category') == 'important' ? 'selected' : '' }}>Important</option>
+                                <option value="events" {{ request('category') == 'events' ? 'selected' : '' }}>Events</option>
+                                <option value="health" {{ request('category') == 'health' ? 'selected' : '' }}>Health</option>
+                                <option value="services" {{ request('category') == 'services' ? 'selected' : '' }}>Services</option>
+                                <option value="other" {{ request('category') == 'other' ? 'selected' : '' }}>Other</option>
+                            </select>
+
+                            <select name="featured" class="form-select" aria-label="Filter by featured status">
+                                <option value="">All featured</option>
+                                <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Featured only</option>
+                                <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Not featured</option>
+                            </select>
+
+                            <button type="submit" class="btn btn-light-soft filter-submit-btn">
+                                <i class="fas fa-filter"></i>Apply filters
+                            </button>
                         </div>
 
-                        <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_announcements'))
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
-                                <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Archive</span>
+                        <div class="announcements-bulk-row">
+                            <div class="selected-count" id="selectedAnnouncementsCount">
+                                <i class="fas fa-square-check me-1"></i>No announcements selected
+                            </div>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger" title="Bulk Archive">
+                                <i class="fas fa-trash-alt"></i>Archive Selected
                             </button>
                         </div>
                         @endif
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             @if(auth('admin')->user()->hasPermission('delete_announcements'))
@@ -1078,13 +2514,26 @@
             </form>
             @endif
 
-            <!-- Announcements Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <!-- Announcements Table - UX Improved -->
+            <div class="announcements-panel">
+                <div class="announcements-panel-header">
+                    <div class="announcements-panel-title">
+                        <div class="announcements-panel-icon"><i class="fas fa-list-check"></i></div>
+                        <div class="min-w-0">
+                            <div class="section-kicker"><i class="fas fa-table"></i> Announcement Records</div>
+                            <h3>Announcements List</h3>
+                            <p class="panel-copy">Sort records, view full details, edit drafts, and archive outdated announcements.</p>
+                        </div>
+                    </div>
+                    <div class="announcements-panel-actions">
+                        <span class="announcements-count-pill"><i class="fas fa-bullhorn"></i>{{ isset($announcements) ? $announcements->total() : 0 }} announcements</span>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="announcementsTable">
                             <thead class="table-light">
-                                <tr class="{{ $ann->deleted_at ? 'table-danger' : '' }}">
+                                <tr>
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
@@ -1166,9 +2615,11 @@
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                            <div class="announcement-icon me-2">
                                                 @if($ann->image)
-                                                    <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                                                    <button type="button" class="photo-view-btn" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View announcement photo">
+                                                        <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="zoomable-image">
+                                                    </button>
                                                 @else
                                                     <i class="fas fa-bullhorn text-primary"></i>
                                                 @endif
@@ -1192,12 +2643,12 @@
                                         @endif
                                     </td>
                                     <td class="d-none d-md-table-cell">
-                                        <span class="badge bg-light text-dark">
+                                        <span class="views-badge">
                                             <i class="fas fa-eye me-1"></i>{{ number_format($ann->views) }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
-                                        {{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : '���' }}
+                                        <span class="date-badge">{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('M d, Y') : '-' }}</span>
                                     </td>
                                     <td>
                                         @if($ann->deleted_at)
@@ -1236,21 +2687,37 @@
                                                 </form>
                                             @endif
 
-                                            <!-- Delete (requires delete_announcements permission) -->
+                                            <!-- Archive / Restore / Publish action -->
                                             @admin_can('delete_announcements')
                                             @if($ann->deleted_at)
-                                            <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this announcement?')">
+                                            <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this announcement from the deleted bin?')">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore from deleted bin" aria-label="Restore from deleted bin">
                                                     <i class="fas fa-rotate-left"></i>
+                                                </button>
+                                            </form>
+                                            @elseif($ann->status == 'archived')
+                                            <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Publish this archived announcement again?')">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="title" value="{{ $ann->title }}">
+                                                <textarea name="content" class="d-none">{{ $ann->content }}</textarea>
+                                                <input type="hidden" name="category" value="{{ $ann->category }}">
+                                                <input type="hidden" name="status" value="published">
+                                                <input type="hidden" name="published_at" value="{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i') }}">
+                                                @if($ann->is_featured)
+                                                    <input type="hidden" name="is_featured" value="1">
+                                                @endif
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Publish again" aria-label="Publish again">
+                                                    <i class="fas fa-globe"></i>
                                                 </button>
                                             </form>
                                             @else
                                             <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this announcement?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive" aria-label="Archive">
+                                                    <i class="fas fa-box-archive"></i>
                                                 </button>
                                             </form>
                                             @endif
@@ -1260,16 +2727,18 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-bullhorn fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No announcements found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            @admin_can('create_announcements')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
-                                                <i class="fas fa-plus me-2"></i>Add New
-                                            </button>
-                                            @endadmin_can
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <div>
+                                                <div class="empty-state-icon"><i class="fas fa-bullhorn"></i></div>
+                                                <h4>No announcements found</h4>
+                                                <p>No announcement records match the current search and filters.</p>
+                                                @admin_can('create_announcements')
+                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                                                    <i class="fas fa-plus"></i>Add Announcement
+                                                </button>
+                                                @endadmin_can
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -1301,8 +2770,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-bullhorn me-2"></i>
-                                New Announcement
+                                <i class="fas fa-bullhorn"></i>
+                                <span class="modal-title-stack">
+                                    <span>New Announcement</span>
+                                    <span class="modal-subtitle">Create a clear public advisory with category, status, publish date, featured setting, and optional image.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1316,6 +2788,7 @@
                                         <label class="form-label">Title <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
                                                name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                        <small class="field-hint">Use a short title residents can understand quickly.</small>
                                         @if(session('form_type') == 'add')
                                             @error('title')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1327,6 +2800,7 @@
                                         <label class="form-label">Content <span class="text-danger">*</span></label>
                                         <textarea class="form-control @if(session('form_type') == 'add') @error('content') is-invalid @enderror @endif" 
                                                   name="content" rows="6" placeholder="Write your announcement content here..." required>{{ session('form_type') == 'add' ? old('content') : '' }}</textarea>
+                                        <small class="field-hint">Keep the message direct. Include dates, requirements, or contact details when needed.</small>
                                         @if(session('form_type') == 'add')
                                             @error('content')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1382,7 +2856,7 @@
 
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Featured</label>
-                                        <div class="form-check mt-2">
+                                        <div class="form-check mt-2 d-flex align-items-center gap-2">
                                             <input type="checkbox" class="form-check-input @if(session('form_type') == 'add') @error('is_featured') is-invalid @enderror @endif" 
                                                    name="is_featured" id="is_featured" value="1" {{ (session('form_type') == 'add' && old('is_featured')) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="is_featured">Mark as featured announcement</label>
@@ -1434,8 +2908,11 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-edit me-2"></i>
-                                    Edit Announcement
+                                    <i class="fas fa-edit"></i>
+                                    <span class="modal-title-stack">
+                                        <span>Edit Announcement</span>
+                                        <span class="modal-subtitle">Update the content, visibility, schedule, and image without changing the existing workflow.</span>
+                                    </span>
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -1451,6 +2928,7 @@
                                             <label class="form-label">Title <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif" 
                                                    name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
+                                            <small class="field-hint">Use a clear, resident-friendly title.</small>
                                             @if(session('form_type') == 'edit_' . $ann->id)
                                                 @error('title')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1462,6 +2940,7 @@
                                             <label class="form-label">Content <span class="text-danger">*</span></label>
                                             <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif" 
                                                       name="content" rows="6" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
+                                            <small class="field-hint">Review the full message before saving changes.</small>
                                             @if(session('form_type') == 'edit_' . $ann->id)
                                                 @error('content')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1516,7 +2995,7 @@
 
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Featured</label>
-                                            <div class="form-check mt-2">
+                                            <div class="form-check mt-2 d-flex align-items-center gap-2">
                                                 <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif" 
                                                        name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1" 
                                                        {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
@@ -1545,8 +3024,11 @@
                                             @endif
                                             <div id="editImagePreview{{ $ann->id }}" class="mt-2">
                                                 @if($ann->image)
-                                                    <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview">
-                                                    <small class="d-block text-muted">Current image</small>
+                                                    <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View current photo">
+                                                        <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview zoomable-image">
+                                                        <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
+                                                    </button>
+                                                    <small class="d-block text-muted mt-2">Current image</small>
                                                 @endif
                                             </div>
                                         </div>
@@ -1574,8 +3056,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-bullhorn me-2"></i>
-                                Announcement Details
+                                <i class="fas fa-bullhorn"></i>
+                                <span class="modal-title-stack">
+                                    <span>Announcement Details</span>
+                                    <span class="modal-subtitle">Review the announcement content, metadata, featured status, views, and publish timeline.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1583,7 +3068,10 @@
                             <div class="row g-3">
                                 @if($ann->image)
                                 <div class="col-12 text-center">
-                                    <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                    <button type="button" class="photo-view-btn photo-view-main" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View full announcement photo">
+                                        <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
+                                        <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
+                                    </button>
                                 </div>
                                 @endif
                                 
@@ -1619,7 +3107,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-muted">Views</label>
-                                    <p><span class="badge bg-light text-dark">{{ number_format($ann->views) }}</span></p>
+                                    <p><span class="views-badge"><i class="fas fa-eye me-1"></i>{{ number_format($ann->views) }}</span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label text-muted">Published At</label>
@@ -1631,7 +3119,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label text-muted">Content</label>
-                                    <div class="p-3 bg-light rounded">
+                                    <div class="description-box">
                                         {!! nl2br(e($ann->content)) !!}
                                     </div>
                                 </div>
@@ -1647,12 +3135,184 @@
             </div>
             @endforeach
 
-            <!-- Global Image Zoom Modal -->
-            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
+            @admin_can('create_announcements')
+            <div class="modal fade" id="bulkNotifyResidentsModal" tabindex="-1" aria-labelledby="bulkNotifyResidentsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
+                        <form method="POST"
+                            action="{{ route('admin.announcements.bulkNotifyResidents') }}"
+                            id="bulkNotifyResidentsForm"
+                            onsubmit="return confirmBulkResidentNotification(event)">
+                            @csrf
+                            <input type="hidden" name="form_type" value="bulk_notify">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="bulkNotifyResidentsModalLabel">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span class="modal-title-stack">
+                                        <span>Bulk Notify Residents</span>
+                                        <span class="modal-subtitle">
+                                            Send one clear SMS or email blast to residents for ayuda, emergency advisories, schedules, and barangay reminders.
+                                        </span>
+                                    </span>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="notification-summary-grid mb-3">
+                                    <div class="notification-summary-card">
+                                        <span>Total residents</span>
+                                        <strong>{{ number_format($residentNotificationStats['all'] ?? 0) }}</strong>
+                                    </div>
+                                    <div class="notification-summary-card">
+                                        <span>With email</span>
+                                        <strong>{{ number_format($residentNotificationStats['email'] ?? 0) }}</strong>
+                                    </div>
+                                    <div class="notification-summary-card">
+                                        <span>With mobile</span>
+                                        <strong>{{ number_format($residentNotificationStats['sms'] ?? 0) }}</strong>
+                                    </div>
+                                    <div class="notification-summary-card">
+                                        <span>Verified</span>
+                                        <strong>{{ number_format($residentNotificationStats['verified'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 modal-form-grid">
+                                    <div class="col-12">
+                                        <div class="modal-section-title">
+                                            <i class="fas fa-sliders"></i>Notification setup
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-4">
+                                        <label class="form-label">Send through <span class="text-danger">*</span></label>
+                                        <select name="channel" id="notifyChannel" class="form-select" required>
+                                            <option value="sms" {{ old('channel') === 'sms' ? 'selected' : '' }}>SMS only</option>
+                                            <option value="email" {{ old('channel') === 'email' ? 'selected' : '' }}>Email only</option>
+                                            <option value="both" {{ old('channel') === 'both' ? 'selected' : '' }}>SMS and Email</option>
+                                        </select>
+                                        <small class="field-hint">Choose SMS for urgent notices. Use email for longer details.</small>
+                                    </div>
+
+                                    <div class="col-12 col-lg-4">
+                                        <label class="form-label">Audience <span class="text-danger">*</span></label>
+                                        <select name="audience" id="notifyAudience" class="form-select" required>
+                                            <option value="all" {{ old('audience') === 'all' ? 'selected' : '' }}>All residents with contact details</option>
+                                            <option value="verified" {{ old('audience') === 'verified' ? 'selected' : '' }}>Verified residents only</option>
+                                            <option value="email_ready" {{ old('audience') === 'email_ready' ? 'selected' : '' }}>Residents with email</option>
+                                            <option value="sms_ready" {{ old('audience') === 'sms_ready' ? 'selected' : '' }}>Residents with mobile number</option>
+                                        </select>
+                                        <small class="field-hint">The system skips residents without the selected contact method.</small>
+                                    </div>
+
+                                    <div class="col-12 col-lg-4">
+                                        <label class="form-label">Template</label>
+                                        <select id="notifyTemplate" class="form-select">
+                                            <option value="">Write custom message</option>
+                                            <option value="ayuda">Ayuda Distribution</option>
+                                            <option value="emergency">Emergency Advisory</option>
+                                            <option value="documents">Document Release Reminder</option>
+                                            <option value="event">Barangay Event</option>
+                                        </select>
+                                        <small class="field-hint">Templates are editable after selection.</small>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Email subject</label>
+                                        <input type="text"
+                                            name="subject"
+                                            id="notifySubject"
+                                            class="form-control @if(session('form_type') === 'bulk_notify') @error('subject') is-invalid @enderror @endif"
+                                            value="{{ session('form_type') === 'bulk_notify' ? old('subject') : '' }}"
+                                            placeholder="Example: Ayuda Distribution Notice">
+                                        <small class="field-hint">Required only when sending email or both SMS and email.</small>
+                                        @if(session('form_type') === 'bulk_notify')
+                                            @error('subject')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Message <span class="text-danger">*</span></label>
+                                        <textarea name="message"
+                                                id="notifyMessage"
+                                                rows="7"
+                                                class="form-control @if(session('form_type') === 'bulk_notify') @error('message') is-invalid @enderror @endif"
+                                                required
+                                                maxlength="1000"
+                                                placeholder="Write a clear message for residents...">{{ session('form_type') === 'bulk_notify' ? old('message') : '' }}</textarea>
+
+                                        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-2">
+                                            <small class="field-hint mb-0">
+                                                Available placeholders: <strong>{name}</strong>, <strong>{firstname}</strong>, <strong>{barangay}</strong>
+                                            </small>
+                                            <small class="field-hint mb-0" id="notifyCharCounter">0 / 1000 characters</small>
+                                        </div>
+
+                                        @if(session('form_type') === 'bulk_notify')
+                                            @error('message')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="notification-preview-box">
+                                            <div class="notification-preview-header">
+                                                <span><i class="fas fa-eye"></i> Resident preview</span>
+                                                <span id="notifyPreviewChannel">SMS</span>
+                                            </div>
+                                            <p id="notifyPreviewText">
+                                                Your message preview will appear here.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="notification-warning-box">
+                                            <i class="fas fa-circle-info"></i>
+                                            <div>
+                                                <strong>Review before sending.</strong>
+                                                Bulk notifications are sent immediately and each result will be saved in notification logs.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light-soft" data-bs-dismiss="modal">
+                                    <i class="fas fa-xmark"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>Send Notification
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endadmin_can
+
+            <!-- Global Image Zoom Modal -->
+            <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-image"></i>
+                                <span class="modal-title-stack">
+                                    <span>Announcement Photo</span>
+                                    <span class="modal-subtitle">View the uploaded image in a larger preview.</span>
+                                </span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                         <div class="modal-body text-center">
-                            <img id="zoomedImage" class="img-fluid">
+                            <img id="zoomedImage" class="zoomed-image" alt="Announcement photo preview">
                         </div>
                     </div>
                 </div>
@@ -1678,6 +3338,7 @@
                     });
                 </script>
             @endif
+            </div>
         </main>
     </div>
 
@@ -1749,6 +3410,10 @@
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+
+            if (typeof refreshAnnouncementSelection === 'function') {
+                refreshAnnouncementSelection();
+            }
         }
 
         // Confirm delete with SweetAlert
@@ -1785,7 +3450,11 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                    preview.innerHTML = `
+                        <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('${e.target.result}')" title="View selected photo">
+                            <img src="${e.target.result}" class="announcement-image-preview zoomable-image" alt="Selected photo preview">
+                            <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
+                        </button>`;
                 }
                 reader.readAsDataURL(input.files[0]);
             } else {
@@ -1842,8 +3511,14 @@
 
         function openZoomModal(imageUrl) {
             const zoomImage = document.getElementById('zoomedImage');
+            const zoomModalEl = document.getElementById('globalImageZoomModal');
+
+            if (!zoomImage || !zoomModalEl || !imageUrl) {
+                return;
+            }
+
             zoomImage.src = imageUrl;
-            const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
+            const zoomModal = bootstrap.Modal.getOrCreateInstance(zoomModalEl);
             zoomModal.show();
         }
     </script>
@@ -1931,6 +3606,150 @@
     <!-- SweetAlert2 for better alerts (optional) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+
+    <script>
+        function refreshAnnouncementSelection() {
+            const checkboxes = Array.from(document.querySelectorAll('.announcement-checkbox'));
+            const checked = checkboxes.filter(cb => cb.checked);
+            const selectAll = document.getElementById('selectAll');
+            const selectedCount = document.getElementById('selectedAnnouncementsCount');
+
+            if (selectAll) {
+                selectAll.checked = checked.length > 0 && checked.length === checkboxes.length;
+                selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+            }
+
+            if (selectedCount) {
+                selectedCount.innerHTML = checked.length > 0
+                    ? `<i class="fas fa-square-check me-1"></i>${checked.length} announcement${checked.length === 1 ? '' : 's'} selected`
+                    : '<i class="fas fa-square-check me-1"></i>No announcements selected';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.announcement-checkbox').forEach(function (checkbox) {
+                checkbox.addEventListener('change', refreshAnnouncementSelection);
+            });
+            refreshAnnouncementSelection();
+        });
+    </script>
+    @if ($errors->any() && session('form_type') === 'bulk_notify')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bulkNotifyModal = new bootstrap.Modal(document.getElementById('bulkNotifyResidentsModal'));
+        bulkNotifyModal.show();
+    });
+</script>
+@endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const templateSelect = document.getElementById('notifyTemplate');
+        const subjectInput = document.getElementById('notifySubject');
+        const messageInput = document.getElementById('notifyMessage');
+        const channelSelect = document.getElementById('notifyChannel');
+        const counter = document.getElementById('notifyCharCounter');
+        const previewText = document.getElementById('notifyPreviewText');
+        const previewChannel = document.getElementById('notifyPreviewChannel');
+
+        const templates = {
+            ayuda: {
+                subject: 'Ayuda Distribution Notice',
+                message: 'Magandang araw, {name}. May ayuda distribution po ang Barangay Hulong Duhat sa [DATE], [TIME], sa [VENUE]. Magdala po ng valid ID at requirements. Salamat po.'
+            },
+            emergency: {
+                subject: 'Emergency Barangay Advisory',
+                message: 'Magandang araw, {name}. Paalala mula sa Barangay Hulong Duhat: [WRITE EMERGENCY DETAILS HERE]. Para sa agarang tulong, makipag-ugnayan sa barangay office. Ingat po.'
+            },
+            documents: {
+                subject: 'Barangay Document Release Reminder',
+                message: 'Magandang araw, {name}. Ang inyong barangay document/request ay maaari nang i-follow up o kunin sa barangay office. Magdala po ng valid ID at reference number kung meron. Salamat po.'
+            },
+            event: {
+                subject: 'Barangay Event Announcement',
+                message: 'Magandang araw, {name}. Inaanyayahan po kayo sa barangay event: [EVENT NAME] sa [DATE], [TIME], sa [VENUE]. Kita-kits po.'
+            }
+        };
+
+        function updatePreview() {
+            if (!messageInput || !previewText) return;
+
+            const message = messageInput.value.trim();
+            const channel = channelSelect?.value || 'sms';
+
+            if (counter) {
+                counter.textContent = `${messageInput.value.length} / 1000 characters`;
+            }
+
+            if (previewChannel) {
+                previewChannel.textContent = channel === 'both'
+                    ? 'SMS + Email'
+                    : channel.toUpperCase();
+            }
+
+            previewText.textContent = message
+                ? message.replaceAll('{name}', 'Juan Dela Cruz').replaceAll('{firstname}', 'Juan').replaceAll('{barangay}', 'Hulong Duhat')
+                : 'Your message preview will appear here.';
+        }
+
+        templateSelect?.addEventListener('change', function () {
+            const selected = templates[this.value];
+
+            if (!selected) return;
+
+            if (subjectInput) subjectInput.value = selected.subject;
+            if (messageInput) messageInput.value = selected.message;
+
+            updatePreview();
+        });
+
+        messageInput?.addEventListener('input', updatePreview);
+        channelSelect?.addEventListener('change', updatePreview);
+
+        updatePreview();
+    });
+
+    function confirmBulkResidentNotification(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const channel = document.getElementById('notifyChannel')?.value || 'sms';
+        const audience = document.getElementById('notifyAudience')?.selectedOptions[0]?.textContent || 'selected residents';
+        const message = document.getElementById('notifyMessage')?.value.trim() || '';
+
+        if (!message) {
+            alert('Please write a message before sending.');
+            return false;
+        }
+
+        const confirmText = `Send this ${channel.toUpperCase()} notification to ${audience}?`;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Send bulk notification?',
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d32f2f',
+                cancelButtonColor: '#667085',
+                confirmButtonText: 'Yes, send now'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
+        }
+
+        if (confirm(confirmText)) {
+            form.submit();
+        }
+
+        return false;
+    }
+</script>
+
 </body>
 </html>
 

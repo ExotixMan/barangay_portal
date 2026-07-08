@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
@@ -457,32 +457,6 @@
             color: white;
         }
 
-        /* Header Styling - Mobile Optimized */
-        .header {
-            padding: 1rem 1.5rem;
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 0.75rem 1rem;
-            }
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0;
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 1.2rem;
-            }
-        }
-
         .profile-badge {
             display: flex;
             align-items: center;
@@ -702,7 +676,1265 @@
         .dropdown-item button:hover {
             background: none;
         }
-    </style>
+
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #a91f1f;
+            --primary-light: #fff5f5;
+            --primary-soft: #fff5f5;
+            --success: #16803c;
+            --success-light: #eefaf2;
+            --warning: #d97706;
+            --warning-light: #fff7ed;
+            --danger: #dc2626;
+            --danger-light: #fff1f2;
+            --info: #0369a1;
+            --info-light: #eff6ff;
+            --secondary: #667085;
+            --secondary-light: #f9fafb;
+            --gray-bg: #f8fafc;
+            --page-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #667085;
+            --muted-2: #98a2b3;
+            --line: #e5e7eb;
+            --line-strong: #d0d5dd;
+            --border-color: #e5e7eb;
+            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
+            --radius-xl: 22px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        html {
+            font-size: 70%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .min-w-0 { min-width: 0 !important; }
+
+        .projects-page {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .projects-alert,
+        .projects-page > .alert,
+        main > .alert {
+            border: 0;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .projects-alert.fade:not(.show),
+        .projects-page > .alert.fade:not(.show),
+        main > .alert.fade:not(.show) {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .projects-hero,
+        .projects-panel,
+        .stat-card,
+        .card.border-0 {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: var(--shadow-xs) !important;
+        }
+
+        .projects-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            padding: clamp(1.1rem, 1.8vw, 1.5rem);
+        }
+
+        .projects-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(211, 47, 47, .08), transparent 34%),
+                linear-gradient(135deg, rgba(211, 47, 47, .04), transparent 42%);
+            pointer-events: none;
+        }
+
+        .projects-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .projects-hero-icon,
+        .projects-panel-icon,
+        .stat-icon,
+        .project-icon,
+        .empty-state-icon,
+        .modal-title-icon,
+        .detail-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .projects-hero-icon {
+            width: 46px;
+            height: 46px;
+            margin-bottom: .75rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .14);
+            border-radius: 14px;
+            font-size: 1.12rem;
+        }
+
+        .projects-kicker,
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--primary-dark);
+            font-size: .73rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .projects-hero h2 {
+            margin: .48rem 0 .42rem;
+            color: var(--text);
+            font-size: clamp(1.65rem, 2.6vw, 2.25rem);
+            font-weight: 850;
+            line-height: 1.08;
+            letter-spacing: -.055em;
+        }
+
+        .projects-hero p,
+        .panel-copy,
+        .empty-state p,
+        .modal-subtitle,
+        .field-hint {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .projects-hero p {
+            max-width: 720px;
+            margin: 0;
+            font-size: .93rem;
+        }
+
+        .projects-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: .65rem;
+        }
+
+        .projects-stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .9rem;
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .projects-stats-row > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+        }
+
+        .stat-card {
+            height: 100%;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            gap: .85rem;
+            padding: 1rem !important;
+            overflow: visible !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .stat-card::before { display: none !important; }
+
+        .stat-card:hover,
+        .projects-panel:hover,
+        .card.border-0:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .stat-card:hover { transform: translateY(-1px) !important; }
+
+        .stat-card > div:first-child {
+            min-width: 0;
+            order: 2;
+        }
+
+        .stat-icon {
+            flex: 0 0 auto;
+            order: 1;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 13px;
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            color: var(--muted) !important;
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .stat-number {
+            display: block;
+            margin-top: .26rem;
+            color: var(--text);
+            font-size: clamp(1.3rem, 2vw, 1.75rem);
+            font-weight: 850;
+            line-height: 1.1;
+            letter-spacing: -.045em;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-card small {
+            display: block !important;
+            margin-top: .42rem !important;
+            color: var(--muted) !important;
+            font-size: .78rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .projects-panel { overflow: hidden; }
+
+        .projects-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .9rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .projects-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            min-width: 0;
+        }
+
+        .projects-panel-icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .projects-panel-header h3 {
+            margin: .16rem 0 .15rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .panel-copy {
+            margin: 0;
+            font-size: .86rem;
+        }
+
+        .projects-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+
+        .projects-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            width: fit-content;
+            padding: .42rem .68rem;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .projects-filter-body { padding: 1rem; }
+
+        .projects-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(300px, 1.45fr) minmax(160px, .7fr) minmax(175px, .75fr) auto auto;
+            gap: .65rem;
+            align-items: center;
+        }
+
+        .projects-search-field {
+            position: relative;
+            min-width: 0;
+        }
+
+        .projects-search-field i {
+            position: absolute;
+            top: 50%;
+            left: .9rem;
+            transform: translateY(-50%);
+            color: var(--muted-2);
+            pointer-events: none;
+        }
+
+        .projects-search-field .form-control { padding-left: 2.4rem !important; }
+
+        .projects-filter-panel {
+            margin-bottom: .75rem !important;
+        }
+
+        .projects-filter-panel .projects-panel-header {
+            padding-bottom: .85rem;
+        }
+
+        .projects-filter-panel .projects-filter-body {
+            padding-top: .85rem;
+            padding-bottom: .85rem;
+        }
+
+        .projects-filter-toolbar {
+            grid-template-columns: minmax(360px, 1.55fr) minmax(155px, .65fr) minmax(170px, .72fr) auto;
+            gap: .55rem;
+            align-items: stretch;
+        }
+
+        .projects-search-group {
+            display: flex;
+            align-items: stretch;
+            min-width: 0;
+        }
+
+        .projects-search-group .projects-search-field {
+            flex: 1 1 auto;
+        }
+
+        .projects-search-group .form-control {
+            height: 100%;
+            border-right: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .projects-search-group .search-submit-btn {
+            flex: 0 0 auto;
+            min-width: 104px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+
+        .filter-submit-btn {
+            white-space: nowrap;
+        }
+
+        .projects-bulk-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+            margin-top: .85rem;
+            padding-top: .85rem;
+            border-top: 1px dashed var(--line-strong);
+        }
+
+        .selected-count {
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .48rem;
+            min-height: 42px;
+            padding: .65rem .95rem;
+            border-radius: 12px;
+            font-weight: 760;
+            letter-spacing: -.01em;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn:focus-visible,
+        .form-control:focus,
+        .form-select:focus,
+        .form-range:focus,
+        input[type="checkbox"]:focus-visible {
+            outline: 3px solid rgba(211, 47, 47, .16);
+            outline-offset: 2px;
+            box-shadow: none !important;
+        }
+
+        .btn-primary,
+        .btn-danger {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 10px 22px rgba(211, 47, 47, .18);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-danger:hover,
+        .btn-danger:focus {
+            color: #ffffff !important;
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+            box-shadow: 0 12px 26px rgba(211, 47, 47, .22);
+        }
+
+        .btn-light-soft,
+        .btn-secondary,
+        .btn-outline-secondary {
+            color: var(--text) !important;
+            background: var(--card) !important;
+            border: 1px solid var(--line-strong) !important;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-light-soft:hover,
+        .btn-secondary:hover,
+        .btn-outline-secondary:hover {
+            color: var(--primary-dark) !important;
+            background: #fffafa !important;
+            border-color: rgba(211, 47, 47, .22) !important;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary) !important;
+            background: var(--card) !important;
+            border-color: rgba(211, 47, 47, .25) !important;
+        }
+
+        .btn-outline-primary:hover {
+            color: #ffffff !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-outline-danger {
+            color: var(--danger) !important;
+            background: var(--card) !important;
+            border-color: rgba(220, 38, 38, .25) !important;
+        }
+
+        .btn-outline-danger:hover {
+            color: #ffffff !important;
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+
+        .btn-outline-success {
+            color: var(--success) !important;
+            background: var(--card) !important;
+            border-color: rgba(22, 128, 60, .25) !important;
+        }
+
+        .btn-outline-success:hover {
+            color: #ffffff !important;
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+        }
+
+        .btn-outline-warning {
+            color: #9a3412 !important;
+            background: var(--card) !important;
+            border-color: #fed7aa !important;
+        }
+
+        .btn-outline-warning:hover {
+            color: #7c2d12 !important;
+            background: #fff7ed !important;
+            border-color: #fdba74 !important;
+        }
+
+        .btn-sm,
+        .btn-group-sm > .btn {
+            min-height: 36px;
+            padding: .5rem .68rem;
+            border-radius: 11px;
+            font-size: .82rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+            color: var(--text);
+            background-color: #ffffff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            padding: .62rem .9rem;
+            font-size: .9rem;
+            font-weight: 650;
+        }
+
+        .form-control::placeholder { color: var(--muted-2); }
+
+        textarea.form-control {
+            min-height: 128px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .form-label {
+            color: #344054;
+            font-size: .82rem;
+            font-weight: 820 !important;
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: .35rem;
+            font-size: .75rem;
+            font-weight: 650;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0 !important;
+        }
+
+        .table {
+            min-width: 980px;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            padding: .85rem .95rem;
+            color: #475467;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--line);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: .95rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--line);
+            font-size: .86rem;
+        }
+
+        .table tbody tr { transition: background .16s ease; }
+        .table tbody tr:hover { background: #fcfcfd; }
+
+        .project-icon {
+            flex: 0 0 auto;
+            width: 40px !important;
+            height: 40px !important;
+            color: var(--primary);
+            background: var(--primary-soft) !important;
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px !important;
+        }
+
+        .location-badge,
+        .date-badge,
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: .4rem .62rem;
+            font-size: .74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .location-badge {
+            color: var(--info);
+            background: var(--info-light);
+            border: 1px solid #dbeafe;
+        }
+
+        .date-badge {
+            color: #344054;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+        }
+
+        .badge.bg-success-subtle {
+            color: var(--success) !important;
+            background: var(--success-light) !important;
+            border: 1px solid rgba(22, 128, 60, .14);
+        }
+
+        .badge.bg-danger-subtle {
+            color: var(--danger) !important;
+            background: var(--danger-light) !important;
+            border: 1px solid rgba(220, 38, 38, .14);
+        }
+
+        .badge.bg-warning-subtle {
+            color: #9a3412 !important;
+            background: var(--warning-light) !important;
+            border: 1px solid #fed7aa;
+        }
+
+        .badge.bg-info-subtle {
+            color: var(--info) !important;
+            background: var(--info-light) !important;
+            border: 1px solid #dbeafe;
+        }
+
+        .progress {
+            height: 12px !important;
+            background: #f2f4f7;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--primary) !important;
+            border-radius: 999px;
+            font-size: 0;
+        }
+
+        .progress-bar.bg-success { background: var(--success) !important; }
+
+        .progress-cell {
+            min-width: 175px;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 240px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 20px;
+            font-size: 1.35rem;
+        }
+
+        .empty-state h4 {
+            margin-bottom: .35rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 820;
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            margin: 0 auto 1rem;
+            font-size: .88rem;
+        }
+
+        .modal-content {
+            overflow: hidden;
+            border: 0 !important;
+            border-radius: var(--radius-xl) !important;
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .18) !important;
+        }
+
+        .modal-header {
+            align-items: flex-start;
+            gap: .85rem;
+            padding: 1rem !important;
+            color: var(--text) !important;
+            background: linear-gradient(180deg, #ffffff, #fbfdff) !important;
+            border-bottom: 1px solid var(--line) !important;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+        }
+
+        .modal-header .btn-close {
+            filter: none !important;
+            opacity: .72;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: flex-start;
+            gap: .72rem;
+            margin: 0;
+            color: var(--text) !important;
+            font-size: 1rem;
+            font-weight: 850;
+            letter-spacing: -.025em;
+        }
+
+        .modal-title i {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            margin: 0 !important;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid rgba(211, 47, 47, .12);
+            border-radius: 14px;
+        }
+
+        .modal-title-stack {
+            display: grid;
+            gap: .18rem;
+        }
+
+        .modal-subtitle {
+            display: block;
+            max-width: 620px;
+            font-size: .82rem;
+            font-weight: 600;
+            letter-spacing: 0;
+        }
+
+        .modal-body {
+            padding: 1rem !important;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            gap: .55rem;
+            padding: .85rem 1rem 1rem !important;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .92), #ffffff);
+            border-top: 1px solid var(--line) !important;
+        }
+
+        .modal-section {
+            padding: .95rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+        .modal-section + .modal-section { margin-top: .85rem; }
+
+        .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .85rem;
+            color: var(--text);
+            font-size: .9rem;
+            font-weight: 850;
+            letter-spacing: -.02em;
+        }
+
+        .modal-section-title i { color: var(--primary); }
+
+        .project-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .detail-card {
+            padding: .85rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .detail-card label {
+            display: block;
+            margin-bottom: .4rem;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .detail-card p { margin: 0; color: var(--text); font-weight: 700; }
+
+        .description-box {
+            padding: .95rem;
+            color: var(--text);
+            background: #f9fafb !important;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            line-height: 1.65;
+        }
+
+        .form-range { accent-color: var(--primary); }
+
+        .range-card {
+            padding: 1rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+            background-image: none !important;
+        }
+
+        .is-invalid:focus {
+            border-color: var(--danger) !important;
+            outline-color: rgba(220, 38, 38, .16);
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: var(--danger);
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .projects-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .projects-filter-toolbar { grid-template-columns: minmax(0, 1fr) minmax(160px, .7fr) minmax(175px, .75fr); }
+            .projects-filter-toolbar .filter-submit-btn { width: 100%; }
+        }
+
+        @media (max-width: 991px) {
+            .projects-hero-content,
+            .projects-panel-header { grid-template-columns: minmax(0, 1fr); }
+            .projects-hero-content { display: block; }
+            .projects-hero-actions,
+            .projects-panel-actions,
+            .projects-panel-actions .btn { width: 100%; justify-content: stretch; }
+            .projects-hero-actions .btn { flex: 1 1 180px; }
+            .projects-filter-toolbar { grid-template-columns: minmax(0, 1fr); }
+            .projects-search-group { width: 100%; }
+            .projects-search-group .search-submit-btn { min-width: 96px; }
+            .projects-filter-toolbar .filter-submit-btn { width: 100%; }
+            .projects-bulk-row { flex-direction: column; align-items: stretch; }
+            .table { min-width: 860px; }
+        }
+
+        @media (max-width: 768px) {
+            .projects-page { max-width: 100%; }
+            .projects-hero,
+            .projects-panel,
+            .stat-card,
+            .card.border-0 { border-radius: 16px !important; }
+            .projects-hero,
+            .projects-panel-header,
+            .projects-filter-body,
+            .modal-header,
+            .modal-body,
+            .modal-footer { padding: .9rem !important; }
+            .projects-hero-actions,
+            .projects-hero-actions .btn { width: 100%; }
+            .projects-stats-row { grid-template-columns: minmax(0, 1fr); }
+            .project-detail-grid { grid-template-columns: minmax(0, 1fr); }
+            .modal-footer .btn { width: 100%; }
+        }
+
+        @media (max-width: 575px) {
+            main.p-3,
+            main.p-lg-4 { padding: .85rem !important; }
+            .projects-hero h2 { font-size: 1.7rem; }
+        }
+
+
+        .modal-form-grid {
+            padding: .95rem;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+        }
+
+    
+
+        /* ==========================================================
+           FINAL MOBILE POLISH V2 - Projects
+           Clean card UX on phones. Desktop/tablet table stays unchanged.
+        ========================================================== */
+        @media (max-width: 767.98px) {
+            html { font-size: 78% !important; }
+            body { background: #f8fafc !important; }
+
+            .main-content { min-width: 0 !important; }
+            main.p-3,
+            main.p-lg-4 { padding: .75rem !important; }
+
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 99;
+                padding: .75rem .85rem !important;
+                background: rgba(255,255,255,.96) !important;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 1px 0 var(--line);
+            }
+
+            .page-title {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                min-width: 0;
+                font-size: 1rem !important;
+                font-weight: 850 !important;
+                letter-spacing: -.02em;
+                line-height: 1.2;
+            }
+
+            .title-icon,
+            .mobile-menu-btn {
+                flex: 0 0 auto;
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 12px !important;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                background: #ffffff !important;
+                border: 1px solid var(--line) !important;
+                box-shadow: var(--shadow-xs);
+                font-size: 1rem !important;
+            }
+
+            .projects-page { max-width: 100% !important; }
+
+            .projects-hero,
+            .projects-panel,
+            .stat-card,
+            .card.border-0 {
+                border-radius: 18px !important;
+            }
+
+            .projects-hero { padding: 1rem !important; margin-bottom: .75rem !important; }
+            .projects-hero-content { display: block !important; }
+            .projects-hero-icon { width: 42px !important; height: 42px !important; margin-bottom: .65rem !important; }
+            .projects-hero h2 { font-size: 1.45rem !important; line-height: 1.12 !important; letter-spacing: -.04em !important; }
+            .projects-hero p { font-size: .88rem !important; line-height: 1.55 !important; }
+            .projects-hero-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: .55rem !important; margin-top: .9rem !important; }
+            .projects-hero-actions .btn { width: 100% !important; min-height: 42px !important; padding: .62rem .65rem !important; }
+
+            .projects-stats-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: .55rem !important;
+                margin-bottom: .75rem !important;
+            }
+
+            .stat-card {
+                min-height: 98px;
+                padding: .85rem !important;
+                gap: .6rem !important;
+                align-items: flex-start !important;
+            }
+
+            .stat-icon {
+                width: 36px !important;
+                height: 36px !important;
+                border-radius: 12px !important;
+                font-size: .95rem !important;
+            }
+
+            .stat-label { font-size: .66rem !important; letter-spacing: .06em !important; }
+            .stat-number { font-size: 1.45rem !important; }
+            .stat-card small { display: none !important; }
+
+            .projects-panel-header {
+                display: block !important;
+                padding: .9rem !important;
+            }
+
+            .projects-panel-title { gap: .7rem !important; }
+            .projects-panel-icon { width: 40px !important; height: 40px !important; border-radius: 13px !important; }
+            .projects-panel-header h3 { font-size: .98rem !important; }
+            .panel-copy { font-size: .82rem !important; margin-top: .12rem !important; }
+            .projects-panel-actions { justify-content: flex-start !important; margin-top: .75rem !important; width: 100% !important; }
+            .projects-panel-actions .btn,
+            .projects-panel-actions .projects-count-pill { width: 100% !important; justify-content: center !important; }
+
+            .projects-filter-body { padding: .85rem !important; }
+            .projects-filter-toolbar { display: grid !important; grid-template-columns: 1fr !important; gap: .6rem !important; }
+            .projects-search-group { display: grid !important; grid-template-columns: 1fr !important; gap: .55rem !important; width: 100% !important; }
+            .projects-search-group .form-control,
+            .projects-search-group .search-submit-btn,
+            .projects-search-field .form-control,
+            .projects-filter-toolbar .form-select,
+            .filter-submit-btn {
+                width: 100% !important;
+                min-height: 44px !important;
+                border-radius: 13px !important;
+                border: 1px solid var(--line-strong) !important;
+            }
+            .projects-search-group .form-control { border-right: 1px solid var(--line-strong) !important; }
+            .projects-search-group .search-submit-btn { min-width: 0 !important; }
+
+            .projects-bulk-row {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: .6rem !important;
+                margin-top: .7rem !important;
+                padding-top: .7rem !important;
+            }
+            .projects-bulk-row .selected-count,
+            .projects-bulk-row .btn { width: 100% !important; justify-content: center !important; }
+
+            /* Real mobile cards for the Projects table */
+            .projects-panel .card-body { background: #f8fafc !important; }
+            #projectsTable {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                border-collapse: separate !important;
+            }
+            #projectsTable thead { display: none !important; }
+            #projectsTable tbody {
+                display: grid !important;
+                gap: .8rem !important;
+                padding: .85rem !important;
+                background: #f8fafc !important;
+            }
+            #projectsTable tbody tr {
+                display: grid !important;
+                grid-template-columns: 32px minmax(0, 1fr) auto;
+                grid-template-areas:
+                    "select title status"
+                    "progress progress progress"
+                    "location location location"
+                    "start start start"
+                    "end end end"
+                    "actions actions actions";
+                gap: .62rem .65rem;
+                align-items: start;
+                padding: .9rem !important;
+                background: #ffffff !important;
+                border: 1px solid var(--line) !important;
+                border-radius: 18px !important;
+                box-shadow: 0 8px 20px rgba(16,24,40,.045) !important;
+            }
+            #projectsTable tbody tr:hover { background: #ffffff !important; transform: none !important; }
+            #projectsTable tbody td {
+                display: block !important;
+                width: auto !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                text-align: left !important;
+                white-space: normal !important;
+            }
+            #projectsTable tbody td[colspan] { grid-column: 1 / -1 !important; }
+
+            #projectsTable tbody td:nth-child(1) { grid-area: select; padding-top: .28rem !important; }
+            #projectsTable tbody td:nth-child(1) input { width: 22px !important; height: 22px !important; }
+
+            #projectsTable tbody td:nth-child(2) { grid-area: title; }
+            #projectsTable tbody td:nth-child(2) .d-flex { align-items: flex-start !important; gap: .65rem !important; }
+            #projectsTable tbody td:nth-child(2) .project-icon { width: 42px !important; height: 42px !important; border-radius: 14px !important; margin-right: 0 !important; }
+            #projectsTable tbody td:nth-child(2) .fw-semibold {
+                color: var(--text) !important;
+                font-size: 1rem !important;
+                font-weight: 850 !important;
+                line-height: 1.25 !important;
+                white-space: normal !important;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            #projectsTable tbody td:nth-child(2) small { display: none !important; }
+
+            #projectsTable tbody td:nth-child(6) {
+                grid-area: status;
+                display: flex !important;
+                justify-content: flex-end !important;
+                align-self: start;
+            }
+            #projectsTable tbody td:nth-child(6) .badge { padding: .42rem .62rem !important; font-size: .72rem !important; }
+
+            #projectsTable tbody td:nth-child(7) {
+                grid-area: progress;
+                padding: .75rem !important;
+                background: #f9fafb;
+                border: 1px solid var(--line) !important;
+                border-radius: 14px;
+            }
+            #projectsTable tbody td:nth-child(7)::before {
+                content: "Progress";
+                display: block;
+                margin-bottom: .5rem;
+                color: var(--muted);
+                font-size: .68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+            #projectsTable tbody td:nth-child(7) .progress { height: 10px !important; }
+            #projectsTable tbody td:nth-child(7) small { color: var(--text); font-size: .82rem; }
+
+            #projectsTable tbody td:nth-child(3),
+            #projectsTable tbody td:nth-child(4),
+            #projectsTable tbody td:nth-child(5) {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                gap: .75rem;
+                padding: .68rem .75rem !important;
+                background: #ffffff;
+                border: 1px solid var(--line) !important;
+                border-radius: 14px;
+            }
+            #projectsTable tbody td:nth-child(3) { grid-area: location; }
+            #projectsTable tbody td:nth-child(4) { grid-area: start; }
+            #projectsTable tbody td:nth-child(5) { grid-area: end; }
+            #projectsTable tbody td:nth-child(3)::before { content: "Location"; }
+            #projectsTable tbody td:nth-child(4)::before { content: "Start date"; }
+            #projectsTable tbody td:nth-child(5)::before { content: "Target date"; }
+            #projectsTable tbody td:nth-child(3)::before,
+            #projectsTable tbody td:nth-child(4)::before,
+            #projectsTable tbody td:nth-child(5)::before {
+                flex: 0 0 auto;
+                color: var(--muted);
+                font-size: .68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+            #projectsTable tbody td:nth-child(3) .location-badge,
+            #projectsTable tbody td:nth-child(4) .date-badge,
+            #projectsTable tbody td:nth-child(5) .date-badge {
+                max-width: 58%;
+                justify-content: flex-end;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            #projectsTable tbody td:nth-child(8) { grid-area: actions; padding-top: .2rem !important; }
+            #projectsTable tbody td:nth-child(8) > .d-flex {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: .5rem !important;
+                justify-content: stretch !important;
+            }
+            #projectsTable tbody td:nth-child(8) form { display: block !important; width: 100% !important; }
+            #projectsTable tbody td:nth-child(8) .btn {
+                width: 100% !important;
+                min-height: 42px !important;
+                padding: .58rem .5rem !important;
+                border-radius: 13px !important;
+                font-size: .8rem !important;
+            }
+            #projectsTable tbody td:nth-child(8) .btn::after { margin-left: .28rem; font-weight: 800; }
+            #projectsTable tbody td:nth-child(8) .btn[title="View Details"]::after { content: "View"; }
+            #projectsTable tbody td:nth-child(8) .btn[title="Edit Project"]::after { content: "Edit"; }
+            #projectsTable tbody td:nth-child(8) .btn[title="Archive"]::after { content: "Archive"; }
+            #projectsTable tbody td:nth-child(8) .btn[title="Restore"]::after { content: "Restore"; }
+
+            .empty-state { min-height: 210px !important; padding: 1.25rem !important; }
+
+            .border-top.d-flex.flex-column.flex-md-row {
+                padding: .85rem !important;
+                background: #ffffff;
+                border-radius: 0 0 18px 18px;
+            }
+            .pagination { justify-content: center !important; gap: .35rem !important; }
+            .page-link { min-width: 38px; min-height: 38px; padding: .45rem .62rem !important; }
+
+            .modal-dialog {
+                margin: .65rem !important;
+            }
+            .modal-content {
+                max-height: calc(100vh - 1.3rem) !important;
+                border-radius: 20px !important;
+            }
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                padding: .9rem !important;
+            }
+            .modal-title { font-size: .98rem !important; }
+            .modal-title i { width: 38px !important; height: 38px !important; border-radius: 13px !important; }
+            .modal-subtitle { font-size: .76rem !important; line-height: 1.4 !important; }
+            .modal-body { padding: .85rem !important; max-height: calc(100vh - 150px) !important; }
+            .modal-body .row.g-3 { padding: .8rem !important; border-radius: 16px !important; }
+            .modal-footer {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                padding: .85rem !important;
+            }
+            .modal-footer .btn { width: 100% !important; }
+        }
+
+        @media (max-width: 380px) {
+            .projects-hero-actions { grid-template-columns: 1fr !important; }
+            .projects-stats-row { grid-template-columns: 1fr !important; }
+            #projectsTable tbody tr {
+                grid-template-columns: 28px minmax(0, 1fr);
+                grid-template-areas:
+                    "select status"
+                    "title title"
+                    "progress progress"
+                    "location location"
+                    "start start"
+                    "end end"
+                    "actions actions";
+            }
+        }
+
+</style>
 </head>
 <body>
     <!-- Mobile Overlay -->
@@ -835,7 +2067,44 @@
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
         </a>
-        @endadmin_can        
+        @endadmin_can
+
+        @admin_can('view_settings')
+        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+        </a>
+        @endadmin_can
+
+        <!-- Sidebar Account -->
+        <div class="sidebar-account">
+            <div class="sidebar-user-card">
+                <div class="sidebar-user-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <div class="sidebar-user-details">
+                    <div class="sidebar-user-name">
+                        {{ Auth::guard('admin')->user()->full_name }}
+                        <div class="sidebar-user-role">
+                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
+                        </div>
+                    </div>
+
+                    <div class="sidebar-user-email">
+                        {{ Auth::guard('admin')->user()->email }}
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-logout-text">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -843,47 +2112,23 @@
         <!-- Header -->
         <header class="header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Open sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="page-title">
-                    <i class="fas fa-project-diagram me-2 d-none d-sm-inline" style="color: var(--primary);"></i>
-                    Projects
+                    <span class="title-icon"><i class="fas fa-project-diagram"></i></span>
+                    Project Management
                 </h1>
-            </div>
-            <div class="profile-badge dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" 
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle fs-4 me-2"></i>
-                    <span>{{ Auth::guard('admin')->user()->full_name }}</span>
-                    <span class="role-badge ms-2">{{ Auth::guard('admin')->user()->getRoleDisplayName() }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li>
-                        <span class="dropdown-item-text">
-                            <small class="text-muted">Logged in as</small><br>
-                            <strong>{{ Auth::guard('admin')->user()->email }}</strong>
-                        </span>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Content Area -->
         <main class="p-3 p-lg-4">
+            <div class="projects-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show projects-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -891,7 +2136,7 @@
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show projects-alert" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -899,7 +2144,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show projects-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -910,8 +2155,30 @@
                 </div>
             @endif
 
+
+            <section class="projects-hero">
+                <div class="projects-hero-content">
+                    <div class="min-w-0">
+                        <div class="projects-hero-icon"><i class="fas fa-project-diagram"></i></div>
+                        <div class="projects-kicker"><i class="fas fa-circle-check"></i> Project Control Center</div>
+                        <h2>Track community projects with a cleaner workflow.</h2>
+                        <p>Review project status, filter by progress, update milestones, and archive completed records without cluttering the page.</p>
+                    </div>
+                    <div class="projects-hero-actions">
+                        @admin_can('create_projects')
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                            <i class="fas fa-plus"></i>Add Project
+                        </button>
+                        @endadmin_can
+                        <a href="{{ route('admin.projects.index') }}" class="btn btn-light-soft">
+                            <i class="fas fa-rotate"></i>Reset View
+                        </a>
+                    </div>
+                </div>
+            </section>
+
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4">
+            <div class="row g-3 g-lg-4 mb-4 projects-stats-row">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -932,11 +2199,11 @@
                             <div class="stat-label text-muted mb-1">Ongoing</div>
                             <div class="stat-number">{{ $ongoing_count ?? 0 }}</div>
                             <small class="text-warning mt-2 d-none d-sm-block">
-                                <i class="fas fa-spinner me-1"></i>In progress
+                                <i class="fas fa-hourglass me-1"></i>In progress
                             </small>
                         </div>
                         <div class="stat-icon">
-                            <i class="fas fa-spinner"></i>
+                            <i class="fas fa-hourglass"></i>
                         </div>
                     </div>
                 </div>
@@ -970,82 +2237,82 @@
                 </div>
             </div>
 
-            <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.projects.index') }}" id="searchForm">
-                        <div class="row g-3 align-items-center mb-3">
-                            <div class="col-12 col-md-6">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i class="fas fa-filter me-2 text-primary"></i>Filter Projects
-                                </h6>
-                            </div>
-                            <div class="col-12 col-md-6 text-md-end">
-                                <div class="d-flex gap-2 justify-content-md-end">
-                                    @admin_can('create_projects')
-                                    <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Project</span>
-                                    </a>
-                                    @endadmin_can
-                                    <a href="{{ route('admin.projects.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
-                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
-                                    </a>
-                                </div>
+            <!-- Filters - UX Improved -->
+            <div class="projects-panel projects-filter-panel">
+                <form method="GET" action="{{ route('admin.projects.index') }}" id="searchForm">
+                    <div class="projects-panel-header">
+                        <div class="projects-panel-title">
+                            <div class="projects-panel-icon"><i class="fas fa-filter"></i></div>
+                            <div class="min-w-0">
+                                <div class="section-kicker"><i class="fas fa-hard-hat"></i> Project Directory</div>
+                                <h3>Search and filter projects</h3>
+                                <p class="panel-copy">Find projects by title, description, or location. Use status and progress filters to narrow the table.</p>
                             </div>
                         </div>
-                        
-                        <!-- Search and Filter Row -->
-                        <div class="row g-3">
-                            <div class="col-12 col-md-5">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0">
-                                        <i class="fas fa-search text-muted"></i>
-                                    </span>
-                                    <input type="text" name="search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by project title, description, location..." value="{{ request('search') }}">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search d-sm-none"></i>
-                                        <span class="d-none d-sm-inline">Search</span>
-                                    </button>
+
+                        <div class="projects-panel-actions">
+                            @admin_can('create_projects')
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                <i class="fas fa-plus"></i>Add Project
+                            </button>
+                            @endadmin_can
+                            <a href="{{ route('admin.projects.index') }}" class="btn btn-light-soft">
+                                <i class="fas fa-rotate"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="projects-filter-body">
+                        <div class="projects-filter-toolbar">
+                            <div class="projects-search-group">
+                                <div class="projects-search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text"
+                                           name="search"
+                                           id="globalSearch"
+                                           class="form-control"
+                                           placeholder="Search title, description, or location..."
+                                           value="{{ request('search') }}"
+                                           autocomplete="off"
+                                           aria-label="Search projects">
                                 </div>
-                            </div>
-
-                            <div class="col-6 col-md-2">
-                                <select name="status" class="form-select">
-                                    <option value="">All Status</option>
-                                    <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
-                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                    <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Archived</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <select name="progress" class="form-select">
-                                    <option value="">All Progress</option>
-                                    <option value="0-25" {{ request('progress') == '0-25' ? 'selected' : '' }}>0-25%</option>
-                                    <option value="26-50" {{ request('progress') == '26-50' ? 'selected' : '' }}>26-50%</option>
-                                    <option value="51-75" {{ request('progress') == '51-75' ? 'selected' : '' }}>51-75%</option>
-                                    <option value="76-100" {{ request('progress') == '76-100' ? 'selected' : '' }}>76-100%</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-filter me-2"></i>Apply
+                                <button type="submit" class="btn btn-primary search-submit-btn">
+                                    <i class="fas fa-search"></i>Search
                                 </button>
                             </div>
+
+                            <select name="status" class="form-select" aria-label="Filter by status">
+                                <option value="">All status</option>
+                                <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Archived</option>
+                            </select>
+
+                            <select name="progress" class="form-select" aria-label="Filter by progress">
+                                <option value="">All progress</option>
+                                <option value="0-25" {{ request('progress') == '0-25' ? 'selected' : '' }}>0-25%</option>
+                                <option value="26-50" {{ request('progress') == '26-50' ? 'selected' : '' }}>26-50%</option>
+                                <option value="51-75" {{ request('progress') == '51-75' ? 'selected' : '' }}>51-75%</option>
+                                <option value="76-100" {{ request('progress') == '76-100' ? 'selected' : '' }}>76-100%</option>
+                            </select>
+
+                            <button type="submit" class="btn btn-light-soft filter-submit-btn">
+                                <i class="fas fa-filter"></i>Apply filters
+                            </button>
                         </div>
 
-                        <!-- Bulk Actions -->
                         @if(auth('admin')->user()->hasPermission('delete_projects'))
-                        <div class="mt-3 d-flex gap-2 justify-content-end">
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Archive">
-                                <i class="fas fa-trash-alt"></i>
-                                <span class="d-none d-sm-inline">Bulk Archive</span>
+                        <div class="projects-bulk-row">
+                            <div class="selected-count" id="selectedProjectsCount">
+                                <i class="fas fa-square-check me-1"></i>No projects selected
+                            </div>
+                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger" title="Bulk Archive">
+                                <i class="fas fa-trash-alt"></i>Archive Selected
                             </button>
                         </div>
                         @endif
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             @if(auth('admin')->user()->hasPermission('delete_projects'))
@@ -1055,13 +2322,26 @@
             </form>
             @endif
 
-            <!-- Projects Table - Mobile Responsive with Horizontal Scroll -->
-            <div class="card border-0">
+            <!-- Projects Table - UX Improved -->
+            <div class="projects-panel">
+                <div class="projects-panel-header">
+                    <div class="projects-panel-title">
+                        <div class="projects-panel-icon"><i class="fas fa-list-check"></i></div>
+                        <div class="min-w-0">
+                            <div class="section-kicker"><i class="fas fa-table"></i> Project Records</div>
+                            <h3>Projects List</h3>
+                            <p class="panel-copy">Sort records, open details, and edit project information without leaving this page.</p>
+                        </div>
+                    </div>
+                    <div class="projects-panel-actions">
+                        <span class="projects-count-pill"><i class="fas fa-folder-open"></i>{{ isset($projects) ? $projects->total() : 0 }} projects</span>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="projectsTable">
                             <thead class="table-light">
-                                <tr class="{{ $project->deleted_at ? 'table-danger' : '' }}">
+                                <tr>
                                     <th width="50" class="ps-4">
                                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                                     </th>
@@ -1143,7 +2423,7 @@
                                     </td>
                                     <td class="ps-0">
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                            <div class="project-icon me-2">
                                                 <i class="fas fa-hard-hat text-primary"></i>
                                             </div>
                                             <div>
@@ -1184,7 +2464,7 @@
                                             <span class="badge bg-success-subtle text-success">Completed</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="progress-cell">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="progress flex-grow-1" style="height: 20px;">
                                                 <div class="progress-bar {{ $project->status == 'completed' ? 'bg-success' : '' }}"
@@ -1215,12 +2495,6 @@
                                             @endadmin_can
                                             @endif
 
-                                            <!-- Update Progress (only for ongoing and if user has update_project_progress permission) -->
-                                            @if(!$project->deleted_at && $project->status == 'ongoing' && auth('admin')->user()->hasPermission('update_project_progress'))
-                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="updateProgress({{ $project->id }}, {{ $project->progress }})" title="Update Progress">
-                                                <i class="fas fa-chart-line"></i>
-                                            </button>
-                                            @endif
 
                                             <!-- Delete (requires delete_projects permission) -->
                                             @admin_can('delete_projects')
@@ -1246,16 +2520,18 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-project-diagram fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No projects found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            @admin_can('create_projects')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-                                                <i class="fas fa-plus me-2"></i>Add New Project
-                                            </button>
-                                            @endadmin_can
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <div>
+                                                <div class="empty-state-icon"><i class="fas fa-project-diagram"></i></div>
+                                                <h4>No projects found</h4>
+                                                <p>No project records match your current search and filters.</p>
+                                                @admin_can('create_projects')
+                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                                    <i class="fas fa-plus"></i>Add Project
+                                                </button>
+                                                @endadmin_can
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -1287,8 +2563,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-hard-hat me-2"></i>
-                                New Project
+                                <i class="fas fa-hard-hat"></i>
+                                <span class="modal-title-stack">
+                                    <span>New Project</span>
+                                    <span class="modal-subtitle">Add a clear project record with status, dates, location, and progress.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1301,7 +2580,7 @@
                                     <div class="col-12">
                                         <label class="form-label">Project Title <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" placeholder="e.g. Drainage Rehabilitation Phase 1" required>
                                         @if(session('form_type') == 'add')
                                             @error('title')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1347,7 +2626,7 @@
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Location</label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif" 
-                                               name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="Project location/address">
+                                               name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="e.g. Zone 3, Hulong Duhat">
                                         @if(session('form_type') == 'add')
                                             @error('location')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1408,8 +2687,11 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-edit me-2"></i>
-                                    Edit Project
+                                    <i class="fas fa-edit"></i>
+                                    <span class="modal-title-stack">
+                                        <span>Edit Project</span>
+                                        <span class="modal-subtitle">Update project details and keep progress aligned with the selected status.</span>
+                                    </span>
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -1531,8 +2813,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-hard-hat me-2"></i>
-                                Project Details
+                                <i class="fas fa-hard-hat"></i>
+                                <span class="modal-title-stack">
+                                    <span>Project Details</span>
+                                    <span class="modal-subtitle">Review project timeline, location, progress, and description.</span>
+                                </span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1622,51 +2907,6 @@
             </div>
             @endforeach
 
-            <!-- Update Progress Modal - Only if user has update_project_progress permission -->
-            @if(auth('admin')->user()->hasPermission('update_project_progress'))
-            <div class="modal fade" id="updateProgressModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Update Project Progress
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="" id="updateProgressForm">
-                            @csrf
-                            @method('PATCH')
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Progress Percentage</label>
-                                    <input type="range" class="form-range" id="progressRange" min="0" max="100" step="1">
-                                    <div class="text-center mt-2">
-                                        <span class="badge bg-primary" id="progressValue">0%</span>
-                                    </div>
-                                    <input type="hidden" name="progress" id="progressHidden">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Status</label>
-                                    <select class="form-select" name="status" id="progressStatus">
-                                        <option value="ongoing">Ongoing</option>
-                                        <option value="completed">Completed</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Update
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            @endif
 
             @if ($errors->any() && session('form_type') == 'add')
             <script>
@@ -1688,6 +2928,7 @@
                     });
                 </script>
             @endif
+            </div>
         </main>
     </div>
 
@@ -1759,6 +3000,10 @@
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+
+            if (typeof updateSelectedProjectsCount === 'function') {
+                updateSelectedProjectsCount();
+            }
         }
 
         // Confirm delete with SweetAlert
@@ -1789,32 +3034,6 @@
             return false;
         }
 
-        // Update progress function
-        function updateProgress(projectId, currentProgress) {
-            @if(auth('admin')->user()->hasPermission('update_project_progress'))
-            const modal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
-            const form = document.getElementById('updateProgressForm');
-            const range = document.getElementById('progressRange');
-            const value = document.getElementById('progressValue');
-            const hidden = document.getElementById('progressHidden');
-            const statusSelect = document.getElementById('progressStatus');
-
-            const progressUrlTemplate = "{{ route('admin.projects.progress', ['id' => '__ID__']) }}";
-            form.action = progressUrlTemplate.replace('__ID__', projectId);
-            range.value = currentProgress;
-            value.textContent = currentProgress + '%';
-            hidden.value = currentProgress;
-            
-            if (currentProgress == 100) {
-                statusSelect.value = 'completed';
-            } else {
-                statusSelect.value = 'ongoing';
-            }
-            
-            modal.show();
-            @endif
-        }
-
         // Update progress range display for add modal
         document.getElementById('addProgressRange')?.addEventListener('input', function() {
             document.getElementById('addProgressValue').textContent = this.value + '%';
@@ -1826,56 +3045,6 @@
                 statusSelect.value = 'completed';
             } else {
                 statusSelect.value = 'ongoing';
-            }
-        });
-
-        // Update progress range display for progress modal
-        document.getElementById('progressRange')?.addEventListener('input', function() {
-            document.getElementById('progressValue').textContent = this.value + '%';
-            document.getElementById('progressHidden').value = this.value;
-            
-            // Auto-select status based on progress
-            const statusSelect = document.getElementById('progressStatus');
-            if (this.value == 100) {
-                statusSelect.value = 'completed';
-            } else {
-                statusSelect.value = 'ongoing';
-            }
-        });
-
-        // Do not allow completed unless progress is exactly 100.
-        document.getElementById('progressStatus')?.addEventListener('change', function() {
-            const progress = Number(document.getElementById('progressHidden')?.value || 0);
-            if (this.value === 'completed' && progress !== 100) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Status',
-                        text: 'Status can only be set to Completed when progress is exactly 100%.',
-                        confirmButtonColor: '#d32f2f'
-                    });
-                } else {
-                    alert('Status can only be set to Completed when progress is exactly 100%.');
-                }
-                this.value = 'ongoing';
-            }
-        });
-
-        document.getElementById('updateProgressForm')?.addEventListener('submit', function(e) {
-            const progress = Number(document.getElementById('progressHidden')?.value || 0);
-            const status = document.getElementById('progressStatus')?.value || 'ongoing';
-            if (status === 'completed' && progress !== 100) {
-                e.preventDefault();
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Status can only be set to Completed when progress is exactly 100%.',
-                        confirmButtonColor: '#d32f2f'
-                    });
-                } else {
-                    alert('Status can only be set to Completed when progress is exactly 100%.');
-                }
             }
         });
 
@@ -1949,15 +3118,6 @@
                 })('{{ $project->id }}');
                 @endforeach
             @endif
-        });
-
-        // Auto-submit search after typing (optional)
-        let searchTimeout;
-        document.getElementById('globalSearch')?.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('searchForm').submit();
-            }, 500);
         });
     </script>
 
@@ -2112,6 +3272,34 @@
         attachProjectValidation(document.getElementById('addProjectForm'));
         document.querySelectorAll('[id^="editProjectForm"]').forEach(attachProjectValidation);
     });
+
+// UX helper: keep the selected counter updated for bulk actions.
+        function updateSelectedProjectsCount() {
+            const selected = document.querySelectorAll('.project-checkbox:checked').length;
+            const counter = document.getElementById('selectedProjectsCount');
+            if (!counter) return;
+            counter.innerHTML = selected > 0
+                ? `<i class="fas fa-square-check me-1"></i>${selected} project${selected === 1 ? '' : 's'} selected`
+                : '<i class="fas fa-square-check me-1"></i>No projects selected';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.project-checkbox, #selectAll').forEach((checkbox) => {
+                checkbox.addEventListener('change', updateSelectedProjectsCount);
+            });
+            updateSelectedProjectsCount();
+
+            document.querySelectorAll('.modal-body .row.g-3').forEach((row) => {
+                if (!row.closest('.modal-body')) return;
+                row.classList.add('modal-form-grid');
+            });
+
+            document.querySelectorAll('.modal-body textarea[name="description"]').forEach((textarea) => {
+                if (!textarea.nextElementSibling || !textarea.nextElementSibling.classList?.contains('field-hint')) {
+                    textarea.insertAdjacentHTML('afterend', '<span class="field-hint">Use short, resident-friendly wording. Include scope, location, and expected outcome when possible.</span>');
+                }
+            });
+        });
     </script>
 
     <!-- SweetAlert2 for better alerts (optional) -->

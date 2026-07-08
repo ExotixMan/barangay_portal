@@ -118,7 +118,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         // Store form type in session
         session()->flash('form_type', 'edit_' . $id);
@@ -149,7 +149,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $project = Project::findOrFail($id);
         $title = $project->title;
@@ -171,7 +171,7 @@ class ProjectController extends Controller
         return back()->with('success', $count . ' selected project(s) archived successfully.');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $project = Project::withTrashed()->findOrFail($id);
         $title = $project->title;
@@ -180,7 +180,7 @@ class ProjectController extends Controller
         return back()->with('success', 'Project "' . $title . '" restored successfully.');
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $project = Project::findOrFail($id);
         
@@ -191,7 +191,7 @@ class ProjectController extends Controller
         return view('admin.projects.show', compact('project'));
     }
 
-    public function updateProgress(Request $request, $id)
+    public function updateProgress(Request $request, int $id)
     {
         $project = Project::findOrFail($id);
 

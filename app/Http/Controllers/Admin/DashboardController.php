@@ -117,18 +117,39 @@ class DashboardController extends Controller
     public function refreshForecast()
     {
         try {
-            Artisan::call('analytics:refresh-forecast');
+            $exitCode = Artisan::call('analytics:refresh-forecast');
+            $commandOutput = Artisan::output();
+
+            if ($exitCode !== 0) {
+                Log::error('Forecast command failed.', [
+                    'exit_code' => $exitCode,
+                    'output' => $commandOutput,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Forecast command failed.',
+                    'error' => $commandOutput ?: 'No command output.',
+                ], 500);
+            }
 
             $forecastPath = public_path('analytics/forecast.json');
+
+            clearstatcache(true, $forecastPath);
+
             $forecastLastUpdated = file_exists($forecastPath)
-                ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath), 'Asia/Manila')->format('M d, Y h:i A') . ' PHT'
+                ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath))
+                    ->timezone('Asia/Manila')
+                    ->format('M d, Y h:i A') . ' PHT'
                 : null;
 
             return response()->json([
                 'success' => true,
                 'message' => 'Forecast refreshed successfully.',
                 'forecastLastUpdated' => $forecastLastUpdated,
-            ]);
+                'output' => $commandOutput,
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+
         } catch (\Throwable $e) {
             Log::error('Forecast refresh command failed: ' . $e->getMessage());
 

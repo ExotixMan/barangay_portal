@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
@@ -33,308 +33,493 @@
 
         :root {
             --primary: #c62828;
-            --primary-light: #ff5f52;
             --primary-dark: #8e0000;
-            --accent: #2e9e5b;
-            --danger: #c23939;
-            --text-dark: #1c2630;
-            --text-soft: #5c6773;
-            --text-light: #7e8894;
-            --surface: #ffffff;
-            --surface-soft: #f8f9fa;
-            --border: #e5e9f0;
-            --border-dark: #dde6ef;
-            --focus: rgba(198, 40, 40, 0.2);
-            --shadow: 0 12px 28px rgba(14, 38, 58, 0.12);
-            --shadow-hover: 0 18px 32px rgba(14, 38, 58, 0.16);
+            --primary-soft: #fff1f2;
+            --primary-50: #fff7f7;
+            --primary-border: rgba(198, 40, 40, 0.16);
+            --success: #15803d;
+            --danger: #dc2626;
+            --warning: #b45309;
+            --info: #2563eb;
+            --text: #101828;
+            --text-2: #344054;
+            --muted: #667085;
+            --soft: #f8fafc;
+            --page: #f4f6f8;
+            --card: #ffffff;
+            --line: #e4e7ec;
+            --line-strong: #d0d5dd;
+            --field: #ffffff;
+            --field-soft: #f9fafb;
+            --focus: rgba(198, 40, 40, 0.15);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
             --radius: 16px;
-            --radius-sm: 10px;
-            --transition: 0.25s ease;
+            --radius-sm: 12px;
+            --shadow: 0 24px 70px rgba(16, 24, 40, 0.10);
+            --shadow-soft: 0 8px 24px rgba(16, 24, 40, 0.06);
+            --transition: 0.2s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(145deg, #fff5f5 0%, #ffe7e7 100%);
             min-height: 100vh;
-            color: var(--text-dark);
+            padding: 22px 16px 42px;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(198, 40, 40, 0.12), transparent 34rem),
+                radial-gradient(circle at 90% 8%, rgba(142, 0, 0, 0.08), transparent 28rem),
+                linear-gradient(180deg, #fff 0%, var(--page) 40%, #eef2f6 100%);
+            font-family: 'Inter', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.5;
-            padding: 2rem 1rem;
-            position: relative;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 300px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            clip-path: polygon(0 0, 100% 0, 100% 60%, 0 100%);
-            z-index: 0;
+        .back-button-container,
+        .form-page-header,
+        .main-container {
+            width: min(100%, 1120px);
+            margin-inline: auto;
         }
 
-        /* Back Button */
         .back-button-container {
-            position: relative;
-            z-index: 2;
-            max-width: 1000px;
-            margin: 0 auto 20px;
+            margin-bottom: 14px;
         }
 
         .btn-back {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 24px;
-            background: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 40px;
-            color: var(--text-dark);
+            gap: 9px;
+            min-height: 42px;
+            padding: 0.62rem 0.95rem;
+            border-radius: 999px;
+            color: var(--text-2);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all var(--transition);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            font-size: 0.9rem;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(208, 213, 221, 0.92);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            backdrop-filter: blur(14px);
+            transition: color var(--transition), border-color var(--transition), background var(--transition), transform var(--transition);
         }
 
         .btn-back:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateX(-3px);
-            box-shadow: 0 8px 20px rgba(198, 40, 40, 0.3);
-            border-color: var(--primary);
+            color: var(--primary);
+            border-color: var(--primary-border);
+            background: #fff;
+            transform: translateX(-2px);
         }
 
-        /* Page Header */
         .form-page-header {
-            position: relative;
-            z-index: 2;
-            color: white;
-            padding: 0 1rem;
-            text-align: center;
-            justify-content: center;
-            justify-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+            margin-bottom: 18px;
+            padding: 10px 4px 2px;
         }
 
         .form-page-header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.45rem;
+            color: var(--text);
+            font-size: clamp(1.85rem, 4vw, 3rem);
+            font-weight: 900;
+            letter-spacing: -0.055em;
+            line-height: 1.05;
         }
 
         .form-page-header h1 i {
-            margin-right: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
+            display: inline-grid;
+            place-items: center;
+            flex: 0 0 50px;
+            border-radius: 18px;
+            color: var(--primary);
+            background: #fff;
+            border: 1px solid var(--primary-border);
+            box-shadow: 0 10px 24px rgba(198, 40, 40, 0.10);
+            font-size: 1.1rem;
         }
 
         .form-page-header p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-            max-width: 500px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            max-width: 640px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 1rem;
+            font-weight: 600;
         }
 
-        /* Main Container */
         .main-container {
-            position: relative;
-            z-index: 2;
-            max-width: 900px;
-            margin: 0 auto;
+            padding-bottom: 20px;
         }
 
-        /* Form Container */
         .form-container {
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-hover);
             overflow: hidden;
-            padding: 2.5rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-xl);
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(228, 231, 236, 0.94);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
         }
 
-        /* Alerts */
+        .register-panel-header {
+            padding: clamp(1.05rem, 2.6vw, 1.55rem);
+            color: #fff;
+            background:
+                linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-panel-header > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-panel-header .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.7rem;
+            padding: 0.42rem 0.7rem;
+            border-radius: 999px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .register-panel-header h2 {
+            max-width: 650px;
+            margin: 0 0 0.45rem;
+            color: #fff;
+            font-size: clamp(1.45rem, 3vw, 2.25rem);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            line-height: 1.08;
+        }
+
+        .register-panel-header p {
+            max-width: 680px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.98rem;
+            font-weight: 550;
+        }
+
+        .panel-checklist {
+            display: grid;
+            gap: 0.65rem;
+            align-self: stretch;
+        }
+
+        .panel-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            min-height: 48px;
+            padding: 0.72rem 0.85rem;
+            border-radius: 16px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            font-size: 0.84rem;
+            font-weight: 850;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-chip i {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: var(--primary-dark);
+            background: #fff;
+        }
+
+        .form-progress,
+        .form-step,
         .alert {
-            border-radius: var(--radius-sm);
-            margin-bottom: 2rem;
-            padding: 1rem 1.2rem;
-            border: none;
-            font-weight: 500;
+            margin-inline: clamp(0.95rem, 2.2vw, 1.45rem);
+        }
+
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.9rem 1rem;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: none;
         }
 
         .alert-success {
-            background: #dcf6e8;
-            color: #165839;
-            border-left: 4px solid #1e8f55;
+            color: #166534;
+            background: #f0fdf4;
+            border-color: #bbf7d0;
         }
 
         .alert-danger {
-            background: #f9dfdf;
-            color: #8a2929;
-            border-left: 4px solid var(--danger);
+            color: #991b1b;
+            background: #fff1f2;
+            border-color: #fecdd3;
         }
 
         .alert ul {
-            margin-left: 1.2rem;
+            margin-left: 1rem;
             margin-bottom: 0;
         }
 
         .btn-close {
-            filter: none;
-            opacity: 0.8;
+            margin-left: auto;
+            opacity: 0.65;
         }
 
-        /* Progress Bar */
         .form-progress {
-            margin-bottom: 2.5rem;
+            margin-top: 1.2rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 20px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
         }
 
         .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            position: relative;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+            margin-bottom: 0.7rem;
         }
 
         .step {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            position: relative;
-            z-index: 1;
-            flex: 1;
-            text-align: center;
+            gap: 0.75rem;
+            min-width: 0;
+            padding: 0.72rem;
+            border-radius: 15px;
+            color: var(--muted);
+            background: var(--field-soft);
+            border: 1px solid transparent;
+            transition: background var(--transition), border-color var(--transition), color var(--transition);
         }
 
         .step-circle {
-            width: 48px;
-            height: 48px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.2rem;
-            color: var(--text-soft);
-            margin-bottom: 8px;
-            transition: all var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 36px;
+            border-radius: 999px;
+            color: var(--text-2);
+            background: #fff;
+            border: 1px solid var(--line);
+            font-size: 0.86rem;
+            font-weight: 900;
+            transition: inherit;
         }
 
         .step span {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-soft);
+            min-width: 0;
+            color: inherit;
+            font-size: 0.9rem;
+            font-weight: 850;
+            text-align: left;
+        }
+
+        .step.active {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border-color: var(--primary-border);
         }
 
         .step.active .step-circle {
+            color: #fff;
             background: var(--primary);
             border-color: var(--primary);
-            color: white;
-            box-shadow: 0 8px 16px rgba(198, 40, 40, 0.3);
-            transform: scale(1.05);
-        }
-
-        .step.active span {
-            color: var(--primary);
-            font-weight: 600;
         }
 
         .progress-bar {
-            height: 6px;
-            background: var(--border);
-            border-radius: 6px;
-            position: relative;
-            margin-top: 0.5rem;
+            height: 7px;
             overflow: hidden;
+            border-radius: 999px;
+            background: #eef0f3;
         }
 
         .progress-fill {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
-            border-radius: 6px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transition: width 0.35s ease;
         }
 
-        /* Form Steps */
         .form-step {
             display: none;
+            padding-bottom: clamp(1rem, 2.4vw, 1.5rem);
         }
 
         .form-step.active {
             display: block;
-            animation: slideIn 0.5s ease;
+            animation: fadeStep 0.22s ease;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        @keyframes fadeStep {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-step h3 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 1.8rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 2px solid var(--border);
-            color: var(--primary-dark);
             display: flex;
             align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
         }
 
         .form-step h3 i {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
             color: var(--primary);
-            margin-right: 10px;
-            font-size: 1.6rem;
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+            font-size: 0.92rem;
         }
 
-        /* Form Groups */
+        .row.g-3 {
+            --bs-gutter-x: 0.95rem;
+            --bs-gutter-y: 0.1rem;
+        }
+
+        .form-section-card {
+            margin: 1rem 0;
+            padding: clamp(0.95rem, 2vw, 1.15rem);
+            border-radius: 22px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h4 {
+            margin: 0 0 0.25rem;
+            color: var(--text);
+            font-size: 1.02rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .section-header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.84rem;
+            font-weight: 550;
+        }
+
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.42rem;
+            margin-bottom: 0.42rem;
+            color: var(--primary);
+            font-size: 0.73rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            white-space: nowrap;
+            padding: 0.45rem 0.65rem;
+            border-radius: 999px;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+            font-size: 0.76rem;
+            font-weight: 850;
+        }
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.95rem;
         }
 
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-dark);
+        .form-group label,
+        .captcha-section label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.42rem;
+            margin-bottom: 0.42rem;
+            color: #1f2937;
+            font-size: 0.86rem;
+            font-weight: 800;
         }
 
-        .form-group label i {
+        .form-group label i,
+        .captcha-section label i {
             color: var(--primary);
-            margin-right: 8px;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
         }
 
-        .form-control {
+        .form-control,
+        select.form-control,
+        textarea.form-control {
             width: 100%;
-            padding: 0.85rem 1.2rem;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            transition: all var(--transition);
-            background: white;
-            font-family: 'Poppins', sans-serif;
+            min-height: 47px;
+            padding: 0.76rem 0.86rem;
+            border: 1px solid var(--line-strong);
+            border-radius: 13px;
+            color: var(--text);
+            background: var(--field);
+            font-family: inherit;
+            font-size: 0.94rem;
+            font-weight: 560;
+            box-shadow: none;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+        }
+
+        .form-control::placeholder {
+            color: #98a2b3;
+            font-weight: 500;
+        }
+
+        .form-control:hover {
+            border-color: #b8c0cc;
         }
 
         .form-control:focus {
@@ -343,132 +528,195 @@
             box-shadow: 0 0 0 4px var(--focus);
         }
 
+        .form-control[readonly] {
+            color: var(--text-2);
+            background: #f9fafb;
+            cursor: not-allowed;
+        }
+
         .form-control.is-invalid {
             border-color: var(--danger);
             background-image: none;
         }
 
         .form-control.is-invalid:focus {
-            box-shadow: 0 0 0 4px rgba(194, 57, 57, 0.1);
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
         }
 
         textarea.form-control {
+            min-height: 96px;
             resize: vertical;
-            min-height: 100px;
         }
 
         .form-hint {
             display: block;
-            margin-top: 0.4rem;
-            font-size: 0.8rem;
-            color: var(--text-light);
+            margin-top: 0.35rem;
+            color: var(--muted);
+            font-size: 0.76rem;
+            font-weight: 550;
         }
 
-        .form-hint.good {
-            color: #1e8f55;
-        }
-
-        .form-hint.bad {
-            color: var(--danger);
-        }
+        .form-hint.good { color: var(--success); }
+        .form-hint.bad { color: var(--danger); }
 
         .error-message {
-            color: var(--danger);
-            font-size: 0.8rem;
-            margin-top: 0.4rem;
             display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(194, 57, 57, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+            align-items: flex-start;
+            gap: 0.4rem;
+            width: fit-content;
+            max-width: 100%;
+            margin-top: 0.42rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: 10px;
+            color: #991b1b;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            font-size: 0.76rem;
+            font-weight: 800;
         }
 
         .error-message::before {
-            content: "⚠️";
-            font-size: 0.8rem;
+            content: "!";
+            display: inline-grid;
+            place-items: center;
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+            border-radius: 999px;
+            color: #fff;
+            background: var(--danger);
+            font-size: 0.7rem;
+            font-weight: 900;
+            line-height: 1;
         }
 
-        /* Password Input */
         .password-input-wrapper {
             position: relative;
         }
 
         .password-input-wrapper .form-control {
-            padding-right: 50px;
+            padding-right: 44px;
         }
 
         .toggle-password {
             position: absolute;
-            right: 12px;
+            right: 7px;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-light);
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 10px;
+            color: var(--muted);
+            background: transparent;
             cursor: pointer;
-            padding: 8px;
-            transition: all var(--transition);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: color var(--transition), background var(--transition);
         }
 
         .toggle-password:hover {
             color: var(--primary);
-            background: var(--surface-soft);
+            background: var(--primary-soft);
         }
 
-        /* Password Strength */
         .password-meter {
             height: 6px;
-            background: var(--border);
-            border-radius: 6px;
+            margin: 0.55rem 0 0.25rem;
             overflow: hidden;
-            margin: 0.5rem 0 0.25rem;
+            border-radius: 999px;
+            background: #eef0f3;
         }
 
         .password-meter-fill {
-            height: 100%;
             width: 10%;
+            height: 100%;
             background: #d16060;
-            transition: all var(--transition);
+            border-radius: inherit;
+            transition: width var(--transition), background-color var(--transition);
         }
 
         .password-checklist {
-            list-style: none;
-            padding: 0;
-            margin: 0.5rem 0 0;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.35rem 0.8rem;
+            margin: 0.55rem 0 0;
+            padding: 0;
+            list-style: none;
         }
 
         .password-checklist li {
-            color: var(--text-light);
-            font-size: 0.8rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.4rem;
+            color: var(--muted);
+            font-size: 0.76rem;
+            font-weight: 650;
         }
 
         .password-checklist li::before {
-            content: "○";
-            font-size: 0.9rem;
-            color: var(--text-light);
+            content: "";
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
+            border-radius: 999px;
+            background: #cbd5e1;
         }
 
-        .password-checklist li.is-complete {
-            color: #1e8f55;
+        .password-checklist li.is-complete { color: var(--success); }
+        .password-checklist li.is-complete::before { background: var(--success); }
+
+        .id-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
         }
 
-        .password-checklist li.is-complete::before {
-            content: "✓";
-            color: #1e8f55;
+        .scan-card {
+            padding: 0.9rem;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fbfcfd;
         }
 
-        /* File Upload */
+        .scan-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .scan-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--text);
+            font-weight: 900;
+            font-size: 0.92rem;
+        }
+
+        .scan-card-title i {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+        }
+
+        .required-pill {
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            color: #991b1b;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            font-size: 0.68rem;
+            font-weight: 900;
+        }
+
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -476,174 +724,610 @@
 
         .file-upload-input {
             position: relative;
-            display: flex;
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr);
             align-items: center;
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-sm);
-            background: var(--surface-soft);
-            padding: 0.5rem;
+            gap: 0.75rem;
+            min-height: 78px;
+            padding: 0.75rem;
+            border: 1.6px dashed var(--line-strong);
+            border-radius: 16px;
+            background: #fff;
             cursor: pointer;
-            transition: all var(--transition);
+            transition: border-color var(--transition), background var(--transition), transform var(--transition);
         }
 
         .file-upload-input:hover {
             border-color: var(--primary);
-            background: rgba(198, 40, 40, 0.05);
+            background: var(--primary-50);
+            transform: translateY(-1px);
+        }
+
+        .file-upload-wrapper.is-invalid .file-upload-input {
+            border-color: var(--danger);
+            background: #fff1f2;
         }
 
         .file-upload-input input[type="file"] {
             position: absolute;
+            inset: 0;
             opacity: 0;
-            width: 100%;
-            height: 100%;
             cursor: pointer;
         }
 
-        .file-upload-button {
-            background: var(--primary);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-right: 1rem;
+        .upload-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
             pointer-events: none;
         }
 
-        .file-upload-text {
-            color: var(--text-soft);
-            font-size: 0.9rem;
-            flex: 1;
+        .file-upload-copy {
+            min-width: 0;
+            pointer-events: none;
         }
 
-        .file-upload-info {
-            margin-top: 0.5rem;
+        .file-upload-button {
+            display: block;
+            color: var(--text);
+            font-size: 0.88rem;
+            font-weight: 900;
+        }
+
+        .file-upload-text {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 650;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-upload-info,
+        .address-preview {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .file-upload-info i,
+        .address-preview i {
+            color: var(--primary);
+            margin-top: 0.1rem;
+        }
+
+        .address-preview {
+            padding: 0.8rem;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid var(--line);
+        }
+
+        .address-preview strong {
+            color: var(--text-2);
+        }
+
+
+        .verification-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            margin-bottom: 0.9rem;
+            padding: 0.82rem 0.9rem;
+            border-radius: 16px;
+            color: #1e3a8a;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .verification-note i {
+            margin-top: 0.08rem;
+            color: var(--info);
+        }
+
+        .id-preview-shell {
+            position: relative;
+            min-height: 170px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            border-radius: 16px;
+            background:
+                linear-gradient(135deg, rgba(198, 40, 40, 0.07), rgba(255, 255, 255, 0.94)),
+                #fff;
+            border: 1px solid var(--line);
+            display: grid;
+            place-items: center;
+        }
+
+        .id-scan-preview {
+            width: 100%;
+            height: 100%;
+            max-height: 230px;
+            object-fit: contain;
+            background: #0f172a;
+        }
+
+        .id-preview-placeholder {
+            display: grid;
+            place-items: center;
+            gap: 0.35rem;
+            padding: 1.1rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .id-preview-placeholder i {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+            font-size: 1.05rem;
+        }
+
+        .id-preview-placeholder strong {
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 900;
+        }
+
+        .id-preview-placeholder span {
+            max-width: 260px;
+            font-size: 0.77rem;
+            font-weight: 650;
+        }
+
+        .id-preview-shell:not(.is-empty) .id-preview-placeholder {
+            display: none;
+        }
+
+        .scanner-action-row {
+            display: flex;
+            gap: 0.55rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .scan-both-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 0.95rem;
+            padding: 0.95rem;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid var(--primary-border);
+            box-shadow: 0 8px 22px rgba(198, 40, 40, 0.08);
+        }
+
+        .scan-both-panel strong {
+            display: block;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+        }
+
+        .scan-both-panel span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 650;
+        }
+
+        .btn-scan-both {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 44px;
+            padding: 0.72rem 1rem;
+            border: 0;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 10px 22px rgba(198, 40, 40, 0.20);
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .btn-scan-both:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 15px 28px rgba(198, 40, 40, 0.26);
+        }
+
+        .scanner-flip-countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.65rem;
+            padding: 0.52rem 0.7rem;
+            border-radius: 999px;
+            color: #92400e;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            font-size: 0.78rem;
+            font-weight: 900;
+        }
+
+        .btn-scan-id,
+        .btn-scanner-primary,
+        .btn-scanner-secondary,
+        .btn-scanner-danger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 42px;
+            padding: 0.68rem 0.88rem;
+            border-radius: 13px;
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 900;
+            line-height: 1;
+            cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), color var(--transition);
+        }
+
+        .btn-scan-id,
+        .btn-scanner-primary {
+            width: 100%;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 9px 18px rgba(198, 40, 40, 0.18);
+        }
+
+        .btn-scan-id:hover,
+        .btn-scanner-primary:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 24px rgba(198, 40, 40, 0.24);
+        }
+
+        .btn-scanner-secondary {
+            color: var(--text-2);
+            background: #fff;
+            border-color: var(--line-strong);
+        }
+
+        .btn-scanner-secondary:hover {
+            color: var(--text);
+            background: var(--field-soft);
+        }
+
+        .btn-scanner-danger {
+            color: #991b1b;
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+
+        .btn-scanner-danger:hover {
+            color: #7f1d1d;
+            background: #ffe4e6;
+        }
+
+
+
+        .scan-both-panel-single {
+            grid-template-columns: minmax(0, 1fr) 230px;
+            margin-bottom: 0.8rem;
+        }
+
+        .id-auto-scan-wrapper {
+            padding: 0.9rem;
+            border-radius: 18px;
+            background: #f8fafc;
+            border: 1px solid var(--line);
+        }
+
+        .id-auto-scan-status {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            color: var(--text-2);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .id-auto-scan-status > i {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 38px;
+            border-radius: 13px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+        }
+
+        .id-auto-scan-status strong,
+        .id-auto-scan-status span {
+            display: block;
+        }
+
+        .id-auto-scan-status strong {
+            color: var(--text);
+            font-size: 0.92rem;
+            font-weight: 900;
+            margin-bottom: 0.15rem;
+        }
+
+        .id-auto-scan-status.is-complete {
+            color: #166534;
+            background: #f0fdf4;
+            border-radius: 14px;
+            padding: 0.75rem;
+            border: 1px solid #bbf7d0;
+        }
+
+        .id-auto-scan-status.is-complete > i {
+            color: #166534;
+            background: #dcfce7;
+            border-color: #bbf7d0;
+        }
+
+        .id-auto-scan-wrapper.is-invalid {
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+
+        #idScannerTargetText {
+            display: none !important;
+        }
+
+        .id-scanner-modal .modal-dialog {
+            max-width: 930px;
+        }
+
+        .scanner-help {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            margin-bottom: 0.85rem;
+            padding: 0.82rem 0.9rem;
+            border-radius: 16px;
+            color: var(--text-2);
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .scanner-help i {
+            color: var(--primary);
+            margin-top: 0.08rem;
+        }
+
+        .scanner-stage {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #0f172a;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            aspect-ratio: 16 / 9;
+        }
+
+        .scanner-stage video,
+        .scanner-stage canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-guide {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            top: 23%;
+            bottom: 23%;
+            border: 2px dashed rgba(255, 255, 255, 0.82);
+            border-radius: 18px;
+            box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.28);
+            pointer-events: none;
+        }
+
+        .scanner-status {
+            position: absolute;
+            left: 1rem;
+            right: 1rem;
+            bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.72rem 0.85rem;
+            border-radius: 14px;
+            color: #fff;
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(10px);
             font-size: 0.8rem;
-            color: var(--text-light);
+            font-weight: 800;
         }
 
-        .file-upload-info i {
-            color: var(--primary);
+        .scanner-status .status-dot {
+            width: 10px;
+            height: 10px;
+            flex: 0 0 10px;
+            border-radius: 999px;
+            background: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
         }
 
-        /* Benefits Section */
+        .scanner-status.is-ready .status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+        }
+
+        .scanner-status.is-error .status-dot {
+            background: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18);
+        }
+
+        .scanner-controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.6rem;
+            margin-top: 0.85rem;
+        }
+
+        .scanner-auto-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-top: 0.7rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 750;
+        }
+
+        .scanner-auto-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        #idScannerWorkCanvas,
+        #idScannerResultCanvas {
+            display: none;
+        }
         .benefits-section {
-            background: linear-gradient(145deg, var(--surface-soft) 0%, #ffffff 100%);
-            padding: 1.8rem;
-            border-radius: var(--radius);
-            margin: 2rem 0;
-            border: 1px solid var(--border);
+            margin: 1.05rem 0;
+            padding: 1rem;
+            border-radius: 20px;
+            background: #fff;
+            border: 1px solid var(--line);
         }
 
         .benefits-section h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--primary-dark);
             display: flex;
             align-items: center;
+            gap: 0.55rem;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+            font-size: 0.98rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
         }
 
         .benefits-section h4 i {
             color: var(--primary);
-            margin-right: 8px;
-            font-size: 1.2rem;
         }
 
         .benefits-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
         }
 
         .benefit-item {
-            flex: 1;
-            min-width: 150px;
-            text-align: center;
-            padding: 1.2rem;
-            background: white;
-            border-radius: var(--radius-sm);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all var(--transition);
-        }
-
-        .benefit-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 0.9rem;
+            border-radius: 16px;
+            background: #f9fafb;
+            border: 1px solid var(--line);
         }
 
         .benefit-item i {
-            font-size: 2.2rem;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 0.65rem;
+            border-radius: 12px;
             color: var(--primary);
-            margin-bottom: 0.8rem;
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+            font-size: 0.92rem;
         }
 
         .benefit-item h5 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 900;
         }
 
         .benefit-item p {
-            font-size: 0.8rem;
-            color: var(--text-soft);
             margin: 0;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 550;
         }
 
-        /* Terms Section */
-        .terms-section {
-            margin: 1.5rem 0;
-            padding: 1.2rem;
-            background: var(--surface-soft);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
+        .terms-section,
+        .captcha-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid var(--line);
         }
 
         .terms-checkbox {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            position: relative;
+            gap: 0.75rem;
+            margin: 0;
+            color: var(--text-2);
+            font-size: 0.88rem;
+            font-weight: 650;
             cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--text-dark);
-            margin-bottom: 0;
         }
 
         .terms-checkbox input {
             position: absolute;
+            width: 1px;
+            height: 1px;
             opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
         }
 
         .checkmark {
             position: relative;
             display: inline-block;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            flex-shrink: 0;
-            transition: all var(--transition);
+            width: 21px;
+            height: 21px;
+            flex: 0 0 21px;
+            margin-top: 1px;
+            border-radius: 7px;
+            background: #fff;
+            border: 1.5px solid var(--line-strong);
+            transition: background var(--transition), border-color var(--transition);
         }
 
-        .terms-checkbox:hover input~.checkmark {
+        .terms-checkbox:hover .checkmark {
             border-color: var(--primary);
         }
 
-        .terms-checkbox input:checked~.checkmark {
+        .terms-checkbox input:checked ~ .checkmark {
             background: var(--primary);
             border-color: var(--primary);
         }
 
-        .checkmark:after {
+        .checkmark::after {
             content: "";
             position: absolute;
             display: none;
@@ -651,31 +1335,23 @@
             top: 3px;
             width: 5px;
             height: 10px;
-            border: solid white;
+            border: solid #fff;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
 
-        .terms-checkbox input:checked~.checkmark:after {
+        .terms-checkbox input:checked ~ .checkmark::after {
             display: block;
         }
 
         .terms-checkbox a {
             color: var(--primary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 900;
         }
 
         .terms-checkbox a:hover {
             text-decoration: underline;
-        }
-
-        .captcha-section {
-            margin: 1.5rem 0;
-            padding: 1.2rem;
-            background: var(--surface-soft);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
         }
 
         .captcha-box {
@@ -683,73 +1359,71 @@
             max-width: 100%;
         }
 
-        /* Form Actions */
         .form-actions {
-            margin-top: 2.5rem;
             display: flex;
-            gap: 1rem;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 0.85rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
         }
 
         .btn-prev,
         .btn-next,
-        .btn-submit {
+        .btn-submit,
+        .modal-footer .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 0.9rem 2rem;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 1rem;
+            gap: 0.55rem;
+            min-height: 46px;
+            padding: 0.76rem 1.08rem;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 900;
+            line-height: 1;
             cursor: pointer;
-            transition: all var(--transition);
-            min-width: 160px;
-            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
         }
 
         .btn-prev {
-            background: white;
-            border: 2px solid var(--border);
-            color: var(--text-dark);
-            text-decoration: none;
-            margin-right: auto;
+            color: var(--text-2);
+            background: #fff;
+            border-color: var(--line-strong);
         }
 
         .btn-prev:hover {
-            background: var(--surface-soft);
-            border-color: var(--text-light);
-            transform: translateX(-3px);
+            color: var(--text);
+            background: var(--field-soft);
+            border-color: #b8c0cc;
         }
 
         .btn-next,
         .btn-submit {
+            color: #fff;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: 2px solid transparent;
-            margin-left: auto;
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(198, 40, 40, 0.20);
         }
 
         .btn-next:hover,
         .btn-submit:hover {
-            transform: translateX(3px);
-            box-shadow: 0 8px 20px rgba(198, 40, 40, 0.4);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(198, 40, 40, 0.25);
         }
 
         .btn-submit {
-            position: relative;
-            min-width: 180px;
+            min-width: 178px;
         }
 
         .btn-submit .spinner {
             display: none;
-            gap: 5px;
-        }
-
-        .btn-submit.loading .btn-text {
-            opacity: 0.8;
+            gap: 4px;
         }
 
         .btn-submit.loading .spinner {
@@ -757,107 +1431,137 @@
         }
 
         .spinner-dot {
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #fff;
+            animation: bounce 1.2s infinite ease-in-out both;
         }
 
-        .spinner-dot:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-
-        .spinner-dot:nth-child(2) {
-            animation-delay: -0.16s;
-        }
+        .spinner-dot:nth-child(1) { animation-delay: -0.24s; }
+        .spinner-dot:nth-child(2) { animation-delay: -0.12s; }
 
         @keyframes bounce {
-
-            0%,
-            80%,
-            100% {
-                transform: scale(0);
-            }
-
-            40% {
-                transform: scale(1);
-            }
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
 
-        /* Shake Animation */
-        .shake {
-            animation: shake 0.4s ease-in-out;
-        }
-
+        .shake { animation: shake 0.35s ease-in-out; }
         @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            20% {
-                transform: translateX(-5px);
-            }
-
-            40% {
-                transform: translateX(5px);
-            }
-
-            60% {
-                transform: translateX(-3px);
-            }
-
-            80% {
-                transform: translateX(3px);
-            }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-2px); }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem 0.5rem;
+        .modal-content {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: var(--line);
+            background: var(--field-soft);
+        }
+
+        .modal-title {
+            color: var(--text);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-body {
+            color: var(--text-2);
+            font-size: 0.92rem;
+        }
+
+        .modal-body h6 {
+            margin-top: 1rem;
+            color: var(--text);
+            font-weight: 900;
+        }
+
+        .modal-body h6:first-child { margin-top: 0; }
+
+        .modal-footer .btn-secondary {
+            color: var(--text-2);
+            background: #fff;
+            border-color: var(--line-strong);
+        }
+
+        .modal-footer .btn-secondary:hover {
+            color: var(--text);
+            background: var(--field-soft);
+        }
+
+        @media (max-width: 900px) {
+            .form-page-header {
+                display: block;
             }
 
-            .form-container {
-                padding: 1.5rem;
-            }
-
-            .form-page-header h1 {
-                font-size: 1.8rem;
-            }
-
-            .form-page-header h1 i {
-                font-size: 1.4rem;
-                padding: 8px;
-            }
-
-            .step span {
-                font-size: 0.85rem;
-            }
-
-            .step-circle {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-
-            .password-checklist {
+            .register-panel-header {
                 grid-template-columns: 1fr;
             }
 
-            .benefits-grid {
-                flex-direction: column;
-                gap: 1rem;
+            .panel-checklist {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 10px 28px;
             }
 
-            .benefit-item {
-                min-width: 100%;
+            .form-page-header {
+                padding-top: 8px;
+                margin-bottom: 12px;
+            }
+
+            .form-page-header h1 {
+                align-items: flex-start;
+            }
+
+            .form-container {
+                border-radius: 22px;
+            }
+
+            .register-panel-header {
+                padding: 1rem;
+            }
+
+            .panel-checklist,
+            .progress-steps,
+            .benefits-grid,
+            .id-upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-progress,
+            .form-step,
+            .alert {
+                margin-inline: 0.85rem;
+            }
+
+            .step {
+                padding: 0.62rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+            }
+
+            .section-badge {
+                width: 100%;
+                justify-content: center;
             }
 
             .form-actions {
-                flex-direction: column;
+                flex-direction: column-reverse;
+                align-items: stretch;
             }
 
             .btn-prev,
@@ -865,45 +1569,69 @@
             .btn-submit {
                 width: 100%;
             }
+
+            .scanner-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .scan-both-panel-single {
+                grid-template-columns: 1fr;
+            }
+
+            .scanner-status {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+
+            .scan-both-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-scan-both {
+                width: 100%;
+            }
         }
 
         @media (max-width: 576px) {
-            .form-page-header h1 {
+            .form-page-header h1 i {
+                width: 42px;
+                height: 42px;
+                flex-basis: 42px;
+                border-radius: 14px;
+            }
+
+            .register-panel-header h2 {
                 font-size: 1.5rem;
             }
 
-            .form-page-header p {
-                font-size: 0.95rem;
+            .form-progress {
+                padding: 0.7rem;
             }
 
             .step span {
-                display: none;
+                font-size: 0.82rem;
             }
 
-            .step-circle {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-
-            .form-step h3 {
-                font-size: 1.2rem;
-            }
-
-            .form-step h3 i {
-                font-size: 1.3rem;
+            .password-checklist {
+                grid-template-columns: 1fr;
             }
 
             .file-upload-input {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+                grid-template-columns: 38px minmax(0, 1fr);
             }
 
-            .file-upload-button {
-                margin-right: 0;
-                width: 100%;
-                text-align: center;
+            .terms-checkbox {
+                font-size: 0.84rem;
+            }
+
+            .captcha-section {
+                overflow: hidden;
+            }
+
+            .captcha-box {
+                transform: scale(0.86);
+                transform-origin: left top;
             }
         }
     </style>
@@ -928,6 +1656,13 @@
     <div class="main-container">
         <!-- Registration Form -->
         <div class="form-container">
+            <div class="register-panel-header">
+                <div>
+                    <span class="eyebrow"><i class="fas fa-shield-alt"></i> Resident Registration</span>
+                    <h2>Create your verified Barangay Hulong Duhat account</h2>
+                    <p>Use clear personal details, a complete residency address, and front/back valid ID images so staff can verify your account faster.</p>
+                </div>
+            </div>
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
@@ -950,16 +1685,6 @@
                         @endforeach
                     </ul>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if($captchaEnabled)
-                <div class="form-group">
-                    <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
-
-                    @error('g-recaptcha-response')
-                        <div class="error-message mt-2">{{ $message }}</div>
-                    @enderror
                 </div>
             @endif
 
@@ -1093,40 +1818,166 @@
                         @enderror
                     </div>
 
-                    <div class="form-group">
-                        <label for="valid_id">
-                            <i class="fas fa-id-card"></i> {{ __('messages.register_valid_id_label') }} *
-                        </label>
-                        <div class="file-upload-wrapper">
-                            <div class="file-upload-input" id="fileUploadBox">
-                                <span class="file-upload-button">Choose File</span>
-                                <span class="file-upload-text" id="fileUploadText">No file chosen</span>
-                                <input type="file" id="valid_id" name="valid_id"
-                                    accept=".jpg,.jpeg,.png,.pdf" required
-                                    class="form-control @error('valid_id') is-invalid @enderror">
+                    <div class="form-section-card residency-card">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-kicker"><i class="fas fa-map-location-dot"></i> Residency / Address</span>
+                                <h4>Tell us exactly where you reside</h4>
+                                <p>Split fields make the address easier for residents to fill out and easier for staff to verify.</p>
                             </div>
-                            <div class="file-upload-info">
-                                <i class="fas fa-info-circle"></i>
-                                <span>Accepted formats: JPG, PNG, PDF (Max: 5MB)</span>
+                            <span class="section-badge"><i class="fas fa-circle-info"></i> Barangay and city are fixed</span>
+                        </div>
+
+                        <input type="hidden" id="address" name="address" value="{{ old('address') }}">
+
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="house_no"><i class="fas fa-house"></i> House No. / Unit No. *</label>
+                                    <input type="text" id="house_no" name="house_no" value="{{ old('house_no') }}" required
+                                        placeholder="Example: 25" class="form-control js-address-field @error('house_no') is-invalid @enderror">
+                                    @error('house_no')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="street"><i class="fas fa-road"></i> Street *</label>
+                                    <input type="text" id="street" name="street" value="{{ old('street') }}" required
+                                        placeholder="Example: Camia Street" class="form-control js-address-field @error('street') is-invalid @enderror">
+                                    @error('street')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="purok"><i class="fas fa-location-dot"></i> Purok *</label>
+                                    <select id="purok" name="purok" required class="form-control js-address-field @error('purok') is-invalid @enderror">
+                                        <option value="" {{ old('purok') == '' ? 'selected' : '' }}>Select purok</option>
+                                        @for ($i = 1; $i <= 15; $i++)
+                                            <option value="Purok {{ $i }}" {{ old('purok') == ('Purok ' . $i) ? 'selected' : '' }}>Purok {{ $i }}</option>
+                                        @endfor
+                                        <option value="I don't know" {{ old('purok') == "I don't know" ? 'selected' : '' }}>I don't know</option>
+                                    </select>
+                                    @error('purok')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-                        <div class="form-hint">Upload a clear photo or scan of your government-issued ID</div>
-                        @error('valid_id')
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="barangay"><i class="fas fa-map-pin"></i> Barangay *</label>
+                                    <input type="text" id="barangay" name="barangay" value="{{ old('barangay', 'Hulong Duhat') }}" readonly required
+                                        class="form-control js-address-field @error('barangay') is-invalid @enderror">
+                                    @error('barangay')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="city"><i class="fas fa-city"></i> City *</label>
+                                    <input type="text" id="city" name="city" value="{{ old('city', 'Malabon City') }}" readonly required
+                                        class="form-control js-address-field @error('city') is-invalid @enderror">
+                                    @error('city')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="residency_status"><i class="fas fa-user-check"></i> Residency Status *</label>
+                                    <select id="residency_status" name="residency_status" required class="form-control js-address-field @error('residency_status') is-invalid @enderror">
+                                        <option value="" {{ old('residency_status') == '' ? 'selected' : '' }}>Select status</option>
+                                        <option value="Resident" {{ old('residency_status') == 'Resident' ? 'selected' : '' }}>Resident</option>
+                                        <option value="Non-resident" {{ old('residency_status') == 'Non-resident' ? 'selected' : '' }}>Non-resident</option>
+                                        <option value="For verification" {{ old('residency_status') == 'For verification' ? 'selected' : '' }}>For verification</option>
+                                    </select>
+                                    @error('residency_status')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label for="nearest_landmark"><i class="fas fa-landmark"></i> Nearest Landmark *</label>
+                            <input type="text" id="nearest_landmark" name="nearest_landmark" value="{{ old('nearest_landmark') }}" required
+                                placeholder="Example: near chapel, school, or covered court"
+                                class="form-control js-address-field @error('nearest_landmark') is-invalid @enderror">
+                            <div class="form-hint">Use a place staff can recognize during verification.</div>
+                            @error('nearest_landmark')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="address-preview">
+                            <i class="fas fa-eye"></i>
+                            <span><strong>Address preview:</strong> <span id="addressPreviewText">Complete the fields above to build the full address.</span></span>
+                        </div>
+
+                        @error('address')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="form-group">
-                        <label for="address">
-                            <i class="fas fa-home"></i> {{ __('messages.register_address_label') }} *
-                        </label>
-                        <textarea id="address" name="address" required rows="3"
-                            placeholder="House #, Street, Zone, Barangay Hulo, Malabon City"
-                            class="form-control @error('address') is-invalid @enderror">{{ old('address') }}</textarea>
-                        <div class="form-hint">Include specific landmarks for accurate verification. You may use #, commas, periods, and hyphens.</div>
-                        @error('address')
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
+                    <div class="form-section-card verification-card">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-kicker"><i class="fas fa-id-card-clip"></i> Valid ID Scanner</span>
+                                <h4>Scan both sides of your valid ID</h4>
+                                <p>The camera scanner detects the ID card, crops only the ID area, then sends it for manual admin verification.</p>
+                            </div>
+                            <span class="section-badge"><i class="fas fa-user-shield"></i> Auto-crop + admin review</span>
+                        </div>
+
+                        <div class="verification-note">
+                            <i class="fas fa-circle-info"></i>
+                            <span>This scanner helps capture a clear front and back image. It does not automatically approve the ID; barangay staff will still review it.</span>
+                        </div>
+
+                        <div class="scan-both-panel scan-both-panel-single">
+                            <div>
+                                <strong>Automatic ID scan</strong>
+                                <span>Click once. The scanner captures the ID, tells the resident to flip it, captures the other side, then attaches both files to the registration form.</span>
+                            </div>
+                            <button type="button" class="btn-scan-both" id="scanBothSidesBtn">
+                                <i class="fas fa-camera-retro"></i> Start ID scan
+                            </button>
+                        </div>
+
+                        <div class="file-upload-wrapper id-auto-scan-wrapper" id="idAutoScanWrapper">
+                            <input type="file" id="valid_id" name="valid_id"
+                                accept="image/*" required
+                                class="form-control js-file-input visually-hidden @error('valid_id') is-invalid @enderror"
+                                data-file-text="validIdFrontText">
+                            <input type="file" id="valid_id_back" name="valid_id_back"
+                                accept="image/*" required
+                                class="form-control js-file-input visually-hidden @error('valid_id_back') is-invalid @enderror"
+                                data-file-text="validIdBackText">
+
+                            <div class="id-auto-scan-status" id="idAutoScanStatus">
+                                <i class="fas fa-id-card-clip"></i>
+                                <div>
+                                    <strong id="idAutoScanStatusTitle">No ID scan yet</strong>
+                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides automatically after the guided capture.</span>
+                                    <span class="d-none" id="validIdFrontText">No front file selected</span>
+                                    <span class="d-none" id="validIdBackText">No back file selected</span>
+                                </div>
+                            </div>
+
+                            @error('valid_id')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                            @error('valid_id_back')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -1215,22 +2066,22 @@
                     </div>
 
                     <div class="benefits-section">
-                        <h4><i class="fas fa-star"></i> Benefits of Registration</h4>
+                        <h4><i class="fas fa-circle-check"></i> After registration</h4>
                         <div class="benefits-grid">
                             <div class="benefit-item">
                                 <i class="fas fa-clock"></i>
-                                <h5>Online Services</h5>
-                                <p>Access barangay services online</p>
+                                <h5>Online requests</h5>
+                                <p>Submit barangay forms online</p>
                             </div>
                             <div class="benefit-item">
                                 <i class="fas fa-check-circle"></i>
-                                <h5>Track Requests</h5>
-                                <p>Monitor your application status</p>
+                                <h5>Status tracking</h5>
+                                <p>Check updates from your account</p>
                             </div>
                             <div class="benefit-item">
                                 <i class="fas fa-bolt"></i>
-                                <h5>Fast Processing</h5>
-                                <p>Skip the lines, apply online</p>
+                                <h5>Less waiting</h5>
+                                <p>Prepare requests before visiting</p>
                             </div>
                         </div>
                     </div>
@@ -1248,23 +2099,25 @@
                         @enderror
                     </div>
 
-                    <div class="captcha-section">
-                        <label for="recaptchaBox" class="mb-2">
-                            <i class="fas fa-shield-alt"></i> Security Check *
-                        </label>
+                    @if($captchaEnabled)
+                        <div class="captcha-section">
+                            <label for="recaptchaBox" class="mb-2">
+                                <i class="fas fa-shield-alt"></i> Security Check *
+                            </label>
 
-                        @if (!empty($recaptchaSiteKey))
-                            <div class="captcha-box" id="recaptchaBox">
-                                <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
-                            </div>
-                        @else
-                            <div class="error-message">CAPTCHA is not configured. Please contact support.</div>
-                        @endif
+                            @if (!empty($recaptchaSiteKey))
+                                <div class="captcha-box" id="recaptchaBox">
+                                    <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+                                </div>
+                            @else
+                                <div class="error-message">CAPTCHA is not configured. Please contact support.</div>
+                            @endif
 
-                        @error('g-recaptcha-response')
-                            <div class="error-message" id="captchaError">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            @error('g-recaptcha-response')
+                                <div class="error-message" id="captchaError">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
 
                     <div class="form-actions">
                         <button type="button" class="btn-prev" data-prev="step1">
@@ -1402,12 +2255,68 @@
         </div>
     </div>
 
+    <!-- ID Scanner Modal -->
+    <div class="modal fade id-scanner-modal" id="idScannerModal" tabindex="-1" aria-labelledby="idScannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="idScannerModalLabel">Automatic valid ID scanner</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="scanner-help">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Place the ID inside the guide. The scanner will automatically capture both sides. After the first capture, flip the ID when prompted and hold it steady again.</span>
+                    </div>
+
+                    <div class="scanner-stage">
+                        <video id="idScannerVideo" autoplay playsinline muted></video>
+                        <canvas id="idScannerOverlay"></canvas>
+                        <div class="scanner-guide" aria-hidden="true"></div>
+                        <div class="scanner-status" id="idScannerStatus">
+                            <span class="d-inline-flex align-items-center gap-2">
+                                <span class="status-dot"></span>
+                                <span id="idScannerStatusText">Camera is starting...</span>
+                            </span>
+                            <span id="idScannerTargetText" class="d-none">ID scan</span>
+                        </div>
+                    </div>
+
+                    <canvas id="idScannerWorkCanvas"></canvas>
+                    <canvas id="idScannerResultCanvas"></canvas>
+
+                    <div class="scanner-controls">
+                        <button type="button" class="btn-scanner-secondary" id="idScannerRetakeBtn">
+                            <i class="fas fa-rotate-right"></i> Restart camera
+                        </button>
+                        <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn">
+                            <i class="fas fa-camera"></i> Capture now
+                        </button>
+                        <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
+                            <i class="fas fa-xmark"></i> Cancel
+                        </button>
+                    </div>
+
+                    <label class="scanner-auto-option" for="idScannerAutoCapture">
+                        <input type="checkbox" id="idScannerAutoCapture" checked>
+                        Auto-capture when the ID is detected and steady
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS Bundle with Popper -->
-    @if (!empty($recaptchaSiteKey))
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    @endif
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
+    <script>
+        window.cvReady = false;
+        window.onOpenCvReady = function () {
+            window.cvReady = true;
+            document.dispatchEvent(new Event('opencv-ready'));
+        };
+    </script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="window.onOpenCvReady()" onerror="window.cvReady = false;"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -1435,10 +2344,12 @@
             const contactInput = document.getElementById("contact");
             const emailInput = document.getElementById("email");
             const birthdateInput = document.getElementById("birthdate");
-            const validIdInput = document.getElementById("valid_id");
-            const fileUploadText = document.getElementById("fileUploadText");
+            const uploadInputs = document.querySelectorAll(".js-file-input");
+            const addressInput = document.getElementById("address");
+            const addressPreviewText = document.getElementById("addressPreviewText");
+            const addressFieldIds = ["house_no", "street", "purok", "barangay", "city", "nearest_landmark", "residency_status"];
             const recaptchaBox = document.getElementById("recaptchaBox");
-            const recaptchaEnabled = {!! !empty($recaptchaSiteKey) ? 'true' : 'false' !!};
+            const recaptchaEnabled = {!! ($captchaEnabled && !empty($recaptchaSiteKey)) ? 'true' : 'false' !!};
 
             let usernameCheckTimer = null;
             let usernameCheckSeq = 0;
@@ -1451,6 +2362,49 @@
 
             let currentStep = 1;
             const totalSteps = 2;
+
+            function getFieldValue(id) {
+                const field = document.getElementById(id);
+                return field ? field.value.trim() : '';
+            }
+
+            function buildResidentAddress() {
+                if (!addressInput) return '';
+
+                const houseNo = getFieldValue('house_no');
+                const street = getFieldValue('street');
+                const purok = getFieldValue('purok');
+                const barangay = getFieldValue('barangay') || 'Hulong Duhat';
+                const city = getFieldValue('city') || 'Malabon City';
+                const landmark = getFieldValue('nearest_landmark');
+                const residencyStatus = getFieldValue('residency_status');
+
+                const addressParts = [
+                    houseNo ? `${houseNo}` : '',
+                    street,
+                    purok,
+                    barangay,
+                    city,
+                    landmark ? `Landmark: ${landmark}` : '',
+                    residencyStatus ? `Residency Status: ${residencyStatus}` : '',
+                ].filter(Boolean);
+
+                const completeAddress = addressParts.join(', ');
+                addressInput.value = completeAddress;
+
+                if (addressPreviewText) {
+                    addressPreviewText.textContent = completeAddress || 'Complete the fields above to build the full address.';
+                }
+
+                return completeAddress;
+            }
+
+            addressFieldIds.forEach((id) => {
+                const field = document.getElementById(id);
+                if (!field) return;
+                field.addEventListener('input', buildResidentAddress);
+                field.addEventListener('change', buildResidentAddress);
+            });
 
             // ============= SIMPLE NAME VALIDATION - WITH ACCENTED CHARACTER SUPPORT =============
             const nameFields = ['firstname', 'middlename', 'lastname'];
@@ -1794,9 +2748,12 @@
                 const existingErrors = currentStepElement.querySelectorAll('.error-message:not(.alert *):not(#passwordMatchText)');
                 existingErrors.forEach(error => error.remove());
 
+                buildResidentAddress();
+
                 // Reset field styles
                 const allFields = currentStepElement.querySelectorAll('.form-control');
                 allFields.forEach(field => field.classList.remove('is-invalid'));
+                currentStepElement.querySelectorAll('.file-upload-wrapper.is-invalid, .id-auto-scan-wrapper.is-invalid').forEach(wrapper => wrapper.classList.remove('is-invalid'));
 
                 // Validate required fields
                 const requiredFields = currentStepElement.querySelectorAll('[required]');
@@ -1813,7 +2770,7 @@
                     if (field.type === 'file') {
                         if (!field.files || field.files.length === 0) {
                             isValid = false;
-                            showFieldError(field, 'Please upload your valid ID');
+                            showFieldError(field, 'Please complete the automatic valid ID scan.');
                         } else {
                             const fileSize = field.files[0].size;
                             if (fileSize > 5242880) {
@@ -1936,8 +2893,12 @@
                 field.classList.add('is-invalid');
 
                 const parent = field.type === 'checkbox' ? field.closest('.terms-section') : 
-                            field.type === 'file' ? field.closest('.file-upload-wrapper') : 
+                            field.type === 'file' ? (field.closest('.file-upload-wrapper') || document.getElementById('idAutoScanWrapper')) : 
                             field.parentNode;
+
+                if (field.type === 'file' && parent) {
+                    parent.classList.add('is-invalid');
+                }
                 
                 if (parent) {
                     const existingError = parent.querySelector('.error-message:not(#passwordMatchText)');
@@ -1979,26 +2940,643 @@
                 birthdateInput.max = minAge.toISOString().split("T")[0];
             }
 
-            // File upload display
-            if (validIdInput) {
-                validIdInput.addEventListener('change', function(e) {
-                    const fileName = e.target.files[0]?.name || 'No file chosen';
-                    fileUploadText.textContent = fileName;
+            // File upload display for valid ID front/back
+            uploadInputs.forEach((input) => {
+                input.addEventListener('change', function(e) {
+                    const textId = this.getAttribute('data-file-text');
+                    const textEl = textId ? document.getElementById(textId) : null;
+                    const defaultText = this.id === 'valid_id_back' ? 'No back file selected' : 'No front file selected';
+                    const file = e.target.files[0] || null;
+                    const wrapper = this.closest('.file-upload-wrapper');
 
-                    if (e.target.files[0] && e.target.files[0].size > 5242880) {
-                        alert('File is too large. Maximum size is 5MB.');
-                        e.target.value = '';
-                        fileUploadText.textContent = 'No file chosen';
+                    if (wrapper) {
+                        wrapper.classList.remove('is-invalid');
+                        wrapper.querySelectorAll('.error-message').forEach(error => error.remove());
                     }
 
+                    if (textEl) {
+                        textEl.textContent = file ? file.name : defaultText;
+                    }
+
+                    updateSelectedFilePreview(this, file);
+                    updateAutoScanStatus();
+
+                    if (!file) return;
+
                     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                    if (e.target.files[0] && !allowedTypes.includes(e.target.files[0].type)) {
-                        alert('Invalid file type. Please upload JPG, PNG, or PDF only.');
-                        e.target.value = '';
-                        fileUploadText.textContent = 'No file chosen';
+
+                    if (file.size > 5242880) {
+                        this.value = '';
+                        if (textEl) textEl.textContent = defaultText;
+                        showFieldError(this, 'File size must not exceed 5MB');
+                        return;
+                    }
+
+                    if (!allowedTypes.includes(file.type)) {
+                        this.value = '';
+                        if (textEl) textEl.textContent = defaultText;
+                        showFieldError(this, 'File must be JPG, PNG, or PDF');
+                    }
+                });
+            });
+
+            // ============= ID SCANNER: CAMERA + AUTO-CROP + ADMIN VERIFICATION =============
+            const scannerModalElement = document.getElementById('idScannerModal');
+            const scannerModal = scannerModalElement ? new bootstrap.Modal(scannerModalElement) : null;
+            const scannerVideo = document.getElementById('idScannerVideo');
+            const scannerOverlay = document.getElementById('idScannerOverlay');
+            const scannerWorkCanvas = document.getElementById('idScannerWorkCanvas');
+            const scannerResultCanvas = document.getElementById('idScannerResultCanvas');
+            const scannerStatus = document.getElementById('idScannerStatus');
+            const scannerStatusText = document.getElementById('idScannerStatusText');
+            const scannerTargetText = document.getElementById('idScannerTargetText');
+            const scannerAutoCapture = document.getElementById('idScannerAutoCapture');
+            const scannerManualCaptureBtn = document.getElementById('idScannerManualCaptureBtn');
+            const scannerRetakeBtn = document.getElementById('idScannerRetakeBtn');
+            const scanBothSidesBtn = document.getElementById('scanBothSidesBtn');
+
+            const scannerFlowSides = [
+                { inputId: 'valid_id', label: 'first side', title: 'Automatic valid ID scanner' },
+                { inputId: 'valid_id_back', label: 'second side', title: 'Automatic valid ID scanner' },
+            ];
+
+            const scannerState = {
+                targetInput: null,
+                targetLabel: 'front side',
+                scanMode: 'single',
+                flowIndex: 0,
+                stream: null,
+                rafId: null,
+                stableFrames: 0,
+                lastPoints: null,
+                detectedPoints: null,
+                isCapturing: false,
+                isProcessing: false,
+            };
+
+            function setScannerStatus(message, state = 'waiting') {
+                if (scannerStatusText) scannerStatusText.textContent = message;
+                if (!scannerStatus) return;
+                scannerStatus.classList.toggle('is-ready', state === 'ready');
+                scannerStatus.classList.toggle('is-error', state === 'error');
+            }
+
+            function resetScannerDetection() {
+                scannerState.stableFrames = 0;
+                scannerState.lastPoints = null;
+                scannerState.detectedPoints = null;
+                scannerState.isProcessing = false;
+
+                if (scannerOverlay) {
+                    const context = scannerOverlay.getContext('2d');
+                    context.clearRect(0, 0, scannerOverlay.width, scannerOverlay.height);
+                }
+            }
+
+            function setScannerTarget(inputId, label = 'ID side') {
+                const targetInput = document.getElementById(inputId);
+                if (!targetInput) return false;
+
+                scannerState.targetInput = targetInput;
+                scannerState.targetLabel = label;
+
+                if (scannerTargetText) scannerTargetText.textContent = label;
+
+                const title = document.getElementById('idScannerModalLabel');
+                if (title) title.textContent = 'Automatic valid ID scanner';
+
+                resetScannerDetection();
+                return true;
+            }
+
+            function openScannerForSide(inputId, label = 'ID side', mode = 'single') {
+                if (!scannerModal) return;
+
+                scannerState.scanMode = mode;
+                scannerState.flowIndex = inputId === 'valid_id_back' ? 1 : 0;
+
+                if (!setScannerTarget(inputId, label)) return;
+                scannerModal.show();
+            }
+
+            function openScannerForBothSides() {
+                if (!scannerModal) return;
+
+                scannerState.scanMode = 'both';
+                scannerState.flowIndex = 0;
+
+                const firstSide = scannerFlowSides[0];
+                if (!setScannerTarget(firstSide.inputId, firstSide.label)) return;
+                setScannerStatus('Start with the ID side that has the photo/name. Hold it steady inside the guide.', 'waiting');
+
+                scannerModal.show();
+            }
+
+            function updateSelectedFilePreview(input, file) {
+                const previewId = input.getAttribute('data-preview');
+                const shellId = input.getAttribute('data-preview-shell');
+                const preview = previewId ? document.getElementById(previewId) : null;
+                const shell = shellId ? document.getElementById(shellId) : null;
+
+                if (!preview || !shell) return;
+
+                if (!file || !file.type.startsWith('image/')) {
+                    preview.removeAttribute('src');
+                    preview.classList.add('d-none');
+                    shell.classList.add('is-empty');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.src = event.target.result;
+                    preview.classList.remove('d-none');
+                    shell.classList.remove('is-empty');
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function updateAutoScanStatus() {
+                const frontInput = document.getElementById('valid_id');
+                const backInput = document.getElementById('valid_id_back');
+                const wrapper = document.getElementById('idAutoScanWrapper');
+                const status = document.getElementById('idAutoScanStatus');
+                const title = document.getElementById('idAutoScanStatusTitle');
+                const text = document.getElementById('idAutoScanStatusText');
+
+                const hasFront = !!frontInput?.files?.length;
+                const hasBack = !!backInput?.files?.length;
+
+                if (wrapper && hasFront && hasBack) {
+                    wrapper.classList.remove('is-invalid');
+                    wrapper.querySelectorAll('.error-message').forEach(error => error.remove());
+                }
+
+                if (!status || !title || !text) return;
+
+                status.classList.toggle('is-complete', hasFront && hasBack);
+
+                if (hasFront && hasBack) {
+                    title.textContent = 'ID scan complete';
+                    text.textContent = 'Both ID images are attached. Continue the registration to send them for admin verification.';
+                } else if (hasFront) {
+                    title.textContent = 'First capture saved';
+                    text.textContent = 'Flip the ID. The scanner will capture the other side next.';
+                } else {
+                    title.textContent = 'No ID scan yet';
+                    text.textContent = 'Press Start ID scan. The system will save both sides automatically after the guided capture.';
+                }
+            }
+
+            function distanceBetweenPoints(a, b) {
+                return Math.hypot(a.x - b.x, a.y - b.y);
+            }
+
+            function orderQuadPoints(points) {
+                const ordered = points.slice().sort((a, b) => a.x - b.x);
+                const left = ordered.slice(0, 2).sort((a, b) => a.y - b.y);
+                const right = ordered.slice(2).sort((a, b) => a.y - b.y);
+
+                const tl = left[0];
+                const bl = left[1];
+                const tr = right[0];
+                const br = right[1];
+
+                return [tl, tr, br, bl];
+            }
+
+            function arePointsStable(currentPoints, previousPoints) {
+                if (!currentPoints || !previousPoints) return false;
+
+                const current = orderQuadPoints(currentPoints);
+                const previous = orderQuadPoints(previousPoints);
+                const averageMovement = current.reduce((total, point, index) => {
+                    return total + distanceBetweenPoints(point, previous[index]);
+                }, 0) / 4;
+
+                return averageMovement < 26;
+            }
+
+            function syncScannerCanvases() {
+                if (!scannerVideo || !scannerOverlay || !scannerWorkCanvas) return;
+
+                const width = scannerVideo.videoWidth || 1280;
+                const height = scannerVideo.videoHeight || 720;
+
+                [scannerOverlay, scannerWorkCanvas].forEach((canvas) => {
+                    if (canvas.width !== width || canvas.height !== height) {
+                        canvas.width = width;
+                        canvas.height = height;
                     }
                 });
             }
+
+            function drawScannerOverlay(points) {
+                if (!scannerOverlay || !scannerVideo) return;
+
+                syncScannerCanvases();
+                const context = scannerOverlay.getContext('2d');
+                context.clearRect(0, 0, scannerOverlay.width, scannerOverlay.height);
+
+                if (!points || points.length !== 4) return;
+
+                const ordered = orderQuadPoints(points);
+                context.lineWidth = Math.max(4, scannerOverlay.width * 0.004);
+                context.strokeStyle = '#22c55e';
+                context.fillStyle = 'rgba(34, 197, 94, 0.12)';
+                context.beginPath();
+                context.moveTo(ordered[0].x, ordered[0].y);
+                ordered.slice(1).forEach(point => context.lineTo(point.x, point.y));
+                context.closePath();
+                context.fill();
+                context.stroke();
+            }
+
+            function getIdCardPoints() {
+                if (!window.cvReady || typeof cv === 'undefined' || !scannerVideo || !scannerWorkCanvas) return null;
+
+                syncScannerCanvases();
+                const workContext = scannerWorkCanvas.getContext('2d', { willReadFrequently: true });
+                workContext.drawImage(scannerVideo, 0, 0, scannerWorkCanvas.width, scannerWorkCanvas.height);
+
+                let source = null;
+                let gray = null;
+                let blurred = null;
+                let edges = null;
+                let contours = null;
+                let hierarchy = null;
+
+                try {
+                    source = cv.imread(scannerWorkCanvas);
+                    gray = new cv.Mat();
+                    blurred = new cv.Mat();
+                    edges = new cv.Mat();
+                    contours = new cv.MatVector();
+                    hierarchy = new cv.Mat();
+
+                    cv.cvtColor(source, gray, cv.COLOR_RGBA2GRAY);
+                    cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+                    cv.Canny(blurred, edges, 70, 180);
+                    cv.dilate(edges, edges, cv.Mat.ones(3, 3, cv.CV_8U));
+                    cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                    let bestPoints = null;
+                    let bestArea = 0;
+                    const frameArea = source.rows * source.cols;
+                    const minimumArea = frameArea * 0.055;
+
+                    for (let i = 0; i < contours.size(); i++) {
+                        const contour = contours.get(i);
+                        const area = cv.contourArea(contour);
+
+                        if (area < minimumArea) {
+                            contour.delete();
+                            continue;
+                        }
+
+                        const perimeter = cv.arcLength(contour, true);
+                        const approx = new cv.Mat();
+                        cv.approxPolyDP(contour, approx, 0.025 * perimeter, true);
+
+                        if (approx.rows === 4 && cv.isContourConvex(approx)) {
+                            const points = [];
+                            for (let row = 0; row < 4; row++) {
+                                points.push({
+                                    x: approx.data32S[row * 2],
+                                    y: approx.data32S[row * 2 + 1],
+                                });
+                            }
+
+                            const ordered = orderQuadPoints(points);
+                            const topWidth = distanceBetweenPoints(ordered[0], ordered[1]);
+                            const bottomWidth = distanceBetweenPoints(ordered[3], ordered[2]);
+                            const leftHeight = distanceBetweenPoints(ordered[0], ordered[3]);
+                            const rightHeight = distanceBetweenPoints(ordered[1], ordered[2]);
+                            const width = Math.max(topWidth, bottomWidth);
+                            const height = Math.max(leftHeight, rightHeight);
+                            const ratio = width / Math.max(height, 1);
+
+                            if (ratio >= 1.2 && ratio <= 2.35 && area > bestArea) {
+                                bestArea = area;
+                                bestPoints = points;
+                            }
+                        }
+
+                        approx.delete();
+                        contour.delete();
+                    }
+
+                    return bestPoints;
+                } catch (error) {
+                    console.warn('ID scanner detection failed:', error);
+                    return null;
+                } finally {
+                    if (source) source.delete();
+                    if (gray) gray.delete();
+                    if (blurred) blurred.delete();
+                    if (edges) edges.delete();
+                    if (contours) contours.delete();
+                    if (hierarchy) hierarchy.delete();
+                }
+            }
+
+            function cropGuideFallback() {
+                if (!scannerVideo || !scannerWorkCanvas || !scannerResultCanvas) return null;
+
+                syncScannerCanvases();
+                const workContext = scannerWorkCanvas.getContext('2d', { willReadFrequently: true });
+                workContext.drawImage(scannerVideo, 0, 0, scannerWorkCanvas.width, scannerWorkCanvas.height);
+
+                const sourceWidth = scannerWorkCanvas.width;
+                const sourceHeight = scannerWorkCanvas.height;
+                const cropX = Math.round(sourceWidth * 0.12);
+                const cropY = Math.round(sourceHeight * 0.23);
+                const cropWidth = Math.round(sourceWidth * 0.76);
+                const cropHeight = Math.round(sourceHeight * 0.54);
+
+                scannerResultCanvas.width = cropWidth;
+                scannerResultCanvas.height = cropHeight;
+                scannerResultCanvas.getContext('2d').drawImage(
+                    scannerWorkCanvas,
+                    cropX,
+                    cropY,
+                    cropWidth,
+                    cropHeight,
+                    0,
+                    0,
+                    cropWidth,
+                    cropHeight
+                );
+
+                return scannerResultCanvas;
+            }
+
+            function cropDetectedCard(points) {
+                if (!points || !window.cvReady || typeof cv === 'undefined' || !scannerVideo || !scannerWorkCanvas || !scannerResultCanvas) {
+                    return cropGuideFallback();
+                }
+
+                syncScannerCanvases();
+                const workContext = scannerWorkCanvas.getContext('2d', { willReadFrequently: true });
+                workContext.drawImage(scannerVideo, 0, 0, scannerWorkCanvas.width, scannerWorkCanvas.height);
+
+                const ordered = orderQuadPoints(points);
+                const outputWidth = Math.round(Math.max(
+                    distanceBetweenPoints(ordered[0], ordered[1]),
+                    distanceBetweenPoints(ordered[3], ordered[2])
+                ));
+                const outputHeight = Math.round(Math.max(
+                    distanceBetweenPoints(ordered[0], ordered[3]),
+                    distanceBetweenPoints(ordered[1], ordered[2])
+                ));
+
+                let source = null;
+                let destination = null;
+                let transform = null;
+                let sourceTriangle = null;
+                let destinationTriangle = null;
+
+                try {
+                    source = cv.imread(scannerWorkCanvas);
+                    destination = new cv.Mat();
+                    sourceTriangle = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        ordered[0].x, ordered[0].y,
+                        ordered[1].x, ordered[1].y,
+                        ordered[2].x, ordered[2].y,
+                        ordered[3].x, ordered[3].y,
+                    ]);
+                    destinationTriangle = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        0, 0,
+                        outputWidth - 1, 0,
+                        outputWidth - 1, outputHeight - 1,
+                        0, outputHeight - 1,
+                    ]);
+                    transform = cv.getPerspectiveTransform(sourceTriangle, destinationTriangle);
+                    cv.warpPerspective(source, destination, transform, new cv.Size(outputWidth, outputHeight));
+
+                    scannerResultCanvas.width = outputWidth;
+                    scannerResultCanvas.height = outputHeight;
+                    cv.imshow(scannerResultCanvas, destination);
+                    return scannerResultCanvas;
+                } catch (error) {
+                    console.warn('ID scanner crop failed, using fallback crop:', error);
+                    return cropGuideFallback();
+                } finally {
+                    if (source) source.delete();
+                    if (destination) destination.delete();
+                    if (transform) transform.delete();
+                    if (sourceTriangle) sourceTriangle.delete();
+                    if (destinationTriangle) destinationTriangle.delete();
+                }
+            }
+
+            function attachScannerImageToInput(canvas) {
+                if (!canvas || !scannerState.targetInput) return;
+
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        setScannerStatus('Capture failed. Please try again.', 'error');
+                        scannerState.isCapturing = false;
+                        return;
+                    }
+
+                    try {
+                        const currentInputId = scannerState.targetInput.id;
+                        const side = currentInputId === 'valid_id_back' ? 'back' : 'front';
+                        const file = new File([blob], `valid_id_${side}_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                        const transfer = new DataTransfer();
+                        transfer.items.add(file);
+                        scannerState.targetInput.files = transfer.files;
+                        scannerState.targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        updateAutoScanStatus();
+
+                        if (scannerState.scanMode === 'both' && currentInputId === 'valid_id') {
+                            setScannerStatus('First side captured. Flip the ID. Second scan starts in 3 seconds.', 'ready');
+                            resetScannerDetection();
+
+                            window.setTimeout(() => {
+                                const nextSide = scannerFlowSides[1];
+                                scannerState.flowIndex = 1;
+                                setScannerTarget(nextSide.inputId, nextSide.label);
+                                scannerState.isCapturing = false;
+                                setScannerStatus('Now scan the other side. Hold the ID steady inside the guide.', 'waiting');
+
+                                if (scannerState.stream) {
+                                    scannerFrameLoop();
+                                }
+                            }, 3000);
+
+                            return;
+                        }
+
+                        updateAutoScanStatus();
+                        setScannerStatus(scannerState.scanMode === 'both'
+                            ? 'Both sides captured. The ID scan is attached and ready to send with registration.'
+                            : 'Captured successfully.', 'ready');
+
+                        window.setTimeout(() => {
+                            if (scannerModal) scannerModal.hide();
+
+                            if (scannerState.scanMode === 'both' && currentStep === 1 && validateStep(1)) {
+                                goToStep('step2');
+                            }
+                        }, 650);
+                    } catch (error) {
+                        console.warn('Could not attach scanner file:', error);
+                        setScannerStatus('Your browser blocked attaching the scan. Please upload the image manually.', 'error');
+                    } finally {
+                        if (!(scannerState.scanMode === 'both' && scannerState.targetInput?.id === 'valid_id')) {
+                            scannerState.isCapturing = false;
+                        }
+                    }
+                }, 'image/jpeg', 0.92);
+            }
+
+            function captureScannerFrame(force = false) {
+                if (scannerState.isCapturing) return;
+
+                if (!force && !scannerState.detectedPoints) {
+                    setScannerStatus('No ID card detected yet. Place the ID inside the guide.', 'error');
+                    return;
+                }
+
+                scannerState.isCapturing = true;
+                setScannerStatus('Cropping ID...', 'ready');
+                const canvas = cropDetectedCard(scannerState.detectedPoints);
+                attachScannerImageToInput(canvas);
+            }
+
+            function scannerFrameLoop() {
+                if (!scannerState.stream || !scannerVideo || scannerState.isCapturing) return;
+
+                scannerState.rafId = requestAnimationFrame(scannerFrameLoop);
+
+                if (scannerVideo.readyState < 2 || scannerState.isProcessing) return;
+
+                scannerState.isProcessing = true;
+
+                try {
+                    const points = getIdCardPoints();
+                    drawScannerOverlay(points);
+
+                    if (points) {
+                        scannerState.stableFrames = arePointsStable(points, scannerState.lastPoints)
+                            ? scannerState.stableFrames + 1
+                            : 1;
+                        scannerState.lastPoints = points;
+                        scannerState.detectedPoints = points;
+
+                        const progress = Math.min(scannerState.stableFrames, 14);
+                        setScannerStatus(`ID detected. Hold steady... ${progress}/14`, 'ready');
+
+                        if (scannerAutoCapture?.checked && scannerState.stableFrames >= 14) {
+                            captureScannerFrame(true);
+                        }
+                    } else {
+                        scannerState.stableFrames = 0;
+                        scannerState.lastPoints = null;
+                        scannerState.detectedPoints = null;
+
+                        if (!window.cvReady || typeof cv === 'undefined') {
+                            setScannerStatus('Scanner engine is loading. You can still capture manually.', 'waiting');
+                        } else {
+                            setScannerStatus('Place the ID inside the guide.', 'waiting');
+                        }
+                    }
+                } finally {
+                    scannerState.isProcessing = false;
+                }
+            }
+
+            function stopScannerCamera() {
+                if (scannerState.rafId) {
+                    cancelAnimationFrame(scannerState.rafId);
+                    scannerState.rafId = null;
+                }
+
+                if (scannerState.stream) {
+                    scannerState.stream.getTracks().forEach(track => track.stop());
+                    scannerState.stream = null;
+                }
+
+                if (scannerVideo) scannerVideo.srcObject = null;
+                if (scannerOverlay) {
+                    const context = scannerOverlay.getContext('2d');
+                    context.clearRect(0, 0, scannerOverlay.width, scannerOverlay.height);
+                }
+
+                scannerState.stableFrames = 0;
+                scannerState.lastPoints = null;
+                scannerState.detectedPoints = null;
+                scannerState.isCapturing = false;
+                scannerState.isProcessing = false;
+            }
+
+            async function startScannerCamera() {
+                if (!scannerVideo || !navigator.mediaDevices?.getUserMedia) {
+                    setScannerStatus('Camera is not supported by this browser.', 'error');
+                    return;
+                }
+
+                stopScannerCamera();
+                setScannerStatus('Camera is starting...', 'waiting');
+
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: {
+                            facingMode: { ideal: 'environment' },
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                        },
+                    });
+
+                    scannerState.stream = stream;
+                    scannerVideo.srcObject = stream;
+                    await scannerVideo.play();
+                    syncScannerCanvases();
+                    setScannerStatus('Place the ID inside the guide.', window.cvReady ? 'waiting' : 'waiting');
+                    scannerFrameLoop();
+                } catch (error) {
+                    console.warn('Camera access failed:', error);
+                    setScannerStatus('Camera permission denied or unavailable. Use manual upload instead.', 'error');
+                }
+            }
+
+            document.querySelectorAll('.btn-scan-id').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-scan-target');
+                    const targetLabel = button.getAttribute('data-scan-label') || 'ID side';
+                    openScannerForSide(targetId, targetLabel, 'single');
+                });
+            });
+
+            if (scanBothSidesBtn) {
+                scanBothSidesBtn.addEventListener('click', openScannerForBothSides);
+            }
+
+            if (scannerModalElement) {
+                scannerModalElement.addEventListener('shown.bs.modal', startScannerCamera);
+                scannerModalElement.addEventListener('hidden.bs.modal', () => {
+                    stopScannerCamera();
+                    scannerState.scanMode = 'single';
+                    scannerState.flowIndex = 0;
+                });
+            }
+
+            if (scannerManualCaptureBtn) {
+                scannerManualCaptureBtn.addEventListener('click', () => captureScannerFrame(true));
+            }
+
+            if (scannerRetakeBtn) {
+                scannerRetakeBtn.addEventListener('click', startScannerCamera);
+            }
+
+            document.addEventListener('opencv-ready', () => {
+                if (scannerState.stream && !scannerState.isCapturing) {
+                    setScannerStatus('Scanner ready. Place the ID inside the guide.', 'waiting');
+                }
+            });
 
             // Next button functionality
             nextButtons.forEach(button => {
@@ -2179,6 +3757,8 @@
 
                     event.preventDefault();
 
+                    buildResidentAddress();
+
                     if (!validateStep(currentStep)) {
                         document.querySelectorAll('.is-invalid').forEach(field => {
                             const group = field.closest('.form-group') || field.closest('.file-upload-wrapper');
@@ -2243,6 +3823,7 @@
             });
 
             // Initialize
+            buildResidentAddress();
             updateProgress();
             updatePasswordUI();
             updatePasswordMatchUI();
@@ -2254,9 +3835,9 @@
             }
         });
     </script>
-    @if($captchaEnabled)
+    @if($captchaEnabled && !empty($recaptchaSiteKey))
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     @endif
 </body>
 
-</html>
+</html> 

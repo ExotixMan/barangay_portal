@@ -172,7 +172,7 @@ class ResidencyController extends Controller
     /**
      * NEW METHOD: Update status for any application
      */
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, int $id)
     {
         $application = Residency::findOrFail($id);
         
@@ -340,7 +340,7 @@ class ResidencyController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $application = Residency::findOrFail($id);
         $originalValues = $application->only([
@@ -592,7 +592,7 @@ class ResidencyController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $application = Residency::findOrFail($id);
 
@@ -618,7 +618,7 @@ class ResidencyController extends Controller
         return back()->with('success', 'Application #' . $reference . ' archived successfully.');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $application = Residency::withTrashed()->findOrFail($id);
         $reference = $application->reference_number;
