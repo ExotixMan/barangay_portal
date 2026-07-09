@@ -2785,7 +2785,7 @@
                 }
 
                 try {
-                    const response = await fetch(`{{ route('register.check-availability') }}?field=username&value=${encodeURIComponent(username)}`, {
+                    const response = await fetch(`/register/check-availability?field=username&value=${encodeURIComponent(username)}`, {
                         headers: {
                             'Accept': 'application/json',
                         },
@@ -2903,7 +2903,7 @@
                 }
 
                 try {
-                    const response = await fetch(`{{ route('register.check-availability') }}?field=${encodeURIComponent(field)}&value=${encodeURIComponent(normalized)}`, {
+                    const response = await fetch(`/register/check-availability?field=${encodeURIComponent(field)}&value=${encodeURIComponent(normalized)}`, {
                         headers: {
                             'Accept': 'application/json',
                         },
