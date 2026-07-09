@@ -1097,6 +1097,21 @@
             display: none !important;
         }
 
+        #idScannerManualCaptureBtn,
+        .scanner-auto-option {
+            display: none !important;
+        }
+
+        .btn-scan-both:disabled,
+        .btn-scanner-primary:disabled,
+        .btn-scanner-secondary:disabled {
+            opacity: 0.72;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+
         .id-scanner-modal .modal-dialog {
             max-width: 930px;
         }
@@ -2148,7 +2163,7 @@
                         <div class="scan-both-panel scan-both-panel-single">
                             <div>
                                 <strong>Automatic ID scan</strong>
-                                <span>Click once. The scanner captures the ID, tells the resident to flip it, captures the other side, then attaches both files to the registration form.</span>
+                                <span>Click once only. The scanner captures the front side, tells the resident to flip the ID, captures the back side, then marks the scan complete.</span>
                             </div>
                             <button type="button" class="btn-scan-both" id="scanBothSidesBtn">
                                 <i class="fas fa-camera-retro"></i> Start ID scan
@@ -2470,7 +2485,7 @@
                 <div class="modal-body">
                     <div class="scanner-help">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Place the ID inside the guide. The scanner will automatically capture both sides only when the ID is clear, bright, steady, and fully detected. If the quality fails, it will ask you to scan again.</span>
+                        <span>Place the ID inside the guide. The scanner automatically captures the front side first, then asks you to flip the ID for the back side. No second capture button is needed.</span>
                     </div>
 
                     <div class="scanner-stage">
@@ -2493,8 +2508,8 @@
                         <button type="button" class="btn-scanner-secondary" id="idScannerRetakeBtn">
                             <i class="fas fa-rotate-right"></i> Restart camera
                         </button>
-                        <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn">
-                            <i class="fas fa-camera"></i> Capture now
+                        <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn" disabled aria-hidden="true">
+                            <i class="fas fa-camera"></i> Auto capture enabled
                         </button>
                         <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
                             <i class="fas fa-xmark"></i> Cancel
@@ -2770,13 +2785,16 @@
                 }
 
                 try {
-                    const response = await fetch(`{{ route('register.check-username') }}?username=${encodeURIComponent(username)}`, {
+                    const response = await fetch(`{{ route('register.check-availability') }}?field=username&value=${encodeURIComponent(username)}`, {
                         headers: {
                             'Accept': 'application/json',
                         },
                     });
 
-                    const data = await response.json();
+                    const contentType = response.headers.get('content-type') || '';
+                    const data = contentType.includes('application/json')
+                        ? await response.json()
+                        : { message: 'Username availability route did not return JSON. Check your Laravel route/controller.' };
 
                     if (requestId !== usernameCheckSeq) {
                         return false;
@@ -2817,24 +2835,67 @@
                 }
             }
 
-            let accountCheckSeq = 0;
+            const accountCheckSeq = {
+                email: 0,
+                contact: 0,
+            };
+
+            const accountCheckState = {
+                email: { value: '', status: 'idle', message: '' },
+                contact: { value: '', status: 'idle', message: '' },
+            };
 
             async function checkAccountAvailability(field, rawValue, hintEl, label, force = false) {
                 const normalized = field === 'contact'
                     ? String(rawValue || '').replace(/\D/g, '')
                     : String(rawValue || '').trim().toLowerCase();
 
+                const defaultMessage = field === 'contact'
+                    ? 'Use 11 digits only (e.g., 09123456789). We will check this before submission.'
+                    : 'We will verify this email for account updates and notifications.';
+
+                if (!accountCheckState[field]) {
+                    accountCheckState[field] = { value: '', status: 'idle', message: '' };
+                    accountCheckSeq[field] = 0;
+                }
+
                 if (normalized === '') {
+                    accountCheckState[field] = { value: normalized, status: 'idle', message: '' };
                     if (hintEl) {
-                        hintEl.textContent = field === 'contact'
-                            ? 'Use 11 digits only (e.g., 09123456789). We will check this before submission.'
-                            : 'We will verify this email for account updates and notifications.';
+                        hintEl.textContent = defaultMessage;
                         hintEl.classList.remove('good', 'bad');
                     }
                     return false;
                 }
 
-                const requestId = ++accountCheckSeq;
+                if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+                    accountCheckState[field] = { value: normalized, status: 'invalid', message: 'Please enter a valid email address' };
+                    if (hintEl) {
+                        hintEl.textContent = 'Please enter a valid email address';
+                        hintEl.classList.remove('good');
+                        hintEl.classList.add('bad');
+                    }
+                    return false;
+                }
+
+                if (field === 'contact' && !/^09\d{9}$/.test(normalized)) {
+                    accountCheckState[field] = { value: normalized, status: 'invalid', message: 'Please enter a valid Philippine mobile number (09XXXXXXXXX)' };
+                    if (hintEl) {
+                        hintEl.textContent = normalized.length < 11
+                            ? 'Complete the 11-digit mobile number first.'
+                            : 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
+                        hintEl.classList.remove('good');
+                        hintEl.classList.add('bad');
+                    }
+                    return false;
+                }
+
+                if (!force && accountCheckState[field].value === normalized && ['available', 'unavailable'].includes(accountCheckState[field].status)) {
+                    return accountCheckState[field].status === 'available';
+                }
+
+                const requestId = ++accountCheckSeq[field];
+                accountCheckState[field] = { value: normalized, status: 'checking', message: `Checking ${label.toLowerCase()} availability...` };
 
                 if (hintEl) {
                     hintEl.textContent = `Checking ${label.toLowerCase()} availability...`;
@@ -2848,34 +2909,45 @@
                         },
                     });
 
-                    const data = await response.json();
+                    const contentType = response.headers.get('content-type') || '';
+                    const data = contentType.includes('application/json')
+                        ? await response.json()
+                        : { message: `${label} availability route did not return JSON. Check your Laravel route/controller.` };
 
-                    if (requestId !== accountCheckSeq) {
+                    if (requestId !== accountCheckSeq[field]) {
                         return false;
                     }
 
                     if (response.ok && data.available) {
+                        accountCheckState[field] = { value: normalized, status: 'available', message: data.message || `${label} is available` };
                         if (hintEl) {
-                            hintEl.textContent = data.message || `${label} is available`;
+                            hintEl.textContent = accountCheckState[field].message;
                             hintEl.classList.remove('bad');
                             hintEl.classList.add('good');
                         }
                         return true;
                     }
 
+                    accountCheckState[field] = { value: normalized, status: 'unavailable', message: data.message || `${label} is already taken` };
                     if (hintEl) {
-                        hintEl.textContent = data.message || `${label} is already taken`;
+                        hintEl.textContent = accountCheckState[field].message;
                         hintEl.classList.remove('good');
                         hintEl.classList.add('bad');
                     }
                     return false;
                 } catch (error) {
-                    if (requestId !== accountCheckSeq) {
+                    if (requestId !== accountCheckSeq[field]) {
                         return false;
                     }
 
+                    accountCheckState[field] = {
+                        value: normalized,
+                        status: 'error',
+                        message: `${label} availability check failed. Make sure route('register.check-availability') exists and returns JSON.`,
+                    };
+
                     if (hintEl) {
-                        hintEl.textContent = `${label} availability check failed. Please try again.`;
+                        hintEl.textContent = accountCheckState[field].message;
                         hintEl.classList.remove('good');
                         hintEl.classList.add('bad');
                     }
@@ -3047,6 +3119,9 @@
                         if (!emailRegex.test(fieldValue)) {
                             isValid = false;
                             showFieldError(field, 'Please enter a valid email address');
+                        } else if (accountCheckState.email?.value === fieldValue.toLowerCase() && accountCheckState.email?.status === 'unavailable') {
+                            isValid = false;
+                            showFieldError(field, accountCheckState.email.message || 'Email is already taken');
                         }
                     }
 
@@ -3056,6 +3131,9 @@
                         if (!phoneRegex.test(fieldValue)) {
                             isValid = false;
                             showFieldError(field, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+                        } else if (accountCheckState.contact?.value === fieldValue && accountCheckState.contact?.status === 'unavailable') {
+                            isValid = false;
+                            showFieldError(field, accountCheckState.contact.message || 'Contact number is already registered');
                         }
                     }
 
@@ -3104,22 +3182,27 @@
             function showFieldError(field, message) {
                 field.classList.add('is-invalid');
 
-                const parent = field.type === 'checkbox' ? field.closest('.terms-section') : 
-                            field.type === 'file' ? (field.closest('.file-upload-wrapper') || document.getElementById('idAutoScanWrapper')) : 
+                const parent = field.type === 'checkbox' ? field.closest('.terms-section') :
+                            field.type === 'file' ? (field.closest('.file-upload-wrapper') || document.getElementById('idAutoScanWrapper')) :
                             field.parentNode;
 
                 if (field.type === 'file' && parent) {
                     parent.classList.add('is-invalid');
                 }
-                
+
                 if (parent) {
                     const existingError = parent.querySelector('.error-message:not(#passwordMatchText)');
-                    if (!existingError) {
-                        const errorMessage = document.createElement('div');
-                        errorMessage.className = 'error-message';
-                        errorMessage.textContent = message;
-                        parent.appendChild(errorMessage);
+                    if (existingError) {
+                        existingError.textContent = message;
+                        existingError.dataset.clientError = 'true';
+                        return;
                     }
+
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.dataset.clientError = 'true';
+                    errorMessage.textContent = message;
+                    parent.appendChild(errorMessage);
                 }
             }
 
@@ -3208,8 +3291,8 @@
             const scanBothSidesBtn = document.getElementById('scanBothSidesBtn');
 
             const scannerFlowSides = [
-                { inputId: 'valid_id', label: 'first side', title: 'Automatic valid ID scanner' },
-                { inputId: 'valid_id_back', label: 'second side', title: 'Automatic valid ID scanner' },
+                { inputId: 'valid_id', label: 'front side', title: 'Automatic valid ID scanner' },
+                { inputId: 'valid_id_back', label: 'back side', title: 'Automatic valid ID scanner' },
             ];
 
             const scannerState = {
@@ -3224,6 +3307,9 @@
                 detectedPoints: null,
                 isCapturing: false,
                 isProcessing: false,
+                isFlowActive: false,
+                isWaitingForFlip: false,
+                completedBothSides: false,
                 qualityResults: {},
                 captureSignatures: {},
             };
@@ -3274,16 +3360,26 @@
             }
 
             function openScannerForBothSides() {
-                if (!scannerModal) return;
+                if (!scannerModal || scannerState.isFlowActive) return;
 
                 resetBothIdScannerFiles();
 
                 scannerState.scanMode = 'both';
                 scannerState.flowIndex = 0;
+                scannerState.isFlowActive = true;
+                scannerState.isWaitingForFlip = false;
+                scannerState.completedBothSides = false;
+                updateScanButtonState();
 
                 const firstSide = scannerFlowSides[0];
-                if (!setScannerTarget(firstSide.inputId, firstSide.label)) return;
-                setScannerStatus('Start with the ID side that has the photo/name. Hold it steady inside the guide.', 'waiting');
+                if (!setScannerTarget(firstSide.inputId, firstSide.label)) {
+                    scannerState.isFlowActive = false;
+                    updateScanButtonState();
+                    return;
+                }
+
+                updateAutoScanStatus();
+                setScannerStatus('Scanning front side first. Put the photo/name side inside the guide and hold steady.', 'waiting');
 
                 scannerModal.show();
             }
@@ -3312,6 +3408,25 @@
                 reader.readAsDataURL(file);
             }
 
+            function updateScanButtonState() {
+                if (!scanBothSidesBtn) return;
+
+                const isActive = scannerState.isFlowActive === true;
+                scanBothSidesBtn.disabled = isActive;
+
+                if (isActive) {
+                    scanBothSidesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning ID...';
+                    return;
+                }
+
+                if (hasValidScannerCaptures()) {
+                    scanBothSidesBtn.innerHTML = '<i class="fas fa-rotate-right"></i> Rescan ID';
+                    return;
+                }
+
+                scanBothSidesBtn.innerHTML = '<i class="fas fa-camera-retro"></i> Start ID scan';
+            }
+
             function updateAutoScanStatus() {
                 const frontInput = document.getElementById('valid_id');
                 const backInput = document.getElementById('valid_id_back');
@@ -3320,28 +3435,38 @@
                 const title = document.getElementById('idAutoScanStatusTitle');
                 const text = document.getElementById('idAutoScanStatusText');
 
-                const hasFront = !!frontInput?.files?.length;
-                const hasBack = !!backInput?.files?.length;
+                const frontPassed = scannerState.qualityResults.valid_id?.passed === true;
+                const backPassed = scannerState.qualityResults.valid_id_back?.passed === true;
+                const hasFront = !!frontInput?.files?.length && frontPassed;
+                const hasBack = !!backInput?.files?.length && backPassed;
 
                 if (wrapper && hasFront && hasBack) {
                     wrapper.classList.remove('is-invalid');
                     wrapper.querySelectorAll('.error-message').forEach(error => error.remove());
                 }
 
-                if (!status || !title || !text) return;
+                if (!status || !title || !text) {
+                    updateScanButtonState();
+                    return;
+                }
 
                 status.classList.toggle('is-complete', hasFront && hasBack);
 
                 if (hasFront && hasBack) {
                     title.textContent = 'ID scan complete';
-                    text.textContent = 'Both ID images are attached. Continue the registration to send them for admin verification.';
+                    text.textContent = 'Front side captured. Back side captured. Both passed quality check and are ready for admin verification.';
                 } else if (hasFront) {
-                    title.textContent = 'First capture saved';
-                    text.textContent = 'Flip the ID. The scanner will capture the other side next.';
+                    title.textContent = 'Front side captured';
+                    text.textContent = 'Front side is saved. Flip the ID now. The scanner will capture the back side next.';
+                } else if (hasBack) {
+                    title.textContent = 'Back side captured';
+                    text.textContent = 'Back side is saved, but the front side is still missing. Start the scan again to capture the front side.';
                 } else {
                     title.textContent = 'No ID scan yet';
-                    text.textContent = 'Press Start ID scan. The system will save both sides only after both images pass the quality check.';
+                    text.textContent = 'Press Start ID scan. The scanner will capture the front side first, then the back side after you flip the ID.';
                 }
+
+                updateScanButtonState();
             }
 
             function distanceBetweenPoints(a, b) {
@@ -3840,6 +3965,7 @@
             }
 
             function rejectCurrentScannerCapture(inputId, message) {
+                const sideLabel = inputId === 'valid_id_back' ? 'back side' : 'front side';
                 scannerState.qualityResults[inputId] = {
                     passed: false,
                     message,
@@ -3847,18 +3973,20 @@
                 clearScannerInput(inputId);
                 updateAutoScanStatus();
                 resetScannerDetection();
-                setScannerStatus(`${message} Please scan this side again.`, 'error');
+                setScannerStatus(`${sideLabel} failed: ${message} Please scan the ${sideLabel} again.`, 'error');
 
                 window.setTimeout(() => {
                     scannerState.isCapturing = false;
+                    scannerState.isWaitingForFlip = false;
                     if (scannerState.stream) {
-                        setScannerStatus('Scan again. Keep the whole ID inside the guide and hold it steady.', 'waiting');
+                        setScannerStatus(`Scan the ${sideLabel} again. Keep the whole ID inside the guide and hold it steady.`, 'waiting');
                         scannerFrameLoop();
                     }
-                }, 1000);
+                }, 1200);
             }
 
-function attachScannerImageToInput(canvas) {
+
+            function attachScannerImageToInput(canvas) {
                 if (!canvas || !scannerState.targetInput) return;
 
                 const currentInputId = scannerState.targetInput.id;
@@ -3873,24 +4001,27 @@ function attachScannerImageToInput(canvas) {
                     if (!blob) {
                         setScannerStatus('Capture failed. Please try again.', 'error');
                         scannerState.isCapturing = false;
+                        scannerState.isWaitingForFlip = false;
                         return;
                     }
 
                     try {
                         const side = currentInputId === 'valid_id_back' ? 'back' : 'front';
+                        const sideLabel = currentInputId === 'valid_id_back' ? 'Back side' : 'Front side';
                         const file = new File([blob], `valid_id_${side}_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
                         const transfer = new DataTransfer();
                         transfer.items.add(file);
                         scannerState.targetInput.files = transfer.files;
-                        scannerState.targetInput.dispatchEvent(new Event('change', { bubbles: true }));
 
                         scannerState.qualityResults[currentInputId] = qualityResult;
                         scannerState.captureSignatures[currentInputId] = qualityResult.signature;
+                        scannerState.targetInput.dispatchEvent(new Event('change', { bubbles: true }));
 
                         updateAutoScanStatus();
 
                         if (scannerState.scanMode === 'both' && currentInputId === 'valid_id') {
-                            setScannerStatus('Front side passed quality check. Flip the ID. Back scan starts in 3 seconds.', 'ready');
+                            scannerState.isWaitingForFlip = true;
+                            setScannerStatus('Front side captured and passed. Flip the ID now. Back side scanning starts in 3 seconds.', 'ready');
                             resetScannerDetection();
 
                             window.setTimeout(() => {
@@ -3898,7 +4029,9 @@ function attachScannerImageToInput(canvas) {
                                 scannerState.flowIndex = 1;
                                 setScannerTarget(nextSide.inputId, nextSide.label);
                                 scannerState.isCapturing = false;
-                                setScannerStatus('Now scan the back side. Hold the ID steady inside the guide.', 'waiting');
+                                scannerState.isWaitingForFlip = false;
+                                updateAutoScanStatus();
+                                setScannerStatus('Now scanning back side. Put the back side inside the guide and hold steady.', 'waiting');
 
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
@@ -3908,33 +4041,39 @@ function attachScannerImageToInput(canvas) {
                             return;
                         }
 
-                        updateAutoScanStatus();
-
                         if (scannerState.scanMode === 'both') {
                             if (!hasValidScannerCaptures()) {
-                                setScannerStatus('Both sides are not valid yet. Please scan the missing or failed side again.', 'error');
+                                setScannerStatus(`${sideLabel} captured, but the full front/back scan is not complete yet. Please scan the missing side.`, 'error');
                                 scannerState.isCapturing = false;
                                 return;
                             }
 
-                            setScannerStatus('Both sides passed quality check. The ID scan is ready to send with registration.', 'ready');
+                            scannerState.completedBothSides = true;
+                            scannerState.isFlowActive = false;
+                            updateAutoScanStatus();
+                            setScannerStatus('Front and back sides passed. ID scan complete.', 'ready');
                         } else {
-                            setScannerStatus('Captured successfully.', 'ready');
+                            setScannerStatus(`${sideLabel} captured successfully.`, 'ready');
                         }
 
                         window.setTimeout(() => {
                             if (scannerModal) scannerModal.hide();
 
+                            // Move to Step 2 only when the whole Step 1 is valid.
+                            // This prevents the scanner from skipping required fields.
                             if (scannerState.scanMode === 'both' && currentStep === 1 && hasValidScannerCaptures() && validateStep(1)) {
                                 goToStep('step2');
                             }
-                        }, 650);
+                        }, 750);
                     } catch (error) {
                         console.warn('Could not attach scanner file:', error);
-                        setScannerStatus('Your browser blocked attaching the scan. Please upload the image manually.', 'error');
+                        setScannerStatus('Your browser blocked attaching the scan. Please use another browser or upload the image manually.', 'error');
+                        scannerState.isFlowActive = false;
+                        updateScanButtonState();
                     } finally {
                         if (!(scannerState.scanMode === 'both' && currentInputId === 'valid_id')) {
                             scannerState.isCapturing = false;
+                            scannerState.isWaitingForFlip = false;
                         }
                     }
                 }, 'image/jpeg', 0.94);
@@ -3943,19 +4082,25 @@ function attachScannerImageToInput(canvas) {
             function captureScannerFrame(force = false) {
                 if (scannerState.isCapturing) return;
 
+                if (scannerState.isWaitingForFlip) {
+                    setScannerStatus('Front side is already captured. Please flip the ID and wait for the back-side scan.', 'waiting');
+                    return;
+                }
+
                 if (!scannerState.detectedPoints) {
                     setScannerStatus('No ID card detected yet. Place the whole ID inside the guide before capturing.', 'error');
                     return;
                 }
 
                 scannerState.isCapturing = true;
-                setScannerStatus('Checking ID quality...', 'ready');
+                const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
+                setScannerStatus(`Checking ${sideLabel} quality...`, 'ready');
                 const canvas = cropDetectedCard(scannerState.detectedPoints);
                 attachScannerImageToInput(canvas);
             }
 
             function scannerFrameLoop() {
-                if (!scannerState.stream || !scannerVideo || scannerState.isCapturing) return;
+                if (!scannerState.stream || !scannerVideo || scannerState.isCapturing || scannerState.completedBothSides) return;
 
                 scannerState.rafId = requestAnimationFrame(scannerFrameLoop);
 
@@ -3975,7 +4120,8 @@ function attachScannerImageToInput(canvas) {
                         scannerState.detectedPoints = points;
 
                         const progress = Math.min(scannerState.stableFrames, 18);
-                        setScannerStatus(`ID detected. Hold steady for quality check... ${progress}/18`, 'ready');
+                        const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
+                        setScannerStatus(`${sideLabel} detected. Hold steady for quality check... ${progress}/18`, 'ready');
 
                         if (scannerAutoCapture?.checked && scannerState.stableFrames >= 18) {
                             captureScannerFrame(true);
@@ -4027,6 +4173,7 @@ function attachScannerImageToInput(canvas) {
                 }
 
                 stopScannerCamera();
+                scannerState.completedBothSides = false;
                 setScannerStatus('Camera is starting...', 'waiting');
 
                 try {
@@ -4060,7 +4207,10 @@ function attachScannerImageToInput(canvas) {
             });
 
             if (scanBothSidesBtn) {
-                scanBothSidesBtn.addEventListener('click', openScannerForBothSides);
+                scanBothSidesBtn.addEventListener('click', () => {
+                    if (scannerState.isFlowActive) return;
+                    openScannerForBothSides();
+                });
             }
 
             if (scannerModalElement) {
@@ -4069,6 +4219,10 @@ function attachScannerImageToInput(canvas) {
                     stopScannerCamera();
                     scannerState.scanMode = 'single';
                     scannerState.flowIndex = 0;
+                    scannerState.isFlowActive = false;
+                    scannerState.isWaitingForFlip = false;
+                    scannerState.completedBothSides = false;
+                    updateScanButtonState();
                 });
             }
 
