@@ -181,19 +181,17 @@ class ResidentController extends Controller
             ->with('success', 'Resident added successfully.');
     }
 
-    public function update(Request $request, int $id) // FIXED: changed parameter to $id
+    public function update(Request $request, int $id)
     {
-        $resident = Residents::findOrFail($id);
-        
-        // Store form type in session with resident ID
+        $resident = Residents::withTrashed()->findOrFail($id);
+
         session()->flash('form_type', 'edit_' . $resident->id);
 
-        // Normalize contact input before validation.
         $request->merge([
             'contact' => preg_replace('/\D+/', '', (string) $request->input('contact')),
         ]);
 
-        $request->validate([
+        $validated = $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'middlename' => ['nullable','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
@@ -203,6 +201,13 @@ class ResidentController extends Controller
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
             'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
+
+            // Valid ID update/review fields.
+            'valid_id' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+            'valid_id_back' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+            'valid_id_selfie' => ['nullable','file','mimes:jpg,jpeg,png','max:5120'],
+            'valid_id_status' => ['nullable','in:for_verification,verified,rejected'],
+            'valid_id_rejection_reason' => ['nullable','string','max:500','required_if:valid_id_status,rejected'],
         ], [
             'firstname.regex' => 'First name can only contain letters, spaces, and hyphens.',
             'middlename.regex' => 'Middle name can only contain letters, spaces, and hyphens.',
@@ -212,23 +217,81 @@ class ResidentController extends Controller
             'username.min'    => 'Username must be at least 3 characters.',
             'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
             'contact.regex'   => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
+            'valid_id.mimes' => 'The front valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id_back.mimes' => 'The back valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id_selfie.mimes' => 'The selfie holding ID must be JPG, JPEG, or PNG.',
+            'valid_id_status.in' => 'Please select a valid ID status.',
+            'valid_id_rejection_reason.required_if' => 'Remarks are required when rejecting a valid ID.',
         ]);
 
-        $resident->update([
-            'firstname' => $request->firstname,
-            'middlename' => $request->middlename,
-            'lastname'  => $request->lastname,
-            'suffix' => $request->suffix,
-            'username'  => $request->username,
-            'email'     => $request->email,
-            'contact'   => $request->contact,
-            'birthdate' => $request->birthdate,
-            'address'   => $request->address,
-        ]);
+        $updateData = [
+            'firstname' => $validated['firstname'],
+            'middlename' => $validated['middlename'] ?? null,
+            'lastname'  => $validated['lastname'],
+            'suffix' => $validated['suffix'] ?? null,
+            'username'  => $validated['username'],
+            'email'     => $validated['email'],
+            'contact'   => $validated['contact'],
+            'birthdate' => $validated['birthdate'],
+            'address'   => $validated['address'],
+        ];
+
+        foreach (['valid_id', 'valid_id_back', 'valid_id_selfie'] as $field) {
+            if ($request->hasFile($field)) {
+                $this->deleteResidentValidIdFile((string) $resident->{$field});
+                $updateData[$field] = $this->storeResidentValidIdFile($request, $field);
+
+                // New ID image means it needs admin review again unless the admin selects Verified in the same update.
+                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_status'] = 'for_verification';
+                $updateData['valid_id_verified_at'] = null;
+                $updateData['valid_id_verified_by'] = null;
+                $updateData['valid_id_rejection_reason'] = null;
+            }
+        }
+
+        if ($request->filled('valid_id_status')) {
+            $status = (string) $validated['valid_id_status'];
+
+            if ($status === 'verified') {
+                $hasFront = $request->hasFile('valid_id') || !empty($resident->valid_id);
+                $hasBack = $request->hasFile('valid_id_back') || !empty($resident->valid_id_back);
+
+                if (!$hasFront || !$hasBack) {
+                    return back()
+                        ->withErrors(['valid_id_status' => 'Front and back valid ID images are required before approval.'])
+                        ->withInput();
+                }
+
+                $updateData['valid_id_verified'] = true;
+                $updateData['valid_id_status'] = 'verified';
+                $updateData['valid_id_verified_at'] = now('Asia/Manila');
+                $updateData['valid_id_verified_by'] = auth('admin')->id();
+                $updateData['valid_id_rejection_reason'] = null;
+            }
+
+            if ($status === 'rejected') {
+                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_status'] = 'rejected';
+                $updateData['valid_id_verified_at'] = null;
+                $updateData['valid_id_verified_by'] = null;
+                $updateData['valid_id_rejection_reason'] = $validated['valid_id_rejection_reason'] ?? null;
+            }
+
+            if ($status === 'for_verification') {
+                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_status'] = 'for_verification';
+                $updateData['valid_id_verified_at'] = null;
+                $updateData['valid_id_verified_by'] = null;
+                $updateData['valid_id_rejection_reason'] = null;
+            }
+        }
+
+        $resident->update($updateData);
 
         $this->log($resident, 'Updated');
 
-        return back()->with('success', 'Resident updated successfully');
+        return back()->with('success', 'Resident updated successfully.');
     }
 
     public function destroy(int $id)
@@ -254,14 +317,20 @@ class ResidentController extends Controller
     {
         $resident = Residents::withTrashed()->findOrFail($id);
 
-        if (!$resident->valid_id) {
-            return redirect()->back()->with('error', 'This resident has no valid ID uploaded.');
+        if (empty($resident->valid_id) || empty($resident->valid_id_back)) {
+            return redirect()->back()->with('error', 'Front and back valid ID images are required before approval.');
         }
 
-        $resident->update(['valid_id_verified' => 'true']);
-        $this->log($resident, 'Valid ID Verified');
+        $resident->update([
+            'valid_id_verified' => true,
+            'valid_id_status' => 'verified',
+            'valid_id_verified_at' => now('Asia/Manila'),
+            'valid_id_verified_by' => auth('admin')->id(),
+            'valid_id_rejection_reason' => null,
+        ]);
 
-        // Log audit trail
+        $this->log($resident, 'Valid ID Approved');
+
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -270,17 +339,97 @@ class ResidentController extends Controller
                 'details' => [
                     'resident_id' => $resident->id,
                     'resident_name' => $resident->full_name,
-                    'action_type' => 'valid_id_verified',
+                    'action_type' => 'valid_id_approved',
                     'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'user_agent' => request()->userAgent(),
             ]);
         }
 
-        return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been verified.');
+        return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been approved.');
     }
-    
+
+    public function rejectValidId(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'valid_id_rejection_reason' => ['required','string','max:500'],
+        ], [
+            'valid_id_rejection_reason.required' => 'Remarks are required when rejecting a valid ID.',
+            'valid_id_rejection_reason.max' => 'Remarks must not exceed 500 characters.',
+        ]);
+
+        $resident = Residents::withTrashed()->findOrFail($id);
+
+        if (empty($resident->valid_id) && empty($resident->valid_id_back)) {
+            return redirect()->back()->with('error', 'This resident has no valid ID images to reject.');
+        }
+
+        $resident->update([
+            'valid_id_verified' => false,
+            'valid_id_status' => 'rejected',
+            'valid_id_verified_at' => null,
+            'valid_id_verified_by' => null,
+            'valid_id_rejection_reason' => $validated['valid_id_rejection_reason'],
+        ]);
+
+        $this->log($resident, 'Valid ID Rejected');
+
+        if (auth('admin')->check()) {
+            \App\Models\AdminActivityLog::create([
+                'user_id' => auth('admin')->id(),
+                'action' => 'REJECT',
+                'module' => 'Residents',
+                'details' => [
+                    'resident_id' => $resident->id,
+                    'resident_name' => $resident->full_name,
+                    'action_type' => 'valid_id_rejected',
+                    'remarks' => $validated['valid_id_rejection_reason'],
+                    'rejected_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been rejected.');
+    }
+
+    private function storeResidentValidIdFile(Request $request, string $field): string
+    {
+        $file = $request->file($field);
+
+        if (!$file || !$file->isValid()) {
+            throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
+        }
+
+        $uploadDirectory = public_path('uploads/valid_id/residents');
+
+        if (!is_dir($uploadDirectory)) {
+            mkdir($uploadDirectory, 0755, true);
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+
+        $file->move($uploadDirectory, $filename);
+
+        return 'uploads/valid_id/residents/' . $filename;
+    }
+
+    private function deleteResidentValidIdFile(?string $path): void
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $fullPath = public_path($path);
+
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+
     public function bulkDelete(Request $request)
     {
         $request->validate([

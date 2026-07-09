@@ -422,6 +422,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::delete('/{resident}', [ResidentController::class, 'destroy'])->middleware('permission:delete_residents')->name('destroy');
         Route::post('/{id}/restore', [ResidentController::class, 'restore'])->middleware('permission:restore_residents')->name('restore');
         Route::post('/{id}/verify-id', [ResidentController::class, 'verifyValidId'])->middleware('permission:update_residents')->name('verifyId');
+        Route::post('/{id}/reject-id', [ResidentController::class, 'rejectValidId'])->middleware('permission:update_residents')->name('rejectId');
     });
 
     // ==================== RESIDENCY MODULE ====================

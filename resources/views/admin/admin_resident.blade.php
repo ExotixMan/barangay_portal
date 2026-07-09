@@ -1703,14 +1703,19 @@
                                                 <span class="badge bg-success-subtle text-success"><i class="fas fa-circle-check me-1"></i>Active</span>
                                             @endif
 
-                                            @if($resident->valid_id)
-                                                @if($resident->valid_id_verified)
-                                                    <span class="badge bg-success-subtle text-success"><i class="fas fa-id-card me-1"></i>ID Verified</span>
-                                                @else
-                                                    <span class="badge bg-warning-subtle text-warning"><i class="fas fa-id-card me-1"></i>ID Pending</span>
-                                                @endif
-                                            @else
+                                            @php
+                                                $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                                $residentIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
+                                            @endphp
+
+                                            @if(!$hasAnyValidId)
                                                 <span class="badge bg-secondary-subtle text-secondary"><i class="fas fa-id-card me-1"></i>No ID</span>
+                                            @elseif($residentIdStatus === 'verified')
+                                                <span class="badge bg-success-subtle text-success"><i class="fas fa-id-card me-1"></i>ID Verified</span>
+                                            @elseif($residentIdStatus === 'rejected')
+                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-id-card me-1"></i>ID Rejected</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning"><i class="fas fa-id-card me-1"></i>ID For Review</span>
                                             @endif
                                         </div>
                                     </td>
@@ -2026,7 +2031,7 @@
                                     </div>
                                 </div>
 
-                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}" class="modern-edit-form">
+                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="editResidentForm{{ $resident->id }}" class="modern-edit-form" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
@@ -2126,6 +2131,84 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="edit-section-card">
+                                        <div class="edit-section-head">
+                                            <span class="edit-section-icon"><i class="fas fa-id-card-clip"></i></span>
+                                            <div>
+                                                <div class="edit-section-title">Valid ID Review</div>
+                                                <p class="edit-section-help">View or replace uploaded ID scans, then approve, reject, or return them for verification.</p>
+                                            </div>
+                                        </div>
+                                        <div class="edit-section-body">
+                                            @php
+                                                $editIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : (($resident->valid_id || $resident->valid_id_back || $resident->valid_id_selfie) ? 'for_verification' : 'for_verification'));
+                                                $editDocuments = [
+                                                    ['field' => 'valid_id', 'label' => 'Front ID', 'accept' => 'image/*,.pdf'],
+                                                    ['field' => 'valid_id_back', 'label' => 'Back ID', 'accept' => 'image/*,.pdf'],
+                                                    ['field' => 'valid_id_selfie', 'label' => 'Selfie with ID', 'accept' => 'image/*'],
+                                                ];
+                                            @endphp
+
+                                            <div class="document-preview-grid mb-3">
+                                                @foreach($editDocuments as $doc)
+                                                    @php
+                                                        $path = $resident->{$doc['field']};
+                                                        $ext = strtolower(pathinfo((string) $path, PATHINFO_EXTENSION));
+                                                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                                    @endphp
+                                                    <div class="document-preview-card">
+                                                        <div class="document-preview-head">
+                                                            <h6 class="document-preview-title"><i class="fas fa-image"></i>{{ $doc['label'] }}</h6>
+                                                        </div>
+                                                        <div class="document-preview-body">
+                                                            @if($path)
+                                                                @if($isImage)
+                                                                    <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" onclick="document.getElementById('editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
+                                                                    <div id="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                                        <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                                    </div>
+                                                                @else
+                                                                    <a href="{{ asset($path) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                                        <i class="fas fa-file-pdf me-1"></i>View File
+                                                                    </a>
+                                                                @endif
+                                                            @else
+                                                                <div class="document-empty"><span><i class="fas fa-circle-info me-1"></i>Not uploaded</span></div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+
+                                            <div class="edit-form-grid">
+                                                @foreach($editDocuments as $doc)
+                                                    <div class="edit-col-4">
+                                                        <label class="form-label">Replace {{ $doc['label'] }}</label>
+                                                        <input type="file" name="{{ $doc['field'] }}" accept="{{ $doc['accept'] }}" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error($doc['field']) is-invalid @enderror @endif">
+                                                        <small class="text-muted">Leave empty to keep current file.</small>
+                                                        @if(session('form_type') == 'edit_' . $resident->id) @error($doc['field']) <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                    </div>
+                                                @endforeach
+
+                                                <div class="edit-col-6">
+                                                    <label class="form-label">Valid ID Status</label>
+                                                    <select name="valid_id_status" id="edit_valid_id_status_{{ $resident->id }}" class="form-select @if(session('form_type') == 'edit_' . $resident->id) @error('valid_id_status') is-invalid @enderror @endif">
+                                                        <option value="for_verification" {{ old('valid_id_status', $editIdStatus) === 'for_verification' ? 'selected' : '' }}>For verification</option>
+                                                        <option value="verified" {{ old('valid_id_status', $editIdStatus) === 'verified' ? 'selected' : '' }}>Approved / Verified</option>
+                                                        <option value="rejected" {{ old('valid_id_status', $editIdStatus) === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                                    </select>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('valid_id_status') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+
+                                                <div class="edit-col-12">
+                                                    <label class="form-label">Remarks / Rejection Reason</label>
+                                                    <textarea name="valid_id_rejection_reason" id="edit_valid_id_remarks_{{ $resident->id }}" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('valid_id_rejection_reason') is-invalid @enderror @endif" rows="3" maxlength="500" placeholder="Required when status is Rejected. Example: Blurry back ID, name unreadable, expired ID.">{{ old('valid_id_rejection_reason', $resident->valid_id_rejection_reason) }}</textarea>
+                                                    @if(session('form_type') == 'edit_' . $resident->id) @error('valid_id_rejection_reason') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
 
@@ -2173,9 +2256,19 @@
                                     <span class="summary-value">{{ $resident->deleted_at ? 'Deactivated' : 'Active' }}</span>
                                     <span class="summary-sub">Current status</span>
                                 </div>
+                                @php
+                                    $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                    $viewIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
+                                    $viewIdStatusLabel = match($viewIdStatus) {
+                                        'verified' => 'Verified',
+                                        'rejected' => 'Rejected',
+                                        'for_verification' => 'For Review',
+                                        default => 'None',
+                                    };
+                                @endphp
                                 <div class="modal-summary-card">
                                     <span class="summary-label">Valid ID</span>
-                                    <span class="summary-value">{{ $resident->valid_id ? ($resident->valid_id_verified ? 'Verified' : 'Pending') : 'None' }}</span>
+                                    <span class="summary-value">{{ $viewIdStatusLabel }}</span>
                                     <span class="summary-sub">Identity check</span>
                                 </div>
                             </div>
@@ -2246,67 +2339,124 @@
 
                             <div class="detail-section-card">
                                 <div class="detail-section-head">
-                                    <span class="detail-section-icon"><i class="fas fa-image"></i></span>
+                                    <span class="detail-section-icon"><i class="fas fa-id-card-clip"></i></span>
                                     <div>
-                                        <div class="detail-section-title">Profile Photo & Valid ID</div>
-                                        <p class="detail-section-help">Uploaded identity assets and verification action.</p>
+                                        <div class="detail-section-title">Profile Photo & Valid ID Review</div>
+                                        <p class="detail-section-help">Uploaded identity assets, approval status, rejection remarks, and admin decision controls.</p>
                                     </div>
                                 </div>
                                 <div class="detail-section-body">
+                                    @php
+                                        $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                        $viewIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
+                                        $viewDocuments = [
+                                            ['field' => 'profile_photo', 'label' => 'Profile Photo', 'icon' => 'fa-user-circle'],
+                                            ['field' => 'valid_id', 'label' => 'Valid ID Front', 'icon' => 'fa-id-card'],
+                                            ['field' => 'valid_id_back', 'label' => 'Valid ID Back', 'icon' => 'fa-id-card-clip'],
+                                            ['field' => 'valid_id_selfie', 'label' => 'Selfie with ID', 'icon' => 'fa-camera'],
+                                        ];
+                                    @endphp
+
                                     <div class="document-preview-grid">
-                                        <div class="document-preview-card">
-                                            <div class="document-preview-head">
-                                                <h6 class="document-preview-title"><i class="fas fa-user-circle"></i>Profile Photo</h6>
+                                        @foreach($viewDocuments as $doc)
+                                            @php
+                                                $path = $resident->{$doc['field']};
+                                                $ext = strtolower(pathinfo((string) $path, PATHINFO_EXTENSION));
+                                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                            @endphp
+                                            <div class="document-preview-card">
+                                                <div class="document-preview-head">
+                                                    <h6 class="document-preview-title"><i class="fas {{ $doc['icon'] }}"></i>{{ $doc['label'] }}</h6>
+                                                    @if(in_array($doc['field'], ['valid_id', 'valid_id_back', 'valid_id_selfie']) && $path)
+                                                        @if($viewIdStatus === 'verified')
+                                                            <span class="badge bg-success-subtle text-success">Verified</span>
+                                                        @elseif($viewIdStatus === 'rejected')
+                                                            <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                                        @else
+                                                            <span class="badge bg-warning-subtle text-warning">For Review</span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                <div class="document-preview-body">
+                                                    @if($path)
+                                                        @if($isImage)
+                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" onclick="document.getElementById('residentDocFull{{ $resident->id }}_{{ $doc['field'] }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
+                                                            <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                                <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                            </div>
+                                                        @else
+                                                            <a href="{{ asset($path) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-file-pdf me-1"></i>View File
+                                                            </a>
+                                                        @endif
+                                                    @else
+                                                        <div class="document-empty"><span><i class="fas fa-circle-info me-1"></i>Not uploaded</span></div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                            <div class="document-preview-body">
-                                                @if($resident->profile_photo)
-                                                    <img src="{{ asset($resident->profile_photo) }}" alt="Profile Photo" class="document-thumb" onclick="document.getElementById('profilePhotoFull{{ $resident->id }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Photo unavailable</div>'">
-                                                    <div id="profilePhotoFull{{ $resident->id }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                        <img src="{{ asset($resident->profile_photo) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
-                                                    </div>
-                                                @else
-                                                    <div class="document-empty"><span><i class="fas fa-user-circle me-1"></i>No profile photo uploaded</span></div>
-                                                @endif
+                                        @endforeach
+                                    </div>
+
+                                    <div class="detail-section-card mb-0 mt-3">
+                                        <div class="detail-section-head">
+                                            <span class="detail-section-icon"><i class="fas fa-user-shield"></i></span>
+                                            <div>
+                                                <div class="detail-section-title">Verification Decision</div>
+                                                <p class="detail-section-help">Approve only if the front and back ID images are clear and match the resident record.</p>
                                             </div>
                                         </div>
-
-                                        <div class="document-preview-card">
-                                            <div class="document-preview-head">
-                                                <h6 class="document-preview-title"><i class="fas fa-id-card"></i>Valid ID</h6>
-                                                @if($resident->valid_id)
-                                                    @if($resident->valid_id_verified)
-                                                        <span class="badge bg-success-subtle text-success">Verified</span>
-                                                    @else
-                                                        <span class="badge bg-warning-subtle text-warning">Pending</span>
-                                                    @endif
-                                                @endif
+                                        <div class="detail-section-body">
+                                            <div class="detail-grid">
+                                                <div class="detail-item">
+                                                    <div class="detail-label"><i class="fas fa-clipboard-check"></i>Current ID Status</div>
+                                                    <div class="detail-value">
+                                                        @if($viewIdStatus === 'verified')
+                                                            <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i>Verified</span>
+                                                        @elseif($viewIdStatus === 'rejected')
+                                                            <span class="badge bg-danger-subtle text-danger"><i class="fas fa-xmark me-1"></i>Rejected</span>
+                                                        @elseif($viewIdStatus === 'for_verification')
+                                                            <span class="badge bg-warning-subtle text-warning"><i class="fas fa-hourglass-half me-1"></i>For verification</span>
+                                                        @else
+                                                            <span class="badge bg-secondary-subtle text-secondary"><i class="fas fa-circle-info me-1"></i>No valid ID</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label"><i class="far fa-calendar-check"></i>Verified At</div>
+                                                    <div class="detail-value">{{ $resident->valid_id_verified_at ? $resident->valid_id_verified_at->format('F d, Y h:i A') : 'Not verified yet' }}</div>
+                                                </div>
+                                                <div class="detail-item is-wide">
+                                                    <div class="detail-label"><i class="fas fa-message"></i>Remarks</div>
+                                                    <div class="detail-value">{{ $resident->valid_id_rejection_reason ?: 'No remarks.' }}</div>
+                                                </div>
                                             </div>
-                                            <div class="document-preview-body">
-                                                @if($resident->valid_id)
-                                                    @php $idExt = strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)); @endphp
-                                                    @if(in_array($idExt, ['jpg','jpeg','png','webp']))
-                                                        <img src="{{ asset($resident->valid_id) }}" alt="Valid ID" class="document-thumb" onclick="document.getElementById('validIdFull{{ $resident->id }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
-                                                        <div id="validIdFull{{ $resident->id }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                            <img src="{{ asset($resident->valid_id) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
-                                                        </div>
-                                                    @else
-                                                        <a href="{{ asset($resident->valid_id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fas fa-file-pdf me-1"></i>View PDF
-                                                        </a>
-                                                    @endif
 
-                                                    @if(!$resident->valid_id_verified && auth('admin')->user()->hasPermission('update_residents'))
-                                                        <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}" class="mt-2">
+                                            @if(auth('admin')->user()->hasPermission('update_residents'))
+                                                @if(!empty($resident->valid_id) || !empty($resident->valid_id_back))
+                                                    <div class="d-flex flex-column flex-md-row gap-2 mt-3">
+                                                        <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}" class="flex-fill" onsubmit="return confirm('Approve and verify the valid ID for {{ addslashes($resident->full_name) }}?')">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Approve and verify the Valid ID for {{ addslashes($resident->full_name) }}?')">
+                                                            <button type="submit" class="btn btn-success w-100">
                                                                 <i class="fas fa-check me-1"></i>Approve ID
                                                             </button>
                                                         </form>
-                                                    @endif
+                                                    </div>
+
+                                                    <form method="POST" action="{{ route('admin.residents.rejectId', $resident->id) }}" class="mt-3" onsubmit="return confirm('Reject the valid ID for {{ addslashes($resident->full_name) }}?')">
+                                                        @csrf
+                                                        <label class="form-label">Reject Remarks <span class="text-danger">*</span></label>
+                                                        <textarea name="valid_id_rejection_reason" class="form-control @error('valid_id_rejection_reason') is-invalid @enderror" rows="3" maxlength="500" required placeholder="Example: Back ID is blurry, photo does not match, expired ID, or details are unreadable.">{{ old('valid_id_rejection_reason') }}</textarea>
+                                                        @error('valid_id_rejection_reason') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                        <button type="submit" class="btn btn-outline-danger w-100 mt-2">
+                                                            <i class="fas fa-xmark me-1"></i>Reject ID
+                                                        </button>
+                                                    </form>
                                                 @else
-                                                    <div class="document-empty"><span><i class="fas fa-id-card me-1"></i>No valid ID uploaded</span></div>
+                                                    <div class="alert alert-danger mb-0 mt-3">
+                                                        <i class="fas fa-triangle-exclamation me-1"></i>No valid ID image is uploaded yet, so this resident cannot be approved.
+                                                    </div>
                                                 @endif
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -2784,6 +2934,22 @@
                     if (sel < minDate)  return sf(this, 'Please enter a valid birthdate.');
                     sf(this, '');
                 });
+
+                const idStatus = document.getElementById('edit_valid_id_status_' + id);
+                const idRemarks = document.getElementById('edit_valid_id_remarks_' + id);
+                function syncValidIdRemarks() {
+                    if (!idStatus || !idRemarks) return;
+                    const isRejected = idStatus.value === 'rejected';
+                    idRemarks.required = isRejected;
+                    idRemarks.placeholder = isRejected
+                        ? 'Required: explain why the valid ID is rejected.'
+                        : 'Optional remarks for this valid ID review.';
+                    if (!isRejected) sf(idRemarks, '');
+                }
+                if (idStatus) {
+                    idStatus.addEventListener('change', syncValidIdRemarks);
+                    syncValidIdRemarks();
+                }
 
             })('{{ $resident->id }}');
             @endforeach
