@@ -1634,7 +1634,211 @@
                 transform-origin: left top;
             }
         }
-    </style>
+    
+
+        /* Mobile-first scanner and registration fixes */
+        @media (max-width: 768px) {
+            html,
+            body {
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            body {
+                padding: 10px 8px 24px;
+            }
+
+            .back-button-container,
+            .form-page-header,
+            .main-container {
+                width: 100%;
+            }
+
+            .form-page-header h1 {
+                font-size: 1.55rem;
+                letter-spacing: -0.035em;
+            }
+
+            .form-page-header p,
+            .register-panel-header p {
+                font-size: 0.88rem;
+            }
+
+            .form-container {
+                border-radius: 18px;
+            }
+
+            .form-progress,
+            .form-step,
+            .alert {
+                margin-inline: 0.55rem;
+            }
+
+            .form-section-card,
+            .benefits-section,
+            .terms-section,
+            .captcha-section {
+                padding: 0.82rem;
+                border-radius: 17px;
+            }
+
+            .section-header h4 {
+                font-size: 0.95rem;
+            }
+
+            .section-header p {
+                font-size: 0.78rem;
+            }
+
+            .scan-both-panel,
+            .scan-both-panel-single {
+                grid-template-columns: 1fr !important;
+                padding: 0.82rem;
+            }
+
+            .btn-scan-both {
+                width: 100%;
+                min-height: 48px;
+                white-space: normal;
+            }
+
+            .id-auto-scan-status {
+                align-items: flex-start;
+                font-size: 0.78rem;
+            }
+
+            .id-scanner-modal .modal-dialog {
+                width: 100%;
+                max-width: none;
+                height: 100%;
+                margin: 0;
+            }
+
+            .id-scanner-modal .modal-content {
+                min-height: 100vh;
+                border: 0;
+                border-radius: 0;
+            }
+
+            .id-scanner-modal .modal-header,
+            .id-scanner-modal .modal-body {
+                padding: 0.75rem;
+            }
+
+            .scanner-help {
+                margin-bottom: 0.65rem;
+                padding: 0.65rem;
+                font-size: 0.76rem;
+                border-radius: 14px;
+            }
+
+            .scanner-stage {
+                height: min(64vh, 560px);
+                min-height: 360px;
+                aspect-ratio: auto;
+                border-radius: 16px;
+            }
+
+            .scanner-guide {
+                left: 7%;
+                right: 7%;
+                top: 34%;
+                bottom: 34%;
+                border-radius: 13px;
+            }
+
+            .scanner-status {
+                left: 0.55rem;
+                right: 0.55rem;
+                bottom: 0.55rem;
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 0.62rem 0.7rem;
+                font-size: 0.74rem;
+            }
+
+            .scanner-controls {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                margin-top: 0.65rem;
+            }
+
+            .btn-scanner-primary,
+            .btn-scanner-secondary,
+            .btn-scanner-danger {
+                width: 100%;
+                min-height: 46px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .scanner-guide {
+                left: 5%;
+                right: 5%;
+                top: 18%;
+                bottom: 18%;
+                border-radius: 14px;
+            }
+
+            .scanner-stage {
+                min-height: 430px;
+                aspect-ratio: auto;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .progress-steps {
+                gap: 0.45rem;
+            }
+
+            .step {
+                gap: 0.5rem;
+                padding: 0.55rem;
+            }
+
+            .step-circle {
+                width: 31px;
+                height: 31px;
+                flex-basis: 31px;
+            }
+
+            .step span {
+                font-size: 0.75rem;
+            }
+
+            .scanner-stage {
+                min-height: 430px;
+                aspect-ratio: auto;
+            }
+
+            .scanner-guide {
+                left: 5%;
+                right: 5%;
+                top: 18%;
+                bottom: 18%;
+                border-radius: 14px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 520px) {
+            .id-scanner-modal .modal-body {
+                padding: 0.55rem;
+            }
+
+            .scanner-help {
+                display: none;
+            }
+
+            .scanner-stage {
+                height: 62vh;
+                min-height: 240px;
+            }
+
+            .scanner-controls {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+</style>
 </head>
 @include('chatbot.embed')
 
@@ -1965,7 +2169,7 @@
                                 <i class="fas fa-id-card-clip"></i>
                                 <div>
                                     <strong id="idAutoScanStatusTitle">No ID scan yet</strong>
-                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides automatically after the guided capture.</span>
+                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides only after both images pass the quality check.</span>
                                     <span class="d-none" id="validIdFrontText">No front file selected</span>
                                     <span class="d-none" id="validIdBackText">No back file selected</span>
                                 </div>
@@ -2266,7 +2470,7 @@
                 <div class="modal-body">
                     <div class="scanner-help">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Place the ID inside the guide. The scanner will automatically capture both sides. After the first capture, flip the ID when prompted and hold it steady again.</span>
+                        <span>Place the ID inside the guide. The scanner will automatically capture both sides only when the ID is clear, bright, steady, and fully detected. If the quality fails, it will ask you to scan again.</span>
                     </div>
 
                     <div class="scanner-stage">
@@ -2784,6 +2988,14 @@
                                 isValid = false;
                                 showFieldError(field, 'File must be JPG, PNG, or PDF');
                             }
+
+                            if ((field.id === 'valid_id' || field.id === 'valid_id_back')
+                                && !scannerState.qualityResults[field.id]?.passed) {
+                                isValid = false;
+                                showFieldError(field, field.id === 'valid_id_back'
+                                    ? 'Please scan a clear back side of your valid ID before continuing.'
+                                    : 'Please scan a clear front side of your valid ID before continuing.');
+                            }
                         }
                         return;
                     }
@@ -3012,6 +3224,8 @@
                 detectedPoints: null,
                 isCapturing: false,
                 isProcessing: false,
+                qualityResults: {},
+                captureSignatures: {},
             };
 
             function setScannerStatus(message, state = 'waiting') {
@@ -3061,6 +3275,8 @@
 
             function openScannerForBothSides() {
                 if (!scannerModal) return;
+
+                resetBothIdScannerFiles();
 
                 scannerState.scanMode = 'both';
                 scannerState.flowIndex = 0;
@@ -3124,7 +3340,7 @@
                     text.textContent = 'Flip the ID. The scanner will capture the other side next.';
                 } else {
                     title.textContent = 'No ID scan yet';
-                    text.textContent = 'Press Start ID scan. The system will save both sides automatically after the guided capture.';
+                    text.textContent = 'Press Start ID scan. The system will save both sides only after both images pass the quality check.';
                 }
             }
 
@@ -3370,8 +3586,288 @@
                 }
             }
 
-            function attachScannerImageToInput(canvas) {
+            
+            function clearScannerInput(inputId) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+
+                try {
+                    input.value = '';
+                } catch (error) {
+                    const transfer = new DataTransfer();
+                    input.files = transfer.files;
+                }
+
+                const textId = input.getAttribute('data-file-text');
+                const textEl = textId ? document.getElementById(textId) : null;
+                if (textEl) {
+                    textEl.textContent = inputId === 'valid_id_back'
+                        ? 'No back file selected'
+                        : 'No front file selected';
+                }
+            }
+
+            function resetBothIdScannerFiles() {
+                ['valid_id', 'valid_id_back'].forEach((inputId) => clearScannerInput(inputId));
+                scannerState.qualityResults = {};
+                scannerState.captureSignatures = {};
+
+                const wrapper = document.getElementById('idAutoScanWrapper');
+                if (wrapper) {
+                    wrapper.classList.remove('is-invalid');
+                    wrapper.querySelectorAll('.error-message').forEach(error => error.remove());
+                }
+
+                updateAutoScanStatus();
+            }
+
+            function hasValidScannerCaptures() {
+                const frontInput = document.getElementById('valid_id');
+                const backInput = document.getElementById('valid_id_back');
+
+                return !!frontInput?.files?.length
+                    && !!backInput?.files?.length
+                    && scannerState.qualityResults.valid_id?.passed === true
+                    && scannerState.qualityResults.valid_id_back?.passed === true;
+            }
+
+            function polygonArea(points) {
+                if (!points || points.length < 4) return 0;
+
+                let area = 0;
+                for (let i = 0; i < points.length; i++) {
+                    const current = points[i];
+                    const next = points[(i + 1) % points.length];
+                    area += (current.x * next.y) - (next.x * current.y);
+                }
+
+                return Math.abs(area / 2);
+            }
+
+            function getCanvasAnalysis(canvas) {
+                const maxWidth = 420;
+                const ratio = canvas.width > 0 ? canvas.height / canvas.width : 1;
+                const width = Math.min(maxWidth, Math.max(1, canvas.width));
+                const height = Math.max(1, Math.round(width * ratio));
+
+                const sampleCanvas = document.createElement('canvas');
+                sampleCanvas.width = width;
+                sampleCanvas.height = height;
+
+                const sampleContext = sampleCanvas.getContext('2d', { willReadFrequently: true });
+                sampleContext.drawImage(canvas, 0, 0, width, height);
+
+                const imageData = sampleContext.getImageData(0, 0, width, height).data;
+                const grays = [];
+                let total = 0;
+
+                for (let i = 0; i < imageData.length; i += 4) {
+                    const gray = (imageData[i] * 0.299) + (imageData[i + 1] * 0.587) + (imageData[i + 2] * 0.114);
+                    grays.push(gray);
+                    total += gray;
+                }
+
+                const brightness = grays.length ? total / grays.length : 0;
+                let varianceTotal = 0;
+                for (const gray of grays) {
+                    varianceTotal += Math.pow(gray - brightness, 2);
+                }
+                const contrast = grays.length ? Math.sqrt(varianceTotal / grays.length) : 0;
+
+                let sharpnessTotal = 0;
+                let sharpnessCount = 0;
+                const step = 3;
+
+                for (let y = 0; y < height - step; y += step) {
+                    for (let x = 0; x < width - step; x += step) {
+                        const index = y * width + x;
+                        const right = y * width + (x + step);
+                        const bottom = (y + step) * width + x;
+                        sharpnessTotal += Math.abs(grays[index] - grays[right]) + Math.abs(grays[index] - grays[bottom]);
+                        sharpnessCount += 2;
+                    }
+                }
+
+                const sharpness = sharpnessCount ? sharpnessTotal / sharpnessCount : 0;
+
+                return { brightness, contrast, sharpness };
+            }
+
+            function getCanvasSignature(canvas) {
+                const size = 16;
+                const signatureCanvas = document.createElement('canvas');
+                signatureCanvas.width = size;
+                signatureCanvas.height = size;
+
+                const signatureContext = signatureCanvas.getContext('2d', { willReadFrequently: true });
+                signatureContext.drawImage(canvas, 0, 0, size, size);
+
+                const imageData = signatureContext.getImageData(0, 0, size, size).data;
+                const signature = [];
+
+                for (let i = 0; i < imageData.length; i += 4) {
+                    const gray = ((imageData[i] * 0.299) + (imageData[i + 1] * 0.587) + (imageData[i + 2] * 0.114)) / 255;
+                    signature.push(gray);
+                }
+
+                return signature;
+            }
+
+            function averageSignatureDifference(firstSignature, secondSignature) {
+                if (!firstSignature || !secondSignature || firstSignature.length !== secondSignature.length) {
+                    return 1;
+                }
+
+                let diff = 0;
+                for (let i = 0; i < firstSignature.length; i++) {
+                    diff += Math.abs(firstSignature[i] - secondSignature[i]);
+                }
+
+                return diff / firstSignature.length;
+            }
+
+            function validateIdCaptureQuality(canvas, points, inputId) {
+                if (!canvas || !points || points.length !== 4) {
+                    return {
+                        passed: false,
+                        message: 'No complete ID card was detected. Put the whole ID inside the guide and scan again.',
+                    };
+                }
+
+                const ordered = orderQuadPoints(points);
+                const detectedWidth = Math.max(
+                    distanceBetweenPoints(ordered[0], ordered[1]),
+                    distanceBetweenPoints(ordered[3], ordered[2])
+                );
+                const detectedHeight = Math.max(
+                    distanceBetweenPoints(ordered[0], ordered[3]),
+                    distanceBetweenPoints(ordered[1], ordered[2])
+                );
+                const detectedRatio = Math.max(detectedWidth, detectedHeight) / Math.max(1, Math.min(detectedWidth, detectedHeight));
+                const detectedArea = polygonArea(ordered);
+                const frameArea = Math.max(1, scannerWorkCanvas.width * scannerWorkCanvas.height);
+                const areaRatio = detectedArea / frameArea;
+
+                if (areaRatio < 0.10) {
+                    return {
+                        passed: false,
+                        message: 'The ID is too far or too small. Move it closer and keep all corners visible.',
+                    };
+                }
+
+                if (areaRatio > 0.88) {
+                    return {
+                        passed: false,
+                        message: 'The ID is too close to the camera. Move it back so all edges are visible.',
+                    };
+                }
+
+                if (detectedRatio < 1.25 || detectedRatio > 2.35) {
+                    return {
+                        passed: false,
+                        message: 'The detected shape does not look like a valid ID card. Hold the ID flat and horizontal.',
+                    };
+                }
+
+                const cropShortSide = Math.min(canvas.width, canvas.height);
+                const cropLongSide = Math.max(canvas.width, canvas.height);
+                const cropRatio = cropLongSide / Math.max(1, cropShortSide);
+
+                if (cropShortSide < 220 || cropLongSide < 360) {
+                    return {
+                        passed: false,
+                        message: 'The cropped ID is too small. Move closer and scan again.',
+                    };
+                }
+
+                if (cropRatio < 1.25 || cropRatio > 2.35) {
+                    return {
+                        passed: false,
+                        message: 'The crop does not match an ID card shape. Align the ID with the guide and rescan.',
+                    };
+                }
+
+                const analysis = getCanvasAnalysis(canvas);
+
+                if (analysis.brightness < 45) {
+                    return {
+                        passed: false,
+                        message: 'The ID photo is too dark. Move to a brighter area and scan again.',
+                    };
+                }
+
+                if (analysis.brightness > 235) {
+                    return {
+                        passed: false,
+                        message: 'The ID photo is too bright or has glare. Reduce glare and scan again.',
+                    };
+                }
+
+                if (analysis.contrast < 14) {
+                    return {
+                        passed: false,
+                        message: 'The ID details are not clear enough. Improve lighting and scan again.',
+                    };
+                }
+
+                if (analysis.sharpness < 4.5) {
+                    return {
+                        passed: false,
+                        message: 'The ID looks blurry. Hold the camera steady and scan again.',
+                    };
+                }
+
+                const signature = getCanvasSignature(canvas);
+
+                if (inputId === 'valid_id_back') {
+                    const frontSignature = scannerState.captureSignatures.valid_id;
+                    const difference = averageSignatureDifference(frontSignature, signature);
+
+                    if (frontSignature && difference < 0.018) {
+                        return {
+                            passed: false,
+                            message: 'This looks like the same side as the first capture. Flip the ID and scan the back side.',
+                        };
+                    }
+                }
+
+                return {
+                    passed: true,
+                    message: 'ID quality passed.',
+                    analysis,
+                    signature,
+                };
+            }
+
+            function rejectCurrentScannerCapture(inputId, message) {
+                scannerState.qualityResults[inputId] = {
+                    passed: false,
+                    message,
+                };
+                clearScannerInput(inputId);
+                updateAutoScanStatus();
+                resetScannerDetection();
+                setScannerStatus(`${message} Please scan this side again.`, 'error');
+
+                window.setTimeout(() => {
+                    scannerState.isCapturing = false;
+                    if (scannerState.stream) {
+                        setScannerStatus('Scan again. Keep the whole ID inside the guide and hold it steady.', 'waiting');
+                        scannerFrameLoop();
+                    }
+                }, 1000);
+            }
+
+function attachScannerImageToInput(canvas) {
                 if (!canvas || !scannerState.targetInput) return;
+
+                const currentInputId = scannerState.targetInput.id;
+                const qualityResult = validateIdCaptureQuality(canvas, scannerState.detectedPoints, currentInputId);
+
+                if (!qualityResult.passed) {
+                    rejectCurrentScannerCapture(currentInputId, qualityResult.message);
+                    return;
+                }
 
                 canvas.toBlob((blob) => {
                     if (!blob) {
@@ -3381,17 +3877,20 @@
                     }
 
                     try {
-                        const currentInputId = scannerState.targetInput.id;
                         const side = currentInputId === 'valid_id_back' ? 'back' : 'front';
                         const file = new File([blob], `valid_id_${side}_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
                         const transfer = new DataTransfer();
                         transfer.items.add(file);
                         scannerState.targetInput.files = transfer.files;
                         scannerState.targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                        scannerState.qualityResults[currentInputId] = qualityResult;
+                        scannerState.captureSignatures[currentInputId] = qualityResult.signature;
+
                         updateAutoScanStatus();
 
                         if (scannerState.scanMode === 'both' && currentInputId === 'valid_id') {
-                            setScannerStatus('First side captured. Flip the ID. Second scan starts in 3 seconds.', 'ready');
+                            setScannerStatus('Front side passed quality check. Flip the ID. Back scan starts in 3 seconds.', 'ready');
                             resetScannerDetection();
 
                             window.setTimeout(() => {
@@ -3399,7 +3898,7 @@
                                 scannerState.flowIndex = 1;
                                 setScannerTarget(nextSide.inputId, nextSide.label);
                                 scannerState.isCapturing = false;
-                                setScannerStatus('Now scan the other side. Hold the ID steady inside the guide.', 'waiting');
+                                setScannerStatus('Now scan the back side. Hold the ID steady inside the guide.', 'waiting');
 
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
@@ -3410,14 +3909,23 @@
                         }
 
                         updateAutoScanStatus();
-                        setScannerStatus(scannerState.scanMode === 'both'
-                            ? 'Both sides captured. The ID scan is attached and ready to send with registration.'
-                            : 'Captured successfully.', 'ready');
+
+                        if (scannerState.scanMode === 'both') {
+                            if (!hasValidScannerCaptures()) {
+                                setScannerStatus('Both sides are not valid yet. Please scan the missing or failed side again.', 'error');
+                                scannerState.isCapturing = false;
+                                return;
+                            }
+
+                            setScannerStatus('Both sides passed quality check. The ID scan is ready to send with registration.', 'ready');
+                        } else {
+                            setScannerStatus('Captured successfully.', 'ready');
+                        }
 
                         window.setTimeout(() => {
                             if (scannerModal) scannerModal.hide();
 
-                            if (scannerState.scanMode === 'both' && currentStep === 1 && validateStep(1)) {
+                            if (scannerState.scanMode === 'both' && currentStep === 1 && hasValidScannerCaptures() && validateStep(1)) {
                                 goToStep('step2');
                             }
                         }, 650);
@@ -3425,23 +3933,23 @@
                         console.warn('Could not attach scanner file:', error);
                         setScannerStatus('Your browser blocked attaching the scan. Please upload the image manually.', 'error');
                     } finally {
-                        if (!(scannerState.scanMode === 'both' && scannerState.targetInput?.id === 'valid_id')) {
+                        if (!(scannerState.scanMode === 'both' && currentInputId === 'valid_id')) {
                             scannerState.isCapturing = false;
                         }
                     }
-                }, 'image/jpeg', 0.92);
+                }, 'image/jpeg', 0.94);
             }
 
             function captureScannerFrame(force = false) {
                 if (scannerState.isCapturing) return;
 
-                if (!force && !scannerState.detectedPoints) {
-                    setScannerStatus('No ID card detected yet. Place the ID inside the guide.', 'error');
+                if (!scannerState.detectedPoints) {
+                    setScannerStatus('No ID card detected yet. Place the whole ID inside the guide before capturing.', 'error');
                     return;
                 }
 
                 scannerState.isCapturing = true;
-                setScannerStatus('Cropping ID...', 'ready');
+                setScannerStatus('Checking ID quality...', 'ready');
                 const canvas = cropDetectedCard(scannerState.detectedPoints);
                 attachScannerImageToInput(canvas);
             }
@@ -3466,10 +3974,10 @@
                         scannerState.lastPoints = points;
                         scannerState.detectedPoints = points;
 
-                        const progress = Math.min(scannerState.stableFrames, 14);
-                        setScannerStatus(`ID detected. Hold steady... ${progress}/14`, 'ready');
+                        const progress = Math.min(scannerState.stableFrames, 18);
+                        setScannerStatus(`ID detected. Hold steady for quality check... ${progress}/18`, 'ready');
 
-                        if (scannerAutoCapture?.checked && scannerState.stableFrames >= 14) {
+                        if (scannerAutoCapture?.checked && scannerState.stableFrames >= 18) {
                             captureScannerFrame(true);
                         }
                     } else {
