@@ -1,43 +1,55 @@
 {{--
-╔══════════════════════════════════════════════════════════════╗
-║  InfoHulo Assistant — Modal Embed for BISIG                ║
-║                                                              ║
-║  USAGE — paste ONE line before </body> in your page:        ║
-║                                                              ║
-║      @include('chatbot.embed')                              ║
-║                                                              ║
-║  The existing #chatBtn in your FAB will open the assistant. ║
-║  Or call:  window.InfoHuloAssistant.open() / toggle()        ║
-╚══════════════════════════════════════════════════════════════╝
+  InfoHulo Assistant — Modern Minimal Modal Embed            
+                                                              
+  Usage: paste before </body>                                
+      @include('chatbot.embed')                              
+                                                              
+  Existing #chatBtn will open this assistant.                 
+  Public API: window.InfoHuloAssistant.open()/toggle()/ask()  
+
 --}}
 
 @once
-{{-- CSRF token — required for all POST requests. Safe to include even if already in <head>. --}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* ══════════════════════════════════════════════════════
-    INFOHULO ASSISTANT MODAL — matches your existing style
-══════════════════════════════════════════════════════ */
+:root {
+    --hulo-primary: #c62828;
+    --hulo-primary-dark: #991b1b;
+    --hulo-primary-soft: #fff1f2;
+    --hulo-bg: #f8fafc;
+    --hulo-card: #ffffff;
+    --hulo-text: #0f172a;
+    --hulo-muted: #64748b;
+    --hulo-line: #e2e8f0;
+    --hulo-success: #16a34a;
+    --hulo-warning: #d97706;
+    --hulo-shadow: 0 24px 80px rgba(15, 23, 42, .24);
+}
 
 /* Backdrop */
 #hulobot-backdrop {
-    display: none;
     position: fixed;
     inset: 0;
+    display: none;
     z-index: 2147483000;
-    background: rgba(15,23,42,.55);
-    animation: hbFadeIn .2s ease;
+    background:
+        radial-gradient(circle at 82% 18%, rgba(198, 40, 40, .20), transparent 32%),
+        rgba(15, 23, 42, .54);
+    backdrop-filter: blur(4px);
+    animation: hbmBackdropIn .18s ease;
 }
 #hulobot-backdrop.open { display: block; }
-@keyframes hbFadeIn { from{opacity:0} to{opacity:1} }
 
-/* While chat is open, block page interactions including FAB actions. */
-body.hulobot-open {
-    overflow: hidden;
+@keyframes hbmBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
+
+/* Prevent background scrolling/actions while open */
+body.hulobot-open { overflow: hidden; }
 body.hulobot-open #fabMain,
 body.hulobot-open #speedDial,
 body.hulobot-open #translateBtn,
@@ -46,252 +58,512 @@ body.hulobot-open #backToTop {
     pointer-events: none !important;
 }
 
-/* Modal box — centered, same proportions as your screenshot */
+/* Main modal */
 #hulobot-modal {
-    display: none;
     position: fixed;
-    right: 86px;
-    top: 76px;
-    bottom: 24px;
-    transform: translateY(16px) scale(.98);
+    right: 66px;
+    bottom: 10px;
     z-index: 2147483001;
-    width: 360px;
-    max-width: calc(100vw - 24px);
-    height: auto;
-    max-height: none;
-    border-radius: 12px;
-    overflow: hidden;
     display: none;
-    flex-direction: column;
-    background: #fff;
-    box-shadow: 0 24px 64px rgba(0,0,0,.22);
-    font-family: 'Inter', sans-serif;
+    width: 420px;
+    max-width: calc(100vw - 28px);
+    height: 680px;
+    max-height: calc(100vh - 48px);
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, .9);
+    border-radius: 28px;
+    background: var(--hulo-card);
+    box-shadow: var(--hulo-shadow);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transform: translateY(18px) scale(.98);
+    opacity: 0;
 }
 #hulobot-modal.open {
     display: flex;
-    animation: hbSlideIn .25s ease forwards;
+    flex-direction: column;
+    animation: hbmPanelIn .24s cubic-bezier(.2,.8,.2,1) forwards;
 }
-@keyframes hbSlideIn {
-    from { opacity:0; transform: translateY(16px) scale(.98); }
-    to   { opacity:1; transform: translateY(0) scale(1); }
+@keyframes hbmPanelIn {
+    to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* ── Modal header — red bar like your screenshot ── */
+/* Header */
 .hbm-header {
-    background: linear-gradient(135deg, #C62828, #d32f2f);
+    position: relative;
+    flex-shrink: 0;
+    padding: 18px 18px 16px;
     color: #fff;
-    padding: 14px 18px;
+    background:
+        radial-gradient(circle at 18% 16%, rgba(255,255,255,.24), transparent 28%),
+        linear-gradient(135deg, #dc2626 0%, #b91c1c 48%, #7f1d1d 100%);
+}
+.hbm-header-top {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    gap: 12px;
+}
+.hbm-logo-ring {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .28);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
 }
 .hbm-logo-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
     object-fit: cover;
-    border: 1px solid rgba(255,255,255,.55);
+    background: #fff;
 }
+.hbm-title-wrap { min-width: 0; }
 .hbm-header-title {
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: 'Poppins', 'Inter', sans-serif;
+    margin: 0;
+    font-size: 1.03rem;
+    font-weight: 800;
+    letter-spacing: -.015em;
+    line-height: 1.15;
+}
+.hbm-header-subtitle {
+    margin-top: 3px;
+    font-size: .75rem;
+    color: rgba(255,255,255,.82);
+    line-height: 1.35;
 }
 .hbm-close {
     margin-left: auto;
-    background: none;
-    border: none;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 14px;
     color: #fff;
-    font-size: 1.2rem;
+    background: rgba(255,255,255,.13);
     cursor: pointer;
-    width: 30px; height: 30px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .2s;
-    opacity: .85;
+    transition: transform .16s ease, background .16s ease;
 }
-.hbm-close:hover { background: rgba(255,255,255,.2); opacity: 1; }
-
-/* ── Chat body — two-column layout like screenshot ── */
-.hbm-body {
-    display: block;
-    flex: 1;
-    overflow: hidden;
+.hbm-close:hover {
+    background: rgba(255,255,255,.22);
+    transform: translateY(-1px);
 }
+.hbm-status-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+.hbm-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.94);
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.18);
+}
+.hbm-pill i { font-size: .72rem; }
 
-/* ── Right: chat panel ── */
+/* Body */
 .hbm-chat {
-    height: 100%;
+    min-height: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    background: var(--hulo-bg);
 }
-
-/* Messages */
 .hbm-msgs {
-    flex: 1; overflow-y: auto;
-    padding: 14px 14px 8px;
-    background: #f8f9fa;
-    display: flex; flex-direction: column; gap: 10px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
 }
-.hbm-msgs::-webkit-scrollbar { width: 3px; }
-.hbm-msgs::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 3px; }
-
-.hbm-div {
-    text-align: center; font-size: .62rem; color: #9ca3af;
-    position: relative; flex-shrink: 0;
+.hbm-msgs::-webkit-scrollbar { width: 5px; }
+.hbm-msgs::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
 }
-.hbm-div::before,.hbm-div::after {
-    content:''; position:absolute; top:50%; width:38%; height:1px; background:#e5e7eb;
-}
-.hbm-div::before{left:0} .hbm-div::after{right:0}
-
-.hbm-loading {
-    font-size: .78rem;
-    color: #6b7280;
-    background: #ffffff;
-    border: 1px dashed #e5e7eb;
-    border-radius: 10px;
-    padding: 8px 10px;
+.hbm-date {
+    align-self: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: #94a3b8;
+    background: rgba(255,255,255,.7);
+    border: 1px solid #e2e8f0;
+    font-size: .66rem;
+    font-weight: 700;
 }
 
-.hbm-row { display:flex; align-items:flex-end; gap:7px; }
-.hbm-row.bot  { justify-content:flex-start; }
-.hbm-row.user { justify-content:flex-end; }
-
-.hbm-avt {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-    overflow: hidden;
-    border: 1px solid #ffd6d6;
+/* Welcome card */
+.hbm-welcome {
     background: #fff;
+    border: 1px solid var(--hulo-line);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+}
+.hbm-welcome-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    color: var(--hulo-text);
+    font-size: .93rem;
+    font-weight: 800;
+}
+.hbm-welcome-title i { color: var(--hulo-primary); }
+.hbm-welcome-text {
+    margin: 0;
+    color: var(--hulo-muted);
+    font-size: .78rem;
+    line-height: 1.55;
+}
+.hbm-quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+.hbm-quick {
+    min-height: 58px;
+    text-align: left;
+    border: 1px solid #fee2e2;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff, #fff7f7);
+    color: #7f1d1d;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.hbm-quick:hover {
+    transform: translateY(-1px);
+    border-color: #fecaca;
+    box-shadow: 0 10px 22px rgba(198,40,40,.10);
+}
+.hbm-quick i {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--hulo-primary);
+}
+.hbm-quick span {
+    display: block;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+/* Message rows */
+.hbm-row {
+    display: flex;
+    gap: 9px;
+    align-items: flex-end;
+}
+.hbm-row.bot { justify-content: flex-start; }
+.hbm-row.user { justify-content: flex-end; }
+.hbm-avt {
+    width: 31px;
+    height: 31px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #fecaca;
+    box-shadow: 0 4px 14px rgba(198,40,40,.12);
 }
 .hbm-avt img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+.hbm-message-wrap { max-width: min(82%, 310px); }
 .hbm-bbl {
-    max-width: 80%; padding: 8px 12px; border-radius: 13px;
-    font-size: .835rem; line-height: 1.55; word-break: break-word;
+    padding: 10px 13px;
+    border-radius: 18px;
+    font-size: .84rem;
+    line-height: 1.55;
+    word-break: break-word;
 }
-.hbm-row.bot  .hbm-bbl { background:#fff; color:#1e293b; border:1px solid #e9ecef; border-bottom-left-radius:3px; }
-.hbm-row.user .hbm-bbl { background:#C62828; color:#fff; border-bottom-right-radius:3px; }
+.hbm-row.bot .hbm-bbl {
+    color: #172033;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 8px 22px rgba(15,23,42,.06);
+}
+.hbm-row.user .hbm-bbl {
+    color: #fff;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 10px 24px rgba(198,40,40,.22);
+}
+.hbm-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: .61rem;
+    font-weight: 600;
+}
+.hbm-row.user .hbm-meta { justify-content: flex-end; }
 
-.hbm-meta { font-size:.60rem; color:#9ca3af; margin-top:2px; }
-.hbm-row.bot  .hbm-meta { padding-left:35px; }
-.hbm-row.user .hbm-meta { text-align:right; }
-.hbm-src { display:inline-block; font-size:.56rem; padding:1px 6px; border-radius:20px; margin-left:3px; font-weight:600; }
-.hbm-kb  { background:#e8f5e9; color:#2e7d32; }
-.hbm-ai  { background:#ffebee; color:#b71c1c; }
-.hbm-cf  { display:inline-block; font-size:.56rem; padding:1px 5px; border-radius:20px; background:#f3f4f6; color:#6b7280; margin-left:2px; }
-.hbm-note { margin-top:6px; font-size:.66rem; color:#7f1d1d; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:5px 7px; }
+.hbm-src,
+.hbm-cf {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: .57rem;
+    font-weight: 800;
+}
+.hbm-src.database { color: #166534; background: #dcfce7; }
+.hbm-src.rule_based { color: #1d4ed8; background: #dbeafe; }
+.hbm-src.ai { color: #9f1239; background: #ffe4e6; }
+.hbm-src.guard { color: #92400e; background: #fef3c7; }
+.hbm-src.fallback { color: #475569; background: #e2e8f0; }
+.hbm-cf { color: #64748b; background: #f1f5f9; }
+
+.hbm-note {
+    margin-top: 7px;
+    padding: 7px 9px;
+    border-radius: 12px;
+    color: #7f1d1d;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    font-size: .68rem;
+    line-height: 1.45;
+}
 
 /* Typing */
-.hbm-typing { display:flex; gap:3px; padding:6px 10px; }
-.hbm-td { width:5px; height:5px; border-radius:50%; background:#cbd5e1; animation:hbcBounce .9s infinite ease-in-out; }
-.hbm-td:nth-child(2){animation-delay:.15s} .hbm-td:nth-child(3){animation-delay:.30s}
-@keyframes hbcBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.hbm-typing-bbl {
+    padding: 10px 12px !important;
+}
+.hbm-typing {
+    display: flex;
+    gap: 4px;
+}
+.hbm-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    animation: hbmBounce .9s infinite ease-in-out;
+}
+.hbm-dot:nth-child(2) { animation-delay: .14s; }
+.hbm-dot:nth-child(3) { animation-delay: .28s; }
+@keyframes hbmBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: .65; }
+    40% { transform: translateY(-5px); opacity: 1; }
+}
 
-/* Chips — small */
+/* Suggestions */
 .hbm-chips {
-    padding: 4px 12px 5px;
-    display: flex; gap: 4px; flex-wrap: wrap;
-    background: #fff; border-top: 1px solid #e9ecef; flex-shrink: 0;
+    padding: 8px 12px 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #fff;
+    border-top: 1px solid #e9ecef;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
 }
-.hbm-chip {
-    font-size: .65rem; padding: 3px 9px; border-radius: 20px;
-    border: 1px solid #C62828; color: #C62828; background: #fff;
-    cursor: pointer; transition: background .15s, color .15s;
-    white-space: nowrap; font-family: 'Inter', sans-serif; line-height: 1.45;
-}
-.hbm-chip:hover { background: #C62828; color: #fff; }
 
-/* Input */
-.hbm-bar {
-    padding: 10px 12px; border-top: 1px solid #e9ecef;
-    background: #fff; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+.hbm-chips::-webkit-scrollbar {
+    height: 5px;
+}
+
+.hbm-chips::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+}
+
+.hbm-chip {
+    flex: 0 0 auto;
+    font-size: .72rem;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(198, 40, 40, .22);
+    color: #991b1b;
+    background: #fff;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s, transform .15s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.3;
+    scroll-snap-align: start;
+}
+
+.hbm-chip:hover {
+    background: #C62828;
+    color: #fff;
+    border-color: #C62828;
+    transform: translateY(-1px);
+}
+
+/* Composer */
+.hbm-composer {
+    flex-shrink: 0;
+    padding: 12px;
+    background: #fff;
+    border-top: 1px solid var(--hulo-line);
+}
+.hbm-input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 9px;
+    padding: 8px 8px 8px 13px;
+    border-radius: 22px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.hbm-input-wrap:focus-within {
+    border-color: #fca5a5;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, .12);
 }
 .hbm-txt {
-    flex: 1; border: 1px solid #e9ecef; border-radius: 20px;
-    padding: 7px 13px; font-size: .835rem; resize: none; outline: none;
-    max-height: 72px; overflow-y: auto; font-family: 'Inter', sans-serif;
-    line-height: 1.4; transition: border-color .2s;
+    flex: 1;
+    min-height: 24px;
+    max-height: 96px;
+    padding: 7px 0;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: transparent;
+    color: var(--hulo-text);
+    font: 500 .85rem/1.45 'Inter', sans-serif;
 }
-.hbm-txt:focus { border-color: #C62828; }
-.hbm-txt::placeholder { color: #adb5bd; }
+.hbm-txt::placeholder { color: #94a3b8; }
 .hbm-send {
-    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg,#C62828,#d32f2f); border: none; color: #fff;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; transition: opacity .2s, transform .15s;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 15px;
+    color: #fff;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    cursor: pointer;
+    transition: transform .16s ease, opacity .16s ease;
 }
-.hbm-send:hover:not(:disabled) { transform: scale(1.08); }
-.hbm-send:disabled { opacity: .4; cursor: not-allowed; }
-
-/* Footer */
+.hbm-send:hover:not(:disabled) { transform: translateY(-1px) scale(1.03); }
+.hbm-send:disabled { opacity: .45; cursor: not-allowed; }
 .hbm-foot {
-    text-align: center; font-size: .58rem; color: #adb5bd;
-    padding: 3px 12px 5px; background: #fff;
-    border-top: 1px solid #e9ecef; flex-shrink: 0;
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    color: #94a3b8;
+    font-size: .65rem;
+    font-weight: 600;
 }
 
-/* Mobile — full screen */
+/* Mobile */
 @media (max-width: 640px) {
     #hulobot-modal {
-        width: 100%; max-width: 100%;
-        height: 100%; max-height: 100%;
-        top: 0; left: 0; right: auto; bottom: auto; transform: none;
+        inset: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
         border-radius: 0;
+        border: 0;
     }
-    #hulobot-modal.open { animation: hbSlideUp .25s ease; }
-    @keyframes hbSlideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+    #hulobot-modal.open { animation: hbmMobileIn .22s ease forwards; }
+    @keyframes hbmMobileIn {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .hbm-header {
+        padding-top: calc(14px + env(safe-area-inset-top));
+        border-radius: 0 0 22px 22px;
+    }
+    .hbm-msgs { padding: 14px 12px; }
+    .hbm-quick-grid { grid-template-columns: 1fr; }
+    .hbm-message-wrap { max-width: 86%; }
+    .hbm-composer { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 </style>
 @endonce
 
-{{-- ════ BACKDROP ════ --}}
 <div id="hulobot-backdrop"></div>
 
-{{-- ════ MODAL ════ --}}
 <div id="hulobot-modal" role="dialog" aria-modal="true" aria-label="InfoHulo Assistant">
-
-    {{-- Header --}}
     <div class="hbm-header">
-        <img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant" class="hbm-logo-icon">
-        <span class="hbm-header-title">InfoHulo Assistant</span>
-        <button class="hbm-close" id="hbm-close" title="Close">&times;</button>
+        <div class="hbm-header-top">
+            <div class="hbm-logo-ring">
+                <img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant" class="hbm-logo-icon">
+            </div>
+
+            <div class="hbm-title-wrap">
+                <h2 class="hbm-header-title">InfoHulo Assistant</h2>
+                <div class="hbm-header-subtitle">Barangay Hulong Duhat e-Governance Helpdesk</div>
+            </div>
+
+            <button class="hbm-close" id="hbm-close" type="button" title="Close" aria-label="Close chatbot">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="hbm-status-row">
+            <span class="hbm-pill"><i class="bi bi-shield-check"></i> Verified KB</span>
+            <span class="hbm-pill"><i class="bi bi-database-check"></i> Live DB</span>
+            <span class="hbm-pill"><i class="bi bi-clock"></i> 24/7 Guide</span>
+        </div>
     </div>
 
-    {{-- Body --}}
-    <div class="hbm-body">
-        {{-- Chat panel --}}
-        <div class="hbm-chat">
-            <div class="hbm-msgs" id="hbm-msgs">
-                <div class="hbm-div">Today</div>
-                <div class="hbm-row bot" id="hbm-loading-row">
-                    <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
-                    <div class="hbm-loading">Loading assistant...</div>
+    <div class="hbm-chat">
+        <div class="hbm-msgs" id="hbm-msgs">
+            <div class="hbm-date">Today</div>
+            <div class="hbm-row bot" id="hbm-loading-row">
+                <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
+                <div class="hbm-message-wrap">
+                    <div class="hbm-bbl">Loading assistant...</div>
                 </div>
-            </div>
-
-            <div class="hbm-chips" id="hbm-chips"></div>
-
-            <div class="hbm-bar">
-                <textarea class="hbm-txt" id="hbm-input"
-                          rows="1"
-                          placeholder="Type your question..."
-                          maxlength="500"></textarea>
-                <button class="hbm-send" id="hbm-send" title="Send">
-                    <i class="bi bi-send-fill"></i>
-                </button>
-            </div>
-
-            <div class="hbm-foot">
-                Powered by BISIG &mdash; Barangay Hulo e-Governance Portal
             </div>
         </div>
 
+        <div class="hbm-chips" id="hbm-chips"></div>
+
+        <div class="hbm-composer">
+            <div class="hbm-input-wrap">
+                <textarea class="hbm-txt" id="hbm-input" rows="1" placeholder="Ask about requests, announcements, events..." maxlength="500"></textarea>
+                <button class="hbm-send" id="hbm-send" type="button" title="Send" aria-label="Send message">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+            <div class="hbm-foot">
+                <i class="bi bi-info-circle"></i>
+                <span>Powered by BISIG — Barangay Hulong Duhat Portal</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -311,211 +583,321 @@ body.hulobot-open #backToTop {
     let isBusy    = false;
     let isOpen    = false;
     let ready     = false;
+    let typEl     = null;
 
-    /* ── Open / Close ──────────────────────────────────── */
+    const quickActions = [
+        { icon: 'bi-file-earmark-check', label: 'Barangay Clearance', text: 'How do I get a Barangay Clearance?' },
+        { icon: 'bi-heart-pulse', label: 'Indigency Certificate', text: 'How do I request an Indigency Certificate?' },
+        { icon: 'bi-house-check', label: 'Residency Certificate', text: 'How do I request a Residency Certificate?' },
+        { icon: 'bi-search', label: 'Track Request', text: 'How can I track the status of my request?' },
+        { icon: 'bi-megaphone', label: 'Announcements', text: 'Latest announcements' },
+        { icon: 'bi-calendar-event', label: 'Events', text: 'Upcoming events' }
+    ];
+
     function open() {
         isOpen = true;
         document.body.classList.add('hulobot-open');
         backdrop.classList.add('open');
         modal.classList.add('open');
-        input.focus();
+
+        setTimeout(() => input.focus(), 80);
+
         if (!ready) {
             showLoading();
             init();
         }
     }
+
     function close() {
         isOpen = false;
         document.body.classList.remove('hulobot-open');
         backdrop.classList.remove('open');
         modal.classList.remove('open');
     }
-    function toggle() { isOpen ? close() : open(); }
+
+    function toggle() {
+        isOpen ? close() : open();
+    }
 
     closeBtn.addEventListener('click', close);
     backdrop.addEventListener('click', close);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && isOpen) close();
+    });
 
-    /* ── Hook into your existing #chatBtn ──────────────── */
     document.addEventListener('DOMContentLoaded', function () {
         const chatBtn = document.getElementById('chatBtn');
+
         if (chatBtn) {
-            // Override whatever floating-actions.js does with chatBtn
-            chatBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+            chatBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const speedDial = document.getElementById('speedDial');
                 const fabMain = document.getElementById('fabMain');
+
                 if (speedDial) speedDial.classList.remove('active');
                 if (fabMain) {
                     fabMain.classList.remove('active');
                     fabMain.innerHTML = '<i class="fas fa-gear"></i>';
                 }
+
                 toggle();
             });
         }
     });
 
-    /* ── Public API — call from anywhere ───────────────── */
-    const apiObject = { open, close, toggle,
-        ask: function(text) {
+    const apiObject = {
+        open,
+        close,
+        toggle,
+        ask: function (text) {
             if (!isOpen) open();
-            setTimeout(() => { input.value = text; send(); }, 100);
+            setTimeout(function () {
+                input.value = text;
+                send();
+            }, 120);
         }
     };
-    // Keep legacy API name while exposing branded API.
+
     window.HuloBot = apiObject;
     window.InfoHuloAssistant = apiObject;
 
-    /* ── Init session ──────────────────────────────────── */
     async function init() {
         ready = true;
         showLoading();
+
         try {
-            const r = await api('/chatbot/start', 'POST', {});
-            sessionId = r.session_id;
-        } catch { sessionId = uuid(); }
+            const response = await api('/chatbot/start', 'POST', {});
+            sessionId = response.session_id;
+        } catch (error) {
+            console.warn('[InfoHuloAssistant] Session fallback used:', error);
+            sessionId = uuid();
+        }
+
         welcome();
     }
 
     function welcome() {
         clearLoading();
-        bot(
-            'Hi there! I\'m <strong>InfoHulo Assistant</strong>, your Barangay Hulo Portal assistant.<br><br>' +
-            'I can help you with:<br>' +
-            '&bull; Requesting Barangay Indigency<br>' +
-            '&bull; Requesting Barangay Clearance<br>' +
-            '&bull; Requesting Barangay Residency Certificate<br>' +
-            '&bull; Submitting an Incident Report<br><br>' +
-            'Type your question and I will guide you step by step.',
-            null, [
-                'I want to request a Barangay Indigency certificate.',
-                'How do I get a Barangay Clearance?',
-                'I want to submit an incident report.',
-                'How can I track the status of my request?',
-            ], 'rule_based', null
-        );
+
+        const card = document.createElement('div');
+        card.className = 'hbm-welcome';
+        card.innerHTML = `
+            <h3 class="hbm-welcome-title"><i class="bi bi-stars"></i> Welcome, Hulowenyo!</h3>
+            <p class="hbm-welcome-text">
+                I can help with barangay services, live announcements, upcoming events,
+                project updates, and request tracking using your Reference Number.
+            </p>
+            <div class="hbm-quick-grid">
+                ${quickActions.map(action => `
+                    <button type="button" class="hbm-quick" data-ask="${escAttr(action.text)}">
+                        <i class="bi ${action.icon}"></i>
+                        <span>${esc(action.label)}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        msgs.appendChild(card);
+
+        card.querySelectorAll('.hbm-quick').forEach(function (button) {
+            button.addEventListener('click', function () {
+                input.value = button.getAttribute('data-ask') || '';
+                send();
+            });
+        });
+
+        renderChips([
+            'Latest announcements',
+            'Upcoming events',
+            'Barangay projects',
+            'Track my request'
+        ]);
+
+        scroll();
     }
 
-    /* ── Send ──────────────────────────────────────────── */
     async function send() {
         const text = input.value.trim();
+
         if (text.length === 1) {
             bot('Please type at least 2 characters so I can understand your request.', null, [], 'guard', null);
             return;
         }
+
         if (!text || isBusy) return;
 
         addUser(text);
-        input.value = ''; resize();
-        clearChips(); busy(true); typing(true);
+        input.value = '';
+        resize();
+        clearChips();
+        busy(true);
+        typing(true);
 
         try {
-            const r = await api('/chatbot/message', 'POST', {
-                message: text, session_id: sessionId || uuid()
+            const response = await api('/chatbot/message', 'POST', {
+                message: text,
+                session_id: sessionId || uuid()
             });
+
             typing(false);
-            if (r.success) {
-                const d = r.data;
-                bot(d.answer, d.confidence, d.suggestions || [], d.source, d);
+
+            if (response.success) {
+                const data = response.data || {};
+                bot(data.answer || 'No answer returned.', data.confidence, data.suggestions || [], data.source, data);
             } else {
-                console.error('[InfoHuloAssistant] API returned error:', r);
-                bot('Error: ' + (r.message || 'Server returned an error. Check storage/logs/laravel.log'), null, [], 'fallback', null);
+                console.error('[InfoHuloAssistant] API returned error:', response);
+                bot('Error: ' + (response.message || 'Server returned an error. Check storage/logs/laravel.log'), null, [], 'fallback', null);
             }
-        } catch (err) {
+        } catch (error) {
             typing(false);
-            console.error('[InfoHuloAssistant]', err);
-            const e = err.message || '';
-            let msg = 'Error: ' + (e || 'Unknown error');
-            if (e.includes('419'))          msg = 'Session expired — please refresh the page.';
-            else if (e.includes('404'))     msg = 'Route not found. Make sure chatbot routes are registered in web.php and run: php artisan route:clear';
-            else if (e.includes('500'))     msg = 'Server error (500). Check storage/logs/laravel.log for details.';
-            else if (e.includes('Failed to fetch') || e.includes('NetworkError') || e.includes('NETWORK')) msg = 'Cannot reach the server. Check your internet connection.';
-            bot(msg, null, [], 'fallback', null);
+            console.error('[InfoHuloAssistant]', error);
+
+            const message = formatError(error.message || '');
+            bot(message, null, [], 'fallback', null);
         }
+
         busy(false);
     }
 
     sendBtn.addEventListener('click', send);
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+
+    input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            send();
+        }
     });
+
     input.addEventListener('input', resize);
 
-    /* ── Render ────────────────────────────────────────── */
     function addUser(text) {
         msgs.insertAdjacentHTML('beforeend', `
             <div class="hbm-row user">
-                <div>
+                <div class="hbm-message-wrap">
                     <div class="hbm-bbl">${esc(text)}</div>
                     <div class="hbm-meta">${now()}</div>
                 </div>
-            </div>`);
+            </div>
+        `);
+
         scroll();
     }
 
-    function bot(text, conf, sug, source, d) {
-        let src = '';
-        let note = '';
-        if (source === 'ai') {
-            const p = (d && d.ai_provider) ? d.ai_provider.toUpperCase() : 'AI';
-            src = `<span class="hbm-src hbm-ai">AI Reference (${p})</span>`;
-            note = '<div class="hbm-note">AI response is for reference only. Please verify final details with Barangay staff.</div>';
-        } else if (source === 'rule_based') {
-            src = `<span class="hbm-src hbm-kb">KB Verified</span>`;
-        }
-        const cf = (conf && conf > 0 && source !== 'fallback')
-            ? `<span class="hbm-cf">Confidence ${conf}%</span>` : '';
+    function bot(text, confidence, suggestions, source, data) {
+        const safeSource = source || 'fallback';
+        const meta = sourceMeta(safeSource, data);
+        const confidenceBadge = confidence && confidence > 0 && safeSource !== 'fallback'
+            ? `<span class="hbm-cf">${Number(confidence)}%</span>`
+            : '';
+
+        const note = safeSource === 'ai'
+            ? '<div class="hbm-note"><i class="bi bi-exclamation-triangle"></i> AI response is for reference only. Please verify final details with Barangay staff.</div>'
+            : '';
 
         msgs.insertAdjacentHTML('beforeend', `
             <div class="hbm-row bot">
                 <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
-                <div>
+                <div class="hbm-message-wrap">
                     <div class="hbm-bbl">${text}</div>
                     ${note}
-                    <div class="hbm-meta">${now()}${src}${cf}</div>
+                    <div class="hbm-meta">
+                        <span>${now()}</span>
+                        <span class="hbm-src ${escAttr(meta.key)}"><i class="bi ${meta.icon}"></i>${meta.label}</span>
+                        ${confidenceBadge}
+                    </div>
                 </div>
-            </div>`);
-        if (sug && sug.length) renderChips(sug);
+            </div>
+        `);
+
+        if (suggestions && suggestions.length) renderChips(suggestions);
         scroll();
     }
 
-    let typEl = null;
+    function sourceMeta(source, data) {
+        if (source === 'database') {
+            return { key: 'database', icon: 'bi-database-check', label: 'Live DB' };
+        }
+
+        if (source === 'rule_based') {
+            return { key: 'rule_based', icon: 'bi-patch-check', label: 'KB Verified' };
+        }
+
+        if (source === 'ai') {
+            const provider = data && data.ai_provider ? String(data.ai_provider).toUpperCase() : 'AI';
+            return { key: 'ai', icon: 'bi-cpu', label: provider };
+        }
+
+        if (source === 'guard') {
+            return { key: 'guard', icon: 'bi-shield-lock', label: 'Protected' };
+        }
+
+        return { key: 'fallback', icon: 'bi-info-circle', label: 'Guide' };
+    }
+
     function typing(show) {
         if (show) {
+            if (typEl) return;
+
             typEl = document.createElement('div');
             typEl.className = 'hbm-row bot';
             typEl.innerHTML = `
                 <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
-                <div class="hbm-bbl" style="padding:0;background:#fff;border:1px solid #e9ecef">
-                    <div class="hbm-typing">
-                        <div class="hbm-td"></div><div class="hbm-td"></div><div class="hbm-td"></div>
+                <div class="hbm-message-wrap">
+                    <div class="hbm-bbl hbm-typing-bbl">
+                        <div class="hbm-typing">
+                            <span class="hbm-dot"></span>
+                            <span class="hbm-dot"></span>
+                            <span class="hbm-dot"></span>
+                        </div>
                     </div>
-                </div>`;
-            msgs.appendChild(typEl); scroll();
-        } else { if (typEl) { typEl.remove(); typEl = null; } }
+                </div>
+            `;
+
+            msgs.appendChild(typEl);
+            scroll();
+            return;
+        }
+
+        if (typEl) {
+            typEl.remove();
+            typEl = null;
+        }
     }
 
     function renderChips(items) {
         chips.innerHTML = '';
-        items.slice(0, 5).forEach(s => {
-            const b = document.createElement('button');
-            b.className = 'hbm-chip';
-            b.textContent = s;
-            b.addEventListener('click', () => { input.value = s; send(); });
-            chips.appendChild(b);
+
+        items.slice(0, 6).forEach(function (suggestion) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'hbm-chip';
+            button.innerHTML = `<i class="bi bi-plus-circle"></i>${esc(suggestion)}`;
+            button.addEventListener('click', function () {
+                input.value = suggestion;
+                send();
+            });
+            chips.appendChild(button);
         });
     }
-    function clearChips() { chips.innerHTML = ''; }
+
+    function clearChips() {
+        chips.innerHTML = '';
+    }
 
     function showLoading() {
-        const existing = document.getElementById('hbm-loading-row');
-        if (existing) return;
+        if (document.getElementById('hbm-loading-row')) return;
+
         msgs.insertAdjacentHTML('beforeend', `
             <div class="hbm-row bot" id="hbm-loading-row">
                 <div class="hbm-avt"><img src="{{ asset('Images/aichatbotimg.jpg') }}" alt="InfoHulo Assistant"></div>
-                <div class="hbm-loading">Loading assistant...</div>
-            </div>`);
+                <div class="hbm-message-wrap">
+                    <div class="hbm-bbl">Loading assistant...</div>
+                </div>
+            </div>
+        `);
+
         scroll();
     }
 
@@ -524,51 +906,107 @@ body.hulobot-open #backToTop {
         if (loading) loading.remove();
     }
 
-    /* ── Utils ─────────────────────────────────────────── */
-    function busy(v)  { isBusy = v; sendBtn.disabled = v; input.disabled = v; }
-    function scroll() { requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; }); }
-    function resize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 72) + 'px'; }
-    function now()    { return new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }); }
-    function esc(s)   { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function uuid()   {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16);
+    function busy(value) {
+        isBusy = value;
+        sendBtn.disabled = value;
+        input.disabled = value;
+    }
+
+    function scroll() {
+        requestAnimationFrame(function () {
+            msgs.scrollTop = msgs.scrollHeight;
         });
     }
+
+    function resize() {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 96) + 'px';
+    }
+
+    function now() {
+        return new Date().toLocaleTimeString('en-PH', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function esc(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function escAttr(value) {
+        return esc(value).replace(/`/g, '&#096;');
+    }
+
+    function uuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (character) {
+            const random = Math.random() * 16 | 0;
+            const value = character === 'x' ? random : (random & 0x3 | 0x8);
+            return value.toString(16);
+        });
+    }
+
+    function formatError(error) {
+        let message = 'Error: ' + (error || 'Unknown error');
+
+        if (error.includes('419')) {
+            message = 'Session expired. Please refresh the page and try again.';
+        } else if (error.includes('404')) {
+            message = 'Route not found. Make sure chatbot routes are registered in web.php and run: php artisan route:clear';
+        } else if (error.includes('500')) {
+            message = 'Server error. Check storage/logs/laravel.log for details.';
+        } else if (error.includes('Failed to fetch') || error.includes('NetworkError') || error.includes('NETWORK')) {
+            message = 'Cannot reach the server. Check your internet connection.';
+        }
+
+        return message;
+    }
+
     async function api(url, method, body) {
         const csrf = document.querySelector('meta[name="csrf-token"]');
-        if (!csrf) console.warn('[InfoHuloAssistant] No CSRF meta tag found — add <meta name="csrf-token" content="{{ csrf_token() }}"> to your layout <head>');
 
-        let res;
+        if (!csrf) {
+            console.warn('[InfoHuloAssistant] No CSRF meta tag found.');
+        }
+
+        let response;
+
         try {
-            res = await fetch(url, {
+            response = await fetch(url, {
                 method,
                 headers: {
-                    'Content-Type':  'application/json',
-                    'X-CSRF-TOKEN':  csrf ? csrf.content : '',
-                    'Accept':        'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf ? csrf.content : '',
+                    'Accept': 'application/json'
                 },
-                body: method !== 'GET' ? JSON.stringify(body) : undefined,
+                body: method !== 'GET' ? JSON.stringify(body) : undefined
             });
-        } catch (netErr) {
-            throw new Error('NETWORK: ' + netErr.message);
+        } catch (networkError) {
+            throw new Error('NETWORK: ' + networkError.message);
         }
 
-        if (!res.ok) {
-            let m = 'HTTP ' + res.status;
+        if (!response.ok) {
+            let message = 'HTTP ' + response.status;
+
             try {
-                const j = await res.clone().json();
-                m = j.message || m;
+                const json = await response.clone().json();
+                message = json.message || message;
             } catch (_) {
                 try {
-                    const t = await res.text();
-                    // grab first 200 chars of response body for debugging
-                    m = 'HTTP ' + res.status + ': ' + t.replace(/<[^>]+>/g, ' ').trim().substring(0, 200);
-                } catch (_2) {}
+                    const text = await response.text();
+                    message = 'HTTP ' + response.status + ': ' + text.replace(/<[^>]+>/g, ' ').trim().substring(0, 200);
+                } catch (_ignored) {}
             }
-            throw new Error(m);
+
+            throw new Error(message);
         }
-        return res.json();
+
+        return response.json();
     }
 })();
 </script>

@@ -5,363 +5,148 @@ namespace App\Services\Chatbot;
 use App\Models\ChatbotKnowledge;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
-/**
- * LAYER 1 — Rule-Based Engine (Filipino + English)
- * ──────────────────────────────────────────────────
- * Understands both Filipino and English queries.
- * Translates Filipino keywords → English before searching.
- */
 class RuleBasedEngine
 {
-    private const CONFIDENCE_THRESHOLD = 0.20; // slightly lower to prefer verified KB over AI for near-exact admin-curated entries
+    private const CONFIDENCE_THRESHOLD = 0.28;
 
-    /* ── Filipino → English keyword map ──────────────────────────
-     * When a user says "pano maka kuha ng clearance",
-     * we extract: pano→how, kuha→get, clearance stays
-     * Then search: "how get clearance" → matches "barangay clearance"
-     */
     private array $filEng = [
-        // Action words
-        'pano'        => 'how',
-        'paano'       => 'how',
-        'makakuha'    => 'get',
-        'makuha'      => 'get',
-        'kuha'        => 'get',
-        'kunin'       => 'get',
-        'kumuha'      => 'get',
-        'mag-apply'   => 'apply',
-        'mag apply'   => 'apply',
-        'mag-avail'   => 'apply',
-        'apply'       => 'apply',
-        'i-renew'     => 'renew',
-        'i renew'     => 'renew',
-        'renew'       => 'renew',
-        'bayad'       => 'pay',
-        'magbayad'    => 'pay',
-        'bayaran'     => 'pay',
-        'humingi'     => 'request',
-        'hingi'       => 'request',
-        'request'     => 'request',
-        'gawin'       => 'do',
-        'gawa'        => 'do',
-        'proseso'     => 'process',
-        'hakbang'     => 'steps',
-        'requirements'=> 'requirements',
-        'kailangan'   => 'requirements',
-        'need'        => 'requirements',
-        'libre'       => 'free',
-        'bayad'       => 'fee',
-        'magkano'     => 'fee',
-        'presyo'      => 'fee',
-        'halaga'      => 'fee',
-        'oras'        => 'hours',
-        'saan'        => 'where',
-        'kailan'      => 'when',
-        'sino'        => 'who',
-
-        // Document / service words
-        'clearance'       => 'clearance',
-        'barangay'        => 'barangay',
-        'permit'          => 'permit',
-        'permiso'         => 'permit',
-        'negosyo'         => 'business',
-        'business'        => 'business',
-        'tindahan'        => 'business',
-        'kapanganakan'    => 'birth',
-        'ipinanganak'     => 'birth',
-        'birth'           => 'birth',
-        'kasal'           => 'marriage',
-        'kamatayan'       => 'death',
-        'sertipiko'       => 'certificate',
-        'certificate'     => 'certificate',
-        'certipiko'       => 'certificate',
-        'buwis'           => 'tax',
-        'amilyar'         => 'property tax',
-        'tax'             => 'tax',
-        'lupa'            => 'property',
-        'ari-arian'       => 'property',
-        'senior'          => 'senior',
-        'matatanda'       => 'senior',
-        'lolo'            => 'senior',
-        'lola'            => 'senior',
-        'may kapansanan'  => 'disability',
-        'pwd'             => 'PWD',
-        'id'              => 'ID',
-        'pagkakakilanlan' => 'ID',
-        'philhealth'      => 'philhealth',
-        'kalusugan'       => 'health',
-        'ospital'         => 'health',
-        'nbi'             => 'NBI',
-        'pagkamamamayan'  => 'citizenship',
-        'indigent'        => 'indigent',
-        'indigency'       => 'indigency',
-        'mahirap'         => 'indigent',
-        'hanapbuhay'      => 'livelihood',
-        'trabaho'         => 'employment',
-        'cedula'          => 'cedula',
-        'community tax'   => 'cedula',
-        'kasunduan'       => 'contract',
+        'pano' => 'how', 'paano' => 'how', 'papano' => 'how',
+        'makakuha' => 'get', 'makuha' => 'get', 'kuha' => 'get', 'kunin' => 'get', 'kumuha' => 'get',
+        'mag-apply' => 'apply', 'mag apply' => 'apply', 'i-apply' => 'apply', 'apply' => 'apply',
+        'mag-request' => 'request', 'mag request' => 'request', 'humingi' => 'request', 'hingi' => 'request',
+        'kailangan' => 'requirements', 'requirements' => 'requirements', 'need' => 'requirements',
+        'hakbang' => 'steps', 'proseso' => 'process', 'gawin' => 'do', 'gawa' => 'do',
+        'magkano' => 'fee', 'bayad' => 'fee', 'presyo' => 'fee', 'halaga' => 'fee', 'libre' => 'free',
+        'oras' => 'hours', 'saan' => 'where', 'kailan' => 'when', 'sino' => 'who',
+        'sertipiko' => 'certificate', 'certipiko' => 'certificate', 'dokumento' => 'document',
+        'mahirap' => 'indigent', 'indigent' => 'indigent', 'indigency' => 'indigency',
+        'residente' => 'resident', 'tirahan' => 'residency', 'paninirahan' => 'residency',
+        'reklamo' => 'complaint', 'sumbong' => 'complaint', 'insidente' => 'incident', 'blotter' => 'blotter',
+        'trabaho' => 'job', 'first time job seeker' => 'first time job seeker', 'valid id' => 'valid id',
+        'id' => 'id', 'pagkakakilanlan' => 'id', 'upload' => 'upload', 'i-upload' => 'upload',
+        'subaybayan' => 'track', 'i-track' => 'track', 'status' => 'status', 'reference' => 'reference',
     ];
 
-    /* ── Stop words — Filipino + English ─────────────────────────
-     * Only strip truly meaningless words — keep action/content words
-     */
     private array $stopWords = [
-        // English
-        'a','an','the','is','it','in','on','at','to','for','of','and','or',
-        'but','with','this','that','can','do','does','i','my','me','we',
-        'you','your','about','any','some','please',
-        // Filipino — particles/articles only
-        'po','po','ang','ng','na','sa','mga','ko','mo','ba','ay',
-        'nila','namin','ninyo','kayo','sila','ito','iyan','iyon','may',
-        'yung','yong','ung','si','ni','kay','para','din','rin','lang',
-        'po','naman','kasi','eh','kaya','dito','doon','dyan',
+        'a','an','the','is','it','in','on','at','to','for','of','and','or','but','with','this','that',
+        'can','do','does','i','my','me','we','you','your','about','any','some','please','how','what','who',
+        'po','ang','ng','na','sa','mga','ko','mo','ba','ay','nila','namin','ninyo','kayo','sila','ito','iyan','iyon',
+        'may','yung','yong','ung','si','ni','kay','para','din','rin','lang','naman','kasi','eh','dito','doon','dyan',
     ];
 
-    /* ── Intent map ───────────────────────────────────────────── */
     private array $intentMap = [
-        'greeting' => [
-            'hello','hi','hey','good morning','good afternoon','good evening',
-            'mabuhay','kumusta','kamusta','magandang umaga','magandang hapon',
-            'magandang gabi','magandang tanghali',
-        ],
-        'farewell' => [
-            'bye','goodbye','see you','take care','salamat na','paalam',
-            'thank you bye','hanggang','ingat',
-        ],
-        'thanks'   => [
-            'thank you','thanks','salamat','maraming salamat','thank',
-            'nagpapasalamat','pasalamat',
-        ],
-        'help'     => [
-            'help','what can you do','what do you know','list','menu',
-            'services','available','ano ang','ano kaya','tulungan',
-            'tulong','makatulong',
-        ],
+        'greeting' => ['hello','hi','hey','good morning','good afternoon','good evening','mabuhay','kumusta','kamusta','magandang umaga','magandang hapon','magandang gabi'],
+        'farewell' => ['bye','goodbye','see you','take care','paalam','ingat'],
+        'thanks' => ['thank you','thanks','salamat','maraming salamat','thank'],
+        'help' => ['help','tulong','what can you do','services','available services','menu','ano pwede','ano ang services'],
     ];
 
-    /* ── Off-topic words — these are NEVER government topics ────
-     * If the query only contains these and no gov keywords, reject early.
-     */
-    private array $offTopicWords = [
-        // Food / cooking
-        'ulam','pagkain','kain','kumain','gutom','busog','luto','niluto','magluto',
-        'recipe','cook','food','eat','lunch','dinner','breakfast','merienda','snack',
-        'kanin','bigas','gulay','isda','karne','manok','baboy','beef','chicken','pork',
-        'bake','cookies','cake','tinapay','bread','adobo','sinigang','nilaga',
-        // Entertainment / sports
-        'pelikula','movie','film','kanta','musika','music','song','singer','artist',
-        'laro','game','sports','basketball','football','volleyball','boxing',
-        'netflix','youtube','tiktok','facebook post','social media',
-        // Romance / personal
-        'mahal','love','puso','heart','crush','boyfriend','girlfriend','jowa',
-        'pakikipaghiwalay','break up','date','ligaw','courtship',
-        // Weather / nature (non-gov)
-        'weather','panahon','ulan','bagyo','typhoon','araw','mainit','malamig','lindol',
-        // Misc non-gov
-        'joke','funny','tawa','iyak','malungkot','masaya','boring',
-        'wifi','load','data','pulsa','cellphone signal',
-        'stock market','crypto','bitcoin','negosyo tips','investment',
-        'school assignment','homework','math','science','history lesson',
-        'diet','exercise','workout','gym','slimming',
-    ];
-
-    /* ── Government topic keywords — at least one must be present ─
-     * for a non-intent query to proceed to knowledge search.
-     */
     private array $govKeywords = [
-        // BISIG Hulo specific
-        'barangay','hulong duhat','malabon','bisig','hulo','portal',
-        // Core services of BISIG Hulo
-        'clearance','indigency','indigent','blotter','certificate','sertipiko',
-        'incident','incident report','residency','resident certificate',
-        'dokumento','document','request',
-        // System / portal words
-        'reference id','tracking','track','login','register','account',
-        'notification','approved','pending','rejected','upload',
-        'mag-apply','i-submit','i-track','i-cancel','i-appeal',
-        'request status','support',
-        // Filipino action words
-        'kuha','kunin','makuha','mag-file','mag-request','pano','paano',
-        'kailangan','requirements','steps','hakbang',
-        'saan','anong oras','office hours','tanggapan',
-        'residente','resident','staff','barangay hall',
+        'barangay','hulong duhat','hulo','malabon','bisig','portal','clearance','indigency','indigent',
+        'residency','resident','first time job','first-time job','job seeker','blotter','incident','report',
+        'complaint','certificate','sertipiko','document','request','reference id','tracking','track','login',
+        'register','account','notification','approved','pending','rejected','remarks','upload','valid id',
+        'proof of residency','requirements','steps','hakbang','office hours','barangay hall','support',
     ];
-
-    /* ─────────────────────────────────────────────────────────── */
 
     public function handle(string $message): ?array
     {
         $cleaned = $this->clean($message);
 
-        // 1. Intent check (greeting, farewell, thanks, help)
         $intent = $this->detectIntent($cleaned);
         if ($intent) {
             return $this->intentResponse($intent);
         }
 
-        // 2. Off-topic guard — reject non-government questions immediately
-        if ($this->isOffTopic($cleaned)) {
+        if ($this->isShortOffTopic($cleaned)) {
             return $this->offTopicResponse();
         }
 
-        // 3. Translate Filipino → English keywords
         $translated = $this->translate($cleaned);
+        $terms = $this->extractSearchTerms($translated . ' ' . $cleaned);
 
-        // 4. Extract meaningful search terms (skip stop words)
-        $searchTerms = $this->extractSearchTerms($translated);
-
-        // 5. Search knowledge base using both original and translated terms
-        $candidates = $this->searchKnowledge($cleaned, $translated, $searchTerms);
-
+        $candidates = $this->searchKnowledge($cleaned, $translated, $terms);
         if ($candidates->isEmpty()) {
-            return null; // → AI layer
+            return null;
         }
 
-        // 6. Score and pick best match
-        $best = $this->rankAndScore($searchTerms, $translated, $candidates);
-
-        if (!$best || $best['score'] < self::CONFIDENCE_THRESHOLD) {
-            return null; // → AI layer
+        $best = $this->rankAndScore($terms, $translated, $candidates);
+        if (! $best || ($best['score'] ?? 0) < self::CONFIDENCE_THRESHOLD) {
+            return null;
         }
 
-        // 6. Increment usage count
         try {
             DB::table('chatbot_knowledge')->where('id', $best['id'])->increment('usage_count');
-        } catch (\Throwable $e) {}
-
-        return [
-            'answer'      => $this->formatAnswer($best['answer']),
-            'source'      => 'rule_based',
-            'confidence'  => (int) round($best['score'] * 100),
-            'matched'     => true,
-            'knowledge_id'=> (int) $best['id'],
-            'category'    => $best['category'] ?? 'general',
-            'suggestions' => $this->suggestions($best['category'] ?? 'general'),
-        ];
-    }
-
-    /* ── Off-topic detection ─────────────────────────────────────
-     * Returns true if message has NO government keywords at all.
-     * "ano ulam" → no gov keywords → off-topic → polite redirect.
-     * "pano kuha ng clearance" → has "clearance" (gov) → NOT off-topic.
-     */
-    private function isOffTopic(string $cleaned): bool
-    {
-        // Check if any government keyword exists in the message
-        foreach ($this->govKeywords as $kw) {
-            if (str_contains(' ' . $cleaned . ' ', ' ' . $kw . ' ') || str_contains($cleaned, $kw)) {
-                return false; // has a gov keyword → proceed normally
-            }
+        } catch (\Throwable $e) {
+            Log::warning('[RuleEngine] usage_count increment failed', ['error' => $e->getMessage()]);
         }
 
-        // No gov keyword found → off-topic
-        // But only flag if query is short (1-3 words) and off-topic words present
-        $words = explode(' ', trim($cleaned));
-        if (count($words) <= 5) {
-            return true; // short message with no gov keyword → off-topic
+        return [
+            'answer'       => $this->formatAnswer((string) $best['answer']),
+            'source'       => 'rule_based',
+            'confidence'   => (int) round($best['score'] * 100),
+            'matched'      => true,
+            'knowledge_id' => (int) $best['id'],
+            'category'     => $best['category'] ?? 'general',
+            'suggestions'  => $this->suggestions($best['category'] ?? 'general'),
+        ];
+    }
+
+    private function isShortOffTopic(string $cleaned): bool
+    {
+        if ($this->hasGovKeyword($cleaned)) {
+            return false;
         }
 
-        // Longer messages may still be gov-related even without exact keywords
-        // Let the AI handle it
-        return false;
+        return str_word_count($cleaned) <= 5;
     }
-
-    private function offTopicResponse(string $categoryLabel = ''): array
-    {
-        $label = $categoryLabel ? " ({$categoryLabel})" : '';
-        $responses = [
-            "I can only assist with Barangay Hulo Portal services. That topic{$label} is outside my area.<br><br>"
-            . "I can help you with Clearance, Indigency, Residency, Incident Reports, or request tracking. What do you need?",
-
-            "Sorry, I'm not able to help with that{$label}. I'm InfoHulo Assistant — your Barangay Hulo Portal assistant.<br><br>"
-            . "Is there a portal service I can help you with?",
-        ];
-
-        return [
-            'answer'      => $responses[array_rand($responses)],
-            'source'      => 'rule_based',
-            'confidence'  => 100,
-            'matched'     => true,
-            'knowledge_id'=> null,
-            'category'    => 'off_topic',
-            'suggestions' => $this->defaultSuggestions(),
-        ];
-    }
-
-    /* ── Translation ──────────────────────────────────────────── */
 
     private function translate(string $text): string
     {
         $result = $text;
-
-        // Sort by length descending so longer phrases match first
         $map = $this->filEng;
-        uksort($map, fn($a, $b) => strlen($b) - strlen($a));
+        uksort($map, fn ($a, $b) => strlen($b) <=> strlen($a));
 
         foreach ($map as $fil => $eng) {
-            $result = preg_replace('/\b' . preg_quote($fil, '/') . '\b/u', $eng, $result);
+            $result = preg_replace('/\b' . preg_quote($fil, '/') . '\b/u', $eng, $result) ?? $result;
         }
 
-        return $result;
+        return trim(preg_replace('/\s+/', ' ', $result) ?? $result);
     }
-
-    /* ── Search ───────────────────────────────────────────────── */
 
     private function searchKnowledge(string $original, string $translated, array $terms): \Illuminate\Support\Collection
     {
         try {
             $results = collect();
 
-            // Search using translated text
-            if (!empty($translated)) {
-                $r = ChatbotKnowledge::search($translated, 10);
-                $results = $results->merge($r);
+            foreach (array_unique(array_filter([$translated, $original])) as $phrase) {
+                $results = $results->merge(ChatbotKnowledge::search($phrase, 10));
             }
 
-            // Search using each individual term (catches partial matches)
             foreach (array_unique($terms) as $term) {
-                if (strlen($term) >= 3) {
-                    $r = ChatbotKnowledge::search($term, 5);
-                    $results = $results->merge($r);
+                if (mb_strlen($term) >= 3) {
+                    $results = $results->merge(ChatbotKnowledge::search($term, 5));
                 }
             }
 
-            // Also search original message (catches English words in mixed messages)
-            if ($original !== $translated) {
-                $r = ChatbotKnowledge::search($original, 5);
-                $results = $results->merge($r);
-            }
-
-            // Deduplicate by id
             return $results->unique('id')->values();
-
         } catch (\Throwable $e) {
-            Log::error('[RuleEngine] search failed: ' . $e->getMessage());
+            Log::error('[RuleEngine] search failed', ['error' => $e->getMessage()]);
             return collect();
         }
     }
 
-    /* ── Scoring ──────────────────────────────────────────────── */
-
-    private function extractSearchTerms(string $text): array
-    {
-        $words = explode(' ', $text);
-        return array_values(array_filter(
-            $words,
-            fn($w) => strlen($w) >= 2 && !in_array(strtolower($w), $this->stopWords)
-        ));
-    }
-
-    private function rankAndScore(array $qTerms, string $translated, $candidates): ?array
+    private function rankAndScore(array $qTerms, string $translated, Collection $candidates): ?array
     {
         $best = null;
 
         foreach ($candidates as $item) {
             $score = $this->computeScore($qTerms, $translated, $item);
-            if (!$best || $score > ($best['score'] ?? 0)) {
-                $best          = $item->toArray();
+            if (! $best || $score > ($best['score'] ?? 0)) {
+                $best = $item->toArray();
                 $best['score'] = $score;
             }
         }
@@ -369,199 +154,165 @@ class RuleBasedEngine
         return $best;
     }
 
-    private function computeScore(array $qTerms, string $translated, $item): float
+    private function computeScore(array $qTerms, string $translated, ChatbotKnowledge $item): float
     {
-        $s = 0.0;
+        $score = 0.0;
 
-        $qNorm = trim(strtolower($translated));
-        $iQuestion = trim(strtolower($item->question ?? ''));
-        $iAnswer   = trim(strtolower($item->answer ?? ''));
+        $qNorm = $this->clean($translated);
+        $question = $this->clean((string) ($item->question ?? ''));
+        $answer = $this->clean((string) ($item->answer ?? ''));
+        $category = $this->clean((string) ($item->category ?? ''));
+        $keywordsRaw = $this->clean((string) ($item->keywords ?? ''));
 
-        // Hard match: when admin-added KB question is identical or almost identical.
-        if ($qNorm !== '' && $iQuestion !== '') {
-            if ($qNorm === $iQuestion) {
+        if ($qNorm !== '' && $question !== '') {
+            if ($qNorm === $question) {
                 return 1.0;
             }
 
-            // Near-exact phrase containment gets a strong boost.
-            if ((str_contains($qNorm, $iQuestion) || str_contains($iQuestion, $qNorm))
-                && (strlen($qNorm) >= 12 || strlen($iQuestion) >= 12)) {
-                $s += 0.45;
+            if ((str_contains($qNorm, $question) || str_contains($question, $qNorm)) && mb_strlen($qNorm) >= 10) {
+                $score += 0.40;
             }
         }
 
-        $qTokens  = array_map('strtolower', $qTerms);
-        $qUnique  = array_unique($qTokens);
+        $queryTerms = array_values(array_unique(array_filter($qTerms)));
+        $questionTerms = $this->extractSearchTerms($question);
+        $answerTerms = $this->extractSearchTerms($answer);
+        $keywordTerms = $this->extractSearchTerms(str_replace(',', ' ', $keywordsRaw));
 
-        // ── SIGNAL 1: Token overlap with KB question (most important — 50%) ──
-        // Filters out generic words: "barangay", "how", "get" that appear everywhere.
-        // Only rewards tokens that BOTH the query and KB question share.
-        $iTokens     = $this->extractSearchTerms(strtolower($item->question ?? ''));
-        $meaningful  = array_diff($qUnique, ['barangay','hulong','duhat','malabon','ano','sino','paano','pano','how','what','who','the','is','are','does','do','can','i','my']);
-        $overlap     = count(array_intersect($meaningful ?: $qUnique, $iTokens));
-        $total       = max(count($meaningful ?: $qUnique), count($iTokens), 1);
-        $s          += ($overlap / $total) * 0.50;
+        $meaningful = array_values(array_diff($queryTerms, ['barangay','hulong','duhat','malabon','bisig','portal','how','what','get','request']));
+        if (empty($meaningful)) {
+            $meaningful = $queryTerms;
+        }
 
-        // ── SIGNAL 2: Exact keyword match from KB keywords field (35%) ──
-        // "clearance" exactly in keywords list = strong signal
-        $keywords     = array_map('trim', explode(',', strtolower($item->keywords ?? '')));
-        $keywordWords = []; // flatten all keyword phrases into individual words
-        foreach ($keywords as $kw) {
-            foreach (explode(' ', $kw) as $kword) {
-                if (strlen($kword) >= 3) $keywordWords[] = $kword;
+        $questionOverlap = count(array_intersect($meaningful, $questionTerms));
+        $score += min(($questionOverlap / max(count($meaningful), 1)) * 0.35, 0.35);
+
+        $keywordOverlap = count(array_intersect($meaningful, $keywordTerms));
+        $score += min(($keywordOverlap / max(count($meaningful), 1)) * 0.30, 0.30);
+
+        $answerOverlap = count(array_intersect($meaningful, $answerTerms));
+        $score += min(($answerOverlap / max(count($meaningful), 1)) * 0.15, 0.15);
+
+        foreach ($meaningful as $term) {
+            if (mb_strlen($term) >= 4 && str_contains($category, $term)) {
+                $score += 0.08;
+                break;
             }
         }
-        $kwHits = 0;
-        foreach ($qUnique as $t) {
-            if (strlen($t) < 3) continue;
-            if (in_array($t, ['barangay','hulong','duhat','malabon','bisig'])) continue;
 
-            if (in_array($t, $keywords)) {
-                $kwHits += 1.0; // exact full-phrase keyword match (strongest)
-            } elseif (in_array($t, $keywordWords)) {
-                $kwHits += 0.7; // exact single-word match inside keyword phrase
-            } else {
-                foreach ($keywords as $kw) {
-                    if (strlen($kw) > 4 && str_contains($kw, $t) && $t !== 'barangay') {
-                        $kwHits += 0.3;
-                        break;
-                    }
-                }
-            }
-        }
-        $s += min($kwHits * 0.175, 0.35);
-
-        // ── SIGNAL 3: Meaningful terms in KB question text (20%) ──
-        // Only count non-generic terms to avoid "barangay" inflating every score
-        $termHits = 0;
-        foreach ($qUnique as $t) {
-            if (strlen($t) < 4) continue;
-            if (in_array($t, ['barangay','hulong','duhat','malabon','bisig','hall'])) continue;
-            if (str_contains(strtolower($item->question ?? ''), $t)) {
-                $termHits++;
-            }
-        }
-        $s += min($termHits * 0.10, 0.20);
-
-        // ── SIGNAL 4: Meaningful terms in KB answer text (15%) ──
-        // Helps if admin stores the fact in answer while question is phrased differently.
-        $answerHits = 0;
-        foreach ($qUnique as $t) {
-            if (strlen($t) < 4) continue;
-            if (in_array($t, ['barangay','hulong','duhat','malabon','bisig','hall'])) continue;
-            if (str_contains($iAnswer, $t)) {
-                $answerHits++;
-            }
-        }
-        $s += min($answerHits * 0.075, 0.15);
-
-        return min($s, 1.0);
+        return min($score, 1.0);
     }
 
-    /* ── Helpers ──────────────────────────────────────────────── */
+    private function extractSearchTerms(string $text): array
+    {
+        $text = $this->clean($text);
+        $words = preg_split('/\s+/', $text) ?: [];
+
+        return array_values(array_filter($words, function ($word) {
+            $word = trim($word);
+            return mb_strlen($word) >= 2 && ! in_array($word, $this->stopWords, true);
+        }));
+    }
 
     private function clean(string $text): string
     {
-        $text = strtolower(trim($text));
-        $text = preg_replace('/[^\w\s\-]/u', ' ', $text); // keep hyphens for mag-apply etc.
-        return trim(preg_replace('/\s+/', ' ', $text));
+        $text = mb_strtolower(trim($text));
+        $text = preg_replace('/[^\pL\pN\s\-]/u', ' ', $text) ?? $text;
+        return trim(preg_replace('/\s+/', ' ', $text) ?? $text);
     }
 
     private function formatAnswer(string $raw): string
     {
-        return nl2br(htmlspecialchars($raw, ENT_QUOTES, 'UTF-8'));
+        return nl2br(e($raw));
     }
 
     private function detectIntent(string $cleaned): ?string
     {
         foreach ($this->intentMap as $intent => $phrases) {
             foreach ($phrases as $phrase) {
-                if (str_contains(' ' . $cleaned . ' ', ' ' . $phrase . ' ') || $cleaned === $phrase) {
+                if ($cleaned === $phrase || Str::contains(' ' . $cleaned . ' ', ' ' . $phrase . ' ')) {
                     return $intent;
                 }
             }
         }
+
         return null;
     }
 
-    /* ── Intent responses ─────────────────────────────────────── */
+    private function hasGovKeyword(string $cleaned): bool
+    {
+        foreach ($this->govKeywords as $kw) {
+            if (Str::contains(' ' . $cleaned . ' ', ' ' . $kw . ' ') || Str::contains($cleaned, $kw)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function offTopicResponse(): array
+    {
+        return [
+            'answer'       => 'I can only assist with Barangay Hulong Duhat Portal services.<br><br>I can help you with Barangay Clearance, Indigency Certificate, Residency Certificate, First-Time Job Seeker Certificate, Incident Reports, and request tracking. What do you need?',
+            'source'       => 'rule_based',
+            'confidence'   => 100,
+            'matched'      => true,
+            'knowledge_id' => null,
+            'category'     => 'off_topic',
+            'suggestions'  => $this->defaultSuggestions(),
+        ];
+    }
 
     private function intentResponse(string $intent): array
     {
         return match ($intent) {
             'greeting' => [
-                'answer'      => "Hi there! I'm <strong>InfoHulo Assistant</strong>, your Barangay Hulo Portal assistant.<br><br>"
-                               . "I can help you with Barangay Clearance, Indigency Certificate, Residency Certificate, Incident Reports, and request tracking.<br><br>"
-                               . "What can I help you with today?",
-                'source'      => 'rule_based',
-                'confidence'  => 100,
-                'matched'     => true,
-                'knowledge_id'=> null,
-                'category'    => 'greeting',
-                'suggestions' => $this->defaultSuggestions(),
+                'answer' => "Hi! I'm <strong>InfoHulo Assistant</strong>, your Barangay Hulong Duhat Portal assistant.<br><br>I can help you with Clearance, Indigency, Residency, First-Time Job Seeker Certificate, Incident Reports, and request tracking.<br><br>What can I help you with today?",
+                'source' => 'rule_based', 'confidence' => 100, 'matched' => true, 'knowledge_id' => null, 'category' => 'greeting', 'suggestions' => $this->defaultSuggestions(),
             ],
             'farewell' => [
-                'answer'      => "Thank you for using the Barangay Hulo Portal! Have a great day. If you need help again, I'm always here.",
-                'source'      => 'rule_based',
-                'confidence'  => 100,
-                'matched'     => true,
-                'knowledge_id'=> null,
-                'category'    => 'farewell',
-                'suggestions' => [],
+                'answer' => 'Thank you for using Barangay Hulong Duhat Portal. Have a great day!',
+                'source' => 'rule_based', 'confidence' => 100, 'matched' => true, 'knowledge_id' => null, 'category' => 'farewell', 'suggestions' => [],
             ],
             'thanks' => [
-                'answer'      => "You're welcome! Is there anything else I can help you with?",
-                'source'      => 'rule_based',
-                'confidence'  => 100,
-                'matched'     => true,
-                'knowledge_id'=> null,
-                'category'    => 'general',
-                'suggestions' => $this->defaultSuggestions(),
+                'answer' => "You're welcome! Is there anything else I can help you with?",
+                'source' => 'rule_based', 'confidence' => 100, 'matched' => true, 'knowledge_id' => null, 'category' => 'general', 'suggestions' => $this->defaultSuggestions(),
             ],
             'help' => [
-                'answer'      => "Hi! I'm InfoHulo Assistant, your Barangay Hulo Portal assistant.<br><br>"
-                               . "I can help you with:<br>"
-                               . "<strong>Barangay Clearance</strong> — request online through the portal<br>"
-                               . "<strong>Indigency Certificate</strong> — request online, free of charge<br>"
-                               . "<strong>Residency Certificate</strong> — request online through the portal<br>"
-                               . "<strong>Incident Report</strong> — submit online, reviewed by staff<br>"
-                               . "<strong>Request Tracking</strong> — check status using your Reference ID<br><br>"
-                               . "Just type your question — Filipino or English — and I'll guide you step by step!",
-                'source'      => 'rule_based',
-                'confidence'  => 100,
-                'matched'     => true,
-                'knowledge_id'=> null,
-                'category'    => 'help',
-                'suggestions' => $this->defaultSuggestions(),
+                'answer' => "Hi! I'm InfoHulo Assistant.<br><br>I can help you with:<br><strong>Barangay Clearance</strong><br><strong>Indigency Certificate</strong><br><strong>Residency Certificate</strong><br><strong>First-Time Job Seeker Certificate</strong><br><strong>Incident Report / Blotter</strong><br><strong>Request Tracking</strong><br><br>Type your question in Filipino or English.",
+                'source' => 'rule_based', 'confidence' => 100, 'matched' => true, 'knowledge_id' => null, 'category' => 'help', 'suggestions' => $this->defaultSuggestions(),
             ],
-            default => null,
+            default => $this->offTopicResponse(),
         };
     }
-
-    /* ── Suggestions ──────────────────────────────────────────── */
 
     public function suggestions(string $cat): array
     {
         return match ($cat) {
-            'clearance'   => ["Clearance requirements", "Track my request", "Office hours"],
-            'indigency'   => ["Indigency requirements", "Track my request", "Is indigency free?"],
-            'residency'   => ["Residency requirements", "Track my request", "Office hours"],
-            'blotter'     => ["How to file incident report", "Track my report", "Upload evidence"],
-            'tracking'    => ["What is a Reference ID?", "My request is rejected", "Contact support"],
-            'portal'      => ["How to register", "Track my request", "Contact support"],
-            'support'     => ["Email support", "Office hours", "Track my request"],
-            default       => $this->defaultSuggestions(),
+            'clearance' => ['Clearance requirements', 'Track my request', 'Clearance processing time'],
+            'indigency' => ['Indigency requirements', 'Is indigency free?', 'Track my request'],
+            'residency' => ['Residency requirements', 'Proof of residency', 'Track my request'],
+            'first_time_job_seeker' => ['First-time job seeker requirements', 'Is it free?', 'Track my request'],
+            'blotter' => ['How to file incident report', 'Upload evidence', 'Track my report'],
+            'tracking' => ['What is a Reference ID?', 'My request is rejected', 'Contact support'],
+            'valid_id' => ['Valid ID requirements', 'Upload valid ID', 'Rejected valid ID remarks'],
+            'portal' => ['How to register', 'Forgot password', 'Contact support'],
+            'support' => ['Office hours', 'Contact support', 'Track my request'],
+            default => $this->defaultSuggestions(),
         };
     }
 
     public function defaultSuggestions(): array
     {
         return [
-            "Barangay Clearance",
-            "Indigency Certificate",
-            "Residency Certificate",
-            "Incident Report",
-            "Track my request",
+            'Barangay Clearance',
+            'Indigency Certificate',
+            'Residency Certificate',
+            'First-Time Job Seeker',
+            'Incident Report',
+            'Track my request',
+            'Latest announcements',
+            'Upcoming events',
         ];
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\NotificationLog;
 use App\Services\Chatbot\ClaudeAIEngine;
 use App\Services\Chatbot\HybridAgent;
 use App\Services\Chatbot\InputGuard;
 use App\Services\Chatbot\OutputValidator;
 use App\Services\Chatbot\RuleBasedEngine;
+use App\Services\Chatbot\DatabaseLookupService;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(OutputValidator::class);
         $this->app->singleton(RuleBasedEngine::class);
         $this->app->singleton(ClaudeAIEngine::class);
+        $this->app->singleton(DatabaseLookupService::class);
 
         $this->app->singleton(HybridAgent::class, function ($app) {
             return new HybridAgent(
@@ -37,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(OutputValidator::class),
                 $app->make(RuleBasedEngine::class),
                 $app->make(ClaudeAIEngine::class),
+                $app->make(DatabaseLookupService::class),
             );
         });
     }

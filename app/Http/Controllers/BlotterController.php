@@ -119,7 +119,7 @@ class BlotterController extends Controller
         }
     }
 
-    private function uploadFiles($request, $report)
+    private function uploadFiles(Request $request, BlotterReport $report)
     {
         // PHOTOS
         if ($request->hasFile('photos')) {
@@ -173,7 +173,7 @@ class BlotterController extends Controller
         }
     }
 
-    public function success($reference)
+    public function success(string $reference)
     {
         return view('barangay_system.success_form.incident_success', [
             'reference' => $reference,

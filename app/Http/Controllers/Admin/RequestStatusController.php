@@ -20,18 +20,18 @@ class RequestStatusController extends Controller
         return view('admin.requestdash', compact('requests'));
     }
 
-    public function show($request_id)
+    public function show(int $request_id)
     {
         $request = RequestRecord::findOrFail($request_id);
         return view('admin.requestview', compact('request'));
     }
-    public function edit($request_id)
+    public function edit(int $request_id)
     {
         $request = RequestRecord::findOrFail($request_id);
         return view('admin.requestedit', compact('request'));
     }
 
-    public function update(Request $request, $request_id)
+    public function update(Request $request, int $request_id)
     {
         $record = RequestRecord::findOrFail($request_id);
 
@@ -42,7 +42,7 @@ class RequestStatusController extends Controller
             ->with('success', 'Request updated successfully');
     }
 
-    public function destroy($request_id)
+    public function destroy(int $request_id)
     {
         $record = RequestRecord::findOrFail($request_id);
         $record->delete();

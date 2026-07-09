@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AdminUser;
 
 abstract class BaseAdminController extends Controller
 {
@@ -18,7 +19,7 @@ abstract class BaseAdminController extends Controller
     /**
      * Check if user has permission
      */
-    protected function hasPermission($permission)
+    protected function hasPermission(string $permission)
     {
         /** @var AdminUser|null $user */
         $user = $this->getUser();
@@ -28,7 +29,7 @@ abstract class BaseAdminController extends Controller
     /**
      * Authorize or abort
      */
-    protected function authorizePermission($permission)
+    protected function authorizePermission(string $permission)
     {
         if (!$this->hasPermission($permission)) {
             abort(403, 'Unauthorized action. You need permission: ' . $permission);
@@ -38,7 +39,7 @@ abstract class BaseAdminController extends Controller
     /**
      * Check if user has any of the given permissions
      */
-    protected function hasAnyPermission($permissions)
+    protected function hasAnyPermission(array $permissions)
     {
         /** @var AdminUser|null $user */
         $user = $this->getUser();
@@ -58,7 +59,7 @@ abstract class BaseAdminController extends Controller
     /**
      * Check if user has role
      */
-    protected function hasRole($role)
+    protected function hasRole(string $role)
     {
         $user = $this->getUser();
         return $user && $user->role && $user->role->name === $role;

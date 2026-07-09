@@ -142,7 +142,7 @@ class IncidentReportController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $this->normalizeIncidentInputs($request);
 
@@ -205,7 +205,7 @@ class IncidentReportController extends Controller
         }
     }
 
-    private function uploadFiles($request, $report)
+    private function uploadFiles(Request $request, object $report)
     {
         // PHOTOS
         if ($request->hasFile('photos')) {
@@ -350,7 +350,7 @@ class IncidentReportController extends Controller
         }
     }
 
-    private function normalizeContactNumber($value): ?string
+    private function normalizeContactNumber(string $value): ?string
     {
         if ($value === null) {
             return null;
@@ -369,7 +369,7 @@ class IncidentReportController extends Controller
         return $digits;
     }
 
-    public function approve(Request $request, $id)
+    public function approve(Request $request, int $id)
     {
         $blotter = BlotterReport::findOrFail($id);
         $request->validate([
@@ -416,7 +416,7 @@ class IncidentReportController extends Controller
         return back()->with('success', 'Incident report resolved. Notifications: ' . $deliverySummary . '.');
     }
 
-    public function markProcessing(Request $request, $id)
+    public function markProcessing(Request $request, int $id)
     {
         $blotter = BlotterReport::findOrFail($id);
         $request->validate([
@@ -458,7 +458,7 @@ class IncidentReportController extends Controller
         return back()->with('success', 'Incident report set to processing successfully.');
     }
 
-    public function reject(Request $request, $id)
+    public function reject(Request $request, int $id)
     {
         $blotter = BlotterReport::findOrFail($id);
         $request->validate([
@@ -587,7 +587,7 @@ class IncidentReportController extends Controller
         return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
     }
 
-    public function destroy($id)
+    public function destroy(int$id)
     {
         $report = BlotterReport::findOrFail($id);
         $reference = $report->reference_number;
@@ -612,7 +612,7 @@ class IncidentReportController extends Controller
         return back()->with('success', 'Incident report deleted.');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $report = BlotterReport::withTrashed()->findOrFail($id);
         $reference = $report->reference_number;
@@ -637,7 +637,7 @@ class IncidentReportController extends Controller
         return back()->with('success', 'Incident report restored successfully.');
     }
 
-    public function forceDelete($id)
+    public function forceDelete(int $id)
     {
         $report = BlotterReport::withTrashed()->findOrFail($id);
         

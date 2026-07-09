@@ -766,6 +766,10 @@
             box-shadow: 0 24px 70px rgba(16, 24, 40, .18);
         }
 
+        .form-control[type="file"] {
+            padding: 1rem;
+        }
+
         .modal-header {
             display: flex;
             align-items: flex-start;

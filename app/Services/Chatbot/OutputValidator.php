@@ -4,173 +4,114 @@ namespace App\Services\Chatbot;
 
 use Illuminate\Support\Facades\Log;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║                   OUTPUT VALIDATOR                               ║
- * ║             PROTECTION LAYER 2 — After AI                       ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  Runs AFTER the AI generates a response.                        ║
- * ║  Catches cases where AI "slipped" and answered off-topic        ║
- * ║  despite the strict system prompt.                               ║
- * ║                                                                  ║
- * ║  CHECKS:                                                         ║
- * ║  1. AI refused correctly (detect refusal phrases)               ║
- * ║  2. Response contains off-topic content (hallucination check)   ║
- * ║  3. Response is suspiciously long (possible hallucination)      ║
- * ║  4. Response contains dangerous content                         ║
- * ║  5. Response contains fabricated gov data                       ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 class OutputValidator
 {
-    /* ── Phrases that mean the AI already refused ─────────────────
-     * If AI said these, it handled it correctly. Accept as-is.
-     */
-    private array $refusalPhrases = [
-        'pasensya na po',
-        'hindi ko masasagot',
-        'hindi ko po masasagot',
-        'i can only assist with',
-        'i am only able to help',
-        'nakatuon lamang',
-        'para lamang sa',
-        'bisig assistant',
-        'barangay hulong duhat lamang',
-        'serbisyo ng barangay lamang',
+    private array $validRefusalPhrases = [
+        'i can only assist',
         'outside my area',
-        'outside of my',
+        'barangay hulong duhat portal services',
+        'hindi ko masasagot',
+        'nakatuon lamang',
+        'serbisyo ng barangay',
     ];
 
-    /* ── Hallucination red flags ──────────────────────────────────
-     * Phrases that suggest AI went off-topic or made things up.
-     */
     private array $hallucinationFlags = [
-        // Food/cooking leaked through
-        'here is a recipe','here\'s a recipe','to make cookies','to bake',
-        'ingredients','tablespoon','teaspoon','preheat oven','mix together',
-        'narito ang recipe','paano magluto',
-        // Weather leaked through
-        'the weather today','current weather','temperature is',
-        'will rain','chance of rain',
-        // Romance/personal leaked through
-        'love is','when you love','relationship advice','to win someone',
-        // Coding leaked through
-        'public function','<?php','console.log','import react',
-        // Dangerous content
-        'how to make bomb','illegal','drug','shabu',
+        'here is a recipe', 'ingredients', 'tablespoon', 'teaspoon', 'preheat oven',
+        'the weather today', 'temperature is', 'chance of rain',
+        'relationship advice', 'to win someone',
+        'public function', '<?php', 'console.log', 'import react',
+        'bitcoin', 'crypto trading', 'stock market',
     ];
 
-    /* ── Suspicious fake gov data patterns ───────────────────────
-     * AI sometimes invents specific fees, phone numbers, or dates.
-     * Flag these so we can log them.
-     */
-    private array $fabricationPatterns = [
-        '/\+63\d{10}/',            // fake phone numbers
-        '/09\d{9}/',               // fake mobile numbers
-        '/\bphp\s*\d{4,}\b/i',    // suspiciously large fee amounts
-        '/\bhttps?:\/\/(?!(?:bisig|barangay|malabon|hulong))/i', // external URLs
+    private array $sensitiveUnverifiedPatterns = [
+        '/\+63\d{10}/',
+        '/(?<!\d)09\d{9}(?!\d)/',
+        '/\b(?:php|₱)\s*\d+(?:,\d{3})*(?:\.\d{2})?\b/i',
+        '/\bhttps?:\/\//i',
     ];
-
-    /* ═══════════════════════════════════════════════════════════════
-       MAIN VALIDATE METHOD
-    ═══════════════════════════════════════════════════════════════ */
 
     public function validate(string $aiResponse, string $originalQuery): ValidationResult
     {
-        $lower = strtolower($aiResponse);
+        $plain = trim(html_entity_decode(strip_tags($aiResponse), ENT_QUOTES, 'UTF-8'));
+        $lower = mb_strtolower($plain);
 
-        // 1. Check if AI already refused correctly — accept it
-        foreach ($this->refusalPhrases as $phrase) {
+        if ($plain === '') {
+            return ValidationResult::reject(
+                'empty_response',
+                'Pasensya na po, hindi ko nasagot ang inyong tanong. Please contact or visit Barangay Hulong Duhat for immediate assistance.'
+            );
+        }
+
+        foreach ($this->validRefusalPhrases as $phrase) {
             if (str_contains($lower, $phrase)) {
                 return ValidationResult::accept($aiResponse, 'ai_refused_correctly');
             }
         }
 
-        // 2. Check for hallucination / off-topic content leaked through
         foreach ($this->hallucinationFlags as $flag) {
             if (str_contains($lower, $flag)) {
-                Log::warning('[OutputValidator] Hallucination detected', [
+                Log::warning('[OutputValidator] off-topic AI content detected', [
                     'flag'  => $flag,
-                    'query' => $originalQuery,
-                    'response_snippet' => substr($aiResponse, 0, 150),
+                    'query' => mb_substr($originalQuery, 0, 180),
                 ]);
-                return ValidationResult::reject('hallucination',
-                    "Pasensya na po, hindi ko masasagot ang tanong na iyon. "
-                    . "Nakatuon lamang ako sa mga serbisyo ng <strong>Barangay Hulong Duhat</strong>.<br><br>"
-                    . "Ano pong serbisyo ng barangay ang maipaglilingkod ko sa inyo?"
+
+                return ValidationResult::reject(
+                    'off_topic_or_hallucination',
+                    'I can only assist with Barangay Hulong Duhat Portal services.<br><br>What barangay service can I help you with?'
                 );
             }
         }
 
-        // 3. Suspiciously long response (> 800 chars) — possible hallucination
-        if (strlen($aiResponse) > 800) {
-            Log::warning('[OutputValidator] Overly long AI response truncation', [
-                'length' => strlen($aiResponse),
-                'query'  => $originalQuery,
-            ]);
-            // Truncate rather than reject — may be valid but verbose
-            $truncated = $this->truncate($aiResponse, 800);
-            return ValidationResult::accept($truncated, 'truncated');
-        }
-
-        // 4. Check for fabricated data patterns (log only, don't reject)
-        foreach ($this->fabricationPatterns as $pattern) {
-            if (preg_match($pattern, $aiResponse)) {
-                Log::warning('[OutputValidator] Possible fabricated data in AI response', [
+        foreach ($this->sensitiveUnverifiedPatterns as $pattern) {
+            if (preg_match($pattern, $plain)) {
+                Log::warning('[OutputValidator] possible fabricated contact/fee/link blocked', [
                     'pattern' => $pattern,
-                    'query'   => $originalQuery,
+                    'query'   => mb_substr($originalQuery, 0, 180),
                 ]);
-                // Don't reject — just log for review. Barangay staff can correct in admin.
-                break;
+
+                return ValidationResult::reject(
+                    'possible_fabricated_specific_detail',
+                    'I cannot confirm the exact fee, contact number, or link for that from the chatbot knowledge base.<br><br>Please verify it with Barangay Hulong Duhat staff before proceeding.'
+                );
             }
         }
 
-        // 5. Empty response
-        if (empty(trim(strip_tags($aiResponse)))) {
-            return ValidationResult::reject('empty_response',
-                "Pasensya na po, hindi ko nasagot ang inyong tanong. "
-                . "Pakibisita ang Barangay Hall sa loob ng office hours para sa tulong."
-            );
+        if (mb_strlen($plain) > 1200) {
+            Log::warning('[OutputValidator] long AI response truncated', [
+                'length' => mb_strlen($plain),
+                'query'  => mb_substr($originalQuery, 0, 180),
+            ]);
+
+            return ValidationResult::accept($this->truncate($plain, 1200), 'truncated');
         }
 
-        // ✅ Passed all checks
         return ValidationResult::accept($aiResponse, 'clean');
     }
 
-    /* ── Smart truncate at sentence boundary ─────────────────────  */
-
-    private function truncate(string $text, int $maxLen): string
+    private function truncate(string $plainText, int $maxLen): string
     {
-        if (strlen($text) <= $maxLen) return $text;
-
-        $truncated = substr($text, 0, $maxLen);
-        $lastPeriod = max(
-            strrpos($truncated, '.'),
-            strrpos($truncated, '!'),
-            strrpos($truncated, '?'),
-            strrpos($truncated, "\n"),
+        $truncated = mb_substr($plainText, 0, $maxLen);
+        $lastBreak = max(
+            mb_strrpos($truncated, '.') ?: 0,
+            mb_strrpos($truncated, '!') ?: 0,
+            mb_strrpos($truncated, '?') ?: 0,
+            mb_strrpos($truncated, "\n") ?: 0,
         );
 
-        if ($lastPeriod > $maxLen * 0.6) {
-            $truncated = substr($truncated, 0, $lastPeriod + 1);
+        if ($lastBreak > ($maxLen * 0.6)) {
+            $truncated = mb_substr($truncated, 0, $lastBreak + 1);
         }
 
-        return $truncated . '<br><br><small><em>Para sa kumpletong impormasyon, bisitahin ang Barangay Hall.</em></small>';
+        return nl2br(e($truncated)) . '<br><br><small><em>For complete details, please verify with Barangay Hulong Duhat staff.</em></small>';
     }
 }
 
-
-/**
- * Value object returned by OutputValidator::validate()
- */
 class ValidationResult
 {
     private function __construct(
-        public readonly bool    $accepted,
-        public readonly string  $response,
-        public readonly string  $reason,
+        public readonly bool $accepted,
+        public readonly string $response,
+        public readonly string $reason,
     ) {}
 
     public static function accept(string $response, string $reason): self
@@ -183,5 +124,8 @@ class ValidationResult
         return new self(false, $fallbackResponse, $reason);
     }
 
-    public function isAccepted(): bool { return $this->accepted; }
+    public function isAccepted(): bool
+    {
+        return $this->accepted;
+    }
 }

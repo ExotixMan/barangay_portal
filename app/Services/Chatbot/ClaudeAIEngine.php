@@ -7,36 +7,30 @@ use App\Services\AdminSettingsService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-/**
- * LAYER 2 — Multi-Provider AI Engine
- * ─────────────────────────────────────
- * Supports: Gemini (free), Groq (free), Cloudflare
- * Set provider in .env: AI_PROVIDER=gemini
- */
 class ClaudeAIEngine
 {
     private const TIMEOUT = 20;
+    private const MAX_HISTORY = 8;
+    private const MAX_OUTPUT_TOKENS = 420;
 
     private string $provider;
     private string $apiKey;
     private string $orgName;
     private string $orgLocation;
 
-    // Provider configs
     private array $providers = [
         'gemini' => [
-            // gemini-1.5-flash is RETIRED (404). Use gemini-2.5-flash (current stable).
-            'url'   => 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+            'url'   => 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
             'model' => 'gemini-2.5-flash',
             'env'   => 'GEMINI_API_KEY',
         ],
         'groq' => [
             'url'   => 'https://api.groq.com/openai/v1/chat/completions',
-            'model' => 'llama-3.3-70b-versatile', // updated — llama-3.1-8b-instant deprecated
+            'model' => 'llama-3.3-70b-versatile',
             'env'   => 'GROQ_API_KEY',
         ],
         'cloudflare' => [
-            'url'   => '', // built dynamically using account ID
+            'url'   => '',
             'model' => '@cf/meta/llama-3.1-8b-instruct',
             'env'   => 'CLOUDFLARE_API_TOKEN',
         ],
@@ -44,14 +38,13 @@ class ClaudeAIEngine
 
     public function __construct(private ?AdminSettingsService $settings = null)
     {
-        $this->settings    = $this->settings ?? app(AdminSettingsService::class);
-        $this->provider    = strtolower((string) $this->settings->get('ai.provider', env('AI_PROVIDER', 'gemini')));
-        $this->orgName     = config('chatbot.org_name', 'our local government unit');
-        $this->orgLocation = config('chatbot.org_location', 'Philippines');
+        $this->settings = $this->settings ?? app(AdminSettingsService::class);
+        $this->provider = strtolower((string) $this->settings->get('ai.provider', env('AI_PROVIDER', 'gemini')));
+        $this->orgName = config('chatbot.org_name', 'Barangay Hulong Duhat');
+        $this->orgLocation = config('chatbot.org_location', 'Malabon City, Philippines');
 
-        // Load the API key for the selected provider
-        $envKey        = $this->providers[$this->provider]['env'] ?? 'GEMINI_API_KEY';
-        $this->apiKey  = (string) $this->settings->get('ai.keys.' . $this->provider, env($envKey, ''));
+        $envKey = $this->providers[$this->provider]['env'] ?? 'GEMINI_API_KEY';
+        $this->apiKey = (string) $this->settings->get('ai.keys.' . $this->provider, env($envKey, ''));
     }
 
     public function isAvailable(): bool
@@ -61,49 +54,50 @@ class ClaudeAIEngine
                 return true;
             }
         }
+
         return false;
     }
 
-    /* ── Main dispatch ────────────────────────────────────────── */
-
     public function handle(string $userMessage, array $history = []): ?array
     {
-        if (!$this->isAvailable()) return null;
+        if (! $this->isAvailable()) {
+            return null;
+        }
 
-        try {
-            $knowledge    = $this->loadKnowledgeContext();
-            $systemPrompt = $this->buildSystemPrompt($knowledge);
+        $knowledge = $this->loadKnowledgeContext();
+        $systemPrompt = $this->buildSystemPrompt($knowledge);
 
-            foreach ($this->providerOrder() as $provider) {
-                if (!$this->isProviderConfigured($provider)) {
-                    continue;
-                }
+        foreach ($this->providerOrder() as $provider) {
+            if (! $this->isProviderConfigured($provider)) {
+                continue;
+            }
 
+            try {
                 $apiKey = $this->providerApiKey($provider);
                 $answer = $this->callWithProvider($provider, $apiKey, $systemPrompt, $history, $userMessage);
 
-                if (!empty($answer)) {
+                if ($answer !== null && trim($answer) !== '') {
                     return [
-                        'answer'      => nl2br(htmlspecialchars($answer, ENT_QUOTES, 'UTF-8')),
-                        'source'      => 'ai',
-                        'confidence'  => 85,
-                        'matched'     => true,
-                        'knowledge_id'=> null,
-                        'category'    => 'ai_generated',
-                        'suggestions' => $this->defaultSuggestions(),
-                        'ai_provider' => $provider,
+                        'answer'       => nl2br(e(trim($answer))),
+                        'source'       => 'ai',
+                        'confidence'   => 80,
+                        'matched'      => true,
+                        'knowledge_id' => null,
+                        'category'     => 'ai_generated',
+                        'suggestions'  => $this->defaultSuggestions(),
+                        'ai_provider'  => $provider,
                     ];
                 }
-
-                Log::warning("[AI] Provider '{$provider}' failed; trying next configured provider.");
+            } catch (\Throwable $e) {
+                Log::error("[AI:{$provider}] provider failed", [
+                    'error' => $e->getMessage(),
+                    'file'  => $e->getFile(),
+                    'line'  => $e->getLine(),
+                ]);
             }
-
-            return null;
-
-        } catch (\Throwable $e) {
-            Log::error("[AI:{$this->provider}] " . $e->getMessage());
-            return null;
         }
+
+        return null;
     }
 
     private function providerOrder(): array
@@ -112,147 +106,126 @@ class ClaudeAIEngine
         $fallbackRaw = strtolower((string) $this->settings->get('ai.fallback_providers', env('AI_FALLBACK_PROVIDERS', '')));
 
         $order = [$primary];
-        if ($fallbackRaw !== '') {
-            foreach (explode(',', $fallbackRaw) as $p) {
-                $p = trim($p);
-                if ($p !== '') {
-                    $order[] = $p;
-                }
+        foreach (explode(',', $fallbackRaw) as $provider) {
+            $provider = trim($provider);
+            if ($provider !== '') {
+                $order[] = $provider;
             }
         }
 
-        // Sensible defaults if no explicit fallback list is provided.
         $order = array_merge($order, ['gemini', 'groq', 'cloudflare']);
 
-        // Keep valid providers only, preserve order, remove duplicates.
         $seen = [];
         $final = [];
-        foreach ($order as $p) {
-            if (!isset($this->providers[$p]) || isset($seen[$p])) {
-                continue;
+        foreach ($order as $provider) {
+            if (isset($this->providers[$provider]) && ! isset($seen[$provider])) {
+                $seen[$provider] = true;
+                $final[] = $provider;
             }
-            $seen[$p] = true;
-            $final[] = $p;
         }
+
         return $final;
     }
 
     private function providerApiKey(string $provider): string
     {
         $envKey = $this->providers[$provider]['env'] ?? '';
-        return (string) $this->settings->get('ai.keys.' . $provider, $envKey ? (string) env($envKey, '') : '');
+        return (string) $this->settings->get('ai.keys.' . $provider, $envKey ? env($envKey, '') : '');
+    }
+
+    private function providerModel(string $provider): string
+    {
+        $default = $this->providers[$provider]['model'] ?? '';
+        return (string) $this->settings->get('ai.models.' . $provider, env('AI_MODEL_' . strtoupper($provider), $default));
     }
 
     private function isProviderConfigured(string $provider): bool
     {
-        if (!isset($this->providers[$provider])) {
+        if (! isset($this->providers[$provider])) {
             return false;
         }
 
-        $key = $this->providerApiKey($provider);
-        if ($key === '') {
+        if ($this->providerApiKey($provider) === '') {
             return false;
         }
 
-        if ($provider === 'cloudflare' && empty((string) $this->settings->get('ai.cloudflare_account_id', env('CLOUDFLARE_ACCOUNT_ID', '')))) {
-            return false;
+        if ($provider === 'cloudflare') {
+            return (string) $this->settings->get('ai.cloudflare_account_id', env('CLOUDFLARE_ACCOUNT_ID', '')) !== '';
         }
 
         return true;
     }
 
-    private function callWithProvider(
-        string $provider,
-        string $apiKey,
-        string $systemPrompt,
-        array $history,
-        string $userMessage
-    ): ?string {
-        $prevProvider = $this->provider;
-        $prevKey      = $this->apiKey;
+    private function callWithProvider(string $provider, string $apiKey, string $systemPrompt, array $history, string $userMessage): ?string
+    {
+        $previousProvider = $this->provider;
+        $previousKey = $this->apiKey;
 
         $this->provider = $provider;
-        $this->apiKey   = $apiKey;
+        $this->apiKey = $apiKey;
 
         try {
             return match ($provider) {
-                'gemini'     => $this->callGemini($systemPrompt, $history, $userMessage),
-                'groq'       => $this->callOpenAIStyle($systemPrompt, $history, $userMessage, 'groq'),
+                'gemini' => $this->callGemini($systemPrompt, $history, $userMessage),
+                'groq' => $this->callOpenAIStyle($systemPrompt, $history, $userMessage, 'groq'),
                 'cloudflare' => $this->callCloudflare($systemPrompt, $history, $userMessage),
-                default      => null,
+                default => null,
             };
         } finally {
-            $this->provider = $prevProvider;
-            $this->apiKey   = $prevKey;
+            $this->provider = $previousProvider;
+            $this->apiKey = $previousKey;
         }
     }
 
-    /* ══════════════════════════════════════════════════════════
-       PROVIDER IMPLEMENTATIONS
-    ══════════════════════════════════════════════════════════ */
-
-    /* ── 1. Google Gemini ─────────────────────────────────────── */
-
     private function callGemini(string $system, array $history, string $message): ?string
     {
-        // Gemini uses a different format — combine system + history into contents
         $contents = [];
 
-        // Add history turns
-        foreach (array_slice($history, -6) as $turn) {
+        foreach (array_slice($history, -self::MAX_HISTORY) as $turn) {
+            $role = ($turn['role'] ?? '') === 'user' ? 'user' : 'model';
             $contents[] = [
-                'role'  => $turn['role'] === 'user' ? 'user' : 'model',
-                'parts' => [['text' => $turn['content']]],
+                'role'  => $role,
+                'parts' => [['text' => strip_tags((string) ($turn['content'] ?? ''))]],
             ];
         }
 
-        // Add current message with system context prepended if no history
-        $userText = empty($contents)
-            ? $system . "\n\nUser question: " . $message
-            : $message;
-
         $contents[] = [
             'role'  => 'user',
-            'parts' => [['text' => $userText]],
+            'parts' => [['text' => $message]],
         ];
 
-        $url = $this->providers['gemini']['url'] . '?key=' . $this->apiKey;
+        $model = $this->providerModel('gemini');
+        $url = str_replace('{model}', $model, $this->providers['gemini']['url']) . '?key=' . $this->apiKey;
 
-        $response = Http::timeout(self::TIMEOUT)
-            ->post($url, [
-                'contents'         => $contents,
-                'generationConfig' => [
-                    'maxOutputTokens' => 512,
-                    'temperature'     => 0.3,
-                ],
-                'safetySettings' => [
-                    ['category' => 'HARM_CATEGORY_HARASSMENT',        'threshold' => 'BLOCK_NONE'],
-                    ['category' => 'HARM_CATEGORY_HATE_SPEECH',       'threshold' => 'BLOCK_NONE'],
-                    ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_NONE'],
-                    ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_NONE'],
-                ],
-            ]);
+        $response = Http::timeout(self::TIMEOUT)->post($url, [
+            'systemInstruction' => [
+                'parts' => [['text' => $system]],
+            ],
+            'contents' => $contents,
+            'generationConfig' => [
+                'maxOutputTokens' => self::MAX_OUTPUT_TOKENS,
+                'temperature'     => 0.2,
+                'topP'            => 0.8,
+            ],
+        ]);
 
-        if (!$response->successful()) {
-            Log::error('[Gemini] ' . $response->status() . ': ' . $response->body());
+        if (! $response->successful()) {
+            Log::error('[Gemini] request failed', ['status' => $response->status(), 'body' => $response->body()]);
             return null;
         }
 
         return $response->json('candidates.0.content.parts.0.text');
     }
 
-    /* ── 2. Groq (OpenAI-compatible format) ───────────────────── */
-
     private function callOpenAIStyle(string $system, array $history, string $message, string $which): ?string
     {
         $cfg = $this->providers[$which];
-
         $messages = [['role' => 'system', 'content' => $system]];
 
-        foreach (array_slice($history, -6) as $turn) {
+        foreach (array_slice($history, -self::MAX_HISTORY) as $turn) {
             $messages[] = [
-                'role'    => $turn['role'] === 'user' ? 'user' : 'assistant',
-                'content' => $turn['content'],
+                'role'    => ($turn['role'] ?? '') === 'user' ? 'user' : 'assistant',
+                'content' => strip_tags((string) ($turn['content'] ?? '')),
             ];
         }
 
@@ -261,39 +234,35 @@ class ClaudeAIEngine
         $response = Http::timeout(self::TIMEOUT)
             ->withToken($this->apiKey)
             ->post($cfg['url'], [
-                'model'       => $cfg['model'],
+                'model'       => $this->providerModel($which),
                 'messages'    => $messages,
-                'max_tokens'  => 512,
-                'temperature' => 0.3,
+                'max_tokens'  => self::MAX_OUTPUT_TOKENS,
+                'temperature' => 0.2,
             ]);
 
-        if (!$response->successful()) {
-            Log::error("[{$which}] " . $response->status() . ': ' . $response->body());
+        if (! $response->successful()) {
+            Log::error("[{$which}] request failed", ['status' => $response->status(), 'body' => $response->body()]);
             return null;
         }
 
         return $response->json('choices.0.message.content');
     }
 
-    /* ── 3. Cloudflare Workers AI ─────────────────────────────── */
-
     private function callCloudflare(string $system, array $history, string $message): ?string
     {
         $accountId = (string) $this->settings->get('ai.cloudflare_account_id', env('CLOUDFLARE_ACCOUNT_ID', ''));
-        if (empty($accountId)) {
-            Log::error('[Cloudflare] CLOUDFLARE_ACCOUNT_ID not set in .env');
+        if ($accountId === '') {
             return null;
         }
 
-        $model    = $this->providers['cloudflare']['model'];
-        $url      = "https://api.cloudflare.com/client/v4/accounts/{$accountId}/ai/run/{$model}";
-
+        $model = $this->providerModel('cloudflare');
+        $url = "https://api.cloudflare.com/client/v4/accounts/{$accountId}/ai/run/{$model}";
         $messages = [['role' => 'system', 'content' => $system]];
 
-        foreach (array_slice($history, -6) as $turn) {
+        foreach (array_slice($history, -self::MAX_HISTORY) as $turn) {
             $messages[] = [
-                'role'    => $turn['role'] === 'user' ? 'user' : 'assistant',
-                'content' => $turn['content'],
+                'role'    => ($turn['role'] ?? '') === 'user' ? 'user' : 'assistant',
+                'content' => strip_tags((string) ($turn['content'] ?? '')),
             ];
         }
 
@@ -303,73 +272,73 @@ class ClaudeAIEngine
             ->withToken($this->apiKey)
             ->post($url, [
                 'messages'   => $messages,
-                'max_tokens' => 512,
+                'max_tokens' => self::MAX_OUTPUT_TOKENS,
             ]);
 
-        if (!$response->successful()) {
-            Log::error('[Cloudflare] ' . $response->status() . ': ' . $response->body());
+        if (! $response->successful()) {
+            Log::error('[Cloudflare] request failed', ['status' => $response->status(), 'body' => $response->body()]);
             return null;
         }
 
         return $response->json('result.response');
     }
 
-    /* ── Shared helpers ───────────────────────────────────────── */
-
     private function buildSystemPrompt(string $knowledge): string
     {
-        $loc = $this->orgLocation ? " located in {$this->orgLocation}" : '';
-
         return <<<PROMPT
-You are an official AI assistant for {$this->orgName}{$loc}, a Philippine local government eGovernance portal.
+You are InfoHulo Assistant, the official chatbot for {$this->orgName}, {$this->orgLocation}.
 
-YOUR ROLE:
-- Help citizens with government services, requirements, fees, and procedures
-- Answer questions about permits, documents, certificates, taxes, IDs, and LGU services
-- Be professional, accurate, concise, and helpful
-- Use simple language all citizens can understand
-- You may respond in Filipino/Tagalog if the citizen writes in Filipino
+ROLE:
+- Help residents with Barangay Hulong Duhat portal services.
+- Answer about barangay documents, requirements, valid ID uploads, request tracking, rejection remarks, office support, announcements, events, projects, and incident reports.
+- Reply in the same language as the resident when possible.
 
 STRICT RULES:
-1. ONLY answer questions about government services, LGU transactions, permits, documents, taxes, and IDs
-2. If asked about food, entertainment, personal topics, weather, jokes, or ANYTHING not related to government services — respond ONLY with: "I can only assist with government services and LGU transactions. What government service can I help you with?"
-3. NEVER make up fees, dates, or requirements — use only the knowledge base below
-4. If unsure about a specific detail, advise the citizen to visit the office or call the hotline
-5. Keep answers concise — maximum 5 steps or 150 words
-6. Plain text only — no markdown, no **, no #
-7. This rule overrides everything: if the question is not about government services, DO NOT answer it
+1. Only answer questions related to Barangay Hulong Duhat, its portal, and barangay/LGU services.
+2. Do not answer food, entertainment, romance, homework, coding, jokes, or unrelated questions.
+3. Never invent fees, phone numbers, office addresses, schedules, links, requirements, or processing times.
+4. Use the official knowledge base below first.
+5. If the knowledge base does not contain an exact detail, say that the detail needs staff verification.
+6. Keep answers concise: maximum 5 bullets or 120 words.
+7. Plain text only. No markdown headings.
+8. For emergencies, advise the resident to contact barangay staff or emergency services immediately.
 
 OFFICIAL KNOWLEDGE BASE:
 {$knowledge}
-
-Use this knowledge base as your primary source. For topics not covered, answer based on standard Philippine government procedures and remind the citizen to verify at their local office.
 PROMPT;
     }
 
     private function loadKnowledgeContext(): string
     {
         try {
-            $items = ChatbotKnowledge::select('question', 'answer', 'category')
+            $items = ChatbotKnowledge::query()
+                ->select('question', 'answer', 'category', 'keywords')
                 ->orderByDesc('usage_count')
-                ->limit(config('chatbot.max_knowledge_context', 60))
+                ->limit((int) config('chatbot.max_knowledge_context', 80))
                 ->get();
 
             if ($items->isEmpty()) {
                 return '(No knowledge base entries yet.)';
             }
 
-            return $items->map(fn($i) =>
-                "Q: {$i->question}\nA: {$i->answer}\nCategory: {$i->category}"
-            )->implode("\n\n---\n\n");
-
+            return $items->map(function ($item) {
+                return "Category: {$item->category}\nKeywords: {$item->keywords}\nQ: {$item->question}\nA: {$item->answer}";
+            })->implode("\n\n---\n\n");
         } catch (\Throwable $e) {
-            Log::error('[AI] loadKnowledge: ' . $e->getMessage());
+            Log::error('[AI] loadKnowledge failed', ['error' => $e->getMessage()]);
             return '(Knowledge base temporarily unavailable.)';
         }
     }
 
     private function defaultSuggestions(): array
     {
-        return ["Barangay clearance", "Indigency certificate", "Residency certificate", "Incident report", "Track my request"];
+        return [
+            'Barangay Clearance',
+            'Indigency Certificate',
+            'Residency Certificate',
+            'First-Time Job Seeker',
+            'Incident Report',
+            'Track my request',
+        ];
     }
 }

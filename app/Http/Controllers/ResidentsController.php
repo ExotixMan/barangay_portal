@@ -519,7 +519,7 @@ class ResidentsController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login')->with('success', 'Logged out successfully.');
     }
 
     public function verifyOtp(Request $request)

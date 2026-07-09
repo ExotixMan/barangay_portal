@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Builder;
 
 class AdminActivityLog extends Model
 {
@@ -75,7 +76,7 @@ class AdminActivityLog extends Model
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    private static function normalizeDetails($details): array
+    private static function normalizeDetails(array $details): array
     {
         if (is_string($details)) {
             $decoded = json_decode($details, true);
@@ -113,17 +114,17 @@ class AdminActivityLog extends Model
     }
 
     // Scopes
-    public function scopeByUser($query, $userId)
+    public function scopeByUser(Builder $query, int $userId)
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeByModule($query, $module)
+    public function scopeByModule(Builder $query, string $module)
     {
         return $query->where('module', $module);
     }
 
-    public function scopeByAction($query, $action)
+    public function scopeByAction(Builder $query, string $action)
     {
         return $query->where('action', $action);
     }

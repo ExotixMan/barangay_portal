@@ -86,7 +86,7 @@ class AdminLoginController extends Controller
     }
 
     //Redirect user based on their role and permissions
-    protected function redirectBasedOnRole($user)
+    protected function redirectBasedOnRole(AdminUser $user)
     {
         // Load the user's role if relationship exists
         if (method_exists($user, 'load')) {
@@ -189,7 +189,7 @@ class AdminLoginController extends Controller
     }
 
     // Check if user has a specific permission using your permission system
-    protected function checkPermission($user, $permissionName)
+    protected function checkPermission(AdminUser $user, string $permissionName)
     {
         // If user is super admin, they have all permissions
         if ($user->role && $user->role->name === 'super_admin') {
@@ -207,7 +207,7 @@ class AdminLoginController extends Controller
     }
 
     // Log user activity using AdminActivityLog model
-    protected function logActivity($user, $action, $module, $details = [])
+    protected function logActivity(AdminUser $user, string $action, string $module, array $details = [])
     {
         try {
             AdminActivityLog::create([
@@ -245,17 +245,17 @@ class AdminLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('admin.login');
+        return redirect()->route('login');
     }
 
     // Store login time in session
-    protected function storeLoginTime($request)
+    protected function storeLoginTime(Request $request)
     {
         $request->session()->put('login_time', now());
     }
 
     // Calculate session duration
-    protected function getSessionDuration($request)
+    protected function getSessionDuration(Request $request)
     {
         $loginTime = $request->session()->get('login_time');
         if ($loginTime) {

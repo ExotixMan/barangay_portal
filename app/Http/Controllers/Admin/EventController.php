@@ -113,7 +113,7 @@ class EventController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         // Store form type in session
         session()->flash('form_type', 'edit_' . $id);
@@ -157,7 +157,7 @@ class EventController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $event = Event::findOrFail($id);
 
@@ -179,7 +179,7 @@ class EventController extends Controller
         return back()->with('success', count($request->ids) . ' selected event(s) archived successfully.');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $event = Event::withTrashed()->findOrFail($id);
         $title = $event->title;
@@ -188,13 +188,13 @@ class EventController extends Controller
         return back()->with('success', 'Event "' . $title . '" restored successfully.');
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $event = Event::findOrFail($id);
         return response()->json($event);
     }
 
-    public function duplicate($id)
+    public function duplicate(int $id)
     {
         $event = Event::findOrFail($id);
         

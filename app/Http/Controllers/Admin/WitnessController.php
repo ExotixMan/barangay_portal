@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class WitnessController extends Controller
 {
-    public function store(Request $request, $blotterId)
+    public function store(Request $request, int $blotterId)
     {
         $request->validate([
             'name' => 'nullable|string|max:255',
@@ -27,7 +27,7 @@ class WitnessController extends Controller
         return back()->with('success', 'Witness added successfully.');
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $witness = Witness::findOrFail($id);
         $witness->delete();

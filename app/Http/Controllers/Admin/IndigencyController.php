@@ -143,7 +143,7 @@ class IndigencyController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $application = IndigencyApplication::findOrFail($id);
 
@@ -207,7 +207,7 @@ class IndigencyController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, int $id)
     {
         $application = IndigencyApplication::findOrFail($id);
         
@@ -520,7 +520,7 @@ class IndigencyController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $application = IndigencyApplication::findOrFail($id);
 
@@ -546,7 +546,7 @@ class IndigencyController extends Controller
         return back()->with('success', 'Application #' . $reference . ' archived successfully.');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $application = IndigencyApplication::withTrashed()->findOrFail($id);
         $reference = $application->reference_number;

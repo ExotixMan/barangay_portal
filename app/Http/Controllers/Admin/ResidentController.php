@@ -7,6 +7,9 @@ use App\Models\Residents;
 use App\Models\ResidentActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
@@ -184,6 +187,8 @@ class ResidentController extends Controller
     public function update(Request $request, int $id)
     {
         $resident = Residents::withTrashed()->findOrFail($id);
+        $previousValidIdStatus = (string) ($resident->valid_id_status ?? '');
+        $previousValidIdRemarks = (string) ($resident->valid_id_rejection_reason ?? '');
 
         session()->flash('form_type', 'edit_' . $resident->id);
 
@@ -289,7 +294,24 @@ class ResidentController extends Controller
 
         $this->log($resident, 'Updated');
 
-        return back()->with('success', 'Resident updated successfully.');
+        $successMessage = 'Resident updated successfully.';
+
+        if (
+            ($updateData['valid_id_status'] ?? null) === 'rejected' &&
+            (
+                $previousValidIdStatus !== 'rejected' ||
+                $previousValidIdRemarks !== (string) ($updateData['valid_id_rejection_reason'] ?? '')
+            )
+        ) {
+            $notificationResult = $this->notifyResidentValidIdRejected(
+                $resident->fresh(),
+                (string) ($updateData['valid_id_rejection_reason'] ?? 'No remarks provided.')
+            );
+
+            $successMessage .= ' ' . $this->formatValidIdNotificationSummary($notificationResult);
+        }
+
+        return back()->with('success', trim($successMessage));
     }
 
     public function destroy(int $id)
@@ -390,7 +412,174 @@ class ResidentController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Valid ID for ' . $resident->full_name . ' has been rejected.');
+        $notificationResult = $this->notifyResidentValidIdRejected(
+            $resident->fresh(),
+            (string) $validated['valid_id_rejection_reason']
+        );
+
+        return redirect()->back()->with(
+            'success',
+            'Valid ID for ' . $resident->full_name . ' has been rejected. ' . $this->formatValidIdNotificationSummary($notificationResult)
+        );
+    }
+
+    private function notifyResidentValidIdRejected(Residents $resident, string $remarks): array
+    {
+        $result = [
+            'email' => 'skipped',
+            // 'sms' => 'skipped',
+        ];
+
+        $residentName = trim((string) ($resident->full_name ?? ($resident->firstname . ' ' . $resident->lastname))) ?: 'Resident';
+        $remarks = trim($remarks) !== '' ? trim($remarks) : 'No remarks provided.';
+
+        $message = "Hello {$residentName}, your valid ID verification was rejected. Remarks: {$remarks} Please log in to your account and upload a clearer front and back copy of your valid ID. - Barangay Hulong Duhat";
+
+        if (!empty($resident->email)) {
+            try {
+                Mail::raw($message, function ($mail) use ($resident) {
+                    $mail->to($resident->email)
+                        ->subject('Valid ID Verification Rejected');
+                });
+
+                $result['email'] = 'sent';
+                $this->logNotification('email', (string) $resident->email, 'sent', $message, $resident->id, null);
+            } catch (\Throwable $e) {
+                $result['email'] = 'failed';
+                Log::warning('Failed to send valid ID rejection email.', [
+                    'resident_id' => $resident->id,
+                    'email' => $resident->email,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->logNotification('email', (string) $resident->email, 'failed', $message, $resident->id, $e->getMessage());
+            }
+        }
+
+        // $mobileNumber = $this->formatPhilippineMobileNumber((string) ($resident->contact ?? ''));
+        // $semaphoreApiKey = trim((string) env('SEMAPHORE_API_KEY', ''));
+
+        // if ($mobileNumber && $semaphoreApiKey !== '') {
+        //     try {
+        //         $smsMessage = mb_substr($message, 0, 480);
+
+        //         $payload = [
+        //             'apikey' => $semaphoreApiKey,
+        //             'number' => $mobileNumber,
+        //             'message' => $smsMessage,
+        //         ];
+
+        //         $senderName = trim((string) env('SEMAPHORE_SENDER_NAME', ''));
+        //         if ($senderName !== '') {
+        //             $payload['sendername'] = $senderName;
+        //         }
+
+        //         $response = Http::asForm()
+        //             ->timeout(15)
+        //             ->post('https://api.semaphore.co/api/v4/messages', $payload);
+
+        //         if ($response->successful()) {
+        //             $result['sms'] = 'sent';
+        //             $this->logNotification('sms', $mobileNumber, 'sent', $smsMessage, $resident->id, null);
+        //         } else {
+        //             $result['sms'] = 'failed';
+        //             $error = 'Semaphore status ' . $response->status() . ': ' . $response->body();
+        //             Log::warning('Failed to send valid ID rejection SMS.', [
+        //                 'resident_id' => $resident->id,
+        //                 'contact' => $mobileNumber,
+        //                 'error' => $error,
+        //             ]);
+        //             $this->logNotification('sms', $mobileNumber, 'failed', $smsMessage, $resident->id, $error);
+        //         }
+        //     } catch (\Throwable $e) {
+        //         $result['sms'] = 'failed';
+        //         Log::warning('Failed to send valid ID rejection SMS.', [
+        //             'resident_id' => $resident->id,
+        //             'contact' => $mobileNumber,
+        //             'error' => $e->getMessage(),
+        //         ]);
+        //         $this->logNotification('sms', $mobileNumber, 'failed', $message, $resident->id, $e->getMessage());
+        //     }
+        // }
+
+        return $result;
+    }
+
+    private function formatValidIdNotificationSummary(array $result): string
+    {
+        $sent = [];
+        $failed = [];
+
+        if (($result['email'] ?? 'skipped') === 'sent') {
+            $sent[] = 'email';
+        }
+
+        if (($result['sms'] ?? 'skipped') === 'sent') {
+            $sent[] = 'SMS';
+        }
+
+        if (($result['email'] ?? 'skipped') === 'failed') {
+            $failed[] = 'email';
+        }
+
+        if (($result['sms'] ?? 'skipped') === 'failed') {
+            $failed[] = 'SMS';
+        }
+
+        if ($sent && !$failed) {
+            return 'Notification sent via ' . implode(' and ', $sent) . '.';
+        }
+
+        if ($sent && $failed) {
+            return 'Notification sent via ' . implode(' and ', $sent) . ', but ' . implode(' and ', $failed) . ' failed.';
+        }
+
+        if ($failed) {
+            return 'The ID was rejected, but ' . implode(' and ', $failed) . ' notification failed. Check mail/Semaphore settings.';
+        }
+
+        return 'No notification was sent because the resident has no email/contact or SMS settings are missing.';
+    }
+
+    private function formatPhilippineMobileNumber(string $contact): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $contact);
+
+        if (preg_match('/^09\d{9}$/', $digits)) {
+            return '63' . substr($digits, 1);
+        }
+
+        if (preg_match('/^639\d{9}$/', $digits)) {
+            return $digits;
+        }
+
+        return null;
+    }
+
+    private function logNotification(string $channel, string $recipient, string $status, string $message, int $residentId, ?string $error = null): void
+    {
+        if (!class_exists(\App\Models\NotificationLog::class)) {
+            return;
+        }
+
+        try {
+            \App\Models\NotificationLog::create([
+                'channel' => $channel,
+                'recipient' => $recipient,
+                'status' => $status,
+                'message' => $message,
+                'error_message' => $error,
+                'reference_type' => Residents::class,
+                'reference_id' => $residentId,
+                'sent_by' => auth('admin')->id(),
+                'sent_at' => $status === 'sent' ? now('Asia/Manila') : null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to write valid ID rejection notification log.', [
+                'resident_id' => $residentId,
+                'channel' => $channel,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function storeResidentValidIdFile(Request $request, string $field): string

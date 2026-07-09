@@ -47,7 +47,7 @@ class TrackRequestController extends Controller
         return view('barangay_system.track_request', compact('userRequests', 'trackedRequest'));
     }
 
-    private function searchRequest($reference)
+    private function searchRequest(string $reference)
     {
         // Search in Barangay Clearance
         $clearance = BarangayClearance::where('reference_number', $reference)->first();
@@ -151,7 +151,7 @@ class TrackRequestController extends Controller
         return null;
     }
 
-    private function getDocumentSteps($status)
+    private function getDocumentSteps(string$status)
     {
         $statusLower = strtolower($status);
         
@@ -206,7 +206,7 @@ class TrackRequestController extends Controller
         return $steps;
     }
 
-    private function getIncidentSteps($status)
+    private function getIncidentSteps(string $status)
     {
         $statusLower = strtolower($status);
         
@@ -266,7 +266,7 @@ class TrackRequestController extends Controller
     /**
      * Print request details
      */
-    public function print($reference)
+    public function print(string $reference)
     {
         $trackedRequest = $this->searchRequest($reference);
 
@@ -277,7 +277,7 @@ class TrackRequestController extends Controller
         return view('barangay_system.print_track_request', compact('trackedRequest'));
     }
 
-    private function getUserRequests($user)
+    private function getUserRequests(object $user)
     {
         $requests = [];
         $userId = $user->id;

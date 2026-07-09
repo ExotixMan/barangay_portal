@@ -1012,6 +1012,105 @@
             }
         }
 
+        .sms-credit-box {
+            padding: .95rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+        }
+
+        .sms-credit-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: .85rem;
+        }
+
+        .sms-credit-label {
+            display: block;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .sms-credit-main strong {
+            display: block;
+            margin-top: .22rem;
+            color: var(--text);
+            font-size: 1.55rem;
+            font-weight: 900;
+            letter-spacing: -.045em;
+        }
+
+        .sms-credit-main small {
+            display: block;
+            margin-top: .18rem;
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+        }
+
+        .sms-credit-status {
+            flex: 0 0 auto;
+            padding: .42rem .68rem;
+            border-radius: 999px;
+            font-size: .74rem;
+            font-weight: 850;
+            background: #f2f4f7;
+            color: #344054;
+            border: 1px solid var(--line);
+        }
+
+        .sms-credit-status.is-ok {
+            color: #16803c;
+            background: #eefaf2;
+            border-color: rgba(22, 128, 60, .18);
+        }
+
+        .sms-credit-status.is-danger {
+            color: #dc2626;
+            background: #fff1f2;
+            border-color: rgba(220, 38, 38, .18);
+        }
+
+        .sms-credit-details {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .55rem;
+            margin-top: .85rem;
+        }
+
+        .sms-credit-details span {
+            padding: .68rem .75rem;
+            color: var(--muted);
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            font-size: .76rem;
+            font-weight: 750;
+        }
+
+        .sms-credit-details strong {
+            color: var(--text);
+            font-weight: 900;
+        }
+
+        @media (max-width: 768px) {
+            .sms-credit-main {
+                display: grid;
+            }
+
+            .sms-credit-status {
+                width: fit-content;
+            }
+
+            .sms-credit-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .stat-card {
             height: 100%;
             display: flex !important;
@@ -1136,6 +1235,58 @@
             font-size: .76rem;
             font-weight: 820;
             white-space: nowrap;
+        }
+
+        .resident-picker-list {
+            display: grid;
+            gap: .55rem;
+            max-height: 260px;
+            overflow-y: auto;
+            padding: .65rem;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .resident-picker-item {
+            display: flex;
+            align-items: flex-start;
+            gap: .75rem;
+            padding: .75rem;
+            cursor: pointer;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            transition: border-color .16s ease, background .16s ease;
+        }
+
+        .resident-picker-item:hover {
+            background: #fffafa;
+            border-color: rgba(211, 47, 47, .22);
+        }
+
+        .resident-picker-item input {
+            flex: 0 0 auto;
+            margin-top: .15rem;
+        }
+
+        .resident-picker-item span {
+            display: grid;
+            gap: .18rem;
+            min-width: 0;
+        }
+
+        .resident-picker-item strong {
+            color: var(--text);
+            font-size: .88rem;
+            font-weight: 850;
+        }
+
+        .resident-picker-item small {
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 650;
+            overflow-wrap: anywhere;
         }
 
         .announcements-count-pill { padding: .42rem .68rem; }
@@ -3179,6 +3330,37 @@
                                     </div>
                                 </div>
 
+                                <div class="sms-credit-box mb-3"
+                                    id="smsCreditBox"
+                                    data-credit-balance="{{ $semaphoreAccount['credit_balance'] ?? 0 }}">
+                                    <div class="sms-credit-main">
+                                        <div>
+                                            <span class="sms-credit-label">Semaphore SMS Credits</span>
+                                            <strong id="smsAvailableCredits">
+                                                {{ number_format((float) ($semaphoreAccount['credit_balance'] ?? 0), 2) }}
+                                            </strong>
+                                            <small>
+                                                {{ $semaphoreAccount['success'] ?? false
+                                                    ? 'Live balance from Semaphore account.'
+                                                    : ($semaphoreAccount['message'] ?? 'Unable to load Semaphore balance.') }}
+                                            </small>
+                                        </div>
+
+                                        <div class="sms-credit-status" id="smsCreditStatusBadge">
+                                            Checking estimate
+                                        </div>
+                                    </div>
+
+                                    <div class="sms-credit-details">
+                                        <span>SMS recipients: <strong id="smsEstimatedRecipients">0</strong></span>
+                                        <span>SMS segments: <strong id="smsEstimatedSegments">0</strong></span>
+                                        <span>Credits needed: <strong id="smsEstimatedCredits">0</strong></span>
+                                        <span>After send: <strong id="smsRemainingCredits">0</strong></span>
+                                    </div>
+
+                                    <input type="hidden" name="estimated_sms_credits" id="estimatedSmsCreditsInput" value="0">
+                                </div>
+
                                 <div class="row g-3 modal-form-grid">
                                     <div class="col-12">
                                         <div class="modal-section-title">
@@ -3199,12 +3381,20 @@
                                     <div class="col-12 col-lg-4">
                                         <label class="form-label">Audience <span class="text-danger">*</span></label>
                                         <select name="audience" id="notifyAudience" class="form-select" required>
-                                            <option value="all" {{ old('audience') === 'all' ? 'selected' : '' }}>All residents with contact details</option>
-                                            <option value="verified" {{ old('audience') === 'verified' ? 'selected' : '' }}>Verified residents only</option>
+                                            <option value="all" {{ old('audience') === 'all' ? 'selected' : '' }}>All residents</option>
+                                            <option value="selected" {{ old('audience') === 'selected' ? 'selected' : '' }}>Selected residents only</option>
+                                            <option value="verified" {{ old('audience') === 'verified' ? 'selected' : '' }}>Verified residents</option>
+                                            <option value="unverified" {{ old('audience') === 'unverified' ? 'selected' : '' }}>Unverified residents</option>
+                                            <option value="senior" {{ old('audience') === 'senior' ? 'selected' : '' }}>Senior citizens</option>
+                                            <option value="pwd" {{ old('audience') === 'pwd' ? 'selected' : '' }}>PWD residents</option>
+                                            <option value="student" {{ old('audience') === 'student' ? 'selected' : '' }}>Student residents</option>
+                                            <option value="male" {{ old('audience') === 'male' ? 'selected' : '' }}>Male residents</option>
+                                            <option value="female" {{ old('audience') === 'female' ? 'selected' : '' }}>Female residents</option>
+                                            <option value="with_valid_id" {{ old('audience') === 'with_valid_id' ? 'selected' : '' }}>Residents with valid ID</option>
                                             <option value="email_ready" {{ old('audience') === 'email_ready' ? 'selected' : '' }}>Residents with email</option>
                                             <option value="sms_ready" {{ old('audience') === 'sms_ready' ? 'selected' : '' }}>Residents with mobile number</option>
                                         </select>
-                                        <small class="field-hint">The system skips residents without the selected contact method.</small>
+                                        <small class="field-hint">The system automatically skips missing email/mobile contacts depending on the channel.</small>
                                     </div>
 
                                     <div class="col-12 col-lg-4">
@@ -3217,6 +3407,56 @@
                                             <option value="event">Barangay Event</option>
                                         </select>
                                         <small class="field-hint">Templates are editable after selection.</small>
+                                    </div>
+
+                                    <div class="col-12" id="selectedResidentsBox" style="display: none;">
+                                        <label class="form-label">Choose residents <span class="text-danger">*</span></label>
+
+                                        <input type="text"
+                                            id="residentPickerSearch"
+                                            class="form-control mb-2"
+                                            placeholder="Search resident name, email, or mobile number...">
+
+                                        <div class="resident-picker-list">
+                                            @forelse($residentsForNotification ?? [] as $resident)
+                                                @php
+                                                    $residentFullName = trim(collect([
+                                                        $resident->firstname ?? '',
+                                                        $resident->middlename ?? '',
+                                                        $resident->lastname ?? '',
+                                                        $resident->suffix ?? '',
+                                                    ])->filter()->implode(' '));
+
+                                                    $searchText = strtolower($residentFullName . ' ' . ($resident->email ?? '') . ' ' . ($resident->contact ?? ''));
+                                                @endphp
+
+                                                <label class="resident-picker-item" data-search="{{ $searchText }}">
+                                                    <input type="checkbox"
+                                                        name="resident_ids[]"
+                                                        value="{{ $resident->id }}"
+                                                        {{ in_array($resident->id, old('resident_ids', [])) ? 'checked' : '' }}>
+                                                    <span>
+                                                        <strong>{{ $residentFullName ?: 'Resident #' . $resident->id }}</strong>
+                                                        <small>
+                                                            {{ $resident->contact ?: 'No mobile' }} · {{ $resident->email ?: 'No email' }}
+                                                        </small>
+                                                    </span>
+                                                </label>
+                                            @empty
+                                                <div class="notification-warning-box">
+                                                    <i class="fas fa-circle-info"></i>
+                                                    <div>No residents found for manual selection.</div>
+                                                </div>
+                                            @endforelse
+                                        </div>
+
+                                        <small class="field-hint" id="selectedResidentCounter">0 residents selected</small>
+
+                                        @if(session('form_type') === 'bulk_notify')
+                                            @error('resident_ids')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        @endif
                                     </div>
 
                                     <div class="col-12">
@@ -3642,112 +3882,266 @@
 </script>
 @endif
 
+@if ($errors->any() && session('form_type') === 'bulk_notify')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const templateSelect = document.getElementById('notifyTemplate');
-        const subjectInput = document.getElementById('notifySubject');
-        const messageInput = document.getElementById('notifyMessage');
-        const channelSelect = document.getElementById('notifyChannel');
-        const counter = document.getElementById('notifyCharCounter');
-        const previewText = document.getElementById('notifyPreviewText');
-        const previewChannel = document.getElementById('notifyPreviewChannel');
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('bulkNotifyResidentsModal');
+    if (modalEl) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+});
+</script>
+@endif
 
-        const templates = {
-            ayuda: {
-                subject: 'Ayuda Distribution Notice',
-                message: 'Magandang araw, {name}. May ayuda distribution po ang Barangay Hulong Duhat sa [DATE], [TIME], sa [VENUE]. Magdala po ng valid ID at requirements. Salamat po.'
-            },
-            emergency: {
-                subject: 'Emergency Barangay Advisory',
-                message: 'Magandang araw, {name}. Paalala mula sa Barangay Hulong Duhat: [WRITE EMERGENCY DETAILS HERE]. Para sa agarang tulong, makipag-ugnayan sa barangay office. Ingat po.'
-            },
-            documents: {
-                subject: 'Barangay Document Release Reminder',
-                message: 'Magandang araw, {name}. Ang inyong barangay document/request ay maaari nang i-follow up o kunin sa barangay office. Magdala po ng valid ID at reference number kung meron. Salamat po.'
-            },
-            event: {
-                subject: 'Barangay Event Announcement',
-                message: 'Magandang araw, {name}. Inaanyayahan po kayo sa barangay event: [EVENT NAME] sa [DATE], [TIME], sa [VENUE]. Kita-kits po.'
-            }
-        };
+<script>
+window.smsAudienceCounts = @json($smsAudienceCounts ?? []);
+window.semaphoreCreditBalance = Number(@json($semaphoreAccount['credit_balance'] ?? 0));
 
-        function updatePreview() {
-            if (!messageInput || !previewText) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const templateSelect = document.getElementById('notifyTemplate');
+    const subjectInput = document.getElementById('notifySubject');
+    const messageInput = document.getElementById('notifyMessage');
+    const channelSelect = document.getElementById('notifyChannel');
+    const audienceSelect = document.getElementById('notifyAudience');
+    const counter = document.getElementById('notifyCharCounter');
+    const previewText = document.getElementById('notifyPreviewText');
+    const previewChannel = document.getElementById('notifyPreviewChannel');
+    const selectedResidentsBox = document.getElementById('selectedResidentsBox');
+    const residentPickerSearch = document.getElementById('residentPickerSearch');
+    const selectedResidentCounter = document.getElementById('selectedResidentCounter');
 
-            const message = messageInput.value.trim();
-            const channel = channelSelect?.value || 'sms';
+    const smsEstimatedRecipients = document.getElementById('smsEstimatedRecipients');
+    const smsEstimatedSegments = document.getElementById('smsEstimatedSegments');
+    const smsEstimatedCredits = document.getElementById('smsEstimatedCredits');
+    const smsRemainingCredits = document.getElementById('smsRemainingCredits');
+    const smsCreditStatusBadge = document.getElementById('smsCreditStatusBadge');
+    const estimatedSmsCreditsInput = document.getElementById('estimatedSmsCreditsInput');
 
-            if (counter) {
-                counter.textContent = `${messageInput.value.length} / 1000 characters`;
-            }
+    const templates = {
+        ayuda: {
+            subject: 'Ayuda Distribution Notice',
+            message: 'Magandang araw, {name}. May ayuda distribution po ang Barangay Hulong Duhat sa [DATE], [TIME], sa [VENUE]. Magdala po ng valid ID at requirements. Salamat po.'
+        },
+        emergency: {
+            subject: 'Emergency Barangay Advisory',
+            message: 'Magandang araw, {name}. Paalala mula sa Barangay Hulong Duhat: [WRITE EMERGENCY DETAILS HERE]. Para sa agarang tulong, makipag-ugnayan sa barangay office. Ingat po.'
+        },
+        documents: {
+            subject: 'Barangay Document Release Reminder',
+            message: 'Magandang araw, {name}. Ang inyong barangay document/request ay maaari nang i-follow up o kunin sa barangay office. Magdala po ng valid ID at reference number kung meron. Salamat po.'
+        },
+        event: {
+            subject: 'Barangay Event Announcement',
+            message: 'Magandang araw, {name}. Inaanyayahan po kayo sa barangay event: [EVENT NAME] sa [DATE], [TIME], sa [VENUE]. Kita-kits po.'
+        }
+    };
 
-            if (previewChannel) {
-                previewChannel.textContent = channel === 'both'
-                    ? 'SMS + Email'
-                    : channel.toUpperCase();
-            }
+    function smsLength(message) {
+        return Array.from(message || '').length;
+    }
 
-            previewText.textContent = message
-                ? message.replaceAll('{name}', 'Juan Dela Cruz').replaceAll('{firstname}', 'Juan').replaceAll('{barangay}', 'Hulong Duhat')
-                : 'Your message preview will appear here.';
+    function smsSegments(message) {
+        const length = smsLength(message);
+        return Math.max(1, Math.ceil(length / 160));
+    }
+
+    function selectedResidentCount() {
+        return document.querySelectorAll('input[name="resident_ids[]"]:checked').length;
+    }
+
+    function estimatedSmsRecipients() {
+        const channel = channelSelect?.value || 'sms';
+
+        if (channel === 'email') {
+            return 0;
         }
 
-        templateSelect?.addEventListener('change', function () {
-            const selected = templates[this.value];
+        const audience = audienceSelect?.value || 'all';
 
-            if (!selected) return;
+        if (audience === 'selected') {
+            return selectedResidentCount();
+        }
 
-            if (subjectInput) subjectInput.value = selected.subject;
-            if (messageInput) messageInput.value = selected.message;
+        return Number(window.smsAudienceCounts?.[audience] || 0);
+    }
 
-            updatePreview();
-        });
+    function refreshSelectedResidentBox() {
+        if (!audienceSelect || !selectedResidentsBox) return;
 
-        messageInput?.addEventListener('input', updatePreview);
-        channelSelect?.addEventListener('change', updatePreview);
+        selectedResidentsBox.style.display = audienceSelect.value === 'selected' ? 'block' : 'none';
+        refreshSelectedResidentCounter();
+        refreshSmsCreditEstimate();
+    }
+
+    function refreshSelectedResidentCounter() {
+        if (!selectedResidentCounter) return;
+
+        const selected = selectedResidentCount();
+        selectedResidentCounter.textContent = `${selected} resident${selected === 1 ? '' : 's'} selected`;
+    }
+
+    function refreshSmsCreditEstimate() {
+        const message = messageInput?.value || '';
+        const channel = channelSelect?.value || 'sms';
+        const recipients = estimatedSmsRecipients();
+        const segments = channel === 'email' ? 0 : smsSegments(message);
+        const neededCredits = channel === 'email' ? 0 : recipients * segments * 2;
+        const availableCredits = Number(window.semaphoreCreditBalance || 0);
+        const remainingCredits = availableCredits - neededCredits;
+
+        if (smsEstimatedRecipients) smsEstimatedRecipients.textContent = recipients.toLocaleString();
+        if (smsEstimatedSegments) smsEstimatedSegments.textContent = segments.toLocaleString();
+        if (smsEstimatedCredits) smsEstimatedCredits.textContent = neededCredits.toLocaleString();
+        if (smsRemainingCredits) smsRemainingCredits.textContent = remainingCredits.toLocaleString();
+        if (estimatedSmsCreditsInput) estimatedSmsCreditsInput.value = neededCredits;
+
+        if (smsCreditStatusBadge) {
+            smsCreditStatusBadge.classList.remove('is-ok', 'is-danger');
+
+            if (channel === 'email') {
+                smsCreditStatusBadge.textContent = 'Email only';
+                smsCreditStatusBadge.classList.add('is-ok');
+            } else if (recipients > 1000) {
+                smsCreditStatusBadge.textContent = 'Over 1,000 SMS limit';
+                smsCreditStatusBadge.classList.add('is-danger');
+            } else if (neededCredits <= availableCredits) {
+                smsCreditStatusBadge.textContent = 'Enough credits';
+                smsCreditStatusBadge.classList.add('is-ok');
+            } else {
+                smsCreditStatusBadge.textContent = 'Insufficient credits';
+                smsCreditStatusBadge.classList.add('is-danger');
+            }
+        }
+    }
+
+    function updatePreview() {
+        if (!messageInput || !previewText) return;
+
+        const message = messageInput.value.trim();
+        const channel = channelSelect?.value || 'sms';
+
+        if (counter) {
+            const length = smsLength(messageInput.value);
+            const segments = smsSegments(messageInput.value);
+            counter.textContent = `${length} / 1000 characters · ${segments} SMS segment${segments === 1 ? '' : 's'}`;
+        }
+
+        if (previewChannel) {
+            previewChannel.textContent = channel === 'both'
+                ? 'SMS + Email'
+                : channel.toUpperCase();
+        }
+
+        previewText.textContent = message
+            ? message
+                .replaceAll('{name}', 'Juan Dela Cruz')
+                .replaceAll('{firstname}', 'Juan')
+                .replaceAll('{lastname}', 'Dela Cruz')
+                .replaceAll('{barangay}', 'Hulong Duhat')
+            : 'Your message preview will appear here.';
+
+        refreshSmsCreditEstimate();
+    }
+
+    templateSelect?.addEventListener('change', function () {
+        const selected = templates[this.value];
+
+        if (!selected) return;
+
+        if (subjectInput) subjectInput.value = selected.subject;
+        if (messageInput) messageInput.value = selected.message;
 
         updatePreview();
     });
 
-    function confirmBulkResidentNotification(event) {
-        event.preventDefault();
+    residentPickerSearch?.addEventListener('input', function () {
+        const keyword = this.value.toLowerCase().trim();
 
-        const form = event.target;
-        const channel = document.getElementById('notifyChannel')?.value || 'sms';
-        const audience = document.getElementById('notifyAudience')?.selectedOptions[0]?.textContent || 'selected residents';
-        const message = document.getElementById('notifyMessage')?.value.trim() || '';
+        document.querySelectorAll('.resident-picker-item').forEach(function (item) {
+            const haystack = item.dataset.search || '';
+            item.style.display = haystack.includes(keyword) ? 'flex' : 'none';
+        });
+    });
 
-        if (!message) {
-            alert('Please write a message before sending.');
-            return false;
-        }
+    document.querySelectorAll('input[name="resident_ids[]"]').forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            refreshSelectedResidentCounter();
+            refreshSmsCreditEstimate();
+        });
+    });
 
-        const confirmText = `Send this ${channel.toUpperCase()} notification to ${audience}?`;
+    messageInput?.addEventListener('input', updatePreview);
+    channelSelect?.addEventListener('change', updatePreview);
+    audienceSelect?.addEventListener('change', refreshSelectedResidentBox);
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Send bulk notification?',
-                text: confirmText,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d32f2f',
-                cancelButtonColor: '#667085',
-                confirmButtonText: 'Yes, send now'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
+    refreshSelectedResidentBox();
+    updatePreview();
+});
 
-            return false;
-        }
+function confirmBulkResidentNotification(event) {
+    event.preventDefault();
 
-        if (confirm(confirmText)) {
-            form.submit();
-        }
+    const form = event.target;
+    const channel = document.getElementById('notifyChannel')?.value || 'sms';
+    const audienceSelect = document.getElementById('notifyAudience');
+    const audience = audienceSelect?.selectedOptions[0]?.textContent || 'selected audience';
+    const audienceValue = audienceSelect?.value || 'all';
+    const message = document.getElementById('notifyMessage')?.value.trim() || '';
+    const selectedResidents = document.querySelectorAll('input[name="resident_ids[]"]:checked').length;
+    const neededCredits = Number(document.getElementById('estimatedSmsCreditsInput')?.value || 0);
+    const availableCredits = Number(window.semaphoreCreditBalance || 0);
+    const estimatedRecipients = Number(document.getElementById('smsEstimatedRecipients')?.textContent.replaceAll(',', '') || 0);
+
+    if (!message) {
+        alert('Please write a message before sending.');
+        return false;
+    }
+
+    if (audienceValue === 'selected' && selectedResidents === 0) {
+        alert('Please select at least one resident.');
+        return false;
+    }
+
+    if ((channel === 'sms' || channel === 'both') && estimatedRecipients > 1000) {
+        alert('SMS bulk notification is limited to 1,000 mobile numbers only.');
+        return false;
+    }
+
+    if ((channel === 'sms' || channel === 'both') && neededCredits > availableCredits) {
+        alert(`Not enough SMS credits. Needed: ${neededCredits}, Available: ${availableCredits}`);
+        return false;
+    }
+
+    const extraText = audienceValue === 'selected'
+        ? `${selectedResidents} selected resident${selectedResidents === 1 ? '' : 's'}`
+        : audience;
+
+    const confirmText = `Send this ${channel.toUpperCase()} notification to ${extraText}? Estimated SMS credits: ${neededCredits}.`;
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Send bulk notification?',
+            text: confirmText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#667085',
+            confirmButtonText: 'Yes, send now'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
 
         return false;
     }
+
+    if (confirm(confirmText)) {
+        form.submit();
+    }
+
+    return false;
+}
 </script>
 
 </body>

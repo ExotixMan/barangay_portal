@@ -2,14 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ChatbotKnowledge extends Model
 {
-    protected $table    = 'chatbot_knowledge';
-    protected $fillable = ['question', 'answer', 'keywords', 'category', 'usage_count'];
-    protected $casts    = ['usage_count' => 'integer'];
+    protected $table = 'chatbot_knowledge';
+
+    protected $fillable = [
+        'question',
+        'answer',
+        'keywords',
+        'category',
+        'usage_count',
+    ];
+
+    protected $casts = [
+        'usage_count' => 'integer',
+    ];
 
     public function messages(): HasMany
     {
@@ -22,24 +33,29 @@ class ChatbotKnowledge extends Model
     }
 
     /**
-     * Search knowledge base — ilike on question, answer, AND keywords.
-     * Accepts a full phrase OR a single keyword.
+     * Safe keyword search for MySQL/PostgreSQL.
+     * Uses LOWER(COALESCE(...)) to avoid null errors and keeps ordering predictable.
      */
-    public static function search(string $query, int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public static function search(string $query, int $limit = 10): EloquentCollection
     {
-        $query = strtolower(trim($query));
-        if (empty($query)) return collect();
+        $query = mb_strtolower(trim($query));
 
-        $like = '%' . $query . '%';
+        if ($query === '') {
+            return new EloquentCollection();
+        }
 
-        return static::where(function ($q) use ($like) {
-                $q->whereRaw('LOWER(question) LIKE ?', [$like])
-                  ->orWhereRaw('LOWER(answer) LIKE ?', [$like])
-                  ->orWhereRaw('LOWER(keywords) LIKE ?', [$like])
-                  ->orWhereRaw('LOWER(category) LIKE ?', [$like]);
+        $like = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $query) . '%';
+
+        return static::query()
+            ->where(function ($q) use ($like) {
+                $q->whereRaw("LOWER(COALESCE(question, '')) LIKE ?", [$like])
+                    ->orWhereRaw("LOWER(COALESCE(answer, '')) LIKE ?", [$like])
+                    ->orWhereRaw("LOWER(COALESCE(keywords, '')) LIKE ?", [$like])
+                    ->orWhereRaw("LOWER(COALESCE(category, '')) LIKE ?", [$like]);
             })
             ->orderByDesc('usage_count')
-            ->limit($limit)
+            ->orderBy('question')
+            ->limit(max(1, min($limit, 25)))
             ->get();
     }
 }
