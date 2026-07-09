@@ -237,32 +237,31 @@ class ResidentsController extends Controller
         ]);
     }
 
-    public function checkAccountAvailability(Request $request)
+   public function checkAccountAvailability(Request $request)
     {
         $field = (string) $request->query('field', 'username');
         $value = trim((string) $request->query('value', ''));
 
-        if ($value === '') {
-            return response()->json([
-                'available' => false,
-                'message' => 'Value is required',
-            ], 422);
-        }
-
         $rules = [
             'username' => [
                 'label' => 'Username',
-                'normalize' => fn (string $input) => strtolower($input),
+                'normalize' => fn (string $input) => strtolower(trim($input)),
                 'pattern' => '/^[a-zA-Z0-9_.-]+$/',
                 'min' => 4,
                 'column' => 'username',
+                'empty_message' => 'Username is required.',
+                'format_message' => 'Username may only contain letters, numbers, underscores, dots, and hyphens.',
+                'min_message' => 'Username must be at least 4 characters.',
             ],
             'email' => [
                 'label' => 'Email',
-                'normalize' => fn (string $input) => strtolower($input),
+                'normalize' => fn (string $input) => strtolower(trim($input)),
                 'pattern' => '/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
                 'min' => 6,
                 'column' => 'email',
+                'empty_message' => 'Email is required.',
+                'format_message' => 'Please enter a valid email address.',
+                'min_message' => 'Please enter a valid email address.',
             ],
             'contact' => [
                 'label' => 'Contact number',
@@ -270,28 +269,41 @@ class ResidentsController extends Controller
                 'pattern' => '/^09\d{9}$/',
                 'min' => 11,
                 'column' => 'contact',
+                'empty_message' => 'Contact number is required.',
+                'format_message' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX).',
+                'min_message' => 'Contact number must be 11 digits.',
             ],
         ];
 
         if (!isset($rules[$field])) {
             return response()->json([
                 'available' => false,
-                'message' => 'Unsupported field',
-            ], 422);
+                'message' => 'Unsupported field.',
+            ]);
         }
 
         $rule = $rules[$field];
         $normalized = ($rule['normalize'])($value);
 
-        if (!preg_match($rule['pattern'], $normalized) || strlen($normalized) < $rule['min']) {
+        if ($normalized === '') {
             return response()->json([
                 'available' => false,
-                'message' => $field === 'contact'
-                    ? 'Please enter a valid Philippine mobile number (09XXXXXXXXX)'
-                    : ($field === 'email'
-                        ? 'Please enter a valid email address'
-                        : 'Invalid ' . strtolower($rule['label']) . ' format'),
-            ], 422);
+                'message' => $rule['empty_message'],
+            ]);
+        }
+
+        if (strlen($normalized) < $rule['min']) {
+            return response()->json([
+                'available' => false,
+                'message' => $rule['min_message'],
+            ]);
+        }
+
+        if (!preg_match($rule['pattern'], $normalized)) {
+            return response()->json([
+                'available' => false,
+                'message' => $rule['format_message'],
+            ]);
         }
 
         $exists = Residents::where($rule['column'], $normalized)->exists();
@@ -299,11 +311,10 @@ class ResidentsController extends Controller
         return response()->json([
             'available' => !$exists,
             'message' => $exists
-                ? $rule['label'] . ' is already taken'
-                : $rule['label'] . ' is available',
+                ? $rule['label'] . ' is already taken.'
+                : $rule['label'] . ' is available.',
         ]);
     }
-
     public function login_res(Request $request)
     {
         $request->validate([

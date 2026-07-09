@@ -3819,7 +3819,7 @@
             }
 
             function getCanvasSignature(canvas) {
-                const size = 16;
+                const size = 32;
                 const signatureCanvas = document.createElement('canvas');
                 signatureCanvas.width = size;
                 signatureCanvas.height = size;
@@ -3828,27 +3828,147 @@
                 signatureContext.drawImage(canvas, 0, 0, size, size);
 
                 const imageData = signatureContext.getImageData(0, 0, size, size).data;
-                const signature = [];
+                const pixels = [];
+                const histogram = new Array(16).fill(0);
+                let total = 0;
 
                 for (let i = 0; i < imageData.length; i += 4) {
                     const gray = ((imageData[i] * 0.299) + (imageData[i + 1] * 0.587) + (imageData[i + 2] * 0.114)) / 255;
-                    signature.push(gray);
+                    pixels.push(gray);
+                    total += gray;
+                    const bucket = Math.min(15, Math.floor(gray * 16));
+                    histogram[bucket] += 1;
                 }
 
-                return signature;
+                const mean = pixels.length ? total / pixels.length : 0;
+                const bits = pixels.map(value => value >= mean ? 1 : 0);
+                const normalizedHistogram = histogram.map(count => count / Math.max(1, pixels.length));
+
+                let variance = 0;
+                for (const value of pixels) {
+                    variance += Math.pow(value - mean, 2);
+                }
+                const std = pixels.length ? Math.sqrt(variance / pixels.length) : 0;
+
+                return {
+                    pixels,
+                    bits,
+                    histogram: normalizedHistogram,
+                    mean,
+                    std,
+                    width: canvas.width,
+                    height: canvas.height,
+                    ratio: Math.max(canvas.width, canvas.height) / Math.max(1, Math.min(canvas.width, canvas.height)),
+                };
+            }
+
+            function getSignaturePixels(signature) {
+                if (!signature) return null;
+                return Array.isArray(signature) ? signature : signature.pixels;
             }
 
             function averageSignatureDifference(firstSignature, secondSignature) {
-                if (!firstSignature || !secondSignature || firstSignature.length !== secondSignature.length) {
+                const firstPixels = getSignaturePixels(firstSignature);
+                const secondPixels = getSignaturePixels(secondSignature);
+
+                if (!firstPixels || !secondPixels || firstPixels.length !== secondPixels.length) {
                     return 1;
                 }
 
                 let diff = 0;
-                for (let i = 0; i < firstSignature.length; i++) {
-                    diff += Math.abs(firstSignature[i] - secondSignature[i]);
+                for (let i = 0; i < firstPixels.length; i++) {
+                    diff += Math.abs(firstPixels[i] - secondPixels[i]);
                 }
 
-                return diff / firstSignature.length;
+                return diff / firstPixels.length;
+            }
+
+            function signatureHammingDifference(firstSignature, secondSignature) {
+                if (!firstSignature?.bits || !secondSignature?.bits || firstSignature.bits.length !== secondSignature.bits.length) {
+                    return 1;
+                }
+
+                let differentBits = 0;
+                for (let i = 0; i < firstSignature.bits.length; i++) {
+                    if (firstSignature.bits[i] !== secondSignature.bits[i]) differentBits++;
+                }
+
+                return differentBits / firstSignature.bits.length;
+            }
+
+            function signatureCorrelation(firstSignature, secondSignature) {
+                const firstPixels = getSignaturePixels(firstSignature);
+                const secondPixels = getSignaturePixels(secondSignature);
+
+                if (!firstPixels || !secondPixels || firstPixels.length !== secondPixels.length) {
+                    return 0;
+                }
+
+                const firstMean = firstPixels.reduce((sum, value) => sum + value, 0) / firstPixels.length;
+                const secondMean = secondPixels.reduce((sum, value) => sum + value, 0) / secondPixels.length;
+
+                let numerator = 0;
+                let firstVariance = 0;
+                let secondVariance = 0;
+
+                for (let i = 0; i < firstPixels.length; i++) {
+                    const firstDelta = firstPixels[i] - firstMean;
+                    const secondDelta = secondPixels[i] - secondMean;
+                    numerator += firstDelta * secondDelta;
+                    firstVariance += firstDelta * firstDelta;
+                    secondVariance += secondDelta * secondDelta;
+                }
+
+                const denominator = Math.sqrt(firstVariance * secondVariance);
+                return denominator ? numerator / denominator : 0;
+            }
+
+            function signatureHistogramDifference(firstSignature, secondSignature) {
+                if (!firstSignature?.histogram || !secondSignature?.histogram || firstSignature.histogram.length !== secondSignature.histogram.length) {
+                    return 1;
+                }
+
+                let diff = 0;
+                for (let i = 0; i < firstSignature.histogram.length; i++) {
+                    diff += Math.abs(firstSignature.histogram[i] - secondSignature.histogram[i]);
+                }
+
+                return diff / 2;
+            }
+
+            function looksLikeSameIdSide(firstSignature, secondSignature) {
+                if (!firstSignature || !secondSignature) {
+                    return { duplicate: false, confidence: 0, details: null };
+                }
+
+                const averageDifference = averageSignatureDifference(firstSignature, secondSignature);
+                const hammingDifference = signatureHammingDifference(firstSignature, secondSignature);
+                const correlation = signatureCorrelation(firstSignature, secondSignature);
+                const histogramDifference = signatureHistogramDifference(firstSignature, secondSignature);
+                const ratioDifference = Math.abs((firstSignature.ratio || 0) - (secondSignature.ratio || 0));
+
+                let confidence = 0;
+                if (averageDifference < 0.085) confidence += 0.35;
+                if (hammingDifference < 0.18) confidence += 0.30;
+                if (correlation > 0.86) confidence += 0.25;
+                if (histogramDifference < 0.12) confidence += 0.10;
+                if (ratioDifference > 0.18) confidence -= 0.15;
+
+                const duplicate = confidence >= 0.65
+                    || (averageDifference < 0.065 && hammingDifference < 0.24)
+                    || (correlation > 0.92 && hammingDifference < 0.26);
+
+                return {
+                    duplicate,
+                    confidence,
+                    details: {
+                        averageDifference,
+                        hammingDifference,
+                        correlation,
+                        histogramDifference,
+                        ratioDifference,
+                    },
+                };
             }
 
             function validateIdCaptureQuality(canvas, points, inputId) {
@@ -3946,12 +4066,15 @@
 
                 if (inputId === 'valid_id_back') {
                     const frontSignature = scannerState.captureSignatures.valid_id;
-                    const difference = averageSignatureDifference(frontSignature, signature);
+                    const sameSideCheck = looksLikeSameIdSide(frontSignature, signature);
 
-                    if (frontSignature && difference < 0.018) {
+                    if (sameSideCheck.duplicate) {
+                        console.info('Back ID rejected because it looks like the front side again:', sameSideCheck.details);
                         return {
                             passed: false,
-                            message: 'This looks like the same side as the first capture. Flip the ID and scan the back side.',
+                            message: 'This appears to be the front side again. Flip the ID and scan the back side instead.',
+                            duplicateFront: true,
+                            duplicateDetails: sameSideCheck.details,
                         };
                     }
                 }
@@ -3973,16 +4096,20 @@
                 clearScannerInput(inputId);
                 updateAutoScanStatus();
                 resetScannerDetection();
-                setScannerStatus(`${sideLabel} failed: ${message} Please scan the ${sideLabel} again.`, 'error');
+                const nextInstruction = inputId === 'valid_id_back'
+                    ? 'The first capture is already saved as the front side. Flip the ID and show the back side only.'
+                    : 'Place the front side inside the guide and hold it steady.';
+
+                setScannerStatus(`${sideLabel} failed: ${message}`, 'error');
 
                 window.setTimeout(() => {
                     scannerState.isCapturing = false;
                     scannerState.isWaitingForFlip = false;
                     if (scannerState.stream) {
-                        setScannerStatus(`Scan the ${sideLabel} again. Keep the whole ID inside the guide and hold it steady.`, 'waiting');
+                        setScannerStatus(`${nextInstruction}`, 'waiting');
                         scannerFrameLoop();
                     }
-                }, 1200);
+                }, 1400);
             }
 
 
@@ -4021,7 +4148,7 @@
 
                         if (scannerState.scanMode === 'both' && currentInputId === 'valid_id') {
                             scannerState.isWaitingForFlip = true;
-                            setScannerStatus('Front side captured and passed. Flip the ID now. Back side scanning starts in 3 seconds.', 'ready');
+                            setScannerStatus('Front side captured and saved. Flip the ID now. If the front side appears again, it will be rejected. Back-side scanning starts in 3 seconds.', 'ready');
                             resetScannerDetection();
 
                             window.setTimeout(() => {
@@ -4031,7 +4158,7 @@
                                 scannerState.isCapturing = false;
                                 scannerState.isWaitingForFlip = false;
                                 updateAutoScanStatus();
-                                setScannerStatus('Now scanning back side. Put the back side inside the guide and hold steady.', 'waiting');
+                                setScannerStatus('Now scanning back side. Make sure the ID is flipped; do not show the front side again.', 'waiting');
 
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
