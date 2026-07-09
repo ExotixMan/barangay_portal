@@ -313,6 +313,7 @@ class ResidentsController extends Controller
 
         $rawLoginInput = trim((string) $request->input('login'));
         $password = (string) $request->input('password');
+        $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', false);
 
         /*
         |--------------------------------------------------------------------------
@@ -330,6 +331,19 @@ class ResidentsController extends Controller
                 return back()
                     ->withErrors(['login' => 'Your admin account is not active. Please contact the administrator.'])
                     ->onlyInput('login');
+            }
+
+            if (! $loginOtpEnabled) {
+                Auth::guard('admin')->login($admin);
+                $request->session()->regenerate();
+
+                DB::table('admin_users')
+                    ->where('id', $admin->id)
+                    ->update(['last_login_at' => now('Asia/Manila')]);
+
+                $request->session()->put('login_time', now('Asia/Manila'));
+
+                return $this->redirectAdminBasedOnRole($admin);
             }
 
             $otp = random_int(100000, 999999);
@@ -350,14 +364,14 @@ class ResidentsController extends Controller
             | number and you need an SMS method for AdminUser.
             */
             //this is sms if ever for otp currently using email
-            // $this->sendAdminOtpSms($admin, $otp);
-            Mail::raw("Your admin login OTP is: {$otp}. This OTP will expire in 5 minutes.", function ($message) use ($admin) {
-                $message->to($admin->email)
-                    ->subject('Admin Login OTP');
-            });
+            $this->sendAdminOtpSms($admin, $otp);
+            // Mail::raw("Your admin login OTP is: {$otp}. This OTP will expire in 5 minutes.", function ($message) use ($admin) {
+            //     $message->to($admin->email)
+            //         ->subject('Admin Login OTP');
+            // });
 
             return redirect()->route('otp.form')
-                ->with('success', 'Admin OTP has been sent to your email.');
+                ->with('success', 'Admin OTP has been sent to your contact number.');
         }
 
         /*
@@ -394,9 +408,23 @@ class ResidentsController extends Controller
                 ->onlyInput('login');
         }
 
+        if (! $loginOtpEnabled) {
+            $resident->update([
+                'phone_otp' => null,
+                'phone_otp_expires_at' => null,
+            ]);
+
+            Auth::login($resident);
+            $request->session()->regenerate();
+
+            return redirect()
+                ->intended(route('barangay_system.index'))
+                ->with('success', 'Logged in successfully.');
+        }
+
         /*
         |--------------------------------------------------------------------------
-        | Resident OTP is now always required
+        | Resident Login OTP
         |--------------------------------------------------------------------------
         */
         $otp = random_int(100000, 999999);
