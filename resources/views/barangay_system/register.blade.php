@@ -2184,7 +2184,7 @@
                                 <i class="fas fa-id-card-clip"></i>
                                 <div>
                                     <strong id="idAutoScanStatusTitle">No ID scan yet</strong>
-                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides only after both images pass the quality check.</span>
+                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides only after both images are clear, sharp, and pass the blur check.</span>
                                     <span class="d-none" id="validIdFrontText">No front file selected</span>
                                     <span class="d-none" id="validIdBackText">No back file selected</span>
                                 </div>
@@ -2485,7 +2485,7 @@
                 <div class="modal-body">
                     <div class="scanner-help">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Place the ID inside the guide. The scanner automatically captures the front side first, then asks you to flip the ID for the back side. No second capture button is needed.</span>
+                        <span>Place the ID inside the guide. The scanner automatically captures the front side first, then asks you to flip the ID for the back side. Blurry photos are rejected before sending.</span>
                     </div>
 
                     <div class="scanner-stage">
@@ -3295,6 +3295,13 @@
                 { inputId: 'valid_id_back', label: 'back side', title: 'Automatic valid ID scanner' },
             ];
 
+            // Movement-friendly capture settings.
+            // The scanner no longer waits for the ID to be perfectly still; it collects the best sharp frame.
+            const SCANNER_STABLE_FRAME_TARGET = 8;
+            const SCANNER_CANDIDATE_SAMPLE_INTERVAL_MS = 150;
+            const SCANNER_MIN_GOOD_CANDIDATES = 2;
+            const SCANNER_FRAME_MOVEMENT_TOLERANCE = 46;
+
             const scannerState = {
                 targetInput: null,
                 targetLabel: 'front side',
@@ -3312,6 +3319,10 @@
                 completedBothSides: false,
                 qualityResults: {},
                 captureSignatures: {},
+                candidateFrames: [],
+                detectionFrames: 0,
+                lastCandidateAt: 0,
+                lastCandidateMessage: '',
             };
 
             function setScannerStatus(message, state = 'waiting') {
@@ -3326,6 +3337,10 @@
                 scannerState.lastPoints = null;
                 scannerState.detectedPoints = null;
                 scannerState.isProcessing = false;
+                scannerState.candidateFrames = [];
+                scannerState.detectionFrames = 0;
+                scannerState.lastCandidateAt = 0;
+                scannerState.lastCandidateMessage = '';
 
                 if (scannerOverlay) {
                     const context = scannerOverlay.getContext('2d');
@@ -3379,7 +3394,7 @@
                 }
 
                 updateAutoScanStatus();
-                setScannerStatus('Scanning front side first. Put the photo/name side inside the guide and hold steady.', 'waiting');
+                setScannerStatus('Scanning front side first. Put the photo/name side inside the guide. Slight movement is okay; the scanner will pick the clearest frame.', 'waiting');
 
                 scannerModal.show();
             }
@@ -3495,7 +3510,7 @@
                     return total + distanceBetweenPoints(point, previous[index]);
                 }, 0) / 4;
 
-                return averageMovement < 26;
+                return averageMovement < SCANNER_FRAME_MOVEMENT_TOLERANCE;
             }
 
             function syncScannerCanvases() {
@@ -3770,7 +3785,7 @@
             }
 
             function getCanvasAnalysis(canvas) {
-                const maxWidth = 420;
+                const maxWidth = 640;
                 const ratio = canvas.width > 0 ? canvas.height / canvas.width : 1;
                 const width = Math.min(maxWidth, Math.max(1, canvas.width));
                 const height = Math.max(1, Math.round(width * ratio));
@@ -3780,28 +3795,37 @@
                 sampleCanvas.height = height;
 
                 const sampleContext = sampleCanvas.getContext('2d', { willReadFrequently: true });
+                sampleContext.imageSmoothingEnabled = true;
                 sampleContext.drawImage(canvas, 0, 0, width, height);
 
                 const imageData = sampleContext.getImageData(0, 0, width, height).data;
-                const grays = [];
+                const grays = new Float32Array(width * height);
                 let total = 0;
+                let tooDarkPixels = 0;
+                let tooBrightPixels = 0;
 
-                for (let i = 0; i < imageData.length; i += 4) {
+                for (let i = 0, p = 0; i < imageData.length; i += 4, p++) {
                     const gray = (imageData[i] * 0.299) + (imageData[i + 1] * 0.587) + (imageData[i + 2] * 0.114);
-                    grays.push(gray);
+                    grays[p] = gray;
                     total += gray;
+
+                    if (gray < 28) tooDarkPixels++;
+                    if (gray > 245) tooBrightPixels++;
                 }
 
-                const brightness = grays.length ? total / grays.length : 0;
+                const pixelCount = grays.length || 1;
+                const brightness = total / pixelCount;
+
                 let varianceTotal = 0;
-                for (const gray of grays) {
-                    varianceTotal += Math.pow(gray - brightness, 2);
+                for (let i = 0; i < grays.length; i++) {
+                    varianceTotal += Math.pow(grays[i] - brightness, 2);
                 }
-                const contrast = grays.length ? Math.sqrt(varianceTotal / grays.length) : 0;
+                const contrast = Math.sqrt(varianceTotal / pixelCount);
 
+                // Simple gradient sharpness. Higher means details/text edges are clearer.
                 let sharpnessTotal = 0;
                 let sharpnessCount = 0;
-                const step = 3;
+                const step = 2;
 
                 for (let y = 0; y < height - step; y += step) {
                     for (let x = 0; x < width - step; x += step) {
@@ -3815,7 +3839,63 @@
 
                 const sharpness = sharpnessCount ? sharpnessTotal / sharpnessCount : 0;
 
-                return { brightness, contrast, sharpness };
+                // Laplacian variance is a stronger blur detector than simple brightness/contrast.
+                // Blurry images have low variance because edges/text are smeared.
+                let laplacianTotal = 0;
+                let laplacianSquaredTotal = 0;
+                let laplacianCount = 0;
+                let edgePixels = 0;
+                let centerEdgePixels = 0;
+                let centerPixelCount = 0;
+
+                const centerLeft = Math.floor(width * 0.12);
+                const centerRight = Math.floor(width * 0.88);
+                const centerTop = Math.floor(height * 0.16);
+                const centerBottom = Math.floor(height * 0.84);
+
+                for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                        const index = y * width + x;
+                        const laplacian =
+                            (grays[index - width] + grays[index - 1] + grays[index + 1] + grays[index + width])
+                            - (4 * grays[index]);
+
+                        const absLaplacian = Math.abs(laplacian);
+                        laplacianTotal += laplacian;
+                        laplacianSquaredTotal += laplacian * laplacian;
+                        laplacianCount++;
+
+                        if (absLaplacian > 18) edgePixels++;
+
+                        if (x >= centerLeft && x <= centerRight && y >= centerTop && y <= centerBottom) {
+                            centerPixelCount++;
+                            if (absLaplacian > 18) centerEdgePixels++;
+                        }
+                    }
+                }
+
+                const laplacianMean = laplacianCount ? laplacianTotal / laplacianCount : 0;
+                const laplacianVariance = laplacianCount
+                    ? Math.max(0, (laplacianSquaredTotal / laplacianCount) - (laplacianMean * laplacianMean))
+                    : 0;
+
+                const edgeDensity = laplacianCount ? edgePixels / laplacianCount : 0;
+                const centerEdgeDensity = centerPixelCount ? centerEdgePixels / centerPixelCount : 0;
+                const darkPixelRatio = tooDarkPixels / pixelCount;
+                const brightPixelRatio = tooBrightPixels / pixelCount;
+
+                return {
+                    brightness,
+                    contrast,
+                    sharpness,
+                    laplacianVariance,
+                    edgeDensity,
+                    centerEdgeDensity,
+                    darkPixelRatio,
+                    brightPixelRatio,
+                    sampledWidth: width,
+                    sampledHeight: height,
+                };
             }
 
             function getCanvasSignature(canvas) {
@@ -4048,17 +4128,41 @@
                     };
                 }
 
-                if (analysis.contrast < 14) {
+                if (analysis.contrast < 18) {
                     return {
                         passed: false,
                         message: 'The ID details are not clear enough. Improve lighting and scan again.',
+                        analysis,
                     };
                 }
 
-                if (analysis.sharpness < 4.5) {
+                if (analysis.darkPixelRatio > 0.36) {
                     return {
                         passed: false,
-                        message: 'The ID looks blurry. Hold the camera steady and scan again.',
+                        message: 'Too much of the ID photo is dark. Move to better lighting and scan again.',
+                        analysis,
+                    };
+                }
+
+                if (analysis.brightPixelRatio > 0.30) {
+                    return {
+                        passed: false,
+                        message: 'Too much glare or overexposure was detected. Tilt the ID slightly away from light and scan again.',
+                        analysis,
+                    };
+                }
+
+                const isBlurry = analysis.laplacianVariance < 90
+                    || analysis.sharpness < 8
+                    || analysis.edgeDensity < 0.018
+                    || analysis.centerEdgeDensity < 0.014;
+
+                if (isBlurry) {
+                    console.info('ID scan rejected as blurry:', analysis);
+                    return {
+                        passed: false,
+                        message: 'The ID photo is blurry. Hold the phone and ID steady, clean the camera lens, move closer, and scan again.',
+                        analysis,
                     };
                 }
 
@@ -4084,6 +4188,9 @@
                     message: 'ID quality passed.',
                     analysis,
                     signature,
+                    areaRatio,
+                    detectedRatio,
+                    cropRatio,
                 };
             }
 
@@ -4113,11 +4220,97 @@
             }
 
 
-            function attachScannerImageToInput(canvas) {
+            function cloneScannerPoints(points) {
+                return Array.isArray(points) ? points.map(point => ({ x: point.x, y: point.y })) : null;
+            }
+
+            function cloneScannerCanvas(sourceCanvas) {
+                if (!sourceCanvas) return null;
+
+                const clone = document.createElement('canvas');
+                clone.width = sourceCanvas.width;
+                clone.height = sourceCanvas.height;
+                const cloneContext = clone.getContext('2d');
+                cloneContext.drawImage(sourceCanvas, 0, 0);
+                return clone;
+            }
+
+            function getScannerQualityScore(qualityResult) {
+                const analysis = qualityResult?.analysis;
+                if (!qualityResult?.passed || !analysis) return 0;
+
+                const brightnessScore = Math.max(0, 1 - (Math.abs(analysis.brightness - 145) / 145));
+                const contrastScore = Math.min(1, analysis.contrast / 60);
+                const sharpnessScore = Math.min(1.4, analysis.sharpness / 18);
+                const laplacianScore = Math.min(1.6, analysis.laplacianVariance / 260);
+                const edgeScore = Math.min(1.2, analysis.edgeDensity / 0.055);
+                const centerEdgeScore = Math.min(1.2, analysis.centerEdgeDensity / 0.045);
+                const sizeScore = Math.min(1.15, Math.max(0, (qualityResult.areaRatio || 0) / 0.34));
+
+                return (
+                    (brightnessScore * 0.9)
+                    + (contrastScore * 1.0)
+                    + (sharpnessScore * 1.2)
+                    + (laplacianScore * 1.55)
+                    + (edgeScore * 1.0)
+                    + (centerEdgeScore * 1.0)
+                    + (sizeScore * 0.75)
+                );
+            }
+
+            function rememberScannerCandidate(canvas, points, qualityResult) {
+                if (!canvas || !points || !qualityResult?.passed) return null;
+
+                const candidate = {
+                    canvas: cloneScannerCanvas(canvas),
+                    points: cloneScannerPoints(points),
+                    quality: qualityResult,
+                    score: getScannerQualityScore(qualityResult),
+                    createdAt: performance.now(),
+                };
+
+                scannerState.candidateFrames.push(candidate);
+                scannerState.candidateFrames.sort((a, b) => b.score - a.score);
+                scannerState.candidateFrames = scannerState.candidateFrames.slice(0, 5);
+
+                return candidate;
+            }
+
+            function getBestScannerCandidate() {
+                if (!scannerState.candidateFrames.length) return null;
+                return scannerState.candidateFrames
+                    .slice()
+                    .sort((a, b) => b.score - a.score)[0];
+            }
+
+            function sampleMovingScannerFrame(points) {
+                if (!scannerState.targetInput || !points || scannerState.isWaitingForFlip) return null;
+
+                const now = performance.now();
+                if (now - scannerState.lastCandidateAt < SCANNER_CANDIDATE_SAMPLE_INTERVAL_MS) {
+                    return getBestScannerCandidate();
+                }
+
+                scannerState.lastCandidateAt = now;
+
+                const canvas = cropDetectedCard(points);
+                const qualityResult = validateIdCaptureQuality(canvas, points, scannerState.targetInput.id);
+
+                if (!qualityResult.passed) {
+                    scannerState.lastCandidateMessage = qualityResult.message;
+                    return getBestScannerCandidate();
+                }
+
+                scannerState.lastCandidateMessage = '';
+                return rememberScannerCandidate(canvas, points, qualityResult);
+            }
+
+
+            function attachScannerImageToInput(canvas, prevalidatedQuality = null, prevalidatedPoints = null) {
                 if (!canvas || !scannerState.targetInput) return;
 
                 const currentInputId = scannerState.targetInput.id;
-                const qualityResult = validateIdCaptureQuality(canvas, scannerState.detectedPoints, currentInputId);
+                const qualityResult = prevalidatedQuality || validateIdCaptureQuality(canvas, prevalidatedPoints || scannerState.detectedPoints, currentInputId);
 
                 if (!qualityResult.passed) {
                     rejectCurrentScannerCapture(currentInputId, qualityResult.message);
@@ -4158,7 +4351,7 @@
                                 scannerState.isCapturing = false;
                                 scannerState.isWaitingForFlip = false;
                                 updateAutoScanStatus();
-                                setScannerStatus('Now scanning back side. Make sure the ID is flipped; do not show the front side again.', 'waiting');
+                                setScannerStatus('Now scanning back side. Make sure the ID is flipped; slight movement is okay, but blurry frames will be ignored.', 'waiting');
 
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
@@ -4221,6 +4414,15 @@
 
                 scannerState.isCapturing = true;
                 const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
+                const bestCandidate = getBestScannerCandidate();
+
+                if (bestCandidate) {
+                    scannerState.detectedPoints = cloneScannerPoints(bestCandidate.points);
+                    setScannerStatus(`Using the clearest ${sideLabel} frame found. Checking quality...`, 'ready');
+                    attachScannerImageToInput(bestCandidate.canvas, bestCandidate.quality, bestCandidate.points);
+                    return;
+                }
+
                 setScannerStatus(`Checking ${sideLabel} quality...`, 'ready');
                 const canvas = cropDetectedCard(scannerState.detectedPoints);
                 attachScannerImageToInput(canvas);
@@ -4240,21 +4442,40 @@
                     drawScannerOverlay(points);
 
                     if (points) {
-                        scannerState.stableFrames = arePointsStable(points, scannerState.lastPoints)
+                        const pointsAreStableEnough = arePointsStable(points, scannerState.lastPoints);
+                        scannerState.stableFrames = pointsAreStableEnough
                             ? scannerState.stableFrames + 1
-                            : 1;
+                            : Math.max(1, Math.floor(scannerState.stableFrames * 0.55));
+                        scannerState.detectionFrames++;
                         scannerState.lastPoints = points;
                         scannerState.detectedPoints = points;
 
-                        const progress = Math.min(scannerState.stableFrames, 18);
                         const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
-                        setScannerStatus(`${sideLabel} detected. Hold steady for quality check... ${progress}/18`, 'ready');
+                        const bestCandidate = sampleMovingScannerFrame(points);
+                        const goodFrameCount = scannerState.candidateFrames.length;
+                        const progress = Math.min(SCANNER_STABLE_FRAME_TARGET, Math.max(scannerState.stableFrames, goodFrameCount * 3));
 
-                        if (scannerAutoCapture?.checked && scannerState.stableFrames >= 18) {
+                        if (bestCandidate) {
+                            setScannerStatus(`${sideLabel} detected. Good frame saved even with slight movement... ${progress}/${SCANNER_STABLE_FRAME_TARGET}`, 'ready');
+                        } else if (scannerState.lastCandidateMessage) {
+                            setScannerStatus(`${sideLabel} detected, but not clear yet: ${scannerState.lastCandidateMessage}`, 'waiting');
+                        } else {
+                            setScannerStatus(`${sideLabel} detected. Keep it inside the guide... ${progress}/${SCANNER_STABLE_FRAME_TARGET}`, 'ready');
+                        }
+
+                        const canAutoCaptureBestFrame = scannerAutoCapture?.checked
+                            && bestCandidate
+                            && (
+                                scannerState.stableFrames >= SCANNER_STABLE_FRAME_TARGET
+                                || (goodFrameCount >= SCANNER_MIN_GOOD_CANDIDATES && scannerState.detectionFrames >= 4)
+                            );
+
+                        if (canAutoCaptureBestFrame) {
                             captureScannerFrame(true);
                         }
                     } else {
                         scannerState.stableFrames = 0;
+                        scannerState.detectionFrames = 0;
                         scannerState.lastPoints = null;
                         scannerState.detectedPoints = null;
 
@@ -4289,6 +4510,10 @@
                 scannerState.stableFrames = 0;
                 scannerState.lastPoints = null;
                 scannerState.detectedPoints = null;
+                scannerState.candidateFrames = [];
+                scannerState.detectionFrames = 0;
+                scannerState.lastCandidateAt = 0;
+                scannerState.lastCandidateMessage = '';
                 scannerState.isCapturing = false;
                 scannerState.isProcessing = false;
             }
@@ -4308,8 +4533,8 @@
                         audio: false,
                         video: {
                             facingMode: { ideal: 'environment' },
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 },
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 },
                         },
                     });
 

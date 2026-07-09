@@ -1704,7 +1704,7 @@
                                             @endif
 
                                             @php
-                                                $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                                $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back);
                                                 $residentIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
                                             @endphp
 
@@ -2142,11 +2142,10 @@
                                         </div>
                                         <div class="edit-section-body">
                                             @php
-                                                $editIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : (($resident->valid_id || $resident->valid_id_back || $resident->valid_id_selfie) ? 'for_verification' : 'for_verification'));
+                                                $editIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : (($resident->valid_id || $resident->valid_id_back) ? 'for_verification' : 'for_verification'));
                                                 $editDocuments = [
                                                     ['field' => 'valid_id', 'label' => 'Front ID', 'accept' => 'image/*,.pdf'],
                                                     ['field' => 'valid_id_back', 'label' => 'Back ID', 'accept' => 'image/*,.pdf'],
-                                                    ['field' => 'valid_id_selfie', 'label' => 'Selfie with ID', 'accept' => 'image/*'],
                                                 ];
                                             @endphp
 
@@ -2257,7 +2256,7 @@
                                     <span class="summary-sub">Current status</span>
                                 </div>
                                 @php
-                                    $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                    $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back);
                                     $viewIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
                                     $viewIdStatusLabel = match($viewIdStatus) {
                                         'verified' => 'Verified',
@@ -2347,13 +2346,12 @@
                                 </div>
                                 <div class="detail-section-body">
                                     @php
-                                        $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back) || !empty($resident->valid_id_selfie);
+                                        $hasAnyValidId = !empty($resident->valid_id) || !empty($resident->valid_id_back);
                                         $viewIdStatus = $resident->valid_id_status ?: ($resident->valid_id_verified ? 'verified' : ($hasAnyValidId ? 'for_verification' : 'missing'));
                                         $viewDocuments = [
                                             ['field' => 'profile_photo', 'label' => 'Profile Photo', 'icon' => 'fa-user-circle'],
                                             ['field' => 'valid_id', 'label' => 'Valid ID Front', 'icon' => 'fa-id-card'],
                                             ['field' => 'valid_id_back', 'label' => 'Valid ID Back', 'icon' => 'fa-id-card-clip'],
-                                            ['field' => 'valid_id_selfie', 'label' => 'Selfie with ID', 'icon' => 'fa-camera'],
                                         ];
                                     @endphp
 
@@ -2367,7 +2365,7 @@
                                             <div class="document-preview-card">
                                                 <div class="document-preview-head">
                                                     <h6 class="document-preview-title"><i class="fas {{ $doc['icon'] }}"></i>{{ $doc['label'] }}</h6>
-                                                    @if(in_array($doc['field'], ['valid_id', 'valid_id_back', 'valid_id_selfie']) && $path)
+                                                    @if(in_array($doc['field'], ['valid_id', 'valid_id_back']) && $path)
                                                         @if($viewIdStatus === 'verified')
                                                             <span class="badge bg-success-subtle text-success">Verified</span>
                                                         @elseif($viewIdStatus === 'rejected')

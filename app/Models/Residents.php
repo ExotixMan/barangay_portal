@@ -33,7 +33,6 @@ class Residents extends Authenticatable implements MustVerifyEmail
         // Valid ID scanner files
         'valid_id',          // Front ID
         'valid_id_back',     // Back ID
-        'valid_id_selfie',   // Optional: resident holding ID
 
         // Admin verification
         'valid_id_verified',

@@ -205,7 +205,6 @@ class ResidentController extends Controller
             // Valid ID update/review fields.
             'valid_id' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
             'valid_id_back' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
-            'valid_id_selfie' => ['nullable','file','mimes:jpg,jpeg,png','max:5120'],
             'valid_id_status' => ['nullable','in:for_verification,verified,rejected'],
             'valid_id_rejection_reason' => ['nullable','string','max:500','required_if:valid_id_status,rejected'],
         ], [
@@ -219,7 +218,6 @@ class ResidentController extends Controller
             'contact.regex'   => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
             'valid_id.mimes' => 'The front valid ID must be JPG, JPEG, PNG, or PDF.',
             'valid_id_back.mimes' => 'The back valid ID must be JPG, JPEG, PNG, or PDF.',
-            'valid_id_selfie.mimes' => 'The selfie holding ID must be JPG, JPEG, or PNG.',
             'valid_id_status.in' => 'Please select a valid ID status.',
             'valid_id_rejection_reason.required_if' => 'Remarks are required when rejecting a valid ID.',
         ]);
@@ -236,7 +234,7 @@ class ResidentController extends Controller
             'address'   => $validated['address'],
         ];
 
-        foreach (['valid_id', 'valid_id_back', 'valid_id_selfie'] as $field) {
+        foreach (['valid_id', 'valid_id_back'] as $field) {
             if ($request->hasFile($field)) {
                 $this->deleteResidentValidIdFile((string) $resident->{$field});
                 $updateData[$field] = $this->storeResidentValidIdFile($request, $field);
