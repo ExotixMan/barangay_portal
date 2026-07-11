@@ -1,583 +1,513 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission & Vision - Barangay Hulong Duhat</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+@php
+    $pageTitle = 'Mission & Vision';
+    $activePage = 'mission_vision';
+@endphp
+
+@push('styles')
+<style>
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 760px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-hero-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-mv-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .bhd-mv-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 310px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: clamp(22px, 3vw, 32px);
+        box-shadow: 0 14px 34px rgba(24, 24, 27, 0.04);
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-mv-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 18px 42px rgba(184, 50, 42, 0.10);
+    }
+
+    .bhd-mv-card::before {
+        content: '';
+        position: absolute;
+        top: -70px;
+        right: -70px;
+        width: 190px;
+        height: 190px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-mv-icon {
+        position: relative;
+        z-index: 1;
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 1.25rem;
+        margin-bottom: 22px;
+    }
+
+    .bhd-mv-card h2 {
+        position: relative;
+        z-index: 1;
+        color: var(--ink);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(1.45rem, 2.5vw, 2rem);
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        margin: 0 0 14px;
+    }
+
+    .bhd-mv-card p {
+        position: relative;
+        z-index: 1;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.75;
+        margin: 0;
+    }
+
+    .bhd-values-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .bhd-value-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-value-card:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.08);
+    }
+
+    .bhd-value-card i {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 15px;
+    }
+
+    .bhd-value-card h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-value-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0;
+    }
+
+    .bhd-goal-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .bhd-goal-item {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .bhd-goal-number {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--brand);
+        color: #fff;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 900;
+    }
+
+    .bhd-goal-item h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 5px;
+    }
+
+    .bhd-goal-item p {
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin: 0;
+    }
+
+    .bhd-quote-card {
+        position: relative;
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: clamp(24px, 4vw, 38px);
+        text-align: center;
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-quote-card::before {
+        content: '“';
+        position: absolute;
+        top: -38px;
+        left: 24px;
+        color: var(--brand-soft);
+        font-family: Georgia, serif;
+        font-size: 11rem;
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .bhd-quote-card blockquote {
+        position: relative;
+        z-index: 1;
+        color: var(--ink);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+        line-height: 1.35;
+        letter-spacing: -0.03em;
+        margin: 0 auto 16px;
+        max-width: 760px;
+    }
+
+    .bhd-quote-card span {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--brand);
+        font-size: 0.88rem;
+        font-weight: 950;
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-mv-grid {
+            grid-template-columns: 1fr;
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
+        .bhd-hero-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
         }
 
-        /* Mission Vision Page Styles */
-        .page-hero {
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.9), rgba(122, 35, 35, 0.9)), 
-                        url('https://images.unsplash.com/photo-1590691565924-90d0a14443a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=600&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 140px 0 80px;
-            text-align: center;
-            position: relative;
+        .bhd-values-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
         }
 
-        .page-hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
         }
 
-        .page-hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.2;
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn {
+            width: 100%;
         }
 
-        .page-hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
+        .bhd-values-grid {
+            grid-template-columns: 1fr;
         }
+    }
+</style>
+@endpush
 
-        .breadcrumb-custom {
-            background: transparent;
-            padding: 0;
-            margin-bottom: 1rem;
-            justify-content: center;
-        }
+@include('barangay_system.partials.public_layout_start')
 
-        .breadcrumb-custom .breadcrumb-item a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker">
+                    <i class="fas fa-bullseye"></i>
+                    {{ __('messages.mv_hero_title') }}
+                </span>
 
-        .breadcrumb-custom .breadcrumb-item a:hover {
-            color: white;
-        }
+                <h1>{{ __('messages.mv_hero_title') }}</h1>
+                <p>{{ __('messages.mv_hero_subtitle') }}</p>
 
-        .breadcrumb-custom .breadcrumb-item.active {
-            color: white;
-        }
+                <div class="bhd-page-actions">
+                    <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary">
+                        <i class="fas fa-file-circle-plus"></i>
+                        {{ __('messages.blade_history_blade_request_a_service') }}
+                    </a>
 
-        .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Mission Vision Section */
-        .mission-vision-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-
-        .mv-card {
-            background: white;
-            border-radius: 20px;
-            padding: 50px 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .mv-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-        }
-
-        .mv-card.mission-card {
-            border-top: 5px solid #C62828;
-        }
-
-        .mv-card.vision-card {
-            border-top: 5px solid #C62828;
-        }
-
-        .mv-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.05) 0%, transparent 100%);
-            border-radius: 0 0 0 100%;
-        }
-
-        .mv-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-            font-size: 2rem;
-        }
-
-        .mission-card .mv-icon {
-            background: linear-gradient(135deg, #C62828 0%, #d32f2f 100%);
-            color: white;
-        }
-
-        .vision-card .mv-icon {
-            background: linear-gradient(135deg, #7a2323 0%, #C62828 100%);
-            color: white;
-        }
-
-        .mv-card h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #C62828;
-            margin-bottom: 20px;
-        }
-
-        .mv-card p {
-            color: #555;
-            line-height: 1.8;
-            font-size: 1.1rem;
-        }
-
-        /* Core Values Section */
-        .core-values-section {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .section-header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #C62828;
-            margin-bottom: 15px;
-        }
-
-        .section-header p {
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto;
-            font-size: 1.1rem;
-        }
-
-        .value-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 35px 25px;
-            text-align: center;
-            height: 100%;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .value-card:hover {
-            background: white;
-            border-color: #C62828;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(198, 40, 40, 0.15);
-        }
-
-        .value-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #C62828 0%, #d32f2f 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 1.8rem;
-            color: white;
-            transition: transform 0.3s ease;
-        }
-
-        .value-card:hover .value-icon {
-            transform: scale(1.1) rotate(10deg);
-        }
-
-        .value-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #C62828;
-            margin-bottom: 15px;
-        }
-
-        .value-card p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* Goals Section */
-        .goals-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #C62828 0%, #d32f2f 100%);
-            color: white;
-        }
-
-        .goals-section .section-header h2 {
-            color: white;
-        }
-
-        .goals-section .section-header p {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .goal-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .goal-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(10px);
-        }
-
-        .goal-number {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: white;
-            color: #C62828;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .goal-content h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .goal-content p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        /* Quote Section */
-        .quote-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-            text-align: center;
-        }
-
-        .quote-card {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            position: relative;
-        }
-
-        .quote-card::before {
-            content: '"';
-            position: absolute;
-            top: 20px;
-            left: 30px;
-            font-size: 6rem;
-            color: #C62828;
-            opacity: 0.1;
-            font-family: Georgia, serif;
-            line-height: 1;
-        }
-
-        .quote-card blockquote {
-            font-size: 1.5rem;
-            color: #333;
-            font-style: italic;
-            line-height: 1.8;
-            margin-bottom: 20px;
-        }
-
-        .quote-author {
-            color: #C62828;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .page-hero {
-                padding: 120px 0 60px;
-            }
-
-            .page-hero h1 {
-                font-size: 2rem;
-            }
-
-            .mv-card {
-                padding: 35px 25px;
-            }
-
-            .goal-item {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .goal-number {
-                margin: 0 auto;
-            }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+                    <a href="{{ route('officials') }}" class="bhd-btn bhd-btn-soft">
+                        <i class="fas fa-users"></i>
+                        {{ __('messages.blade_history_blade_view_officials') }}
+                    </a>
                 </div>
             </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
+            <div class="bhd-hero-symbol" aria-hidden="true">
+                <i class="fas fa-bullseye"></i>
             </div>
         </div>
-    </nav>
-
-    <!-- Page Hero -->
-    <section class="page-hero">
-        <div class="page-hero-content">
-            <h1><i class="fas fa-bullseye me-3"></i> {{ __('messages.mv_hero_title')}}</h1>
-            <p>{{ __('messages.mv_hero_subtitle') }}</p>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main id="main-content">
-        <!-- Mission & Vision Cards -->
-        <section class="mission-vision-section">
-            <div class="container">
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="mv-card mission-card">
-                            <div class="mv-icon">
-                                <i class="fas fa-bullseye"></i>
-                            </div>
-                            <h2>{{ __('messages.mv_mission_title') }}</h2>
-                            <p>{{ __('messages.mv_mission_subtitle') }}</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="mv-card vision-card">
-                            <div class="mv-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <h2>{{ __('messages.mv_vision_title') }}</h2>
-                            <p>{{ __('messages.mv_vision_subtitle') }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.blade_mission_vision_blade_our_direction') }}</h2>
+                <p>{{ __('messages.blade_mission_vision_blade_the_mission_and_vision_below_guide_how_the_barangay_ser') }}</p>
+            </div>
+        </div>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="bhd-mv-grid">
+            <article class="bhd-mv-card">
+                <div class="bhd-mv-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
 
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
+                <h2>{{ __('messages.mv_mission_title') }}</h2>
+                <p>{{ __('messages.mv_mission_subtitle') }}</p>
+            </article>
 
-    <script>
-        // Mission Vision Page Script
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate elements on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+            <article class="bhd-mv-card">
+                <div class="bhd-mv-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
+                <h2>{{ __('messages.mv_vision_title') }}</h2>
+                <p>{{ __('messages.mv_vision_subtitle') }}</p>
+            </article>
+        </div>
+    </div>
+</section>
 
-            // Observe value cards and goal items
-            document.querySelectorAll('.value-card, .goal-item, .mv-card').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(30px)';
-                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(el);
-            });
-        });
-    </script>
-</body>
-</html>
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.mv_values_title') }}</h2>
+                <p>{{ __('messages.blade_mission_vision_blade_simple_principles_that_support_better_resident_service_') }}</p>
+            </div>
+        </div>
 
+        <div class="bhd-values-grid">
+            <article class="bhd-value-card">
+                <i class="fas fa-handshake"></i>
+                <h3>{{ __('messages.blade_mission_vision_blade_service') }}</h3>
+                <p>{{ __('messages.blade_mission_vision_blade_resident_needs_are_handled_with_care_respect_and_clear_') }}</p>
+            </article>
+
+            <article class="bhd-value-card">
+                <i class="fas fa-shield-heart"></i>
+                <h3>{{ __('messages.blade_mission_vision_blade_integrity') }}</h3>
+                <p>{{ __('messages.blade_mission_vision_blade_public_service_should_remain_transparent_honest_and_acc') }}</p>
+            </article>
+
+            <article class="bhd-value-card">
+                <i class="fas fa-people-group"></i>
+                <h3>{{ __('messages.community') }}</h3>
+                <p>{{ __('messages.blade_mission_vision_blade_barangay_progress_depends_on_cooperation_between_offici') }}</p>
+            </article>
+
+            <article class="bhd-value-card">
+                <i class="fas fa-laptop"></i>
+                <h3>{{ __('messages.blade_mission_vision_blade_accessibility') }}</h3>
+                <p>{{ __('messages.blade_mission_vision_blade_services_should_be_easier_to_understand_request_and_tra') }}</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.blade_mission_vision_blade_service_goals') }}</h2>
+                <p>{{ __('messages.blade_mission_vision_blade_these_goals_connect_the_mission_and_vision_to_practical') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-goal-list">
+            <article class="bhd-goal-item">
+                <div class="bhd-goal-number">01</div>
+                <div>
+                    <h3>{{ __('messages.blade_mission_vision_blade_make_barangay_services_easier_to_access') }}</h3>
+                    <p>{{ __('messages.blade_mission_vision_blade_residents_can_find_services_submit_requests_and_follow_') }}</p>
+                </div>
+            </article>
+
+            <article class="bhd-goal-item">
+                <div class="bhd-goal-number">02</div>
+                <div>
+                    <h3>{{ __('messages.blade_mission_vision_blade_improve_transparency_in_request_processing') }}</h3>
+                    <p>{{ __('messages.blade_mission_vision_blade_residents_can_track_request_status_and_receive_updates_') }}</p>
+                </div>
+            </article>
+
+            <article class="bhd-goal-item">
+                <div class="bhd-goal-number">03</div>
+                <div>
+                    <h3>{{ __('messages.blade_mission_vision_blade_support_faster_communication') }}</h3>
+                    <p>{{ __('messages.blade_mission_vision_blade_announcements_events_and_important_reminders_are_shown_') }}</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-quote-card">
+            <blockquote>
+                {{ __('messages.blade_mission_vision_blade_a_clearer_and_more_accessible_barangay_service_helps_re') }}
+            </blockquote>
+
+            <span>
+                <i class="fas fa-location-dot"></i>
+                {{ __('messages.blade_mission_vision_blade_barangay_hulong_duhat_resident_service_portal') }}
+            </span>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.blade_mission_vision_blade_need_help_from_the_barangay') }}</h2>
+                <p>{{ __('messages.blade_mission_vision_blade_use_the_online_portal_to_request_a_service_track_your_a') }}</p>
+
+                <div class="bhd-tags">
+                    <span>{{ __('messages.blade_contacts_blade_clearance') }}</span>
+                    <span>{{ __('messages.profile_counter_residency') }}</span>
+                    <span>{{ __('messages.profile_counter_indigency') }}</span>
+                    <span>{{ __('messages.nav_blotter_report') }}</span>
+                </div>
+            </div>
+
+            <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary">
+                <i class="fas fa-file-circle-plus"></i>
+                {{ __('messages.blade_contacts_blade_view_services') }}
+            </a>
+        </div>
+    </div>
+</section>
+
+@include('barangay_system.partials.public_layout_end')

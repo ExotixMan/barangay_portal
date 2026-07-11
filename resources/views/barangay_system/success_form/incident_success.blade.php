@@ -1,295 +1,601 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() ?? 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Barangay Incident Report Receipt</title>
+    <title>{{ __('messages.blade_incident_success_blade_incident_report_submitted') }}</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
+
+    <style>
+        :root {
+            --bg: #f7f4ef;
+            --surface: #fffdf9;
+            --surface-soft: #f1ece4;
+            --text: #1e1c1b;
+            --text-soft: #57524d;
+            --muted: #827a72;
+            --line: #e3dbcf;
+            --line-strong: #d1c6b7;
+            --accent: #9f2f26;
+            --accent-dark: #7d211a;
+            --accent-soft: #f7e7e3;
+            --success: #1f7a4d;
+            --success-soft: #e7f5ee;
+            --info-soft: #eef4ff;
+            --shadow: 0 24px 60px rgba(42, 31, 25, .10);
+            --radius: 24px;
+        }
+
+        html.dark body,
+        body.dark,
+        body.dark-mode,
+        [data-theme="dark"] body,
+        [data-bs-theme="dark"] body {
+            --bg: #12100f;
+            --surface: #1c1a18;
+            --surface-soft: #24211f;
+            --text: #f7f2ec;
+            --text-soft: #d3cbc2;
+            --muted: #a99f95;
+            --line: rgba(255,255,255,.10);
+            --line-strong: rgba(255,255,255,.18);
+            --accent: #ff877d;
+            --accent-dark: #ffa39c;
+            --accent-soft: rgba(255,135,125,.12);
+            --success: #75dda9;
+            --success-soft: rgba(117,221,169,.13);
+            --info-soft: rgba(96,165,250,.12);
+            --shadow: 0 24px 60px rgba(0,0,0,.35);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(159,47,38,.11), transparent 32%),
+                linear-gradient(180deg, var(--bg), var(--surface-soft));
+            line-height: 1.55;
+        }
+        a { color: inherit; text-decoration: none; }
+        .page-shell { width: min(1100px, calc(100% - 32px)); margin: 0 auto; }
+        .skip-link {
+            position: absolute; top: -60px; left: 16px; z-index: 1000;
+            background: var(--text); color: var(--surface); padding: 10px 14px;
+            border-radius: 999px; font-weight: 700;
+        }
+        .skip-link:focus { top: 16px; }
+
+        .topbar {
+            min-height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .brand-logo {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(0,0,0,.06);
+            flex: 0 0 auto;
+        }
+        .brand-logo img { width: 33px; height: 33px; object-fit: contain; }
+        .brand-text strong { display: block; font-size: .92rem; font-weight: 800; line-height: 1.1; }
+        .brand-text span { display: block; color: var(--muted); font-size: .76rem; font-weight: 600; margin-top: 2px; }
+
+        .main-layout {
+            min-height: calc(100vh - 74px);
+            display: grid;
+            align-items: center;
+            padding: 22px 0 50px;
+        }
+        .success-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 350px;
+            gap: 18px;
+            align-items: stretch;
+        }
+        .success-card,
+        .side-card {
+            background: color-mix(in srgb, var(--surface) 96%, transparent);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .success-card {
+            padding: clamp(24px, 4vw, 42px);
+        }
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .status-icon {
+            width: 58px; height: 58px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: var(--success-soft);
+            border: 1px solid color-mix(in srgb, var(--success) 28%, transparent);
+            color: var(--success);
+            font-size: 1.55rem;
+            flex: 0 0 auto;
+        }
+        .status-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--success);
+            font-size: .75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .status-row p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; font-weight: 600; }
+        .title {
+            max-width: 680px;
+            margin: 0;
+            font-size: clamp(1.85rem, 4vw, 3rem);
+            letter-spacing: -.045em;
+            line-height: 1.05;
+            font-weight: 850;
+        }
+        .lead {
+            max-width: 660px;
+            margin: 16px 0 0;
+            color: var(--text-soft);
+            font-size: 1rem;
+        }
+
+        .reference-panel {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            margin: 28px 0 22px;
+            padding: 18px;
+            border: 1px dashed var(--line-strong);
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--surface-soft), var(--surface));
+        }
+
+        .ref-label {
+            display: block;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 5px;
+        }
+        .reference-number {
+            display: block;
+            color: var(--accent);
+            font-size: clamp(1.35rem, 4vw, 2.1rem);
+            font-weight: 900;
+            letter-spacing: -.02em;
+            word-break: break-word;
+        }
+        .copy-ref {
+            border: 1px solid var(--line-strong);
+            background: var(--surface);
+            color: var(--text-soft);
+            border-radius: 999px;
+            padding: 10px 13px;
+            font-weight: 850;
+            font-size: .84rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .copy-ref:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+        .details-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 0 0 24px;
+        }
+        .mini-detail {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: color-mix(in srgb, var(--surface) 80%, var(--surface-soft));
+            min-width: 0;
+        }
+        .mini-detail span {
+            display: block;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 4px;
+        }
+        .mini-detail strong {
+            display: block;
+            color: var(--text);
+            font-size: .9rem;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .action-btn {
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: .9rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: .15s ease;
+        }
+        .action-primary { background: var(--accent); color: #fff; }
+        .action-primary:hover { background: var(--accent-dark); color: #fff; transform: translateY(-1px); }
+        .action-secondary { background: var(--surface); color: var(--text-soft); border-color: var(--line-strong); }
+        .action-secondary:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+
+        .side-card {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .side-section {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 16px;
+            background: color-mix(in srgb, var(--surface-soft) 52%, var(--surface));
+        }
+        .side-section h2 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
+        }
+        .status-pill {
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--info-soft);
+            border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+            color: var(--accent);
+            font-size: .8rem;
+            font-weight: 900;
+        }
+        .timeline { display: grid; gap: 14px; }
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 30px 1fr;
+            gap: 10px;
+            position: relative;
+        }
+        .timeline-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: 14px;
+            top: 32px;
+            bottom: -13px;
+            border-left: 1px dashed var(--line-strong);
+        }
+        .timeline-dot {
+            width: 30px; height: 30px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: .8rem;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+        }
+        .timeline-item.done .timeline-dot { background: var(--success-soft); color: var(--success); }
+        .timeline-item strong { display: block; font-size: .9rem; margin-bottom: 2px; }
+        .timeline-item span { color: var(--muted); font-size: .8rem; }
+        .privacy-note {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: color-mix(in srgb, var(--surface) 75%, var(--surface-soft));
+            color: var(--muted);
+            font-size: .82rem;
+        }
+        .privacy-note strong { color: var(--text); }
+        .help-text { color: var(--muted); font-size: .82rem; margin: 0; }
+        .help-text strong { color: var(--text); }
+        .page-footer { padding: 0 0 28px; color: var(--muted); text-align: center; font-size: .8rem; }
+        .toast-copy {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 2000;
+            padding: 11px 14px;
+            border-radius: 999px;
+            background: var(--text);
+            color: var(--surface);
+            font-weight: 800;
+            font-size: .84rem;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: .18s ease;
+        }
+        .toast-copy.show { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 940px) {
+            .main-layout { align-items: start; padding-top: 14px; }
+            .success-grid { grid-template-columns: 1fr; }
+            .side-card { box-shadow: none; }
+        }
+        @media (max-width: 680px) {
+            .page-shell { width: min(100% - 24px, 1100px); }
+            .brand-text span { display: none; }
+            .success-card, .side-card { border-radius: 20px; }
+            .reference-panel { grid-template-columns: 1fr; }
+            .copy-ref { width: 100%; }
+            .details-list { grid-template-columns: 1fr; }
+            .actions { display: grid; }
+            .action-btn { width: 100%; }
+        }
+        @media print {
+            .topbar, .actions, .page-footer, .toast-copy { display: none !important; }
+            body { background: #fff; }
+            .main-layout { min-height: auto; padding: 0; }
+            .success-grid { display: block; }
+            .success-card, .side-card { box-shadow: none; border: 1px solid #ddd; margin-bottom: 12px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; scroll-behavior: auto !important; }
+        }
+    </style>
 </head>
 <body>
-    <div class="form-page-header container-fluid px-3 px-md-4">
-        <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> Barangay Incident Report Application</h1>
-    </div>
+@php
+    $submittedDateText = $date_submitted ?? now()->format('M d, Y');
+@endphp
 
-    <!-- Application Form -->
-    <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
-        <div class="container form-container px-0">
-            <div class="application-status" id="statusMessage">
-                <div class="status-content">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Incident Report Submitted Successfully!</h3>
-                    <p>Your report has been received. Your reference number is: <strong id="referenceNumber">{{ $reference }}</strong></p>
-                    <div class="status-actions row g-2 justify-content-center">
-                        <div class="col-12 col-md-auto">
-                            <button class="btn-download w-100" id="printReport">
-                                <i class="fas fa-print"></i> Print Report Summary
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <a href="{{ route('track_request') }}" class="btn-track w-100" style="text-decoration: none;">
-                                <i class="fas fa-search"></i> Track Application
-                            </a>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <a href="{{ route('incident') }}" class="btn-back-info w-100" style="text-decoration: none;">
-                                <i class="fas fa-arrow-left"></i> Back to Info Page
-                            </a>
-                        </div>
+<header class="page-shell topbar">
+    <a href="{{ route('barangay_system.index') }}" class="brand" aria-label="{{ __('messages.blade_incident_success_blade_go_to_homepage') }}">
+        <span class="brand-logo"><img src="{{ asset('Images/logo.png') }}" alt="{{ __('messages.blade_incident_success_blade_barangay_hulong_duhat_logo') }}"></span>
+        <span class="brand-text">
+            <strong>{{ __('messages.footer_brand_name') }}</strong>
+            <span>{{ __('messages.blade_incident_success_blade_online_services_portal') }}</span>
+        </span>
+    </a>
+</header>
+
+<main class="main-layout" id="mainContent">
+    <div class="page-shell success-grid">
+        <section class="success-card" aria-labelledby="successTitle">
+            <div class="status-row">
+                <div class="status-icon" aria-hidden="true"><i class="fas fa-check"></i></div>
+                <div>
+                    <span class="status-kicker">{{ __('messages.track_timeline_report_submitted') }}</span>
+                    <p>{{ __('messages.blade_incident_success_blade_your_report_is_now_recorded_for_barangay_review') }}</p>
+                </div>
+            </div>
+
+            <h1 class="title" id="successTitle">{{ __('messages.blade_incident_success_blade_your_incident_report_was_received') }}</h1>
+            <p class="lead">{{ __('messages.blade_incident_success_blade_save_your_reference_number_barangay_staff_may_contact_y') }}</p>
+
+            <div class="reference-panel" aria-label="{{ __('messages.incident_form_bring_reference') }}">
+                <div>
+                    <span class="ref-label">{{ __('messages.incident_form_bring_reference') }}</span>
+                    <strong class="reference-number" id="referenceNumber">{{ $reference }}</strong>
+                </div>
+                <button type="button" class="copy-ref" id="copyReference" data-copy-target="referenceNumber">
+                    <i class="fas fa-copy"></i> {{ __('messages.blade_incident_success_blade_copy') }}
+                </button>
+            </div>
+
+            <div class="details-list" aria-label="{{ __('messages.blade_incident_success_blade_report_summary') }}">
+                <div class="mini-detail">
+                    <span>{{ __('messages.blade_incident_success_blade_complainant') }}</span>
+                    <strong>{{ $complaint_name ?? __('messages.blade_success_fallback_complainant') }}</strong>
+                </div>
+                <div class="mini-detail">
+                    <span>{{ __('messages.profile_table_date') }}</span>
+                    <strong>{{ $submittedDateText }}</strong>
+                </div>
+            </div>
+
+            <div class="privacy-note">
+                <strong>{{ __('messages.blade_incident_success_blade_reminder') }}</strong> {{ __('messages.blade_incident_success_blade_keep_your_reference_number_private_and_use_it_only_when') }}
+            </div>
+
+            <div class="actions" aria-label="{{ __('messages.blade_incident_success_blade_next_actions') }}" style="margin-top: 18px;">
+                <a href="{{ route('track_request') }}" class="action-btn action-primary">
+                    <i class="fas fa-search"></i> {{ __('messages.blade_incident_blade_track_report') }}
+                </a>
+                <button type="button" class="action-btn action-secondary" id="printReport">
+                    <i class="fas fa-print"></i> {{ __('messages.blade_incident_success_blade_print_summary') }}
+                </button>
+                <a href="{{ route('incident') }}" class="action-btn action-secondary">
+                    <i class="fas fa-arrow-left"></i> {{ __('messages.blade_incident_success_blade_back_to_incident_page') }}
+                </a>
+            </div>
+        </section>
+
+        <aside class="side-card" aria-label="{{ __('messages.blade_incident_success_blade_helpful_information') }}">
+            <div class="side-section">
+                <h2>{{ __('messages.track_timeline_current_status') }}</h2>
+                <span class="status-pill"><i class="fas fa-shield-halved"></i> {{ __('messages.blade_incident_success_blade_submitted_for_review') }}</span>
+            </div>
+
+            <div class="side-section">
+                <h2>{{ __('messages.blade_incident_success_blade_what_happens_next') }}</h2>
+                <div class="timeline">
+                    <div class="timeline-item done">
+                        <span class="timeline-dot"><i class="fas fa-check"></i></span>
+                        <div><strong>{{ __('messages.blade_incident_success_blade_recorded') }}</strong><span>{{ __('messages.blade_incident_success_blade_your_report_was_submitted_successfully') }}</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot">2</span>
+                        <div><strong>{{ __('messages.blade_clearance_form_blade_review') }}</strong><span>{{ __('messages.blade_incident_success_blade_barangay_staff_reviews_your_report_details') }}</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot">3</span>
+                        <div><strong>{{ __('messages.blade_incident_success_blade_follow_up') }}</strong><span>{{ __('messages.blade_incident_success_blade_you_may_be_contacted_for_clarification_mediation_or_hea') }}</span></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- QR Code library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
+            <div class="side-section">
+                <h2>{{ __('messages.blade_services_blade_need_help') }}</h2>
+                <p class="help-text"><strong>{{ __('messages.blade_index_blade_barangay_hall') }}</strong><br>{{ __('messages.blade_incident_success_blade_1_m_blas_st_barangay_hulong_duhat_malabon_city') }}<br><br><strong>{{ __('messages.contacts_hours_title') }}</strong><br>{{ __('messages.blade_incident_success_blade_monday_to_friday_8_00_am_5_00_pm') }}<br>{{ __('messages.blade_incident_success_blade_saturday_8_00_am_12_00_pm') }}<br><br><strong>{{ __('messages.nav_contact') }}</strong><br>8-281-1373</p>
+            </div>
+        </aside>
+    </div>
+</main>
+<div class="toast-copy" id="copyToast">{{ __('messages.blade_incident_success_blade_reference_number_copied') }}</div>
 
-    <script>
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-        };
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusMessage = document.getElementById('statusMessage');
-            const referenceNumber = document.getElementById('referenceNumber');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<script src="{{ asset('js/dark-mode.js') }}"></script>
+<script>
+(function(){
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('barangay-theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+    if (savedTheme === 'light') document.body.classList.remove('dark-mode');
 
-            // Print report button - similar to residency receipt
-            const printButton = document.getElementById('printReport');
-            if (printButton) {
-                printButton.addEventListener('click', function() {
-                    const complainantName = '{{ $complaint_name }}';
-                    const referenceNum = '{{ $reference }}';
-                    const currentDate = '{{ $date_submitted }}';
-                    
-                    // Create QR code data
-                    const qrData = `Reference: ${referenceNum}\nComplainant: ${complainantName}\nDate: ${currentDate}\nType: Incident Report`;
-                    
-                    QRCode.toDataURL(qrData, { width: 150 })
-                        .then(qrDataUrl => {
-                            const printContent = `<!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Incident Report Application Receipt</title>
-                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                                <style>
-                                    body { 
-                                        font-family: Arial, sans-serif; 
-                                        margin: 30px; 
-                                        line-height: 1.5; 
-                                    }
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function(){
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('barangay-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+    }
 
-                                    .header { 
-                                        text-align: center; 
-                                        margin-bottom: 20px; 
-                                        border-bottom: 2px solid #C62828; 
-                                        padding-bottom: 15px; 
-                                    }
+    function showToast(){
+        const toast = document.getElementById('copyToast');
+        if (!toast) return;
+        toast.classList.add('show');
+        setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+    }
 
-                                    .header h1 { 
-                                        color: #C62828; 
-                                        margin-bottom: 5px; 
-                                        font-size: 22px; 
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                        gap: 10px;
-                                    }
+    const copyBtn = document.getElementById('copyReference');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function(){
+            const target = document.getElementById(copyBtn.dataset.copyTarget);
+            const text = target ? target.textContent.trim() : '';
+            if (!text) return;
 
-                                    .header h1 i {
-                                        font-size: 20px;
-                                    }
-
-                                    .header .subtitle { 
-                                        color: #666; 
-                                        font-size: 13px; 
-                                    }
-
-                                    .details { 
-                                        margin: 20px 0; 
-                                    }
-
-                                    .detail-row { 
-                                        display: flex; 
-                                        margin: 6px 0; 
-                                        padding: 4px 0; 
-                                        border-bottom: 1px solid #eee; 
-                                    }
-
-                                    .detail-label { 
-                                        font-weight: bold; 
-                                        color: #333; 
-                                        width: 170px; 
-                                    }
-
-                                    .detail-value { 
-                                        color: #444; 
-                                        flex: 1; 
-                                    }
-
-                                    .qr-code { 
-                                        text-align: center; 
-                                        margin: 15px 0; 
-                                    }
-
-                                    .qr-code img { 
-                                        width: 130px; 
-                                        height: 130px; 
-                                        margin: 10px auto; 
-                                        display: block;
-                                        border: 1px solid #ddd; 
-                                        padding: 8px; 
-                                        background: white; 
-                                    }
-
-                                    .instructions { 
-                                        margin-top: 15px; 
-                                        padding: 15px; 
-                                        background: #f8f9fa; 
-                                        border-radius: 8px; 
-                                        font-size: 13px;
-                                    }
-
-                                    .instructions h3 {
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 8px;
-                                        color: #C62828;
-                                    }
-
-                                    .footer { 
-                                        text-align: center; 
-                                        margin-top: 20px; 
-                                        color: #666; 
-                                        font-size: 11px; 
-                                        border-top: 1px solid #eee; 
-                                        padding-top: 10px; 
-                                    }
-                                    @page {
-                                        size: 8.5in 11in;
-                                        margin: 0.5in;
-                                    }
-
-                                    @media print {
-                                        body {
-                                            margin: 0;
-                                            font-size: 12px;
-                                        }
-
-                                        .no-print {
-                                            display: none !important;
-                                        }
-
-                                        html, body {
-                                            width: 8.5in;
-                                            height: 11in;
-                                        }
-
-                                        * {
-                                            page-break-inside: avoid !important;
-                                        }
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <h1><i class="fas fa-clipboard-list"></i> Barangay Incident Report Receipt</h1>
-                                    <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
-                                </div>
-                                
-                                <div class="details">
-                                    <h3>Report Details</h3>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Reference Number:</div>
-                                        <div class="detail-value"><strong>${referenceNum}</strong></div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Complainant Name:</div>
-                                        <div class="detail-value">${complainantName}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Date Submitted:</div>
-                                        <div class="detail-value">${currentDate}</div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-label">Status:</div>
-                                        <div class="detail-value"><span style="color: #C62828; font-weight: 600;">Submitted for Investigation</span></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="qr-code">
-                                    <p><i class="fas fa-qrcode"></i> Scan to Verify Report Status</p>
-                                    <img src="${qrDataUrl}" alt="QR Code for ${referenceNum}">
-                                    <p style="font-size: 12px; color: #666; margin-top: 10px;">Reference: ${referenceNum}</p>
-                                </div>
-                                
-                                <div class="instructions">
-                                    <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
-                                    <div class="step"><strong>1.</strong> Barangay will review your report (1-2 business days)</div>
-                                    <div class="step"><strong>2.</strong> You may be contacted for additional information</div>
-                                    <div class="step"><strong>3.</strong> Check your email/phone for updates</div>
-                                    <div class="step"><strong>4.</strong> Visit barangay hall if summoned for hearing</div>
-                                    
-                                    <div class="important-note">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Important Note:</strong> Keep this receipt for reference. Present it when following up on your report.
-                                    </div>
-                                    
-                                    <p><strong><i class="fas fa-map-marker-alt"></i> Barangay Hall Location:</strong><br>
-                                    1 M. Blas St, Malabon, Metro Manila<br>
-                                    <strong><i class="fas fa-clock"></i> Office Hours:</strong><br>
-                                    Monday - Friday: 8:00 AM - 5:00 PM<br>
-                                    Saturday: 8:00 AM - 12:00 PM</p>
-                                </div>
-                                
-                                <div class="footer">
-                                    <p>This is an electronically generated receipt. No signature is required.</p>
-                                    <p>Barangay Hulong Duhat Online Services © ${new Date().getFullYear()}</p>
-                                </div>
-                                
-                                <div class="no-print" style="text-align: center; margin-top: 30px;">
-                                    <button onclick="window.print()" style="padding: 12px 25px; background: #C62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-print"></i> Print Receipt
-                                    </button>
-                                    <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; font-weight: 600;">
-                                        <i class="fas fa-times"></i> Close Window
-                                    </button>
-                                </div>
-                            </body>
-                            </html>`;
-                            
-                            const printWindow = window.open('', '_blank', 'width=800,height=600');
-                            if (printWindow) {
-                                printWindow.document.write(printContent);
-                                printWindow.document.close();
-                                printWindow.focus();
-                                setTimeout(() => {
-                                    printWindow.print();
-                                }, 300);
-                            } else {
-                                alert('Please allow pop-ups to print the receipt');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error generating QR code:', error);
-                            alert('Error generating QR code. Please try again.');
-                        });
-                });
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showToast);
+            } else {
+                const temp = document.createElement('textarea');
+                temp.value = text;
+                temp.setAttribute('readonly', '');
+                temp.style.position = 'fixed';
+                temp.style.opacity = '0';
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showToast();
             }
         });
-    </script>
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', function(){
+    const printButton = document.getElementById('printReport');
+    if (!printButton) return;
+
+    printButton.addEventListener('click', function(){
+        const complainantName = @json($complaint_name ?? __('messages.blade_success_fallback_complainant'));
+        const referenceNum = @json($reference ?? '');
+        const currentDate = @json($submittedDateText);
+        const qrData = @json(__('messages.blade_jsdyn_reference_reference_ncomplainant_name_ndate_date_ntype_inc')).replace(':reference', referenceNum).replace(':name', complainantName).replace(':date', currentDate);
+
+        QRCode.toDataURL(qrData, { width: 150 }).then(function(qrDataUrl){
+            const printContent = `<!DOCTYPE html>
+<html>
+<head>
+<title>{{ __('messages.blade_incident_success_blade_incident_report_summary') }}</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body{font-family:Arial,sans-serif;margin:28px;color:#1e1c1b;background:#fff;line-height:1.5}.receipt{max-width:760px;margin:0 auto;border:1px solid #e3dbcf;border-radius:18px;padding:28px}.header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:2px solid #9f2f26;padding-bottom:18px;margin-bottom:20px}.header h1{margin:0 0 6px;color:#9f2f26;font-size:22px}.subtitle{margin:0;color:#666;font-size:13px}.status{display:inline-flex;align-items:center;gap:6px;border:1px solid #dfc5bf;background:#f7e7e3;color:#9f2f26;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;white-space:nowrap}.detail-row{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid #eee;font-size:14px}.detail-label{color:#666;font-weight:700}.qr{margin:22px 0;padding:18px;text-align:center;background:#f7f4ef;border:1px dashed #d1c6b7;border-radius:14px}.qr img{width:130px;height:130px;margin:10px auto;display:block;border:1px solid #e3dbcf;padding:8px;background:white}.instructions{margin-top:18px;padding:18px;background:#f7f4ef;border-radius:14px;font-size:13px}.instructions h3{color:#9f2f26;margin-top:0}.important{margin-top:14px;padding:12px;border-radius:10px;background:white;border:1px solid #e3dbcf}.footer{text-align:center;margin-top:22px;color:#666;font-size:11px;border-top:1px solid #eee;padding-top:12px}.no-print{text-align:center;margin-top:24px}.no-print button{padding:11px 18px;border-radius:999px;border:0;cursor:pointer;margin:4px;font-weight:700}.print{background:#9f2f26;color:#fff}.close{background:#555;color:#fff}@page{size:8.5in 11in;margin:.5in}@media print{body{margin:0;font-size:12px}.receipt{border:0;padding:0}.no-print{display:none!important}*{page-break-inside:avoid!important}}
+</style>
+</head>
+<body>
+<div class="receipt">
+    <div class="header">
+        <div><h1><i class="fas fa-clipboard-list"></i> {{ __('messages.blade_incident_success_blade_incident_report_summary') }}</h1><p class="subtitle">{{ __('messages.blade_print_track_request_blade_barangay_hulong_duhat_malabon_city') }}</p></div>
+        <span class="status"><i class="fas fa-shield-halved"></i> {{ __('messages.blade_incident_success_blade_submitted_for_review') }}</span>
+    </div>
+    <div class="details">
+        <div class="detail-row"><div class="detail-label">{{ __('messages.incident_form_bring_reference') }}</div><div><strong>${referenceNum}</strong></div></div>
+        <div class="detail-row"><div class="detail-label">{{ __('messages.blade_incident_success_blade_complainant_name') }}</div><div>${complainantName}</div></div>
+        <div class="detail-row"><div class="detail-label">{{ __('messages.profile_table_date') }}</div><div>${currentDate}</div></div>
+        <div class="detail-row"><div class="detail-label">{{ __('messages.profile_table_status') }}</div><div><strong>{{ __('messages.blade_incident_success_blade_submitted_for_review') }}</strong></div></div>
+    </div>
+    <div class="qr"><strong><i class="fas fa-qrcode"></i> {{ __('messages.blade_incident_success_blade_scan_to_verify_report_status') }}</strong><img src="${qrDataUrl}" alt="{{ __('messages.blade_print_template_qr_code_for') }} ${referenceNum}"><p style="font-size:12px;color:#666;margin:0;">{{ __('messages.blade_print_template_reference') }} ${referenceNum}</p></div>
+    <div class="instructions">
+        <h3><i class="fas fa-list-check"></i> {{ __('messages.print_next_steps_title') }}</h3>
+        <p><strong>1.</strong> {{ __('messages.blade_incident_success_blade_barangay_staff_will_review_your_report') }}</p>
+        <p><strong>2.</strong> {{ __('messages.blade_incident_success_blade_you_may_be_contacted_for_clarification_or_additional_in') }}</p>
+        <p><strong>3.</strong> {{ __('messages.blade_incident_success_blade_check_your_email_phone_or_tracking_page_for_updates') }}</p>
+        <p><strong>4.</strong> {{ __('messages.blade_incident_success_blade_visit_the_barangay_hall_if_summoned_for_mediation') }}</p>
+        <div class="important"><strong><i class="fas fa-triangle-exclamation"></i> {{ __('messages.blade_incident_success_blade_important') }}</strong> {{ __('messages.blade_incident_success_blade_keep_this_summary_for_reference_present_the_reference_n') }}</div>
+        <p><strong><i class="fas fa-location-dot"></i> {{ __('messages.blade_print_track_request_blade_barangay_hall') }}</strong><br>{{ __('messages.blade_incident_success_blade_1_m_blas_st_barangay_hulong_duhat_malabon_city') }}<br><strong><i class="fas fa-clock"></i> {{ __('messages.blade_incident_success_blade_office_hours') }}</strong><br>{{ __('messages.form_hours_weekdays') }}<br>{{ __('messages.form_hours_saturday') }}</p>
+    </div>
+    <div class="footer"><p>{{ __('messages.blade_incident_success_blade_this_is_an_electronically_generated_report_summary_no_s') }}</p><p>${@json(__('messages.blade_print_template_barangay_hulong_duhat_online_services_year')).replace(':year', new Date().getFullYear())}</p></div>
+    <div class="no-print"><button onclick="window.print()" class="print"><i class="fas fa-print"></i> {{ __('messages.blade_incident_success_blade_print_summary') }}</button><button onclick="window.close()" class="close"><i class="fas fa-times"></i> {{ __('messages.blade_incident_success_blade_close_window') }}</button></div>
+</div>
+</body>
+</html>`;
+            const printWindow = window.open('', '_blank', 'width=820,height=700');
+            if (printWindow) {
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(function(){ printWindow.print(); }, 300);
+            } else {
+                alert(@json(__('messages.blade_incident_success_blade_please_allow_pop_ups_to_print_the_report_summary')));
+            }
+        }).catch(function(error){
+            console.error(@json(__('messages.blade_js_error_generating_qr_code')), error);
+            alert(@json(__('messages.blade_incident_success_blade_error_generating_qr_code_please_try_again')));
+        });
+    });
+});
+</script>
 </body>
 </html>

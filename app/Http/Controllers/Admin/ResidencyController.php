@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Residency;
-use App\Models\ResidencyApplication;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\File;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
@@ -18,6 +16,9 @@ use App\Mail\Notification as NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\AdminActivityLog;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ResidencyController extends Controller
 {
@@ -38,9 +39,9 @@ class ResidencyController extends Controller
         }
 
         // Filter by status - UPDATED to include all statuses
-        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected', 'deleted'];
+        $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected', 'archived'];
         if ($request->status && in_array($request->status, $allowedStatuses, true)) {
-            if ($request->status === 'deleted') {
+            if ($request->status === 'archived') {
                 $query->onlyTrashed();
             } else {
                 $query->where('status', $request->status);
@@ -477,31 +478,52 @@ class ResidencyController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:residency_applications,id'
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('residency_applications', 'id')
+                    ->whereNull('deleted_at'),
+            ],
         ]);
 
-        // Archive the records (soft delete)
-        Residency::whereIn('id', $request->ids)->delete();
+        $ids = array_values(array_unique($validated['ids']));
 
-        // Log audit trail
-        if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'BULK_ARCHIVE',
-                'module' => 'Residency',
-                'details' => [
-                    'ids' => $request->ids,
-                    'count' => count($request->ids),
-                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
+        $archivedCount = DB::transaction(function () use ($ids, $request) {
+            $applications = Residency::query()
+                ->whereIn('id', $ids)
+                ->get();
 
-        return back()->with('success', count($request->ids) . ' selected application(s) archived successfully.');
+            foreach ($applications as $application) {
+                // Soft delete when Residency uses SoftDeletes.
+                $application->delete();
+            }
+
+            if (auth('admin')->check()) {
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'BULK_ARCHIVE',
+                    'module' => 'Residency',
+                    'details' => [
+                        'ids' => $applications->pluck('id')->all(),
+                        'count' => $applications->count(),
+                        'status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+
+            return $applications->count();
+        });
+
+        return back()->with(
+            'success',
+            $archivedCount . ' selected application(s) archived successfully.'
+        );
     }
 
     public function export(Request $request)
@@ -597,25 +619,35 @@ class ResidencyController extends Controller
         $application = Residency::findOrFail($id);
 
         $reference = $application->reference_number;
-        $application->delete();
 
-        if (auth('admin')->check()) {
-            $request = request();
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'APPLICATION_ARCHIVED',
-                'module' => 'Residency',
-                'details' => [
-                    'application_id' => $application->id,
-                    'reference_number' => $reference,
-                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
-        }
+        DB::transaction(function () use ($application, $reference) {
+            // This is a soft delete when Residency uses SoftDeletes.
+            $application->delete();
 
-        return back()->with('success', 'Application #' . $reference . ' archived successfully.');
+            if (auth('admin')->check()) {
+                $request = request();
+
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'APPLICATION_ARCHIVED',
+                    'module' => 'Residency',
+                    'details' => [
+                        'application_id' => $application->id,
+                        'reference_number' => $reference,
+                        'previous_status' => $application->getOriginal('status'),
+                        'new_status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+        });
+
+        return back()->with(
+            'success',
+            'Application #' . $reference . ' archived successfully.'
+        );
     }
 
     public function restore(int $id)
@@ -641,6 +673,20 @@ class ResidencyController extends Controller
         }
 
         return back()->with('success', 'Application #' . $reference . ' restored successfully.');
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:residency_applications,id'
+        ]);
+
+        Residency::withTrashed()
+            ->whereIn('id', $request->ids)
+            ->restore();
+
+        return back()->with('success', 'Selected records restored successfully.');
     }
 
     public function generate(Request $request)

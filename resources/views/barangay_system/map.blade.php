@@ -1,923 +1,506 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Interactive Map</title>
+@php
+    $pageTitle = 'Barangay Map';
+    $activePage = 'map';
+@endphp
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 760px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-map-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-map-panel {
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-map-controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+    }
+
+    .map-layer-btn {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
+        padding: 9px 13px;
+        border-radius: 999px;
+        font-size: 0.84rem;
+        font-weight: 900;
+        transition: transform .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+    }
+
+    .map-layer-btn:hover,
+    .map-layer-btn.active {
+        transform: translateY(-1px);
+        border-color: var(--brand);
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    #barangay-map {
+        width: 100%;
+        height: min(560px, 68vh);
+        min-height: 380px;
+        background: var(--surface-soft);
+    }
+
+    .bhd-location-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .location-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 18px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .location-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .location-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 16px;
+    }
+
+    .location-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        line-height: 1.25;
+        margin: 0 0 8px;
+    }
+
+    .address-text {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0 0 12px;
+        line-height: 1.45;
+    }
+
+    .location-services {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 4px 0 14px;
+    }
+
+    .service-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 8px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 0.7rem;
+        font-weight: 950;
+    }
+
+    .location-hours {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 800;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        margin: auto 0 14px;
+    }
+
+    .btn-view-map {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.82rem;
+        font-weight: 950;
+        width: 100%;
+        transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+
+    .btn-view-map:hover {
+        background: var(--brand-soft);
+        border-color: var(--brand);
+        color: var(--brand);
+    }
+
+    .map-target {
+        position: absolute;
+        top: -84px;
+    }
+
+    .custom-marker {
+        background: var(--brand);
+        border: 3px solid #fff;
+        border-radius: 50%;
+        width: 40px !important;
+        height: 40px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+    }
+
+    .marker-hall { background: #b8322a; }
+    .marker-health { background: #217a46; }
+    .marker-school { background: #2563eb; }
+    .marker-chapel { background: #946200; }
+    .marker-police { background: #7c3aed; }
+    .marker-evac { background: #795548; }
+    .marker-market { background: #607d8b; }
+    .marker-playground { background: #009688; }
+
+    @media (max-width: 1024px) {
+        .bhd-location-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card {
+            grid-template-columns: 1fr;
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
+        .bhd-map-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
         }
-        /* Hero Section */
-        .history-hero {
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.9), rgba(122, 35, 35, 0.9)), 
-                        url('https://images.unsplash.com/photo-1590691565924-90d0a14443a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=600&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 140px 0 80px;
-            text-align: center;
-            position: relative;
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
         }
 
-        .history-hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
         }
 
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-            opacity: 0.9;
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn {
+            width: 100%;
         }
 
-        .breadcrumb a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .breadcrumb a:hover {
-            color: white;
-        }
-
-        .breadcrumb span {
-            color: rgba(255,255,255,0.6);
-        }
-
-        .history-hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.2;
-        }
-
-        .history-hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* =========================================== */
-        /* INTERACTIVE MAP */
-        /* =========================================== */
-        .map-container-wrapper {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            margin-top: -2rem;
-            position: relative;
-            z-index: 1;
+        .bhd-location-grid {
+            grid-template-columns: 1fr;
         }
 
         #barangay-map {
-            width: 100%;
-            height: 500px;
-            border: none;
-        }
-
-        .map-controls {
-            background: white;
-            padding: 1.5rem;
-            border-bottom: 1px solid #eee;
+            height: 360px;
+            min-height: 320px;
         }
 
         .map-layer-btn {
-            border: 2px solid #eee;
-            background: white;
-            color: #555;
-            padding: 0.75rem 1.5rem;
-            border-radius: 30px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .map-layer-btn.active,
-        .map-layer-btn:hover {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            border-color: #C62828;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.2);
-        }
-
-        /* Section Title Styling from Index */
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: #C62828;
-            border-radius: 2px;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 50px;
-        }
-
-        /* =========================================== */
-        /* LOCATIONS SECTION - UPDATED WITH INDEX THEME */
-        /* =========================================== */
-        .locations-section {
-            background: #f8f9fa;
-            padding: 80px 0;
-        }
-
-        .location-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            text-decoration: none;
-            color: #333;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin-bottom: 25px;
-            border: 2px solid transparent;
-        }
-
-        .location-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(198, 40, 40, 0.15);
-            text-decoration: none;
-            color: #333;
-            border-color: #C62828;
-        }
-
-        .location-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 4px;
-            background: #C62828;
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
         }
+    }
+</style>
+@endpush
 
-        .location-card:hover::before {
-            transform: scaleX(1);
-        }
+@include('barangay_system.partials.public_layout_start')
 
-        .location-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.1), rgba(198, 40, 40, 0.05));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            color: #C62828;
-            font-size: 1.5rem;
-        }
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    {{ __('messages.nav_barangay_map') }}
+                </span>
 
-        .location-card h5 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: #C62828;
-            font-weight: 600;
-            min-height: 3.2rem;
-            line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+                <h1>{{ __('messages.map_hero_title') }}</h1>
+                <p>{{ __('messages.map_hero_subtitle') }}</p>
 
-        .card-content {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
+                <div class="bhd-page-actions">
+                    <a href="#interactive-map" class="bhd-btn bhd-btn-primary">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ __('messages.blade_map_blade_open_interactive_map') }}
+                    </a>
 
-        .address-text {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            min-height: 3.8rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .location-services {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 15px 0;
-            min-height: 3rem;
-            align-content: flex-start;
-        }
-
-        .service-badge {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .location-hours {
-            color: #666;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 2.2rem;
-        }
-
-        .btn-view-map {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            margin-top: auto;
-        }
-
-        .btn-view-map:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(198, 40, 40, 0.3);
-            color: white;
-        }
-
-        .custom-marker {
-            background: #C62828;
-            border: 3px solid white;
-            border-radius: 50%;
-            width: 40px !important;
-            height: 40px !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .marker-hall { background: #C62828; }
-        .marker-health { background: #4CAF50; }
-        .marker-school { background: #2196F3; }
-        .marker-chapel { background: #FF9800; }
-        .marker-police { background: #9C27B0; }
-        .marker-evac { background: #795548; }
-        .marker-market { background: #607D8B; }
-        .marker-playground { background: #009688; }
-
-        /* =========================================== */
-        /* RESPONSIVE DESIGN - ADDED FOR MOBILE */
-        /* =========================================== */
-
-        @media (max-width: 1366px) {
-            .history-hero h1 {
-                font-size: 2.8rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .history-hero h1 {
-                font-size: 2.2rem;
-            }
-            
-            .history-hero {
-                padding: 120px 0 60px;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            #barangay-map {
-                height: 400px;
-            }
-            
-            .map-container-wrapper {
-                margin-top: -1rem;
-            }
-            
-            .map-controls {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .map-layer-btn {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .locations-section {
-                padding: 60px 0;
-            }
-
-            /* Mobile responsiveness for location cards */
-            .location-card {
-                padding: 20px;
-                margin-bottom: 20px;
-            }
-            
-            .location-card h5 {
-                font-size: 1.1rem;
-                min-height: 3rem;
-            }
-            
-            .address-text {
-                font-size: 0.85rem;
-                min-height: 3.6rem;
-            }
-            
-            .location-services {
-                min-height: 2.8rem;
-            }
-            
-            .location-hours {
-                min-height: 2rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .history-hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .history-hero {
-                padding: 120px 0 60px;
-            }
-            
-            .logo-subtitle {
-                font-size: 1rem;
-            }
-            
-            .logo-title {
-                display: none;
-            }
-            
-            #barangay-map {
-                height: 350px;
-            }
-            
-            .location-card {
-                margin-bottom: 15px;
-                padding: 15px;
-            }
-            
-            .address-badge {
-                font-size: 0.9rem;
-                padding: 0.75rem 1rem;
-                flex-direction: column;
-                text-align: center;
-                gap: 5px;
-            }
-            
-            .location-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-            
-            .btn-view-map {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .hero-content h1 {
-                font-size: 1.6rem;
-            }
-            
-            .hero-content p {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-            
-            .section-subtitle {
-                font-size: 1rem;
-            }
-            
-            #barangay-map {
-                height: 300px;
-            }
-            
-            .map-layer-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        /* Mobile-specific adjustments for map section */
-        @media (max-width: 768px) {
-            .py-5 {
-                padding-top: 2rem !important;
-                padding-bottom: 2rem !important;
-            }
-        }
-
-        /* Smooth scroll target for map */
-        .map-target {
-            position: absolute;
-            top: -80px;
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+                    <a href="{{ route('contacts') }}" class="bhd-btn bhd-btn-soft">
+                        <i class="fas fa-phone"></i>
+                        {{ __('messages.blade_contacts_blade_contact_barangay') }}
+                    </a>
                 </div>
             </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
+            <div class="bhd-map-symbol" aria-hidden="true">
+                <i class="fa-solid fa-map-location-dot"></i>
             </div>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="history-hero">
-        <div class="history-hero-content">
-            <h1><i class="fa-solid fa-map-location-dot"></i> {{ __('messages.map_hero_title') }}</h1>
-            <p>{{ __('messages.map_hero_subtitle') }}</p>
-        </div>
-    </section>
-
-    <!-- Interactive Map Section -->
-    <section class="py-5" id="interactive-map">
-        <div class="map-target"></div>
-        <div class="container">
-            <div class="map-container-wrapper">
-                <!-- Map Controls -->
-                <div class="map-controls d-flex flex-wrap gap-2 justify-content-center">
-                    <button class="map-layer-btn active" data-layer="streets">
-                        <i class="fas fa-road me-2"></i> Street View
-                    </button>
-                    <button class="map-layer-btn" data-layer="satellite">
-                        <i class="fas fa-satellite me-2"></i> Satellite
-                    </button>
-                    <button class="map-layer-btn" onclick="showAllLocations()">
-                        <i class="fas fa-eye me-2"></i> Show All Locations
-                    </button>
-                </div>
-                
-                <!-- Map Container -->
-                <div id="barangay-map"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Important Locations Section -->
-    <section class="locations-section">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="section-title">{{ __('messages.map_locations_title')}}</h2>
-                <p class="section-subtitle">Key establishments and facilities in Barangay Hulong Duhat</p>
-            </div>
-            
-            <div class="row g-4">
-                <!-- Barangay Hall -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-landmark"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Barangay Hall & Office</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                1 M. Blas St, Barangay Hulong Duhat, Malabon City, Metro Manila
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Government</span>
-                                <span class="service-badge">Services</span>
-                                <span class="service-badge">Permits</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Mon-Fri: 8:00AM-5:00PM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('hall')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Health Center -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-clinic-medical"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Hulong Duhat Health Center</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Gov Andres Gabriel St
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Medical</span>
-                                <span class="service-badge">Vaccination</span>
-                                <span class="service-badge">Checkup</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Mon-Sat: 7:00AM-7:00PM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('health')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Elementary School -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-school"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Hulong Duhat Elementary School</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Naval St, near Barangay Hall
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Education</span>
-                                <span class="service-badge">Public School</span>
-                                <span class="service-badge">K-6</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Mon-Fri: 7:30AM-4:30PM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('school')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chapel -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-church"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">San Lorenzo Ruiz Chapel</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                31 A Gervacio St
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Religious</span>
-                                <span class="service-badge">Worship</span>
-                                <span class="service-badge">Community</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Mass: Sat 5PM, Sun 8AM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('chapel')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Police Outpost -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Barangay Police Outpost</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Gabriel St corner
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Security</span>
-                                <span class="service-badge">Emergency</span>
-                                <span class="service-badge">Assistance</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                24/7 Service Available
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('police')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Evacuation Center -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-home"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Multi-Purpose Evacuation Center</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Adjacent to Barangay Hall
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Emergency</span>
-                                <span class="service-badge">Shelter</span>
-                                <span class="service-badge">Events</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Open for Emergencies
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('evac')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Public Market -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Hulong Duhat Public Market</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Women's Club St Area
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Fresh Produce</span>
-                                <span class="service-badge">Groceries</span>
-                                <span class="service-badge">Food</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Daily: 5:00AM-8:00PM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('market')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Playground -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="location-card">
-                        <div class="location-icon">
-                            <i class="fas fa-child"></i>
-                        </div>
-                        <div class="card-content">
-                            <h5 class="fw-bold">Children's Playground & Park</h5>
-                            <p class="address-text">
-                                <i class="fas fa-map-marker-alt me-1"></i>
-                                Near Elementary School
-                            </p>
-                            <div class="location-services">
-                                <span class="service-badge">Recreation</span>
-                                <span class="service-badge">Family</span>
-                                <span class="service-badge">Exercise</span>
-                            </div>
-                            <p class="location-hours">
-                                <i class="fas fa-clock me-1"></i>
-                                Open: 6:00AM-8:00PM
-                            </p>
-                            <button class="btn-view-map" onclick="scrollToMapAndShowLocation('playground')">
-                                <i class="fas fa-map-marker-alt me-1"></i> View on Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section pt-0" id="interactive-map">
+    <div class="map-target"></div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.blade_map_blade_interactive_barangay_map') }}</h2>
+                <p>{{ __('messages.blade_map_blade_switch_map_views_show_all_important_places_or_select_a_') }}</p>
+            </div>
+        </div>
 
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    
-    <!-- Custom JavaScript -->
-    <script>
-        // Map initialization
+        <div class="bhd-map-panel">
+            <div class="bhd-map-controls">
+                <button class="map-layer-btn active" data-layer="streets" type="button">
+                    <i class="fas fa-road"></i>
+                    {{ __('messages.blade_map_blade_street_view') }}
+                </button>
+
+                <button class="map-layer-btn" data-layer="satellite" type="button">
+                    <i class="fas fa-satellite"></i>
+                    {{ __('messages.blade_map_blade_satellite') }}
+                </button>
+
+                <button class="map-layer-btn" onclick="showAllLocations()" type="button">
+                    <i class="fas fa-eye"></i>
+                    {{ __('messages.blade_map_blade_show_all_locations') }}
+                </button>
+            </div>
+
+            <div id="barangay-map"></div>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.map_locations_title') }}</h2>
+                <p>{{ __('messages.map_locations_subtitle') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-location-grid">
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-landmark"></i></div>
+                <h3>{{ __('messages.blade_map_blade_barangay_hall_office') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_contacts_blade_1_m_blas_st_barangay_hulong_duhat_malabon_city_metro_manil') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_government') }}</span><span class="service-badge">{{ __('messages.services') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_permits') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_mon_fri_8_00am_5_00pm') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('hall')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-clinic-medical"></i></div>
+                <h3>{{ __('messages.blade_map_blade_hulong_duhat_health_center') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_gov_andres_gabriel_st') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_medical') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_vaccination') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_checkup') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_mon_sat_7_00am_7_00pm') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('health')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-school"></i></div>
+                <h3>{{ __('messages.blade_map_blade_hulong_duhat_elementary_school') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_naval_st_near_barangay_hall') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_education') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_public_school') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_k_6') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_mon_fri_7_30am_4_30pm') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('school')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-church"></i></div>
+                <h3>{{ __('messages.blade_map_blade_san_lorenzo_ruiz_chapel') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_31_a_gervacio_st') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_religious') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_worship') }}</span><span class="service-badge">{{ __('messages.community') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_mass_sat_5pm_sun_8am') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('chapel')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>{{ __('messages.blade_map_blade_barangay_police_outpost') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_gabriel_st_corner') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_security') }}</span><span class="service-badge">{{ __('messages.footer_emergency_label') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_assistance') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_24_7_service_available') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('police')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-home"></i></div>
+                <h3>{{ __('messages.blade_map_blade_multi_purpose_evacuation_center') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_adjacent_to_barangay_hall') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.footer_emergency_label') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_shelter') }}</span><span class="service-badge">{{ __('messages.blade_announcement_blade_events') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_open_for_emergencies') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('evac')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-shopping-cart"></i></div>
+                <h3>{{ __('messages.blade_map_blade_hulong_duhat_public_market') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_women_s_club_st_area') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_fresh_produce') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_groceries') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_food') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_daily_5_00am_8_00pm') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('market')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+
+            <article class="location-card">
+                <div class="location-icon"><i class="fas fa-child"></i></div>
+                <h3>{{ __('messages.blade_map_blade_children_s_playground_park') }}</h3>
+                <p class="address-text"><i class="fas fa-map-marker-alt me-1"></i> {{ __('messages.blade_map_blade_near_elementary_school') }}</p>
+                <div class="location-services"><span class="service-badge">{{ __('messages.blade_map_blade_recreation') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_family') }}</span><span class="service-badge">{{ __('messages.blade_map_blade_exercise') }}</span></div>
+                <p class="location-hours"><i class="fas fa-clock"></i> {{ __('messages.blade_map_blade_open_6_00am_8_00pm') }}</p>
+                <button class="btn-view-map" onclick="scrollToMapAndShowLocation('playground')" type="button"><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_map_blade_view_on_map') }}</button>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.blade_map_blade_looking_for_barangay_services') }}</h2>
+                <p>{{ __('messages.blade_map_blade_after_checking_the_map_residents_can_request_documents_') }}</p>
+
+                <div class="bhd-tags">
+                    <span>{{ __('messages.blade_index_blade_barangay_hall') }}</span>
+                    <span>{{ __('messages.footer_health_label') }}</span>
+                    <span>{{ __('messages.blade_map_blade_school') }}</span>
+                    <span>{{ __('messages.incident_type_public_title') }}</span>
+                </div>
+            </div>
+
+            <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary">
+                <i class="fas fa-folder-open"></i>
+                {{ __('messages.blade_contacts_blade_view_services') }}
+            </a>
+        </div>
+    </div>
+</section>
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Map initialization
         let map;
         let markers = {};
         let layers = {};
@@ -931,14 +514,14 @@
         const locations = {
             hall: {
                 coords: [14.677913823133792, 120.94193632084244], // Barangay Hall - main address
-                name: 'Barangay Hall',
+                name: @json(__('messages.blade_map_marker_barangay_hall')),
                 address: 'Gabriel 2, 425, 74 Gov Andres Gabriel St, Hulong Duhat, Malabon, Metro Manila',
                 type: 'hall',
                 icon: 'fa-landmark'
             },
             health: {
                 coords: [14.677860632259058, 120.94163792509893],
-                name: 'Health Center',
+                name: @json(__('messages.blade_map_marker_health_center')),
                 address: 'MWHR+4MR, Don Basilio Bautista Blvd, Malabon, 1470 Metro Manila',
                 type: 'health',
                 icon: 'fa-clinic-medical'
@@ -952,35 +535,35 @@
             },
             chapel: {
                 coords: [14.678660686615306, 120.94038622417362],
-                name: 'Barangay Chapel',
+                name: @json(__('messages.blade_map_marker_barangay_chapel')),
                 address: '31 A Gervacio St, Malabon, 1470 Metro Manila',
                 type: 'chapel',
                 icon: 'fa-church'
             },
             police: {
                 coords: [14.677847, 120.942039],
-                name: 'Police Outpost',
+                name: @json(__('messages.blade_map_marker_police_outpost')),
                 address: '27, 1471 Don Basilio Bautista Blvd, Malabon, Metro Manila',
                 type: 'police',
                 icon: 'fa-shield-alt'
             },
             evac: {
                 coords: [14.67723781254434, 120.94165939357208],
-                name: 'Evacuation Area',
+                name: @json(__('messages.blade_map_marker_evacuation_area')),
                 address: 'Naval St, Malabon, Metro Manila',
                 type: 'evac',
                 icon: 'fa-home'
             },
             market: {
                 coords: [14.676013456903119, 120.9412932266691],
-                name: 'Public Market',
+                name: @json(__('messages.blade_map_marker_public_market')),
                 address: 'Women\'s Club St, Malabon, Metro Manila',
                 type: 'market',
                 icon: 'fa-shopping-cart'
             },
             playground: {
                 coords: [14.676231517438561, 120.94201588080502],
-                name: 'Children\'s Playground',
+                name: @json(__('messages.blade_map_marker_childrens_playground')),
                 address: 'Women\'s Club St, Malabon, 1470 Metro Manila',
                 type: 'playground',
                 icon: 'fa-child'
@@ -1169,6 +752,7 @@
         // Initialize mobile adjustments
         adjustMapForMobile();
         window.addEventListener('resize', adjustMapForMobile);
-    </script>
-</body>
-</html>
+</script>
+@endpush
+
+@include('barangay_system.partials.public_layout_end')

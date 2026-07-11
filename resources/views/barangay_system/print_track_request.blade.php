@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Request Status - {{ $trackedRequest['reference'] }}</title>
+    <title>{{ __('messages.blade_print_request_status_reference', ['reference' => $trackedRequest['reference']]) }}</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -223,7 +223,7 @@
 <body>
     <div class="header">
         <h1><i class="fas fa-file-signature"></i> {{ $trackedRequest['type'] }}</h1>
-        <p class="subtitle">Barangay Hulong Duhat, Malabon City</p>
+        <p class="subtitle">{{ __('messages.blade_print_track_request_blade_barangay_hulong_duhat_malabon_city') }}</p>
         
         @php
             $statusLower = strtolower($trackedRequest['status']);
@@ -246,104 +246,104 @@
     </div>
     
     <div class="details">
-        <h3><i class="fas fa-file-alt" style="color: #C62828; font-size: 12px;"></i> Application Details</h3>
+        <h3><i class="fas fa-file-alt" style="color: #C62828; font-size: 12px;"></i> {{ __('messages.print_application_details') }}</h3>
         <div class="detail-row">
-            <div class="detail-label">Reference #:</div>
+            <div class="detail-label">{{ __('messages.print_ref_label') }}</div>
             <div class="detail-value"><strong>{{ $trackedRequest['reference'] }}</strong></div>
         </div>
         <div class="detail-row">
-            <div class="detail-label">Applicant Name:</div>
+            <div class="detail-label">{{ __('messages.print_applicant_label') }}</div>
             <div class="detail-value">{{ $trackedRequest['name'] }}</div>
         </div>
         <div class="detail-row">
-            <div class="detail-label">Date Submitted:</div>
+            <div class="detail-label">{{ __('messages.print_date_label') }}</div>
             <div class="detail-value">{{ $trackedRequest['date'] }}</div>
         </div>
         @if(isset($trackedRequest['purpose']))
         <div class="detail-row">
-            <div class="detail-label">Purpose:</div>
+            <div class="detail-label">{{ __('messages.print_purpose_label') }}</div>
             <div class="detail-value">{{ $trackedRequest['purpose'] }}</div>
         </div>
         @endif
         @if(isset($trackedRequest['expected_completion']))
         <div class="detail-row">
-            <div class="detail-label">Expected Completion:</div>
+            <div class="detail-label">{{ __('messages.print_expected_label') }}</div>
             <div class="detail-value">{{ $trackedRequest['expected_completion'] }}</div>
         </div>
         @endif
         @if(isset($trackedRequest['amount']) && $trackedRequest['amount'] > 0)
         <div class="detail-row">
-            <div class="detail-label">Amount to Pay:</div>
+            <div class="detail-label">{{ __('messages.print_amount_label') }}</div>
             <div class="detail-value"><strong>₱{{ number_format($trackedRequest['amount'], 2) }}</strong></div>
         </div>
         @elseif(isset($trackedRequest['fee_label']))
         <div class="detail-row">
-            <div class="detail-label">Amount to Pay:</div>
+            <div class="detail-label">{{ __('messages.print_amount_label') }}</div>
             <div class="detail-value"><strong>{{ $trackedRequest['fee_label'] }}</strong></div>
         </div>
         @endif
         @if(isset($trackedRequest['remarks']))
         <div class="detail-row">
-            <div class="detail-label">Remarks:</div>
+            <div class="detail-label">{{ __('messages.print_remarks_label') }}</div>
             <div class="detail-value">{{ $trackedRequest['remarks'] }}</div>
         </div>
         @endif
     </div>
     
     <div class="qr-code">
-        <p><i class="fas fa-qrcode" style="color: #C62828;"></i> Scan to Verify Status</p>
+        <p><i class="fas fa-qrcode" style="color: #C62828;"></i> {{ __('messages.print_scan_label') }}</p>
         <div id="qrCode"></div>
-        <p style="font-size: 10px; color: #666;">Ref: {{ $trackedRequest['reference'] }}</p>
+        <p style="font-size: 10px; color: #666;">{{ __('messages.blade_print_ref_reference', ['reference' => $trackedRequest['reference']]) }}</p>
     </div>
     
     <div class="instructions">
-        <h3><i class="fas fa-clipboard-list"></i> Next Steps</h3>
+        <h3><i class="fas fa-clipboard-list"></i> {{ __('messages.print_next_steps_title') }}</h3>
         
         @if(str_contains(strtolower($trackedRequest['type']), 'Incident Report') || str_contains(strtolower($trackedRequest['type']), 'incident'))
-            <div class="step"><strong>1.</strong> Wait for barangay contact for investigation</div>
-            <div class="step"><strong>2.</strong> Attend scheduled hearings</div>
-            <div class="step"><strong>3.</strong> Receive resolution</div>
+            <div class="step"><strong>1.</strong> {{ __('messages.blade_print_track_request_blade_wait_for_barangay_contact_for_investigation') }}</div>
+            <div class="step"><strong>2.</strong> {{ __('messages.blade_print_track_request_blade_attend_scheduled_hearings') }}</div>
+            <div class="step"><strong>3.</strong> {{ __('messages.blade_print_track_request_blade_receive_resolution') }}</div>
             
             <div class="important-note">
-                <i class="fas fa-exclamation-triangle"></i> Keep reference # for follow-ups
+                <i class="fas fa-exclamation-triangle"></i> {{ __('messages.blade_print_track_request_blade_keep_reference_for_follow_ups') }}
             </div>
         @else
-            <div class="step"><strong>1.</strong> Wait 1-3 days for processing</div>
-            <div class="step"><strong>2.</strong> Visit Barangay Hall with valid ID</div>
-            <div class="step"><strong>3.</strong> Present this receipt</div>
+            <div class="step"><strong>1.</strong> {{ __('messages.blade_print_track_request_blade_wait_1_3_days_for_processing') }}</div>
+            <div class="step"><strong>2.</strong> {{ __('messages.blade_print_track_request_blade_visit_barangay_hall_with_valid_id') }}</div>
+            <div class="step"><strong>3.</strong> {{ __('messages.blade_print_track_request_blade_present_this_receipt') }}</div>
             @if(isset($trackedRequest['amount']) && $trackedRequest['amount'] > 0)
-            <div class="step"><strong>4.</strong> Pay ₱{{ number_format($trackedRequest['amount'], 2) }} at cashier</div>
-            <div class="step"><strong>5.</strong> Receive your document</div>
+            <div class="step"><strong>4.</strong> {{ __('messages.blade_print_pay_amount_at_cashier', ['amount' => number_format($trackedRequest['amount'], 2)]) }}</div>
+            <div class="step"><strong>5.</strong> {{ __('messages.blade_print_track_request_blade_receive_your_document') }}</div>
             @elseif(isset($trackedRequest['fee_label']) && $trackedRequest['fee_label'] === 'Depending on purpose')
-            <div class="step"><strong>4.</strong> Pay depending on purpose at cashier</div>
-            <div class="step"><strong>5.</strong> Receive your document</div>
+            <div class="step"><strong>4.</strong> {{ __('messages.blade_print_track_request_blade_pay_depending_on_purpose_at_cashier') }}</div>
+            <div class="step"><strong>5.</strong> {{ __('messages.blade_print_track_request_blade_receive_your_document') }}</div>
             @else
-            <div class="step"><strong>4.</strong> Receive your document</div>
+            <div class="step"><strong>4.</strong> {{ __('messages.blade_print_track_request_blade_receive_your_document') }}</div>
             @endif
             
             <div class="important-note">
-                <i class="fas fa-exclamation-triangle"></i> Bring valid ID used in application
+                <i class="fas fa-exclamation-triangle"></i> {{ __('messages.blade_print_track_request_blade_bring_valid_id_used_in_application') }}
             </div>
         @endif
         
         <div class="location-info">
-            <strong><i class="fas fa-map-marker-alt"></i> Barangay Hall:</strong> 1 M. Blas St, Malabon<br>
-            <strong><i class="fas fa-clock"></i> Hours:</strong> Mon-Fri 8AM-5PM<br>
-            <strong><i class="fas fa-phone"></i> Contact:</strong> 8-281-1373
+            <strong><i class="fas fa-map-marker-alt"></i> {{ __('messages.blade_print_track_request_blade_barangay_hall') }}</strong> {{ __('messages.blade_print_track_request_blade_1_m_blas_st_malabon') }}<br>
+            <strong><i class="fas fa-clock"></i> {{ __('messages.blade_print_track_request_blade_hours') }}</strong> {{ __('messages.blade_print_track_request_blade_mon_fri_8am_5pm') }}<br>
+            <strong><i class="fas fa-phone"></i> {{ __('messages.blade_print_track_request_blade_contact') }}</strong> 8-281-1373
         </div>
     </div>
     
     <div class="footer">
-        <p>Electronically generated • No signature required</p>
+        <p>{{ __('messages.blade_print_track_request_blade_electronically_generated_no_signature_required') }}</p>
         <p>Barangay Hulong Duhat Online © {{ date('Y') }} • {{ now()->format('M d, Y h:i A') }}</p>
     </div>
     
     <div class="no-print" style="text-align: center; margin-top: 15px;">
         <button onclick="window.print()" style="padding: 8px 20px; background: #C62828; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 3px; font-size: 12px; font-weight: 600;">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> {{ __('messages.blade_print_track_request_blade_print') }}
         </button>
         <button onclick="window.close()" style="padding: 8px 20px; background: #666; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 3px; font-size: 12px; font-weight: 600;">
-            <i class="fas fa-times"></i> Close
+            <i class="fas fa-times"></i> {{ __('messages.modal_close_btn') }}
         </button>
     </div>
 
@@ -362,21 +362,21 @@
             const applicantName = '{{ $trackedRequest['name'] }}';
             const currentDate = '{{ $trackedRequest['date'] }}';
             
-            const qrData = `Ref: ${referenceNum}\nName: ${applicantName}\nDate: ${currentDate}`;
+            const qrData = @json(__('messages.blade_print_qr_ref_name_date')).replace(':reference', referenceNum).replace(':name', applicantName).replace(':date', currentDate);
             
             QRCode.toDataURL(qrData, { width: 100 })
                 .then(qrDataUrl => {
                     const qrImg = document.createElement('img');
                     qrImg.src = qrDataUrl;
-                    qrImg.alt = `QR Code for ${referenceNum}`;
+                    qrImg.alt = @json(__('messages.blade_jsdyn_qr_code_for_reference')).replace(':reference', referenceNum);
                     
                     const qrContainer = document.getElementById('qrCode');
                     qrContainer.innerHTML = '';
                     qrContainer.appendChild(qrImg);
                 })
                 .catch(error => {
-                    console.error('Error generating QR code:', error);
-                    document.getElementById('qrCode').innerHTML = '<p style="color: #999;">QR code failed</p>';
+                    console.error(@json(__('messages.blade_js_error_generating_qr_code')), error);
+                    document.getElementById('qrCode').innerHTML = '<p style="color: #999;">{{ __('messages.blade_js_qr_code_failed') }}</p>';
                 });
         });
     </script>

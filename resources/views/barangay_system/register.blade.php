@@ -13,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - {{ $portalName }}</title>
+    <title>{{ __('messages.blade_register_register_portal', ['portal' => $portalName]) }}</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -1877,22 +1877,22 @@
         <div class="form-container">
             <div class="register-panel-header">
                 <div>
-                    <span class="eyebrow"><i class="fas fa-shield-alt"></i> Resident Registration</span>
-                    <h2>Create your verified Barangay Hulong Duhat account</h2>
-                    <p>Use clear personal details, a complete residency address, and front/back valid ID images so staff can verify your account faster.</p>
+                    <span class="eyebrow"><i class="fas fa-shield-alt"></i> {{ __('messages.blade_register_blade_resident_registration') }}</span>
+                    <h2>{{ __('messages.blade_register_blade_create_your_verified_barangay_hulong_duhat_account') }}</h2>
+                    <p>{{ __('messages.blade_register_blade_use_clear_personal_details_a_complete_residency_address') }}</p>
                 </div>
             </div>
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
             @endif
 
             @if (session('fail'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('fail') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
             @endif
 
@@ -1903,7 +1903,7 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
             @endif
 
@@ -1937,8 +1937,8 @@
                                     <i class="fas fa-user"></i> {{ __('messages.register_first_name_label') }} *
                                 </label>
                                 <input type="text" id="firstname" name="firstname" value="{{ old('firstname') }}" required
-                                    placeholder="Enter your first name" class="form-control @error('firstname') is-invalid @enderror">
-                                <div class="form-hint">As it appears on your ID</div>
+                                    placeholder="{{ __('messages.blade_register_blade_enter_your_first_name') }}" class="form-control @error('firstname') is-invalid @enderror">
+                                <div class="form-hint">{{ __('messages.form_name_hint') }}</div>
                                 @error('firstname')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -1951,8 +1951,8 @@
                                     <i class="fas fa-user"></i> {{ __('messages.register_middle_name_label') }}
                                 </label>
                                 <input type="text" id="middlename" name="middlename" value="{{ old('middlename') }}"
-                                    placeholder="Enter your middle name" class="form-control @error('middlename') is-invalid @enderror">
-                                <div class="form-hint">Optional, but helps with verification</div>
+                                    placeholder="{{ __('messages.blade_register_blade_enter_your_middle_name') }}" class="form-control @error('middlename') is-invalid @enderror">
+                                <div class="form-hint">{{ __('messages.blade_register_blade_optional_but_helps_with_verification') }}</div>
                                 @error('middlename')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -1965,7 +1965,7 @@
                                     <i class="fas fa-user"></i> {{ __('messages.register_last_name_label') }} *
                                 </label>
                                 <input type="text" id="lastname" name="lastname" value="{{ old('lastname') }}" required
-                                    placeholder="Enter your last name" class="form-control @error('lastname') is-invalid @enderror">
+                                    placeholder="{{ __('messages.blade_register_blade_enter_your_last_name') }}" class="form-control @error('lastname') is-invalid @enderror">
                                 @error('lastname')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -1980,15 +1980,15 @@
                                     <i class="fas fa-user-tag"></i> {{ __('messages.register_suffix_label') }}
                                 </label>
                                 <select id="suffix" name="suffix" class="form-control @error('suffix') is-invalid @enderror">
-                                    <option value="" {{ old('suffix') == '' ? 'selected' : '' }}>None</option>
-                                    <option value="Jr." {{ old('suffix') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                    <option value="Sr." {{ old('suffix') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                    <option value="II" {{ old('suffix') == 'II' ? 'selected' : '' }}>II</option>
-                                    <option value="III" {{ old('suffix') == 'III' ? 'selected' : '' }}>III</option>
-                                    <option value="IV" {{ old('suffix') == 'IV' ? 'selected' : '' }}>IV</option>
-                                    <option value="V" {{ old('suffix') == 'V' ? 'selected' : '' }}>V</option>
+                                    <option value="" {{ old('suffix') == '' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_none') }}</option>
+                                    <option value="Jr." {{ old('suffix') == 'Jr.' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_jr') }}</option>
+                                    <option value="Sr." {{ old('suffix') == 'Sr.' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_sr') }}</option>
+                                    <option value="II" {{ old('suffix') == 'II' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_ii') }}</option>
+                                    <option value="III" {{ old('suffix') == 'III' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_iii') }}</option>
+                                    <option value="IV" {{ old('suffix') == 'IV' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_iv') }}</option>
+                                    <option value="V" {{ old('suffix') == 'V' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_v') }}</option>
                                 </select>
-                                <div class="form-hint">Optional, select if applicable</div>
+                                <div class="form-hint">{{ __('messages.blade_register_blade_optional_select_if_applicable') }}</div>
                                 @error('suffix')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -2010,13 +2010,67 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label for="place_of_birth">
+                                    <i class="fas fa-location-dot"></i> {{ __('messages.form_birth_place_label') }}
+                                </label>
+                                <input type="text" id="place_of_birth" name="place_of_birth"
+                                    value="{{ old('place_of_birth') }}" required
+                                    placeholder="{{ __('messages.blade_register_blade_example_malabon_city') }}"
+                                    class="form-control @error('place_of_birth') is-invalid @enderror">
+                                @error('place_of_birth')
+                                    <div class="error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="gender">
+                                    <i class="fas fa-venus-mars"></i> {{ __('messages.form_gender_label') }}
+                                </label>
+                                <select id="gender" name="gender" required
+                                    class="form-control @error('gender') is-invalid @enderror">
+                                    <option value="">{{ __('messages.blade_register_blade_select_gender') }}</option>
+                                    <option value="Male" {{ old('gender') === 'Male' ? 'selected' : '' }}>{{ __('messages.form_gender_male') }}</option>
+                                    <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>{{ __('messages.form_gender_female') }}</option>
+                                    <option value="Prefer not to say" {{ old('gender') === 'Prefer not to say' ? 'selected' : '' }}>{{ __('messages.form_gender_other') }}</option>
+                                </select>
+                                @error('gender')
+                                    <div class="error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="civil_status">
+                                    <i class="fas fa-ring"></i> {{ __('messages.form_civil_status_label') }}
+                                </label>
+                                <select id="civil_status" name="civil_status" required
+                                    class="form-control @error('civil_status') is-invalid @enderror">
+                                    <option value="">{{ __('messages.blade_register_blade_select_civil_status') }}</option>
+                                    <option value="Single" {{ old('civil_status') === 'Single' ? 'selected' : '' }}>{{ __('messages.civil_status_single') }}</option>
+                                    <option value="Married" {{ old('civil_status') === 'Married' ? 'selected' : '' }}>{{ __('messages.civil_status_married') }}</option>
+                                    <option value="Widowed" {{ old('civil_status') === 'Widowed' ? 'selected' : '' }}>{{ __('messages.civil_status_widowed') }}</option>
+                                    <option value="Separated" {{ old('civil_status') === 'Separated' ? 'selected' : '' }}>{{ __('messages.civil_status_separated') }}</option>
+                                </select>
+                                @error('civil_status')
+                                    <div class="error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
                                 <label for="contact">
                                     <i class="fas fa-phone"></i> {{ __('messages.register_contact_label') }} *
                                 </label>
                                 <input type="tel" id="contact" name="contact" value="{{ old('contact') }}" required
-                                    placeholder="09XX XXX XXXX" class="form-control @error('contact') is-invalid @enderror"
+                                    placeholder="{{ __('messages.blade_incident_form_blade_09xx_xxx_xxxx') }}" class="form-control @error('contact') is-invalid @enderror"
                                     pattern="[0-9]{11}" maxlength="11" inputmode="numeric">
-                                <div class="form-hint" id="contactHint">Use 11 digits only (e.g., 09123456789). We will check this before submission.</div>
+                                <div class="form-hint" id="contactHint">{{ __('messages.blade_register_blade_use_11_digits_only_e_g_09123456789_we_will_check_this_b') }}</div>
                                 @error('contact')
                                     <div class="error-message">{{ $message }}</div>
                                 @enderror
@@ -2029,9 +2083,9 @@
                             <i class="fas fa-envelope"></i> {{ __('messages.register_email_label') }} *
                         </label>
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                            placeholder="your.email@example.com" class="form-control @error('email') is-invalid @enderror"
+                            placeholder="{{ __('messages.blade_incident_form_blade_your_email_example_com') }}" class="form-control @error('email') is-invalid @enderror"
                             autocomplete="email">
-                        <div class="form-hint" id="emailHint">We will verify this email for account updates and notifications.</div>
+                        <div class="form-hint" id="emailHint">{{ __('messages.blade_register_blade_we_will_verify_this_email_for_account_updates_and_notif') }}</div>
                         @error('email')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -2040,11 +2094,11 @@
                     <div class="form-section-card residency-card">
                         <div class="section-header">
                             <div>
-                                <span class="section-kicker"><i class="fas fa-map-location-dot"></i> Residency / Address</span>
-                                <h4>Tell us exactly where you reside</h4>
-                                <p>Split fields make the address easier for residents to fill out and easier for staff to verify.</p>
+                                <span class="section-kicker"><i class="fas fa-map-location-dot"></i> {{ __('messages.blade_register_blade_residency_address') }}</span>
+                                <h4>{{ __('messages.blade_register_blade_tell_us_exactly_where_you_reside') }}</h4>
+                                <p>{{ __('messages.blade_register_blade_split_fields_make_the_address_easier_for_residents_to_f') }}</p>
                             </div>
-                            <span class="section-badge"><i class="fas fa-circle-info"></i> Barangay and city are fixed</span>
+                            <span class="section-badge"><i class="fas fa-circle-info"></i> {{ __('messages.blade_register_blade_barangay_and_city_are_fixed') }}</span>
                         </div>
 
                         <input type="hidden" id="address" name="address" value="{{ old('address') }}">
@@ -2052,9 +2106,9 @@
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="house_no"><i class="fas fa-house"></i> House No. / Unit No. *</label>
+                                    <label for="house_no"><i class="fas fa-house"></i> {{ __('messages.blade_register_blade_house_no_unit_no') }}</label>
                                     <input type="text" id="house_no" name="house_no" value="{{ old('house_no') }}" required
-                                        placeholder="Example: 25" class="form-control js-address-field @error('house_no') is-invalid @enderror">
+                                        placeholder="{{ __('messages.blade_register_blade_example_25') }}" class="form-control js-address-field @error('house_no') is-invalid @enderror">
                                     @error('house_no')
                                         <div class="error-message">{{ $message }}</div>
                                     @enderror
@@ -2062,9 +2116,9 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="form-group">
-                                    <label for="street"><i class="fas fa-road"></i> Street *</label>
+                                    <label for="street"><i class="fas fa-road"></i> {{ __('messages.blade_register_blade_street') }}</label>
                                     <input type="text" id="street" name="street" value="{{ old('street') }}" required
-                                        placeholder="Example: Camia Street" class="form-control js-address-field @error('street') is-invalid @enderror">
+                                        placeholder="{{ __('messages.blade_register_blade_example_camia_street') }}" class="form-control js-address-field @error('street') is-invalid @enderror">
                                     @error('street')
                                         <div class="error-message">{{ $message }}</div>
                                     @enderror
@@ -2072,13 +2126,13 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="purok"><i class="fas fa-location-dot"></i> Purok *</label>
+                                    <label for="purok"><i class="fas fa-location-dot"></i> {{ __('messages.blade_register_blade_purok') }}</label>
                                     <select id="purok" name="purok" required class="form-control js-address-field @error('purok') is-invalid @enderror">
-                                        <option value="" {{ old('purok') == '' ? 'selected' : '' }}>Select purok</option>
+                                        <option value="" {{ old('purok') == '' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_select_purok') }}</option>
                                         @for ($i = 1; $i <= 15; $i++)
-                                            <option value="Purok {{ $i }}" {{ old('purok') == ('Purok ' . $i) ? 'selected' : '' }}>Purok {{ $i }}</option>
+                                            <option value="{{ __('messages.blade_register_purok_number', ['number' => $i]) }}" {{ old('purok') == ('Purok ' . $i) ? 'selected' : '' }}>{{ __('messages.blade_register_purok_number', ['number' => $i]) }}</option>
                                         @endfor
-                                        <option value="I don't know" {{ old('purok') == "I don't know" ? 'selected' : '' }}>I don't know</option>
+                                        <option value="I don't know" {{ old('purok') == "I don't know" ? 'selected' : '' }}>{{ __('messages.blade_register_blade_i_don_t_know') }}</option>
                                     </select>
                                     @error('purok')
                                         <div class="error-message">{{ $message }}</div>
@@ -2090,7 +2144,7 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="barangay"><i class="fas fa-map-pin"></i> Barangay *</label>
+                                    <label for="barangay"><i class="fas fa-map-pin"></i> {{ __('messages.blade_register_blade_barangay') }}</label>
                                     <input type="text" id="barangay" name="barangay" value="{{ old('barangay', 'Hulong Duhat') }}" readonly required
                                         class="form-control js-address-field @error('barangay') is-invalid @enderror">
                                     @error('barangay')
@@ -2100,7 +2154,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="city"><i class="fas fa-city"></i> City *</label>
+                                    <label for="city"><i class="fas fa-city"></i> {{ __('messages.blade_register_blade_city') }}</label>
                                     <input type="text" id="city" name="city" value="{{ old('city', 'Malabon City') }}" readonly required
                                         class="form-control js-address-field @error('city') is-invalid @enderror">
                                     @error('city')
@@ -2110,12 +2164,12 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="residency_status"><i class="fas fa-user-check"></i> Residency Status *</label>
+                                    <label for="residency_status"><i class="fas fa-user-check"></i> {{ __('messages.blade_register_blade_residency_status') }}</label>
                                     <select id="residency_status" name="residency_status" required class="form-control js-address-field @error('residency_status') is-invalid @enderror">
-                                        <option value="" {{ old('residency_status') == '' ? 'selected' : '' }}>Select status</option>
-                                        <option value="Resident" {{ old('residency_status') == 'Resident' ? 'selected' : '' }}>Resident</option>
-                                        <option value="Non-resident" {{ old('residency_status') == 'Non-resident' ? 'selected' : '' }}>Non-resident</option>
-                                        <option value="For verification" {{ old('residency_status') == 'For verification' ? 'selected' : '' }}>For verification</option>
+                                        <option value="" {{ old('residency_status') == '' ? 'selected' : '' }}>{{ __('messages.form_civil_status_placeholder') }}</option>
+                                        <option value="Resident" {{ old('residency_status') == 'Resident' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_resident') }}</option>
+                                        <option value="Non-resident" {{ old('residency_status') == 'Non-resident' ? 'selected' : '' }}>{{ __('messages.blade_register_blade_non_resident') }}</option>
+                                        <option value="For verification" {{ old('residency_status') == 'For verification' ? 'selected' : '' }}>{{ __('messages.blade_profile_blade_for_verification') }}</option>
                                     </select>
                                     @error('residency_status')
                                         <div class="error-message">{{ $message }}</div>
@@ -2125,11 +2179,11 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label for="nearest_landmark"><i class="fas fa-landmark"></i> Nearest Landmark *</label>
+                            <label for="nearest_landmark"><i class="fas fa-landmark"></i> {{ __('messages.blade_register_blade_nearest_landmark') }}</label>
                             <input type="text" id="nearest_landmark" name="nearest_landmark" value="{{ old('nearest_landmark') }}" required
-                                placeholder="Example: near chapel, school, or covered court"
+                                placeholder="{{ __('messages.blade_register_blade_example_near_chapel_school_or_covered_court') }}"
                                 class="form-control js-address-field @error('nearest_landmark') is-invalid @enderror">
-                            <div class="form-hint">Use a place staff can recognize during verification.</div>
+                            <div class="form-hint">{{ __('messages.blade_register_blade_use_a_place_staff_can_recognize_during_verification') }}</div>
                             @error('nearest_landmark')
                                 <div class="error-message">{{ $message }}</div>
                             @enderror
@@ -2137,7 +2191,7 @@
 
                         <div class="address-preview">
                             <i class="fas fa-eye"></i>
-                            <span><strong>Address preview:</strong> <span id="addressPreviewText">Complete the fields above to build the full address.</span></span>
+                            <span><strong>{{ __('messages.blade_register_blade_address_preview') }}</strong> <span id="addressPreviewText">{{ __('messages.blade_register_blade_complete_the_fields_above_to_build_the_full_address') }}</span></span>
                         </div>
 
                         @error('address')
@@ -2148,25 +2202,25 @@
                     <div class="form-section-card verification-card">
                         <div class="section-header">
                             <div>
-                                <span class="section-kicker"><i class="fas fa-id-card-clip"></i> Valid ID Scanner</span>
-                                <h4>Scan both sides of your valid ID</h4>
-                                <p>The camera scanner detects the ID card, crops only the ID area, then sends it for manual admin verification.</p>
+                                <span class="section-kicker"><i class="fas fa-id-card-clip"></i> {{ __('messages.blade_register_blade_valid_id_scanner') }}</span>
+                                <h4>{{ __('messages.blade_register_blade_scan_both_sides_of_your_valid_id') }}</h4>
+                                <p>{{ __('messages.blade_register_blade_the_camera_scanner_detects_the_id_card_crops_only_the_i') }}</p>
                             </div>
-                            <span class="section-badge"><i class="fas fa-user-shield"></i> Auto-crop + admin review</span>
+                            <span class="section-badge"><i class="fas fa-user-shield"></i> {{ __('messages.blade_register_blade_auto_crop_admin_review') }}</span>
                         </div>
 
                         <div class="verification-note">
                             <i class="fas fa-circle-info"></i>
-                            <span>This scanner helps capture a clear front and back image. It does not automatically approve the ID; barangay staff will still review it.</span>
+                            <span>{{ __('messages.blade_register_blade_this_scanner_helps_capture_a_clear_front_and_back_image') }}</span>
                         </div>
 
                         <div class="scan-both-panel scan-both-panel-single">
                             <div>
-                                <strong>Automatic ID scan</strong>
-                                <span>Click once only. The scanner captures the front side, tells the resident to flip the ID, captures the back side, then marks the scan complete.</span>
+                                <strong>{{ __('messages.blade_register_blade_automatic_id_scan') }}</strong>
+                                <span>{{ __('messages.blade_register_blade_click_once_only_the_scanner_captures_the_front_side_tel') }}</span>
                             </div>
                             <button type="button" class="btn-scan-both" id="scanBothSidesBtn">
-                                <i class="fas fa-camera-retro"></i> Start ID scan
+                                <i class="fas fa-camera-retro"></i> {{ __('messages.blade_profile_blade_start_id_scan') }}
                             </button>
                         </div>
 
@@ -2183,10 +2237,10 @@
                             <div class="id-auto-scan-status" id="idAutoScanStatus">
                                 <i class="fas fa-id-card-clip"></i>
                                 <div>
-                                    <strong id="idAutoScanStatusTitle">No ID scan yet</strong>
-                                    <span id="idAutoScanStatusText">Press Start ID scan. The system will save both sides only after both images are clear, sharp, and pass the blur check.</span>
-                                    <span class="d-none" id="validIdFrontText">No front file selected</span>
-                                    <span class="d-none" id="validIdBackText">No back file selected</span>
+                                    <strong id="idAutoScanStatusTitle">{{ __('messages.blade_register_blade_no_id_scan_yet') }}</strong>
+                                    <span id="idAutoScanStatusText">{{ __('messages.blade_register_blade_press_start_id_scan_the_system_will_save_both_sides_onl') }}</span>
+                                    <span class="d-none" id="validIdFrontText">{{ __('messages.blade_profile_blade_no_front_file_selected') }}</span>
+                                    <span class="d-none" id="validIdBackText">{{ __('messages.blade_profile_blade_no_back_file_selected') }}</span>
                                 </div>
                             </div>
 
@@ -2218,9 +2272,9 @@
                             <i class="fas fa-user-circle"></i> {{ __('messages.register_username_label') }} *
                         </label>
                         <input type="text" id="username" name="username" value="{{ old('username') }}" required
-                            placeholder="Choose a username" class="form-control @error('username') is-invalid @enderror"
+                            placeholder="{{ __('messages.blade_register_blade_choose_a_username') }}" class="form-control @error('username') is-invalid @enderror"
                             autocomplete="username">
-                        <div class="form-hint" id="usernameHint">This will be your login username</div>
+                        <div class="form-hint" id="usernameHint">{{ __('messages.blade_register_blade_this_will_be_your_login_username') }}</div>
                         @error('username')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -2234,12 +2288,12 @@
                                 </label>
                                 <div class="password-input-wrapper">
                                     <input type="password" id="password" name="password" required
-                                        placeholder="Create a password"
+                                        placeholder="{{ __('messages.blade_register_blade_create_a_password') }}"
                                         class="form-control @error('password') is-invalid @enderror"
                                         autocomplete="new-password"
                                         onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                     <button type="button" class="toggle-password" data-target="password"
-                                        aria-label="Show or hide password">
+                                        aria-label="{{ __('messages.blade_register_blade_show_or_hide_password') }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -2248,14 +2302,14 @@
                                 <div class="password-meter">
                                     <div class="password-meter-fill" id="passwordMeterFill"></div>
                                 </div>
-                                <small class="form-hint" id="passwordStrengthText">Password strength: too weak</small>
+                                <small class="form-hint" id="passwordStrengthText">{{ __('messages.blade_register_blade_password_strength_too_weak') }}</small>
 
                                 <ul class="password-checklist">
-                                    <li data-rule="length">At least 8 characters</li>
-                                    <li data-rule="number">Contains a number</li>
-                                    <li data-rule="upper">Contains uppercase letter</li>
-                                    <li data-rule="special">Contains special character</li>
-                                    <li style="grid-column: 1 / -1;"><strong>No spaces allowed</strong></li>
+                                    <li data-rule="length">{{ __('messages.blade_register_blade_at_least_8_characters') }}</li>
+                                    <li data-rule="number">{{ __('messages.blade_register_blade_contains_a_number') }}</li>
+                                    <li data-rule="upper">{{ __('messages.blade_register_blade_contains_uppercase_letter') }}</li>
+                                    <li data-rule="special">{{ __('messages.blade_register_blade_contains_special_character') }}</li>
+                                    <li style="grid-column: 1 / -1;"><strong>{{ __('messages.blade_register_blade_no_spaces_allowed') }}</strong></li>
                                 </ul>
                                 @error('password')
                                     <div class="error-message">{{ $message }}</div>
@@ -2270,37 +2324,37 @@
                                 </label>
                                 <div class="password-input-wrapper">
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        required placeholder="Re-enter your password"
+                                        required placeholder="{{ __('messages.blade_register_blade_re_enter_your_password') }}"
                                         class="form-control"
                                         autocomplete="new-password"
                                         onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
                                     <button type="button" class="toggle-password" data-target="password_confirmation"
-                                        aria-label="Show or hide confirm password">
+                                        aria-label="{{ __('messages.blade_register_blade_show_or_hide_confirm_password') }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <small class="form-hint" id="passwordMatchText">Passwords must match</small>
+                                <small class="form-hint" id="passwordMatchText">{{ __('messages.blade_register_blade_passwords_must_match') }}</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="benefits-section">
-                        <h4><i class="fas fa-circle-check"></i> After registration</h4>
+                        <h4><i class="fas fa-circle-check"></i> {{ __('messages.blade_register_blade_after_registration') }}</h4>
                         <div class="benefits-grid">
                             <div class="benefit-item">
                                 <i class="fas fa-clock"></i>
-                                <h5>Online requests</h5>
-                                <p>Submit barangay forms online</p>
+                                <h5>{{ __('messages.blade_register_blade_online_requests') }}</h5>
+                                <p>{{ __('messages.blade_register_blade_submit_barangay_forms_online') }}</p>
                             </div>
                             <div class="benefit-item">
                                 <i class="fas fa-check-circle"></i>
-                                <h5>Status tracking</h5>
-                                <p>Check updates from your account</p>
+                                <h5>{{ __('messages.blade_certificate_indigency_blade_status_tracking') }}</h5>
+                                <p>{{ __('messages.blade_register_blade_check_updates_from_your_account') }}</p>
                             </div>
                             <div class="benefit-item">
                                 <i class="fas fa-bolt"></i>
-                                <h5>Less waiting</h5>
-                                <p>Prepare requests before visiting</p>
+                                <h5>{{ __('messages.blade_register_blade_less_waiting') }}</h5>
+                                <p>{{ __('messages.blade_register_blade_prepare_requests_before_visiting') }}</p>
                             </div>
                         </div>
                     </div>
@@ -2309,9 +2363,8 @@
                         <label class="terms-checkbox">
                             <input type="checkbox" id="terms" name="terms" required {{ old('terms') ? 'checked' : '' }}>
                             <span class="checkmark"></span>
-                            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of
-                                Service</a> and <a href="#" data-bs-toggle="modal"
-                                data-bs-target="#privacyModal">Privacy Policy</a>
+                            {{ __('messages.blade_clearance_form_blade_i_agree_to_the') }} <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">{{ __('messages.blade_register_blade_terms_of_service') }}</a> {{ __('messages.blade_clearance_form_blade_and') }} <a href="#" data-bs-toggle="modal"
+                                data-bs-target="#privacyModal">{{ __('messages.register_privacy_title') }}</a>
                         </label>
                         @error('terms')
                             <div class="error-message">{{ $message }}</div>
@@ -2321,7 +2374,7 @@
                     @if($captchaEnabled)
                         <div class="captcha-section">
                             <label for="recaptchaBox" class="mb-2">
-                                <i class="fas fa-shield-alt"></i> Security Check *
+                                <i class="fas fa-shield-alt"></i> {{ __('messages.blade_register_blade_security_check') }}
                             </label>
 
                             @if (!empty($recaptchaSiteKey))
@@ -2329,7 +2382,7 @@
                                     <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
                                 </div>
                             @else
-                                <div class="error-message">CAPTCHA is not configured. Please contact support.</div>
+                                <div class="error-message">{{ __('messages.blade_register_blade_captcha_is_not_configured_please_contact_support') }}</div>
                             @endif
 
                             @error('g-recaptcha-response')
@@ -2362,52 +2415,44 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="termsModalLabel">{{ __('messages.terms_modal_title') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
                 <div class="modal-body">
-                    <h6>Barangay Hulo Online Portal Terms of Service</h6>
-                    <p>Last updated: {{ date('F d, Y') }}</p>
+                    <h6>{{ __('messages.blade_register_blade_barangay_hulo_online_portal_terms_of_service') }}</h6>
+                    <p>{{ __('messages.blade_register_last_updated_date', ['date' => date('F d, Y')]) }}</p>
 
-                    <h6>1. Acceptance of Terms</h6>
-                    <p>By accessing and using the Barangay Hulo Online Portal, you agree to be bound by these Terms and
-                        Conditions. If you do not agree with any part of these terms, you may not use our services.</p>
+                    <h6>{{ __('messages.blade_register_blade_1_acceptance_of_terms') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_by_accessing_and_using_the_barangay_hulo_online_portal_') }}</p>
 
-                    <h6>2. User Registration</h6>
-                    <p>You must provide accurate and complete information during registration. You are responsible for
-                        maintaining the confidentiality of your account credentials.</p>
+                    <h6>{{ __('messages.blade_register_blade_2_user_registration') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_you_must_provide_accurate_and_complete_information_duri') }}</p>
 
-                    <h6>3. Eligibility</h6>
-                    <p>You must be at least 18 years old to register. By registering, you confirm that you are a
-                        resident of Barangay Hulo or have legitimate reasons to access barangay services.</p>
+                    <h6>{{ __('messages.blade_register_blade_3_eligibility') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_you_must_be_at_least_18_years_old_to_register_by_regist') }}</p>
 
-                    <h6>4. Valid ID Requirement</h6>
-                    <p>You are required to upload a valid government-issued ID for verification purposes. This helps us
-                        ensure the security and authenticity of all registered accounts.</p>
+                    <h6>{{ __('messages.blade_register_blade_4_valid_id_requirement') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_you_are_required_to_upload_a_valid_government_issued_id') }}</p>
 
-                    <h6>5. Privacy and Data Protection</h6>
-                    <p>Your personal information will be collected, stored, and processed in accordance with the Data
-                        Privacy Act of 2012 and our Privacy Policy. We are committed to protecting your privacy and
-                        ensuring the security of your data.</p>
+                    <h6>{{ __('messages.blade_register_blade_5_privacy_and_data_protection') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_your_personal_information_will_be_collected_stored_and_') }}</p>
 
-                    <h6>6. Acceptable Use</h6>
-                    <p>You agree to use the portal only for lawful purposes. You may not use the portal to:</p>
+                    <h6>{{ __('messages.blade_register_blade_6_acceptable_use') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_you_agree_to_use_the_portal_only_for_lawful_purposes_yo') }}</p>
                     <ul>
-                        <li>Violate any laws or regulations</li>
-                        <li>Impersonate any person or entity</li>
-                        <li>Submit false or misleading information</li>
-                        <li>Interfere with the proper functioning of the portal</li>
+                        <li>{{ __('messages.blade_register_blade_violate_any_laws_or_regulations') }}</li>
+                        <li>{{ __('messages.blade_register_blade_impersonate_any_person_or_entity') }}</li>
+                        <li>{{ __('messages.blade_register_blade_submit_false_or_misleading_information') }}</li>
+                        <li>{{ __('messages.blade_register_blade_interfere_with_the_proper_functioning_of_the_portal') }}</li>
                     </ul>
 
-                    <h6>7. Account Termination</h6>
-                    <p>We reserve the right to suspend or terminate your account if we suspect any violation of these
-                        terms or unauthorized use of the portal.</p>
+                    <h6>{{ __('messages.blade_register_blade_7_account_termination') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_we_reserve_the_right_to_suspend_or_terminate_your_accou') }}</p>
 
-                    <h6>8. Changes to Terms</h6>
-                    <p>We may modify these terms at any time. Continued use of the portal after changes constitutes
-                        acceptance of the modified terms.</p>
+                    <h6>{{ __('messages.blade_register_blade_8_changes_to_terms') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_we_may_modify_these_terms_at_any_time_continued_use_of_') }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.modal_close_btn') }}</button>
                 </div>
             </div>
         </div>
@@ -2419,56 +2464,53 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="privacyModalLabel">{{ __('messages.register_privacy_title') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
                 <div class="modal-body">
-                    <h6>Barangay Hulo Privacy Policy</h6>
-                    <p>Last updated: {{ date('F d, Y') }}</p>
+                    <h6>{{ __('messages.blade_register_blade_barangay_hulo_privacy_policy') }}</h6>
+                    <p>{{ __('messages.blade_register_last_updated_date', ['date' => date('F d, Y')]) }}</p>
 
-                    <h6>1. Information We Collect</h6>
-                    <p>We collect personal information including but not limited to:</p>
+                    <h6>{{ __('messages.blade_register_blade_1_information_we_collect') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_we_collect_personal_information_including_but_not_limit') }}</p>
                     <ul>
-                        <li>Full name</li>
-                        <li>Date of birth</li>
-                        <li>Contact number</li>
-                        <li>Email address</li>
-                        <li>Complete address</li>
-                        <li>Valid ID (image/PDF)</li>
-                        <li>Username and password</li>
+                        <li>{{ __('messages.form_review_label_full_name') }}</li>
+                        <li>{{ __('messages.register_dob_label') }}</li>
+                        <li>{{ __('messages.register_contact_label') }}</li>
+                        <li>{{ __('messages.register_email_label') }}</li>
+                        <li>{{ __('messages.register_address_label') }}</li>
+                        <li>{{ __('messages.blade_register_blade_valid_id_image_pdf') }}</li>
+                        <li>{{ __('messages.blade_register_blade_username_and_password') }}</li>
                     </ul>
 
-                    <h6>2. How We Use Your Information</h6>
-                    <p>Your information is used to:</p>
+                    <h6>{{ __('messages.blade_register_blade_2_how_we_use_your_information') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_your_information_is_used_to') }}</p>
                     <ul>
-                        <li>Process your requests and applications</li>
-                        <li>Verify your identity and residency</li>
-                        <li>Communicate important announcements</li>
-                        <li>Improve our services</li>
-                        <li>Comply with legal requirements</li>
+                        <li>{{ __('messages.blade_register_blade_process_your_requests_and_applications') }}</li>
+                        <li>{{ __('messages.blade_register_blade_verify_your_identity_and_residency') }}</li>
+                        <li>{{ __('messages.blade_register_blade_communicate_important_announcements') }}</li>
+                        <li>{{ __('messages.blade_register_blade_improve_our_services') }}</li>
+                        <li>{{ __('messages.blade_register_blade_comply_with_legal_requirements') }}</li>
                     </ul>
 
-                    <h6>3. Data Protection</h6>
-                    <p>We implement appropriate technical and organizational measures to protect your personal
-                        information against unauthorized access, alteration, disclosure, or destruction.</p>
+                    <h6>{{ __('messages.blade_register_blade_3_data_protection') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_we_implement_appropriate_technical_and_organizational_m') }}</p>
 
-                    <h6>4. Data Sharing</h6>
-                    <p>We do not sell or rent your personal information. Information may be shared only with authorized
-                        barangay personnel and government agencies as required by law.</p>
+                    <h6>{{ __('messages.blade_register_blade_4_data_sharing') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_we_do_not_sell_or_rent_your_personal_information_inform') }}</p>
 
-                    <h6>5. Your Rights</h6>
-                    <p>You have the right to access, correct, or request deletion of your personal information. Contact
-                        the Barangay Hall to exercise these rights.</p>
+                    <h6>{{ __('messages.blade_register_blade_5_your_rights') }}</h6>
+                    <p>{{ __('messages.blade_register_blade_you_have_the_right_to_access_correct_or_request_deletio') }}</p>
 
-                    <h6>6. Contact Information</h6>
+                    <h6>{{ __('messages.blade_register_blade_6_contact_information') }}</h6>
                     <p>
-                        Barangay Hulo Hall<br>
-                        Hulong Duhat, Malabon City<br>
-                        Email: barangayhulongduhat@gmail.com<br>
-                        Tel: 8-281-1373
+                        {{ __('messages.blade_register_blade_barangay_hulo_hall') }}<br>
+                        {{ __('messages.blade_register_blade_hulong_duhat_malabon_city') }}<br>
+                        {{ __('messages.blade_register_blade_email_barangayhulongduhat_gmail_com') }}<br>
+                        {{ __('messages.blade_register_blade_tel_8_281_1373') }}
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.modal_close_btn') }}</button>
                 </div>
             </div>
         </div>
@@ -2479,13 +2521,13 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="idScannerModalLabel">Automatic valid ID scanner</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="idScannerModalLabel">{{ __('messages.blade_profile_blade_automatic_valid_id_scanner') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
                 <div class="modal-body">
                     <div class="scanner-help">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Place the ID inside the guide. The scanner automatically captures the front side first, then asks you to flip the ID for the back side. Blurry photos are rejected before sending.</span>
+                        <span>{{ __('messages.blade_register_blade_place_the_id_inside_the_guide_the_scanner_automatically') }}</span>
                     </div>
 
                     <div class="scanner-stage">
@@ -2495,9 +2537,9 @@
                         <div class="scanner-status" id="idScannerStatus">
                             <span class="d-inline-flex align-items-center gap-2">
                                 <span class="status-dot"></span>
-                                <span id="idScannerStatusText">Camera is starting...</span>
+                                <span id="idScannerStatusText">{{ __('messages.blade_profile_blade_camera_is_starting') }}</span>
                             </span>
-                            <span id="idScannerTargetText" class="d-none">ID scan</span>
+                            <span id="idScannerTargetText" class="d-none">{{ __('messages.blade_register_blade_id_scan') }}</span>
                         </div>
                     </div>
 
@@ -2506,19 +2548,19 @@
 
                     <div class="scanner-controls">
                         <button type="button" class="btn-scanner-secondary" id="idScannerRetakeBtn">
-                            <i class="fas fa-rotate-right"></i> Restart camera
+                            <i class="fas fa-rotate-right"></i> {{ __('messages.blade_profile_blade_restart_camera') }}
                         </button>
                         <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn" disabled aria-hidden="true">
-                            <i class="fas fa-camera"></i> Auto capture enabled
+                            <i class="fas fa-camera"></i> {{ __('messages.blade_register_blade_auto_capture_enabled') }}
                         </button>
                         <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
-                            <i class="fas fa-xmark"></i> Cancel
+                            <i class="fas fa-xmark"></i> {{ __('messages.register_cancel_btn') }}
                         </button>
                     </div>
 
                     <label class="scanner-auto-option" for="idScannerAutoCapture">
                         <input type="checkbox" id="idScannerAutoCapture" checked>
-                        Auto-capture when the ID is detected and steady
+                        {{ __('messages.blade_register_blade_auto_capture_when_the_id_is_detected_and_steady') }}
                     </label>
                 </div>
             </div>
@@ -2605,14 +2647,14 @@
                     barangay,
                     city,
                     landmark ? `Landmark: ${landmark}` : '',
-                    residencyStatus ? `Residency Status: ${residencyStatus}` : '',
+                    residencyStatus ? @json(__('messages.blade_jsdyn_residency_status_status')).replace(':status', residencyStatus) : '',
                 ].filter(Boolean);
 
                 const completeAddress = addressParts.join(', ');
                 addressInput.value = completeAddress;
 
                 if (addressPreviewText) {
-                    addressPreviewText.textContent = completeAddress || 'Complete the fields above to build the full address.';
+                    addressPreviewText.textContent = completeAddress || @json(__('messages.blade_register_blade_complete_the_fields_above_to_build_the_full_address'));
                 }
 
                 return completeAddress;
@@ -2661,7 +2703,7 @@
                 
                 // Check if field is required and empty
                 if (field.hasAttribute('required') && !fieldValue) {
-                    showFieldError(field, `${fieldName} is required`);
+                    showFieldError(field, @json(__('messages.blade_jsdyn_field_is_required')).replace(':field', fieldName));
                     return false;
                 }
                 
@@ -2670,13 +2712,13 @@
                     const nameRegex = /^[A-Za-zÁáÀàÂâÄäÃãÅåÆæÇçÐðÉéÈèÊêËëÍíÌìÎîÏïÑñÓóÒòÔôÖöÕõØøÞþÚúÙùÛûÜüÝýŸÿ\s'.-]+$/;
                     
                     if (!nameRegex.test(fieldValue)) {
-                        showFieldError(field, `${fieldName} may only contain letters, spaces, dots, apostrophes, and hyphens`);
+                        showFieldError(field, @json(__('messages.validation_name_format')));
                         return false;
                     }
                     
                     // Check minimum length
                     if (fieldValue.length < 2) {
-                        showFieldError(field, `${fieldName} must be at least 2 characters long`);
+                        showFieldError(field, @json(__('messages.validation_name_min_length')));
                         return false;
                     }
                 }
@@ -2700,7 +2742,7 @@
                     }
 
                     if (usernameHint) {
-                        usernameHint.textContent = 'Checking username availability...';
+                        usernameHint.textContent = @json(__('messages.blade_register_blade_checking_username_availability'));
                         usernameHint.classList.remove('good', 'bad');
                     }
 
@@ -2722,22 +2764,22 @@
             if (emailInput) {
                 emailInput.addEventListener('input', function() {
                     this.value = this.value.trim().toLowerCase();
-                    checkAccountAvailability('email', this.value, emailHint, 'Email');
+                    checkAccountAvailability('email', this.value, emailHint, @json(__('messages.form_email_label')));
                 });
 
                 emailInput.addEventListener('blur', function() {
-                    checkAccountAvailability('email', this.value, emailHint, 'Email', true);
+                    checkAccountAvailability('email', this.value, emailHint, @json(__('messages.form_email_label')), true);
                 });
             }
 
             if (contactInput) {
                 contactInput.addEventListener('input', function() {
                     this.value = this.value.replace(/\D/g, '').slice(0, 11);
-                    checkAccountAvailability('contact', this.value, contactHint, 'Contact number');
+                    checkAccountAvailability('contact', this.value, contactHint, @json(__('messages.register_contact_label')));
                 });
 
                 contactInput.addEventListener('blur', function() {
-                    checkAccountAvailability('contact', this.value, contactHint, 'Contact number', true);
+                    checkAccountAvailability('contact', this.value, contactHint, @json(__('messages.register_contact_label')), true);
                 });
             }
 
@@ -2753,7 +2795,7 @@
                     usernameCheckState.status = 'idle';
                     usernameCheckState.message = '';
                     if (usernameHint) {
-                        usernameHint.textContent = 'This will be your login username';
+                        usernameHint.textContent = @json(__('messages.blade_register_blade_this_will_be_your_login_username'));
                         usernameHint.classList.remove('good', 'bad');
                     }
                     return false;
@@ -2763,11 +2805,11 @@
                 if (!usernameRegex.test(username) || username.length < 4) {
                     usernameCheckState.value = username;
                     usernameCheckState.status = 'invalid';
-                    usernameCheckState.message = 'Username format is invalid';
+                    usernameCheckState.message = @json(__('messages.blade_runtime_username_format_invalid'));
                     if (usernameHint) {
                         usernameHint.textContent = username.length < 4
-                            ? 'Username must be at least 4 characters long'
-                            : 'Only letters, numbers, underscore, dot, and hyphen are allowed';
+                            ? @json(__('messages.blade_js_username_must_be_at_least_4_characters_long'))
+                            : @json(__('messages.blade_runtime_username_allowed_chars'));
                         usernameHint.classList.remove('good');
                         usernameHint.classList.add('bad');
                     }
@@ -2777,10 +2819,10 @@
                 const requestId = ++usernameCheckSeq;
                 usernameCheckState.value = username;
                 usernameCheckState.status = 'checking';
-                usernameCheckState.message = 'Checking username availability...';
+                usernameCheckState.message = @json(__('messages.blade_register_blade_checking_username_availability'));
 
                 if (usernameHint) {
-                    usernameHint.textContent = 'Checking username availability...';
+                    usernameHint.textContent = @json(__('messages.blade_register_blade_checking_username_availability'));
                     usernameHint.classList.remove('good', 'bad');
                 }
 
@@ -2794,7 +2836,7 @@
                     const contentType = response.headers.get('content-type') || '';
                     const data = contentType.includes('application/json')
                         ? await response.json()
-                        : { message: 'Username availability route did not return JSON. Check your Laravel route/controller.' };
+                        : { message: @json(__('messages.blade_runtime_username_route_invalid')) };
 
                     if (requestId !== usernameCheckSeq) {
                         return false;
@@ -2802,7 +2844,7 @@
 
                     if (response.ok && data.available) {
                         usernameCheckState.status = 'available';
-                        usernameCheckState.message = data.message || 'Username is available';
+                        usernameCheckState.message = data.message || @json(__('messages.blade_runtime_username_available'));
                         if (usernameHint) {
                             usernameHint.textContent = usernameCheckState.message;
                             usernameHint.classList.remove('bad');
@@ -2812,7 +2854,7 @@
                     }
 
                     usernameCheckState.status = 'unavailable';
-                    usernameCheckState.message = data.message || 'Username is already taken';
+                    usernameCheckState.message = data.message || @json(__('messages.blade_js_username_is_already_taken'));
                     if (usernameHint) {
                         usernameHint.textContent = usernameCheckState.message;
                         usernameHint.classList.remove('good');
@@ -2825,7 +2867,7 @@
                     }
 
                     usernameCheckState.status = 'error';
-                    usernameCheckState.message = 'Unable to check username right now';
+                    usernameCheckState.message = @json(__('messages.blade_runtime_username_check_unavailable'));
                     if (usernameHint) {
                         usernameHint.textContent = usernameCheckState.message;
                         usernameHint.classList.remove('good');
@@ -2851,8 +2893,8 @@
                     : String(rawValue || '').trim().toLowerCase();
 
                 const defaultMessage = field === 'contact'
-                    ? 'Use 11 digits only (e.g., 09123456789). We will check this before submission.'
-                    : 'We will verify this email for account updates and notifications.';
+                    ? @json(__('messages.blade_runtime_contact_default_hint'))
+                    : @json(__('messages.blade_runtime_email_default_hint'));
 
                 if (!accountCheckState[field]) {
                     accountCheckState[field] = { value: '', status: 'idle', message: '' };
@@ -2869,9 +2911,9 @@
                 }
 
                 if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
-                    accountCheckState[field] = { value: normalized, status: 'invalid', message: 'Please enter a valid email address' };
+                    accountCheckState[field] = { value: normalized, status: 'invalid', message: @json(__('messages.validation_email_format')) };
                     if (hintEl) {
-                        hintEl.textContent = 'Please enter a valid email address';
+                        hintEl.textContent = @json(__('messages.validation_email_format'));
                         hintEl.classList.remove('good');
                         hintEl.classList.add('bad');
                     }
@@ -2879,11 +2921,11 @@
                 }
 
                 if (field === 'contact' && !/^09\d{9}$/.test(normalized)) {
-                    accountCheckState[field] = { value: normalized, status: 'invalid', message: 'Please enter a valid Philippine mobile number (09XXXXXXXXX)' };
+                    accountCheckState[field] = { value: normalized, status: 'invalid', message: @json(__('messages.validation_contact_format')) };
                     if (hintEl) {
                         hintEl.textContent = normalized.length < 11
-                            ? 'Complete the 11-digit mobile number first.'
-                            : 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
+                            ? @json(__('messages.blade_runtime_complete_mobile_first'))
+                            : @json(__('messages.validation_contact_format'));
                         hintEl.classList.remove('good');
                         hintEl.classList.add('bad');
                     }
@@ -2895,10 +2937,10 @@
                 }
 
                 const requestId = ++accountCheckSeq[field];
-                accountCheckState[field] = { value: normalized, status: 'checking', message: `Checking ${label.toLowerCase()} availability...` };
+                accountCheckState[field] = { value: normalized, status: 'checking', message: @json(__('messages.blade_jsdyn_checking_field_availability')).replace(':field', label.toLowerCase()) };
 
                 if (hintEl) {
-                    hintEl.textContent = `Checking ${label.toLowerCase()} availability...`;
+                    hintEl.textContent = @json(__('messages.blade_jsdyn_checking_field_availability')).replace(':field', label.toLowerCase());
                     hintEl.classList.remove('good', 'bad');
                 }
 
@@ -2912,14 +2954,14 @@
                     const contentType = response.headers.get('content-type') || '';
                     const data = contentType.includes('application/json')
                         ? await response.json()
-                        : { message: `${label} availability route did not return JSON. Check your Laravel route/controller.` };
+                        : { message: @json(__('messages.blade_runtime_field_route_invalid')).replace(':field', label) };
 
                     if (requestId !== accountCheckSeq[field]) {
                         return false;
                     }
 
                     if (response.ok && data.available) {
-                        accountCheckState[field] = { value: normalized, status: 'available', message: data.message || `${label} is available` };
+                        accountCheckState[field] = { value: normalized, status: 'available', message: data.message || @json(__('messages.blade_runtime_field_available')).replace(':field', label) };
                         if (hintEl) {
                             hintEl.textContent = accountCheckState[field].message;
                             hintEl.classList.remove('bad');
@@ -2928,7 +2970,7 @@
                         return true;
                     }
 
-                    accountCheckState[field] = { value: normalized, status: 'unavailable', message: data.message || `${label} is already taken` };
+                    accountCheckState[field] = { value: normalized, status: 'unavailable', message: data.message || @json(__('messages.blade_runtime_field_taken')).replace(':field', label) };
                     if (hintEl) {
                         hintEl.textContent = accountCheckState[field].message;
                         hintEl.classList.remove('good');
@@ -2943,7 +2985,7 @@
                     accountCheckState[field] = {
                         value: normalized,
                         status: 'error',
-                        message: `${label} availability check failed. Make sure route('register.check-availability') exists and returns JSON.`,
+                        message: @json(__('messages.blade_runtime_field_check_failed')).replace(':field', label),
                     };
 
                     if (hintEl) {
@@ -2965,19 +3007,19 @@
                 }
                 
                 if (!fieldValue) {
-                    showFieldError(field, 'Username is required');
+                    showFieldError(field, @json(__('messages.blade_runtime_username_required')));
                     return false;
                 }
                 
                 // Check for valid characters (letters, numbers, underscore, dot, hyphen) - NO SPACES
                 const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
                 if (!usernameRegex.test(fieldValue)) {
-                    showFieldError(field, 'Username may only contain letters, numbers, underscores (_), dots (.), and hyphens (-)');
+                    showFieldError(field, @json(__('messages.blade_js_username_may_only_contain_letters_numbers_underscores_dots')));
                     return false;
                 }
                 
                 if (fieldValue.length < 4) {
-                    showFieldError(field, 'Username must be at least 4 characters long');
+                    showFieldError(field, @json(__('messages.blade_js_username_must_be_at_least_4_characters_long')));
                     return false;
                 }
                 
@@ -2999,7 +3041,7 @@
                 }
 
                 if (!confirm) {
-                    matchText.textContent = "Passwords must match";
+                    matchText.textContent = @json(__('messages.blade_register_blade_passwords_must_match'));
                     matchText.classList.remove("good", "bad");
                     confirmPasswordInput.classList.remove("is-invalid");
                     return false;
@@ -3007,7 +3049,7 @@
 
                 const matched = password === confirm;
                 
-                matchText.textContent = matched ? "Passwords match" : "Passwords do not match";
+                matchText.textContent = matched ? @json(__('messages.blade_runtime_passwords_match')) : @json(__('messages.blade_runtime_passwords_do_not_match'));
                 matchText.classList.toggle("good", matched);
                 matchText.classList.toggle("bad", !matched);
                 confirmPasswordInput.classList.toggle("is-invalid", !matched);
@@ -3038,7 +3080,7 @@
                     if (field.type === 'checkbox') {
                         if (!field.checked) {
                             isValid = false;
-                            showFieldError(field, 'You must agree to continue');
+                            showFieldError(field, @json(__('messages.blade_runtime_agree_continue')));
                         }
                         return;
                     }
@@ -3046,27 +3088,27 @@
                     if (field.type === 'file') {
                         if (!field.files || field.files.length === 0) {
                             isValid = false;
-                            showFieldError(field, 'Please complete the automatic valid ID scan.');
+                            showFieldError(field, @json(__('messages.blade_runtime_complete_id_scan')));
                         } else {
                             const fileSize = field.files[0].size;
                             if (fileSize > 5242880) {
                                 isValid = false;
-                                showFieldError(field, 'File size must not exceed 5MB');
+                                showFieldError(field, @json(__('messages.blade_runtime_file_max_5mb')));
                             }
 
                             const fileType = field.files[0].type;
                             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
                             if (!allowedTypes.includes(fileType)) {
                                 isValid = false;
-                                showFieldError(field, 'File must be JPG, PNG, or PDF');
+                                showFieldError(field, @json(__('messages.blade_runtime_file_type_jpg_png_pdf')));
                             }
 
                             if ((field.id === 'valid_id' || field.id === 'valid_id_back')
                                 && !scannerState.qualityResults[field.id]?.passed) {
                                 isValid = false;
                                 showFieldError(field, field.id === 'valid_id_back'
-                                    ? 'Please scan a clear back side of your valid ID before continuing.'
-                                    : 'Please scan a clear front side of your valid ID before continuing.');
+                                    ? @json(__('messages.blade_runtime_scan_clear_back'))
+                                    : @json(__('messages.blade_runtime_scan_clear_front')));
                             }
                         }
                         return;
@@ -3076,7 +3118,7 @@
 
                     if (!fieldValue) {
                         isValid = false;
-                        showFieldError(field, 'This field is required');
+                        showFieldError(field, @json(__('messages.validation_field_required')));
                         return;
                     }
 
@@ -3085,10 +3127,10 @@
                         const nameRegex = /^[A-Za-zÁáÀàÂâÄäÃãÅåÆæÇçÐðÉéÈèÊêËëÍíÌìÎîÏïÑñÓóÒòÔôÖöÕõØøÞþÚúÙùÛûÜüÝýŸÿ\s'.-]+$/;
                         if (!nameRegex.test(fieldValue)) {
                             isValid = false;
-                            showFieldError(field, `${field.id.charAt(0).toUpperCase() + field.id.slice(1)} may only contain letters, spaces, dots, apostrophes, and hyphens`);
+                            showFieldError(field, @json(__('messages.validation_name_format')));
                         } else if (fieldValue.length < 2) {
                             isValid = false;
-                            showFieldError(field, `${field.id.charAt(0).toUpperCase() + field.id.slice(1)} must be at least 2 characters long`);
+                            showFieldError(field, @json(__('messages.validation_name_min_length')));
                         }
                     }
 
@@ -3097,20 +3139,20 @@
                         const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
                         if (!usernameRegex.test(fieldValue)) {
                             isValid = false;
-                            showFieldError(field, 'Username may only contain letters, numbers, underscores (_), dots (.), and hyphens (-)');
+                            showFieldError(field, @json(__('messages.blade_js_username_may_only_contain_letters_numbers_underscores_dots')));
                         } else if (fieldValue.length < 4) {
                             isValid = false;
-                            showFieldError(field, 'Username must be at least 4 characters long');
+                            showFieldError(field, @json(__('messages.blade_js_username_must_be_at_least_4_characters_long')));
                         } else if (usernameCheckState.value === fieldValue.toLowerCase() && usernameCheckState.status === 'unavailable') {
                             isValid = false;
-                            showFieldError(field, 'Username is already taken');
+                            showFieldError(field, @json(__('messages.blade_js_username_is_already_taken')));
                         }
                     }
 
                     // Address minimum length
                     if (field.id === 'address' && fieldValue.length < 10) {
                         isValid = false;
-                        showFieldError(field, 'Address must be at least 10 characters long');
+                        showFieldError(field, @json(__('messages.blade_js_address_must_be_at_least_10_characters_long')));
                     }
 
                     // Email validation
@@ -3118,10 +3160,10 @@
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!emailRegex.test(fieldValue)) {
                             isValid = false;
-                            showFieldError(field, 'Please enter a valid email address');
+                            showFieldError(field, @json(__('messages.validation_email_format')));
                         } else if (accountCheckState.email?.value === fieldValue.toLowerCase() && accountCheckState.email?.status === 'unavailable') {
                             isValid = false;
-                            showFieldError(field, accountCheckState.email.message || 'Email is already taken');
+                            showFieldError(field, accountCheckState.email.message || @json(__('messages.blade_js_email_is_already_taken')));
                         }
                     }
 
@@ -3130,10 +3172,23 @@
                         const phoneRegex = /^09\d{9}$/;
                         if (!phoneRegex.test(fieldValue)) {
                             isValid = false;
-                            showFieldError(field, 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+                            showFieldError(field, @json(__('messages.validation_contact_format')));
                         } else if (accountCheckState.contact?.value === fieldValue && accountCheckState.contact?.status === 'unavailable') {
                             isValid = false;
-                            showFieldError(field, accountCheckState.contact.message || 'Contact number is already registered');
+                            showFieldError(field, accountCheckState.contact.message || @json(__('messages.blade_js_contact_number_is_already_registered')));
+                        }
+                    }
+
+                    // Place of birth validation
+                    if (field.id === 'place_of_birth') {
+                        const pobRegex = /^[A-Za-zÁáÀàÂâÄäÃãÅåÆæÇçÐðÉéÈèÊêËëÍíÌìÎîÏïÑñÓóÒòÔôÖöÕõØøÞþÚúÙùÛûÜüÝýŸÿ\s.,'-]+$/;
+
+                        if (!pobRegex.test(fieldValue)) {
+                            isValid = false;
+                            showFieldError(field, @json(__('messages.blade_runtime_place_birth_format')));
+                        } else if (fieldValue.length < 2) {
+                            isValid = false;
+                            showFieldError(field, @json(__('messages.blade_runtime_place_birth_min')));
                         }
                     }
 
@@ -3145,7 +3200,7 @@
 
                         if (birthDate > today) {
                             isValid = false;
-                            showFieldError(field, 'Date of birth cannot be in the future');
+                            showFieldError(field, @json(__('messages.validation_dob_future')));
                         } else {
                             let age = today.getFullYear() - birthDate.getFullYear();
                             const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -3156,7 +3211,7 @@
 
                             if (age < 18) {
                                 isValid = false;
-                                showFieldError(field, 'You must be at least 18 years old to register');
+                                showFieldError(field, @json(__('messages.blade_runtime_age_18_register')));
                             }
                         }
                     }
@@ -3171,7 +3226,7 @@
                     
                     if (termsCheckbox && !termsCheckbox.checked) {
                         isValid = false;
-                        showFieldError(termsCheckbox, 'You must agree to the terms and conditions');
+                        showFieldError(termsCheckbox, @json(__('messages.blade_runtime_agree_terms')));
                     }
                 }
 
@@ -3240,7 +3295,7 @@
                 input.addEventListener('change', function(e) {
                     const textId = this.getAttribute('data-file-text');
                     const textEl = textId ? document.getElementById(textId) : null;
-                    const defaultText = this.id === 'valid_id_back' ? 'No back file selected' : 'No front file selected';
+                    const defaultText = this.id === 'valid_id_back' ? @json(__('messages.blade_profile_blade_no_back_file_selected')) : @json(__('messages.blade_profile_blade_no_front_file_selected'));
                     const file = e.target.files[0] || null;
                     const wrapper = this.closest('.file-upload-wrapper');
 
@@ -3263,14 +3318,14 @@
                     if (file.size > 5242880) {
                         this.value = '';
                         if (textEl) textEl.textContent = defaultText;
-                        showFieldError(this, 'File size must not exceed 5MB');
+                        showFieldError(this, @json(__('messages.blade_runtime_file_max_5mb')));
                         return;
                     }
 
                     if (!allowedTypes.includes(file.type)) {
                         this.value = '';
                         if (textEl) textEl.textContent = defaultText;
-                        showFieldError(this, 'File must be JPG, PNG, or PDF');
+                        showFieldError(this, @json(__('messages.blade_runtime_file_type_jpg_png_pdf')));
                     }
                 });
             });
@@ -3291,8 +3346,8 @@
             const scanBothSidesBtn = document.getElementById('scanBothSidesBtn');
 
             const scannerFlowSides = [
-                { inputId: 'valid_id', label: 'front side', title: 'Automatic valid ID scanner' },
-                { inputId: 'valid_id_back', label: 'back side', title: 'Automatic valid ID scanner' },
+                { inputId: 'valid_id', label: @json(__('messages.blade_profile_blade_front_side')), title: @json(__('messages.blade_profile_blade_automatic_valid_id_scanner')) },
+                { inputId: 'valid_id_back', label: @json(__('messages.blade_profile_blade_back_side')), title: @json(__('messages.blade_profile_blade_automatic_valid_id_scanner')) },
             ];
 
             // Movement-friendly capture settings.
@@ -3304,7 +3359,7 @@
 
             const scannerState = {
                 targetInput: null,
-                targetLabel: 'front side',
+                targetLabel: @json(__('messages.blade_profile_blade_front_side')),
                 scanMode: 'single',
                 flowIndex: 0,
                 stream: null,
@@ -3358,13 +3413,13 @@
                 if (scannerTargetText) scannerTargetText.textContent = label;
 
                 const title = document.getElementById('idScannerModalLabel');
-                if (title) title.textContent = 'Automatic valid ID scanner';
+                if (title) title.textContent = @json(__('messages.blade_profile_blade_automatic_valid_id_scanner'));
 
                 resetScannerDetection();
                 return true;
             }
 
-            function openScannerForSide(inputId, label = 'ID side', mode = 'single') {
+            function openScannerForSide(inputId, label = @json(__('messages.blade_runtime_id_side')), mode = 'single') {
                 if (!scannerModal) return;
 
                 scannerState.scanMode = mode;
@@ -3394,7 +3449,7 @@
                 }
 
                 updateAutoScanStatus();
-                setScannerStatus('Scanning front side first. Put the photo/name side inside the guide. Slight movement is okay; the scanner will pick the clearest frame.', 'waiting');
+                setScannerStatus(@json(__('messages.blade_runtime_scanning_front_movement')), 'waiting');
 
                 scannerModal.show();
             }
@@ -3430,16 +3485,16 @@
                 scanBothSidesBtn.disabled = isActive;
 
                 if (isActive) {
-                    scanBothSidesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning ID...';
+                    scanBothSidesBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${@json(__('messages.blade_runtime_scanning_id'))}`;
                     return;
                 }
 
                 if (hasValidScannerCaptures()) {
-                    scanBothSidesBtn.innerHTML = '<i class="fas fa-rotate-right"></i> Rescan ID';
+                    scanBothSidesBtn.innerHTML = `<i class="fas fa-rotate-right"></i> ${@json(__('messages.blade_runtime_rescan_id'))}`;
                     return;
                 }
 
-                scanBothSidesBtn.innerHTML = '<i class="fas fa-camera-retro"></i> Start ID scan';
+                scanBothSidesBtn.innerHTML = `<i class="fas fa-camera-retro"></i> ${@json(__('messages.blade_profile_blade_start_id_scan'))}`;
             }
 
             function updateAutoScanStatus() {
@@ -3468,17 +3523,17 @@
                 status.classList.toggle('is-complete', hasFront && hasBack);
 
                 if (hasFront && hasBack) {
-                    title.textContent = 'ID scan complete';
-                    text.textContent = 'Front side captured. Back side captured. Both passed quality check and are ready for admin verification.';
+                    title.textContent = @json(__('messages.blade_register_blade_id_scan_complete'));
+                    text.textContent = @json(__('messages.blade_register_blade_front_side_captured_back_side_captured_both_passed_qual'));
                 } else if (hasFront) {
-                    title.textContent = 'Front side captured';
-                    text.textContent = 'Front side is saved. Flip the ID now. The scanner will capture the back side next.';
+                    title.textContent = @json(__('messages.blade_register_blade_front_side_captured'));
+                    text.textContent = @json(__('messages.blade_register_blade_front_side_is_saved_flip_the_id_now_the_scanner_will_ca'));
                 } else if (hasBack) {
-                    title.textContent = 'Back side captured';
-                    text.textContent = 'Back side is saved, but the front side is still missing. Start the scan again to capture the front side.';
+                    title.textContent = @json(__('messages.blade_register_blade_back_side_captured'));
+                    text.textContent = @json(__('messages.blade_register_blade_back_side_is_saved_but_the_front_side_is_still_missing_'));
                 } else {
-                    title.textContent = 'No ID scan yet';
-                    text.textContent = 'Press Start ID scan. The scanner will capture the front side first, then the back side after you flip the ID.';
+                    title.textContent = @json(__('messages.blade_register_blade_no_id_scan_yet'));
+                    text.textContent = @json(__('messages.blade_register_blade_press_start_id_scan_the_scanner_will_capture_the_front_'));
                 }
 
                 updateScanButtonState();
@@ -3742,8 +3797,8 @@
                 const textEl = textId ? document.getElementById(textId) : null;
                 if (textEl) {
                     textEl.textContent = inputId === 'valid_id_back'
-                        ? 'No back file selected'
-                        : 'No front file selected';
+                        ? @json(__('messages.blade_profile_blade_no_back_file_selected'))
+                        : @json(__('messages.blade_profile_blade_no_front_file_selected'));
                 }
             }
 
@@ -4055,7 +4110,7 @@
                 if (!canvas || !points || points.length !== 4) {
                     return {
                         passed: false,
-                        message: 'No complete ID card was detected. Put the whole ID inside the guide and scan again.',
+                        message: @json(__('messages.blade_runtime_id_not_complete')),
                     };
                 }
 
@@ -4076,21 +4131,21 @@
                 if (areaRatio < 0.10) {
                     return {
                         passed: false,
-                        message: 'The ID is too far or too small. Move it closer and keep all corners visible.',
+                        message: @json(__('messages.blade_runtime_id_too_far')),
                     };
                 }
 
                 if (areaRatio > 0.88) {
                     return {
                         passed: false,
-                        message: 'The ID is too close to the camera. Move it back so all edges are visible.',
+                        message: @json(__('messages.blade_runtime_id_too_close')),
                     };
                 }
 
                 if (detectedRatio < 1.25 || detectedRatio > 2.35) {
                     return {
                         passed: false,
-                        message: 'The detected shape does not look like a valid ID card. Hold the ID flat and horizontal.',
+                        message: @json(__('messages.blade_runtime_id_shape_invalid')),
                     };
                 }
 
@@ -4101,14 +4156,14 @@
                 if (cropShortSide < 220 || cropLongSide < 360) {
                     return {
                         passed: false,
-                        message: 'The cropped ID is too small. Move closer and scan again.',
+                        message: @json(__('messages.blade_runtime_id_crop_small')),
                     };
                 }
 
                 if (cropRatio < 1.25 || cropRatio > 2.35) {
                     return {
                         passed: false,
-                        message: 'The crop does not match an ID card shape. Align the ID with the guide and rescan.',
+                        message: @json(__('messages.blade_runtime_id_crop_shape')),
                     };
                 }
 
@@ -4117,21 +4172,21 @@
                 if (analysis.brightness < 45) {
                     return {
                         passed: false,
-                        message: 'The ID photo is too dark. Move to a brighter area and scan again.',
+                        message: @json(__('messages.blade_runtime_id_dark_rescan')),
                     };
                 }
 
                 if (analysis.brightness > 235) {
                     return {
                         passed: false,
-                        message: 'The ID photo is too bright or has glare. Reduce glare and scan again.',
+                        message: @json(__('messages.blade_runtime_id_bright_rescan')),
                     };
                 }
 
                 if (analysis.contrast < 18) {
                     return {
                         passed: false,
-                        message: 'The ID details are not clear enough. Improve lighting and scan again.',
+                        message: @json(__('messages.blade_runtime_id_unclear_rescan')),
                         analysis,
                     };
                 }
@@ -4139,7 +4194,7 @@
                 if (analysis.darkPixelRatio > 0.36) {
                     return {
                         passed: false,
-                        message: 'Too much of the ID photo is dark. Move to better lighting and scan again.',
+                        message: @json(__('messages.blade_runtime_id_dark_ratio')),
                         analysis,
                     };
                 }
@@ -4147,7 +4202,7 @@
                 if (analysis.brightPixelRatio > 0.30) {
                     return {
                         passed: false,
-                        message: 'Too much glare or overexposure was detected. Tilt the ID slightly away from light and scan again.',
+                        message: @json(__('messages.blade_runtime_id_glare_ratio')),
                         analysis,
                     };
                 }
@@ -4161,7 +4216,7 @@
                     console.info('ID scan rejected as blurry:', analysis);
                     return {
                         passed: false,
-                        message: 'The ID photo is blurry. Hold the phone and ID steady, clean the camera lens, move closer, and scan again.',
+                        message: @json(__('messages.blade_runtime_id_blurry_detailed')),
                         analysis,
                     };
                 }
@@ -4176,7 +4231,7 @@
                         console.info('Back ID rejected because it looks like the front side again:', sameSideCheck.details);
                         return {
                             passed: false,
-                            message: 'This appears to be the front side again. Flip the ID and scan the back side instead.',
+                            message: @json(__('messages.blade_runtime_front_again_detailed')),
                             duplicateFront: true,
                             duplicateDetails: sameSideCheck.details,
                         };
@@ -4185,7 +4240,7 @@
 
                 return {
                     passed: true,
-                    message: 'ID quality passed.',
+                    message: @json(__('messages.blade_runtime_id_quality_passed')),
                     analysis,
                     signature,
                     areaRatio,
@@ -4195,7 +4250,7 @@
             }
 
             function rejectCurrentScannerCapture(inputId, message) {
-                const sideLabel = inputId === 'valid_id_back' ? 'back side' : 'front side';
+                const sideLabel = inputId === 'valid_id_back' ? @json(__('messages.blade_profile_blade_back_side')) : @json(__('messages.blade_profile_blade_front_side'));
                 scannerState.qualityResults[inputId] = {
                     passed: false,
                     message,
@@ -4204,10 +4259,10 @@
                 updateAutoScanStatus();
                 resetScannerDetection();
                 const nextInstruction = inputId === 'valid_id_back'
-                    ? 'The first capture is already saved as the front side. Flip the ID and show the back side only.'
-                    : 'Place the front side inside the guide and hold it steady.';
+                    ? @json(__('messages.blade_runtime_scanner_first_saved_back_only'))
+                    : @json(__('messages.blade_register_scanner_place_the_front_side_inside_the_guide_and_hold_it_steady'));
 
-                setScannerStatus(`${sideLabel} failed: ${message}`, 'error');
+                setScannerStatus(@json(__('messages.blade_profile_scanner_side_failed_message')).replace(':side', sideLabel).replace(':message', message), 'error');
 
                 window.setTimeout(() => {
                     scannerState.isCapturing = false;
@@ -4319,7 +4374,7 @@
 
                 canvas.toBlob((blob) => {
                     if (!blob) {
-                        setScannerStatus('Capture failed. Please try again.', 'error');
+                        setScannerStatus(@json(__('messages.blade_js_capture_failed_please_try_again')), 'error');
                         scannerState.isCapturing = false;
                         scannerState.isWaitingForFlip = false;
                         return;
@@ -4327,7 +4382,7 @@
 
                     try {
                         const side = currentInputId === 'valid_id_back' ? 'back' : 'front';
-                        const sideLabel = currentInputId === 'valid_id_back' ? 'Back side' : 'Front side';
+                        const sideLabel = currentInputId === 'valid_id_back' ? @json(__('messages.blade_profile_blade_back_side')) : @json(__('messages.blade_profile_blade_front_side'));
                         const file = new File([blob], `valid_id_${side}_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
                         const transfer = new DataTransfer();
                         transfer.items.add(file);
@@ -4341,7 +4396,7 @@
 
                         if (scannerState.scanMode === 'both' && currentInputId === 'valid_id') {
                             scannerState.isWaitingForFlip = true;
-                            setScannerStatus('Front side captured and saved. Flip the ID now. If the front side appears again, it will be rejected. Back-side scanning starts in 3 seconds.', 'ready');
+                            setScannerStatus(@json(__('messages.blade_runtime_scanner_front_saved_flip')), 'ready');
                             resetScannerDetection();
 
                             window.setTimeout(() => {
@@ -4351,7 +4406,7 @@
                                 scannerState.isCapturing = false;
                                 scannerState.isWaitingForFlip = false;
                                 updateAutoScanStatus();
-                                setScannerStatus('Now scanning back side. Make sure the ID is flipped; slight movement is okay, but blurry frames will be ignored.', 'waiting');
+                                setScannerStatus(@json(__('messages.blade_runtime_scanner_back_movement')), 'waiting');
 
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
@@ -4363,7 +4418,7 @@
 
                         if (scannerState.scanMode === 'both') {
                             if (!hasValidScannerCaptures()) {
-                                setScannerStatus(`${sideLabel} captured, but the full front/back scan is not complete yet. Please scan the missing side.`, 'error');
+                                setScannerStatus(@json(__('messages.blade_register_scanner_side_captured_but_the_full_front_back_scan_is_not_complete')).replace(':side', sideLabel), 'error');
                                 scannerState.isCapturing = false;
                                 return;
                             }
@@ -4371,9 +4426,9 @@
                             scannerState.completedBothSides = true;
                             scannerState.isFlowActive = false;
                             updateAutoScanStatus();
-                            setScannerStatus('Front and back sides passed. ID scan complete.', 'ready');
+                            setScannerStatus(@json(__('messages.blade_register_scanner_front_and_back_sides_passed_id_scan_complete')), 'ready');
                         } else {
-                            setScannerStatus(`${sideLabel} captured successfully.`, 'ready');
+                            setScannerStatus(@json(__('messages.blade_register_scanner_side_captured_successfully')).replace(':side', sideLabel), 'ready');
                         }
 
                         window.setTimeout(() => {
@@ -4387,7 +4442,7 @@
                         }, 750);
                     } catch (error) {
                         console.warn('Could not attach scanner file:', error);
-                        setScannerStatus('Your browser blocked attaching the scan. Please use another browser or upload the image manually.', 'error');
+                        setScannerStatus(@json(__('messages.blade_runtime_scanner_attach_blocked')), 'error');
                         scannerState.isFlowActive = false;
                         updateScanButtonState();
                     } finally {
@@ -4403,27 +4458,27 @@
                 if (scannerState.isCapturing) return;
 
                 if (scannerState.isWaitingForFlip) {
-                    setScannerStatus('Front side is already captured. Please flip the ID and wait for the back-side scan.', 'waiting');
+                    setScannerStatus(@json(__('messages.blade_runtime_scanner_front_already')), 'waiting');
                     return;
                 }
 
                 if (!scannerState.detectedPoints) {
-                    setScannerStatus('No ID card detected yet. Place the whole ID inside the guide before capturing.', 'error');
+                    setScannerStatus(@json(__('messages.blade_runtime_scanner_no_id')), 'error');
                     return;
                 }
 
                 scannerState.isCapturing = true;
-                const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
+                const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? @json(__('messages.blade_profile_blade_back_side')) : @json(__('messages.blade_profile_blade_front_side'));
                 const bestCandidate = getBestScannerCandidate();
 
                 if (bestCandidate) {
                     scannerState.detectedPoints = cloneScannerPoints(bestCandidate.points);
-                    setScannerStatus(`Using the clearest ${sideLabel} frame found. Checking quality...`, 'ready');
+                    setScannerStatus(@json(__('messages.blade_register_scanner_using_the_clearest_side_frame_found_checking_quality')).replace(':side', sideLabel), 'ready');
                     attachScannerImageToInput(bestCandidate.canvas, bestCandidate.quality, bestCandidate.points);
                     return;
                 }
 
-                setScannerStatus(`Checking ${sideLabel} quality...`, 'ready');
+                setScannerStatus(@json(__('messages.blade_register_scanner_checking_side_quality')).replace(':side', sideLabel), 'ready');
                 const canvas = cropDetectedCard(scannerState.detectedPoints);
                 attachScannerImageToInput(canvas);
             }
@@ -4450,17 +4505,17 @@
                         scannerState.lastPoints = points;
                         scannerState.detectedPoints = points;
 
-                        const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? 'back side' : 'front side';
+                        const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? @json(__('messages.blade_profile_blade_back_side')) : @json(__('messages.blade_profile_blade_front_side'));
                         const bestCandidate = sampleMovingScannerFrame(points);
                         const goodFrameCount = scannerState.candidateFrames.length;
                         const progress = Math.min(SCANNER_STABLE_FRAME_TARGET, Math.max(scannerState.stableFrames, goodFrameCount * 3));
 
                         if (bestCandidate) {
-                            setScannerStatus(`${sideLabel} detected. Good frame saved even with slight movement... ${progress}/${SCANNER_STABLE_FRAME_TARGET}`, 'ready');
+                            setScannerStatus(@json(__('messages.blade_runtime_scanner_good_frame')).replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
                         } else if (scannerState.lastCandidateMessage) {
-                            setScannerStatus(`${sideLabel} detected, but not clear yet: ${scannerState.lastCandidateMessage}`, 'waiting');
+                            setScannerStatus(@json(__('messages.blade_register_scanner_side_detected_but_not_clear_yet_message')).replace(':side', sideLabel).replace(':message', scannerState.lastCandidateMessage), 'waiting');
                         } else {
-                            setScannerStatus(`${sideLabel} detected. Keep it inside the guide... ${progress}/${SCANNER_STABLE_FRAME_TARGET}`, 'ready');
+                            setScannerStatus(@json(__('messages.blade_register_scanner_side_detected_keep_it_inside_the_guide_progress_target')).replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
                         }
 
                         const canAutoCaptureBestFrame = scannerAutoCapture?.checked
@@ -4480,9 +4535,9 @@
                         scannerState.detectedPoints = null;
 
                         if (!window.cvReady || typeof cv === 'undefined') {
-                            setScannerStatus('Scanner engine is loading. You can still capture manually.', 'waiting');
+                            setScannerStatus(@json(__('messages.blade_runtime_scanner_engine_manual')), 'waiting');
                         } else {
-                            setScannerStatus('Place the ID inside the guide.', 'waiting');
+                            setScannerStatus(@json(__('messages.blade_runtime_scanner_place_id')), 'waiting');
                         }
                     }
                 } finally {
@@ -4520,13 +4575,13 @@
 
             async function startScannerCamera() {
                 if (!scannerVideo || !navigator.mediaDevices?.getUserMedia) {
-                    setScannerStatus('Camera is not supported by this browser.', 'error');
+                    setScannerStatus(@json(__('messages.blade_runtime_camera_unsupported')), 'error');
                     return;
                 }
 
                 stopScannerCamera();
                 scannerState.completedBothSides = false;
-                setScannerStatus('Camera is starting...', 'waiting');
+                setScannerStatus(@json(__('messages.blade_profile_blade_camera_is_starting')), 'waiting');
 
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({
@@ -4542,18 +4597,18 @@
                     scannerVideo.srcObject = stream;
                     await scannerVideo.play();
                     syncScannerCanvases();
-                    setScannerStatus('Place the ID inside the guide.', window.cvReady ? 'waiting' : 'waiting');
+                    setScannerStatus(@json(__('messages.blade_runtime_scanner_place_id')), window.cvReady ? 'waiting' : 'waiting');
                     scannerFrameLoop();
                 } catch (error) {
                     console.warn('Camera access failed:', error);
-                    setScannerStatus('Camera permission denied or unavailable. Use manual upload instead.', 'error');
+                    setScannerStatus(@json(__('messages.blade_runtime_camera_permission_manual')), 'error');
                 }
             }
 
             document.querySelectorAll('.btn-scan-id').forEach((button) => {
                 button.addEventListener('click', () => {
                     const targetId = button.getAttribute('data-scan-target');
-                    const targetLabel = button.getAttribute('data-scan-label') || 'ID side';
+                    const targetLabel = button.getAttribute('data-scan-label') || @json(__('messages.blade_runtime_id_side'));
                     openScannerForSide(targetId, targetLabel, 'single');
                 });
             });
@@ -4588,7 +4643,7 @@
 
             document.addEventListener('opencv-ready', () => {
                 if (scannerState.stream && !scannerState.isCapturing) {
-                    setScannerStatus('Scanner ready. Place the ID inside the guide.', 'waiting');
+                    setScannerStatus(@json(__('messages.blade_js_scanner_ready_place_the_id_inside_the_guide')), 'waiting');
                 }
             });
 
@@ -4686,11 +4741,19 @@
                 }
 
                 if (password && (label === "too weak" || label === "weak")) {
-                    showFieldError(passwordInput, 'Password is too weak. Please make it stronger.');
+                    showFieldError(passwordInput, @json(__('messages.blade_runtime_password_too_weak')));
                     return false;
                 }
                 return true;
             }
+
+            const passwordStrengthTranslations = {
+                'too weak': @json(__('messages.blade_runtime_strength_too_weak')),
+                'weak': @json(__('messages.blade_runtime_strength_weak')),
+                'fair': @json(__('messages.blade_runtime_strength_fair')),
+                'good': @json(__('messages.blade_runtime_strength_good')),
+                'strong': @json(__('messages.blade_runtime_strength_strong')),
+            };
 
             function updatePasswordUI() {
                 if (!passwordInput || !meterFill || !strengthText) return;
@@ -4702,7 +4765,7 @@
                 } = evaluatePasswordStrength(passwordInput.value);
                 meterFill.style.width = `${width}%`;
                 meterFill.style.backgroundColor = color;
-                strengthText.textContent = `Password strength: ${label}`;
+                strengthText.textContent = @json(__('messages.blade_jsdyn_password_strength_label')).replace(':label', passwordStrengthTranslations[label] || label);
                 strengthText.classList.toggle("good", label === "good" || label === "strong");
                 strengthText.classList.toggle("bad", label === "weak" || label === "too weak");
 
@@ -4787,7 +4850,7 @@
                     if (usernameField) {
                         const usernameAvailable = await checkUsernameAvailability(usernameField.value, true);
                         if (!usernameAvailable) {
-                            showFieldError(usernameField, usernameCheckState.message || 'Username is already taken');
+                            showFieldError(usernameField, usernameCheckState.message || @json(__('messages.blade_js_username_is_already_taken')));
                             const group = usernameField.closest('.form-group');
                             if (group) {
                                 group.classList.add('shake');
@@ -4800,7 +4863,7 @@
                     if (recaptchaEnabled) {
                         const captchaToken = window.grecaptcha ? window.grecaptcha.getResponse() : '';
                         if (!captchaToken) {
-                            showCaptchaError('Please complete the CAPTCHA verification');
+                            showCaptchaError(@json(__('messages.blade_runtime_complete_captcha')));
                             const captchaSection = document.querySelector('.captcha-section');
                             if (captchaSection) {
                                 captchaSection.classList.add('shake');
@@ -4816,7 +4879,7 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add("loading");
                         const btnText = submitBtn.querySelector(".btn-text");
-                        if (btnText) btnText.textContent = "Creating account...";
+                        if (btnText) btnText.textContent = @json(__('messages.blade_register_blade_creating_account'));
                     }
 
                     isProgrammaticSubmit = true;

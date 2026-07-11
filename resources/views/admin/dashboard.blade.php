@@ -1,1135 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Barangay Dashboard - Admin</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+@extends('admin.layouts.admin')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+@section('title', 'Barangay Dashboard')
+@section('page_title', 'Barangay Dashboard')
+@section('page_icon', 'fas fa-chart-line')
 
-        html {
-            font-size: 70%;
-            scroll-behavior: smooth;
-        }
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
+@endpush
 
-        body {
-            margin: 0;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--gray-bg);
-            color: #1e293b;
-            overflow-x: hidden;
-        }
-
-        /* Stats Cards */
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.023);
-            transition: transform 0.2s ease;
-            height: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.1);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-number {
-            color: black;
-            font-size: 2.2rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .stat-change {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-top: 0.5rem;
-        }
-
-        /* Chart Containers */
-        .chart-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border: 1px solid #e0e0e0;
-            transition: all 0.2s ease;
-            height: 100%;
-            position: relative;
-        }
-
-        .chart-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-
-        .chart-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chart-title i {
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 280px;
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-
-        /* Summary Badges */
-        .summary-badge {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .trend-up {
-            color: var(--success);
-            font-size: 0.85rem;
-        }
-
-        .trend-down {
-            color: var(--warning);
-            font-size: 0.85rem;
-        }
-
-        /* Forecast Summary Cards */
-        .forecast-summary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .forecast-summary small {
-            opacity: 0.9;
-            font-size: 0.75rem;
-        }
-
-        .forecast-summary .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        /* Section Headers */
-        .section-header {
-            margin: 2rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e0e0e0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .section-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 0;
-        }
-
-        .section-header i {
-            color: var(--primary);
-            font-size: 1.3rem;
-        }
-
-        .profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: #f8f9fa;
-            border-radius: 40px;
-            font-weight: 500;
-            color: #1e293b;
-            z-index: 1;
-        }
-
-        .profile-badge i {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-
-        #userDropdown{
-            color: var(--primary);
-        }
-        
-        @media (max-width: 768px) {
-            .stat-number {
-                font-size: 1.8rem;
-            }
-
-            .chart-container {
-                height: 220px;
-            }
-
-            .profile-badge span {
-                display: none;
-            }
-
-            .profile-badge {
-                padding: 0.5rem;
-                border-radius: 50%;
-            }
-
-            .section-header h3 {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Tooltip Customization */
-        .chart-tooltip {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-        
-        /* Permission-based visibility */
-        .permission-hidden {
-            display: none !important;
-        }
-        
-        /* Role badges */
-        .role-badge {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        /* No permission message */
-        .no-permission-card {
-            background: #f8f9fa;
-            border: 1px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 3rem;
-            text-align: center;
-            color: #6c757d;
-        }
-        
-        .no-permission-card i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #adb5bd;
-        }
-
-        .chart-loading {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.82rem;
-            color: #64748b;
-        }
-
-        .chart-loading::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 2px solid #cbd5e1;
-            border-top-color: var(--primary);
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .chart-alert {
-            margin: 0 0 1rem 0;
-            border-radius: 10px;
-        }
-
-        .dashboard-controls {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.6rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .refresh-btn {
-            border: 1px solid var(--primary);
-            background: #fff;
-            color: var(--primary);
-            border-radius: 8px;
-            padding: 0.45rem 0.85rem;
-            font-size: 0.88rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .refresh-btn:hover {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .refresh-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .auto-toggle-btn {
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #475569;
-            border-radius: 8px;
-            padding: 0.45rem 0.85rem;
-            font-size: 0.88rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .auto-toggle-btn.auto-on {
-            border-color: #2e7d32;
-            color: #2e7d32;
-            background: #f2fbf4;
-        }
-
-        .auto-toggle-btn.auto-off {
-            border-color: #ed6c02;
-            color: #ed6c02;
-            background: #fff8f1;
-        }
-    
-        /* ==========================================================
-           Interactive dashboard redesign override
-           Cleaner, compact, and consistent with Projects page.
-        ========================================================== */
-        :root {
-            --primary: #d32f2f;
-            --primary-dark: #a91f1f;
-            --primary-soft: #fff5f5;
-            --success: #16803c;
-            --success-soft: #eefaf2;
-            --warning: #d97706;
-            --warning-soft: #fff7ed;
-            --danger: #dc2626;
-            --danger-soft: #fff1f2;
-            --info: #0369a1;
-            --info-soft: #eff6ff;
-            --page-bg: #f8fafc;
-            --card: #ffffff;
-            --text: #111827;
-            --muted: #667085;
-            --muted-2: #98a2b3;
-            --line: #e5e7eb;
-            --line-strong: #d0d5dd;
-            --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
-            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .06);
-            --shadow-md: 0 18px 40px rgba(16, 24, 40, .10);
-            --radius-xl: 22px;
-            --radius-lg: 18px;
-            --radius-md: 14px;
-            --radius-sm: 11px;
-        }
-
-        .min-w-0 { min-width: 0 !important; }
-
-        .dashboard-shell {
-            width: 100%;
-            max-width: 1380px;
-            margin: 0 auto;
-        }
-
-        .dashboard-alert {
-            border: 0;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .dashboard-hero,
-        .dashboard-toolbar-panel,
-        .dashboard-card,
-        .metric-card,
-        .no-permission-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xs);
-        }
-
-        .dashboard-hero {
-            position: relative;
-            overflow: hidden;
-            padding: clamp(1rem, 1.8vw, 1.55rem);
-            margin-bottom: 1rem;
-        }
-
-        .dashboard-hero-bg {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(circle at 95% 0%, rgba(211,47,47,.11), transparent 32%),
-                radial-gradient(circle at 10% 100%, rgba(3,105,161,.08), transparent 30%),
-                linear-gradient(135deg, rgba(211,47,47,.04), transparent 42%);
-        }
-
-        .dashboard-hero-content {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .dashboard-hero-icon,
-        .metric-icon,
-        .card-head h4 i,
-        .section-kicker i {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dashboard-hero-icon {
-            width: 46px;
-            height: 46px;
-            margin-bottom: .75rem;
-            color: var(--primary);
-            background: var(--primary-soft);
-            border: 1px solid rgba(211,47,47,.14);
-            border-radius: 15px;
-            font-size: 1.05rem;
-        }
-
-        .dashboard-kicker,
-        .section-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: .45rem;
-            color: var(--primary-dark);
-            font-size: .73rem;
-            font-weight: 850;
-            text-transform: uppercase;
-            letter-spacing: .09em;
-        }
-
-        .dashboard-hero h2 {
-            margin: .45rem 0 .4rem;
-            color: var(--text);
-            font-size: clamp(1.55rem, 2.4vw, 2.25rem);
-            font-weight: 850;
-            line-height: 1.08;
-            letter-spacing: -.055em;
-        }
-
-        .dashboard-hero p,
-        .section-heading p,
-        .card-head p,
-        .metric-note,
-        .dashboard-summary-line {
-            color: var(--muted);
-            line-height: 1.55;
-        }
-
-        .dashboard-hero p {
-            max-width: 760px;
-            margin: 0;
-            font-size: .93rem;
-        }
-
-        .dashboard-hero-actions {
-            display: flex;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: .6rem;
-        }
-
-        .dashboard-hero-meta {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: .65rem;
-            margin-top: 1rem;
-            color: var(--muted);
-            font-size: .8rem;
-            font-weight: 700;
-        }
-
-        .dashboard-hero-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: .42rem;
-            padding: .42rem .68rem;
-            background: rgba(255,255,255,.75);
-            border: 1px solid var(--line);
-            border-radius: 999px;
-        }
-
-        .dashboard-toolbar-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: .85rem;
-            padding: .7rem;
-            margin-bottom: 1rem;
-        }
-
-        .dashboard-control-panel {
-            align-items: stretch;
-        }
-
-        .dashboard-toolbar-right,
-        .dashboard-actions-inline {
-            display: inline-flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: .45rem;
-        }
-
-        .dashboard-toolbar-right {
-            margin-left: auto;
-        }
-
-        .dashboard-actions-inline {
-            padding-left: .55rem;
-            border-left: 1px solid var(--line);
-        }
-
-        .dashboard-actions-inline .btn {
-            min-height: 34px;
-            padding: .43rem .7rem;
-            border-radius: 999px;
-            font-size: .76rem;
-            white-space: nowrap;
-            box-shadow: var(--shadow-xs);
-        }
-
-        .dashboard-tabs,
-        .dashboard-range {
-            display: inline-flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: .42rem;
-        }
-
-        .dashboard-tab,
-        .range-chip,
-        .mini-toggle,
-        .icon-action {
-            border: 1px solid var(--line);
-            background: #ffffff;
-            color: var(--muted);
-            border-radius: 999px;
-            font-weight: 800;
-            transition: all .16s ease;
-        }
-
-        .dashboard-tab {
-            display: inline-flex;
-            align-items: center;
-            gap: .45rem;
-            min-height: 38px;
-            padding: .55rem .78rem;
-            font-size: .8rem;
-        }
-
-        .range-chip,
-        .mini-toggle {
-            min-height: 34px;
-            padding: .43rem .7rem;
-            font-size: .76rem;
-        }
-
-        .dashboard-tab:hover,
-        .range-chip:hover,
-        .mini-toggle:hover,
-        .icon-action:hover {
-            color: var(--primary-dark);
-            background: #fffafa;
-            border-color: rgba(211,47,47,.22);
-        }
-
-        .dashboard-tab.active,
-        .range-chip.active,
-        .mini-toggle.active {
-            color: #ffffff;
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 10px 20px rgba(211,47,47,.16);
-        }
-
-        .dashboard-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: .9rem;
-            margin-bottom: 1rem;
-        }
-
-        .metric-card {
-            display: flex;
-            align-items: flex-start;
-            gap: .85rem;
-            padding: 1rem;
-            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-        }
-
-        .metric-card:hover,
-        .dashboard-card:hover,
-        .dashboard-toolbar-panel:hover {
-            transform: translateY(-1px);
-            border-color: var(--line-strong);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .metric-icon {
-            flex: 0 0 auto;
-            width: 44px;
-            height: 44px;
-            color: var(--primary);
-            background: var(--primary-soft);
-            border: 1px solid rgba(211,47,47,.12);
-            border-radius: 14px;
-        }
-
-        .metric-residents .metric-icon { color: var(--info); background: var(--info-soft); border-color: #dbeafe; }
-        .metric-pending .metric-icon { color: var(--warning); background: var(--warning-soft); border-color: #fed7aa; }
-        .metric-reports .metric-icon { color: var(--danger); background: var(--danger-soft); border-color: rgba(220,38,38,.14); }
-        .metric-events .metric-icon { color: var(--success); background: var(--success-soft); border-color: rgba(22,128,60,.14); }
-
-        .metric-body {
-            min-width: 0;
-            display: grid;
-            gap: .2rem;
-        }
-
-        .metric-label {
-            color: var(--muted);
-            font-size: .73rem;
-            font-weight: 850;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-        }
-
-        .metric-value {
-            color: var(--text);
-            font-size: clamp(1.5rem, 2.2vw, 2.05rem);
-            font-weight: 850;
-            line-height: 1;
-            letter-spacing: -.055em;
-        }
-
-        .metric-note { font-size: .78rem; font-weight: 650; }
-
-        .dashboard-section { margin-top: 1rem; }
-
-        .section-heading {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: .8rem;
-            margin: .3rem 0 .8rem;
-        }
-
-        .section-heading h3 {
-            margin: .25rem 0 0;
-            color: var(--text);
-            font-size: 1.15rem;
-            font-weight: 850;
-            letter-spacing: -.035em;
-        }
-
-        .dashboard-chart-grid {
-            display: grid;
-            gap: .9rem;
-        }
-
-        .overview-grid { grid-template-columns: 1.35fr .85fr; }
-        .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .dashboard-app-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
-
-        .dashboard-card {
-            padding: 1rem;
-            overflow: hidden;
-        }
-
-        .card-head {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: .85rem;
-            margin-bottom: .75rem;
-        }
-
-        .card-head h4 {
-            display: flex;
-            align-items: center;
-            gap: .55rem;
-            margin: 0 0 .25rem;
-            color: var(--text);
-            font-size: .98rem;
-            font-weight: 850;
-            letter-spacing: -.025em;
-        }
-
-        .card-head h4 i {
-            width: 36px;
-            height: 36px;
-            color: var(--primary);
-            background: var(--primary-soft);
-            border: 1px solid rgba(211,47,47,.12);
-            border-radius: 12px;
-            font-size: .88rem;
-        }
-
-        .card-head p {
-            margin: 0;
-            font-size: .8rem;
-            font-weight: 600;
-        }
-
-        .card-actions {
-            display: inline-flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: .35rem;
-        }
-
-        .icon-action {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            border-radius: 12px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 285px;
-            width: 100%;
-            margin-top: .35rem;
-        }
-
-        .chart-container-tall { height: 320px; }
-        .small-chart { height: 230px; }
-
-        .chart-empty-overlay {
-            position: absolute;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        .chart-empty-overlay.show {
-            display: flex;
-        }
-
-        .chart-empty-content {
-            max-width: 310px;
-            padding: .85rem 1rem;
-            background: rgba(255,255,255,.86);
-            border: 1px dashed var(--line-strong);
-            border-radius: 16px;
-            box-shadow: var(--shadow-xs);
-            backdrop-filter: blur(7px);
-        }
-
-        .chart-empty-content strong {
-            display: block;
-            color: var(--text);
-            font-size: .9rem;
-            font-weight: 850;
-        }
-
-        .chart-empty-content span {
-            display: block;
-            margin-top: .25rem;
-            color: var(--muted);
-            font-size: .78rem;
-            font-weight: 650;
-        }
-
-        .summary-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: .42rem;
-            width: fit-content;
-            padding: .42rem .68rem;
-            color: var(--primary-dark);
-            background: var(--primary-soft);
-            border: 1px solid rgba(211,47,47,.12);
-            border-radius: 999px;
-            font-size: .74rem;
-            font-weight: 850;
-            white-space: nowrap;
-        }
-
-        .dashboard-summary-line {
-            margin-top: .75rem;
-            padding-top: .75rem;
-            border-top: 1px dashed var(--line);
-            font-size: .8rem;
-            font-weight: 700;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: .48rem;
-            min-height: 42px;
-            padding: .65rem .95rem;
-            border-radius: 12px;
-            font-weight: 800;
-            letter-spacing: -.01em;
-            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
-        }
-
-        .btn:hover { transform: translateY(-1px); }
-
-        .btn-primary,
-        .refresh-btn {
-            color: #ffffff !important;
-            background: var(--primary) !important;
-            border-color: var(--primary) !important;
-            box-shadow: 0 10px 22px rgba(211,47,47,.18);
-        }
-
-        .btn-primary:hover,
-        .refresh-btn:hover {
-            background: var(--primary-dark) !important;
-            border-color: var(--primary-dark) !important;
-        }
-
-        .btn-light-soft,
-        .auto-toggle-btn {
-            color: var(--text) !important;
-            background: #ffffff !important;
-            border: 1px solid var(--line-strong) !important;
-            box-shadow: var(--shadow-xs);
-        }
-
-        .btn-light-soft:hover,
-        .auto-toggle-btn:hover {
-            color: var(--primary-dark) !important;
-            background: #fffafa !important;
-            border-color: rgba(211,47,47,.22) !important;
-        }
-
-        .auto-toggle-btn.auto-on,
-        .btn.auto-on {
-            color: var(--success) !important;
-            background: var(--success-soft) !important;
-            border-color: rgba(22,128,60,.24) !important;
-        }
-
-        .btn.auto-off {
-            color: var(--warning) !important;
-            background: var(--warning-soft) !important;
-            border-color: #fed7aa !important;
-        }
-
-        .chart-focus-modal { border-radius: var(--radius-xl); overflow: hidden; }
-        .chart-focus-image { max-height: 72vh; object-fit: contain; border-radius: 14px; }
-
-        .no-permission-card {
-            padding: 3rem 1.5rem;
-            text-align: center;
-            color: var(--muted);
-        }
-
-        .no-permission-card i {
-            width: 64px;
-            height: 64px;
-            display: inline-grid;
-            place-items: center;
-            margin-bottom: 1rem;
-            color: var(--primary);
-            background: var(--primary-soft);
-            border-radius: 20px;
-            font-size: 1.35rem;
-        }
-
-        @media (max-width: 1199px) {
-            .dashboard-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .overview-grid,
-            .two-col,
-            .three-col,
-            .dashboard-app-grid { grid-template-columns: minmax(0, 1fr); }
-        }
-
-        @media (max-width: 991px) {
-            .dashboard-hero-content { grid-template-columns: minmax(0, 1fr); }
-            .dashboard-toolbar-panel { align-items: stretch; flex-direction: column; }
-            .dashboard-toolbar-right { width: 100%; margin-left: 0; justify-content: space-between; }
-            .dashboard-tabs, .dashboard-range, .dashboard-actions-inline { width: 100%; }
-            .dashboard-actions-inline { padding-left: 0; padding-top: .55rem; border-left: 0; border-top: 1px solid var(--line); }
-            .dashboard-tab { flex: 1 1 160px; justify-content: center; }
-            .range-chip { flex: 1 1 70px; }
-            .dashboard-actions-inline .btn { flex: 1 1 160px; }
-        }
-
-        @media (max-width: 768px) {
-            html { font-size: 78%; }
-            .dashboard-shell { max-width: 100%; }
-            .dashboard-hero,
-            .dashboard-toolbar-panel,
-            .dashboard-card,
-            .metric-card { border-radius: 16px; }
-            .dashboard-kpi-grid { grid-template-columns: minmax(0, 1fr); }
-            .dashboard-actions-inline .btn { width: 100%; }
-            .section-heading { align-items: flex-start; flex-direction: column; }
-            .chart-container { height: 245px; }
-            .chart-container-tall { height: 265px; }
-        }
-
-    </style>
-</head>
-<body>
-    <!-- Mobile Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
-    <!-- Sidebar with Permission Checks -->
-    <div class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
-        <div class="brand">
-            <div class="brand-left">
-                <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo">
-                <div class="brand-text">
-                    <div class="brand-title">BISIG Hulong Duhat</div>
-                    <div class="brand-sub">Administrator</div>
-                </div>
-            </div>
-            <i class="fas fa-chevron-left toggle-btn" id="collapseBtn" title="Close sidebar" onclick="handleToggleButtonClick(event)"></i>
-        </div>
-
-        @admin_can('view_dashboard')
-        <a href="{{ route('admin.dashboard.index') }}" class="active" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-chart-line"></i>
-            <span>Dashboard</span>
-        </a>
-        @endadmin_can
-
-        <div class="menu-section">Administrative</div>
-        
-        <!-- Registry Dropdown -->
-        @php
-            $hasRegistryAccess = auth('admin')->user()->hasAnyPermission([
-                'view_residents', 'view_residency', 'view_indigency'
-            ]);
-        @endphp
-        
-        @if($hasRegistryAccess)
-        <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
-            <i class="fas fa-users"></i>
-            <span>Registry</span>
-            <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="submenu" id="registrySubmenu">
-            @admin_can('view_residents')
-            <a href="{{ route('admin.residents.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-user"></i> <span>Residents</span></a>
-            @endadmin_can
-            
-            @admin_can('view_residency')
-            <a href="{{ route('admin.residency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-alt"></i> <span>Residency Applications</span></a>
-            @endadmin_can
-            
-            @admin_can('view_indigency')
-            <a href="{{ route('admin.indigency.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-invoice"></i> <span>Indigency</span></a>
-            @endadmin_can
-        </div>
-        @endif
-
-        <div class="menu-section">Legal</div>
-        
-        <!-- Records Dropdown -->
-        @php
-            $hasRecordsAccess = auth('admin')->user()->hasAnyPermission([
-                'view_clearance', 'view_blotter'
-            ]);
-        @endphp
-        
-        @if($hasRecordsAccess)
-        <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
-            <i class="fas fa-scale-balanced"></i>
-            <span>Records</span>
-            <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="submenu" id="recordsSubmenu">
-            @admin_can('view_clearance')
-            <a href="{{ route('admin.clearance.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-file-contract"></i> <span>Clearances</span></a>
-            @endadmin_can
-            
-            @admin_can('view_blotter')
-            <a href="{{ route('admin.blotter.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-book"></i> <span>Incident Reports</span></a>
-            @endadmin_can
-        </div>
-        @endif
-
-        <div class="menu-section">Community</div>
-        
-        <!-- Community Dropdown -->
-        @php
-            $hasCommunityAccess = auth('admin')->user()->hasAnyPermission([
-                'view_announcements', 'view_events', 'view_projects'
-            ]);
-        @endphp
-        
-        @if($hasCommunityAccess)
-        <div class="dropdown-btn" onclick="handleDropdownClick(event, this)">
-            <i class="fas fa-bullhorn"></i>
-            <span>Community</span>
-            <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="submenu" id="communitySubmenu">
-            @admin_can('view_announcements')
-            <a href="{{ route('admin.announcements.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a>
-            @endadmin_can
-            
-            @admin_can('view_events')
-            <a href="{{ route('admin.events.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-calendar"></i> <span>Events</span></a>
-            @endadmin_can
-            
-            @admin_can('view_projects')
-            <a href="{{ route('admin.projects.index') }}" onclick="handleSubmenuClick(event)"><i class="fas fa-project-diagram"></i> <span>Projects</span></a>
-            @endadmin_can
-        </div>
-        @endif
-
-        <div class="menu-section">System</div>
-        
-        @admin_can('view_users')
-        <a href="{{ route('admin.users.index') }}" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-user"></i>
-            <span>Users & Roles</span>
-        </a>
-        @endadmin_can
-
-        @admin_can('manage_chatbot')
-        <a href="{{ route('admin.chatbot.index') }}" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-robot"></i>
-            <span>Chatbot</span>
-        </a>
-        @endadmin_can
-
-        @admin_can('view_backup')
-        <a href="{{ route('admin.backup.index') }}" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-database"></i>
-            <span>Backup Settings</span>
-        </a>
-        @endadmin_can
-
-        @admin_can('view_settings')
-        <a href="{{ route('admin.settings.index') }}" onclick="handleLinkClick(event, this)">
-            <i class="fas fa-cog"></i>
-            <span>System Settings</span>
-        </a>
-        @endadmin_can
-
-        <!-- Sidebar Account -->
-        <div class="sidebar-account">
-            <div class="sidebar-user-card">
-                <div class="sidebar-user-icon">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-
-                <div class="sidebar-user-details">
-                    <div class="sidebar-user-name">
-                        {{ Auth::guard('admin')->user()->full_name }}
-                        <div class="sidebar-user-role">
-                            {{ Auth::guard('admin')->user()->getRoleDisplayName() }}
-                        </div>
-                    </div>
-
-                    <div class="sidebar-user-email">
-                        {{ Auth::guard('admin')->user()->email }}
-                    </div>
-                </div>
-            </div>
-
-            <form method="POST" action="{{ route('admin.logout') }}" class="sidebar-logout-form">
-                @csrf
-                <button type="submit" class="sidebar-logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="sidebar-logout-text">Logout</span>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <header class="header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-3">
-                <button type="button" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title">
-                    <span class="title-icon"><i class="fas fa-chart-line"></i></span>
-                    Barangay Dashboard
-                </h1>
-            </div>
-        </header>
-
-        <!-- Content Area -->
-        <main class="p-3 p-lg-4">
+@section('content')
             <div class="dashboard-shell">
                 @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show dashboard-alert" role="alert">
@@ -1150,7 +29,7 @@
                     <div class="dashboard-hero-content">
                         <div class="min-w-0">
                             <div class="dashboard-hero-icon"><i class="fas fa-chart-line"></i></div>
-                            <div class="dashboard-kicker"><i class="fas fa-circle-check"></i> Barangay command dashboard</div>
+                            <div class="dashboard-kicker">Barangay command dashboard</div>
                             <h2>Monitor services, requests, incidents, and community activity in one place.</h2>
                             <p>Use the interactive tabs and 7D / 30D / 90D range controls to focus on what matters. Empty charts stay useful with setup-ready states instead of looking broken.</p>
                         </div>
@@ -1435,30 +314,37 @@
             </div>
 
             <div class="modal fade" id="chartFocusModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-dialog modal-fullscreen">
                     <div class="modal-content chart-focus-modal">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="chartFocusTitle"><i class="fas fa-chart-line me-2"></i>Chart Preview</h5>
+                            <h5 class="modal-title" id="chartFocusTitle">
+                                <i class="fas fa-chart-line me-2"></i>Chart Preview
+                                <span class="chart-focus-range-note" id="chartFocusRangeNote"></span>
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-center">
-                            <img id="chartFocusImage" alt="Expanded chart preview" class="img-fluid chart-focus-image">
-                            <div id="chartFocusFallback" class="text-muted py-5 d-none">Chart preview is not available yet.</div>
+                        <div class="modal-body">
+                            <div class="chart-focus-scroll" id="chartFocusScroll">
+                                <div class="chart-focus-canvas-wrap" id="chartFocusCanvasWrap">
+                                    <canvas id="chartFocusCanvas"></canvas>
+                                </div>
+                            </div>
+                            <div id="chartFocusFallback" class="text-muted text-center py-5 d-none">Chart preview is not available yet.</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+@endsection
 
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/admin/nav.js') }}"></script>
-    
-    <script>
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script>
         // Store forecast data globally for access
         let forecastData = null;
         const chartInstances = {};
+        let chartFocusInstance = null;
         const STATS_REFRESH_MS = 120000;
         const FORECAST_REFRESH_MS = 180000;
         let statsRefreshTimer = null;
@@ -1467,6 +353,15 @@
         let isManualRefreshInProgress = false;
         let isRefreshingForecastCommand = false;
         let autoRefreshEnabled = false;
+
+        // The KPI cards must always use live database values.
+        // Forecast data is reserved for charts and forecast summaries only.
+        let latestLiveStats = {
+            totalResidents: 0,
+            pendingRequests: 0,
+            openReports: 0,
+            upcomingEvents: 0
+        };
 
         function parseForecastDate(dateStr) {
             // Supports format from forecast.json, e.g. "Mar 23, 2026"
@@ -1523,16 +418,65 @@
         }
 
         function setChartLoadingState(isLoading, message = '') {
-            const firstChartTitle = document.querySelector('#dailyRequestsChart')?.closest('.chart-card')?.querySelector('.summary-badge');
+            const firstChartTitle = document.querySelector('#dailyRequestsChart')
+                ?.closest('.dashboard-card, .chart-card')
+                ?.querySelector('.summary-badge');
+
             if (!firstChartTitle) {
                 return;
             }
+
             if (isLoading) {
                 firstChartTitle.innerHTML = '<span class="chart-loading">Loading forecast</span>';
             } else if (message) {
                 firstChartTitle.textContent = message;
             } else {
-                firstChartTitle.textContent = 'Last 7 days';
+                firstChartTitle.textContent = `${window.dashboardRangeDays || 7}-day forecast`;
+            }
+        }
+
+        function unwrapForecastPayload(payload) {
+            if (!payload || typeof payload !== 'object') {
+                return null;
+            }
+
+            // Supports a raw forecast.json response and common Laravel wrappers.
+            if (payload.data && typeof payload.data === 'object' && !payload.applications) {
+                return payload.data;
+            }
+
+            if (payload.forecast && typeof payload.forecast === 'object' && !payload.applications) {
+                return payload.forecast;
+            }
+
+            return payload;
+        }
+
+        function updateForecastMetadata(data = {}) {
+            const metadata = data?.forecast_metadata || {};
+            const lastUpdatedEl = document.getElementById('forecastLastUpdatedText');
+
+            if (!lastUpdatedEl) {
+                return;
+            }
+
+            const trainingEnd = metadata.training_end_date || data?.request_forecast?.daily_forecast?.training_end_date;
+            const model = metadata.primary_model || data?.request_forecast?.daily_forecast?.model;
+            const details = [];
+
+            if (trainingEnd) {
+                const date = new Date(`${trainingEnd}T00:00:00`);
+                details.push(Number.isNaN(date.getTime())
+                    ? `Training through ${trainingEnd}`
+                    : `Training through ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`);
+            }
+
+            if (model) {
+                details.push(String(model).replace(/_/g, ' ').toUpperCase());
+            }
+
+            if (details.length) {
+                lastUpdatedEl.textContent = details.join(' • ');
             }
         }
 
@@ -1547,19 +491,29 @@
                     }
                 });
 
-                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(`Forecast endpoint returned HTTP ${response.status}`);
+                }
 
-                if (data.error) {
-                    console.error("Forecast error:", data.error);
+                const payload = await response.json();
+                const data = unwrapForecastPayload(payload);
+
+                if (!data || data.error) {
+                    console.error('Forecast error:', data?.error || 'Invalid JSON response');
                     setChartLoadingState(false, 'Forecast unavailable');
                     return;
                 }
 
                 forecastData = data;
+                updateForecastMetadata(data);
 
-                // Feed the added dashboard charts with analytics data from forecast.json.
-                // This keeps Service Pipeline Snapshot and Data Readiness covered even before live_stats responds.
-                try { initializeStaticStats(getOverviewStatsFromForecast(data)); } catch (e) { console.error('Overview chart data error:', e); }
+                // Forecast refreshes chart data only. KPI cards remain tied to live database statistics.
+                try {
+                    renderServicePipelineChart(latestLiveStats);
+                    renderReadinessChart(latestLiveStats);
+                } catch (e) {
+                    console.error('Overview chart data error:', e);
+                }
                 
                 // Build charts based on permissions (using Blade to determine which JS to run)
                 @if(auth('admin')->user()->hasPermission('view_forecast'))
@@ -1804,29 +758,6 @@
                 stopRealtimeDashboardRefresh();
             }
         }
-
-            function initializeStaticStats(stats) {
-                // Display initial stats immediately from server data
-                const totalResidentsEl = document.getElementById('totalResidents');
-                if (totalResidentsEl) {
-                    totalResidentsEl.innerText = (stats.totalResidents || 0).toLocaleString();
-                }
-
-                const pendingEl = document.getElementById('pendingRequests');
-                if (pendingEl) {
-                    pendingEl.innerText = stats.pendingRequests || 0;
-                }
-
-                const openReportsEl = document.getElementById('openReports');
-                if (openReportsEl) {
-                    openReportsEl.innerText = stats.openReports || 0;
-                }
-
-                const upcomingEventsEl = document.getElementById('upcomingEvents');
-                if (upcomingEventsEl) {
-                    upcomingEventsEl.innerText = stats.upcomingEvents || 0;
-                }
-            }
 
         function buildApplicationsCharts(applications) {
             const container = document.getElementById('applicationsForecast');
@@ -2271,9 +1202,60 @@
             return `${Number(days) || 7} days`;
         }
 
+        function getForecastMap(source = {}, days = window.dashboardRangeDays || 7) {
+            const normalizedDays = Math.min(Math.max(Number(days) || 7, 7), 90);
+            const key = `${normalizedDays}_days`;
+
+            if (!source || typeof source !== 'object' || Array.isArray(source)) {
+                return {};
+            }
+
+            // A module may be passed as { daily_forecast: { 7_days: {...} } }
+            // or daily_forecast itself may be passed directly.
+            if (source.daily_forecast && typeof source.daily_forecast === 'object') {
+                return getForecastMap(source.daily_forecast, normalizedDays);
+            }
+
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                return source[key];
+            }
+
+            // Backward compatibility with the old JSON where daily_forecast
+            // was already a direct date => value map.
+            return Object.fromEntries(
+                Object.entries(source).filter(([date, value]) => {
+                    return parseForecastDate(date) && Number.isFinite(Number(value));
+                })
+            );
+        }
+
         function getForecastRangeSummary(source = {}, days = window.dashboardRangeDays || 7) {
-            const key = `${Number(days) || 7}_days`;
-            return source?.forecast_ranges?.[key] || source?.[key] || null;
+            const normalizedDays = Math.min(Math.max(Number(days) || 7, 7), 90);
+            const key = `${normalizedDays}_days`;
+            const provided = source?.forecast_ranges?.[key] || source?.[key] || null;
+
+            if (provided && ('total' in provided || 'daily_average' in provided || 'peak' in provided)) {
+                return provided;
+            }
+
+            const dailyForecast = source?.daily_forecast || source || {};
+            const map = getForecastMap(dailyForecast, normalizedDays);
+            const values = Object.values(map).map(numberOrZero);
+
+            if (!values.length) {
+                return null;
+            }
+
+            const total = values.reduce((sum, value) => sum + value, 0);
+            const configuredAverage = dailyForecast?.average?.[key];
+
+            return {
+                total,
+                daily_average: Number.isFinite(Number(configuredAverage))
+                    ? Number(configuredAverage)
+                    : total / values.length,
+                peak: Math.max(...values)
+            };
         }
 
         function getXAxisMaxTicks() {
@@ -2448,68 +1430,100 @@
             });
         }
 
-        function initializeStaticStats(stats) {
-            const safeStats = stats || {};
+        function initializeStaticStats(stats = {}) {
+            latestLiveStats = {
+                totalResidents: numberOrZero(stats.totalResidents),
+                pendingRequests: numberOrZero(stats.pendingRequests),
+                openReports: numberOrZero(stats.openReports),
+                upcomingEvents: numberOrZero(stats.upcomingEvents)
+            };
+
             const totalResidentsEl = document.getElementById('totalResidents');
-            if (totalResidentsEl) totalResidentsEl.innerText = numberOrZero(safeStats.totalResidents).toLocaleString();
+            if (totalResidentsEl) {
+                totalResidentsEl.textContent = latestLiveStats.totalResidents.toLocaleString();
+            }
 
             const pendingEl = document.getElementById('pendingRequests');
-            if (pendingEl) pendingEl.innerText = numberOrZero(safeStats.pendingRequests).toLocaleString();
+            if (pendingEl) {
+                pendingEl.textContent = latestLiveStats.pendingRequests.toLocaleString();
+            }
 
             const openReportsEl = document.getElementById('openReports');
-            if (openReportsEl) openReportsEl.innerText = numberOrZero(safeStats.openReports).toLocaleString();
+            if (openReportsEl) {
+                openReportsEl.textContent = latestLiveStats.openReports.toLocaleString();
+            }
 
             const upcomingEventsEl = document.getElementById('upcomingEvents');
-            if (upcomingEventsEl) upcomingEventsEl.innerText = numberOrZero(safeStats.upcomingEvents).toLocaleString();
+            if (upcomingEventsEl) {
+                upcomingEventsEl.textContent = latestLiveStats.upcomingEvents.toLocaleString();
+            }
 
-            renderServicePipelineChart(safeStats);
-            renderReadinessChart(safeStats);
+            renderServicePipelineChart(latestLiveStats);
+            renderReadinessChart(latestLiveStats);
         }
 
-        function limitedForecastEntries(map, fallbackDays = window.dashboardRangeDays || 7) {
+        function limitedForecastEntries(source, fallbackDays = window.dashboardRangeDays || 7) {
             const days = Math.min(Math.max(Number(fallbackDays) || 7, 7), 90);
-            const entries = sortForecastEntries(map || {}).slice(0, days);
+            const forecastMap = getForecastMap(source || {}, days);
+            const entries = sortForecastEntries(forecastMap).slice(0, days);
+
             return entries.map((item) => ({
+                date: item.date,
                 label: shortDate(item.date),
                 value: Math.round(numberOrZero(item.value) * 10) / 10
             }));
         }
 
         function buildDailyRequestsChart(data) {
+            const selectedDays = window.dashboardRangeDays || 7;
             const applications = data?.applications || {};
-            const dashboardCombined = data?.dashboard_overview?.combined_application_forecast || null;
             const mergedByDate = {};
 
-            if (dashboardCombined && Object.keys(dashboardCombined).length) {
-                Object.assign(mergedByDate, dashboardCombined);
+            // The new JSON already contains the combined request forecast.
+            // Prefer it so the chart exactly matches request_forecast.today/average.
+            const requestForecastMap = getForecastMap(data?.request_forecast, selectedDays);
+            const dashboardCombinedMap = getForecastMap(
+                data?.dashboard_overview?.combined_application_forecast || {},
+                selectedDays
+            );
+
+            const preferredMap = Object.keys(requestForecastMap).length
+                ? requestForecastMap
+                : dashboardCombinedMap;
+
+            if (Object.keys(preferredMap).length) {
+                Object.assign(mergedByDate, preferredMap);
             } else {
-                const dailyMaps = [
-                    applications.barangay_clearances?.daily_forecast || {},
-                    applications.indigency_applications?.daily_forecast || {},
-                    applications.residency_applications?.daily_forecast || {}
-                ];
-                dailyMaps.forEach((map) => {
+                [
+                    applications.barangay_clearances,
+                    applications.indigency_applications,
+                    applications.residency_applications
+                ].forEach((module) => {
+                    const map = getForecastMap(module, selectedDays);
                     Object.entries(map).forEach(([date, value]) => {
                         mergedByDate[date] = (mergedByDate[date] || 0) + numberOrZero(value);
                     });
                 });
             }
 
-            let entries = limitedForecastEntries(mergedByDate, window.dashboardRangeDays || 7);
+            let entries = limitedForecastEntries(mergedByDate, selectedDays);
             const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
+
             if (!entries.length) {
-                entries = nextDateLabels(window.dashboardRangeDays || 7).map((label) => ({ label, value: 0 }));
+                entries = nextDateLabels(selectedDays).map((label) => ({ label, value: 0 }));
             }
 
             setChartEmptyState('dailyRequestsChart', isEmpty, 'No request trend yet', 'Submit service requests to activate daily trend insights.');
+
             const canvas = document.getElementById('dailyRequestsChart');
             const currentType = canvas?.dataset.chartTypeCurrent || 'bar';
+
             renderChart('dailyRequestsChart', {
                 type: currentType,
                 data: {
                     labels: entries.map((item) => item.label),
                     datasets: [{
-                        label: 'Requests',
+                        label: 'Predicted requests',
                         data: entries.map((item) => item.value),
                         backgroundColor: 'rgba(211, 47, 47, .18)',
                         borderColor: '#d32f2f',
@@ -2523,6 +1537,8 @@
                 },
                 options: baseChartOptions()
             });
+
+            setChartLoadingState(false);
         }
 
         function buildRequestTypeChart(data) {
@@ -2570,7 +1586,7 @@
             const entriesSource = applications && Object.keys(applications).length ? Object.entries(applications) : defaultKeys.map((key) => [key, {}]);
 
             entriesSource.forEach(([key, value]) => {
-                let entries = limitedForecastEntries(value?.daily_forecast || {}, window.dashboardRangeDays || 7);
+                let entries = limitedForecastEntries(value, window.dashboardRangeDays || 7);
                 const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
                 if (!entries.length) {
                     entries = nextDateLabels(window.dashboardRangeDays || 7).map((label) => ({ label, value: 0 }));
@@ -2600,7 +1616,7 @@
                         <div><span class="text-muted d-block">Peak</span><strong>${maxForecast}</strong></div>
                     </div>
                     <div class="chart-container small-chart"><canvas id="${chartId}"></canvas></div>
-                    <div class="dashboard-summary-line"><i class="fas fa-database me-1"></i>${numberOrZero(value?.historical_count)} historical records</div>
+                    <div class="dashboard-summary-line"><i class="fas fa-database me-1"></i>${numberOrZero(value?.historical_count || Object.values(value?.status_distribution || {}).reduce((sum, count) => sum + numberOrZero(count), 0))} historical records</div>
                 `;
                 container.appendChild(col);
                 setTimeout(() => {
@@ -2629,7 +1645,7 @@
         }
 
         function buildBlotterChart(blotter) {
-            let entries = limitedForecastEntries(blotter?.daily_forecast || {}, window.dashboardRangeDays || 7);
+            let entries = limitedForecastEntries(blotter, window.dashboardRangeDays || 7);
             const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
             if (!entries.length) entries = nextDateLabels(window.dashboardRangeDays || 7).map((label) => ({ label, value: 0 }));
             setChartEmptyState('blotterForecastChart', isEmpty, 'No incident trend yet', 'Incident forecasts will appear when reports are recorded.');
@@ -2646,7 +1662,7 @@
         }
 
         function buildAnnouncementsChart(announcements) {
-            let entries = limitedForecastEntries(announcements?.daily_forecast || {}, window.dashboardRangeDays || 7);
+            let entries = limitedForecastEntries(announcements, window.dashboardRangeDays || 7);
             const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
             if (!entries.length) entries = nextDateLabels(window.dashboardRangeDays || 7).map((label) => ({ label, value: 0 }));
             setChartEmptyState('announcementsForecastChart', isEmpty, 'No publishing trend yet', 'Announcement forecasts will appear after publishing activity is recorded.');
@@ -2731,8 +1747,11 @@
                 chip.addEventListener('click', () => {
                     window.dashboardRangeDays = parseInt(chip.dataset.rangeDays, 10) || 7;
                     document.querySelectorAll('[data-range-days]').forEach((btn) => btn.classList.toggle('active', btn === chip));
+                    setChartLoadingState(false);
                     if (forecastData) {
-                        initializeStaticStats(getOverviewStatsFromForecast(forecastData));
+                        // Range changes affect forecast charts, not the live KPI cards.
+                        renderServicePipelineChart(latestLiveStats);
+                        renderReadinessChart(latestLiveStats);
                         buildDailyRequestsChart(forecastData);
                         buildRequestTypeChart(forecastData);
                         buildApplicationsCharts(forecastData.applications);
@@ -2759,33 +1778,213 @@
             bindChartExpandButtons();
         }
 
+        function copyChartDataset(dataset) {
+            const copied = {};
+
+            Object.keys(dataset || {}).forEach((key) => {
+                const value = dataset[key];
+
+                if (Array.isArray(value)) {
+                    copied[key] = value.map((item) => {
+                        if (item && typeof item === 'object') {
+                            return { ...item };
+                        }
+                        return item;
+                    });
+                    return;
+                }
+
+                if (value && typeof value === 'object') {
+                    copied[key] = { ...value };
+                    return;
+                }
+
+                copied[key] = value;
+            });
+
+            return copied;
+        }
+
+        function getExpandedChartWidth(labelCount) {
+            if (labelCount >= 80) return Math.max(4200, labelCount * 50);
+            if (labelCount >= 25) return Math.max(1900, labelCount * 58);
+            if (labelCount >= 14) return Math.max(1250, labelCount * 64);
+            return 1100;
+        }
+
+        function getExpandedChartOptions(sourceChart, labelCount) {
+            const chartType = sourceChart?.config?.type || sourceChart?.config?._config?.type || 'line';
+            const circularTypes = ['pie', 'doughnut', 'polarArea', 'radar'];
+            const isCircular = circularTypes.includes(chartType);
+            const hasLongRange = labelCount >= 20;
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: {
+                    intersect: false,
+                    mode: isCircular ? 'nearest' : 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: sourceChart?.options?.plugins?.legend?.display ?? isCircular,
+                        position: sourceChart?.options?.plugins?.legend?.position || 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            padding: 16
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(17, 24, 39, .94)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 12,
+                        cornerRadius: 10
+                    }
+                }
+            };
+
+            if (!isCircular) {
+                options.scales = {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#667085',
+                            autoSkip: false,
+                            maxRotation: hasLongRange ? 45 : 0,
+                            minRotation: hasLongRange ? 45 : 0,
+                            padding: 8,
+                            font: { size: 11, weight: '600' }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f2f4f7' },
+                        ticks: {
+                            color: '#667085',
+                            precision: 0,
+                            padding: 8
+                        }
+                    }
+                };
+            }
+
+            return options;
+        }
+
+        function openExpandedChart(chartId, chartTitle = 'Chart Preview') {
+            const sourceChart = chartInstances[chartId];
+            const modalEl = document.getElementById('chartFocusModal');
+            const titleEl = document.getElementById('chartFocusTitle');
+            const canvasWrap = document.getElementById('chartFocusCanvasWrap');
+            const canvas = document.getElementById('chartFocusCanvas');
+            const scrollEl = document.getElementById('chartFocusScroll');
+            const fallbackEl = document.getElementById('chartFocusFallback');
+
+            if (titleEl) {
+                titleEl.innerHTML = `<i class="fas fa-chart-line me-2"></i>${chartTitle}<span class="chart-focus-range-note" id="chartFocusRangeNote"></span>`;
+            }
+
+            const refreshedRangeNote = document.getElementById('chartFocusRangeNote');
+
+            if (!sourceChart || !canvas || !canvasWrap) {
+                canvasWrap?.classList.add('d-none');
+                fallbackEl?.classList.remove('d-none');
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                }
+                return;
+            }
+
+            const labels = Array.isArray(sourceChart.data?.labels)
+                ? [...sourceChart.data.labels]
+                : [];
+            const datasets = Array.isArray(sourceChart.data?.datasets)
+                ? sourceChart.data.datasets.map(copyChartDataset)
+                : [];
+            const labelCount = labels.length;
+            const chartWidth = getExpandedChartWidth(labelCount);
+
+            canvasWrap.classList.remove('d-none');
+            fallbackEl?.classList.add('d-none');
+            canvasWrap.style.width = `${chartWidth}px`;
+            canvasWrap.style.minWidth = `${chartWidth}px`;
+
+            if (refreshedRangeNote) {
+                const selectedDays = Number(window.dashboardRangeDays || 7);
+                refreshedRangeNote.innerHTML = labelCount >= 20
+                    ? `<i class="fas fa-arrows-left-right"></i>${labelCount} dates · scroll horizontally`
+                    : `<i class="fas fa-calendar-days"></i>${Math.max(labelCount, selectedDays)} data points`;
+            }
+
+            const renderFocusedChart = () => {
+                if (chartFocusInstance) {
+                    chartFocusInstance.destroy();
+                    chartFocusInstance = null;
+                }
+
+                const chartType = sourceChart.config?.type || sourceChart.config?._config?.type || 'line';
+                chartFocusInstance = new Chart(canvas.getContext('2d'), {
+                    type: chartType,
+                    data: { labels, datasets },
+                    options: getExpandedChartOptions(sourceChart, labelCount)
+                });
+
+                if (scrollEl) {
+                    scrollEl.scrollLeft = 0;
+                    scrollEl.scrollTop = 0;
+                }
+            };
+
+            if (modalEl && window.bootstrap) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                if (modalEl.classList.contains('show')) {
+                    requestAnimationFrame(renderFocusedChart);
+                } else {
+                    modalEl.addEventListener('shown.bs.modal', () => {
+                        requestAnimationFrame(renderFocusedChart);
+                    }, { once: true });
+                    modal.show();
+                }
+            } else {
+                renderFocusedChart();
+            }
+        }
+
         function bindChartExpandButtons() {
             document.querySelectorAll('[data-chart-expand]').forEach((button) => {
                 if (button.dataset.boundExpand === '1') return;
                 button.dataset.boundExpand = '1';
                 button.addEventListener('click', () => {
-                    const chartId = button.dataset.chartExpand;
-                    const canvas = document.getElementById(chartId);
-                    const modalEl = document.getElementById('chartFocusModal');
-                    const titleEl = document.getElementById('chartFocusTitle');
-                    const imageEl = document.getElementById('chartFocusImage');
-                    const fallbackEl = document.getElementById('chartFocusFallback');
-                    if (titleEl) titleEl.innerHTML = `<i class="fas fa-chart-line me-2"></i>${button.dataset.chartTitle || 'Chart Preview'}`;
-                    try {
-                        if (!canvas) throw new Error('Missing canvas');
-                        const url = canvas.toDataURL('image/png', 1.0);
-                        if (imageEl) { imageEl.src = url; imageEl.classList.remove('d-none'); }
-                        if (fallbackEl) fallbackEl.classList.add('d-none');
-                    } catch (e) {
-                        if (imageEl) imageEl.classList.add('d-none');
-                        if (fallbackEl) fallbackEl.classList.remove('d-none');
-                    }
-                    if (modalEl && window.bootstrap) {
-                        bootstrap.Modal.getOrCreateInstance(modalEl).show();
-                    }
+                    openExpandedChart(
+                        button.dataset.chartExpand,
+                        button.dataset.chartTitle || 'Chart Preview'
+                    );
                 });
             });
+
+            const modalEl = document.getElementById('chartFocusModal');
+            if (modalEl && modalEl.dataset.cleanupBound !== '1') {
+                modalEl.dataset.cleanupBound = '1';
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    if (chartFocusInstance) {
+                        chartFocusInstance.destroy();
+                        chartFocusInstance = null;
+                    }
+
+                    const wrap = document.getElementById('chartFocusCanvasWrap');
+                    if (wrap) {
+                        wrap.style.width = '100%';
+                        wrap.style.minWidth = '100%';
+                    }
+                });
+            }
         }
+
 
 
         // Initialize on load
@@ -2822,6 +2021,4 @@
             });
         });
     </script>
-</body>
-</html>
-
+@endpush

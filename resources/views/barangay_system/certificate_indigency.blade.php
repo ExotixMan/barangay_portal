@@ -1,1199 +1,623 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Barangay Hulong Duhat · Certificate of Indigency</title>
+@php
+    $pageTitle = 'Certificate of Indigency';
+    $activePage = 'indigency';
+@endphp
 
-    <!-- Bootstrap 5 CSS (exact same as clearance) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
+@push('styles')
+<style>
 
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
+    .bhd-page-hero {
+        padding: 48px 0 28px;
+    }
 
-    <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.05rem, 5vw, 3.8rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 790px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-hero-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-card-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 16px;
+    }
+
+    .bhd-simple-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-simple-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-simple-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+        line-height: 1.25;
+    }
+
+    .bhd-simple-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-two-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .bhd-three-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-four-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-step-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        counter-reset: step;
+    }
+
+    .bhd-step-card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .bhd-step-card::before {
+        counter-increment: step;
+        content: counter(step, decimal-leading-zero);
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        color: var(--brand);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 950;
+    }
+
+    .bhd-step-card h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-step-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0;
+    }
+
+    .bhd-info-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .bhd-info-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+    }
+
+    .bhd-info-row i {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-info-row strong {
+        display: block;
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 950;
+    }
+
+    .bhd-info-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 1px;
+    }
+
+    .bhd-form-card,
+    .bhd-table-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: clamp(20px, 3vw, 30px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-form-group {
+        display: grid;
+        gap: 8px;
+    }
+
+    .bhd-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .bhd-form-group label {
+        color: var(--ink);
+        font-size: 0.88rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bhd-form-control {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-soft);
+        color: var(--ink);
+        padding: 11px 13px;
+        font: inherit;
+        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-form-control:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent);
+    }
+
+    .bhd-chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .bhd-chip-list span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.76rem;
+        font-weight: 900;
+    }
+
+    .bhd-alert {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .bhd-alert.success {
+        border-color: color-mix(in srgb, var(--success) 28%, var(--line));
+        background: var(--success-soft);
+        color: var(--success);
+    }
+
+    .bhd-alert.danger {
+        border-color: color-mix(in srgb, #dc2626 28%, var(--line));
+        background: color-mix(in srgb, #dc2626 9%, var(--surface));
+        color: #b91c1c;
+    }
+
+    .bhd-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .bhd-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+    }
+
+    .bhd-table th,
+    .bhd-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+        vertical-align: middle;
+    }
+
+    .bhd-table th {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: var(--surface-soft);
+    }
+
+    .bhd-modal-card {
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        background: var(--surface);
+        color: var(--ink);
+    }
+
+    .bhd-modal-card .modal-header {
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+    }
+
+    .bhd-modal-card .modal-title {
+        font-weight: 950;
+        color: var(--ink);
+    }
+
+    @media (max-width: 1024px) {
+        .bhd-four-grid,
+        .bhd-step-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .bhd-three-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-two-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bhd-hero-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        html {
+            overflow-x: hidden;
         }
 
         body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
-            background: #fff;
+            overflow-x: hidden;
         }
 
-        /* PROCESS STEPS */
-        .process-steps {
-            padding: 80px 0;
-            background: #f8f9fa;
-            width: 100%;
-        }
-        .process-steps-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #C62828;
-        }
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-        }
-        .step-card {
-            background: white;
-            border-radius: 15px;
-            padding: 35px 25px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: 0.3s;
-            border: 1px solid #f0f0f0;
-        }
-        .step-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(198,40,40,0.15);
-            border-color: #C62828;
-        }
-        .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px; height: 30px;
-            background: #C62828;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .step-icon {
-            width: 70px; height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-        .step-card h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
-        .step-card p { color: #666; font-size: 0.95rem; }
-
-        /* BENEFITS  */
-        .benefits-section {
-            padding: 80px 0;
-            background: white;
-        }
-        .benefits-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .bhd-page-hero {
+            padding-top: 28px;
         }
 
-        .benefits-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 25px;
-            margin-top: 30px;
-        }
-        .benefit-card {
-            flex: 0 1 260px;
-            background: white;
-            border-radius: 15px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: 0.3s;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        .benefit-card:hover {
-            transform: translateY(-5px);
-            border-color: #C62828;
-            box-shadow: 0 15px 30px rgba(198,40,40,0.1);
-        }
-        .benefit-icon {
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-        .benefit-icon.medical { 
-            background: linear-gradient(135deg, #2196F3, #1976D2); 
-        }
-        .benefit-icon.education { 
-            background: linear-gradient(135deg, #4CAF50, #2E7D32); 
-        }
-        .benefit-icon.financial { 
-            background: linear-gradient(135deg, #FF9800, #F57C00); 
-        }
-        .benefit-icon.legal { 
-            background: linear-gradient(135deg, #9C27B0, #7B1FA2); 
-        }
-        .benefit-card h3 { 
-            font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; 
-        }
-        .benefit-card p { 
-            color: #666; font-size: 0.9rem; margin-bottom: 15px; 
-        }
-        .benefit-list { 
-            list-style: none; padding: 0; margin: 0; text-align: left; 
-        }
-        .benefit-list li { 
-            font-size: 0.85rem; color: #666; padding: 4px 0; display: flex; gap: 8px; 
-        }
-        .benefit-list li i { 
-            color: #4CAF50; 
-        }
-
-        /* REQUIREMENTS SECTION */
-        .requirements-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-        .requirements-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-        }
-        .requirements-card, .info-card {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .card-header i { 
-            font-size: 2rem; 
-            color: #C62828; 
-        }
-        .card-header h2 { 
-            font-size: 1.8rem; 
-            color: #C62828; 
-            margin: 0; 
-        }
-        .requirements-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
-        .requirement-item { 
-            display: flex; 
-            gap: 15px; 
-            align-items: flex-start; 
-        }
-        .requirement-item i { 
-            color: #4CAF50; 
-            font-size: 1.2rem; 
-            margin-top: 3px; 
-        }
-        .requirement-content h4 { 
-            font-size: 1.1rem; 
-            font-weight: 600; 
-            color: #333; 
-            margin-bottom: 8px; 
-        }
-        .requirement-content p, 
-        .id-list li { 
-            color: #666; 
-            font-size: 0.95rem; 
-        }
-        .id-list { 
-            list-style: none; 
-            margin: 10px 0 0;
-            padding: 0; 
-        }
-        .id-list li { 
-            padding: 3px 0 3px 15px; 
-            position: relative; 
-        }
-        .id-list li::before { 
-            content: "•"; 
-            color: #C62828; 
-            position: absolute; 
-            left: 0; 
-        }
-        .info-content { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-            margin-bottom: 30px; 
-        }
-        .info-item { 
-            display: flex; 
-            gap: 15px; 
-            align-items: flex-start; 
-        }
-        .info-item i { 
-            color: #C62828; 
-            font-size: 1.2rem; 
-        }
-        .info-item h4 { 
-            font-size: 1.1rem; 
-            font-weight: 600; 
-            color: #333; 
-            margin-bottom: 5px; 
-        }
-        .emergency-notice {
-            background: rgba(198,40,40,0.1);
-            border: 1px solid rgba(198,40,40,0.2);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .emergency-notice i { 
-            color: #C62828; 
-        }
-        .emergency-notice p { 
-            color: #C62828; 
-            font-weight: 500; 
-            margin: 0; 
-        }
-
-        /* APPLICATION FORM SECTION  */
-        .application-form-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-        .application-form-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .form-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .form-header h2 {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        /* IMPORTANCE NOTICE MODAL */
-        .notice-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-        
-        .notice-modal {
-            background: white;
-            border-radius: 20px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 40px;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(198,40,40,0.3);
-            animation: modalSlideIn 0.4s ease;
-            border-top: 8px solid #C62828;
-        }
-        
-        @keyframes modalSlideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        .notice-modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: #999;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .notice-modal-close:hover {
-            color: #C62828;
-            background: rgba(198,40,40,0.1);
-        }
-        
-        .notice-modal-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .notice-modal-icon {
-            width: 80px;
-            height: 80px;
-            background: #C62828;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
-            flex-shrink: 0;
-        }
-        
-        .notice-modal-title {
-            color: #C62828;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .notice-modal-subtitle {
-            color: #666;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-        
-        .notice-modal-body {
-            margin-bottom: 30px;
-        }
-        
-        .notice-modal-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-        
-        .notice-modal-section h4 {
-            color: #C62828;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .notice-modal-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .notice-modal-section li {
-            padding: 8px 0 8px 25px;
-            position: relative;
-            color: #555;
-        }
-        
-        .notice-modal-section li:before {
-            content: "•";
-            color: #C62828;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
-        
-        .legal-warning {
-            background: rgba(198,40,40,0.1);
-            border-left: 5px solid #C62828;
+        .bhd-page-hero-card {
+            border-radius: 22px;
             padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .legal-warning p {
-            color: #C62828;
-            font-weight: 500;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .legal-warning i {
-            font-size: 1.5rem;
-        }
-        
-        .acknowledgment-box {
-            background: white;
-            border: 2px solid #C62828;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .checkbox-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        
-        .checkbox-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-top: 3px;
-            accent-color: #C62828;
-            cursor: pointer;
-        }
-        
-        .checkbox-label {
-            color: #333;
-            font-size: 0.95rem;
-        }
-        
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-        }
-        
-        .btn-modal-primary {
-            background: #C62828;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        
-        .btn-modal-primary:hover {
-            background: #b71c1c;
-            transform: translateY(-2px);
-        }
-        
-        .btn-modal-secondary {
-            background: #f8f9fa;
-            color: #666;
-            border: 1px solid #ddd;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        
-        .btn-modal-secondary:hover {
-            background: #e9ecef;
-            border-color: #C62828;
-            color: #C62828;
         }
 
-        /*  NOTICE CARD  */
-        .notice-section {
-            padding: 60px 0;
-            background: #f8f9fa;
+        .bhd-page-hero-card h1 {
+            font-size: clamp(2rem, 12vw, 2.6rem);
+            letter-spacing: -0.05em;
         }
 
-        .notice-card {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            display: flex;
-            gap: 25px;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-
-        .notice-icon {
-            width: 70px; height: 70px;
-            background: #FF9800;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn,
+        .bhd-form-card .bhd-btn {
+            width: 100%;
             justify-content: center;
-            flex-shrink: 0;
-            color: white;
-            font-size: 2rem;
         }
 
-        .notice-content h3 { 
-            font-size: 1.3rem; 
-            color: #333; 
-            margin-bottom: 12px; 
+        .bhd-four-grid,
+        .bhd-three-grid,
+        .bhd-step-list,
+        .bhd-form-grid {
+            grid-template-columns: 1fr;
         }
 
-        .notice-content p { 
-            color: #666; 
-            font-size: 0.95rem; 
+        .bhd-section {
+            padding-top: 46px;
+            padding-bottom: 46px;
         }
 
-        .notice-buttons { 
-            display: flex; 
-            gap: 15px; 
-            margin-top: 20px; 
+        .bhd-section-head {
+            gap: 14px;
+            margin-bottom: 18px;
         }
 
-        .notice-btn {
-            padding: 8px 16px;
-            border: 1px solid #C62828;
-            border-radius: 6px;
-            color: #C62828;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
+        .bhd-section-head h2 {
+            font-size: 1.55rem;
+            line-height: 1.1;
         }
-        .notice-btn:hover { 
-            background: #C62828; 
-            color: white; 
-        }
-        
-        /* Responsiveness */
-        @media (max-width: 1366px) {
-            .container { 
-                max-width: 1280px; 
-                padding: 0 25px; 
-            }
 
-            .content-grid { 
-                gap: 30px; 
-            }
+        .bhd-simple-card,
+        .bhd-step-card,
+        .bhd-form-card,
+        .bhd-table-card {
+            border-radius: 18px;
         }
-        @media (max-width: 1200px) {
-            .steps-container { 
-                grid-template-columns: repeat(2,1fr); 
-            }
 
-            .benefit-card { 
-                flex: 0 1 280px; 
-            }
+        .modal-dialog {
+            margin: 10px;
         }
-        @media (max-width: 992px) {
-            .content-grid { 
-                grid-template-columns: 1fr; 
-            }
-            
-            .notice-card { 
-                flex-direction: column; 
-                text-align: center; 
-            }
+    }
 
-            .notice-buttons { 
-                justify-content: center; 
-            }
-            
-            .notice-modal {
-                padding: 30px 20px;
-                width: 95%;
-            }
-            
-            .notice-modal-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-        }
-        @media (max-width: 768px) {
-            .steps-container { 
-                grid-template-columns: 1fr; 
-            }
-            .form-header h2 { 
-                font-size: 2rem; 
-                flex-direction: column; 
-            }
-        }
-        @media (max-width: 576px) {
-            .process-steps, 
-            .requirements-section, 
-            .application-form-section{ 
-                padding: 60px 0; 
-            }
+</style>
+@endpush
 
-            .container { padding: 0 15px; }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
-                </div>
-            </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
+@include('barangay_system.partials.public_layout_start')
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-link" href=""><i class="fas fa-file-alt"></i> My Requests</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1><i class="fas fa-hands-helping bigicon"></i> Certificate of Indigency</h1>
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</span>
+                <h1>{{ __('messages.nav_certificate_indigency') }}</h1>
                 <p>{{ __('messages.indigency_hero_subtitle') }}</p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <i class="fas fa-clock"></i>
-                        <span>Processing: 1-3 Business Days</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-peso-sign"></i>
-                        <span>Fee: Free</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-hand-holding-heart"></i>
-                        <span>Social Welfare Support</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <main class="main-content" id="main-content">
-        <!-- PROCESS STEPS – 4 steps, exactly like clearance -->
-        <section class="process-steps">
-            <div class="process-steps-content">
-                <h2 class="section-title">{{ __('messages.indigency_steps_title')}}</h2>
-                <div class="steps-container">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon"><i class="fas fa-user-edit"></i></div>
-                        <h3>{{ __('messages.indigency_step1_title') }}</h3>
-                        <p>{{ __('messages.indigency_step1_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon"><i class="fas fa-file-upload"></i></div>
-                        <h3>{{ __('messages.indigency_step2_title') }}</h3>
-                        <p>{{ __('messages.indigency_step2_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                        <h3>{{ __('messages.indigency_step3_title') }}</h3>
-                        <p>{{ __('messages.indigency_step3_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon"><i class="fas fa-file-download"></i></div>
-                        <h3>{{ __('messages.indigency_step4_title') }}</h3>
-                        <p>{{ __('messages.indigency_step4_desc') }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- BENEFITS – SINGLE ROW, all four cards in one row, centered -->
-        <section class="benefits-section">
-            <div class="container">
-                <h2 class="section-title">{{ __('messages.indigency_benefits_title') }}</h2>
-                <div class="benefits-row">
-                    <div class="benefit-card">
-                        <div class="benefit-icon medical"><i class="fas fa-heartbeat"></i></div>
-                        <h3>Medical Assistance</h3>
-                        <p>Free or subsidized services, PhilHealth, medicine aid</p>
-                        <ul class="benefit-list">
-                            <li><i class="fas fa-check"></i> Hospital discounts</li>
-                            <li><i class="fas fa-check"></i> Medicine assistance</li>
-                        </ul>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon education"><i class="fas fa-graduation-cap"></i></div>
-                        <h3>Educational Support</h3>
-                        <p>Scholarships, school fee discounts, supplies</p>
-                        <ul class="benefit-list">
-                            <li><i class="fas fa-check"></i> Scholarship grants</li>
-                            <li><i class="fas fa-check"></i> Fee waivers</li>
-                        </ul>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon financial"><i class="fas fa-hand-holding-usd"></i></div>
-                        <h3>Financial Aid</h3>
-                        <p>4Ps, livelihood training, emergency cash aid</p>
-                        <ul class="benefit-list">
-                            <li><i class="fas fa-check"></i> 4Ps program</li>
-                            <li><i class="fas fa-check"></i> Livelihood support</li>
-                        </ul>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon legal"><i class="fas fa-balance-scale"></i></div>
-                        <h3>Legal Assistance</h3>
-                        <p>Free legal aid, court fee exemptions, document help</p>
-                        <ul class="benefit-list">
-                            <li><i class="fas fa-check"></i> Legal counsel</li>
-                            <li><i class="fas fa-check"></i> Fee waivers</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- REQUIREMENTS & INFO – two column grid, identical to clearance .content-grid -->
-        <section class="requirements-section">
-            <div class="container">
-                <div class="content-grid">
-                    <!-- LEFT: Requirements card -->
-                    <div class="requirements-card">
-                        <div class="card-header">
-                            <i class="fas fa-clipboard-list"></i>
-                            <h2>{{ __('messages.indigency_requirements_title') }}</h2>
-                        </div>
-                        <div class="requirements-list">
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Valid ID (Any of the following)</h4>
-                                    <ul class="id-list">
-                                        <li>Philippine Passport</li>
-                                        <li>Driver's License</li>
-                                        <li>UMID Card</li>
-                                        <li>Postal ID</li>
-                                        <li>Voter's ID</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Proof of Residency</h4>
-                                    <p>Latest utility bill (electricity, water, or internet) or Barangay Certificate of Residency</p>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Registered Barangay Hulo Resident</h4>
-                                    <p>Provide Barangay ID or Voter's ID with Barangay Hulo address</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- RIGHT: Info card (important notes) -->
-                    <div class="info-card">
-                        <div class="card-header">
-                            <i class="fas fa-info-circle"></i>
-                            <h2>{{ __('messages.indigency_important_info_title') }}</h2>
-                        </div>
-                        <div class="info-content">
-                            <div class="info-item">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <div>
-                                    <h4>Assessment Criteria</h4>
-                                    <p>Family income, size, expenses, and special circumstances. Threshold: ~₱8k‑15k monthly depending on members.</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <h4>Validity</h4>
-                                    <p>3 months. Renew with updated documents if needed.</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-user-shield"></i>
-                                <div>
-                                    <h4>Confidentiality</h4>
-                                    <p>All information is treated with utmost confidentiality and dignity.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="emergency-notice">
-                            <i class="fas fa-bell"></i>
-                            <p>False information is punishable under Philippine law.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- APPLICATION BUTTON – exactly like clearance "Ready to Apply?" -->
-        <section class="application-form-section" id="apply-form">
-            <div class="container">
-                <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.indigency_apply_title') }}</h2>
-                    <p>{{ __('messages.indigency_apply_subtitle') }}</p>
-                </div>
-                <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <a href="{{ route('indigency.form') }}" class="btn-apply-now" style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
-                        <i class="fas fa-hands-helping"></i> {{ __('messages.indigency_apply_btn') }}
+                <div class="bhd-page-actions">
+                    <a href="{{ route('indigency.form') }}" class="bhd-btn bhd-btn-primary">
+                        <i class="fas fa-file-circle-plus"></i>
+                        {{ __('messages.indigency_apply_btn') }}
                     </a>
-                    <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
-                        <i class="fas fa-clock"></i> Processing Time: 1-3 Business Days · Fee: Free
-                    </p>
-                </div>
-            </div>
-        </section>
 
-        <!-- FAQ SECTION – exact copy of clearance structure, indigency questions -->
-        <section class="faq-section">
-            <div class="container">
-                <h2 class="section-title">Frequently Asked Questions</h2>
-                <div class="faq-container">
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How is indigency determined?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Indigency is assessed based on family income, household size, monthly expenses, and special circumstances (PWD, senior, illness). Our social worker evaluates using poverty threshold guidelines.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What if I have no formal income?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>You may submit an affidavit of no income or a barangay certification. A home visit or interview may be conducted to verify your situation.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How long is the certificate valid?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>The Certificate of Indigency is valid for three (3) months. Some programs may require a recently issued certificate (within 30 days).</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Can students or senior citizens apply?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes. Students need family income documents; senior citizens can present their OSCA ID. The certificate is often used for scholarships or medical assistance.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Do I need an interview?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Not always. First-time applicants or unclear income cases may require a brief interview with the barangay social worker. You will be contacted if needed.</p>
-                        </div>
-                    </div>
+                    <a href="{{ route('track_request') }}" class="bhd-btn bhd-btn-soft">
+                        <i class="fas fa-magnifying-glass"></i>
+                        {{ __('messages.nav_track_request') }}
+                    </a>
                 </div>
             </div>
-        </section>
-    </main>
 
-    <!-- IMPORTANCE NOTICE MODAL -->
-    <div id="noticeModalOverlay" class="notice-modal-overlay">
-        <div class="notice-modal">
-            <button onclick="closeNoticeModal()" class="notice-modal-close">&times;</button>
-            
-            <div class="notice-modal-header">
-                <div class="notice-modal-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <h2 class="notice-modal-title">IMPORTANT NOTICE</h2>
-                    <p class="notice-modal-subtitle">Please read carefully before proceeding with your application</p>
-                </div>
-            </div>
-            
-            <div class="notice-modal-body">
-                <div class="legal-warning">
-                    <p>
-                        <i class="fas fa-gavel"></i>
-                        <strong>REPUBLIC ACT NO. 11313 (Safe Spaces Act) & OTHER APPLICABLE LAWS</strong>
-                    </p>
-                </div>
-                
-                <div class="notice-modal-section">
-                    <h4><i class="fas fa-exclamation-circle"></i> Legal Consequences of False Information</h4>
-                    <ul>
-                        <li>Providing false information or submitting falsified documents is punishable under Philippine law</li>
-                        <li>Penalties may include imprisonment, fines, or both as determined by the court</li>
-                        <li>False declarations may result in permanent disqualification from barangay services</li>
-                        <li>Legal action may be pursued against individuals who misrepresent their indigent status</li>
-                        <li>The barangay reserves the right to verify all submitted information through home visits and interviews</li>
-                    </ul>
-                </div>
-                
-                <div class="notice-modal-section">
-                    <h4><i class="fas fa-shield-alt"></i> Confidentiality & Data Privacy</h4>
-                    <ul>
-                        <li>All personal information submitted will be processed in accordance with the Data Privacy Act of 2012 (RA 10173)</li>
-                        <li>Your information will only be used for assessment and verification purposes</li>
-                        <li>The barangay implements strict security measures to protect your data</li>
-                        <li>Information will not be shared with third parties without your consent, except as required by law</li>
-                    </ul>
-                </div>
-                
-                <div class="notice-modal-section">
-                    <h4><i class="fas fa-clock"></i> Application Requirements Reminder</h4>
-                    <ul>
-                        <li>Valid government-issued ID</li>
-                        <li>Proof of residency (utility bill within last 3 months or Barangay Certificate of Residency)</li>
-                        <li>Proof that you are registered in Barangay Hulo (Barangay ID or Voter's ID)</li>
-                    </ul>
-                </div>
-                
-                <div class="acknowledgment-box">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="acknowledgeCheckbox">
-                        <label for="acknowledgeCheckbox" class="checkbox-label">
-                            <strong>I acknowledge that I have read and understood the importance notice above. I certify that all information I will provide is true and correct, and I understand the legal consequences of providing false information or falsified documents. I agree to the terms and conditions set forth by Barangay Hulong Duhat for the issuance of Certificate of Indigency.</strong>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button onclick="closeNoticeModal()" class="btn-modal-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button id="proceedButton" onclick="proceedToForm()" class="btn-modal-primary" disabled>
-                    <i class="fas fa-check-circle"></i> I Understand, Proceed to Form
-                </button>
+            <div class="bhd-hero-symbol" aria-hidden="true">
+                <i class="fas fa-hands-helping"></i>
             </div>
         </div>
     </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.indigency_steps_title') }}</h2>
+                <p>{{ __('messages.blade_certificate_indigency_blade_follow_these_simple_steps_to_submit_and_track_your_indi') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-step-list">
+            <article class="bhd-step-card">
+                <span class="bhd-card-icon"><i class="fas fa-clipboard-list"></i></span>
+                <h3>{{ __('messages.indigency_step1_title') }}</h3>
+                <p>{{ __('messages.indigency_step1_desc') }}</p>
+            </article>
+
+            <article class="bhd-step-card">
+                <span class="bhd-card-icon"><i class="fas fa-id-card"></i></span>
+                <h3>{{ __('messages.indigency_step2_title') }}</h3>
+                <p>{{ __('messages.indigency_step2_desc') }}</p>
+            </article>
+
+            <article class="bhd-step-card">
+                <span class="bhd-card-icon"><i class="fas fa-user-check"></i></span>
+                <h3>{{ __('messages.indigency_step3_title') }}</h3>
+                <p>{{ __('messages.indigency_step3_desc') }}</p>
+            </article>
+
+            <article class="bhd-step-card">
+                <span class="bhd-card-icon"><i class="fas fa-bell"></i></span>
+                <h3>{{ __('messages.indigency_step4_title') }}</h3>
+                <p>{{ __('messages.indigency_step4_desc') }}</p>
+            </article>
+        </div>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.blade_certificate_indigency_blade_common_uses') }}</h2>
+                <p>{{ __('messages.blade_certificate_indigency_blade_indigency_certificates_are_often_requested_for_assistan') }}</p>
+            </div>
+        </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="bhd-four-grid">
+            <article class="bhd-simple-card">
+                <span class="bhd-card-icon"><i class="fas fa-hospital"></i></span>
+                <h3>{{ __('messages.blade_certificate_indigency_blade_medical_assistance') }}</h3>
+                <p>{{ __('messages.blade_certificate_indigency_blade_used_for_hospital_medicine_or_health_related_assistance') }}</p>
+                <div class="bhd-chip-list"><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_medical_aid') }}</span><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_hospital_support') }}</span></div>
+            </article>
 
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    <script src="{{ asset('js/faq.js') }}"></script>
+            <article class="bhd-simple-card">
+                <span class="bhd-card-icon"><i class="fas fa-graduation-cap"></i></span>
+                <h3>{{ __('messages.blade_certificate_indigency_blade_education_support') }}</h3>
+                <p>{{ __('messages.blade_certificate_indigency_blade_used_for_scholarship_school_or_student_assistance_requi') }}</p>
+                <div class="bhd-chip-list"><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_scholarship') }}</span><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_school_aid') }}</span></div>
+            </article>
 
-    <script>
-        // Modal Functions
-        function showNoticeModal() {
-            document.getElementById('noticeModalOverlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        }
-        
-        function closeNoticeModal() {
-            document.getElementById('noticeModalOverlay').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Enable scrolling
-        }
-        
-        function proceedToForm() {
-            // Check if checkbox is checked
-            const checkbox = document.getElementById('acknowledgeCheckbox');
-            if (checkbox.checked) {
-                // Redirect to the application form
-                window.location.href = '{{ route('indigency.form') }}';
-            }
-        }
-        
-        // Enable/Disable proceed button based on checkbox
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('acknowledgeCheckbox');
-            const proceedButton = document.getElementById('proceedButton');
-            
-            if (checkbox && proceedButton) {
-                checkbox.addEventListener('change', function() {
-                    proceedButton.disabled = !this.checked;
-                });
-            }
-            
-            // Close modal when clicking outside
-            const overlay = document.getElementById('noticeModalOverlay');
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    closeNoticeModal();
-                }
-            });
-            
-            // Close modal with Escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && overlay.style.display === 'flex') {
-                    closeNoticeModal();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+            <article class="bhd-simple-card">
+                <span class="bhd-card-icon"><i class="fas fa-hand-holding-heart"></i></span>
+                <h3>{{ __('messages.blade_certificate_indigency_blade_financial_assistance') }}</h3>
+                <p>{{ __('messages.blade_certificate_indigency_blade_used_for_social_welfare_and_other_community_assistance_') }}</p>
+                <div class="bhd-chip-list"><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_aid_program') }}</span><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_support') }}</span></div>
+            </article>
+
+            <article class="bhd-simple-card">
+                <span class="bhd-card-icon"><i class="fas fa-scale-balanced"></i></span>
+                <h3>{{ __('messages.blade_certificate_indigency_blade_legal_requirements') }}</h3>
+                <p>{{ __('messages.blade_certificate_indigency_blade_used_when_agencies_require_proof_of_indigency_for_proce') }}</p>
+                <div class="bhd-chip-list"><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_document_use') }}</span><span><i class="fas fa-check"></i> {{ __('messages.blade_certificate_indigency_blade_verification') }}</span></div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell bhd-two-grid">
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-list-check"></i></span>
+            <h3>{{ __('messages.indigency_requirements_title') }}</h3>
+
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_prepare_a_clear_government_issued_or_accepted_identific') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_complete_resident_details') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_provide_accurate_personal_contact_and_address_informati') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_purpose_of_request') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_state_why_you_need_the_certificate_of_indigency') }}</span></div></div>
+            </div>
+        </article>
+
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-circle-info"></i></span>
+            <h3>{{ __('messages.indigency_important_info_title') }}</h3>
+
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-user-shield"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_barangay_review') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_staff_may_verify_your_records_before_approval') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-clock"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_processing_time') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_processing_depends_on_review_and_completeness_of_submit') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-bell"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_status_tracking') }}</strong><span>{{ __('messages.blade_certificate_indigency_blade_use_your_reference_number_to_check_the_application_stat') }}</span></div></div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="bhd-section pt-0">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.indigency_apply_title') }}</h2>
+                <p>{{ __('messages.indigency_apply_subtitle') }}</p>
+
+                <div class="bhd-tags">
+                    <span>{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</span>
+                    <span>{{ __('messages.form_review_label_purpose') }}</span>
+                    <span>{{ __('messages.blade_certificate_indigency_blade_resident_details') }}</span>
+                    <span>{{ __('messages.blade_certificate_indigency_blade_status_tracking') }}</span>
+                </div>
+            </div>
+
+            <a href="{{ route('indigency.form') }}" class="bhd-btn bhd-btn-primary">
+                <i class="fas fa-file-circle-plus"></i>
+                {{ __('messages.indigency_apply_btn') }}
+            </a>
+        </div>
+    </div>
+</section>
+
+@include('barangay_system.partials.public_layout_end')

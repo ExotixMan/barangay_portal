@@ -19,7 +19,7 @@ class AdminLoginController extends Controller
             return $this->redirectBasedOnRole(Auth::guard('admin')->user());
         }
         
-        return view('admin.admin_login');
+        return view('barangay_system.login');
     }
 
     public function login(Request $request)

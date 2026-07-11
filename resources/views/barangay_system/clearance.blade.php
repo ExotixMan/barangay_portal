@@ -1,1818 +1,534 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+@php
+    $pageTitle = 'Barangay Clearance';
+    $activePage = 'clearance';
+@endphp
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Clearance</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
+@push('styles')
+<style>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 790px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-hero-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-simple-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-four-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-two-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .bhd-simple-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-simple-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-simple-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+        line-height: 1.25;
+    }
+
+    .bhd-simple-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-card-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 16px;
+    }
+
+    .bhd-chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .bhd-chip-list span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.76rem;
+        font-weight: 900;
+    }
+
+    .bhd-step-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        counter-reset: step;
+    }
+
+    .bhd-step-card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .bhd-step-card::before {
+        counter-increment: step;
+        content: counter(step, decimal-leading-zero);
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        color: var(--brand);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 950;
+    }
+
+    .bhd-step-card h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-step-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0;
+    }
+
+    .bhd-info-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .bhd-info-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+    }
+
+    .bhd-info-row i {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-info-row strong {
+        display: block;
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 950;
+    }
+
+    .bhd-info-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 1px;
+    }
+
+    .bhd-form-card,
+    .bhd-table-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: clamp(20px, 3vw, 30px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-form-group {
+        display: grid;
+        gap: 8px;
+    }
+
+    .bhd-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .bhd-form-group label {
+        color: var(--ink);
+        font-size: 0.88rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bhd-form-control {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-soft);
+        color: var(--ink);
+        padding: 11px 13px;
+        font: inherit;
+        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-form-control:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent);
+    }
+
+    .bhd-alert {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .bhd-alert.danger {
+        border-color: color-mix(in srgb, #dc2626 28%, var(--line));
+        background: color-mix(in srgb, #dc2626 9%, var(--surface));
+        color: #b91c1c;
+    }
+
+    .bhd-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 0.76rem;
+        font-weight: 950;
+        width: fit-content;
+    }
+
+    .bhd-table-wrap {
+        overflow-x: auto;
+    }
+
+    .bhd-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+    .bhd-table th,
+    .bhd-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+        vertical-align: middle;
+    }
+
+    .bhd-table th {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: var(--surface-soft);
+    }
+
+    .bhd-table td strong {
+        color: var(--ink);
+    }
+
+    .bhd-filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .bhd-filter-btn {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .bhd-filter-btn:hover,
+    .bhd-filter-btn.active {
+        border-color: var(--brand);
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-modal-card {
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        background: var(--surface);
+        color: var(--ink);
+    }
+
+    .bhd-modal-card .modal-header {
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+    }
+
+    .bhd-modal-card .modal-title {
+        font-weight: 950;
+        color: var(--ink);
+    }
+
+    @media (max-width: 1024px) {
+        .bhd-four-grid,
+        .bhd-step-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
+        .bhd-simple-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-two-grid {
+            grid-template-columns: 1fr;
         }
 
-        /* Full Width Background Sections */
-        .section-bg {
-            background: #f8f9fa;
+        .bhd-hero-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
+        }
+
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
+        }
+
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn,
+        .bhd-form-card .bhd-btn {
             width: 100%;
-            padding: 80px 0;
         }
 
-        /* Process Steps - FULL WIDTH FIX */
-        .process-steps {
-            padding: 80px 0;
-            background: #f8f9fa;
-            position: relative;
-            width: 100%;
+        .bhd-four-grid,
+        .bhd-simple-grid,
+        .bhd-step-list,
+        .bhd-form-grid {
+            grid-template-columns: 1fr;
         }
+    }
 
-        /* This centers the content */
-        .process-steps-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #C62828;
-        }
-
-        .process-steps .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-        }
-
-        .step-card {
-            background: white;
-            border-radius: 15px;
-            padding: 35px 25px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .step-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.15);
-            border-color: #C62828;
-        }
-
-        .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #C62828;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .step-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .step-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .step-card p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* Requirements Section */
-        .requirements-section {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .requirements-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-        }
-
-        .requirements-card, .info-card {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .requirements-card:hover, .info-card:hover {
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.1);
-            border-color: rgba(198, 40, 40, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-shrink: 0;
-        }
-
-        .card-header i {
-            font-size: 2rem;
-            color: #C62828;
-        }
-
-        .requirements-card h2,
-        .info-card h2 {
-            font-size: 1.8rem;
-            color: #C62828;
-            margin: 0;
-        }
-
-        .requirements-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .requirement-item {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-
-        .requirement-item i {
-            color: #4CAF50;
-            font-size: 1.2rem;
-            margin-top: 3px;
-            flex-shrink: 0;
-        }
-
-        .requirement-content h4 {
-            color: #333;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .requirement-content p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin: 0;
-        }
-
-        .id-list {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0;
-        }
-
-        .id-list li {
-            color: #666;
-            font-size: 0.95rem;
-            padding: 3px 0;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        .id-list li::before {
-            content: "•";
-            color: #C62828;
-            position: absolute;
-            left: 0;
-        }
-
-        .info-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            
-            justify-content: space-evenly;
-        }
-
-        .info-item {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-
-        .info-item i {
-            color: #C62828;
-            font-size: 1.2rem;
-            margin-top: 3px;
-            flex-shrink: 0;
-        }
-
-        .info-item h4 {
-            color: #333;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .info-item p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin: 0;
-        }
-
-        .emergency-notice {
-            background: rgba(198, 40, 40, 0.1);
-            border: 1px solid rgba(198, 40, 40, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0; /* Prevents notice from stretching */
-            margin-top: auto; /* Pushes to bottom */
-        }
-
-        .emergency-notice i {
-            color: #C62828;
-            font-size: 1.2rem;
-        }
-
-        .emergency-notice p {
-            color: #C62828;
-            font-weight: 500;
-            margin: 0;
-            font-size: 0.95rem;
-        }
-
-        /* Application Form Section */
-        .application-form-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-
-        .application-form-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .form-header h2 {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .form-header p {
-            color: #666;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Form Progress */
-        .form-progress {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 15px;
-            padding: 40px 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
-        }
-
-        .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .progress-steps::before {
-            content: '';
-            position: absolute;
-            top: 25px;
-            left: 10%;
-            right: 10%;
-            height: 3px;
-            background: #eee;
-            z-index: 1;
-        }
-
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-            z-index: 2;
-            flex: 1;
-        }
-
-        .step-circle {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border: 3px solid #eee;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #999;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
-
-        .step.active .step-circle {
-            background: #C62828;
-            border-color: #C62828;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .step span {
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .step.active span {
-            color: #C62828;
-            font-weight: 600;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #C62828, #d32f2f);
-            width: 33.33%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        /* Form Steps */
-        .clearance-form {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.1);
-            border: 1px solid #f0f0f0;
-        }
-
-        .form-step {
-            display: none;
-        }
-
-        .form-step.active {
-            display: block;
-        }
-
-        .form-step h3 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .form-step h3 i {
-            color: #C62828;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-group label i {
-            color: #C62828;
-            font-size: 1rem;
-        }
-
-        .upload-size {
-            font-size: 0.8rem;
-            color: #999;
-            font-weight: 400;
-            margin-left: auto;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 13px 16px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: #999;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #C62828;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.12);
-        }
-
-        .form-hint {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        /* Upload Area */
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .upload-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            padding: 50px 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
-        }
-
-        .upload-area:hover {
-            border-color: #C62828;
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.02), rgba(198, 40, 40, 0.05));
-            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.1);
-        }
-
-        .upload-area i {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 15px;
-        }
-
-        .upload-area p {
-            color: #666;
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        .upload-area p span {
-            color: #C62828;
-            font-weight: 600;
-            text-decoration: underline;
-        }
-
-        .upload-preview {
-            margin-top: 10px;
-            display: none;
-        }
-
-        .upload-preview.active {
-            display: block;
-        }
-
-        .file-preview {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #e8f5e9;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #c8e6c9;
-        }
-
-        .file-preview i {
-            color: #2e7d32;
-            font-size: 1.2rem;
-        }
-
-        .file-info {
-            flex: 1;
-        }
-
-        .file-name {
-            font-weight: 500;
-            color: #333;
-            font-size: 0.9rem;
-        }
-
-        .file-size {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .remove-file {
-            background: none;
-            border: none;
-            color: #C62828;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Review Section */
-        .review-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .review-card {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 15px;
-            padding: 30px;
-            border: 1px solid #eee;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
-        }
-
-        .review-card h4 {
-            font-size: 1.1rem;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-
-        .review-card h4 i {
-            color: #C62828;
-        }
-
-        .review-content {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        .review-item {
-            padding: 8px 0;
-        }
-
-        .review-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .review-value {
-            font-size: 1rem;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .payment-summary {
-            width: 100%;
-            grid-column: 1 / -1;
-        }
-
-        .payment-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .payment-item:last-child {
-            border-bottom: none;
-        }
-
-        .payment-item.total {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #C62828;
-            padding-top: 15px;
-            border-top: 2px solid #eee;
-        }
-
-        .pickup-instructions {
-            grid-column: 1 / -1;
-            margin-top: 20px;
-        }
-
-        .pickup-info {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 12px;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-        }
-
-        .pickup-info:hover {
-            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.1);
-            border-color: rgba(198, 40, 40, 0.2);
-        }
-
-        .pickup-info:last-child {
-            margin-bottom: 0;
-        }
-
-        .pickup-info i {
-            color: #C62828;
-            font-size: 1.2rem;
-            margin-top: 3px;
-        }
-
-        .pickup-info h5 {
-            color: #333;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pickup-info p {
-            color: #666;
-            font-size: 0.95rem;
-            margin: 0 0 10px 0;
-        }
-
-        .pickup-info ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .pickup-info li {
-            color: #666;
-            font-size: 0.95rem;
-            padding: 3px 0;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        .pickup-info li::before {
-            content: "•";
-            color: #C62828;
-            position: absolute;
-            left: 0;
-        }
-
-        /* Benefits Section */
-        .benefits-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.05), rgba(46, 125, 50, 0.05));
-            border-radius: 15px;
-            border: 1px solid rgba(198, 40, 40, 0.1);
-        }
-
-        .benefits-section h4 {
-            font-size: 1.3rem;
-            color: #C62828;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .benefit-item {
-            text-align: center;
-            padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .benefit-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(198, 40, 40, 0.15);
-            border-color: #C62828;
-        }
-
-        .benefit-item i {
-            font-size: 2rem;
-            color: #C62828;
-            margin-bottom: 15px;
-        }
-
-        .benefit-item h5 {
-            font-size: 1.1rem;
-            color: #333;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .benefit-item p {
-            color: #666;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        /* Terms Section */
-        .terms-section {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 40px 0;
-            border: 1px solid #eee;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.04);
-        }
-
-        .terms-checkbox {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            color: #333;
-            line-height: 1.4;
-        }
-
-        .terms-checkbox:last-child {
-            margin-bottom: 0;
-        }
-
-        .terms-checkbox input {
-            display: none;
-        }
-
-        .checkmark {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            flex-shrink: 0;
-            margin-top: 3px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .terms-checkbox input:checked + .checkmark {
-            background: #C62828;
-            border-color: #C62828;
-        }
-
-        .checkmark::after {
-            content: '';
-            position: absolute;
-            display: none;
-            left: 6px;
-            top: 2px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .terms-checkbox input:checked + .checkmark::after {
-            display: block;
-        }
-
-        .terms-checkbox a {
-            color: #C62828;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .terms-checkbox a:hover {
-            text-decoration: underline;
-        }
-
-        /* Form Actions */
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            padding-top: 30px;
-            border-top: 1px solid #eee;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(0.5);
-                opacity: 0.5;
-            }
-        }
-
-        /* Application Status */
-        .application-status {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            margin-top: 30px;
-            display: none;
-        }
-
-        .application-status.active {
-            display: block;
-        }
-
-        .status-content i {
-            font-size: 4rem;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .status-content h3 {
-            font-size: 2rem;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .status-content p {
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .status-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* IMPORTANCE NOTICE MODAL */
-        .notice-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-
-        .notice-modal {
-            background: white;
-            border-radius: 20px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 40px;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(198,40,40,0.3);
-            border-top: 8px solid #C62828;
-        }
-
-        .notice-modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: #999;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .notice-modal-close:hover {
-            color: #C62828;
-            background: rgba(198,40,40,0.1);
-        }
-
-        .notice-modal-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .notice-modal-icon {
-            width: 80px;
-            height: 80px;
-            background: #C62828;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
-            flex-shrink: 0;
-        }
-
-        .notice-modal-title {
-            color: #C62828;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .notice-modal-subtitle {
-            color: #666;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-
-        .notice-modal-body {
-            margin-bottom: 30px;
-        }
-
-        .notice-modal-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .notice-modal-section h4 {
-            color: #C62828;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .notice-modal-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .notice-modal-section li {
-            padding: 8px 0 8px 25px;
-            position: relative;
-            color: #555;
-        }
-
-        .notice-modal-section li::before {
-            content: "•";
-            color: #C62828;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
-
-        .legal-warning {
-            background: rgba(198,40,40,0.1);
-            border-left: 5px solid #C62828;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .legal-warning p {
-            color: #C62828;
-            font-weight: 500;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .acknowledgment-box {
-            background: white;
-            border: 2px solid #C62828;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-top: 3px;
-            accent-color: #C62828;
-            cursor: pointer;
-        }
-
-        .checkbox-label {
-            color: #333;
-            font-size: 0.95rem;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-        }
-
-        .btn-modal-primary {
-            background: #C62828;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-modal-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-modal-secondary {
-            background: #f8f9fa;
-            color: #666;
-            border: 1px solid #ddd;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        /* Responsive Design */
-        /* Small Desktop - 1366x768 */
-        @media (max-width: 1366px) {
-            .container {
-                max-width: 1280px;
-                padding: 0 25px;
-            }
-            
-            .info-cards-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-            }
-            
-            .content-grid {
-                gap: 30px;
-            }
-            
-            .form-steps {
-                gap: 30px;
-            }
-            
-            .requirements-box {
-                padding: 25px;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .steps-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .benefits-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 992px) {
-            .clearance-form {
-                padding: 30px;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .review-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .progress-steps {
-                flex-direction: column;
-                gap: 30px;
-                align-items: flex-start;
-            }
-            
-            .progress-steps::before {
-                display: none;
-            }
-            
-            .step {
-                flex-direction: row;
-                gap: 15px;
-                width: 100%;
-            }
-            
-            .step-circle {
-                flex-shrink: 0;
-            }
-
-            .notice-modal {
-                padding: 30px 20px;
-                width: 95%;
-            }
-
-            .notice-modal-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .modal-actions {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .steps-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .benefits-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .application-status {
-                padding: 30px 20px;
-            }
-            
-            .status-actions {
-                flex-direction: column;
-            }
-            
-            .form-header h2 {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .process-steps,
-            .requirements-section,
-            .application-form-section {
-                padding: 60px 0;
-            }
-            
-            .clearance-form {
-                padding: 20px;
-            }
-            
-            .form-progress {
-                padding: 20px;
-            }
-            
-            .form-step h3 {
-                font-size: 1.3rem;
-            }
-            
-            .container {
-                padding: 0 15px;
-            }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
-                </div>
-            </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
+</style>
+@endpush
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+@include('barangay_system.partials.public_layout_start')
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1><i class="fas fa-certificate bigicon"></i> Barangay Clearance</h1>
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</span>
+                <h1>{{ __('messages.nav_barangay_clearance') }}</h1>
                 <p>{{ __('messages.clearance_hero_subtitle') }}</p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <i class="fas fa-clock"></i>
-                        <span>Processing Time: 1-3 Business Days</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-peso-sign"></i>
-                        <span>Fee: Depending on purpose</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-check-circle"></i>
-                        <span>100% Digital Process</span>
-                    </div>
+                <div class="bhd-page-actions">
+                    <a href="{{ route('clearance.form') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-file-circle-plus"></i> {{ __('messages.clearance_apply_btn') }}</a>
+                    <a href="{{ route('track_request') }}" class="bhd-btn bhd-btn-soft"><i class="fas fa-magnifying-glass"></i> {{ __('messages.nav_track_request') }}</a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="main-content" id="main-content">
-        <!-- Process Steps -->
-        <section class="process-steps">
-            <div class="process-steps-content">
-                <h2 class="section-title">{{ __('messages.clearance_steps_title') }}</h2>
-                <div class="steps-container">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon">
-                            <i class="fas fa-user-edit"></i>
-                        </div>
-                        <h3>{{ __('messages.clearance_step1_title') }}</h3>
-                        <p>{{ __('messages.clearance_step1_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">
-                            <i class="fas fa-file-upload"></i>
-                        </div>
-                        <h3>{{ __('messages.clearance_step2_title') }}</h3>
-                        <p>{{ __('messages.clearance_step2_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">
-                            <i class="fas fa-credit-card"></i>
-                        </div>
-                        <h3>{{ __('messages.clearance_step3_title') }}</h3>
-                        <p>{{ __('messages.clearance_step3_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon">
-                            <i class="fas fa-file-download"></i>
-                        </div>
-                        <h3>{{ __('messages.clearance_step4_title') }}</h3>
-                        <p>{{ __('messages.clearance_step4_desc') }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Requirements -->
-        <section class="requirements-section">
-            <div class="container">
-                <div class="content-grid">
-                    <div class="requirements-card">
-                        <div class="card-header">
-                            <i class="fas fa-clipboard-list"></i>
-                            <h2>{{ __('messages.clearance_requirements_title') }}</h2>
-                        </div>
-                        <div class="requirements-list">
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Valid ID (Any of the following)</h4>
-                                    <ul class="id-list">
-                                        <li>Philippine Passport</li>
-                                        <li>Driver's License</li>
-                                        <li>UMID Card</li>
-                                        <li>Postal ID</li>
-                                        <li>Voter's ID</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Proof of Residency</h4>
-                                    <p>Latest utility bill (electricity, water, or internet) or Barangay Certificate of Residency</p>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Registered Barangay Hulo Resident</h4>
-                                    <p>Provide Barangay ID or Voter's ID with Barangay Hulo address</p>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Purpose of Clearance</h4>
-                                    <p>Specify your purpose to determine the applicable fee</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="card-header">
-                            <i class="fas fa-info-circle"></i>
-                            <h2>{{ __('messages.clearance_important_info_title') }}</h2>
-                        </div>
-                        <div class="info-content">
-                            <div class="info-item">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <div>
-                                    <h4>Processing Time</h4>
-                                    <p>Regular processing: 1-3 business days</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <h4>Office Hours</h4>
-                                    <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-phone"></i>
-                                <div>
-                                    <h4>Need Help?</h4>
-                                    <p>Contact us at 8-281-1373 or visit the barangay hall for assistance</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="emergency-notice">
-                            <i class="fas fa-bell"></i>
-                            <p>For urgent concerns, visit the barangay hall during office hours</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Application Form Section -->
-        <section class="application-form-section" id="apply-form">
-            <div class="container">
-                <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_title') }}</h2>
-                    <p>{{ __('messages.clearance_apply_btn_title') }}</p>
-                </div>
-
-                <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <a href="{{ route('clearance.form') }}" class="btn-apply-now" style="border: none; display: inline-block; padding: 20px 50px; background: #C62828; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);">
-                        <i class="fas fa-file-signature"></i> {{ __('messages.clearance_apply_btn') }}
-                    </a>
-                    <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
-                        <i class="fas fa-clock"></i> Processing Time: 1-3 Business Days
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQ Section -->
-        <section class="faq-section">
-            <div class="container">
-                <h2 class="section-title">Frequently Asked Questions</h2>
-                <div class="faq-container">
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How do I pay for my barangay clearance?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>The fee depends on the purpose of your clearance and is paid in cash at the Barangay Hall upon pickup.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Do I need to wait in line at the barangay hall?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>No! Since you already submitted your application online, you can go directly to the
-                                clearance counter. Show your reference number and ID, pay the fee, and collect your
-                                clearance. This skips the regular application line.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What happens after I submit my application online?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Our staff will process your application within 1-3 business days. Once processed, you can
-                                visit the barangay hall anytime during office hours to pay and collect your clearance.
-                                You'll receive an SMS notification when it's ready for pickup.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How long is the barangay clearance valid?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Barangay clearance is typically valid for 6 months from the date of issuance. However,
-                                some institutions may require a clearance issued within the last 3 months.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What if I can't pick it up myself?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>You can authorize someone to pick it up for you. They need to bring: 1) Your valid ID
-                                (photocopy), 2) Their valid ID, 3) Authorization letter, and 4) Your reference number.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    </div>
-
-    <!-- IMPORTANCE NOTICE MODAL -->
-    <div id="noticeModalOverlay" class="notice-modal-overlay">
-        <div class="notice-modal">
-            <button onclick="closeNoticeModal()" class="notice-modal-close">&times;</button>
-
-            <div class="notice-modal-header">
-                <div class="notice-modal-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <h2 class="notice-modal-title">IMPORTANT NOTICE</h2>
-                    <p class="notice-modal-subtitle">Please read carefully before proceeding with your application</p>
-                </div>
-            </div>
-
-            <div class="notice-modal-body">
-                <div class="legal-warning">
-                    <p>
-                        <i class="fas fa-gavel"></i>
-                        <strong>REPUBLIC ACT NO. 11313 (Safe Spaces Act) & OTHER APPLICABLE LAWS</strong>
-                    </p>
-                </div>
-
-                <div class="notice-modal-section">
-                    <h4><i class="fas fa-exclamation-circle"></i> Legal Consequences of False Information</h4>
-                    <ul>
-                        <li>Providing false information or submitting falsified documents is punishable under Philippine law</li>
-                        <li>Penalties may include imprisonment, fines, or both as determined by the court</li>
-                        <li>False declarations may result in disqualification from barangay services</li>
-                    </ul>
-                </div>
-
-                <div class="notice-modal-section">
-                    <h4><i class="fas fa-shield-alt"></i> Confidentiality & Data Privacy</h4>
-                    <ul>
-                        <li>All personal information submitted will be processed in accordance with the Data Privacy Act of 2012 (RA 10173)</li>
-                        <li>Your information will only be used for application assessment and verification purposes</li>
-                        <li>Information will not be shared with third parties without your consent, except as required by law</li>
-                    </ul>
-                </div>
-
-                <div class="acknowledgment-box">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="acknowledgeCheckbox">
-                        <label for="acknowledgeCheckbox" class="checkbox-label">
-                            <strong>I acknowledge that I have read and understood this notice and that all information I provide will be true and correct.</strong>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button onclick="closeNoticeModal()" class="btn-modal-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button id="proceedButton" onclick="proceedToForm()" class="btn-modal-primary" disabled>
-                    <i class="fas fa-check-circle"></i> I Understand, Proceed to Form
-                </button>
-            </div>
+            <div class="bhd-hero-symbol"><i class="fas fa-certificate"></i></div>
         </div>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.clearance_steps_title') }}</h2>
+                <p>{{ __('messages.blade_clearance_blade_follow_these_simple_steps_to_request_and_claim_your_bar') }}</p>
+            </div>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    <script src="{{ asset('js/faq.js') }}"></script>
+        <div class="bhd-step-list">
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-clipboard-list"></i></span><h3>{{ __('messages.clearance_step1_title') }}</h3><p>{{ __('messages.clearance_step1_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-id-card"></i></span><h3>{{ __('messages.clearance_step2_title') }}</h3><p>{{ __('messages.clearance_step2_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-user-check"></i></span><h3>{{ __('messages.clearance_step3_title') }}</h3><p>{{ __('messages.clearance_step3_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-check-double"></i></span><h3>{{ __('messages.clearance_step4_title') }}</h3><p>{{ __('messages.clearance_step4_desc') }}</p></article>
+        </div>
+    </div>
+</section>
 
-    <script>
-        function showNoticeModal() {
-            document.getElementById('noticeModalOverlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell bhd-two-grid">
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-list-check"></i></span>
+            <h3>{{ __('messages.clearance_requirements_title') }}</h3>
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</strong><span>{{ __('messages.blade_clearance_blade_prepare_a_government_issued_or_accepted_identification_') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_clearance_blade_resident_information') }}</strong><span>{{ __('messages.blade_clearance_blade_provide_complete_and_accurate_personal_and_address_deta') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_purpose_of_request') }}</strong><span>{{ __('messages.blade_clearance_blade_state_why_you_need_the_barangay_clearance') }}</span></div></div>
+            </div>
+        </article>
 
-        function closeNoticeModal() {
-            document.getElementById('noticeModalOverlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-circle-info"></i></span>
+            <h3>{{ __('messages.clearance_important_info_title') }}</h3>
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-clock"></i><div><strong>{{ __('messages.track_timeline_processing') }}</strong><span>{{ __('messages.blade_clearance_blade_application_is_checked_by_barangay_staff_before_approva') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-bell"></i><div><strong>{{ __('messages.blade_clearance_blade_notification') }}</strong><span>{{ __('messages.blade_clearance_blade_you_may_track_your_request_using_your_reference_number') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-building"></i><div><strong>{{ __('messages.blade_clearance_blade_claiming') }}</strong><span>{{ __('messages.blade_clearance_blade_visit_the_barangay_hall_when_your_document_is_ready') }}</span></div></div>
+            </div>
+        </article>
+    </div>
+</section>
 
-        function proceedToForm() {
-            const checkbox = document.getElementById('acknowledgeCheckbox');
-            if (checkbox && checkbox.checked) {
-                window.location.href = '{{ route('clearance.form') }}';
-            }
-        }
+<section class="bhd-section" id="apply-form">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.clearance_apply_title') }}</h2>
+                <p>{{ __('messages.clearance_apply_btn_title') }}</p>
+                <div class="bhd-tags"><span>{{ __('messages.blade_clearance_blade_online_form') }}</span><span>{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</span><span>{{ __('messages.incident_form_bring_reference') }}</span><span>{{ __('messages.blade_certificate_indigency_blade_status_tracking') }}</span></div>
+            </div>
+            <a href="{{ route('clearance.form') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-file-circle-plus"></i> {{ __('messages.clearance_apply_btn') }}</a>
+        </div>
+    </div>
+</section>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('acknowledgeCheckbox');
-            const proceedButton = document.getElementById('proceedButton');
-            const overlay = document.getElementById('noticeModalOverlay');
-
-            if (checkbox && proceedButton) {
-                checkbox.addEventListener('change', function() {
-                    proceedButton.disabled = !this.checked;
-                });
-            }
-
-            if (overlay) {
-                overlay.addEventListener('click', function(e) {
-                    if (e.target === overlay) {
-                        closeNoticeModal();
-                    }
-                });
-            }
-
-            document.addEventListener('keydown', function(e) {
-                if (overlay && e.key === 'Escape' && overlay.style.display === 'flex') {
-                    closeNoticeModal();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+@include('barangay_system.partials.public_layout_end')

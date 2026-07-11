@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Email Verification</title>
+    <title>{{ __('messages.blade_verify_email_blade_email_verification') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
@@ -79,7 +79,7 @@
 
         <p class="verify-text">
         {{ __('messages.verify_email_message') }}<br>
-        Please check your inbox and click the link to activate your account.
+        {{ __('messages.blade_verify_email_blade_please_check_your_inbox_and_click_the_link_to_activate_') }}
         </p>
 
         @if (session('status') == 'verification-link-sent')
@@ -92,7 +92,7 @@
             @csrf
 
             <button type="submit" class="resend-btn w-100" id="resendBtn">
-                Send Verification Email
+                {{ __('messages.blade_verify_email_blade_send_verification_email') }}
             </button>
 
         </form>
@@ -123,7 +123,7 @@
             } else {
                 localStorage.removeItem('verify_end_time');
                 btn.disabled = false;
-                btn.innerText = "Send Verification Email";
+                btn.innerText = @json(__('messages.blade_verify_email_blade_send_verification_email'));
             }
         }
         
@@ -158,10 +158,10 @@
                 if (remainingSeconds <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = "Send Verification Email";
+                    btn.innerText = @json(__('messages.blade_verify_email_blade_send_verification_email'));
                     localStorage.removeItem('verify_end_time');
                 } else {
-                    btn.innerText = "Resend Email (" + remainingSeconds + "s)";
+                    btn.innerText = @json(__('messages.blade_verify_email_blade_resend_email')) + remainingSeconds + "s)";
                 }
             }, 1000);
         }

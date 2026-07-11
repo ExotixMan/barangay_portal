@@ -1,1143 +1,709 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - History</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+@php
+    $pageTitle = 'History';
+    $activePage = 'history';
+@endphp
+
+@push('styles')
+<style>
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 760px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-history-year-card {
+        min-width: 170px;
+        padding: 20px;
+        border: 1px dashed var(--line-strong);
+        border-radius: 22px;
+        background: var(--surface-soft);
+        text-align: center;
+    }
+
+    .bhd-history-year-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .bhd-history-year-card strong {
+        display: block;
+        margin-top: 5px;
+        font-family: 'Space Grotesk', sans-serif;
+        color: var(--brand);
+        font-size: 2.35rem;
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .bhd-history-intro-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+        gap: 30px;
+        align-items: center;
+    }
+
+    .bhd-history-copy {
+        display: grid;
+        gap: 16px;
+    }
+
+    .bhd-history-copy p {
+        color: var(--muted);
+        font-size: 0.98rem;
+        margin: 0;
+    }
+
+    .bhd-history-facts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .bhd-history-fact {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .bhd-history-fact i {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 14px;
+    }
+
+    .bhd-history-fact span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 900;
+        margin-bottom: 4px;
+    }
+
+    .bhd-history-fact strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        line-height: 1.25;
+    }
+
+    .bhd-history-photo {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-history-photo img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border-radius: 20px;
+        filter: saturate(0.94) contrast(0.98);
+    }
+
+    .bhd-history-photo-caption {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 8px 4px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 800;
+    }
+
+    .bhd-timeline {
+        position: relative;
+        display: grid;
+        gap: 14px;
+        max-width: 920px;
+        margin-inline: auto;
+    }
+
+    .bhd-timeline::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        top: 24px;
+        bottom: 24px;
+        width: 1px;
+        background: var(--line-strong);
+    }
+
+    .bhd-timeline-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: 50px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .bhd-timeline-year {
+        position: relative;
+        z-index: 1;
+        min-height: 50px;
+        border-radius: 999px;
+        background: var(--brand);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 900;
+        box-shadow: 0 12px 26px rgba(184, 50, 42, 0.18);
+    }
+
+    .bhd-timeline-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 18px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-timeline-card:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-timeline-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-timeline-card h3 i {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 0.86rem;
+        flex: 0 0 auto;
+    }
+
+    .bhd-timeline-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .bhd-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-simple-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-simple-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-simple-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-simple-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-landmark-card {
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .bhd-landmark-card img {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+    }
+
+    .bhd-landmark-body {
+        padding: 18px;
+    }
+
+    .bhd-year-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        width: fit-content;
+        margin-top: 14px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 0.76rem;
+        font-weight: 950;
+    }
+
+    .bhd-growth-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .bhd-growth-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .bhd-growth-card strong {
+        display: block;
+        font-family: 'Space Grotesk', sans-serif;
+        color: var(--brand);
+        font-size: 2rem;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        margin-bottom: 8px;
+    }
+
+    .bhd-growth-card span {
+        display: block;
+        color: var(--ink);
+        font-size: 0.9rem;
+        font-weight: 950;
+        line-height: 1.25;
+        margin-bottom: 9px;
+    }
+
+    .bhd-growth-card small {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--success);
+        font-size: 0.78rem;
+        font-weight: 900;
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-history-intro-grid {
+            grid-template-columns: 1fr;
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
-        }
-
-        /* Accessibility */
-        .skip-to-main {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #C62828;
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 9999;
-        }
-
-        .skip-to-main:focus {
-            top: 0;
-        }
-
-        /* =========================================== */
-        /* HISTORY PAGE STYLES - PROFESSIONAL & CLEAN */
-        /* =========================================== */
-
-        /* Hero Section */
-        .history-hero {
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.9), rgba(122, 35, 35, 0.9)), 
-                        url('https://images.unsplash.com/photo-1590691565924-90d0a14443a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=600&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 140px 0 80px;
-            text-align: center;
-            position: relative;
-        }
-
-        .history-hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .breadcrumb a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .breadcrumb a:hover {
-            color: white;
-        }
-
-        .breadcrumb span {
-            color: rgba(255,255,255,0.6);
-        }
-
-        .history-hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.2;
-        }
-
-        .history-hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Main Content */
-        .history-main {
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-            position: relative;
-        }
-
-        .section-header h2 {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 15px;
-            font-weight: 700;
-            position: relative;
-            padding-bottom: 20px;
-        }
-
-        .section-header h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: #C62828;
-            border-radius: 2px;
-        }
-
-        .section-header p {
-            font-size: 1.1rem;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto;
-            margin-top: 20px;
-        }
-
-        /* Introduction Section */
-        .introduction-section {
-            padding: 100px 0;
-            background: #fff;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .text-content h2 {
-            font-size: 2.2rem;
-            color: #C62828;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
-
-        .text-content p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #555;
-            margin-bottom: 30px;
-        }
-
-        .key-facts {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        .fact-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .fact-item:hover {
-            background: #fff;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transform: translateY(-5px);
-        }
-
-        .fact-item i {
-            font-size: 1.5rem;
-            color: #C62828;
-        }
-
-        .fact-item h4 {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .fact-item p {
-            font-size: 1.1rem;
-            color: #333;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .image-content {
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-        }
-
-        .section-image {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .image-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 15px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        /* Timeline Section */
-        .timeline-section {
-            padding: 100px 0;
-            background: #f8f9fa;
-        }
-
-        .timeline {
-            position: relative;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 0;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #C62828;
-            transform: translateX(-50%);
-            opacity: 0.3;
-        }
-
-        .timeline-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 50px;
-            position: relative;
-        }
-
-        .timeline-item:nth-child(odd) {
-            flex-direction: row;
-        }
-
-        .timeline-item:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-
-        .timeline-year {
-            background: #C62828;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            z-index: 2;
-            min-width: 100px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
-        }
-
-        .timeline-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            width: 45%;
-            margin: 0 30px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .timeline-content:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
-
-        .timeline-icon {
-            width: 50px;
-            height: 50px;
-            background: #f8f9fa;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .timeline-icon i {
-            font-size: 1.3rem;
-            color: #C62828;
-        }
-
-        .timeline-content h3 {
-            color: #C62828;
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .timeline-content p {
-            color: #666;
-            line-height: 1.7;
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        /* Heritage Section */
-        .heritage-section {
-            padding: 100px 0;
-            background: white;
-        }
-
-        .heritage-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .heritage-card {
-            text-align: center;
-            padding: 40px 30px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .heritage-icon {
-            width: 70px;
-            height: 70px;
-            background: #C62828;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-        }
-
-        .heritage-icon i {
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .heritage-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .heritage-card p {
-            color: #666;
-            line-height: 1.6;
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        /* Landmarks Section */
-        .landmarks-section {
-            padding: 100px 0;
-            background: #f8f9fa;
-        }
-
-        .landmarks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .landmark-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .landmark-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-
-        .landmark-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-
-        .landmark-content {
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            flex: 1;
-        }
-
-        .landmark-content h3 {
-            color: #C62828;
-            font-size: 1.3rem;
-            margin: 0;
-            font-weight: 600;
-        }
-
-        .landmark-content p {
-            color: #666;
-            line-height: 1.6;
-            margin: 0;
-            font-size: 1rem;
-            flex: 1;
-        }
-
-        .landmark-year {
-            display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            margin: 0 auto;
+        .bhd-history-year-card {
             width: fit-content;
         }
 
-        /* Stats Section */
-        .stats-section {
-            padding: 100px 0;
-            background: white;
+        .bhd-card-grid,
+        .bhd-growth-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
         }
 
-        .stat-card {
-            text-align: center;
-            padding: 40px 30px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
+        .bhd-page-actions .bhd-btn {
+            width: 100%;
         }
 
-        .stat-card:hover {
-            background: white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-            transform: translateY(-5px);
+        .bhd-history-facts,
+        .bhd-card-grid,
+        .bhd-growth-grid {
+            grid-template-columns: 1fr;
         }
 
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #C62828;
-            margin-bottom: 10px;
-            line-height: 1;
+        .bhd-timeline {
+            gap: 12px;
         }
 
-        .stat-label {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
-            font-weight: 600;
-            flex: 1;
+        .bhd-timeline-item {
+            grid-template-columns: 44px minmax(0, 1fr);
+            gap: 12px;
         }
 
-        .stat-trend {
-            font-size: 0.9rem;
-            color: #4CAF50;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
+        .bhd-timeline::before {
+            left: 22px;
         }
 
-        .stat-trend i {
-            font-size: 0.8rem;
+        .bhd-timeline-year {
+            min-height: 44px;
+            font-size: 0.75rem;
         }
+    }
+</style>
+@endpush
 
-        /* =========================================== */
-        /* RESPONSIVE DESIGN */
-        /* =========================================== */
+@include('barangay_system.partials.public_layout_start')
 
-        /* Tablet and Mobile Responsive */
-        @media (max-width: 1024px) {
-            .content-grid {
-                gap: 40px;
-            }
-            
-            .timeline::before {
-                left: 30px;
-            }
-            
-            .timeline-item {
-                flex-direction: row !important;
-                padding-left: 60px;
-            }
-            
-            .timeline-year {
-                position: absolute;
-                left: 0;
-                transform: translateX(-50%);
-            }
-            
-            .timeline-content {
-                width: 100%;
-                margin: 0;
-            }
-        }
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker">
+                    <i class="fa-solid fa-landmark-flag"></i>
+                    {{ __('messages.footer_link_history') }}
+                </span>
 
-        @media (max-width: 992px) {
+                <h1>{{ __('messages.history_hero_title') }}</h1>
+                <p>{{ __('messages.history_hero_subtitle') }}</p>
 
-        }
+                <div class="bhd-page-actions">
+                    <a href="{{ route('officials') }}" class="bhd-btn bhd-btn-primary">
+                        <i class="fas fa-users"></i>
+                        {{ __('messages.blade_history_blade_view_officials') }}
+                    </a>
 
-        @media (max-width: 768px) {
-            .history-hero h1 {
-                font-size: 2.2rem;
-            }
-            
-            .history-hero {
-                padding: 120px 0 60px;
-            }
-            
-            .section-header h2 {
-                font-size: 2rem;
-            }
-            
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            
-            .key-facts {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .heritage-grid,
-            .landmarks-grid,
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .timeline-content {
-                padding: 25px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .history-hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .history-hero {
-                padding: 120px 0 60px;
-            }
-            
-            .timeline-year {
-                font-size: 1rem;
-                padding: 10px 20px;
-            }
-            
-            .stat-number {
-                font-size: 2.5rem;
-            }
-        }
-
-        /* Small Desktop - 1366x768 */
-        @media (max-width: 1366px) {
-            .container {
-                max-width: 1280px;
-                padding: 0 25px;
-            }
-            
-            .history-hero h1 {
-                font-size: 2.8rem;
-            }
-            
-            .timeline-content {
-                padding: 25px;
-            }
-            
-            .timeline-year {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+                    <a href="{{ route('map') }}" class="bhd-btn bhd-btn-soft">
+                        <i class="fas fa-map"></i>
+                        {{ __('messages.blade_history_blade_view_barangay_map') }}
+                    </a>
                 </div>
             </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
+            <div class="bhd-history-year-card">
+                <span>{{ __('messages.blade_history_blade_established') }}</span>
+                <strong>1861</strong>
             </div>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="history-hero">
-        <div class="history-hero-content">
-            <h1><i class="fa-solid fa-landmark-flag"></i> {{ __('messages.history_hero_title') }}</h1>
-            <p>{{ __('messages.history_hero_subtitle') }}</p>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="history-main" id="main-content">
-        <!-- Introduction Section -->
-        <section class="introduction-section">
-            <div class="container">
-                <div class="content-grid">
-                    <div class="text-content">
-                        <h2>{{ __('messages.history_our_beginnings') }}</h2>
-                        <p>{{ __('messages.history_info') }}</p>
-                        <div class="key-facts">
-                            <div class="fact-item">
-                                <i class="fas fa-calendar-alt"></i>
-                                <div>
-                                    <h4>Year Established</h4>
-                                    <p>1861</p>
-                                </div>
-                            </div>
-                            <div class="fact-item">
-                                <i class="fas fa-users"></i>
-                                <div>
-                                    <h4>{{ __('messages.history_residents') }}</h4>
-                                    <p>12,265 {{ __('messages.history_total_residents') }}</p>
-                                </div>
-                            </div>
-                            <div class="fact-item">
-                                <i class="fas fa-map-marked-alt"></i>
-                                <div>
-                                    <h4>Area</h4>
-                                    <p>15 {{ __('messages.history_puroks') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="image-content">
-                        <img src="Images/history.jpg" alt="{{ __('messages.history_early_settlement') }}" class="section-image" loading="lazy">
-                        <div class="image-caption">{{ __('messages.history_early_farming') }}</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Timeline Section -->
-        <section class="timeline-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>{{ __('messages.history_timeline') }}</h2>
-                </div>
-                
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-year">1861</div>
-                        <div class="timeline-content">
-                            <div class="timeline-icon">
-                                <i class="fas fa-seedling"></i>
-                            </div>
-                            <h3>{{ __('messages.history_early_settlement') }}</h3>
-                            <p>{{ __('messages.history_early_settlement_desc')}}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">1975</div>
-                        <div class="timeline-content">
-                            <div class="timeline-icon">
-                                <i class="fas fa-flag"></i>
-                            </div>
-                            <h3>{{ __('messages.history_official_recognition') }}</h3>
-                            <p>{{ __('messages.history_recognition_desc') }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">1990</div>
-                        <div class="timeline-content">
-                            <div class="timeline-icon">
-                                <i class="fas fa-road"></i>
-                            </div>
-                            <h3>{{ __('messages.history_infrastructure') }}</h3>
-                            <p>{{ __('messages.history_infrastructure_desc') }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2010</div>
-                        <div class="timeline-content">
-                            <div class="timeline-icon">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <h3>{{ __('messages.history_modernization') }}</h3>
-                            <p>{{ __('messages.history_modernization_desc') }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-year">2026</div>
-                        <div class="timeline-content">
-                            <div class="timeline-icon">
-                                <i class="fas fa-laptop"></i>
-                            </div>
-                            <h3>{{ __('messages.history_digital') }}</h3>
-                            <p>{{ __('messages.history_digital_desc') }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Cultural Heritage Section -->
-        <section class="heritage-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>{{ __('messages.history_cultural_heritage') }}</h2>
-                </div>
-                
-                <div class="heritage-grid">
-                    <div class="heritage-card">
-                        <div class="heritage-icon">
-                            <i class="fas fa-glass-cheers"></i>
-                        </div>
-                        <h3>{{ __('messages.history_annual_fiesta') }}</h3>
-                        <p>{{ __('messages.history_fiesta_desc') }}</p>
-                    </div>
-                    
-                    <div class="heritage-card">
-                        <div class="heritage-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <h3>{{ __('messages.history_local_cuisine') }}</h3>
-                        <p>{{ __('messages.history_cuisine_desc') }}</p>
-                    </div>
-                    
-                    <div class="heritage-card">
-                        <div class="heritage-icon">
-                            <i class="fas fa-hands-helping"></i>
-                        </div>
-                        <h3>{{ __('messages.history_community_values') }}</h3>
-                        <p>{{ __('messages.history_values_desc') }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Historical Landmarks Section -->
-        <section class="landmarks-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>{{ __('messages.history_landmarks') }}</h2>
-                </div>
-                
-                <div class="landmarks-grid">
-                    <div class="landmark-card">
-                        <img src="Images/chapel.webp" alt="{{ __('messages.history_chapel') }}" loading="lazy">
-                        <div class="landmark-content">
-                            <h3>{{ __('messages.history_chapel') }}</h3>
-                            <p>{{ __('messages.history_chapel_desc') }}</p>
-                            <div class="landmark-year">{{ __('messages.history_established') }} 1965</div>
-                        </div>
-                    </div>
-                    
-                    <div class="landmark-card">
-                        <img src="Images/barangay.jfif" alt="{{ __('messages.history_first_hall') }}" loading="lazy">
-                        <div class="landmark-content">
-                            <h3>{{ __('messages.history_first_hall') }}</h3>
-                            <p>{{ __('messages.history_first_hall_desc') }}</p>
-                            <div class="landmark-year">{{ __('messages.history_established') }} 1978</div>
-                        </div>
-                    </div>
-                    
-                    <div class="landmark-card">
-                        <img src="Images/plaza.avif" alt="{{ __('messages.history_plaza') }}" loading="lazy">
-                        <div class="landmark-content">
-                            <h3>{{ __('messages.history_plaza') }}</h3>
-                            <p>{{ __('messages.history_plaza_desc') }}</p>
-                            <div class="landmark-year">{{ __('messages.history_established') }} 1985</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Growth Statistics Section -->
-        <section class="stats-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>{{ __('messages.history_community_growth') }}</h2>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="heritage-card">
-                        <div class="stat-number">12,265</div>
-                        <div class="stat-label">{{ __('messages.history_total_residents') }}</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 15% {{ __('messages.history_since_2015') }}</div>
-                    </div>
-                    
-                    <div class="heritage-card">
-                        <div class="stat-number">2,990</div>
-                        <div class="stat-label">{{ __('messages.history_households') }}</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 12% {{ __('messages.history_since_2015') }}</div>
-                    </div>
-                    
-                    <div class="heritage-card">
-                        <div class="stat-number">85%</div>
-                        <div class="stat-label">{{ __('messages.history_infrastructure') }}</div>
-                        <div class="stat-trend"><i class="fas fa-arrow-up"></i> 25% {{ __('messages.history_since_2000') }}</div>
-                    </div>
-                    
-                    <div class="heritage-card">
-                        <div class="stat-number">15</div>
-                        <div class="stat-label">{{ __('messages.history_active_programs') }}</div>
-                        <div class="stat-trend"><i class="fas fa-plus"></i> 5 {{ __('messages.history_new_since_2020') }}</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section">
+    <div class="bhd-shell bhd-history-intro-grid">
+        <div class="bhd-history-copy">
+            <div class="bhd-section-head mb-0">
+                <div>
+                    <h2>{{ __('messages.history_our_beginnings') }}</h2>
+                    <p>{{ __('messages.history_info') }}</p>
+                </div>
+            </div>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="bhd-history-facts">
+                <div class="bhd-history-fact">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>{{ __('messages.blade_history_blade_year_established') }}</span>
+                    <strong>1861</strong>
+                </div>
 
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    <script src="{{ asset('js/navbar.js') }}"></script>
+                <div class="bhd-history-fact">
+                    <i class="fas fa-users"></i>
+                    <span>{{ __('messages.history_residents') }}</span>
+                    <strong>12,265 {{ __('messages.history_total_residents') }}</strong>
+                </div>
 
-    <script>
-        // History Page JavaScript - Organized and Optimized
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===================================
-            // ANIMATIONS
-            // ===================================
-            
-            // Timeline item hover effects
-            initTimelineEffects();
-            
-            // Scroll animations
-            initScrollAnimations();
-            
-            // ===================================
-            // ACCESSIBILITY
-            // ===================================
-            
-            initAccessibility();
-        });
+                <div class="bhd-history-fact">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>{{ __('messages.blade_history_blade_area') }}</span>
+                    <strong>15 {{ __('messages.history_puroks') }}</strong>
+                </div>
+            </div>
+        </div>
 
-        // ===================================
-        // FUNCTION DEFINITIONS
-        // ===================================
+        <div class="bhd-history-photo">
+            <img src="{{ asset('Images/history.jpg') }}" alt="{{ __('messages.history_early_settlement') }}" loading="lazy">
+            <div class="bhd-history-photo-caption">
+                <i class="fas fa-location-dot"></i>
+                {{ __('messages.history_early_farming') }}
+            </div>
+        </div>
+    </div>
+</section>
 
-        function initTimelineEffects() {
-            // Add hover effects to timeline items
-            const timelineItems = document.querySelectorAll('.timeline-item');
-            
-            timelineItems.forEach(item => {
-                item.addEventListener('mouseenter', function() {
-                    const year = this.querySelector('.timeline-year');
-                    if (year) {
-                        year.style.transform = 'scale(1.1)';
-                        year.style.boxShadow = '0 8px 20px rgba(198, 40, 40, 0.4)';
-                    }
-                });
-                
-                item.addEventListener('mouseleave', function() {
-                    const year = this.querySelector('.timeline-year');
-                    if (year) {
-                        year.style.transform = 'scale(1)';
-                        year.style.boxShadow = '0 5px 15px rgba(198, 40, 40, 0.3)';
-                    }
-                });
-            });
-        }
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.history_timeline') }}</h2>
+                <p>{{ __('messages.blade_history_blade_key_milestones_that_shaped_barangay_hulong_duhat_into_t') }}</p>
+            </div>
+        </div>
 
-        function initScrollAnimations() {
-            // Add animation to cards on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-in');
-                    }
-                });
-            }, observerOptions);
-            
-            // Observe cards
-            document.querySelectorAll('.timeline-content').forEach(card => {
-                observer.observe(card);
-            });
-            
-            // Add CSS for animations
-            const style = document.createElement('style');
-            style.textContent = `
-                .timeline-content
-                {
-                    opacity: 0;
-                    transform: translateY(20px);
-                    transition: opacity 0.6s ease, transform 0.6s ease;
-                }
-                
-                .timeline-content.animate-in {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                
-                .timeline-content {
-                    transition-delay: 0.1s;
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // Initialize animations
-            setTimeout(() => {
-                document.querySelectorAll('.timeline-content').forEach(card => {
-                    if (card.getBoundingClientRect().top < window.innerHeight) {
-                        card.classList.add('animate-in');
-                    }
-                });
-            }, 100);
-        }
+        <div class="bhd-timeline">
+            <article class="bhd-timeline-item">
+                <div class="bhd-timeline-year">1861</div>
+                <div class="bhd-timeline-card">
+                    <h3><i class="fas fa-seedling"></i> {{ __('messages.history_early_settlement') }}</h3>
+                    <p>{{ __('messages.history_early_settlement_desc') }}</p>
+                </div>
+            </article>
 
-        function initAccessibility() {
-            // Smooth scroll for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    
-                    if (href !== '#' && href.startsWith('#') && document.querySelector(href)) {
-                        e.preventDefault();
-                        
-                        const target = document.querySelector(href);
-                        const headerOffset = 100;
-                        const elementPosition = target.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                        
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        }
-    </script>
-</body>
-</html>
+            <article class="bhd-timeline-item">
+                <div class="bhd-timeline-year">1975</div>
+                <div class="bhd-timeline-card">
+                    <h3><i class="fas fa-flag"></i> {{ __('messages.history_official_recognition') }}</h3>
+                    <p>{{ __('messages.history_recognition_desc') }}</p>
+                </div>
+            </article>
+
+            <article class="bhd-timeline-item">
+                <div class="bhd-timeline-year">1990</div>
+                <div class="bhd-timeline-card">
+                    <h3><i class="fas fa-road"></i> {{ __('messages.history_infrastructure') }}</h3>
+                    <p>{{ __('messages.history_infrastructure_desc') }}</p>
+                </div>
+            </article>
+
+            <article class="bhd-timeline-item">
+                <div class="bhd-timeline-year">2010</div>
+                <div class="bhd-timeline-card">
+                    <h3><i class="fas fa-building"></i> {{ __('messages.history_modernization') }}</h3>
+                    <p>{{ __('messages.history_modernization_desc') }}</p>
+                </div>
+            </article>
+
+            <article class="bhd-timeline-item">
+                <div class="bhd-timeline-year">2026</div>
+                <div class="bhd-timeline-card">
+                    <h3><i class="fas fa-laptop"></i> {{ __('messages.history_digital') }}</h3>
+                    <p>{{ __('messages.history_digital_desc') }}</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.history_cultural_heritage') }}</h2>
+                <p>{{ __('messages.blade_history_blade_community_traditions_and_values_that_continue_to_define') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-card-grid">
+            <article class="bhd-simple-card">
+                <span class="bhd-task-icon"><i class="fas fa-glass-cheers"></i></span>
+                <h3>{{ __('messages.history_annual_fiesta') }}</h3>
+                <p>{{ __('messages.history_fiesta_desc') }}</p>
+            </article>
+
+            <article class="bhd-simple-card">
+                <span class="bhd-task-icon"><i class="fas fa-utensils"></i></span>
+                <h3>{{ __('messages.history_local_cuisine') }}</h3>
+                <p>{{ __('messages.history_cuisine_desc') }}</p>
+            </article>
+
+            <article class="bhd-simple-card">
+                <span class="bhd-task-icon"><i class="fas fa-hands-helping"></i></span>
+                <h3>{{ __('messages.history_community_values') }}</h3>
+                <p>{{ __('messages.history_values_desc') }}</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.history_landmarks') }}</h2>
+                <p>{{ __('messages.blade_history_blade_notable_places_connected_to_the_barangays_growth_and_co') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-card-grid">
+            <article class="bhd-simple-card bhd-landmark-card">
+                <img src="{{ asset('Images/chapel.webp') }}" alt="{{ __('messages.history_chapel') }}" loading="lazy">
+                <div class="bhd-landmark-body">
+                    <h3>{{ __('messages.history_chapel') }}</h3>
+                    <p>{{ __('messages.history_chapel_desc') }}</p>
+                    <span class="bhd-year-pill">
+                        <i class="fas fa-calendar-check"></i>
+                        {{ __('messages.history_established') }} 1965
+                    </span>
+                </div>
+            </article>
+
+            <article class="bhd-simple-card bhd-landmark-card">
+                <img src="{{ asset('Images/barangay.jfif') }}" alt="{{ __('messages.history_first_hall') }}" loading="lazy">
+                <div class="bhd-landmark-body">
+                    <h3>{{ __('messages.history_first_hall') }}</h3>
+                    <p>{{ __('messages.history_first_hall_desc') }}</p>
+                    <span class="bhd-year-pill">
+                        <i class="fas fa-calendar-check"></i>
+                        {{ __('messages.history_established') }} 1978
+                    </span>
+                </div>
+            </article>
+
+            <article class="bhd-simple-card bhd-landmark-card">
+                <img src="{{ asset('Images/plaza.avif') }}" alt="{{ __('messages.history_plaza') }}" loading="lazy">
+                <div class="bhd-landmark-body">
+                    <h3>{{ __('messages.history_plaza') }}</h3>
+                    <p>{{ __('messages.history_plaza_desc') }}</p>
+                    <span class="bhd-year-pill">
+                        <i class="fas fa-calendar-check"></i>
+                        {{ __('messages.history_established') }} 1985
+                    </span>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.history_community_growth') }}</h2>
+                <p>{{ __('messages.blade_history_blade_quick_community_facts_presented_in_the_same_clean_card_') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-growth-grid">
+            <article class="bhd-growth-card">
+                <strong>12,265</strong>
+                <span>{{ __('messages.history_total_residents') }}</span>
+                <small><i class="fas fa-arrow-up"></i> 15% {{ __('messages.history_since_2015') }}</small>
+            </article>
+
+            <article class="bhd-growth-card">
+                <strong>2,990</strong>
+                <span>{{ __('messages.history_households') }}</span>
+                <small><i class="fas fa-arrow-up"></i> 12% {{ __('messages.history_since_2015') }}</small>
+            </article>
+
+            <article class="bhd-growth-card">
+                <strong>85%</strong>
+                <span>{{ __('messages.history_infrastructure') }}</span>
+                <small><i class="fas fa-arrow-up"></i> 25% {{ __('messages.history_since_2000') }}</small>
+            </article>
+
+            <article class="bhd-growth-card">
+                <strong>15</strong>
+                <span>{{ __('messages.history_active_programs') }}</span>
+                <small><i class="fas fa-plus"></i> 5 {{ __('messages.history_new_since_2020') }}</small>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section pt-0">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.blade_history_blade_continue_exploring_barangay_hulong_duhat') }}</h2>
+                <p>{{ __('messages.blade_history_blade_view_the_barangay_map_officials_mission_and_vision_or_s') }}</p>
+
+                <div class="bhd-tags">
+                    <span>{{ __('messages.nav_history') }}</span>
+                    <span>{{ __('messages.blade_history_blade_officials') }}</span>
+                    <span>{{ __('messages.blade_history_blade_map') }}</span>
+                    <span>{{ __('messages.blade_history_blade_resident_services') }}</span>
+                </div>
+            </div>
+
+            <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary">
+                <i class="fas fa-file-circle-plus"></i>
+                {{ __('messages.blade_history_blade_request_a_service') }}
+            </a>
+        </div>
+    </div>
+</section>
+
+@include('barangay_system.partials.public_layout_end')

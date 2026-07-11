@@ -8,7 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
-use App\Traits\HasPermissions; // This trait now contains ALL permission methods
+use App\Traits\HasPermissions;
+use Illuminate\Database\Eloquent\Builder;
 
 class AdminUser extends Authenticatable
 {
@@ -16,9 +17,9 @@ class AdminUser extends Authenticatable
         HasFactory, 
         Notifiable, 
         SoftDeletes, 
-        HasPermissions; // This single trait provides all permission methods
+        HasPermissions;
 
-    protected $table = 'admin_users'; // Explicitly set table name
+    protected $table = 'admin_users';
 
     protected $fillable = [
         'user_id',
@@ -75,7 +76,11 @@ class AdminUser extends Authenticatable
         return $prefix . '-' . $year . '-' . $newNumber;
     }
 
-    // Relationships
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'admins.' . $this->getKey();
+    }
+
     public function role()
     {
         return $this->belongsTo(AdminRole::class, 'role_id');
@@ -110,22 +115,22 @@ class AdminUser extends Authenticatable
     }
 
     // Scopes
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');
     }
 
-    public function scopeByRole($query, $roleId)
+    public function scopeByRole(Builder $query, int $roleId): Builder
     {
         return $query->where('role_id', $roleId);
     }
 
-    public function scopeByStatus($query, $status)
+    public function scopeByStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
     }
 
-    public function scopeSearch($query, $search)
+    public function scopeSearch(Builder $query, string $search): Builder
     {
         return $query->where(function($q) use ($search) {
             $q->where('first_name', 'like', "%{$search}%")

@@ -10,14 +10,15 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\File;
 use App\Models\StatusRemarkHistory;
 use App\Mail\Notification as NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\AdminActivityLog;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB; 
 
 class ClearanceController extends Controller
 {
@@ -383,30 +384,52 @@ class ClearanceController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        $request->validate([    
-            'ids' => 'required|array',
-            'ids.*' => 'exists:barangay_clearances,id'
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('barangay_clearances', 'id')
+                    ->whereNull('deleted_at'),
+            ],
         ]);
-        
-        BarangayClearance::whereIn('id', $request->ids)->delete();
 
-        // Log audit trail
-        if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'BULK_ARCHIVE',
-                'module' => 'Clearance',
-                'details' => [
-                    'ids' => $request->ids,
-                    'count' => count($request->ids),
-                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
+        $ids = array_values(array_unique($validated['ids']));
 
-        return back()->with('success', count($request->ids) . ' selected application(s) archived successfully.');
+        $archivedCount = DB::transaction(function () use ($ids, $request) {
+            $clearances = BarangayClearance::query()
+                ->whereIn('id', $ids)
+                ->get();
+
+            foreach ($clearances as $clearance) {
+                // Soft delete when BarangayClearance uses SoftDeletes.
+                $clearance->delete();
+            }
+
+            if (auth('admin')->check()) {
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'BULK_ARCHIVE',
+                    'module' => 'Clearance',
+                    'details' => [
+                        'ids' => $clearances->pluck('id')->all(),
+                        'count' => $clearances->count(),
+                        'status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+
+            return $clearances->count();
+        });
+
+        return back()->with(
+            'success',
+            $archivedCount . ' selected application(s) archived successfully.'
+        );
     }
 
     public function export(Request $request)
@@ -521,25 +544,35 @@ class ClearanceController extends Controller
         $application = BarangayClearance::findOrFail($id);
 
         $reference = $application->reference_number;
-        $application->delete();
 
-        if (auth('admin')->check()) {
-            $request = request();
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'APPLICATION_ARCHIVED',
-                'module' => 'Clearance',
-                'details' => [
-                    'application_id' => $application->id,
-                    'reference_number' => $reference,
-                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
-        }
-        
-        return back()->with('success', 'Application #' . $reference . ' archived successfully.');
+        DB::transaction(function () use ($application, $reference) {
+            // This is a soft delete when Residency uses SoftDeletes.
+            $application->delete();
+
+            if (auth('admin')->check()) {
+                $request = request();
+
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'APPLICATION_ARCHIVED',
+                    'module' => 'Residency',
+                    'details' => [
+                        'application_id' => $application->id,
+                        'reference_number' => $reference,
+                        'previous_status' => $application->getOriginal('status'),
+                        'new_status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+        });
+
+        return back()->with(
+            'success',
+            'Application #' . $reference . ' archived successfully.'
+        );
     }
 
     public function restore(int $id)
@@ -565,6 +598,20 @@ class ClearanceController extends Controller
         }
 
         return back()->with('success', 'Application #' . $reference . ' restored successfully.');
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:barangay_clearances,id'
+        ]);
+
+        BarangayClearance::withTrashed()
+            ->whereIn('id', $request->ids)
+            ->restore();
+
+        return back()->with('success', 'Selected records restored successfully.');
     }
 
     public function generate(Request $request)

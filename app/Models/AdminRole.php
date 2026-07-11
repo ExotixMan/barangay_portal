@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class AdminRole extends Model
 {
@@ -41,23 +42,23 @@ class AdminRole extends Model
         return $this->users()->count();
     }
 
-    public function getDisplayNameAttribute($value)
+    public function getDisplayNameAttribute(string $value)
     {
         return $value ?? ucfirst($this->name);
     }
 
     // Scopes
-    public function scopeSystem($query)
+    public function scopeSystem(Builder $query): Builder
     {
         return $query->where('is_system_role', true);
     }
 
-    public function scopeCustom($query)
+    public function scopeCustom(Builder $query): Builder
     {
         return $query->where('is_system_role', false);
     }
 
-    public function hasPermission($permissionName)
+    public function hasPermission(string $permissionName)
     {
         return $this->permissions()->where('name', $permissionName)->exists();
     }

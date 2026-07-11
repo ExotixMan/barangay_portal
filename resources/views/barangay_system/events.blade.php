@@ -1,1237 +1,689 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Events & Projects</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
+@php
+    $pageTitle = 'Events & Projects';
+    $activePage = 'events';
+@endphp
 
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
+@push('styles')
+<style>
 
-    <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 790px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-hero-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-simple-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-four-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-two-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .bhd-simple-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-simple-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-simple-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+        line-height: 1.25;
+    }
+
+    .bhd-simple-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-card-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 16px;
+    }
+
+    .bhd-chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .bhd-chip-list span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.76rem;
+        font-weight: 900;
+    }
+
+    .bhd-step-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        counter-reset: step;
+    }
+
+    .bhd-step-card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .bhd-step-card::before {
+        counter-increment: step;
+        content: counter(step, decimal-leading-zero);
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        color: var(--brand);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 950;
+    }
+
+    .bhd-step-card h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-step-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0;
+    }
+
+    .bhd-info-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .bhd-info-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+    }
+
+    .bhd-info-row i {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-info-row strong {
+        display: block;
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 950;
+    }
+
+    .bhd-info-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 1px;
+    }
+
+    .bhd-form-card,
+    .bhd-table-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: clamp(20px, 3vw, 30px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-form-group {
+        display: grid;
+        gap: 8px;
+    }
+
+    .bhd-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .bhd-form-group label {
+        color: var(--ink);
+        font-size: 0.88rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bhd-form-control {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-soft);
+        color: var(--ink);
+        padding: 11px 13px;
+        font: inherit;
+        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-form-control:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent);
+    }
+
+    .bhd-alert {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .bhd-alert.danger {
+        border-color: color-mix(in srgb, #dc2626 28%, var(--line));
+        background: color-mix(in srgb, #dc2626 9%, var(--surface));
+        color: #b91c1c;
+    }
+
+    .bhd-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 0.76rem;
+        font-weight: 950;
+        width: fit-content;
+    }
+
+    .bhd-table-wrap {
+        overflow-x: auto;
+    }
+
+    .bhd-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+    .bhd-table th,
+    .bhd-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+        vertical-align: middle;
+    }
+
+    .bhd-table th {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: var(--surface-soft);
+    }
+
+    .bhd-table td strong {
+        color: var(--ink);
+    }
+
+    .bhd-filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .bhd-filter-btn {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .bhd-filter-btn:hover,
+    .bhd-filter-btn.active {
+        border-color: var(--brand);
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-modal-card {
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        background: var(--surface);
+        color: var(--ink);
+    }
+
+    .bhd-modal-card .modal-header {
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+    }
+
+    .bhd-modal-card .modal-title {
+        font-weight: 950;
+        color: var(--ink);
+    }
+
+    @media (max-width: 1024px) {
+        .bhd-four-grid,
+        .bhd-step-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
-            background: #fff;
+        .bhd-simple-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-two-grid {
+            grid-template-columns: 1fr;
         }
 
-        /* Section Styling */
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 20px;
-            position: relative;
+        .bhd-hero-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
         }
 
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: #C62828;
-            border-radius: 2px;
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
         }
 
-        .section-subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin: 30px auto 50px;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            padding: 40px 0;
-            background: #f8f9fa;
-        }
-
-        .filter-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 12px 28px;
-            border-radius: 25px;
-            font-weight: 500;
-            color: #555;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            border-color: #C62828;
-            color: #C62828;
-        }
-
-        .filter-btn.active {
-            background: #C62828;
-            border-color: #C62828;
-            color: white;
-        }
-
-        /* Upcoming Events Section */
-        .upcoming-events {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .event-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-            border: 1px solid #f0f0f0;
-            position: relative;
-        }
-
-        .event-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn,
+        .bhd-form-card .bhd-btn {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(198,40,40,0.03) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: 0;
         }
 
-        .event-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(198, 40, 40, 0.18);
-            border-color: rgba(198, 40, 40, 0.3);
-        }
-
-        .event-card:hover::before {
-            opacity: 1;
-        }
-
-        .event-date-badge {
-            background: linear-gradient(135deg, #C62828, #8B0000);
-            color: white;
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 25px 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .event-date-badge::after {
-            content: '';
-            position: absolute;
-            right: -12px;
-            top: 0;
-            bottom: 0;
-            width: 24px;
-            background: white;
-            border-radius: 50% 0 0 50% / 50%;
-            z-index: 2;
-        }
-
-        .event-date-badge .month {
-            display: block;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .event-date-badge .day {
-            display: block;
-            font-size: 2.8rem;
-            font-weight: 800;
-            line-height: 1;
-            margin: 4px 0;
-        }
-
-        .event-date-badge .year {
-            display: block;
-            font-size: 0.85rem;
-            opacity: 0.75;
-            font-weight: 500;
-        }
-
-        .event-content {
-            padding: 25px 25px 25px 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 1;
-        }
-
-        .event-category {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            width: fit-content;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .event-category.upcoming {
-            background: #E3F2FD;
-            color: #1565C0;
-        }
-
-        .event-category.ongoing {
-            background: #FFF3E0;
-            color: #E65100;
-        }
-
-        .event-content h3 {
-            font-size: 1.2rem;
-            color: #1a1a2e;
-            margin-bottom: 8px;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        .event-content p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 16px;
-            flex: 1;
-            font-size: 0.9rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .event-details {
-            margin-bottom: 16px;
-        }
-
-        .event-details .detail,
-        .event-content .details .detail {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 6px;
-            color: #555;
-            font-size: 0.85rem;
-        }
-
-        .event-details .detail i,
-        .event-content .details .detail i {
-            color: #C62828;
-            width: 16px;
-            font-size: 0.85rem;
-        }
-
-        .event-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: transparent;
-            color: #C62828;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            justify-content: center;
-            margin-top: auto;
-            border: 2px solid #C62828;
-            width: fit-content;
-        }
-
-        .event-btn:hover {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            box-shadow: 0 5px 20px rgba(198, 40, 40, 0.3);
-            transform: none;
-        }
-
-        .detail-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: transparent;
-            color: #C62828;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            justify-content: center;
-            margin-top: auto;
-            border: 2px solid #C62828;
-            width: fit-content;
-        }
-
-        .detail-btn:hover {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            box-shadow: 0 5px 20px rgba(198, 40, 40, 0.3);
-        }
-
-        .info-modal .modal-content {
-            border-radius: 18px;
-            border: 0;
-        }
-
-        .info-modal .modal-header {
-            background: linear-gradient(135deg, #C62828, #8B0000);
-            color: #fff;
-            border: 0;
-        }
-
-        .info-modal .btn-close {
-            filter: brightness(0) invert(1);
-        }
-
-        .info-modal .modal-body p {
-            color: #444;
-            line-height: 1.75;
-        }
-
-        .modal-info-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 10px;
-        }
-
-        .modal-info-list li {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 10px 12px;
-            color: #333;
-            font-size: 0.92rem;
-        }
-
-        .modal-info-list i {
-            color: #C62828;
-            width: 20px;
-        }
-
-        /* Mobile: stack event card vertically */
-        @media (max-width: 767.98px) {
-            .event-card {
-                flex-direction: column;
-            }
-
-            .event-date-badge {
-                min-width: unset;
-                flex-direction: row;
-                gap: 12px;
-                padding: 16px 20px;
-            }
-
-            .event-date-badge::after {
-                display: none;
-            }
-
-            .event-date-badge .day {
-                font-size: 2rem;
-                margin: 0;
-            }
-
-            .event-date-badge .month {
-                font-size: 0.85rem;
-                letter-spacing: 1px;
-            }
-
-            .event-date-badge .year {
-                font-size: 0.85rem;
-            }
-
-            .event-content {
-                padding: 20px;
-            }
-
-            .event-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .detail-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Ongoing Projects Section */
-        .ongoing-projects {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-
-        .project-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(198, 40, 40, 0.12);
-            border-color: #C62828;
-        }
-
-        .project-status {
-            padding: 15px 25px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .project-status.ongoing {
-            background: linear-gradient(135deg, #FF9800, #F57C00);
-            color: white;
-        }
-
-        .project-status.completed {
-            background: linear-gradient(135deg, #4CAF50, #388E3C);
-            color: white;
-        }
-
-        .project-content {
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .project-content h3 {
-            font-size: 1.4rem;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .project-content p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            min-height: 4.8em;
-        }
-
-        .project-info {
-            margin-bottom: 25px;
-            min-height: 110px;
-        }
-
-        .project-info .info-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
-        .project-info .info-item i {
-            color: #C62828;
-            width: 20px;
-        }
-
-        .progress-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .progress-bar-custom {
-            height: 12px;
-            background: #e0e0e0;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 6px;
-            transition: width 0.5s ease;
-        }
-
-        /* Completed Projects Section */
-        .completed-projects {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .completed-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            height: 100%;
-            border: 1px solid #f0f0f0;
-        }
-
-        .completed-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.15);
-            border-color: #4CAF50;
-        }
-
-        .completed-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #4CAF50, #388E3C);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 2rem;
-        }
-
-        .completed-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .completed-card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .completed-info {
-            color: #4CAF50;
-            font-weight: 500;
-        }
-
-        .completed-info i {
-            margin-right: 5px;
-        }
-
-        /* Past Events Timeline */
-        .past-events {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-
-        .events-timeline {
-            max-width: 800px;
-            margin: 50px auto 0;
-            position: relative;
-        }
-
-        .events-timeline::before {
-            content: '';
-            position: absolute;
-            left: 50px;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: #C62828;
-        }
-
-        .timeline-item {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .timeline-date {
-            width: 100px;
-            min-width: 100px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .timeline-date .month {
-            display: block;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .timeline-date .day {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .timeline-content {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            flex: 1;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
-        }
-
-        .timeline-content h3 {
-            font-size: 1.2rem;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .timeline-content p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .attendees {
-            color: #C62828;
-            font-weight: 500;
-        }
-
-        .attendees i {
-            margin-right: 5px;
-        }
-
-        /* Tablet */
-        @media (max-width: 991.98px) {
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .filter-tabs {
-                gap: 10px;
-            }
-
-            .filter-btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-
-            .events-timeline::before {
-                left: 40px;
-            }
-
-            .timeline-date {
-                width: 80px;
-                min-width: 80px;
-                padding: 12px;
-            }
-
-            .timeline-date .day {
-                font-size: 1.5rem;
-            }
-        }
-
-        /* Mobile */
-        @media (max-width: 767.98px) {
-            .filter-tabs {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .filter-btn {
-                width: 100%;
-            }
-
-            .upcoming-events,
-            .ongoing-projects,
-            .completed-projects,
-            .past-events,
-            .events-cta {
-                padding: 50px 0;
-            }
-
-            .section-title {
-                font-size: 1.7rem;
-            }
-
-            .section-subtitle {
-                font-size: 1rem;
-                margin: 20px auto 40px;
-                padding: 0 15px;
-            }
-
-            .event-date-badge {
-                padding: 20px;
-            }
-
-            .event-date-badge .day {
-                font-size: 2.5rem;
-            }
-
-            .event-content {
-                padding: 20px;
-            }
-
-            .event-content h3 {
-                font-size: 1.1rem;
-            }
-
-            .event-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .project-content {
-                padding: 20px;
-            }
-
-            .project-content h3 {
-                font-size: 1.2rem;
-            }
-
-            .progress-section {
-                padding: 15px;
-            }
-
-            .completed-card {
-                padding: 25px 20px;
-            }
-
-            .events-timeline::before {
-                display: none;
-            }
-
-            .timeline-item {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .timeline-date {
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                padding: 12px;
-            }
-
-            .timeline-date .month,
-            .timeline-date .day {
-                display: inline;
-                font-size: 1.2rem;
-            }
-
-            .timeline-content {
-                padding: 20px;
-            }
-
-            .timeline-content h3 {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Small Mobile */
-        @media (max-width: 575.98px) {
-            .section-title {
-                font-size: 1.5rem;
-            }
-
-            .event-date-badge .day {
-                font-size: 2rem;
-            }
-
-            .event-btn {
-                width: 100%;
-            }
-
-            .completed-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
+        .bhd-four-grid,
+        .bhd-simple-grid,
+        .bhd-step-list,
+        .bhd-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .bhd-event-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .bhd-event-card {
+        display: grid;
+        grid-template-columns: 78px minmax(0, 1fr);
+        gap: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-event-card:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-event-date {
+        width: 70px;
+        height: 76px;
+        border-radius: 18px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        display: grid;
+        place-items: center;
+        align-content: center;
+        text-align: center;
+    }
+
+    .bhd-event-date span {
+        display: block;
+        color: var(--brand);
+        font-size: 0.7rem;
+        font-weight: 950;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .bhd-event-date strong {
+        display: block;
+        color: var(--ink);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.7rem;
+        line-height: 1;
+        margin-top: 4px;
+    }
+
+    .bhd-event-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-event-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-event-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 850;
+        margin-top: 12px;
+    }
+
+    .bhd-project-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    @media (max-width: 575px) {
+        .bhd-event-card {
+            grid-template-columns: 1fr;
+        }
+
+        .bhd-project-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
+@include('barangay_system.partials.public_layout_start')
+
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker"><i class="fas fa-calendar-days"></i> {{ __('messages.blade_events_blade_community_updates') }}</span>
+                <h1>{{ __('messages.events_hero_title') }}</h1>
+                <p>{{ __('messages.blade_events_blade_browse_upcoming_events_ongoing_projects_completed_initi') }}</p>
+                <div class="bhd-page-actions">
+                    <a href="#upcoming-events" class="bhd-btn bhd-btn-primary"><i class="fas fa-calendar-check"></i> {{ __('messages.index_upcoming_events_title') }}</a>
+                    <a href="#projects" class="bhd-btn bhd-btn-soft"><i class="fas fa-diagram-project"></i> {{ __('messages.blade_events_blade_view_projects') }}</a>
                 </div>
             </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
+            <div class="bhd-hero-symbol"><i class="fas fa-calendar-days"></i></div>
+        </div>
+    </div>
+</section>
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
+<section class="bhd-section" id="upcoming-events">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.index_upcoming_events_title') }}</h2>
+                <p>{{ __('messages.blade_events_blade_mark_your_calendars_for_these_upcoming_community_activi') }}</p>
             </div>
         </div>
-    </nav>
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1><i class="fas fa-calendar-alt"></i> Events & Projects</h1>
-                <p>Stay updated with community events, ongoing projects, and upcoming activities in Barangay Hulong Duhat.</p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Upcoming Events</span>
+        <div class="bhd-event-list">
+            @forelse($upcomingEvents as $event)
+                <article class="bhd-event-card">
+                    <time class="bhd-event-date" datetime="{{ \Carbon\Carbon::parse($event->event_date)->toDateString() }}">
+                        <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
+                        <strong>{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</strong>
+                    </time>
+                    <div>
+                        <span class="bhd-status-pill"><i class="fas fa-calendar-check"></i> {{ __('messages.events_badge_upcoming') }}</span>
+                        <h3 class="mt-2">{{ $event->title }}</h3>
+                        <p>{{ \Illuminate\Support\Str::limit($event->description, 160) }}</p>
+                        <div class="bhd-event-meta">
+                            @if(!empty($event->location))<span><i class="fas fa-location-dot"></i> {{ $event->location }}</span>@endif
+                            @if(!empty($event->start_time))<span><i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}</span>@endif
+                        </div>
                     </div>
-                    <div class="stat">
-                        <i class="fas fa-tasks"></i>
-                        <span>Ongoing Projects</span>
+                </article>
+            @empty
+                <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_upcoming_events_are_posted_yet') }}</div>
+            @endforelse
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section bhd-section-muted" id="projects">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.events_stat_ongoing') }}</h2>
+                <p>{{ __('messages.blade_events_blade_current_initiatives_being_implemented_for_community_dev') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-project-grid">
+            @forelse($ongoingProjects as $project)
+                <article class="bhd-simple-card">
+                    <span class="bhd-card-icon"><i class="fas fa-spinner"></i></span>
+                    <span class="bhd-status-pill"><i class="fas fa-circle-notch"></i> {{ __('messages.events_badge_ongoing') }}</span>
+                    <h3 class="mt-3">{{ $project->title }}</h3>
+                    <p>{{ \Illuminate\Support\Str::limit($project->description, 170) }}</p>
+                    <div class="bhd-chip-list">
+                        @if(!empty($project->start_date))<span><i class="fas fa-calendar-alt"></i> Started: {{ $project->start_date }}</span>@endif
+                        @if(!empty($project->expected_completion))<span><i class="fas fa-flag-checkered"></i> Target: {{ $project->expected_completion }}</span>@endif
                     </div>
-                    <div class="stat">
-                        <i class="fas fa-check-double"></i>
-                        <span>Completed Initiatives</span>
+                </article>
+            @empty
+                <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_ongoing_projects_are_posted_yet') }}</div>
+            @endforelse
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.events_stat_completed') }}</h2>
+                <p>{{ __('messages.blade_events_blade_successfully_completed_initiatives_that_benefited_the_c') }}</p>
+            </div>
+        </div>
+
+        <div class="bhd-simple-grid">
+            @forelse($completedProjects as $project)
+                <article class="bhd-simple-card">
+                    <span class="bhd-card-icon"><i class="fas fa-check-circle"></i></span>
+                    <h3>{{ $project->title }}</h3>
+                    <p>{{ \Illuminate\Support\Str::limit($project->description, 150) }}</p>
+                    <div class="bhd-chip-list">
+                        @if(!empty($project->expected_completion))<span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>@endif
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="main-content" id="main-content">
-        <!-- Upcoming Events Section - row/grid already uses Bootstrap, ensure container -->
-        <section class="upcoming-events">
-            <div class="container">
-                <h2 class="section-title">Upcoming Events</h2>
-                <p class="section-subtitle">Mark your calendars for these upcoming community activities.</p>
-                
-                <div class="row g-4">
-                    @forelse($upcomingEvents as $event)
-                        <div class="col-lg-6 col-md-6">
-                            <div class="event-card">
-                                <div class="event-date-badge">
-                                    <span class="month">{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
-                                    <span class="day">{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</span>
-                                    <span class="year">{{ \Carbon\Carbon::parse($event->event_date)->format('Y') }}</span>
-                                </div>
-                                <div class="event-content">
-                                    <span class="event-category upcoming"><i class="fas fa-calendar-check"></i> Upcoming</span>
-                                    <h3>{{ $event->title }}</h3>
-                                    <p>{{ $event->description }}</p>
-                                    <div class="details">
-                                        <div class="detail">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <span>{{ $event->location }}</span>
-                                        </div>
-                                        <div class="detail">
-                                            <i class="fas fa-clock"></i>
-                                            <span>{{ $event->start_time }} - {{ $event->end_time }}</span>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="event-btn" data-bs-toggle="modal" data-bs-target="#upcomingEventModal{{ $event->id }}">
-                                        <i class="fas fa-info-circle"></i> View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="text-center py-5">
-                                <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ddd; margin-bottom: 15px; display: block;"></i>
-                                <p style="color: #999; font-size: 1.1rem;">No upcoming events available.</p>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
-        <!-- Ongoing Projects Section - Bootstrap row/grid already applied -->
-        <section class="ongoing-projects">
-            <div class="container">
-                <h2 class="section-title">Ongoing Projects</h2>
-                <p class="section-subtitle">Current initiatives being implemented for our community's development.</p>
-                
-                <div class="row g-4">
-                    @foreach($ongoingProjects as $project)
-                        <div class="col-lg-6">
-                            <div class="project-card">
-                                <div class="project-status ongoing">
-                                    <i class="fas fa-spinner fa-spin"></i> Ongoing
-                                </div>
-                                <div class="project-content">
-                                    <h3>{{ $project->title }}</h3>
-                                    <p>{{ $project->description }}</p>
-                                    <div class="project-info">
-                                        <div class="info-item">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span>Started: {{ $project->start_date }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <i class="fas fa-calendar-check"></i>
-                                            <span>Expected Completion: {{ $project->expected_completion }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <span>Location: {{ $project->location }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="progress-section">
-                                        <div class="progress-header">
-                                            <span>Progress</span>
-                                            <span>{{ $project->progress }}%</span>
-                                        </div>
-                                        <div class="progress-bar-custom">
-                                            <div class="progress-fill" style="width: {{ $project->progress }}%"></div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#ongoingProjectModal{{ $project->id }}">
-                                        <i class="fas fa-info-circle"></i> Learn More
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <!-- Completed Projects Section -->
-        <section class="completed-projects">
-            <div class="container">
-                <h2 class="section-title">Completed Projects</h2>
-                <p class="section-subtitle">Successfully completed initiatives that have benefited our community.</p>
-                
-                <div class="row g-4">
-                    @foreach($completedProjects as $project)
-                        <div class="col-lg-4 col-md-6">
-                            <div class="completed-card">
-                                <div class="completed-icon">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <h3>{{ $project->title }}</h3>
-                                <p>{{ \Illuminate\Support\Str::limit($project->description, 150) }}</p>
-                                <div class="completed-info">
-                                    <span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>
-                                </div>
-                                <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#completedProjectModal{{ $project->id }}">
-                                    <i class="fas fa-info-circle"></i> View Details
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <!-- Past Events Section -->
-        <section class="past-events">
-            <div class="container">
-                <h2 class="section-title">Past Events</h2>
-                <p class="section-subtitle">A look back at our recent community events and activities.</p>
-                
-                <div class="events-timeline">
-                    @foreach($pastEvents as $event)
-                        <div class="timeline-item">
-                            <div class="timeline-date">
-                                <span class="month">{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
-                                <span class="day">{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h3>{{ $event->title }}</h3>
-                                <p>{{ $event->description }}</p>
-                                @if($event->attendees)
-                                    <span class="attendees">
-                                        <i class="fas fa-users"></i> {{ $event->attendees }} Attendees
-                                    </span>
-                                @endif
-                                <button type="button" class="detail-btn" data-bs-toggle="modal" data-bs-target="#pastEventModal{{ $event->id }}">
-                                    <i class="fas fa-info-circle"></i> View Details
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    </main>
-
-    @foreach($upcomingEvents as $event)
-    <div class="modal fade info-modal" id="upcomingEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-calendar-check me-2"></i>{{ $event->title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ $event->description }}</p>
-                    <ul class="modal-info-list mt-3">
-                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Date:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</li>
-                        <li><i class="fas fa-clock me-2"></i><strong>Time:</strong> {{ $event->start_time }} - {{ $event->end_time }}</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $event->location }}</li>
-                        <li><i class="fas fa-tag me-2"></i><strong>Status:</strong> Upcoming</li>
-                    </ul>
-                </div>
-            </div>
+                </article>
+            @empty
+                <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_completed_projects_are_posted_yet') }}</div>
+            @endforelse
         </div>
     </div>
-    @endforeach
+</section>
 
-    @foreach($ongoingProjects as $project)
-    <div class="modal fade info-modal" id="ongoingProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-tasks me-2"></i>{{ $project->title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ $project->description }}</p>
-                    <ul class="modal-info-list mt-3">
-                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Start Date:</strong> {{ $project->start_date }}</li>
-                        <li><i class="fas fa-calendar-check me-2"></i><strong>Expected Completion:</strong> {{ $project->expected_completion }}</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $project->location }}</li>
-                        <li><i class="fas fa-chart-line me-2"></i><strong>Progress:</strong> {{ $project->progress }}%</li>
-                        <li><i class="fas fa-spinner me-2"></i><strong>Status:</strong> Ongoing</li>
-                    </ul>
-                </div>
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.events_past_title') }}</h2>
+                <p>{{ __('messages.blade_events_blade_a_look_back_at_recent_community_events_and_activities') }}</p>
             </div>
         </div>
-    </div>
-    @endforeach
 
-    @foreach($completedProjects as $project)
-    <div class="modal fade info-modal" id="completedProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>{{ $project->title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ $project->description }}</p>
-                    <ul class="modal-info-list mt-3">
-                        <li><i class="fas fa-calendar-check me-2"></i><strong>Completed On:</strong> {{ $project->expected_completion }}</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $project->location ?? 'Barangay Hulong Duhat' }}</li>
-                        <li><i class="fas fa-flag-checkered me-2"></i><strong>Status:</strong> Completed</li>
-                    </ul>
-                </div>
-            </div>
+        <div class="bhd-event-list">
+            @forelse($pastEvents as $event)
+                <article class="bhd-event-card">
+                    <time class="bhd-event-date" datetime="{{ \Carbon\Carbon::parse($event->event_date)->toDateString() }}">
+                        <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M') }}</span>
+                        <strong>{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</strong>
+                    </time>
+                    <div>
+                        <span class="bhd-status-pill"><i class="fas fa-history"></i> {{ __('messages.blade_events_blade_past_event') }}</span>
+                        <h3 class="mt-2">{{ $event->title }}</h3>
+                        <p>{{ \Illuminate\Support\Str::limit($event->description, 160) }}</p>
+                        <div class="bhd-event-meta">
+                            @if(!empty($event->attendees))<span><i class="fas fa-users"></i> {{ __('messages.blade_events_count_attendees', ['count' => $event->attendees]) }}</span>@endif
+                            @if(!empty($event->location))<span><i class="fas fa-location-dot"></i> {{ $event->location }}</span>@endif
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_past_events_are_posted_yet') }}</div>
+            @endforelse
         </div>
     </div>
-    @endforeach
+</section>
 
-    @foreach($pastEvents as $event)
-    <div class="modal fade info-modal" id="pastEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-history me-2"></i>{{ $event->title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ $event->description }}</p>
-                    <ul class="modal-info-list mt-3">
-                        <li><i class="fas fa-calendar-alt me-2"></i><strong>Date:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i><strong>Location:</strong> {{ $event->location }}</li>
-                        @if($event->attendees)
-                        <li><i class="fas fa-users me-2"></i><strong>Attendees:</strong> {{ $event->attendees }}</li>
-                        @endif
-                        <li><i class="fas fa-flag me-2"></i><strong>Status:</strong> Completed Event</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endforeach
-
-    </div>
-
-    @include('barangay_system.partials.fab_footer')
-
-  
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    <script src="{{ asset('js/faq.js') }}"></script>
-</body>
-</html>
+@include('barangay_system.partials.public_layout_end')

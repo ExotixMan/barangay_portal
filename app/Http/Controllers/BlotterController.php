@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\BlotterReport;
 use App\Models\Witness;
 use App\Models\ReportFile;
+use App\Support\NotifiesAdmins;
 
 class BlotterController extends Controller
 {
+    use NotifiesAdmins;
+
     public function index()
     {
         if (session('submitted_application')) {
@@ -97,6 +100,15 @@ class BlotterController extends Controller
             $this->uploadFiles($request, $report);
 
             DB::commit();
+
+            $this->notifyAdminsOfSubmission(
+                category: 'incident',
+                title: 'New incident report',
+                message: $report->complainant_name . ' submitted ' .
+                    $report->report_type . ' (' . $reference . ').',
+                url: route('admin.blotter.index', ['highlight' => $report->id]),
+                icon: 'fas fa-triangle-exclamation',
+            );
 
             $complaint_name = $request->complainantName;
             $date_submitted = now()->format('F d, Y');

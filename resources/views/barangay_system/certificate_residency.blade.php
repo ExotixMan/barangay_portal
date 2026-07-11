@@ -1,745 +1,534 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Barangay Hulong Duhat · Certificate of Residency</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/faq.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/hero.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+@php
+    $pageTitle = 'Certificate of Residency';
+    $activePage = 'residency';
+@endphp
+
+@push('styles')
+<style>
+
+    .bhd-page-hero {
+        padding: 58px 0 30px;
+    }
+
+    .bhd-page-hero-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: clamp(24px, 4vw, 42px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-page-hero-card::before {
+        content: '';
+        position: absolute;
+        inset: -140px auto auto -120px;
+        width: 330px;
+        height: 330px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        pointer-events: none;
+    }
+
+    .bhd-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        width: fit-content;
+        margin-bottom: 16px;
+        padding: 7px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 950;
+    }
+
+    .bhd-page-hero-card h1 {
+        position: relative;
+        z-index: 1;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 0 0 16px;
+        color: var(--ink);
+        max-width: 790px;
+    }
+
+    .bhd-page-hero-card p {
+        position: relative;
+        z-index: 1;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.5vw, 1.1rem);
+        margin: 0;
+    }
+
+    .bhd-page-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .bhd-hero-symbol {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        border: 1px dashed var(--line-strong);
+        background: var(--surface-soft);
+        color: var(--brand);
+        font-size: 3rem;
+    }
+
+    .bhd-simple-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-four-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-two-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .bhd-simple-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-simple-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+        box-shadow: 0 16px 36px rgba(184, 50, 42, 0.09);
+    }
+
+    .bhd-simple-card h3 {
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+        line-height: 1.25;
+    }
+
+    .bhd-simple-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .bhd-card-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-bottom: 16px;
+    }
+
+    .bhd-chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .bhd-chip-list span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.76rem;
+        font-weight: 900;
+    }
+
+    .bhd-step-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        counter-reset: step;
+    }
+
+    .bhd-step-card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .bhd-step-card::before {
+        counter-increment: step;
+        content: counter(step, decimal-leading-zero);
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        color: var(--brand);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 950;
+    }
+
+    .bhd-step-card h3 {
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 950;
+        margin: 0 0 7px;
+    }
+
+    .bhd-step-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin: 0;
+    }
+
+    .bhd-info-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .bhd-info-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+    }
+
+    .bhd-info-row i {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-info-row strong {
+        display: block;
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 950;
+    }
+
+    .bhd-info-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 1px;
+    }
+
+    .bhd-form-card,
+    .bhd-table-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: clamp(20px, 3vw, 30px);
+        box-shadow: var(--shadow);
+    }
+
+    .bhd-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .bhd-form-group {
+        display: grid;
+        gap: 8px;
+    }
+
+    .bhd-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .bhd-form-group label {
+        color: var(--ink);
+        font-size: 0.88rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bhd-form-control {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-soft);
+        color: var(--ink);
+        padding: 11px 13px;
+        font: inherit;
+        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-form-control:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent);
+    }
+
+    .bhd-alert {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .bhd-alert.danger {
+        border-color: color-mix(in srgb, #dc2626 28%, var(--line));
+        background: color-mix(in srgb, #dc2626 9%, var(--surface));
+        color: #b91c1c;
+    }
+
+    .bhd-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 0.76rem;
+        font-weight: 950;
+        width: fit-content;
+    }
+
+    .bhd-table-wrap {
+        overflow-x: auto;
+    }
+
+    .bhd-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+    .bhd-table th,
+    .bhd-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+        vertical-align: middle;
+    }
+
+    .bhd-table th {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: var(--surface-soft);
+    }
+
+    .bhd-table td strong {
+        color: var(--ink);
+    }
+
+    .bhd-filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .bhd-filter-btn {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .bhd-filter-btn:hover,
+    .bhd-filter-btn.active {
+        border-color: var(--brand);
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-modal-card {
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        background: var(--surface);
+        color: var(--ink);
+    }
+
+    .bhd-modal-card .modal-header {
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+    }
+
+    .bhd-modal-card .modal-title {
+        font-weight: 950;
+        color: var(--ink);
+    }
+
+    @media (max-width: 1024px) {
+        .bhd-four-grid,
+        .bhd-step-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
-            background: #fff;
+        .bhd-simple-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .bhd-page-hero-card,
+        .bhd-two-grid {
+            grid-template-columns: 1fr;
         }
 
-        /* PROCESS STEPS */
-        .process-steps {
-            padding: 80px 0;
-            background: #f8f9fa;
-            position: relative;
+        .bhd-hero-symbol {
+            width: 110px;
+            height: 110px;
+            font-size: 2.3rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .bhd-page-hero {
+            padding-top: 36px;
+        }
+
+        .bhd-page-hero-card {
+            border-radius: 24px;
+            padding: 22px;
+        }
+
+        .bhd-page-actions .bhd-btn,
+        .bhd-report-band .bhd-btn,
+        .bhd-form-card .bhd-btn {
             width: 100%;
         }
 
-        .process-steps-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
+        .bhd-four-grid,
+        .bhd-simple-grid,
+        .bhd-step-list,
+        .bhd-form-grid {
+            grid-template-columns: 1fr;
         }
+    }
 
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #C62828;
-        }
+</style>
+@endpush
 
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-        }
+@include('barangay_system.partials.public_layout_start')
 
-        .step-card {
-            background: white;
-            border-radius: 15px;
-            padding: 35px 25px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .step-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.15);
-            border-color: #C62828;
-        }
-
-        .step-number {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #C62828;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .step-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .step-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .step-card p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* === REQUIREMENTS SECTION – two column grid, exact copy of clearance style === */
-        .requirements-section {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .requirements-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-        }
-
-        .requirements-card, .info-card {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .requirements-card:hover, .info-card:hover {
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.1);
-            border-color: rgba(198, 40, 40, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .card-header i {
-            font-size: 2rem;
-            color: #C62828;
-        }
-
-        .requirements-card h2, .info-card h2 {
-            font-size: 1.8rem;
-            color: #C62828;
-            margin: 0;
-        }
-
-        .requirements-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .requirement-item {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-
-        .requirement-item i {
-            color: #4CAF50;
-            font-size: 1.2rem;
-            margin-top: 3px;
-            flex-shrink: 0;
-        }
-
-        .requirement-content h4 {
-            color: #333;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .requirement-content p, .id-list li {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .id-list {
-            list-style: none;
-            margin: 10px 0 0;
-            padding: 0;
-        }
-
-        .id-list li {
-            padding: 3px 0 3px 15px;
-            position: relative;
-        }
-
-        .id-list li::before {
-            content: "•";
-            color: #C62828;
-            position: absolute;
-            left: 0;
-        }
-
-        .info-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .info-item {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-
-        .info-item i {
-            color: #C62828;
-            font-size: 1.2rem;
-            margin-top: 3px;
-        }
-
-        .info-item h4 {
-            font-size: 1.1rem;
-            color: #333;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .info-item p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .emergency-notice {
-            background: rgba(198, 40, 40, 0.1);
-            border: 1px solid rgba(198, 40, 40, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .emergency-notice i {
-            color: #C62828;
-            font-size: 1.2rem;
-        }
-
-        .emergency-notice p {
-            color: #C62828;
-            font-weight: 500;
-            margin: 0;
-        }
-
-        /* === APPLICATION FORM SECTION — same full-width style, apply button exactly as clearance === */
-        .application-form-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
-
-        .application-form-section .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .form-header h2 {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .form-header p {
-            color: #666;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Big red apply button – exact same as clearance */
-        .btn-apply-now {
-            display: inline-block;
-            padding: 20px 50px;
-            background: #C62828;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(198, 40, 40, 0.3);
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-apply-now i {
-            margin-right: 10px;
-        }
-
-        .btn-apply-now:hover {
-            background: #b71c1c;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(198, 40, 40, 0.4);
-        }
-
-        /* RESPONSIVE GRID */
-        @media (max-width: 1366px) {
-            .container { 
-                max-width: 1280px; padding: 0 25px; 
-            }
-            .content-grid { 
-                gap: 30px; 
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .steps-container { 
-                grid-template-columns: repeat(2, 1fr); 
-            }
-        }
-
-        @media (max-width: 992px) {
-            .content-grid { 
-                grid-template-columns: 1fr; 
-            }
-            .steps-container { 
-                gap: 20px; 
-            }
-        }
-
-        @media (max-width: 768px) {
-            .steps-container { 
-                grid-template-columns: 1fr; 
-            }
-            .form-header h2 { 
-                font-size: 2rem; 
-                flex-direction: column; 
-                gap: 10px; 
-            }
-        }
-
-        @media (max-width: 576px) {
-            .process-steps, 
-            .requirements-section, 
-            .application-form-section { 
-                padding: 60px 0; 
-            }
-            .container { 
-                padding: 0 15px; 
-            }
-        }
-        
-        .hidden-form-dummy { 
-            display: none; 
-        }
-
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">Barangay</span>
-                    <span class="logo-subtitle d-block">Hulong Duhat Portal</span>
-                </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">Hulong Duhat</span>
-                </div>
-            </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> About
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> History</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> Mission/Vision</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> Barangay Map</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> Barangay Officials</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> Services
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> Barangay Clearance</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> Certificate of Residency</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> Certificate of Indigency</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> Track Request</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> Community
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> Announcements</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> Events/Projects</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> Report
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> Incident Report</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> Contact</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}"
-                                        onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> Log In
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- HERO SECTION  -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1><i class="fas fa-house-user bigicon"></i> Certificate of Residency</h1>
+<section class="bhd-page-hero">
+    <div class="bhd-shell">
+        <div class="bhd-page-hero-card">
+            <div>
+                <span class="bhd-page-kicker"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</span>
+                <h1>{{ __('messages.nav_certificate_residency') }}</h1>
                 <p>{{ __('messages.residency_hero_subtitle') }}</p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <i class="fas fa-clock"></i>
-                        <span>Processing: 1-3 Business Days</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-peso-sign"></i>
-                        <span>Fee: Free</span>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Walk‑in pickup or authorize</span>
-                    </div>
+                <div class="bhd-page-actions">
+                    <a href="{{ route('residency.form') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-file-circle-plus"></i> {{ __('messages.residency_apply_btn') }}</a>
+                    <a href="{{ route('track_request') }}" class="bhd-btn bhd-btn-soft"><i class="fas fa-magnifying-glass"></i> {{ __('messages.nav_track_request') }}</a>
                 </div>
+            </div>
+            <div class="bhd-hero-symbol"><i class="fas fa-house-user"></i></div>
+        </div>
+    </div>
+</section>
+
+<section class="bhd-section">
+    <div class="bhd-shell">
+        <div class="bhd-section-head">
+            <div>
+                <h2>{{ __('messages.residency_steps_title') }}</h2>
+                <p>{{ __('messages.blade_certificate_residency_blade_request_proof_of_residency_with_clear_requirements_and_') }}</p>
             </div>
         </div>
-    </section>
 
-    <!-- MAIN CONTENT – exactly same layout as clearance -->
-    <main class="main-content" id="main-content">
-        
-        <!-- PROCESS STEPS (4 steps) – full width, exact duplicate of clearance style -->
-        <section class="process-steps">
-            <div class="process-steps-content">
-                <h2 class="section-title">{{ __('messages.residency_steps_title') }}</h2>
-                <div class="steps-container">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon"><i class="fas fa-user-edit"></i></div>
-                        <h3>{{ __('messages.residency_step1_title') }}</h3>
-                        <p>{{ __('messages.residency_step1_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon"><i class="fas fa-file-upload"></i></div>
-                        <h3>{{ __('messages.residency_step2_title') }}</h3>
-                        <p>{{ __('messages.residency_step2_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon"><i class="fas fa-credit-card"></i></div>
-                        <h3>{{ __('messages.residency_step3_title') }}</h3>
-                        <p>{{ __('messages.residency_step3_desc') }}</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon"><i class="fas fa-file-download"></i></div>
-                        <h3>{{ __('messages.residency_step4_title') }}</h3>
-                        <p>{{ __('messages.residency_step4_desc') }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- REQUIREMENTS + INFO CARDS – two column grid, identical to clearance -->
-        <section class="requirements-section">
-            <div class="container">
-                <div class="content-grid">
-                    <!-- LEFT: requirements card -->
-                    <div class="requirements-card">
-                        <div class="card-header">
-                            <i class="fas fa-clipboard-list"></i>
-                            <h2>{{ __('messages.residency_requirements_title') }}</h2>
-                        </div>
-                        <div class="requirements-list">
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Valid ID (Any of the following)</h4>
-                                    <ul class="id-list">
-                                        <li>Philippine Passport</li>
-                                        <li>Driver's License</li>
-                                        <li>UMID Card</li>
-                                        <li>Postal ID</li>
-                                        <li>Voter's ID</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Proof of Residency</h4>
-                                    <p>Latest utility bill (electricity, water, or internet) or Barangay Certificate of Residency</p>
-                                </div>
-                            </div>
-                            <div class="requirement-item">
-                                <i class="fas fa-check-circle"></i>
-                                <div class="requirement-content">
-                                    <h4>Registered Barangay Hulo Resident</h4>
-                                    <p>Provide Barangay ID or Voter's ID with Barangay Hulo address</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- RIGHT: info card -->
-                    <div class="info-card">
-                        <div class="card-header">
-                            <i class="fas fa-info-circle"></i>
-                            <h2>{{ __('messages.residency_important_info_title') }}</h2>
-                        </div>
-                        <div class="info-content">
-                            <div class="info-item">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <div>
-                                    <h4>Processing & Validity</h4>
-                                    <p>1-3 business days verification. Certificate valid for 6 months.</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <h4>Office Hours</h4>
-                                    <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-file-signature"></i>
-                                <div>
-                                    <h4>No proof? No problem</h4>
-                                    <p>Two barangay officials can vouch for your residency. Visit hall for assistance.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="emergency-notice">
-                            <i class="fas fa-bell"></i>
-                            <p>For urgent concerns, visit the barangay hall during office hours</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- APPLICATION SECTION – BIG RED BUTTON, exactly like clearance "Ready to Apply?" -->
-        <section class="application-form-section" id="apply-form">
-            <div class="container">
-                <div class="form-header">
-                    <h2><i class="fas fa-file-signature"></i> {{ __('messages.residency_apply_title') }}</h2>
-                    <p>{{ __('messages.residency_apply_subtitle') }}</p>
-                </div>
-                <div class="apply-button-container" style="text-align: center; padding: 40px 20px;">
-                    <a href="{{ route('residency.form')}}" class="btn-apply-now">
-                        <i class="fas fa-house-user"></i> {{ __('messages.residency_apply_btn') }}
-                    </a>
-                    <p style="margin-top: 20px; color: #666; font-size: 0.95rem;">
-                        <i class="fas fa-clock"></i> Processing Time: 1-3 Business Days · Fee: Free
-                    </p>
-                </div>
-                <div style="display: none;"></div>
-            </div>
-        </section>
-
-        <!-- FAQ SECTION  -->
-        <section class="faq-section">
-            <div class="container">
-                <h2 class="section-title">Frequently Asked Questions</h2>
-                <div class="faq-container">
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>How long is the Certificate of Residency valid?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>The certificate is valid for six (6) months from the date of issuance. Some offices may require one issued within the last 3 months.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>I'm renting, can I still apply?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Absolutely. Just present your lease contract or any utility bill under your name. If bills are under the owner's name, an authorization letter will suffice.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>What if I don't have any bill or ID under my name?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Two barangay officials or your landlord can vouch for you. Please visit the barangay hall to process an affidavit of residency.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question">
-                            <span>Can a representative pick up the certificate?</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes, with an authorization letter, photocopy of your valid ID, and the representative's valid ID. Don't forget the reference number.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+        <div class="bhd-step-list">
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-clipboard-list"></i></span><h3>{{ __('messages.residency_step1_title') }}</h3><p>{{ __('messages.residency_step1_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-location-dot"></i></span><h3>{{ __('messages.residency_step2_title') }}</h3><p>{{ __('messages.residency_step2_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-user-check"></i></span><h3>{{ __('messages.residency_step3_title') }}</h3><p>{{ __('messages.residency_step3_desc') }}</p></article>
+            <article class="bhd-step-card"><span class="bhd-card-icon"><i class="fas fa-bell"></i></span><h3>{{ __('messages.residency_step4_title') }}</h3><p>{{ __('messages.residency_step4_desc') }}</p></article>
+        </div>
     </div>
+</section>
 
-    @include('barangay_system.partials.fab_footer')
+<section class="bhd-section bhd-section-muted">
+    <div class="bhd-shell bhd-two-grid">
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-list-check"></i></span>
+            <h3>{{ __('messages.residency_requirements_title') }}</h3>
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_upload_or_present_a_clear_valid_identification_card') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.register_address_label') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_include_house_number_street_purok_and_landmark_if_neede') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-check"></i><div><strong>{{ __('messages.residency_form_step2_label') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_provide_information_needed_to_verify_your_residency') }}</span></div></div>
+            </div>
+        </article>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <article class="bhd-simple-card">
+            <span class="bhd-card-icon"><i class="fas fa-circle-info"></i></span>
+            <h3>{{ __('messages.residency_important_info_title') }}</h3>
+            <div class="bhd-info-list mt-3">
+                <div class="bhd-info-row"><i class="fas fa-map"></i><div><strong>{{ __('messages.blade_certificate_residency_blade_barangay_coverage') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_this_certificate_is_for_residents_of_barangay_hulong_du') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-clock"></i><div><strong>{{ __('messages.blade_certificate_residency_blade_review_process') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_staff_may_verify_address_and_identity_details_before_ap') }}</span></div></div>
+                <div class="bhd-info-row"><i class="fas fa-magnifying-glass"></i><div><strong>{{ __('messages.blade_certificate_residency_blade_tracking') }}</strong><span>{{ __('messages.blade_certificate_residency_blade_use_your_reference_number_to_check_request_status_anyti') }}</span></div></div>
+            </div>
+        </article>
+    </div>
+</section>
 
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
-    <script src="{{ asset('js/faq.js') }}"></script>
-</body>
-</html>
+<section class="bhd-section" id="apply-form">
+    <div class="bhd-shell">
+        <div class="bhd-report-band">
+            <div>
+                <h2>{{ __('messages.residency_apply_title') }}</h2>
+                <p>{{ __('messages.residency_apply_subtitle') }}</p>
+                <div class="bhd-tags"><span>{{ __('messages.blade_certificate_residency_blade_proof_of_residency') }}</span><span>{{ __('messages.blade_certificate_residency_blade_address_details') }}</span><span>{{ __('messages.blade_certificate_residency_blade_online_request') }}</span><span>{{ __('messages.blade_certificate_indigency_blade_status_tracking') }}</span></div>
+            </div>
+            <a href="{{ route('residency.form') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-house-user"></i> {{ __('messages.residency_apply_btn') }}</a>
+        </div>
+    </div>
+</section>
+
+@include('barangay_system.partials.public_layout_end')

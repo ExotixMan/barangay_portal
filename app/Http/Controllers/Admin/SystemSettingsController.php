@@ -48,8 +48,8 @@ class SystemSettingsController extends Controller
             'general.contact_email' => ['required', 'email', 'max:150'],
             'general.contact_phone' => ['required', 'string', 'max:40'],
             'general.website' => ['nullable', 'url', 'max:255'],
-            'general.primary_color' => ['required', 'string', 'max:20'],
-            'general.secondary_color' => ['required', 'string', 'max:20'],
+            'general.primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'general.secondary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
 
             /*
             |--------------------------------------------------------------------------
@@ -123,6 +123,16 @@ class SystemSettingsController extends Controller
         */
         $validated['security']['captcha_enabled'] = $request->boolean('security.captcha_enabled');
         $validated['security']['login_otp_enabled'] = $request->boolean('security.login_otp_enabled');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Normalize Theme Colors
+        |--------------------------------------------------------------------------
+        |
+        | Store one predictable six-digit hex format for the shared CSS variables.
+        */
+        $validated['general']['primary_color'] = strtolower($validated['general']['primary_color']);
+        $validated['general']['secondary_color'] = strtolower($validated['general']['secondary_color']);
 
         $validated = $this->removeBlankSecretInputs($validated);
 

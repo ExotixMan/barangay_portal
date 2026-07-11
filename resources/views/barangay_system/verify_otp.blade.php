@@ -200,26 +200,26 @@
             $otpPurpose = session('otp_purpose', 'login');
             $cooldownSeconds = (int) ($otpCooldownSeconds ?? 0);
         @endphp
-        <div class="otp-badge">OTP Verification</div>
+        <div class="otp-badge">{{ __('messages.blade_verify_otp_blade_otp_verification') }}</div>
 
         <h3 class="otp-title">
             @if ($otpPurpose === 'register')
-                {{ __('Verify your mobile number') }}
+                {{ __('messages.blade_otp_verify_your_mobile_number') }}
             @else
-                {{ __('Enter OTP to Login') }}
+                {{ __('messages.blade_otp_enter_otp_to_login') }}
             @endif
         </h3>
 
         <p class="otp-subtitle">
             @if ($otpPurpose === 'register')
-                {{ __('We sent a 6-digit code to your mobile number. Enter it below to verify your number and complete registration.') }}
+                {{ __('messages.blade_otp_we_sent_a_6_digit_code_to_your_mobile_number_enter_it_belo') }}
             @else
-                {{ __('A 6-digit OTP was sent to your mobile number. Enter it below to continue logging in.') }}
+                {{ __('messages.blade_otp_a_6_digit_otp_was_sent_to_your_mobile_number_enter_it_belo') }}
             @endif
         </p>
 
         @if(!empty($maskedContact))
-            <p class="otp-contact">Sent to: <strong>{{ $maskedContact }}</strong></p>
+            <p class="otp-contact">{{ __('messages.blade_verify_otp_blade_sent_to') }} <strong>{{ $maskedContact }}</strong></p>
         @endif
 
         @if (session('success'))
@@ -237,34 +237,34 @@
             <input type="hidden" name="resident_id" value="{{ session('resident_id') }}">
 
             <div>
-                <label for="otp" class="otp-label">One-Time Password</label>
+                <label for="otp" class="otp-label">{{ __('messages.blade_verify_otp_blade_one_time_password') }}</label>
                 <input
                     id="otp"
                     type="text"
                     name="otp"
                     class="otp-input"
-                    placeholder="Enter 6-digit OTP"
+                    placeholder="{{ __('messages.otp_placeholder') }}"
                     maxlength="6"
                     required
                     autocomplete="one-time-code"
                     inputmode="numeric"
                     value="{{ old('otp') }}"
                 >
-                <div class="otp-help">OTP expires in 5 minutes from the last sent code.</div>
+                <div class="otp-help">{{ __('messages.blade_verify_otp_blade_otp_expires_in_5_minutes_from_the_last_sent_code') }}</div>
                 @error('otp')
                     <div class="otp-status error show mt-2">{{ $message }}</div>
                 @enderror
             </div>
 
 
-            <button type="submit" class="otp-btn">Verify</button>
+            <button type="submit" class="otp-btn">{{ __('messages.blade_verify_otp_blade_verify') }}</button>
         </form>
 
         <div class="resend-wrap">
             <button type="button" id="resendBtn" class="btn btn-link p-0" onclick="resendOtp()" disabled>
-                Resend OTP (<span id="countdown">05:00</span>)
+                {{ __('messages.blade_verify_otp_blade_resend_otp') }}<span id="countdown">05:00</span>)
             </button>
-            <div class="resend-note">You can request a new code only after the timer ends.</div>
+            <div class="resend-note">{{ __('messages.blade_verify_otp_blade_you_can_request_a_new_code_only_after_the_timer_ends') }}</div>
         </div>
     </div>
 
@@ -314,7 +314,7 @@
             }
 
             resendBtn.disabled = true;
-            showStatus('Sending a new OTP...', 'success');
+            showStatus(@json(__('messages.blade_otp_sending_new_otp')), 'success');
 
             fetch("{{ route('otp.resend') }}", {
                 method: 'POST',
@@ -326,7 +326,7 @@
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
-                    const error = new Error(data.message || 'Failed to resend OTP.');
+                    const error = new Error(data.message || @json(__('messages.blade_js_failed_to_resend_otp')));
                     error.retryAfter = Number(data.retry_after || 0);
                     throw error;
                 }
@@ -342,7 +342,7 @@
                         updateResendUi();
                     }
                 }, 1000);
-                showStatus(data.success || 'A new OTP has been sent.', 'success');
+                showStatus(data.success || @json(__('messages.blade_js_a_new_otp_has_been_sent')), 'success');
             })
             .catch((error) => {
                 if (error.retryAfter && error.retryAfter > 0) {
@@ -351,7 +351,7 @@
                 } else {
                     resendBtn.disabled = false;
                 }
-                showStatus(error.message || 'Failed to resend OTP. Please try again.', 'error');
+                showStatus(error.message || @json(__('messages.blade_js_failed_to_resend_otp_please_try_again')), 'error');
             });
         }
     </script>

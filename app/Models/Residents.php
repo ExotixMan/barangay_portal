@@ -26,13 +26,16 @@ class Residents extends Authenticatable implements MustVerifyEmail
         'email',
         'address',
         'birthdate',
+        'gender',
+        'civil_status',
+        'place_of_birth',
         'contact',
         'username',
         'password',
 
         // Valid ID scanner files
-        'valid_id',          // Front ID
-        'valid_id_back',     // Back ID
+        'valid_id',
+        'valid_id_back',
 
         // Admin verification
         'valid_id_verified',
@@ -86,7 +89,7 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
     public function getHasCompleteValidIdAttribute()
     {
-        return !empty($this->valid_id) && !empty($this->valid_id_back);
+        return ! empty($this->valid_id) && ! empty($this->valid_id_back);
     }
 
     public function sendEmailVerificationNotification()
@@ -101,7 +104,7 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
     public function getAgeAttribute()
     {
-        if (!$this->birthdate) {
+        if (! $this->birthdate) {
             return null;
         }
 
@@ -111,5 +114,14 @@ class Residents extends Authenticatable implements MustVerifyEmail
     public function activities()
     {
         return $this->hasMany(ResidentActivity::class);
+    }
+
+    public function profileCorrectionConcerns()
+    {
+        return $this->hasMany(
+            ResidentProfileCorrectionConcern::class,
+            'resident_id',
+            'id'
+        )->latest();
     }
 }

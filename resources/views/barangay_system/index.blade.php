@@ -1,1660 +1,312 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Hulong Duhat - Home</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    
-
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/floating-actions.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            scroll-behavior: smooth;
-        }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('Images/homepage-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            position: relative;
-            padding-top: 80px;
-        }
-
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: white;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-            animation: slideUp 0.8s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-content p {
-            font-size: 1.3rem;
-            margin-bottom: 40px;
-            color: rgba(255,255,255,0.9);
-            animation: slideUp 1s ease;
-        }
-
-        .hero-actions {
-            margin-bottom: 60px;
-            animation: slideUp 1.2s ease;
-        }
-
-        .get-started-btn {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            padding: 18px 40px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .get-started-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(198, 40, 40, 0.6);
-        }
-
-        /* Quick Stats */
-        .quick-stats {
-            animation: slideUp 1.4s ease;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-item i {
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.8);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Quick Access Section */
-        .quick-access {
-            background: #f8f9fa;
-            padding: 80px 0;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #C62828;
-            margin-bottom: 50px;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: #C62828;
-            border-radius: 2px;
-        }
-
-        .quick-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-decoration: none;
-            color: #333;
-            text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin-bottom: 25px;
-        }
-
-        .quick-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(198, 40, 40, 0.15);
-            text-decoration: none;
-            color: #333;
-        }
-
-        .quick-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: #C62828;
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .quick-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .quick-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .quick-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #C62828;
-        }
-
-        .quick-card p {
-            font-size: 0.95rem;
-            color: #666;
-            margin-bottom: 15px;
-            flex-grow: 1;
-        }
-
-        .quick-badge {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: auto;
-        }
-
-        /* About Section */
-        .about-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 100px 0;
-        }
-
-        .about-section .container {
-            background: white;
-            border-radius: 25px;
-            padding: 60px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            border: 1px solid #f0f0f0;
-        }
-
-        .text-content h2 {
-            font-size: 2.8rem;
-            color: #C62828;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
-
-        .text-content p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #555;
-            margin-bottom: 30px;
-        }
-
-        .feature-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .feature-item i {
-            color: #C62828;
-            font-size: 1.2rem;
-        }
-
-        .snc-links {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin: 20px 0 0px 30px;
-        }
-
-        .section-links {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .section-btn {
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .section-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(198, 40, 40, 0.3);
-            color: white;
-            text-decoration: none;
-        }
-
-        .section-image {
-            width: 100%;
-            height: 350px;
-            object-fit: cover;
-            border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-
-        .image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;   
-            background: linear-gradient(135deg, #C62828, #d32f2f);
-            color: white;
-            padding: 5px 35px;
-            border-radius: 0 0 20px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .image-overlay p {
-            margin: 0;
-        }
-
-        /* Services & Community Cards */
-        .services-community {
-            background: #C62828;
-            padding: 100px 0;
-        }
-
-        .card-hover {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin-bottom: 30px;
-        }
-
-        .service-card,
-        .community-card {
-            background: white;
-            border-radius: 15px;
-            padding: 35px;
-            border: 1px solid #e8e8e8;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: 100%;
-            min-height: 480px;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 0;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .service-card .card-header,
-        .community-card .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 0;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .card-icon {
-            font-size: 2rem;
-            color: #C62828;
-            background: linear-gradient(135deg, rgba(198, 40, 40, 0.1), rgba(198, 40, 40, 0.05));
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .service-card h2,
-        .community-card h2 {
-            font-size: 1.8rem;
-            color: #C62828;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .service-card > p,
-        .community-card > p {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin: 0;
-            flex-shrink: 0;
-        }
-
-        .service-list,
-        .community-highlights {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .service-list {
-            list-style: none;
-            margin: 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .service-list li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
-        .service-list li i {
-            color: #4CAF50;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .community-highlights {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .highlight {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #555;
-            font-size: 0.95rem;
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            border-left: 3px solid #C62828;
-        }
-
-        .highlight i {
-            color: #C62828;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .highlight span {
-            flex: 1;
-        }
-
-        /* Make links consistent at bottom */
-        .snc-links {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-top: auto;
-            padding-top: 10px;
-            display: inline-block;
-        }
-
-        /* Announcements & Events Section */
-        .announcements-events {
-            background: linear-gradient(135deg, #C62828 0%, #d32f2f 100%);
-            padding: 100px 0;
-        }
-
-        .announcements-events .container {
-            background: white;
-            border-radius: 25px;
-            padding: 60px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .ann {
-            color: #333;
-        }
-
-        .latann {
-            color: #C62828;
-            font-size: 2.5rem;
-            text-decoration: underline;
-            margin: 0;
-        }
-
-        .view-all {
-            color: #C62828;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .view-all:hover {
-            gap: 12px;
-            color: #C62828;
-            text-decoration: none;
-        }
-
-        .announcement-counter,
-        .events-counter {
-            background: #C62828;
-            color: white;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .announcement-carousel,
-        .events-carousel {
-            position: relative;
-        }
-
-        .announcement-carousel .carousel-inner,
-        .events-carousel .carousel-inner {
-            background: transparent;
-        }
-
-        .announcement-grid,
-        .events-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            min-height: 550px;
-        }
-
-        .announcement-item {
-            border: 1px solid #eee;
-            border-radius: 15px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            height: auto;
-            min-height: 160px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .announcement-item:hover {
-            border-color: #C62828;
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.1);
-        }
-
-        .announcement-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .date {
-            color: #C62828;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .announcement-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(198, 40, 40, 0.1);
-            color: #C62828;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .announcement-badge.important {
-            background: rgba(244, 67, 54, 0.1);
-            color: #F44336;
-        }
-
-        .announcement-badge.events {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
-        }
-
-        .announcement-badge.health {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-        }
-
-        .announcement-badge.services {
-            background: rgba(255, 152, 0, 0.1);
-            color: #FF9800;
-        }
-
-        .announcement-badge.infrastructure {
-            background: rgba(156, 39, 176, 0.1);
-            color: #9C27B0;
-        }
-
-        .announcement-item h3 {
-            color: #333;
-            font-size: 1.2rem; /* Increased font size */
-            margin: 8px 0;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible;
-            text-overflow: clip;
-            line-height: 1.4;
-        }
-
-        .announcement-item p {
-            color: #666;
-            font-size: 0.95rem;
-            margin: 0 0 10px 0;
-            display: block; /* Remove webkit clamping */
-            -webkit-line-clamp: unset;
-            -webkit-box-orient: unset;
-            overflow: visible;
-            line-height: 1.5;
-            height: auto; /* Remove fixed height */
-            max-height: none;
-        }
-
-        .read-more {
-            color: #C62828;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-
-        .read-more:hover {
-            gap: 12px;
-            color: #C62828;
-            text-decoration: none;
-        }
-
-        /* Fixed height for event items - Fully readable */
-        .event-item {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            border: 1px solid #eee;
-            border-radius: 15px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            height: auto; /* Remove fixed height */
-            min-height: 160px; /* Set minimum height instead */
-            margin: 0;
-        }
-
-        .event-item:hover {
-            border-color: #C62828;
-            box-shadow: 0 5px 15px rgba(198, 40, 40, 0.1);
-        }
-
-        .event-date {
-            background: #C62828;
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 85px; /* Slightly increased */
-            flex-shrink: 0;
-        }
-
-        .event-date .month {
-            display: block;
-            font-size: 0.95rem;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-
-        .event-date .day {
-            display: block;
-            font-size: 2rem;
-            font-weight: bold;
-            line-height: 1;
-            margin-top: 5px;
-        }
-
-        .event-details {
-            flex: 1;
-            overflow: visible; /* Allow content to be visible */
-            min-width: 0;
-        }
-
-        .event-details h3 {
-            color: #333;
-            font-size: 1.2rem; /* Increased font size */
-            margin: 0 0 8px 0;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible;
-            text-overflow: clip;
-            line-height: 1.4;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
-
-        .event-location,
-        .event-time {
-            font-size: 0.95rem;
-            color: #666;
-            margin: 5px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible;
-            text-overflow: clip;
-            line-height: 1.4;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
-
-        .event-details .read-more {
-            display: inline-flex;
-            margin-top: 10px;
-        }
-
-        .event-location i,
-        .event-time i {
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .event-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .event-status.ongoing {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .event-status.upcoming {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        /* Navigation Controls */
-        .navigation-arrows {
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            background: #ddd;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            padding: 0;
-            transition: all 0.3s ease;
-        }
-
-        .dot:hover {
-            background: #C62828;
-            transform: scale(1.2);
-        }
-
-        .dot.active {
-            background: #C62828;
-            width: 25px;
-            border-radius: 10px;
-        }
-
-        .arrow-btn {
-            background: #f8f9fa;
-            color: #C62828;
-            border: 1px solid #eee;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 1.4rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .arrow-btn:hover {
-            background: #C62828;
-            color: white;
-            transform: scale(1.1);
-            border-color: #C62828;
-        }
-
-        .arrow-btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
-        }
-
-        /* Report & Contact Section */
-        .report-contact {
-            background: #f8f9fa;
-            padding: 100px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .report-contact .container {
-            background: white;
-            border-radius: 25px;
-            padding: 60px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            border: 1px solid #f0f0f0;
-            max-width: 700px;
-            width: 100%;
-        }
-
-        .report-card h2,
-        .contact-card h2 {
-            font-size: 2.2rem;
-            color: #C62828;
-            margin: 0;
-            text-align: center;
-        }
-
-        .report-card p {
-            margin: 0 0 20px 0;
-            text-align: center;
-        }
-
-        .report-types {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-
-        .report-type {
-            background: #f8f9fa;
-            color: #555;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            border: 1px solid #eee;
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 2.2rem;
-            }
-            
-            .hero-content p {
-                font-size: 1.1rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .quick-card {
-                margin-bottom: 20px;
-            }
-            
-            .about-section .container,
-            .services-community .container,
-            .container,
-            .report-contact .container {
-                padding: 30px 20px;
-            }
-
-            .announcement-grid,
-            .events-grid {
-                min-height: auto;
-            }
-            
-            .announcement-item,
-            .event-item {
-                height: auto;
-                min-height: 140px;
-                padding: 15px;
-            }
-
-            .event-item {
-                gap: 14px;
-            }
-            
-            .event-date {
-                min-width: 75px;
-                padding: 12px;
-            }
-            
-            .event-date .day {
-                font-size: 1.8rem;
-            }
-            
-            .announcement-item h3,
-            .event-details h3 {
-                font-size: 1.1rem;
-            }
-
-            .announcement-header {
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .announcement-item h3,
-            .announcement-item p {
-                overflow-wrap: anywhere;
-                word-break: break-word;
-            }
-
-            .announcement-item h3 {
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            .announcement-item p {
-                display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            /* Keep events grid height stable on mobile/tablet */
-            .events-grid {
-                min-height: 560px;
-                height: 560px;
-                overflow-y: auto;
-                padding-right: 4px;
-            }
-
-            .announcement-grid {
-                min-height: 560px;
-                height: 560px;
-                overflow-y: auto;
-                padding-right: 4px;
-            }
-
-            .quick-stats {
-                row-gap: 12px;
-            }
-
-            .quick-stats .stat-label {
-                letter-spacing: 0.5px;
-                line-height: 1.3;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .hero-content h1 {
-                font-size: 1.8rem;
-            }
-            
-            .logo-subtitle {
-                font-size: 1rem;
-            }
-            
-            .logo-title {
-                display: none;
-            }
-            
-            .quick-stats {
-                row-gap: 14px;
-            }
-
-            .quick-stats .col-4 {
-                flex: 0 0 100%;
-                max-width: 100%;
-                margin-bottom: 0;
-            }
-
-            .stat-item {
-                padding: 0 10px;
-            }
-
-            .stat-item i {
-                font-size: 1.9rem;
-            }
-            
-            .stat-number {
-                font-size: 1.35rem;
-                line-height: 1.2;
-            }
-
-            .stat-label {
-                font-size: 0.76rem;
-                letter-spacing: 0.4px;
-                line-height: 1.35;
-            }
-
-            .events-grid {
-                min-height: auto;
-                height: auto;
-                overflow-y: visible;
-            }
-
-            .announcement-grid {
-                min-height: auto;
-                height: auto;
-                overflow-y: visible;
-            }
-
-            .announcement-item {
-                min-height: 150px;
-            }
-
-            .announcement-item h3 {
-                font-size: 1rem;
-            }
-
-            .announcement-item p {
-                font-size: 0.9rem;
-            }
-
-            .event-item {
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-            }
-
-            .event-date {
-                min-width: 0;
-                width: fit-content;
-                padding: 10px 12px;
-            }
-
-            .event-details {
-                width: 100%;
-            }
-
-            .event-details h3 {
-                font-size: 1rem;
-                margin-bottom: 8px;
-            }
-
-            .event-location,
-            .event-time {
-                font-size: 0.88rem;
-                line-height: 1.45;
-            }
-
-            .event-status {
-                display: inline-flex;
-                width: fit-content;
-                margin-top: 8px;
-            }
-
-            .event-details .read-more {
-                display: inline-flex;
-                width: fit-content;
-            }
-            
-            .section-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-@include('chatbot.embed')
-<body>
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid nav-container">
-            <!-- Logo -->
-            <div class="nav-logo">
-                <div class="logo"></div>
-                <div class="logo-text d-none d-md-block">
-                    <span class="logo-title d-block">{{ __('messages.nav_brand_part1') }}</span>
-                    <span class="logo-subtitle d-block">{{ __('messages.nav_brand_part2') }} Portal</span>
+@php
+    $pageTitle = 'Home';
+    $activePage = 'home';
+@endphp
+
+@php
+    $announcementSource = $announcements ?? collect();
+    $announcementCollection = $announcementSource instanceof \Illuminate\Pagination\AbstractPaginator
+        ? collect($announcementSource->items())
+        : collect($announcementSource);
+    $announcementList = $announcementCollection->take(3);
+    $announcementCount = $announcementSource instanceof \Illuminate\Pagination\AbstractPaginator
+        ? $announcementSource->total()
+        : $announcementCollection->count();
+
+    $eventSource = $events ?? collect();
+    $eventCollection = $eventSource instanceof \Illuminate\Pagination\AbstractPaginator
+        ? collect($eventSource->items())
+        : collect($eventSource);
+    $eventList = $eventCollection->take(3);
+    $eventCount = $eventSource instanceof \Illuminate\Pagination\AbstractPaginator
+        ? $eventSource->total()
+        : $eventCollection->count();
+@endphp
+
+@include('barangay_system.partials.public_layout_start')
+
+<section class="bhd-hero">
+        <div class="bhd-shell bhd-hero-grid">
+            <div>
+                <h1 class="bhd-title">{{ __('messages.blade_index_blade_barangay_services_made_clearer') }}</h1>
+                <p class="bhd-lead">{{ __('messages.blade_index_blade_request_documents_track_your_application_read_important') }}</p>
+
+                <div class="bhd-hero-actions">
+                    <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-file-circle-plus"></i> {{ __('messages.blade_history_blade_request_a_service') }}</a>
+                    <a href="{{ route('track_request') }}" class="bhd-btn bhd-btn-soft"><i class="fas fa-magnifying-glass"></i> {{ __('messages.nav_track_request') }}</a>
                 </div>
-                <div class="logo-text d-md-none">
-                    <span class="logo-subtitle">{{ __('messages.nav_brand_part2') }}</span>
+
+                <div class="bhd-mini-stats" aria-label="{{ __('messages.blade_index_blade_barangay_quick_facts') }}">
+                    <div class="bhd-mini-stat">
+                        <strong>{{ __('messages.blade_index_blade_0_5483_km2') }}</strong>
+                        <span>{{ __('messages.blade_index_blade_land_area') }}</span>
+                    </div>
+                    <div class="bhd-mini-stat">
+                        <strong>12,265</strong>
+                        <span>{{ __('messages.blade_index_blade_total_population_2024_psa') }}</span>
+                    </div>
+                    <div class="bhd-mini-stat">
+                        <strong>{{ __('messages.blade_index_blade_urban') }}</strong>
+                        <span>{{ __('messages.blade_index_blade_barangay_classification') }}</span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Main Navigation -->
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav w-100 justify-content-around mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('barangay_system.index') }}"><i class="fas fa-home"></i> {{ __('messages.nav_home') }}</a>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> {{ __('messages.nav_about') }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('history') }}"><i class="fas fa-history"></i> {{ __('messages.nav_history') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('mission_vision')}}"><i class="fas fa-bullseye"></i> {{ __('messages.nav_mission_vision') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('map') }}"><i class="fas fa-map"></i> {{ __('messages.nav_barangay_map') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('officials') }}"><i class="fas fa-users"></i> {{ __('messages.nav_barangay_officials') }}</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-concierge-bell"></i> {{ __('messages.nav_services_dropdown') }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link dropdown-item-custom" href="{{ route('services') }}"><i class="fas fa-list"></i> {{ __('messages.nav_all_services') }}</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('residency')}}"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-link" href="{{ route('track_request') }}"><i class="fas fa-search"></i> {{ __('messages.nav_track_request') }}</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users"></i> {{ __('messages.nav_community_dropdown') }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i> {{ __('messages.nav_announcements') }}</a></li>
-                            <li><a class="dropdown-link" href="{{ route('events_project') }}"><i class="fas fa-calendar-alt"></i> {{ __('messages.nav_events_projects') }}</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-exclamation-circle"></i> {{ __('messages.nav_report_dropdown') }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-link" href="{{ route('incident') }}"><i class="fas fa-clipboard-list"></i> {{ __('messages.nav_blotter_report') }}</a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('contacts') }}"><i class="fas fa-phone"></i> {{ __('messages.nav_contact') }}</a>
-                    </li>
-                    
-                    <!-- LogIn-LogOut Actions -->
-                    <li class="nav-item d-none d-lg-block">
-                        @auth
-                            <div class="dropdown d-inline-block">
-                                <button class="btn user-dropdown-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                    <i class="fas fa-chevron-down ms-1" style="font-size: 0.8rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <form id="logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="login-btn ms-2">
-                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
-                            </a>
-                        @endauth
-                    </li>
 
-                    {{-- Mobile --}}
-                    <li class="nav-item d-lg-none mt-3 pt-2 border-top">
-                        @auth
-                            <div class="dropdown">
-                                <button class="btn btn-link nav-link dropdown-toggle w-100 text-start" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ Auth::user()->name ?? 'User' }}
-                                </button>
-                                <ul class="dropdown-menu border-0 ps-3" aria-labelledby="mobileUserDropdown">
-                                    <li><a class="dropdown-link" href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a></li>
-                                    <li><hr class="dropdown-divider bg-secondary"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{{ route('logout.res') }}">
-                                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.nav_logout') }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <form id="mobile-logout-form" action="{{ route('logout.res') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ route('login.res') }}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i> {{ __('messages.nav_login') }}
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
+            <aside class="bhd-pass" aria-label="{{ __('messages.blade_index_blade_request_tracking_preview') }}">
+                <div class="bhd-pass-top">
+                    <div>
+                        <span class="bhd-pass-label">{{ __('messages.blade_index_blade_sample_request') }}</span>
+                        <span class="bhd-pass-name">{{ __('messages.nav_barangay_clearance') }}</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="bhd-pass-label">{{ __('messages.blade_index_blade_ref_no') }}</span>
+                        <span class="bhd-pass-number">{{ __('messages.blade_index_blade_cl_123') }}</span>
+                    </div>
+                </div>
+
+                <div class="bhd-process">
+                    <div class="bhd-step">
+                        <span class="bhd-step-dot"><i class="fas fa-check"></i></span>
+                        <div><strong>{{ __('messages.blade_index_blade_submitted') }}</strong><span>{{ __('messages.blade_index_blade_your_form_was_received') }}</span></div>
+                        <span class="bhd-status">{{ __('messages.blade_index_blade_done') }}</span>
+                    </div>
+                    <div class="bhd-step">
+                        <span class="bhd-step-dot"><i class="fas fa-spinner"></i></span>
+                        <div><strong>{{ __('messages.track_timeline_review') }}</strong><span>{{ __('messages.blade_index_blade_barangay_staff_is_checking_details') }}</span></div>
+                        <span class="bhd-status">{{ __('messages.blade_index_blade_now') }}</span>
+                    </div>
+                    <div class="bhd-step">
+                        <span class="bhd-step-dot"><i class="fas fa-flag-checkered"></i></span>
+                        <div><strong>{{ __('messages.blade_index_blade_ready_for_release') }}</strong><span>{{ __('messages.blade_index_blade_you_will_be_notified_when_ready') }}</span></div>
+                        <span class="bhd-status" style="background:var(--warning-soft);color:var(--warning);">{{ __('messages.blade_index_blade_next') }}</span>
+                    </div>
+                </div>
+
+                <div class="bhd-pass-note">
+                    <i class="fas fa-circle-info me-1"></i>
+                    {{ __('messages.blade_index_blade_residents_can_check_status_anytime_using_their_referenc') }}
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="bhd-section" id="services">
+        <div class="bhd-shell">
+            <div class="bhd-section-head">
+                <div>
+                    <h2>{{ __('messages.blade_index_blade_what_do_you_need_today') }}</h2>
+                    <p>{{ __('messages.blade_index_blade_access_essential_barangay_services_in_one_place_with_cl') }}</p>
+                </div>
+                <a href="{{ route('services') }}" class="bhd-link">{{ __('messages.blade_index_blade_view_all_services') }} <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="bhd-task-grid">
+                <a href="{{ route('clearance') }}" class="bhd-task-card">
+                    <span class="bhd-task-icon"><i class="fas fa-file-lines"></i></span>
+                    <h3>{{ __('messages.nav_barangay_clearance') }}</h3>
+                    <p>{{ __('messages.blade_index_blade_request_your_clearance_for_general_requirements') }}</p>
+                    <span class="bhd-task-bottom">{{ __('messages.blade_index_blade_start_request') }} <i class="fas fa-arrow-right"></i></span>
+                </a>
+
+                <a href="{{ route('residency') }}" class="bhd-task-card">
+                    <span class="bhd-task-icon"><i class="fas fa-house-user"></i></span>
+                    <h3>{{ __('messages.nav_certificate_residency') }}</h3>
+                    <p>{{ __('messages.blade_index_blade_get_proof_that_you_live_in_barangay_hulong_duhat') }}</p>
+                    <span class="bhd-task-bottom">{{ __('messages.blade_index_blade_start_request') }} <i class="fas fa-arrow-right"></i></span>
+                </a>
+
+                <a href="{{ route('indigency') }}" class="bhd-task-card">
+                    <span class="bhd-task-icon"><i class="fas fa-hands-helping"></i></span>
+                    <h3>{{ __('messages.nav_certificate_indigency') }}</h3>
+                    <p>{{ __('messages.blade_index_blade_request_assistance_related_certification_online') }}</p>
+                    <span class="bhd-task-bottom">{{ __('messages.blade_index_blade_start_request') }} <i class="fas fa-arrow-right"></i></span>
+                </a>
+
+                <a href="{{ route('incident') }}" class="bhd-task-card">
+                    <span class="bhd-task-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                    <h3>{{ __('messages.index_report_title') }}</h3>
+                    <p>{{ __('messages.blade_index_blade_send_incident_blotter_or_neighborhood_concerns') }}</p>
+                    <span class="bhd-task-bottom">{{ __('messages.incident_form_submit_btn') }} <i class="fas fa-arrow-right"></i></span>
+                </a>
             </div>
         </div>
-    </nav>
+    </section>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="mb-4">Barangay Hulo Online Services</h1>
-                <p class="mb-5">Access barangay services anytime, anywhere. Fast, convenient, and secure.</p>
-                <div class="hero-actions mb-5">
-                    <a href="#main-content"><button class="get-started-btn"><i class="fa-regular fa-hand-pointer"></i> Get Started</button></a>
+    <section class="bhd-section bhd-section-muted" id="updates">
+        <div class="bhd-shell">
+            <div class="bhd-updates-panel">
+                <div class="bhd-section-head">
+                    <div>
+                        <h2>{{ __('messages.index_latest_updates_title') }}</h2>
+                        <p>{{ __('messages.blade_index_blade_view_important_updates_upcoming_events_and_community_no') }}</p>
+                    </div>
+                    <a href="{{ route('announcements') }}" class="bhd-link">{{ __('messages.blade_index_blade_view_all_updates') }} <i class="fas fa-arrow-right"></i></a>
                 </div>
-                
-                <!-- Quick Stats -->
-                <div class="row quick-stats justify-content-center text-center">
-                    <div class="col-4 col-md-4 stat-item">
-                        <i class="fa-solid fa-landmark"></i>
-                        <span class="stat-number">0.5483 km²</span>
-                        <span class="stat-label">Land Area</span>
+
+                <div class="bhd-updates-grid">
+                    <div>
+                        <div class="bhd-list-head">
+                            <h3><i class="fas fa-bullhorn"></i> {{ __('messages.nav_announcements') }}</h3>
+                            <span class="bhd-count">{{ $announcementCount }} {{ Str::plural('update', $announcementCount) }}</span>
+                        </div>
+
+                        @forelse($announcementList as $item)
+                            <article class="bhd-news-item">
+                                <time class="bhd-date-text">{{ \Carbon\Carbon::parse($item->published_at ?? $item->created_at ?? now())->format('M d') }}</time>
+                                <div class="bhd-news-body">
+                                    <h4>{{ $item->title ?? __('messages.blade_index_barangay_announcement') }}</h4>
+                                    <p>{{ \Illuminate\Support\Str::limit($item->content ?? $item->description ?? __('messages.blade_index_stay_tuned_for_important_updates_from_your_barangay'), 105) }}</p>
+                                    <span class="bhd-badge">{{ ucfirst($item->category ?? __('messages.blade_announcement_blade_announcement')) }}</span>
+                                </div>
+                            </article>
+                        @empty
+                            <article class="bhd-news-item">
+                                <time class="bhd-date-text">{{ __('messages.blade_index_blade_today') }}</time>
+                                <div class="bhd-news-body">
+                                    <h4>{{ __('messages.blade_index_blade_no_new_announcements') }}</h4>
+                                    <p>{{ __('messages.blade_index_blade_important_barangay_updates_will_appear_here_once_availa') }}</p>
+                                </div>
+                            </article>
+                        @endforelse
+
+                        @if($announcementCount > 0)
+                            <a href="{{ route('announcements') }}" class="bhd-list-more">
+                                {{ __('messages.blade_index_blade_view_more_announcements') }} <i class="fas fa-arrow-right"></i>
+                            </a>
+                        @endif
                     </div>
-                    <div class="col-4 col-md-4 stat-item">
-                        <i class="fas fa-users mb-3"></i>
-                        <span class="stat-number">12,265</span>
-                        <span class="stat-label">Total Population (2024, PSA)</span>
-                    </div>
-                    <div class="col-4 col-md-4 stat-item">
-                        <i class="fa-solid fa-city"></i>
-                        <span class="stat-number">Urban Barangay</span>
-                        <span class="stat-label">Classification</span>
+
+                    <div>
+                        <div class="bhd-list-head">
+                            <h3><i class="fas fa-calendar-days"></i> {{ __('messages.blade_announcement_blade_events') }}</h3>
+                            <span class="bhd-count">{{ $eventCount }} {{ Str::plural('event', $eventCount) }}</span>
+                        </div>
+
+                        @forelse($eventList as $event)
+                            @php
+                                $eventDate = \Carbon\Carbon::parse($event->event_date ?? now());
+                                $startTime = !empty($event->start_time) ? \Carbon\Carbon::parse($event->start_time)->format('g:i A') : null;
+                                $endTime = !empty($event->end_time) ? \Carbon\Carbon::parse($event->end_time)->format('g:i A') : null;
+                            @endphp
+                            <article class="bhd-event-item">
+                                <time class="bhd-event-date" datetime="{{ $eventDate->toDateString() }}">
+                                    <span>{{ $eventDate->format('M') }}</span>
+                                    <strong>{{ $eventDate->format('d') }}</strong>
+                                </time>
+                                <div class="bhd-event-body">
+                                    <h4>{{ $event->title ?? __('messages.blade_index_barangay_event') }}</h4>
+                                    <p>{{ \Illuminate\Support\Str::limit($event->description ?? __('messages.blade_index_upcoming_barangay_activity'), 95) }}</p>
+                                    <div class="bhd-event-meta">
+                                        <span><i class="fas fa-location-dot"></i> {{ $event->location ?? __('messages.blade_index_blade_barangay_hall') }}</span>
+                                        @if($startTime)
+                                            <span><i class="fas fa-clock"></i> {{ $startTime }}@if($endTime) - {{ $endTime }}@endif</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </article>
+                        @empty
+                            <article class="bhd-event-item">
+                                <time class="bhd-event-date">
+                                    <span>--</span>
+                                    <strong>--</strong>
+                                </time>
+                                <div class="bhd-event-body">
+                                    <h4>{{ __('messages.blade_index_blade_no_upcoming_events') }}</h4>
+                                    <p>{{ __('messages.blade_index_blade_events_and_community_activities_will_be_posted_here_onc') }}</p>
+                                </div>
+                            </article>
+                        @endforelse
+
+                        @if($eventCount > 0)
+                            <a href="{{ route('events_project') }}" class="bhd-list-more">
+                                {{ __('messages.blade_index_blade_view_more_events') }} <i class="fas fa-arrow-right"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
-    <main class="main-content" id="main-content">
-        <!-- Quick Access Cards -->
-        <section class="quick-access">
-            <div class="container">
-                <h2 class="section-title">Quick Access</h2>
-                <div class="row quick-access-grid">
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <a href="{{ route('clearance') }}" class="quick-card">
-                            <div class="quick-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h3>Request Clearance</h3>
-                            <p>Get your barangay clearance online</p>
-                            <span class="quick-badge">Fast Process</span>
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <a href="{{ route('events_project') }}" class="quick-card">
-                            <div class="quick-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <h3>View Events</h3>
-                            <p>Upcoming community activities</p>
-                            <span class="quick-badge">New</span>
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <a href="{{ route('announcements') }}" class="quick-card">
-                            <div class="quick-icon">
-                                <i class="fas fa-bullhorn"></i>
-                            </div>
-                            <h3>Announcements</h3>
-                            <p>Latest barangay updates</p>
-                            <span class="quick-badge">Latest</span>
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <a href="{{ route('incident') }}" class="quick-card">
-                            <div class="quick-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <h3>Report Issue</h3>
-                            <p>Submit concerns online</p>
-                            <span class="quick-badge">24/7</span>
-                        </a>
-                    </div>
-                </div>
+    <section class="bhd-section" id="about">
+        <div class="bhd-shell bhd-about-grid">
+            <div class="bhd-photo-card">
+                <img src="{{ asset('Images/Barangay_Hall.jpg') }}" alt="{{ __('messages.blade_index_blade_barangay_hall') }}" loading="lazy">
+                <div class="bhd-photo-caption"><i class="fas fa-location-dot"></i> {{ __('messages.blade_index_blade_visit_the_barangay_hall_for_releasing_and_personal_assi') }}</div>
             </div>
-        </section>
 
-        <!-- Announcements & Events Section -->
-        @php use Illuminate\Support\Str; @endphp
-
-        <section class="announcements-events">
-            <div class="container">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-                    <h2 class="section-header latann">{{ __('messages.index_latest_updates_title') }}</h2>
-                    <a href="{{ route('announcements')}}" class="view-all text-nowrap">{{ __('messages.index_view_all_btn') }} <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <div class="announcements-card card-hover">
-                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0 ann"><i class="fas fa-bullhorn"></i> {{ __('messages.index_announcements_card_header') }}</h2>
-                                <div class="announcement-counter">
-                                    @isset($announcements)
-                                        {{ count($announcements) }}+ New
-                                    @else
-                                        0 New
-                                    @endisset
-                                </div>
-                            </div>
-                            
-                            <!-- Announcement Carousel with fixed height -->
-                            <div id="announcementCarousel" class="carousel slide announcement-carousel" data-bs-ride="carousel">
-                                <div class="carousel-inner">
-                                    @isset($announcements)
-                                        @forelse($announcements->chunk(3) as $chunkIndex => $announcementChunk)
-                                            <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
-                                                <div class="announcement-grid">
-                                                    @foreach($announcementChunk as $item)
-                                                        <div class="announcement-item">
-                                                            <div class="announcement-header">
-                                                                <div class="date">{{ date('M d, Y', strtotime($item->published_at ?? $item->created_at ?? now())) }}</div>
-                                                                <span class="announcement-badge {{ $item->category ?? 'important' }}">
-                                                                    {{ ucfirst($item->category ?? 'Announcement') }}
-                                                                </span>
-                                                            </div>
-                                                            <h3>{{ $item->title ?? 'Barangay Announcement' }}</h3>
-                                                            <p>{{ Str::limit($item->content ?? $item->description ?? 'Stay tuned for important updates from your barangay.', 100) }}</p>
-                                                            <a href="{{ route('announcements') }}" class="read-more">Learn More <i class="fas fa-arrow-right"></i></a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @empty
-                                            @include('partials.static-announcements')
-                                        @endforelse
-                                    @else
-                                        @include('partials.static-announcements')
-                                    @endisset
-                                </div>
-                                
-                                <!-- Carousel Controls -->
-                                <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
-                                    <div class="dots" id="announcementDots">
-                                        @isset($announcements)
-                                            @for($i = 0; $i < ceil(count($announcements) / 3); $i++)
-                                                <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="{{ $i }}" class="dot {{ $i == 0 ? 'active' : '' }}" aria-label="Page {{ $i + 1 }}"></button>
-                                            @endfor
-                                        @else
-                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
-                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
-                                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
-                                        @endisset
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="arrow-btn" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <button class="arrow-btn" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    
-                    <div class="col-lg-6">
-                        <div class="events-card card-hover">
-                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
-                                <h2 class="m-0 ann"><i class="fas fa-calendar-alt"></i> {{ __('messages.index_upcoming_events_title') }}</h2>
-                                <div class="events-counter">{{ $events->count() ?? 0 }}+ Events</div>
-                            </div>
-                            
-                            <!-- Events Carousel with fixed height -->
-                            <div id="eventsCarousel" class="carousel slide events-carousel" data-bs-ride="carousel">
-                                <div class="carousel-inner">
-                                    @isset($events)
-                                        @forelse($events->chunk(3) as $chunkIndex => $eventChunk)
-                                            <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
-                                                <div class="events-grid">
-
-                                                    @foreach($eventChunk as $event)
-                                                        <div class="event-item">
-                                                            <div class="event-date">
-                                                                <span class="month">
-                                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M') }}
-                                                                </span>
-                                                                <span class="day">
-                                                                    {{ \Carbon\Carbon::parse($event->event_date)->format('d') }}
-                                                                </span>
-                                                            </div>
-
-                                                            <div class="event-details">
-                                                                <h3>{{ $event->title }}</h3>
-
-                                                                <p class="event-location">
-                                                                    <i class="fas fa-map-marker-alt"></i>
-                                                                    {{ $event->location }}
-                                                                </p>
-
-                                                                <p class="event-time">
-                                                                    <i class="fas fa-clock"></i>
-                                                                    {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}
-                                                                    -
-                                                                    {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}
-                                                                </p>
-
-                                                                @php
-                                                                    $status = \Carbon\Carbon::parse($event->event_date)->isToday()
-                                                                        ? 'ongoing'
-                                                                        : 'upcoming';
-                                                                @endphp
-
-                                                                <span class="event-status {{ $status }}">
-                                                                    {{ ucfirst($status) }}
-                                                                </span>
-
-                                                                <a href="{{ route('events_project') }}" class="read-more">Learn More <i class="fas fa-arrow-right"></i></a>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-
-                                                </div>
-                                            </div>
-                                        @empty
-                                            <div class="carousel-item active">
-                                                <div class="events-grid">
-                                                    <p class="text-center">No upcoming events available.</p>
-                                                </div>
-                                            </div>
-                                        @endforelse
-                                    @endisset
-                                </div>
-                                
-                                <!-- Carousel Controls -->
-                                <div class="navigation-arrows mt-4 d-flex justify-content-between align-items-center">
-                                    <div class="dots">
-                                        @isset($events)
-                                            @for($i = 0; $i < ceil(count($events) / 3); $i++)
-                                                <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="{{ $i }}" class="dot {{ $i == 0 ? 'active' : '' }}" aria-label="Page {{ $i + 1 }}"></button>
-                                            @endfor
-                                        @else
-                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="0" class="dot active" aria-current="true" aria-label="Page 1"></button>
-                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="1" class="dot" aria-label="Page 2"></button>
-                                            <button type="button" data-bs-target="#eventsCarousel" data-bs-slide-to="2" class="dot" aria-label="Page 3"></button>
-                                        @endisset
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="arrow-btn" type="button" data-bs-target="#eventsCarousel" data-bs-slide="prev">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <button class="arrow-btn" type="button" data-bs-target="#eventsCarousel" data-bs-slide="next">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div>
+                <div class="bhd-section-head mb-0">
+                    <div>
+                        <h2>{{ __('messages.index_about_title') }}</h2>
+                        <p>{{ __('messages.learn_more') }}</p>
                     </div>
                 </div>
+
+                <div class="bhd-feature-list">
+                    <div class="bhd-feature">
+                        <i class="fas fa-history"></i>
+                        <div><strong>{{ __('messages.blade_index_blade_rich_history_since_1861') }}</strong><span>{{ __('messages.blade_index_blade_know_the_background_of_barangay_hulong_duhat') }}</span></div>
+                    </div>
+                    <div class="bhd-feature">
+                        <i class="fas fa-award"></i>
+                        <div><strong>{{ __('messages.blade_index_blade_clean_opinion_on_audit_malabon_office_2021') }}</strong><span>{{ __('messages.blade_index_blade_a_highlight_of_public_service_and_accountability') }}</span></div>
+                    </div>
+                    <div class="bhd-feature">
+                        <i class="fas fa-user-friends"></i>
+                        <div><strong>{{ __('messages.blade_index_blade_11_dedicated_officials') }}</strong><span>{{ __('messages.blade_index_blade_meet_the_officials_serving_the_community') }}</span></div>
+                    </div>
+                </div>
+
+                <a href="{{ route('history') }}" class="bhd-link">{{ __('messages.blade_index_blade_learn_more_about_barangay_hulong_duhat') }} <i class="fas fa-arrow-right"></i></a>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- About Section -->
-        <section class="about-section">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <div class="text-content">
-                            <h2>{{ __('messages.index_about_title') }}</h2>
-                            <p>{{ __('messages.learn_more') }}</p>
-                            <div class="feature-list">
-                                <div class="feature-item">
-                                    <i class="fas fa-history"></i>
-                                    <span>Rich History Since 1861</span>
-                                </div>
-                                <div class="feature-item">
-                                    <i class="fas fa-award"></i>
-                                    <span>Clean Opinion on Audit Malabon Office(2021)</span>
-                                </div>
-                                <div class="feature-item">
-                                    <i class="fas fa-user-friends"></i>
-                                    <span>11 Dedicated Officials</span>
-                                </div>
-                            </div>
-                            <a href={{ route('history')}} class='section-links'><i class="fa-solid fa-up-right-from-square"></i> Learn more about Barangay Hulo</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="image-content position-relative">
-                            <img src="Images/Barangay_Hall.jpg" alt="Barangay Hall" class="section-image img-fluid" loading="lazy">
-                            <div class="image-overlay">
-                                <p>Visit our barangay hall for personalized assistance</p>
-                            </div>
-                        </div>
+    <section class="bhd-section pt-0">
+        <div class="bhd-shell bhd-support-grid">
+            <div class="bhd-panel-card">
+                <span class="bhd-task-icon"><i class="fas fa-folder-open"></i></span>
+                <h3>{{ __('messages.index_services_card_title') }}</h3>
+                <p>{{ __('messages.services_info') }}</p>
+                <div class="bhd-checks">
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_online_document_requests') }}</span>
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_real_time_request_tracking') }}</span>
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_clear_resident_instructions') }}</span>
+                </div>
+                <a href="{{ route('services') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-arrow-right"></i> {{ __('messages.blade_index_blade_request_services') }}</a>
+            </div>
+
+            <div class="bhd-panel-card">
+                <span class="bhd-task-icon"><i class="fas fa-bell"></i></span>
+                <h3>{{ __('messages.index_community_card_title') }}</h3>
+                <p>{{ __('messages.community_info') }}</p>
+                <div class="bhd-checks">
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_barangay_announcements') }}</span>
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_upcoming_events_and_projects') }}</span>
+                    <span><i class="fas fa-check-circle"></i> {{ __('messages.blade_index_blade_useful_reminders_for_residents') }}</span>
+                </div>
+                <a href="{{ route('announcements') }}" class="bhd-btn bhd-btn-line"><i class="fas fa-arrow-right"></i> {{ __('messages.blade_index_blade_stay_updated') }}</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="bhd-section pt-0" id="report">
+        <div class="bhd-shell">
+            <div class="bhd-report-band">
+                <div>
+                    <h2>{{ __('messages.index_report_title') }}</h2>
+                    <p>{{ __('messages.incident_info') }}</p>
+                    <div class="bhd-tags">
+                        <span>{{ __('messages.blade_incident_blade_noise_complaint') }}</span>
+                        <span>{{ __('messages.blade_index_blade_street_lights') }}</span>
+                        <span>{{ __('messages.blade_index_blade_garbage_issue') }}</span>
+                        <span>{{ __('messages.blade_incident_blade_safety_concern') }}</span>
                     </div>
                 </div>
+                <a href="{{ route('incident') }}" class="bhd-btn bhd-btn-primary"><i class="fas fa-paper-plane"></i> {{ __('messages.index_report_now_btn') }}</a>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Services & Community Section -->
-        <section class="services-community" id="services">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <div class="service-card card-hover">
-                            <div class="card-header">
-                                <i class="fas fa-concierge-bell card-icon"></i>
-                                <h2>{{ __('messages.index_services_card_title') }}</h2>
-                            </div>
-                            <p>{{ __('messages.services_info') }}</p>
-                            <ul class="service-list">
-                                <li><i class="fas fa-check-circle"></i> Online document requests</li>
-                                <li><i class="fas fa-check-circle"></i> Real-time status tracking</li>
-                                <li><i class="fas fa-check-circle"></i> Appointment scheduling</li>
-                            </ul>
-                            <a href="{{ route('services') }}" class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Request Services</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="community-card card-hover">
-                            <div class="card-header">
-                                <i class="fas fa-users card-icon"></i>
-                                <h2>{{ __('messages.index_community_card_title') }}</h2>
-                            </div>
-                            <p>{{ __('messages.community_info') }}</p>
-                            <div class="community-highlights">
-                                <div class="highlight">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <span>Get instant announcement alerts and view upcoming barangay events in one place</span>
-                                </div>
-                                <div class="highlight">
-                                    <i class="fas fa-chart-line"></i>
-                                    <span>Track ongoing projects with real-time progress updates and schedules</span>
-                                </div>
-                            </div>
-                            <a href='announcements' class='snc-links'><i class="fa-solid fa-up-right-from-square"></i> Stay Updated</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Report & Contact Section -->
-        <section class="report-contact">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="report-card card-hover">
-                            <div class="card-header text-center mb-4">
-                                <i class="fas fa-exclamation-circle card-icon mb-3"></i>
-                                <h2>{{ __('messages.index_report_title') }}</h2>
-                            </div>
-                            <p class="text-center">{{ __('messages.incident_info') }}</p>
-                            <div class="report-types">
-                                <span class="report-type">Noise Complaint</span>
-                                <span class="report-type">Street Lights</span>
-                                <span class="report-type">Garbage Issue</span>
-                                <span class="report-type">Safety Concern</span>
-                            </div>
-                            <div class="text-center">
-                                <a href="{{ route('incident') }}"><button class="section-btn"><i class="fas fa-paper-plane"></i> {{ __('messages.index_report_now_btn') }}</button></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    @include('barangay_system.partials.fab_footer')
-
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="{{ asset('js/floating-actions.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>  
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('a[href^="#"]:not([data-bs-toggle])').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var carousels = document.querySelectorAll('.carousel');
-            carousels.forEach(function(carousel) {
-                if (!carousel.classList.contains('carousel-initialized')) {
-                    carousel.classList.add('carousel-initialized');
-                    carousel.addEventListener('slide.bs.carousel', function(e) {
-                        console.log('Sliding to: ' + e.to);
-                    });
-                    
-                    carousel.addEventListener('slid.bs.carousel', function(e) {
-                        var dots = this.querySelectorAll('.dot');
-                        dots.forEach(function(dot, index) {
-                            if (index === e.to) {
-                                dot.classList.add('active');
-                            } else {
-                                dot.classList.remove('active');
-                            }
-                        });
-                    });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+@include('barangay_system.partials.public_layout_end')

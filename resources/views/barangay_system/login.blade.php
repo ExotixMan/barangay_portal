@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Login - Barangay Hulo Portal</title>
+    <title>{{ __('messages.blade_login_blade_login_barangay_hulo_portal') }}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -729,7 +729,7 @@
         <!-- Login Panel -->
         <div class="login-panel">
             <div class="logo-section">
-                <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo-img">
+                <img src="{{ asset('Images/logo.jpg') }}" alt="{{ __('messages.blade_login_blade_barangay_logo') }}" class="logo-img">
                 <h1>{{ __('messages.login_page_title') }}</h1>
                 <p>{{ __('messages.login_brand_name') }}<br>{{ __('messages.login_brand_location') }}</p>
             </div>
@@ -773,7 +773,7 @@
                 <div class="form-floating mb-3 position-relative">
                     <i class="fas fa-user input-icon"></i>
                     <input type="text" class="form-control @error('login') is-invalid @enderror" 
-                           id="login" name="login" placeholder="Username or Email" 
+                           id="login" name="login" placeholder="{{ __('messages.login_username_label') }}" 
                            value="{{ old('login') }}" required autofocus>
                     <label for="login">{{ __('messages.login_username_label') }}</label>
                 </div>
@@ -782,7 +782,7 @@
                 <div class="form-floating mb-2 position-relative">
                     <i class="fas fa-lock input-icon"></i>
                     <input type="password" class="form-control password @error('password') is-invalid @enderror" 
-                           id="password" name="password" placeholder="Password" required>
+                           id="password" name="password" placeholder="{{ __('messages.login_password_label') }}" required>
                     <label for="password">{{ __('messages.login_password_label') }}</label>
                     <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
                         <i class="far fa-eye"></i>
@@ -823,7 +823,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title">{{ __('messages.terms_modal_title') }}</h2>
-                    <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -832,16 +832,16 @@
                     <p>{{ __('messages.terms_modal_intro') }}</p>
                     
                     <h4>{{ __('messages.terms_section_1_title') }}</h4>
-                    <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+                    <p>{{ __('messages.blade_login_blade_you_are_responsible_for_maintaining_the_confidentiality') }}</p>
                     
                     <h4>{{ __('messages.terms_section_2_title') }}</h4>
-                    <p>You must provide accurate, current, and complete information during registration. You confirm that you are a resident of Barangay Hulo or have valid reasons to access barangay services.</p>
+                    <p>{{ __('messages.blade_login_blade_you_must_provide_accurate_current_and_complete_informat') }}</p>
                     
                     <h4>{{ __('messages.terms_section_3_title') }}</h4>
-                    <p>Your personal information will be handled in accordance with our Privacy Policy and the Data Privacy Act of 2012.</p>
+                    <p>{{ __('messages.blade_login_blade_your_personal_information_will_be_handled_in_accordance') }}</p>
                     
                     <h4>{{ __('messages.terms_section_4_title') }}</h4>
-                    <p>You agree to use the portal only for lawful purposes and in accordance with barangay regulations.</p>
+                    <p>{{ __('messages.blade_login_blade_you_agree_to_use_the_portal_only_for_lawful_purposes_an') }}</p>
                     
                     <p class="mt-3"><strong>{{ __('messages.terms_modal_footer_note') }}</strong></p>
 

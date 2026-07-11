@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use App\Models\Residents;
 use App\Models\ResidencyApplication;
 use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
+use App\Models\ResidentProfileCorrectionConcern;
 
 class ProfileController extends Controller
 {
@@ -61,38 +65,173 @@ class ProfileController extends Controller
 
     public function updateInfo(Request $request)
     {
+        /*
+         * SECURITY RULE:
+         * Residents can update contact number directly.
+         * Identity fields used in certificates must go through profile correction concern + admin approval.
+         */
         /** @var Residents $resident */
         $resident = Auth::user();
 
         $validated = $request->validate([
-            'firstname'  => ['required', 'string', 'max:255', 'regex:/^[\pL\s\'\.,-]+$/u'],
-            'middlename' => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\'\.,-]+$/u'],
-            'lastname'   => ['required', 'string', 'max:255', 'regex:/^[\pL\s\'\.,-]+$/u'],
-            'suffix'     => ['nullable', 'string', 'max:10', 'in:,Jr.,Sr.,II,III,IV,V'],
-            'birthdate'  => ['required', 'date', 'before:18 years ago'],
-            'contact'    => ['required', 'string', 'regex:/^(09\d{9}|9\d{9})$/'],
-            'address'    => ['required', 'string', 'min:10', 'max:500'],
+            'contact' => ['required', 'string', 'regex:/^(09\d{9}|9\d{9})$/'],
         ], [
-            'firstname.regex'  => 'First name may only contain letters, spaces, and basic punctuation.',
-            'middlename.regex' => 'Middle name may only contain letters, spaces, and basic punctuation.',
-            'lastname.regex'   => 'Last name may only contain letters, spaces, and basic punctuation.',
-            'suffix.in'        => 'Please select a valid suffix.',
-            'contact.regex'    => 'Please enter a valid Philippine mobile number (09XXXXXXXXX).',
-            'birthdate.before' => 'You must be at least 18 years old.',
+            'contact.regex' => 'Please enter a valid Philippine mobile number. Example: 9123456789.',
         ]);
 
-        if (($validated['suffix'] ?? '') === '') {
-            $validated['suffix'] = null;
-        }
+        $contact = $validated['contact'];
 
         // Normalize contact: store always as 09XXXXXXXXX
-        if (isset($validated['contact']) && strlen($validated['contact']) === 10 && !str_starts_with($validated['contact'], '0')) {
-            $validated['contact'] = '0' . $validated['contact'];
+        if (strlen($contact) === 10 && ! str_starts_with($contact, '0')) {
+            $contact = '0' . $contact;
         }
 
-        $resident->update($validated);
+        $resident->update([
+            'contact' => $contact,
+        ]);
 
-        return redirect()->route('profile')->with('success_info', 'Personal information updated successfully.');
+        return redirect()
+            ->route('profile')
+            ->with('open_tab', 'info')
+            ->with('success_info', 'Contact number updated successfully.');
+    }
+
+    public function reportIncorrectProfile(Request $request)
+    {
+        /** @var Residents $resident */
+        $resident = Auth::user();
+
+        return DB::transaction(function () use ($request, $resident) {
+            /*
+            * Lock the resident row to prevent double-submit/race condition.
+            * This stops two fast requests from creating two pending concerns at the same time.
+            */
+            $resident = Residents::whereKey($resident->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $existingPending = ResidentProfileCorrectionConcern::query()
+                ->where('resident_id', $resident->id)
+                ->whereIn('status', ['pending', 'reviewed'])
+                ->latest()
+                ->first();
+
+            if ($existingPending) {
+                return redirect()
+                    ->route('profile')
+                    ->with('open_tab', 'info')
+                    ->with('warning', 'You already have a pending profile correction concern. Please wait for barangay review before submitting another correction.')
+                    ->with('pending_correction_id', $existingPending->id);
+            }
+
+            /*
+            * Cooldown: prevent repeated correction submissions too quickly.
+            */
+            $latestConcern = ResidentProfileCorrectionConcern::query()
+                ->where('resident_id', $resident->id)
+                ->latest()
+                ->first();
+
+            if ($latestConcern && $latestConcern->created_at->gt(now()->subMinutes(10))) {
+                return redirect()
+                    ->route('profile')
+                    ->with('open_tab', 'info')
+                    ->with('warning', 'Please wait at least 10 minutes before submitting another profile correction concern.');
+            }
+
+            /*
+            * Daily limit: prevent someone from attacking your staff/system with many concerns.
+            */
+            $todayCount = ResidentProfileCorrectionConcern::query()
+                ->where('resident_id', $resident->id)
+                ->whereDate('created_at', today())
+                ->count();
+
+            if ($todayCount >= 3) {
+                return redirect()
+                    ->route('profile')
+                    ->with('open_tab', 'info')
+                    ->with('warning', 'You have reached the daily limit for profile correction concerns. Please try again tomorrow or contact the barangay office.');
+            }
+
+            $validated = $request->validate([
+                'service' => ['nullable', 'string', 'max:100'],
+                'field_name' => [
+                    'required',
+                    'string',
+                    Rule::in([
+                        'firstname',
+                        'middlename',
+                        'lastname',
+                        'suffix',
+                        'birthdate',
+                        'address',
+                        'gender',
+                        'civil_status',
+                        'birth_place',
+                    ]),
+                ],
+                'current_value' => ['nullable', 'string', 'max:2000'],
+                'correct_value' => ['required', 'string', 'min:2', 'max:2000'],
+                'message' => ['nullable', 'string', 'max:3000'],
+            ], [
+                'field_name.required' => 'Please choose which profile field needs correction.',
+                'field_name.in' => 'The selected profile field is not allowed for correction.',
+                'correct_value.required' => 'Please enter the correct value.',
+                'correct_value.min' => 'Correct value is too short.',
+                'correct_value.max' => 'Correct value is too long.',
+                'message.max' => 'Message is too long.',
+            ]);
+
+            /*
+            * Do not trust current_value from the browser.
+            * Always read current value from the authenticated resident record.
+            */
+            $allowedCurrentValues = [
+                'firstname' => $resident->firstname,
+                'middlename' => $resident->middlename,
+                'lastname' => $resident->lastname,
+                'suffix' => $resident->suffix,
+                'birthdate' => $resident->birthdate,
+                'address' => $resident->address,
+                'gender' => $resident->gender ?? null,
+                'civil_status' => $resident->civil_status ?? null,
+                'birth_place' => $resident->birth_place ?? null,
+            ];
+
+            $fieldName = $validated['field_name'];
+            $currentValue = $allowedCurrentValues[$fieldName] ?? null;
+
+            if ($currentValue instanceof \DateTimeInterface) {
+                $currentValue = $currentValue->format('Y-m-d');
+            }
+
+            /*
+            * Prevent useless duplicate correction:
+            * correct value is same as current value.
+            */
+            if (strtolower(trim((string) $currentValue)) === strtolower(trim((string) $validated['correct_value']))) {
+                return redirect()
+                    ->route('profile')
+                    ->with('open_tab', 'info')
+                    ->with('warning', 'The correct value you entered is the same as your current profile value.');
+            }
+
+            ResidentProfileCorrectionConcern::create([
+                'resident_id' => $resident->id,
+                'service' => $validated['service'] ?? 'Profile',
+                'field_name' => $fieldName,
+                'current_value' => (string) ($currentValue ?? ''),
+                'correct_value' => trim((string) $validated['correct_value']),
+                'message' => $validated['message'] ?? null,
+                'status' => 'pending',
+            ]);
+
+            return redirect()
+                ->route('profile')
+                ->with('open_tab', 'info')
+                ->with('success', 'Profile correction concern submitted successfully. Request forms are temporarily locked until barangay review is completed.');
+        });
     }
 
     public function updateAccount(Request $request)
@@ -224,31 +363,128 @@ class ProfileController extends Controller
 
     public function updateId(Request $request)
     {
+        if (!Schema::hasColumn('residents', 'valid_id_back')) {
+            return redirect()->route('profile')
+                ->withErrors(['valid_id_back' => 'Database column valid_id_back is missing. Please run the migration first.'])
+                ->with('open_tab', 'valid-id');
+        }
+
         $request->validate([
-            'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
+            'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
         ], [
-            'valid_id.mimes' => 'Only JPG, PNG, and PDF files are accepted.',
-            'valid_id.max'   => 'File size must not exceed 5MB.',
+            'valid_id.required' => 'Please scan or upload the front side of your valid ID.',
+            'valid_id_back.required' => 'Please scan or upload the back side of your valid ID.',
+            'valid_id.mimes' => 'Front ID must be JPG, PNG, WebP, or PDF.',
+            'valid_id_back.mimes' => 'Back ID must be JPG, PNG, WebP, or PDF.',
+            'valid_id.max' => 'Front ID must not exceed 5MB.',
+            'valid_id_back.max' => 'Back ID must not exceed 5MB.',
         ]);
 
         /** @var Residents $resident */
         $resident = Auth::user();
 
-        if ($resident->valid_id && file_exists(public_path($resident->valid_id))) {
-            unlink(public_path($resident->valid_id));
+        $frontFile = $request->file('valid_id');
+        $backFile = $request->file('valid_id_back');
+
+        if (!$frontFile instanceof UploadedFile || !$backFile instanceof UploadedFile) {
+            return redirect()->route('profile')
+                ->withErrors(['valid_id' => 'Please scan both the front and back side of your valid ID.'])
+                ->with('open_tab', 'valid-id');
         }
 
-        $file     = $request->file('valid_id');
-        $filename = 'id_' . $resident->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('uploads/valid_ids'), $filename);
+        if ($this->uploadedFilesAreIdentical($frontFile, $backFile)) {
+            return redirect()->route('profile')
+                ->withErrors(['valid_id_back' => 'The back ID image appears to be the same as the front. Please flip the ID and scan the back side.'])
+                ->with('open_tab', 'valid-id');
+        }
 
-        $resident->update([
-            'valid_id'          => 'uploads/valid_ids/' . $filename,
-            'valid_id_verified' => false,
-        ]);
+        try {
+            $frontPath = $this->storeResidentValidIdFile($frontFile, $resident, 'front');
+            $backPath = $this->storeResidentValidIdFile($backFile, $resident, 'back');
 
-        return redirect()->route('profile')->with('open_tab', 'valid-id')
-            ->with('success_photo', 'Valid ID uploaded successfully. It will be reviewed by barangay staff.');
+            $this->deletePublicFile($resident->valid_id);
+            $this->deletePublicFile($resident->valid_id_back ?? null);
+
+            $updateData = [
+                'valid_id' => $frontPath,
+                'valid_id_back' => $backPath,
+            ];
+
+            if (Schema::hasColumn('residents', 'valid_id_verified')) {
+                $updateData['valid_id_verified'] = false;
+            }
+
+            if (Schema::hasColumn('residents', 'valid_id_status')) {
+                $updateData['valid_id_status'] = 'pending';
+            }
+
+            if (Schema::hasColumn('residents', 'valid_id_rejection_reason')) {
+                $updateData['valid_id_rejection_reason'] = null;
+            }
+
+            if (Schema::hasColumn('residents', 'valid_id_remarks')) {
+                $updateData['valid_id_remarks'] = null;
+            }
+
+            if (Schema::hasColumn('residents', 'valid_id_verified_at')) {
+                $updateData['valid_id_verified_at'] = null;
+            }
+
+            $resident->forceFill($updateData)->save();
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route('profile')
+                ->withErrors(['valid_id' => 'Valid ID upload failed. Please try again.'])
+                ->with('open_tab', 'valid-id');
+        }
+
+        return redirect()->route('profile')
+            ->with('open_tab', 'valid-id')
+            ->with('success_photo', 'Valid ID front and back uploaded successfully. It will be reviewed by barangay staff.');
+    }
+
+    private function storeResidentValidIdFile(UploadedFile $file, Residents $resident, string $side): string
+    {
+        $uploadDir = public_path('uploads/valid_id/residents');
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
+        $filename = 'valid_id_' . $side . '_' . now()->format('Ymd_His') . '_' . $resident->id . '_' . Str::random(10) . '.' . $extension;
+
+        $file->move($uploadDir, $filename);
+
+        return 'uploads/valid_id/residents/' . $filename;
+    }
+
+    private function deletePublicFile(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        $cleanPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
+        $fullPath = public_path($cleanPath);
+
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+
+    private function uploadedFilesAreIdentical(UploadedFile $frontFile, UploadedFile $backFile): bool
+    {
+        $frontRealPath = $frontFile->getRealPath();
+        $backRealPath = $backFile->getRealPath();
+
+        if (!$frontRealPath || !$backRealPath || !is_file($frontRealPath) || !is_file($backRealPath)) {
+            return false;
+        }
+
+        return hash_file('sha256', $frontRealPath) === hash_file('sha256', $backRealPath);
     }
 
     // ---- keep the old Breeze stubs below so wweb.php routes don't break ----

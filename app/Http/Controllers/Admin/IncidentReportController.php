@@ -14,12 +14,14 @@ use App\Mail\Notification as NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\AdminActivityLog;
+use Illuminate\Validation\Rule;
 
 class IncidentReportController extends Controller
 {
     public function index(Request $request)
     {
-        $query = BlotterReport::withTrashed();
+        $query = BlotterReport::query();
 
         $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
 
@@ -32,8 +34,13 @@ class IncidentReportController extends Controller
         }
 
         // Status filter
-        if ($request->status) {
-            $query->where('status', $request->status);
+        $allowedStatuses = ['processing', 'resolved', 'dropped', 'archived'];
+        if ($request->status && in_array($request->status, $allowedStatuses, true)) {
+            if ($request->status === 'archived') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
         }
         // Filter by Type
         if ($request->report_type && in_array($request->report_type, ['dispute', 'security', 'public', 'other'])) {
@@ -591,25 +598,35 @@ class IncidentReportController extends Controller
     {
         $report = BlotterReport::findOrFail($id);
         $reference = $report->reference_number;
-        $report->delete();
 
-        if (auth('admin')->check()) {
-            $request = request();
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'APPLICATION_ARCHIVED',
-                'module' => 'Blotter',
-                'details' => [
-                    'blotter_id' => $report->id,
-                    'reference_number' => $reference,
-                    'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
-        }
+        DB::transaction(function () use ($report, $reference) {
 
-        return back()->with('success', 'Incident report deleted.');
+            $report->delete();
+
+            if (auth('admin')->check()) {
+                $request = request();
+
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'REPORT_ARCHIVED',
+                    'module' => 'Incident Report',
+                    'details' => [
+                        'application_id' => $report->id,
+                        'reference_number' => $reference,
+                        'previous_status' => $report->getOriginal('status'),
+                        'new_status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+        });
+
+        return back()->with(
+            'success',
+            'Incident report #' . $reference . ' archived successfully.'
+        );
     }
 
     public function restore(int $id)
@@ -661,14 +678,53 @@ class IncidentReportController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:blotter_reports,id'
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('blotter_reports', 'id')
+                    ->whereNull('deleted_at'),
+            ],
         ]);
 
-        BlotterReport::whereIn('id', $request->ids)->delete();
+        $ids = array_values(array_unique($validated['ids']));
 
-        return back()->with('success', 'Selected records archived.');
+        $archivedCount = DB::transaction(function () use ($ids, $request) {
+            $reports = BlotterReport::query()
+                ->whereIn('id', $ids)
+                ->get();
+
+            foreach ($reports as $report) {
+
+                // Soft delete when BlotterReport uses SoftDeletes.
+                $report->delete();
+            }
+
+            if (auth('admin')->check()) {
+                AdminActivityLog::create([
+                    'user_id' => auth('admin')->id(),
+                    'action' => 'BULK_ARCHIVE',
+                    'module' => 'Incident Report',
+                    'details' => [
+                        'ids' => $reports->pluck('id')->all(),
+                        'count' => $reports->count(),
+                        'status' => 'archived',
+                        'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+
+            return $reports->count();
+        });
+
+        return back()->with(
+            'success',
+            $archivedCount . ' selected report(s) archived successfully.'
+        );
     }
 
     public function bulkRestore(Request $request)

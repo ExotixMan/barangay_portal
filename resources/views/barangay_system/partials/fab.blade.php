@@ -3,9 +3,9 @@
     <div class="speed-dial" id="speedDial">
         <button class="fab-action" id="translateBtn" title="{{ __('messages.translate_text') }}">
             @if(app()->getLocale() == 'en')
-                <span>Filipino</span>
+                <span>{{ __('messages.fab_switch_to_filipino') }}</span>
             @else
-                <span>English</span>
+                <span>{{ __('messages.fab_switch_to_english') }}</span>
             @endif
         </button>
         <button class="fab-action" id="darkModeBtn" title="{{ __('messages.toggle_dark') }}">

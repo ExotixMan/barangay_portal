@@ -62,6 +62,9 @@ class ResidentsController extends Controller
             'email' => 'required|email|unique:residents,email',
             'address' => 'required|string|max:500',
             'birthdate' => 'required|date|before:18 years ago',
+            'gender' => 'required|string|in:Male,Female,Prefer not to say',
+            'civil_status' => 'required|string|in:Single,Married,Widowed,Separated',
+            'place_of_birth' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'contact' => 'required|string|max:11|regex:/^09\d{9}$/|unique:residents,contact',
 
             // ID scanner fields. These may come from the camera auto-crop or manual upload fallback.
@@ -86,6 +89,12 @@ class ResidentsController extends Controller
             'contact.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
             'contact.unique' => 'This contact number is already registered',
             'birthdate.before' => 'You must be at least 18 years old to register',
+            'gender.required' => 'Please select your gender.',
+            'gender.in' => 'Please select a valid gender.',
+            'civil_status.required' => 'Please select your civil status.',
+            'civil_status.in' => 'Please select a valid civil status.',
+            'place_of_birth.required' => 'Place of birth is required.',
+            'place_of_birth.regex' => 'Place of birth may only contain letters, spaces, dots, commas, apostrophes, and hyphens.',
             'password.min' => 'Password must be at least 8 characters long',
             'password.regex' => 'Password cannot contain spaces',
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
@@ -315,6 +324,7 @@ class ResidentsController extends Controller
                 : $rule['label'] . ' is available.',
         ]);
     }
+
     public function login_res(Request $request)
     {
         $request->validate([
@@ -324,7 +334,7 @@ class ResidentsController extends Controller
 
         $rawLoginInput = trim((string) $request->input('login'));
         $password = (string) $request->input('password');
-        $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', false);
+        $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', 'false');
 
         /*
         |--------------------------------------------------------------------------
@@ -344,7 +354,7 @@ class ResidentsController extends Controller
                     ->onlyInput('login');
             }
 
-            if (! $loginOtpEnabled) {
+            if (!$loginOtpEnabled) {
                 Auth::guard('admin')->login($admin);
                 $request->session()->regenerate();
 
