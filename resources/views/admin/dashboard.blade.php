@@ -341,6 +341,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script>
+        const DASHBOARD_URLS = {
+            forecast: @json(route('admin.dashboard.forecast', [], false)),
+            liveStats: @json(route('admin.dashboard.live_stats', [], false)),
+            refreshForecast: @json(route('admin.dashboard.refresh_forecast', [], false)),
+        };
         // Store forecast data globally for access
         let forecastData = null;
         const chartInstances = {};
@@ -483,7 +488,7 @@
         async function loadForecastData() {
             setChartLoadingState(true);
             try {
-                const response = await fetch("{{ route('admin.dashboard.forecast') }}?v=" + Date.now(), {
+                const response = await fetch(`${DASHBOARD_URLS.forecast}?v=${Date.now()}`, {
                     cache: 'no-store',
                     headers: {
                         'Accept': 'application/json',
@@ -560,7 +565,7 @@
 
             isRefreshingStats = true;
             try {
-                const response = await fetch("{{ route('admin.dashboard.live_stats') }}", {
+                const response = await fetch(DASHBOARD_URLS.liveStats, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
@@ -648,7 +653,7 @@
             }
 
             try {
-                const response = await fetch("{{ route('admin.dashboard.refresh_forecast') }}", {
+                const response = await fetch(DASHBOARD_URLS.refreshForecast, {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
