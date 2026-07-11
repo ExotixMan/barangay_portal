@@ -72,6 +72,8 @@ class ResidencyController extends Controller
             $sort = 'created_at';
         }
 
+        $query->orderByRaw("CASE WHEN status = 'rejected' THEN 1 ELSE 0 END ASC");
+
         if ($sort === 'years_residing') {
             $query->orderByRaw("
                 CASE years_residing
@@ -87,7 +89,7 @@ class ResidencyController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-        $applications = $query->latest()->paginate(20);
+        $applications = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
         return view('admin.admin_residency', compact(
             'applications', 

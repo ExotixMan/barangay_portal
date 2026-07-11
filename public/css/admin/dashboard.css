@@ -3,7 +3,6 @@
         }
 
         html {
-            font-size: 70%;
             scroll-behavior: smooth;
         }
 
@@ -974,7 +973,6 @@
         }
 
         @media (max-width: 768px) {
-            html { font-size: 78%; }
             .dashboard-shell { max-width: 100%; }
             .dashboard-hero,
             .dashboard-toolbar-panel,

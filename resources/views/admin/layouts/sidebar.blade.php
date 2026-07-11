@@ -218,14 +218,20 @@
             </div>
 
             <div class="sidebar-user-details">
-                <div class="sidebar-user-name">
+                <div class="sidebar-user-name"
+                    title="{{ $admin?->full_name ?? 'Administrator' }}">
                     {{ $admin?->full_name ?? 'Administrator' }}
-                    <div class="sidebar-user-role">
-                        {{ $admin?->getRoleDisplayName() ?? 'Admin' }}
-                    </div>
                 </div>
 
-                <div class="sidebar-user-email">
+                <div class="sidebar-user-role-row">
+                    <span class="sidebar-user-role"
+                        title="{{ $admin?->getRoleDisplayName() ?? 'Admin' }}">
+                        {{ $admin?->getRoleDisplayName() ?? 'Admin' }}
+                    </span>
+                </div>
+
+                <div class="sidebar-user-email"
+                    title="{{ $admin?->email ?? '' }}">
                     {{ $admin?->email ?? '' }}
                 </div>
             </div>

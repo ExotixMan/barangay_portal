@@ -66,26 +66,31 @@ class IncidentReportController extends Controller
             $sort = 'created_at';
         }
 
+        // Always place dropped (rejected) reports after every active status.
+        // This must be applied before the selected column sorting so it works globally.
+        $query->orderByRaw("CASE WHEN status = 'dropped' THEN 1 ELSE 0 END ASC");
+
         if ($sort === 'status') {
-            $query->orderByRaw("CASE status WHEN 'processing' THEN 1 WHEN 'resolved' THEN 2 WHEN 'dropped' THEN 3 ELSE 4 END {$direction}");
+            $query->orderByRaw("CASE status WHEN 'processing' THEN 1 WHEN 'resolved' THEN 2 ELSE 3 END {$direction}");
         } elseif ($sort === 'confidentiality') {
             $query->orderByRaw("CASE confidentiality WHEN 'low' THEN 1 WHEN 'medium' THEN 2 WHEN 'high' THEN 3 ELSE 4 END {$direction}");
         } else {
             $query->orderBy($sort, $direction);
         }
 
-        // Stable secondary sort to avoid row jumps when values are equal.
-        $query->orderBy('created_at', 'desc');
+        // Stable tie-breaker for records with equal sort values.
+        $query->orderByDesc('id');
 
         $total_count = BlotterReport::withTrashed()->count();
         $processing_count = BlotterReport::where('status', 'processing')->count();
         $resolved_count = BlotterReport::where('status', 'resolved')->count();
         $dropped_count = BlotterReport::where('status', 'dropped')->count();
 
-        $incidents = $query->with(['witnesses', 'files'])->paginate(20);
+        $incidents = $query->with(['witnesses', 'files'])->paginate(20)->withQueryString();
 
         return view('admin.admin_incident_report', compact('incidents', 'total_count', 'processing_count', 'resolved_count', 'dropped_count'));
     }
+
 
     public function store(Request $request)
     {

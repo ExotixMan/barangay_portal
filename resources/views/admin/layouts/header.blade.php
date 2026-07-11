@@ -141,6 +141,42 @@
                 </section>
             </div>
 
+            <div class="admin-font-controls"
+                role="group"
+                aria-label="Text size controls">
+
+                <button type="button"
+                        class="admin-font-control-button"
+                        id="adminFontDecrease"
+                        aria-label="Decrease text size"
+                        title="Decrease text size">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                    <span class="visually-hidden">Decrease text size</span>
+                </button>
+
+                <button type="button"
+                        class="admin-font-control-button admin-font-control-reset"
+                        id="adminFontReset"
+                        aria-label="Reset text size"
+                        title="Reset text size">
+                    <i class="fas fa-font" aria-hidden="true"></i>
+
+                    <span id="adminFontSizeLabel"
+                        aria-hidden="true">
+                        100%
+                    </span>
+                </button>
+
+                <button type="button"
+                        class="admin-font-control-button"
+                        id="adminFontIncrease"
+                        aria-label="Increase text size"
+                        title="Increase text size">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    <span class="visually-hidden">Increase text size</span>
+                </button>
+            </div>
+
             <div class="admin-notification-toast-container"
                  id="adminNotificationToastContainer"
                  aria-live="polite"

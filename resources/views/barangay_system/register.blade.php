@@ -2204,7 +2204,6 @@
                             <div>
                                 <span class="section-kicker"><i class="fas fa-id-card-clip"></i> {{ __('messages.blade_register_blade_valid_id_scanner') }}</span>
                                 <h4>{{ __('messages.blade_register_blade_scan_both_sides_of_your_valid_id') }}</h4>
-                                <p>{{ __('messages.blade_register_blade_the_camera_scanner_detects_the_id_card_crops_only_the_i') }}</p>
                             </div>
                             <span class="section-badge"><i class="fas fa-user-shield"></i> {{ __('messages.blade_register_blade_auto_crop_admin_review') }}</span>
                         </div>

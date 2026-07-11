@@ -9,9 +9,8 @@ class BarangayClearance extends Model
 {
     use SoftDeletes;
 
-
     protected $table = 'barangay_clearances';
-    
+
     protected $fillable = [
         'user_id',
         'reference_number',
@@ -29,10 +28,43 @@ class BarangayClearance extends Model
         'purpose',
         'purpose_other',
         'fee',
-        'status'
+        'status',
     ];
 
     protected $casts = [
+        'birthdate' => 'date',
         'fee' => 'decimal:2',
     ];
+
+    public function getFullNameAttribute(): string
+    {
+        return collect([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+            $this->suffix,
+        ])->filter()->implode(' ');
+    }
+
+    public function getPurposeLabelAttribute(): string
+    {
+        return match ($this->purpose) {
+            'employment' => 'Employment',
+            'business' => 'Business Permit',
+            'scholarship' => 'Scholarship',
+            'travel' => 'Travel / Abroad',
+            'bank' => 'Bank Transaction',
+            'government' => 'Government Transaction',
+            'school' => 'School Requirement',
+            'other' => $this->purpose_other ?: 'Other Purpose',
+            default => 'N/A',
+        };
+    }
+
+    public function getFeeLabelAttribute(): string
+    {
+        return $this->fee !== null
+            ? '₱' . number_format((float) $this->fee, 2)
+            : 'To be determined';
+    }
 }

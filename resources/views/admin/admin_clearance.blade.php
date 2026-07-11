@@ -258,7 +258,7 @@
                         <div class="min-w-0">
                             <span class="table-kicker"><i class="fas fa-database"></i> Application records</span>
                             <h3>Clearance application queue</h3>
-                            <p>Use the action buttons to view details, update status, generate documents, or archive records.</p>
+                            <p>Use View and Edit for common tasks. Documents and archive controls are grouped under More.</p>
                         </div>
                     </div>
                     <span class="table-count-pill"><i class="fas fa-list"></i>{{ $clearances->total() ?? 0 }} records</span>
@@ -266,13 +266,26 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="clearanceTable">
+                            <colgroup>
+                                <col class="col-select">
+                                <col class="col-applicant">
+                                <col class="col-contact">
+                                <col class="col-purpose">
+                                <col class="col-status">
+                                <col class="col-actions">
+                            </colgroup>
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input type="checkbox"
+                                               id="selectAll"
+                                               class="form-check-input table-checkbox"
+                                               onclick="toggleSelectAll()"
+                                               aria-label="Select all clearance applications">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
                                             Applicant / Reference
                                             @if(request('sort') == 'created_at')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
@@ -281,160 +294,262 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th>Applicant details</th>
+                                    <th>Contact</th>
                                     <th>Purpose / Fee</th>
                                     <th>Status / Submitted</th>
-                                    <th class="text-end pe-4">Actions</th>
+                                    <th class="text-end pe-4 actions-heading"><span class="visually-hidden">Actions</span></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @forelse($clearances as $app)
-                                <tr>
-                                    <td class="ps-4">
-                                        <input type="checkbox" value="{{ $app->id }}" class="application-checkbox">
-                                    </td>
-                                    <td class="ps-0">
-                                        <div class="application-primary">
-                                            <div class="application-avatar">
-                                                {{ strtoupper(substr($app->first_name ?? '', 0, 1) . substr($app->last_name ?? '', 0, 1)) }}
+                                    @php
+                                        $applicantName = collect([
+                                            $app->first_name,
+                                            $app->middle_name,
+                                            $app->last_name,
+                                            $app->suffix,
+                                        ])->filter()->implode(' ');
+
+                                        $purposeLabel = match ((string) $app->purpose) {
+                                            'employment' => 'Employment',
+                                            'business' => 'Business Permit',
+                                            'scholarship' => 'Scholarship',
+                                            'travel' => 'Travel / Abroad',
+                                            'bank' => 'Bank Transaction',
+                                            'government' => 'Government Transaction',
+                                            'school' => 'School Requirement',
+                                            'other' => $app->purpose_other ?: 'Other Purpose',
+                                            default => 'N/A',
+                                        };
+
+                                        $feeLabel = is_null($app->fee)
+                                            ? 'To be determined'
+                                            : '₱' . number_format((float) $app->fee, 2);
+                                    @endphp
+
+                                    <tr class="clearance-row {{ $app->deleted_at ? 'is-archived' : '' }}">
+                                        <td class="ps-4">
+                                            <input type="checkbox"
+                                                   value="{{ $app->id }}"
+                                                   class="form-check-input table-checkbox application-checkbox"
+                                                   aria-label="Select {{ $applicantName }}">
+                                        </td>
+
+                                        <td class="ps-0">
+                                            <div class="application-primary">
+                                                <div class="application-avatar" aria-hidden="true">
+                                                    {{ strtoupper(substr($app->first_name ?? 'C', 0, 1) . substr($app->last_name ?? '', 0, 1)) }}
+                                                </div>
+
+                                                <div class="min-w-0">
+                                                    <div class="application-name" title="{{ $applicantName }}">
+                                                        {{ $applicantName ?: 'Unnamed Applicant' }}
+                                                    </div>
+
+                                                    <div class="application-ref">
+                                                        <span class="ref-pill" title="{{ $app->reference_number }}">
+                                                            <i class="fas fa-hashtag" aria-hidden="true"></i>
+                                                            <span>{{ $app->reference_number ?: 'No reference' }}</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="application-name">
-                                                    {{ $app->first_name }} {{ $app->last_name }}{{ $app->suffix ? ' ' . $app->suffix : '' }}
-                                                </div>
-                                                <div class="application-ref">
-                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $app->reference_number }}</span>
-                                                    <span>{{ $app->created_at ? $app->created_at->format('M d, Y') : 'N/A' }}</span>
-                                                </div>
-                                                <div class="application-muted-line d-lg-none">
-                                                    <i class="fas fa-phone"></i>{{ $app->contact_number ?: 'No contact' }}
-                                                </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="info-stack clearance-contact">
+                                                <span class="info-main" title="{{ $app->email ?: 'No email' }}">
+                                                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                                                    <span>{{ $app->email ?: 'No email' }}</span>
+                                                </span>
+                                                <span class="info-sub" title="{{ $app->contact_number ?: 'No contact number' }}">
+                                                    <i class="fas fa-phone" aria-hidden="true"></i>
+                                                    <span>{{ $app->contact_number ?: 'No contact number' }}</span>
+                                                </span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="info-main">
-                                                {{ $app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('M d, Y') : 'N/A' }}
-                                            </span>
-                                            <span class="info-sub">
-                                                <i class="fas fa-venus-mars me-1"></i>{{ $app->gender ? ucfirst($app->gender) : 'N/A' }}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="info-main">
-                                                {{ $app->purpose ? ucwords(str_replace('_', ' ', $app->purpose)) : 'N/A' }}
-                                                @if($app->purpose_other)
-                                                    <span class="info-sub">({{ $app->purpose_other }})</span>
-                                                @endif
-                                            </span>
-                                            <span class="info-sub">
-                                                <i class="fas fa-receipt me-1"></i>
-                                                @if(is_null($app->fee))
-                                                    Depending on purpose
+                                        </td>
+
+                                        <td>
+                                            <div class="info-stack clearance-purpose">
+                                                <span class="info-main" title="{{ $purposeLabel }}">
+                                                    {{ $purposeLabel }}
+                                                </span>
+                                                <span class="info-sub fee-display {{ is_null($app->fee) ? 'is-pending' : '' }}"
+                                                      title="{{ $feeLabel }}">
+                                                    <i class="fas fa-receipt" aria-hidden="true"></i>
+                                                    <span>{{ $feeLabel }}</span>
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="status-cell">
+                                                @if($app->deleted_at)
+                                                    <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                                @elseif($app->status == 'approved')
+                                                    <span class="badge bg-success-subtle text-success">Approved</span>
+                                                @elseif($app->status == 'ready_pickup')
+                                                    <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                                @elseif($app->status == 'claimed')
+                                                    <span class="badge bg-success-subtle text-success">Claimed</span>
+                                                @elseif($app->status == 'rejected')
+                                                    <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                                @elseif($app->status == 'pending')
+                                                    <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                                @elseif($app->status == 'under_review')
+                                                    <span class="badge bg-primary-subtle text-primary">Under Review</span>
                                                 @else
-                                                    PHP {{ number_format((float) $app->fee, 2) }}
+                                                    <span class="badge bg-warning-subtle text-warning">Processing</span>
                                                 @endif
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-cell">
-                                            @if($app->deleted_at)
-                                                <span class="badge bg-danger-subtle text-danger">Archived</span>
-                                            @elseif($app->status == 'approved')
-                                                <span class="badge bg-success-subtle text-success">Approved</span>
-                                            @elseif($app->status == 'ready_pickup')
-                                                <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
-                                            @elseif($app->status == 'claimed')
-                                                <span class="badge bg-success-subtle text-success">Claimed</span>
-                                            @elseif($app->status == 'rejected')
-                                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
-                                            @elseif($app->status == 'pending')
-                                                <span class="badge bg-secondary-subtle text-secondary">Pending</span>
-                                            @elseif($app->status == 'under_review')
-                                                <span class="badge bg-primary-subtle text-primary">Under Review</span>
-                                            @else
-                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                            @endif
-                                            <span class="status-date"><i class="fas fa-calendar-day me-1"></i>{{ $app->created_at ? $app->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <div class="action-buttons">
-                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
 
-                                            <!-- Status Change Button -->
-                                            @if(!$app->deleted_at && (auth('admin')->user()->hasPermission('update_clearance') || 
-                                                auth('admin')->user()->hasPermission('approve_clearance') || 
-                                                auth('admin')->user()->hasPermission('reject_clearance')))
-                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $app->id }}" title="Update">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update (No permission)">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @endif
+                                                <span class="status-date"
+                                                      title="{{ $app->created_at ? $app->created_at->format('F d, Y h:i A') : 'N/A' }}">
+                                                    <i class="fas fa-calendar-day" aria-hidden="true"></i>
+                                                    <span>{{ $app->created_at ? $app->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                            <!-- Document Button -->
-                                            @if(!$app->deleted_at && auth('admin')->user()->hasPermission('generate_clearance_document') && 
-                                                in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $app->id }}" title="Docs">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Docs (Unavailable)">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @endif
-
-                                            <!-- Archive / Restore Button -->
-                                            @if($app->deleted_at && auth('admin')->user()->hasPermission('delete_clearance'))
-                                            <form method="POST" action="{{ route('admin.clearance.restore', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this application?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
+                                        <td class="text-end pe-4 actions-cell">
+                                            <div class="action-buttons" aria-label="Controls for {{ $applicantName }}">
+                                                <button type="button"
+                                                        class="btn btn-sm action-btn action-primary action-view"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewModal{{ $app->id }}"
+                                                        title="View full details"
+                                                        aria-label="View full details for {{ $applicantName }}">
+                                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                                    <span class="action-label">View</span>
                                                 </button>
-                                            </form>
-                                            @elseif(auth('admin')->user()->hasPermission('delete_clearance'))
-                                            <form method="POST" action="{{ route('admin.clearance.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this application?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
-                                                    <i class="fas fa-box-archive"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive (No permission)">
-                                                <i class="fas fa-box-archive"></i>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
+
+                                                @if(!$app->deleted_at && (auth('admin')->user()->hasPermission('update_clearance') || auth('admin')->user()->hasPermission('approve_clearance') || auth('admin')->user()->hasPermission('reject_clearance')))
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-primary action-update"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateStatusModal{{ $app->id }}"
+                                                            title="Edit application status"
+                                                            aria-label="Edit application status for {{ $applicantName }}">
+                                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @else
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-primary action-update"
+                                                            disabled
+                                                            title="Edit unavailable"
+                                                            aria-label="Edit unavailable for {{ $applicantName }}">
+                                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @endif
+
+                                                <div class="dropdown action-more-dropdown">
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-more-toggle icon-only"
+                                                            data-bs-toggle="dropdown"
+                                                            data-bs-boundary="viewport"
+                                                            data-bs-auto-close="outside"
+                                                            aria-expanded="false"
+                                                            title="More options"
+                                                            aria-label="More options for {{ $applicantName }}">
+                                                        <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                        @if(!$app->deleted_at && auth('admin')->user()->hasPermission('generate_clearance_document') && in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
+                                                            <button type="button"
+                                                                    class="dropdown-item action-menu-item"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#docsModal{{ $app->id }}">
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Generate documents</strong>
+                                                                    <small>Create or download clearance files</small>
+                                                                </span>
+                                                            </button>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled"
+                                                                  aria-disabled="true"
+                                                                  title="Documents are available after approval">
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Documents unavailable</strong>
+                                                                    <small>Approve the application first</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+
+                                                        <div class="dropdown-divider"></div>
+
+                                                        @if($app->deleted_at && auth('admin')->user()->hasPermission('delete_clearance'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.clearance.restore', $app->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Restore this application?')">
+                                                                @csrf
+                                                                <button type="submit" class="dropdown-item action-menu-item">
+                                                                    <span class="action-menu-icon action-menu-icon-restore">
+                                                                        <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Restore application</strong>
+                                                                        <small>Return this record to the active list</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @elseif(auth('admin')->user()->hasPermission('delete_clearance'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.clearance.destroy', $app->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Archive this application?')">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item action-menu-item action-menu-danger">
+                                                                    <span class="action-menu-icon action-menu-icon-archive">
+                                                                        <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Archive application</strong>
+                                                                        <small>Keep the record without deleting it</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled" aria-disabled="true">
+                                                                <span class="action-menu-icon action-menu-icon-archive">
+                                                                    <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Archive unavailable</strong>
+                                                                    <small>You do not have permission</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="empty-state py-4">
-                                            <span class="empty-state-icon mb-3"><i class="fas fa-file-contract"></i></span>
-                                            <h5>No clearance applications found</h5>
-                                            <p>Try adjusting your search/filter or create a new clearance application.</p>
-                                            @admin_can('create_clearance')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                                <i class="fas fa-plus me-2"></i>New Application
-                                            </button>
-                                            @endadmin_can
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="empty-state py-4">
+                                                <span class="empty-state-icon mb-3"><i class="fas fa-file-contract"></i></span>
+                                                <h5>No clearance applications found</h5>
+                                                <p>Try adjusting your search/filter or create a new clearance application.</p>
+                                                @admin_can('create_clearance')
+                                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
+                                                        <i class="fas fa-plus me-2"></i>New Application
+                                                    </button>
+                                                @endadmin_can
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -753,7 +868,7 @@
                                             <label class="form-label">Birthdate <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control @if(session('form_type') == 'edit_' . $app->id) @error('birthdate') is-invalid @enderror @endif" 
                                                 name="birthdate" id="edit_birthdate_{{ $app->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('birthdate', $app->birthdate) : $app->birthdate }}" 
+                                                value="{{ session('form_type') == 'edit_' . $app->id ? old('birthdate', $app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('Y-m-d') : '') : ($app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('Y-m-d') : '') }}" 
                                                 required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'edit_' . $app->id)
                                                 @error('birthdate')
@@ -1121,7 +1236,7 @@
                                                     </div>
                                                     <div class="edit-field edit-col-4">
                                                         <label class="form-label"><i class="fas fa-cake-candles"></i>Birthdate</label>
-                                                        <input type="date" name="birthdate" class="form-control" value="{{ $app->birthdate }}" required max="{{ date('Y-m-d') }}">
+                                                        <input type="date" name="birthdate" class="form-control" value="{{ $app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('Y-m-d') : '' }}" required max="{{ date('Y-m-d') }}">
                                                     </div>
                                                     <div class="edit-field edit-col-4">
                                                         <label class="form-label"><i class="fas fa-venus-mars"></i>Gender</label>

@@ -245,171 +245,319 @@
                             <div>
                                 <span class="table-kicker">Case queue</span>
                                 <h3>Incident reports</h3>
-                                <p>Only high-value case details are shown here. Open the modal for full statements, witnesses, evidence files, and complete history.</p>
+                                <p>Scan the essential case details, then use View or the three-dot menu for status and archive controls.</p>
                             </div>
                         </div>
                         <span class="table-count-pill"><i class="fas fa-book"></i>{{ $incidents->total() ?? 0 }} records</span>
                     </div>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="blotterTable">
+                            <colgroup>
+                                <col class="col-select">
+                                <col class="col-incident">
+                                <col class="col-parties">
+                                <col class="col-location">
+                                <col class="col-classification">
+                                <col class="col-status">
+                                <col class="col-actions">
+                            </colgroup>
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input type="checkbox"
+                                               id="selectAll"
+                                               onclick="toggleSelectAll()"
+                                               aria-label="Select all incident reports">
                                     </th>
+
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'reference_number', 'direction' => request('sort') === 'reference_number' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'reference_number', 'direction' => request('sort') === 'reference_number' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
                                             Incident / Reference
-                                            @if(request('sort') == 'reference_number')
+                                            @if(request('sort') === 'reference_number')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
                                                 <i class="fas fa-sort text-muted ms-1"></i>
                                             @endif
                                         </a>
                                     </th>
+
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('sort') === 'complainant_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
-                                            Parties / Location
-                                            @if(request('sort') == 'complainant_name')
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'complainant_name', 'direction' => request('sort') === 'complainant_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
+                                            Parties
+                                            @if(request('sort') === 'complainant_name')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
                                                 <i class="fas fa-sort text-muted ms-1"></i>
                                             @endif
                                         </a>
                                     </th>
+
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'confidentiality', 'direction' => request('sort') === 'confidentiality' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
-                                            Classification
-                                            @if(request('sort') == 'confidentiality')
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'location', 'direction' => request('sort') === 'location' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
+                                            Location
+                                            @if(request('sort') === 'location')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
                                                 <i class="fas fa-sort text-muted ms-1"></i>
                                             @endif
                                         </a>
                                     </th>
+
                                     <th>
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'report_type', 'direction' => request('sort') === 'report_type' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
+                                            Type / Privacy
+                                            @if(request('sort') === 'report_type')
+                                                <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort text-muted ms-1"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+
+                                    <th>
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'status', 'direction' => request('sort') === 'status' && request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
                                             Status / Submitted
-                                            @if(request('sort') == 'status')
+                                            @if(request('sort') === 'status')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
                                                 <i class="fas fa-sort text-muted ms-1"></i>
                                             @endif
                                         </a>
                                     </th>
-                                    <th class="text-end pe-4">Actions</th>
+
+                                    <th class="text-end pe-4 actions-heading"><span class="visually-hidden">Actions</span></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @forelse($incidents as $blotter)
-                                <tr class="{{ $blotter->deleted_at ? 'table-danger' : '' }}">
-                                    <td class="ps-4">
-                                        <input type="checkbox" value="{{ $blotter->id }}" class="application-checkbox">
-                                    </td>
-                                    <td class="ps-0">
-                                        <div class="application-primary">
-                                            <div class="application-avatar">
-                                                <i class="fas fa-book"></i>
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="application-name">{{ ucfirst(str_replace('_', ' ', $blotter->report_type)) }}</div>
-                                                <div class="application-ref">
-                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $blotter->reference_number }}</span>
-                                                    <span>{{ $blotter->incident_date ? \Carbon\Carbon::parse($blotter->incident_date)->format('M d, Y') : 'N/A' }}</span>
+                                    <tr class="incident-row {{ $blotter->deleted_at ? 'is-archived' : '' }}">
+                                        <td class="ps-4">
+                                            <input type="checkbox"
+                                                   value="{{ $blotter->id }}"
+                                                   class="application-checkbox"
+                                                   aria-label="Select incident {{ $blotter->reference_number }}">
+                                        </td>
+
+                                        <td class="ps-0">
+                                            <div class="application-primary incident-reference-block">
+                                                <div class="application-avatar">
+                                                    <i class="fas fa-book-open" aria-hidden="true"></i>
+                                                </div>
+
+                                                <div class="min-w-0">
+                                                    <div class="application-name"
+                                                         title="{{ $blotter->reference_number }}">
+                                                        {{ $blotter->reference_number ?: 'No reference number' }}
+                                                    </div>
+
+                                                    <div class="application-muted-line incident-occurrence"
+                                                         title="Occurred {{ $blotter->incident_schedule_label }}">
+                                                        <i class="far fa-calendar" aria-hidden="true"></i>
+                                                        <span>Occurred {{ $blotter->incident_schedule_label }}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="party-stack">
-                                            <div class="party-line"><i class="fas fa-user"></i><span>Complainant: <strong>{{ $blotter->complainant_name }}</strong></span></div>
-                                            <div class="party-line"><i class="fas fa-user-shield"></i><span>Respondent: <strong>{{ $blotter->respondent_name ?: 'N/A' }}</strong></span></div>
-                                            <div class="party-line"><i class="fas fa-location-dot"></i><span>{{ $blotter->location ?: 'No location set' }}</span></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="incident-type-pill"><i class="fas fa-triangle-exclamation"></i>{{ ucfirst(str_replace('_', ' ', $blotter->report_type)) }}</span>
-                                            <span class="confidentiality-pill confidentiality-{{ $blotter->confidentiality }}">
-                                                <i class="fas fa-lock"></i>{{ ucfirst($blotter->confidentiality) }}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-cell">
-                                            @if($blotter->deleted_at)
-                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-box-archive me-1"></i>Archived</span>
-                                            @elseif($blotter->status == 'resolved')
-                                                <span class="badge bg-success-subtle text-success"><i class="fas fa-check-circle me-1"></i>Resolved</span>
-                                            @elseif($blotter->status == 'dropped')
-                                                <span class="badge bg-danger-subtle text-danger"><i class="fas fa-times-circle me-1"></i>Dropped</span>
-                                            @else
-                                                <span class="badge bg-warning-subtle text-warning"><i class="fas fa-clock me-1"></i>Processing</span>
-                                            @endif
-                                            <span class="status-date"><i class="fas fa-calendar-plus"></i>{{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $blotter->id }}" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                        </td>
 
-                                            <span class="action-divider">|</span>
+                                        <td>
+                                            <div class="party-stack">
+                                                <div class="party-line">
+                                                    <i class="fas fa-user" aria-hidden="true"></i>
+                                                    <span title="{{ $blotter->complainant_name ?: 'N/A' }}">
+                                                        <span class="party-label">Complainant</span>
+                                                        <strong>{{ $blotter->complainant_name ?: 'N/A' }}</strong>
+                                                    </span>
+                                                </div>
 
-                                            @if(!$blotter->deleted_at && (auth('admin')->user()->hasPermission('approve_blotter') || auth('admin')->user()->hasPermission('reject_blotter')))
-                                            <button class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $blotter->id }}" title="Update">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update (Unavailable)">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @endif
+                                                <div class="party-line">
+                                                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                                                    <span title="{{ $blotter->respondent_name ?: 'N/A' }}">
+                                                        <span class="party-label">Respondent</span>
+                                                        <strong>{{ $blotter->respondent_name ?: 'N/A' }}</strong>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                                            <span class="action-divider">|</span>
+                                        <td class="incident-location-cell">
+                                            <div class="location-display"
+                                                 title="{{ $blotter->location ?: 'No location set' }}">
+                                                <i class="fas fa-location-dot" aria-hidden="true"></i>
+                                                <span class="location-text">
+                                                    {{ $blotter->location ?: 'No location set' }}
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                            @if(!$blotter->deleted_at && auth('admin')->user()->hasPermission('delete_blotter'))
-                                            <form method="POST" action="{{ route('admin.blotter.destroy', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this incident report?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
-                                                    <i class="fas fa-box-archive"></i>
+                                        <td>
+                                            <div class="info-stack incident-classification-stack">
+                                                <span class="incident-type-pill"
+                                                      title="Report type: {{ $blotter->report_type_label }}">
+                                                    <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                                                    {{ $blotter->report_type_label }}
+                                                </span>
+
+                                                <span class="confidentiality-pill confidentiality-{{ $blotter->confidentiality }}"
+                                                      title="Privacy: {{ $blotter->confidentiality_label }}">
+                                                    <i class="fas fa-shield-halved" aria-hidden="true"></i>
+                                                    {{ $blotter->confidentiality_label }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="status-cell">
+                                                @if($blotter->deleted_at)
+                                                    <span class="badge bg-danger-subtle text-danger">
+                                                        <i class="fas fa-box-archive me-1" aria-hidden="true"></i>Archived
+                                                    </span>
+                                                @elseif($blotter->status === 'resolved')
+                                                    <span class="badge bg-success-subtle text-success">
+                                                        <i class="fas fa-check-circle me-1" aria-hidden="true"></i>Resolved
+                                                    </span>
+                                                @elseif($blotter->status === 'dropped')
+                                                    <span class="badge bg-danger-subtle text-danger">
+                                                        <i class="fas fa-times-circle me-1" aria-hidden="true"></i>Dropped
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-warning-subtle text-warning">
+                                                        <i class="fas fa-clock me-1" aria-hidden="true"></i>Processing
+                                                    </span>
+                                                @endif
+
+                                                <span class="status-date"
+                                                      title="Submitted {{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}">
+                                                    <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+                                                    {{ $blotter->created_at ? $blotter->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-end pe-4 actions-cell">
+                                            <div class="action-buttons"
+                                                 aria-label="Controls for incident {{ $blotter->reference_number }}">
+                                                <button type="button"
+                                                        class="btn btn-sm action-btn action-primary action-view"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewModal{{ $blotter->id }}"
+                                                        title="View incident details"
+                                                        aria-label="View incident {{ $blotter->reference_number }}">
+                                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                                    <span class="action-label">View</span>
                                                 </button>
-                                            </form>
-                                            @elseif($blotter->deleted_at && auth('admin')->user()->hasPermission('restore_blotter'))
-                                            <form method="POST" action="{{ route('admin.blotter.restore', $blotter->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this incident report?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm action-btn action-restore icon-only" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive (Unavailable)">
-                                                <i class="fas fa-box-archive"></i>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
+
+
+                                                <div class="dropdown action-more-dropdown">
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-more-toggle icon-only"
+                                                            data-bs-toggle="dropdown"
+                                                            data-bs-boundary="viewport"
+                                                            aria-expanded="false"
+                                                            title="More options"
+                                                            aria-label="More options for incident {{ $blotter->reference_number }}">
+                                                        <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                        @if(!$blotter->deleted_at && (auth('admin')->user()->hasPermission('approve_blotter') || auth('admin')->user()->hasPermission('reject_blotter')))
+                                                            <button type="button"
+                                                                    class="dropdown-item action-menu-item"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#updateStatusModal{{ $blotter->id }}">
+                                                                <span class="action-menu-icon action-menu-icon-status">
+                                                                    <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Update case status</strong>
+                                                                    <small>Mark as processing, resolved, or dropped</small>
+                                                                </span>
+                                                            </button>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled" aria-disabled="true">
+                                                                <span class="action-menu-icon action-menu-icon-status">
+                                                                    <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Status update unavailable</strong>
+                                                                    <small>The report is archived or permission is missing</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+
+                                                        <div class="dropdown-divider"></div>
+
+                                                        @if(!$blotter->deleted_at && auth('admin')->user()->hasPermission('delete_blotter'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.blotter.destroy', $blotter->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Archive this incident report?')">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item action-menu-item action-menu-danger">
+                                                                    <span class="action-menu-icon action-menu-icon-archive">
+                                                                        <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Archive incident</strong>
+                                                                        <small>Keep the report without permanently deleting it</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @elseif($blotter->deleted_at && auth('admin')->user()->hasPermission('restore_blotter'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.blotter.restore', $blotter->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Restore this incident report?')">
+                                                                @csrf
+                                                                <button type="submit" class="dropdown-item action-menu-item">
+                                                                    <span class="action-menu-icon action-menu-icon-restore">
+                                                                        <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Restore incident</strong>
+                                                                        <small>Return this report to the active case list</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled" aria-disabled="true">
+                                                                <span class="action-menu-icon action-menu-icon-archive">
+                                                                    <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Archive unavailable</strong>
+                                                                    <small>You do not have permission for this action</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="empty-state-box">
-                                            <div class="empty-state-icon"><i class="fas fa-book"></i></div>
-                                            <h5>No incident reports found</h5>
-                                            <p>Try adjusting your search or filters, or add a new report.</p>
-                                            @admin_can('create_blotter')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
-                                                <i class="fas fa-plus me-2"></i>Add New
-                                            </button>
-                                            @endadmin_can
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="empty-state-box">
+                                                <div class="empty-state-icon"><i class="fas fa-book"></i></div>
+                                                <h5>No incident reports found</h5>
+                                                <p>Try adjusting your search or filters, or add a new report.</p>
+                                                @admin_can('create_blotter')
+                                                    <button class="btn btn-primary btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#addIncidentModal">
+                                                        <i class="fas fa-plus me-2"></i>Add New
+                                                    </button>
+                                                @endadmin_can
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -1087,7 +1235,7 @@
                                         @else
                                             <span class="badge bg-warning-subtle text-warning">Processing</span>
                                         @endif
-                                        <span class="badge bg-info-subtle text-info">{{ ucwords(str_replace('_', ' ', $blotter->report_type)) }}</span>
+                                        <span class="badge bg-info-subtle text-info">{{ $blotter->report_type_label }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1142,11 +1290,11 @@
                                         <div class="detail-grid">
                                             <div class="detail-item">
                                                 <span class="detail-label">Report type</span>
-                                                <div class="detail-value">{{ $blotter->report_type ? ucwords(str_replace('_', ' ', $blotter->report_type)) : 'N/A' }}</div>
+                                                <div class="detail-value">{{ $blotter->report_type_label }}</div>
                                             </div>
                                             <div class="detail-item">
                                                 <span class="detail-label">Confidentiality</span>
-                                                <div class="detail-value">{{ $blotter->confidentiality ? ucfirst($blotter->confidentiality) : 'N/A' }}</div>
+                                                <div class="detail-value">{{ $blotter->confidentiality_label }}</div>
                                             </div>
                                             <div class="detail-item">
                                                 <span class="detail-label">Incident date</span>

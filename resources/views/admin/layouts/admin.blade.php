@@ -15,17 +15,34 @@
     <script>
         (function () {
             try {
-                var saved = localStorage.getItem('bisig-admin-theme');
-                var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                var theme = saved === 'dark' || saved === 'light'
-                    ? saved
+                var savedTheme = localStorage.getItem('bisig-admin-theme');
+                var systemDark = window.matchMedia
+                    && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                var theme = savedTheme === 'dark' || savedTheme === 'light'
+                    ? savedTheme
                     : (systemDark ? 'dark' : 'light');
 
                 document.documentElement.dataset.theme = theme;
                 document.documentElement.classList.toggle('dark-mode', theme === 'dark');
                 document.documentElement.style.colorScheme = theme;
+
+                var allowedFontSizes = [
+                    'small',
+                    'normal',
+                    'large',
+                    'x-large'
+                ];
+
+                var savedFontSize = localStorage.getItem('bisig-admin-font-size');
+
+                document.documentElement.dataset.fontSize =
+                    allowedFontSizes.includes(savedFontSize)
+                        ? savedFontSize
+                        : 'normal';
             } catch (error) {
                 document.documentElement.dataset.theme = 'light';
+                document.documentElement.dataset.fontSize = 'normal';
             }
         })();
     </script>
@@ -69,6 +86,7 @@
 
     @stack('scripts')
 
+    <script src="{{ asset('js/admin/admin-accessibility.js') }}" defer></script>
     <script src="{{ asset('js/admin/admin-notifications.js') }}" defer></script>
 </body>
 </html>

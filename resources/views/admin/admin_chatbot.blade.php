@@ -10,6 +10,13 @@
 
 @section('content')
             @admin_can('view_content')
+            @php
+                $pendingUnmatched = collect($unmatched ?? [])
+                    ->filter(fn ($item) => empty($item['resolved']))
+                    ->values();
+                $pendingUnmatchedCount = $pendingUnmatched->count();
+            @endphp
+
             <div class="chatbot-page">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show chatbot-alert" role="alert">
@@ -79,7 +86,7 @@
                         <div class="chatbot-stat-icon"><i class="bi bi-question-circle-fill"></i></div>
                         <div class="min-w-0">
                             <span>Unmatched Queries</span>
-                            <strong id="stat-unmatched">{{ $stats['unmatched_count'] ?? 0 }}</strong>
+                            <strong id="stat-unmatched">{{ $pendingUnmatchedCount }}</strong>
                             <small>Questions that need training review.</small>
                         </div>
                     </div>
@@ -94,16 +101,16 @@
                 </div>
 
                 <div class="tab-navigation" role="tablist" aria-label="Chatbot management tabs">
-                    <button class="tab-link active" data-tab="knowledge" type="button">
+                    <button class="tab-link active" id="knowledge-tab" data-tab="knowledge" type="button" role="tab" aria-selected="true" aria-controls="tab-knowledge">
                         <i class="fas fa-database"></i>Knowledge Base
                     </button>
-                    <button class="tab-link" data-tab="unmatched" type="button">
+                    <button class="tab-link" id="unmatched-tab" data-tab="unmatched" type="button" role="tab" aria-selected="false" aria-controls="tab-unmatched">
                         <i class="fas fa-circle-question"></i>Unmatched Queries
                     </button>
                 </div>
 
                 <div class="chatbot-workspace">
-                    <div id="tab-knowledge" class="tab-content active">
+                    <div id="tab-knowledge" class="tab-content active" role="tabpanel" aria-labelledby="knowledge-tab">
                         <div class="chatbot-panel">
                             <div class="panel-header">
                                 <div class="panel-title">
@@ -157,7 +164,7 @@
                                     </select>
                                 </div>
 
-                                <button class="btn btn-light-soft btn-sm filter-reset-btn" id="kb-filter-reset" type="button" title="Reset filters">
+                                <button class="btn btn-light-soft btn-sm filter-reset-btn" id="kb-filter-reset" type="button" title="Reset filters" aria-label="Reset filters">
                                     <i class="bi bi-arrow-counterclockwise"></i>
                                 </button>
 
@@ -185,18 +192,35 @@
                                         <tr data-id="{{ $k['id'] }}" data-category="{{ strtolower($k['category'] ?? 'general') }}" data-usage="{{ $k['usage_count'] ?? 0 }}">
                                             <td class="kb-question">{{ Str::limit($k['question'], 90) }}</td>
                                             <td class="kb-answer">{{ Str::limit($k['answer'], 130) }}</td>
-                                            <td><span class="keyword-text">{{ Str::limit($k['keywords'] ?? 'No keywords', 70) }}</span></td>
+                                            @php
+                                                $keywordList = collect(explode(',', (string) ($k['keywords'] ?? '')))
+                                                    ->map(fn ($keyword) => trim($keyword))
+                                                    ->filter()
+                                                    ->values();
+                                            @endphp
+                                            <td title="{{ $keywordList->implode(', ') }}">
+                                                <div class="keyword-list">
+                                                    @forelse($keywordList->take(3) as $keyword)
+                                                        <span class="keyword-chip">{{ Str::limit($keyword, 22) }}</span>
+                                                    @empty
+                                                        <span class="keyword-empty">No keywords</span>
+                                                    @endforelse
+                                                    @if($keywordList->count() > 3)
+                                                        <span class="keyword-more">+{{ $keywordList->count() - 3 }}</span>
+                                                    @endif
+                                                </div>
+                                            </td>
                                             <td><span class="badge-category">{{ $k['category'] ?? 'general' }}</span></td>
                                             <td><span class="usage-pill">{{ $k['usage_count'] ?? 0 }}</span></td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
                                                     @admin_can('edit_content')
-                                                    <button class="btn btn-outline-secondary btn-edit" data-id="{{ $k['id'] }}" data-question="{{ addslashes($k['question']) }}" data-answer="{{ addslashes($k['answer']) }}" data-keywords="{{ addslashes($k['keywords'] ?? '') }}" data-category="{{ $k['category'] ?? 'general' }}" title="Edit" type="button">
+                                                    <button class="btn btn-outline-secondary btn-edit" data-id="{{ $k['id'] }}" data-question="{{ $k['question'] }}" data-answer="{{ $k['answer'] }}" data-keywords="{{ $k['keywords'] ?? '' }}" data-category="{{ $k['category'] ?? 'general' }}" title="Edit knowledge" aria-label="Edit knowledge" type="button">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     @endadmin_can
                                                     @admin_can('delete_content')
-                                                    <button class="btn btn-outline-danger btn-delete" data-id="{{ $k['id'] }}" title="Delete" type="button">
+                                                    <button class="btn btn-outline-danger btn-delete" data-id="{{ $k['id'] }}" title="Delete knowledge" aria-label="Delete knowledge" type="button">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                     @endadmin_can
@@ -231,7 +255,7 @@
                         </div>
                     </div>
 
-                    <div id="tab-unmatched" class="tab-content">
+                    <div id="tab-unmatched" class="tab-content" role="tabpanel" aria-labelledby="unmatched-tab">
                         <div class="chatbot-panel">
                             <div class="panel-header">
                                 <div class="panel-title">
@@ -239,64 +263,76 @@
                                     <div class="min-w-0">
                                         <div class="section-kicker"><i class="bi bi-magic"></i> Training Queue</div>
                                         <h3>Unmatched Queries</h3>
-                                        <p class="panel-copy">Review questions the bot could not answer and turn useful ones into knowledge items.</p>
+                                        <p class="panel-copy">Train useful questions into knowledge, or dismiss entries that are unrelated to barangay services.</p>
                                     </div>
                                 </div>
 
                                 <div class="panel-actions">
-                                    <span class="chatbot-count">{{ $stats['unmatched_count'] ?? count($unmatched) }} pending</span>
+                                    <span class="chatbot-count" id="unmatched-count">{{ $pendingUnmatchedCount }} pending</span>
                                 </div>
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle">
+                                <table class="table table-hover align-middle unmatched-table" id="unmatched-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:36%">Query</th>
-                                            <th style="width:16%">Session</th>
+                                            <th style="width:42%">Query</th>
+                                            <th style="width:18%">Session</th>
                                             <th style="width:16%">Time</th>
-                                            <th style="width:12%">Status</th>
-                                            <th style="width:20%">Action</th>
+                                            <th style="width:24%">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @forelse($unmatched as $u)
-                                        <tr class="{{ $u['resolved'] ? 'resolved-row' : 'unmatched-row' }}" data-unmatched-id="{{ $u['id'] }}">
+                                    <tbody id="unmatched-tbody">
+                                        @forelse($pendingUnmatched as $u)
+                                        <tr class="unmatched-row" data-unmatched-id="{{ $u['id'] }}">
                                             <td class="unmatched-query" title="{{ $u['query'] }}">{{ $u['query'] }}</td>
-                                            <td><span class="session-pill">{{ Str::limit($u['session_id'] ?? 'No session', 16) }}</span></td>
-                                            <td><small class="text-muted">{{ \Carbon\Carbon::parse($u['created_at'])->diffForHumans() }}</small></td>
                                             <td>
-                                                @if($u['resolved'])
-                                                    <span class="status-badge is-resolved">Resolved</span>
-                                                @else
-                                                    <span class="status-badge is-pending">Pending</span>
-                                                @endif
+                                                <div class="session-control">
+                                                    <span class="session-pill" title="{{ $u['session_id'] ?? 'No session' }}">
+                                                        {{ Str::limit($u['session_id'] ?? 'No session', 16) }}
+                                                    </span>
+                                                    @if(!empty($u['session_id']))
+                                                    <button class="session-copy" type="button"
+                                                            data-session="{{ $u['session_id'] }}"
+                                                            title="Copy full session ID"
+                                                            aria-label="Copy full session ID">
+                                                        <i class="bi bi-copy"></i>
+                                                    </button>
+                                                    @endif
+                                                </div>
                                             </td>
+                                            <td><small class="query-time">{{ \Carbon\Carbon::parse($u['created_at'])->diffForHumans() }}</small></td>
                                             <td>
-                                                <div class="btn-group btn-group-sm">
+                                                <div class="btn-group btn-group-sm unmatched-actions">
                                                     @admin_can('create_content')
-                                                    <button class="btn btn-outline-primary btn-train" data-query="{{ addslashes($u['query']) }}" type="button">
-                                                        <i class="bi bi-plus"></i>Train Bot
+                                                    <button class="btn btn-train"
+                                                            data-id="{{ $u['id'] }}"
+                                                            data-query="{{ $u['query'] }}"
+                                                            title="Create a knowledge item from this query"
+                                                            type="button">
+                                                        <i class="bi bi-plus-lg"></i>Train Bot
                                                     </button>
                                                     @endadmin_can
                                                     @admin_can('edit_content')
-                                                    @if(!$u['resolved'])
-                                                        <button class="btn btn-outline-success btn-resolve" data-id="{{ $u['id'] }}" type="button">
-                                                            <i class="bi bi-check2"></i>Resolve
-                                                        </button>
-                                                    @endif
+                                                    <button class="btn btn-dismiss"
+                                                            data-id="{{ $u['id'] }}"
+                                                            data-query="{{ $u['query'] }}"
+                                                            title="Dismiss this unrelated or unhelpful query"
+                                                            type="button">
+                                                        <i class="bi bi-x-lg"></i>Dismiss
+                                                    </button>
                                                     @endadmin_can
                                                 </div>
                                             </td>
                                         </tr>
                                         @empty
-                                        <tr>
-                                            <td colspan="5">
+                                        <tr class="empty-unmatched-row">
+                                            <td colspan="4">
                                                 <div class="empty-state">
                                                     <div>
                                                         <div class="empty-icon"><i class="bi bi-check2-circle"></i></div>
-                                                        <h4>No unmatched queries</h4>
-                                                        <p>Your chatbot is currently answering all recorded questions successfully.</p>
+                                                        <h4>Training queue is clear</h4>
+                                                        <p>There are no pending unmatched questions to review.</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -328,13 +364,14 @@
                         <span class="knowledge-modal-icon"><i class="bi bi-plus-circle"></i></span>
                         <div class="min-w-0">
                             <h5 class="modal-title" id="addKnowledgeTitle">Add Knowledge</h5>
-                            <p class="modal-subtitle">Create a clear chatbot answer residents can find through related keywords and category filtering.</p>
+                            <p class="modal-subtitle" id="addKnowledgeSubtitle">Create a clear chatbot answer residents can find through related keywords and category filtering.</p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="add-form" class="knowledge-form">
+                        <input type="hidden" name="source_unmatched_id" id="source-unmatched-id" value="">
                         <div class="knowledge-form-grid">
                             <div class="knowledge-form-panel">
                                 <div class="knowledge-form-panel-title"><i class="bi bi-chat-square-text"></i> Main answer</div>
@@ -383,7 +420,7 @@
                     </form>
                 </div>
                 <div class="modal-footer knowledge-modal-footer">
-                    <span class="modal-safe-note"><i class="bi bi-shield-check"></i> Saved items become available to chatbot training.</span>
+                    <span class="modal-safe-note" id="addKnowledgeSafeNote"><i class="bi bi-shield-check"></i> Saved items become available to chatbot training.</span>
                     <div class="modal-footer-actions">
                         <button type="button" class="btn btn-light-soft" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" id="save-add"><i class="bi bi-save"></i>Save Knowledge</button>
@@ -485,12 +522,15 @@
             };
 
             function activateTab(tab) {
-                document.querySelectorAll('.tab-link[data-tab]').forEach(l => l.classList.toggle('active', l.dataset.tab === tab));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                const panel = document.getElementById('tab-' + tab);
-                if (panel) {
-                    panel.classList.add('active');
-                }
+                document.querySelectorAll('.tab-link[data-tab]').forEach(link => {
+                    const isActive = link.dataset.tab === tab;
+                    link.classList.toggle('active', isActive);
+                    link.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.toggle('active', content.id === 'tab-' + tab);
+                });
             }
 
             document.querySelectorAll('.tab-link[data-tab]').forEach(link => {
@@ -641,6 +681,105 @@
                 return Object.fromEntries(fd.entries());
             }
 
+            function updateUnmatchedCount() {
+                const pendingRows = document.querySelectorAll('#unmatched-tbody tr[data-unmatched-id]').length;
+                const stat = document.getElementById('stat-unmatched');
+                const count = document.getElementById('unmatched-count');
+
+                if (stat) {
+                    stat.textContent = String(pendingRows);
+                }
+
+                if (count) {
+                    count.textContent = `${pendingRows} pending`;
+                }
+
+                if (pendingRows === 0) {
+                    const tbody = document.getElementById('unmatched-tbody');
+                    if (tbody) {
+                        tbody.innerHTML = `
+                            <tr class="empty-unmatched-row">
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div>
+                                            <div class="empty-icon"><i class="bi bi-check2-circle"></i></div>
+                                            <h4>Training queue is clear</h4>
+                                            <p>There are no pending unmatched questions to review.</p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>`;
+                    }
+                }
+            }
+
+            async function markUnmatchedProcessed(id) {
+                return api('PATCH', withId(chatbotRoutes.unmatchedResolveTemplate, id));
+            }
+
+            function setAddModalContext(unmatchedId = '', query = '') {
+                const addForm = document.getElementById('add-form');
+                const sourceInput = document.getElementById('source-unmatched-id');
+                const title = document.getElementById('addKnowledgeTitle');
+                const subtitle = document.getElementById('addKnowledgeSubtitle');
+                const safeNote = document.getElementById('addKnowledgeSafeNote');
+                const saveButton = document.getElementById('save-add');
+
+                if (addForm) {
+                    addForm.reset();
+                    clearFormErrors(addForm);
+                }
+
+                if (sourceInput) {
+                    sourceInput.value = unmatchedId;
+                }
+
+                if (addForm && query) {
+                    const questionInput = addForm.querySelector('[name="question"]');
+                    if (questionInput) {
+                        questionInput.value = query;
+                    }
+                }
+
+                const isTraining = Boolean(unmatchedId);
+                if (title) {
+                    title.textContent = isTraining ? 'Train Chatbot' : 'Add Knowledge';
+                }
+                if (subtitle) {
+                    subtitle.textContent = isTraining
+                        ? 'Create the correct answer for this unmatched question. Saving it will remove the query from the training queue.'
+                        : 'Create a clear chatbot answer residents can find through related keywords and category filtering.';
+                }
+                if (safeNote) {
+                    safeNote.innerHTML = isTraining
+                        ? '<i class="bi bi-check2-circle"></i> Saving also marks the unmatched query as processed.'
+                        : '<i class="bi bi-shield-check"></i> Saved items become available to chatbot training.';
+                }
+                if (saveButton) {
+                    saveButton.innerHTML = isTraining
+                        ? '<i class="bi bi-save"></i>Save &amp; Mark Trained'
+                        : '<i class="bi bi-save"></i>Save Knowledge';
+                }
+            }
+
+            function copyText(value) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(value);
+                }
+
+                return new Promise((resolve, reject) => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = value;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    const copied = document.execCommand('copy');
+                    textarea.remove();
+                    copied ? resolve() : reject(new Error('Copy failed'));
+                });
+            }
+
             function toast(msg, type = 'success') {
                 const el = document.createElement('div');
                 const icon = type === 'success' ? 'check-circle' : (type === 'warning' ? 'exclamation-triangle' : 'x-circle');
@@ -654,6 +793,12 @@
                     setTimeout(() => el.remove(), 250);
                 }, 3500);
             }
+
+            const addModalElement = document.getElementById('addModal');
+            document.querySelectorAll('[data-bs-target="#addModal"]').forEach(button => {
+                button.addEventListener('click', () => setAddModalContext());
+            });
+            addModalElement?.addEventListener('hidden.bs.modal', () => setAddModalContext());
 
             ['add-form', 'edit-form', 'quick-add-form'].forEach(formId => {
                 const form = document.getElementById(formId);
@@ -699,31 +844,59 @@
 
             const saveAddBtn = document.getElementById('save-add');
             if (saveAddBtn) {
-            saveAddBtn.addEventListener('click', async function () {
-                const addForm = document.getElementById('add-form');
-                if (!validateKnowledgeForm(addForm)) {
-                    toast('Please fix the validation errors first.', 'warning');
-                    return;
-                }
-                const data = formData(addForm);
-                try {
-                    const res = await api('POST', chatbotRoutes.knowledgeStore, data);
-                    if (res.success) {
-                        toast('Knowledge saved!');
-                        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-                        setTimeout(() => location.reload(), 800);
-                    } else {
-                        toast(res.message || 'Error', 'danger');
-                    }
-                } catch (error) {
-                    if (error.status === 422) {
-                        applyServerErrors(addForm, error.payload?.errors);
+                saveAddBtn.addEventListener('click', async function () {
+                    const addForm = document.getElementById('add-form');
+                    if (!validateKnowledgeForm(addForm)) {
                         toast('Please fix the validation errors first.', 'warning');
                         return;
                     }
-                    toast('Network error', 'danger');
-                }
-            });
+
+                    const sourceUnmatchedId = (document.getElementById('source-unmatched-id')?.value || '').trim();
+                    const data = formData(addForm);
+                    delete data.source_unmatched_id;
+
+                    const originalHtml = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>Saving...';
+
+                    try {
+                        const res = await api('POST', chatbotRoutes.knowledgeStore, data);
+                        if (!res.success) {
+                            toast(res.message || 'Unable to save knowledge.', 'danger');
+                            return;
+                        }
+
+                        let queryProcessed = !sourceUnmatchedId;
+                        if (sourceUnmatchedId) {
+                            try {
+                                const processResult = await markUnmatchedProcessed(sourceUnmatchedId);
+                                queryProcessed = Boolean(processResult.success);
+                            } catch (error) {
+                                queryProcessed = false;
+                            }
+                        }
+
+                        bootstrap.Modal.getInstance(document.getElementById('addModal'))?.hide();
+
+                        if (sourceUnmatchedId && !queryProcessed) {
+                            toast('Knowledge was saved, but the query remains in the queue. You can dismiss it manually.', 'warning');
+                        } else {
+                            toast(sourceUnmatchedId ? 'Knowledge saved and query marked as trained.' : 'Knowledge saved!');
+                        }
+
+                        setTimeout(() => location.reload(), 900);
+                    } catch (error) {
+                        if (error.status === 422) {
+                            applyServerErrors(addForm, error.payload?.errors);
+                            toast('Please fix the validation errors first.', 'warning');
+                            return;
+                        }
+                        toast('Network error', 'danger');
+                    } finally {
+                        this.disabled = false;
+                        this.innerHTML = originalHtml;
+                    }
+                });
             }
 
             document.querySelectorAll('.btn-edit').forEach(btn => {
@@ -789,33 +962,57 @@
 
             document.querySelectorAll('.btn-train').forEach(btn => {
                 btn.addEventListener('click', function () {
-                    document.getElementById('add-form').querySelector('[name="question"]').value = this.dataset.query;
+                    setAddModalContext(this.dataset.id || '', this.dataset.query || '');
                     new bootstrap.Modal(document.getElementById('addModal')).show();
                 });
             });
 
-            document.querySelectorAll('.btn-resolve').forEach(btn => {
+            document.querySelectorAll('.btn-dismiss').forEach(btn => {
                 btn.addEventListener('click', async function () {
                     const id = this.dataset.id;
+                    const query = this.dataset.query || 'this query';
+
+                    if (!confirm(`Dismiss “${query}”? It will be removed from the pending training queue without adding a chatbot answer.`)) {
+                        return;
+                    }
+
+                    const originalHtml = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>Removing...';
+
                     try {
-                        const res = await api('PATCH', withId(chatbotRoutes.unmatchedResolveTemplate, id));
-                        if (res.success) {
-                            const row = this.closest('tr');
-                            if (row) {
-                                row.classList.remove('unmatched-row');
-                                row.classList.add('resolved-row');
-                                const statusCell = row.children[3];
-                                if (statusCell) {
-                                    statusCell.innerHTML = '<span class="badge bg-success-subtle text-success">Resolved</span>';
-                                }
-                            }
-                            this.remove();
-                            toast('Marked as resolved.');
-                        } else {
-                            toast('Unable to mark as resolved.', 'danger');
+                        const res = await markUnmatchedProcessed(id);
+                        if (!res.success) {
+                            toast(res.message || 'Unable to dismiss the query.', 'danger');
+                            return;
                         }
-                    } catch {
+
+                        this.closest('tr')?.remove();
+                        updateUnmatchedCount();
+                        toast('Query dismissed from the training queue.');
+                    } catch (error) {
                         toast('Network error', 'danger');
+                    } finally {
+                        if (document.body.contains(this)) {
+                            this.disabled = false;
+                            this.innerHTML = originalHtml;
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.session-copy').forEach(button => {
+                button.addEventListener('click', async function () {
+                    const sessionId = this.dataset.session || '';
+                    if (!sessionId) {
+                        return;
+                    }
+
+                    try {
+                        await copyText(sessionId);
+                        toast('Session ID copied.');
+                    } catch (error) {
+                        toast('Unable to copy the session ID.', 'danger');
                     }
                 });
             });

@@ -64,6 +64,8 @@ class IndigencyController extends Controller
             $sort = 'created_at';
         }
 
+        $query->orderByRaw("CASE WHEN status = 'rejected' THEN 1 ELSE 0 END ASC");
+
         if ($sort === 'monthly_income') {
             $query->orderByRaw("
                 CASE monthly_income
@@ -78,7 +80,7 @@ class IndigencyController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-        $indigency = $query->latest()->paginate(20);
+        $indigency = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
         return view('admin.admin_indigency', compact('indigency', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }

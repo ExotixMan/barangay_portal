@@ -189,7 +189,7 @@
                                     <p>Compact view for resident identity, contact details, verification state, and account actions.</p>
                                 </div>
                             </div>
-                            <span class="badge bg-light text-dark"><i class="fas fa-database me-1"></i>{{ $residents->total() }} records</span>
+                            <span class="records-count-badge"><i class="fas fa-database"></i>{{ $residents->total() }} records</span>
                         </div>
 
                         <div class="table-responsive">
@@ -197,7 +197,7 @@
                                 <thead>
                                     <tr>
                                         <th width="50" class="ps-4">
-                                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                            <input type="checkbox" id="selectAll" class="form-check-input table-checkbox" onclick="toggleSelectAll()" aria-label="Select all residents">
                                         </th>
                                         <th>
                                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'firstname', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
@@ -218,9 +218,9 @@
 
                                 <tbody>
                                     @forelse($residents as $resident)
-                                    <tr class="{{ $resident->deleted_at ? 'table-danger' : '' }}">
+                                    <tr class="resident-row {{ $resident->deleted_at ? 'is-deactivated' : '' }}">
                                         <td class="ps-4">
-                                            <input type="checkbox" value="{{ $resident->id }}" class="resident-checkbox">
+                                            <input type="checkbox" value="{{ $resident->id }}" class="form-check-input table-checkbox resident-checkbox" aria-label="Select {{ $resident->full_name }}">
                                         </td>
                                         <td>
                                             <div class="application-primary">
@@ -235,7 +235,7 @@
                                                     <div class="application-name">{{ $resident->full_name }}</div>
                                                     <div class="application-ref">
                                                         <span class="ref-pill"><i class="fas fa-hashtag"></i>ID {{ $resident->id }}</span>
-                                                        <span>@</i>{{ $resident->username }}</span>
+                                                        <span class="resident-username"><i class="fas fa-at" aria-hidden="true"></i>{{ $resident->username }}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -246,10 +246,20 @@
                                                 <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $resident->contact ?? 'N/A' }}</span>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td class="resident-address-cell">
                                             <div class="info-stack">
-                                                <span class="info-main">{{ $resident->age }} years old</span>
-                                                <span class="info-sub"><i class="fas fa-location-dot me-1"></i>{{ Str::limit($resident->address, 36) }}</span>
+                                                <span class="info-main">
+                                                    {{ $resident->age }} years old
+                                                </span>
+
+                                                <div class="info-sub resident-address"
+                                                    title="{{ $resident->address ?? 'N/A' }}">
+                                                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+
+                                                    <span class="resident-address-text">
+                                                        {{ $resident->address ?? 'N/A' }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
@@ -272,51 +282,100 @@
                                                 @elseif($residentIdStatus === 'rejected')
                                                     <span class="badge bg-danger-subtle text-danger"><i class="fas fa-id-card me-1"></i>ID Rejected</span>
                                                 @else
-                                                    <span class="badge bg-warning-subtle text-warning"><i class="fas fa-id-card me-1"></i>ID For Review</span>
+                                                    <span class="badge resident-status-badge is-warning"><i class="fas fa-id-card me-1"></i>ID Pending Review</span>
                                                 @endif
                                             </div>
                                         </td>
                                         <td class="text-end pe-4">
-                                            <div class="action-buttons">
-                                                <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewResidentModal{{ $resident->id }}" title="View details">
-                                                    <i class="fa-regular fa-eye"></i>
+                                            <div class="action-buttons" aria-label="Actions for {{ $resident->full_name }}">
+                                                <button type="button"
+                                                        class="btn btn-sm action-btn action-view"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewResidentModal{{ $resident->id }}"
+                                                        title="View resident details"
+                                                        aria-label="View details for {{ $resident->full_name }}">
+                                                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                                                    <span class="action-label">View</span>
                                                 </button>
 
                                                 @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('update_residents'))
-                                                <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#editResidentModal{{ $resident->id }}" title="Edit resident">
-                                                    <i class="fas fa-pen"></i>
-                                                    <span class="action-label">Edit</span>
-                                                </button>
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-update"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#editResidentModal{{ $resident->id }}"
+                                                            title="Edit resident"
+                                                            aria-label="Edit {{ $resident->full_name }}">
+                                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
                                                 @endif
 
-                                                <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#activityModal{{ $resident->id }}" title="Activity log">
-                                                    <i class="fas fa-clock-rotate-left"></i>
-                                                </button>
+                                                <div class="dropdown dropstart resident-action-dropdown">
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-more icon-only"
+                                                            id="residentActions{{ $resident->id }}"
+                                                            data-bs-toggle="dropdown"
+                                                            data-bs-boundary="viewport"
+                                                            aria-expanded="false"
+                                                            aria-label="More actions for {{ $resident->full_name }}"
+                                                            title="More actions">
+                                                        <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+                                                    </button>
 
-                                                <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#profileCorrectionModal{{ $resident->id }}" title="Profile correction concerns">
-                                                    <i class="fas fa-user-pen"></i>
-                                                </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end resident-action-menu" aria-labelledby="residentActions{{ $resident->id }}">
+                                                        <li>
+                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#activityModal{{ $resident->id }}">
+                                                                <span class="dropdown-item-icon is-info"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i></span>
+                                                                <span>
+                                                                    <strong>Activity log</strong>
+                                                                    <small>Review recent account activity</small>
+                                                                </span>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileCorrectionModal{{ $resident->id }}">
+                                                                <span class="dropdown-item-icon is-neutral"><i class="fas fa-user-pen" aria-hidden="true"></i></span>
+                                                                <span>
+                                                                    <strong>Profile corrections</strong>
+                                                                    <small>Review submitted concerns</small>
+                                                                </span>
+                                                            </button>
+                                                        </li>
 
-                                                <span class="action-divider">|</span>
+                                                        @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" class="m-0" onsubmit="return confirmDelete(event, 'Deactivate this resident account? Their record and transactions will remain archived.')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="dropdown-item resident-action-danger">
+                                                                        <span class="dropdown-item-icon is-danger"><i class="fas fa-user-slash" aria-hidden="true"></i></span>
+                                                                        <span>
+                                                                            <strong>Deactivate account</strong>
+                                                                            <small>Keep the record archived</small>
+                                                                        </span>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        @endif
 
-                                                @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
-                                                    <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Deactivate this resident account? Their record and transactions will remain archived.')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Deactivate">
-                                                            <i class="fas fa-user-slash"></i>
-                                                        </button>
-                                                    </form>
-                                                @endif
-
-                                                @if($resident->deleted_at && auth('admin')->user()->hasPermission('restore_residents'))
-                                                    <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this resident?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
-                                                            <i class="fas fa-rotate-left"></i>
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                                        @if($resident->deleted_at && auth('admin')->user()->hasPermission('restore_residents'))
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" class="m-0" onsubmit="return confirmDelete(event, 'Restore this resident?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="dropdown-item resident-action-restore">
+                                                                        <span class="dropdown-item-icon is-success"><i class="fas fa-rotate-left" aria-hidden="true"></i></span>
+                                                                        <span>
+                                                                            <strong>Restore account</strong>
+                                                                            <small>Return access to the resident</small>
+                                                                        </span>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -773,7 +832,7 @@
                                                     </div>
                                                     <div class="edit-col-6">
                                                         <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif" name="birthdate" id="edit_birthdate_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate) : $resident->birthdate }}" required max="{{ date('Y-m-d') }}">
+                                                        <input type="date" class="form-control @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') is-invalid @enderror @endif" name="birthdate" id="edit_birthdate_{{ $resident->id }}" value="{{ session('form_type') == 'edit_' . $resident->id ? old('birthdate', $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('Y-m-d') : '') : ($resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('Y-m-d') : '') }}" required max="{{ date('Y-m-d') }}">
                                                         @if(session('form_type') == 'edit_' . $resident->id) @error('birthdate') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
                                                     </div>
                                                     <div class="edit-col-6">
@@ -1349,6 +1408,7 @@
             
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
+                checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
             });
         }
 
@@ -1390,12 +1450,16 @@
             if (checkboxes.length > 0 && selectAllCheckbox) {
                 checkboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
+                        this.closest('tr')?.classList.toggle('is-selected', this.checked);
+
                         const allChecked = Array.from(checkboxes).every(cb => cb.checked);
                         const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        
+
                         selectAllCheckbox.checked = allChecked;
                         selectAllCheckbox.indeterminate = !allChecked && anyChecked;
                     });
+
+                    checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
                 });
             }
 

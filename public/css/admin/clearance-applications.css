@@ -976,7 +976,6 @@
         }
 
         html {
-            font-size: 70% !important;
             scroll-behavior: smooth;
         }
 
@@ -1547,9 +1546,6 @@
             flex-wrap: nowrap !important;
             gap: .35rem !important;
             padding: .25rem;
-            background: #f9fafb;
-            border: 1px solid var(--line);
-            border-radius: 14px;
         }
 
         .action-divider { display: none !important; }
@@ -1861,7 +1857,6 @@
         }
 
         @media (max-width: 768px) {
-            html { font-size: 78% !important; }
             .mobile-menu-btn { display: inline-flex !important; }
             .title-icon, .mobile-menu-btn { width: 38px; height: 38px; }
             .profile-badge { display: none !important; }
@@ -2389,3 +2384,613 @@
         #clearanceTable {
             min-width: 780px !important;
         }
+
+/* ==========================================================
+   CLEARANCE TABLE — LOGICAL GROUPING + 100% ZOOM FIT
+   Keep this block at the very end of this stylesheet.
+========================================================== */
+
+.clearance-row {
+    transition: background-color .18s ease;
+}
+
+.clearance-row:hover {
+    background: #f8fafc !important;
+}
+
+.clearance-row:has(.application-checkbox:checked) {
+    background: #eff6ff !important;
+}
+
+.clearance-row.is-archived {
+    background: #fff7f7;
+}
+
+#clearanceTable .table-checkbox {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+#clearanceTable .clearance-contact .info-main,
+#clearanceTable .clearance-contact .info-sub,
+#clearanceTable .status-date,
+#clearanceTable .fee-display {
+    display: flex;
+    align-items: center;
+    gap: .38rem;
+    min-width: 0;
+}
+
+#clearanceTable .clearance-contact i,
+#clearanceTable .status-date i,
+#clearanceTable .fee-display i {
+    flex: 0 0 auto;
+}
+
+#clearanceTable .fee-display {
+    width: fit-content;
+    max-width: 100%;
+    padding: .34rem .54rem;
+    color: var(--info);
+    background: var(--info-soft);
+    border: 1px solid rgba(3, 105, 161, .14);
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+#clearanceTable .fee-display.is-pending {
+    color: var(--warning);
+    background: var(--warning-soft);
+    border-color: rgba(217, 119, 6, .18);
+}
+
+#clearanceTable .action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: .28rem !important;
+    width: 100%;
+    min-width: 0;
+}
+
+#clearanceTable .action-form {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+#clearanceTable .action-btn {
+    flex: 0 0 auto;
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+}
+
+#clearanceTable .action-btn.action-update {
+    color: #166534 !important;
+    background: #ecfdf3 !important;
+    border-color: #86efac !important;
+}
+
+#clearanceTable .action-btn.action-restore {
+    color: #166534 !important;
+    background: #ecfdf3 !important;
+    border-color: #86efac !important;
+}
+
+#clearanceTable .action-btn:disabled {
+    opacity: .42 !important;
+    filter: saturate(.65);
+}
+
+@media (min-width: 992px) {
+    .residency-table-card {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .residency-table-card .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    #clearanceTable {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed;
+    }
+
+    #clearanceTable thead th,
+    #clearanceTable tbody td {
+        min-width: 0 !important;
+        padding: .72rem .5rem !important;
+        overflow: hidden;
+    }
+
+    #clearanceTable th:nth-child(1),
+    #clearanceTable td:nth-child(1) {
+        width: 4%;
+    }
+
+    #clearanceTable th:nth-child(2),
+    #clearanceTable td:nth-child(2) {
+        width: 23%;
+    }
+
+    #clearanceTable th:nth-child(3),
+    #clearanceTable td:nth-child(3) {
+        width: 20%;
+    }
+
+    #clearanceTable th:nth-child(4),
+    #clearanceTable td:nth-child(4) {
+        width: 18%;
+    }
+
+    #clearanceTable th:nth-child(5),
+    #clearanceTable td:nth-child(5) {
+        width: 20%;
+    }
+
+    #clearanceTable th:nth-child(6),
+    #clearanceTable td:nth-child(6) {
+        width: 15%;
+        overflow: visible;
+    }
+
+    #clearanceTable .application-primary {
+        min-width: 0 !important;
+        gap: .6rem;
+    }
+
+    #clearanceTable .application-primary > .min-w-0,
+    #clearanceTable .info-stack,
+    #clearanceTable .status-cell {
+        min-width: 0 !important;
+    }
+
+    #clearanceTable .application-name,
+    #clearanceTable .ref-pill,
+    #clearanceTable .ref-pill span,
+    #clearanceTable .info-main,
+    #clearanceTable .info-sub,
+    #clearanceTable .info-main span,
+    #clearanceTable .info-sub span,
+    #clearanceTable .status-date span,
+    #clearanceTable .fee-display span {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #clearanceTable .application-name,
+    #clearanceTable .ref-pill,
+    #clearanceTable .clearance-purpose .info-main {
+        display: block;
+    }
+
+    #clearanceTable .ref-pill {
+        width: 100%;
+    }
+
+    #clearanceTable .application-avatar {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .residency-table-card .table-responsive {
+        overflow-x: auto;
+    }
+
+    #clearanceTable {
+        width: 100%;
+        min-width: 880px !important;
+        table-layout: auto;
+    }
+}
+
+
+
+/* ==========================================================
+   CLEARANCE TABLE FIT + COMPACT ACTION MENU
+   View and Edit stay visible; secondary controls live in More.
+========================================================== */
+
+#clearanceTable .actions-heading {
+    font-size: 0 !important;
+}
+
+#clearanceTable .actions-cell {
+    min-width: 160px;
+    overflow: visible !important;
+}
+
+#clearanceTable .action-buttons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: .35rem !important;
+    width: 100%;
+    min-width: 0;
+    overflow: visible !important;
+}
+
+#clearanceTable .action-btn.action-primary {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 50px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 .62rem !important;
+    gap: .32rem !important;
+    border-radius: 10px !important;
+    font-size: .72rem !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    white-space: nowrap;
+    box-shadow: none !important;
+}
+
+#clearanceTable .action-btn.action-view {
+    color: #ffffff !important;
+    background: #243447 !important;
+    border-color: #243447 !important;
+}
+
+#clearanceTable .action-btn.action-view:hover,
+#clearanceTable .action-btn.action-view:focus-visible {
+    color: #ffffff !important;
+    background: #172536 !important;
+    border-color: #172536 !important;
+}
+
+#clearanceTable .action-btn.action-update {
+    color: #315b13 !important;
+    background: #e5f6c8 !important;
+    border-color: #b9df7f !important;
+}
+
+#clearanceTable .action-btn.action-update:hover:not(:disabled),
+#clearanceTable .action-btn.action-update:focus-visible:not(:disabled) {
+    color: #25480d !important;
+    background: #d7efad !important;
+    border-color: #a7d367 !important;
+}
+
+#clearanceTable .action-btn:disabled {
+    opacity: .42 !important;
+    cursor: not-allowed;
+    filter: none !important;
+}
+
+#clearanceTable .action-label {
+    display: inline !important;
+    font-size: .71rem !important;
+    font-weight: 750 !important;
+}
+
+#clearanceTable .action-more-dropdown {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+#clearanceTable .action-more-toggle,
+#clearanceTable .action-more-toggle.icon-only {
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    color: #344054 !important;
+    background: #ffffff !important;
+    border: 1px solid #cfd7e3 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+#clearanceTable .action-more-toggle:hover,
+#clearanceTable .action-more-toggle:focus-visible,
+#clearanceTable .action-more-toggle.show {
+    color: var(--primary-dark) !important;
+    background: #fff8f8 !important;
+    border-color: rgba(211, 47, 47, .34) !important;
+}
+
+#clearanceTable .action-menu {
+    width: 270px;
+    min-width: 270px;
+    padding: .55rem;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e3e8ef;
+    border-radius: 16px;
+    box-shadow: 0 18px 46px rgba(15, 23, 42, .16);
+    z-index: 1080;
+}
+
+#clearanceTable .action-menu-item {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    width: 100%;
+    padding: .65rem .62rem;
+    color: #1d2939;
+    text-align: left;
+    white-space: normal;
+    background: transparent;
+    border: 0;
+    border-radius: 11px;
+}
+
+#clearanceTable button.action-menu-item {
+    cursor: pointer;
+}
+
+#clearanceTable .action-menu-item:hover,
+#clearanceTable .action-menu-item:focus {
+    color: #1d2939;
+    background: #f8fafc;
+}
+
+#clearanceTable .action-menu-item.disabled {
+    opacity: .48;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+#clearanceTable .action-menu-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: .8rem;
+}
+
+#clearanceTable .action-menu-icon-docs {
+    color: #0b5f9c;
+    background: #e9f4ff;
+}
+
+#clearanceTable .action-menu-icon-restore {
+    color: #166534;
+    background: #eaf8ee;
+}
+
+#clearanceTable .action-menu-icon-archive {
+    color: #b42318;
+    background: #fff0f0;
+}
+
+#clearanceTable .action-menu-copy {
+    display: block;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+#clearanceTable .action-menu-copy strong,
+#clearanceTable .action-menu-copy small {
+    display: block;
+}
+
+#clearanceTable .action-menu-copy strong {
+    margin-bottom: .18rem;
+    color: inherit;
+    font-size: .76rem;
+    font-weight: 780;
+}
+
+#clearanceTable .action-menu-copy small {
+    color: #667085;
+    font-size: .66rem;
+    line-height: 1.3;
+}
+
+#clearanceTable .action-menu-danger,
+#clearanceTable .action-menu-danger strong {
+    color: #b42318;
+}
+
+#clearanceTable .action-menu-form {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+#clearanceTable .action-menu .dropdown-divider {
+    margin: .4rem .2rem;
+    border-color: #e5e7eb;
+}
+
+/* Better row feedback without overpowering the content. */
+#clearanceTable .clearance-row:hover {
+    background: #f8fafc !important;
+}
+
+#clearanceTable .clearance-row:has(.application-checkbox:checked) {
+    background: #eff6ff !important;
+}
+
+@media (min-width: 992px) {
+    .residency-table-card {
+        overflow: visible !important;
+    }
+
+    .residency-table-card .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow: visible !important;
+        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    }
+
+    #clearanceTable {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    #clearanceTable col.col-select    { width: 44px; }
+    #clearanceTable col.col-applicant { width: 25%; }
+    #clearanceTable col.col-contact   { width: 20%; }
+    #clearanceTable col.col-purpose   { width: 18%; }
+    #clearanceTable col.col-status    { width: 17%; }
+    #clearanceTable col.col-actions   { width: 164px; }
+
+    #clearanceTable thead th,
+    #clearanceTable tbody td {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: .72rem .52rem !important;
+        overflow: hidden;
+    }
+
+    #clearanceTable thead th:first-child,
+    #clearanceTable tbody td:first-child {
+        padding-left: .72rem !important;
+        padding-right: .3rem !important;
+    }
+
+    #clearanceTable .actions-heading,
+    #clearanceTable .actions-cell {
+        overflow: visible !important;
+    }
+
+    #clearanceTable .application-primary {
+        min-width: 0 !important;
+        gap: .55rem;
+    }
+
+    #clearanceTable .application-avatar {
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: .76rem;
+    }
+
+    #clearanceTable .application-primary > .min-w-0,
+    #clearanceTable .info-stack,
+    #clearanceTable .status-cell {
+        min-width: 0 !important;
+    }
+
+    #clearanceTable .application-name,
+    #clearanceTable .ref-pill,
+    #clearanceTable .ref-pill span,
+    #clearanceTable .info-main,
+    #clearanceTable .info-sub,
+    #clearanceTable .info-main span,
+    #clearanceTable .info-sub span,
+    #clearanceTable .status-date span,
+    #clearanceTable .fee-display span {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #clearanceTable .application-name,
+    #clearanceTable .ref-pill,
+    #clearanceTable .clearance-purpose .info-main {
+        display: block;
+    }
+
+    #clearanceTable .ref-pill {
+        width: 100%;
+    }
+
+    #clearanceTable .application-name,
+    #clearanceTable .info-main {
+        font-size: .77rem !important;
+        line-height: 1.25 !important;
+    }
+
+    #clearanceTable .info-sub,
+    #clearanceTable .status-date {
+        font-size: .67rem !important;
+        line-height: 1.25 !important;
+    }
+
+    #clearanceTable .fee-display {
+        max-width: 100%;
+        padding: .34rem .48rem !important;
+        font-size: .68rem !important;
+    }
+}
+
+/* Tablets and phones keep horizontal scrolling with the controls pinned. */
+@media (max-width: 991.98px) {
+    .residency-table-card {
+        overflow: hidden !important;
+    }
+
+    .residency-table-card .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #clearanceTable {
+        width: 100%;
+        min-width: 900px !important;
+        table-layout: auto !important;
+    }
+
+    #clearanceTable .actions-heading,
+    #clearanceTable .actions-cell {
+        position: sticky;
+        right: 0;
+        z-index: 4;
+        background: #ffffff !important;
+        box-shadow: -8px 0 14px -12px rgba(15, 23, 42, .55);
+        overflow: visible !important;
+    }
+
+    #clearanceTable .actions-heading {
+        z-index: 6;
+        background: #f9fafb !important;
+    }
+
+    #clearanceTable .clearance-row:hover .actions-cell {
+        background: #f8fafc !important;
+    }
+
+    #clearanceTable .clearance-row.is-archived .actions-cell {
+        background: #fff8f8 !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    #clearanceTable .action-btn.action-primary {
+        min-width: 34px !important;
+        width: 34px !important;
+        padding: 0 !important;
+    }
+
+    #clearanceTable .action-label {
+        display: none !important;
+    }
+
+    #clearanceTable .actions-cell {
+        min-width: 118px;
+    }
+}

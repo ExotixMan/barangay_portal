@@ -65,9 +65,9 @@ class ClearanceController extends Controller
             $sort = 'created_at';
         }
 
-        $query->orderBy($sort, $direction);
+        $query->orderByRaw("CASE WHEN status = 'rejected' THEN 1 ELSE 0 END ASC");
 
-        $clearances = $query->latest()->paginate(20);
+        $clearances = $query->orderByDesc('id')->paginate(20)->withQueryString();
         
         return view('admin.admin_clearance', compact('clearances', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }

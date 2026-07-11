@@ -428,7 +428,7 @@ class BarangayClearanceController extends Controller
     private function getClearanceFeeByPurpose(string $purpose): float
     {
         return match ($purpose) {
-            default => 0.00,
+            default => '',
         };
     }
 

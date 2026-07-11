@@ -263,14 +263,34 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="indigencyTable">
+                            <colgroup>
+                                <col class="col-select">
+                                <col class="col-applicant">
+                                <col class="col-contact">
+                                <col class="col-income">
+                                <col class="col-purpose">
+                                <col class="col-status">
+                                <col class="col-actions">
+                            </colgroup>
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input
+                                            type="checkbox"
+                                            id="selectAll"
+                                            class="form-check-input application-checkbox"
+                                            onclick="toggleSelectAll()"
+                                            aria-label="Select all indigency applications"
+                                        >
                                     </th>
+
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                        <a
+                                            href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                            class="text-decoration-none text-dark"
+                                        >
                                             Applicant / Reference
+
                                             @if(request('sort') == 'created_at')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                             @else
@@ -278,146 +298,287 @@
                                             @endif
                                         </a>
                                     </th>
+
+                                    <th>Contact</th>
                                     <th>Income / Household</th>
-                                    <th>Purpose / Contact</th>
+                                    <th>Purpose</th>
                                     <th>Status / Submitted</th>
-                                    <th class="text-end pe-4">Actions</th>
+                                    <th class="text-end pe-3 actions-heading"><span class="visually-hidden">Application controls</span></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @forelse($indigency as $ind)
-                                <tr>
-                                    <td class="ps-4">
-                                        <input type="checkbox" value="{{ $ind->id }}" class="application-checkbox">
-                                    </td>
+                                    <tr class="application-row {{ $ind->deleted_at ? 'is-archived' : '' }}">
+                                        <td class="ps-4">
+                                            <input
+                                                type="checkbox"
+                                                value="{{ $ind->id }}"
+                                                class="form-check-input application-checkbox"
+                                                aria-label="Select {{ $ind->full_name }}"
+                                            >
+                                        </td>
 
-                                    <td class="ps-0">
-                                        <div class="application-primary">
-                                            <div class="application-avatar">
-                                                {{ strtoupper(substr($ind->first_name, 0, 1) . substr($ind->last_name, 0, 1)) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="application-name">{{ $ind->first_name }} {{ $ind->last_name }} {{ $ind->suffix }}</div>
-                                                <div class="application-ref">
-                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $ind->reference_number }}</span>
-                                                    <span>{{ $ind->created_at ? $ind->created_at->format('M d, Y') : 'N/A' }}</span>
+                                        <td class="ps-0 applicant-cell">
+                                            <div class="application-primary">
+                                                <div class="application-avatar" aria-hidden="true">
+                                                    {{ strtoupper(substr($ind->first_name ?: 'I', 0, 1) . substr($ind->last_name ?: '', 0, 1)) }}
                                                 </div>
-                                                <div class="application-muted-line d-lg-none">
-                                                    <i class="fas fa-phone"></i>{{ $ind->contact_number ?: 'No contact' }}
+
+                                                <div class="min-w-0">
+                                                    <div class="application-name">
+                                                        {{ $ind->full_name }}
+                                                    </div>
+
+                                                    <div class="application-ref">
+                                                        <span class="ref-pill">
+                                                            <i class="fas fa-hashtag" aria-hidden="true"></i>
+                                                            {{ $ind->reference_number }}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="income-badge"><i class="fas fa-wallet"></i>{{ $ind->monthly_income ?: 'N/A' }}</span>
-                                            <span class="info-sub"><i class="fas fa-users me-1"></i>{{ $ind->household_members ?: 'N/A' }} household member(s)</span>
-                                        </div>
-                                    </td>
+                                        <td class="contact-column contact-cell">
+                                            <div class="info-stack">
+                                                <span
+                                                    class="info-main table-truncate"
+                                                    title="{{ $ind->email ?: 'No email address' }}"
+                                                >
+                                                    <i class="fas fa-envelope me-1" aria-hidden="true"></i>
+                                                    {{ $ind->email ?: 'No email address' }}
+                                                </span>
 
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="info-main">
-                                                {{ $ind->purpose ? ucwords(str_replace('_', ' ', $ind->purpose)) : 'N/A' }}
-                                            </span>
-                                            @if($ind->purpose_other)
-                                                <span class="info-sub">{{ $ind->purpose_other }}</span>
-                                            @endif
-                                            <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $ind->contact_number ?: 'No contact' }}</span>
-                                        </div>
-                                    </td>
+                                                <span class="info-sub">
+                                                    <i class="fas fa-phone me-1" aria-hidden="true"></i>
+                                                    {{ $ind->contact_number ?: 'No contact number' }}
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                    <td>
-                                        <div class="status-cell">
-                                            @if($ind->deleted_at)
-                                                <span class="badge bg-danger-subtle text-danger">Archived</span>
-                                            @elseif($ind->status == 'approved')
-                                                <span class="badge bg-success-subtle text-success">Approved</span>
-                                            @elseif($ind->status == 'ready_pickup')
-                                                <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
-                                            @elseif($ind->status == 'claimed')
-                                                <span class="badge bg-success-subtle text-success">Claimed</span>
-                                            @elseif($ind->status == 'rejected')
-                                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
-                                            @elseif($ind->status == 'pending')
-                                                <span class="badge bg-secondary-subtle text-secondary">Pending</span>
-                                            @elseif($ind->status == 'under_review')
-                                                <span class="badge bg-primary-subtle text-primary">Under Review</span>
-                                            @else
-                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                            @endif
-                                            <span class="status-date"><i class="far fa-calendar me-1"></i>{{ $ind->created_at ? $ind->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
-                                        </div>
-                                    </td>
+                                        <td class="income-household-column income-cell">
+                                            <div class="info-stack">
+                                                <span class="income-badge">
+                                                    <i class="fas fa-wallet" aria-hidden="true"></i>
+                                                    {{ $ind->monthly_income_label }}
+                                                </span>
 
-                                    <td class="text-end pe-4">
-                                        <div class="action-buttons">
-                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ind->id }}" title="View full details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                                <span class="info-sub">
+                                                    <i class="fas fa-users me-1" aria-hidden="true"></i>
+                                                    {{ $ind->household_label }}
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                            @if(!$ind->deleted_at && (auth('admin')->user()->hasPermission('update_indigency') || auth('admin')->user()->hasPermission('approve_indigency') || auth('admin')->user()->hasPermission('reject_indigency')))
-                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $ind->id }}" title="Update status">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update unavailable">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @endif
+                                        <td class="purpose-column purpose-cell">
+                                            <div class="info-stack">
+                                                <span
+                                                    class="info-main purpose-label"
+                                                    title="{{ $ind->purpose_label }}"
+                                                >
+                                                    {{ $ind->purpose_label }}
+                                                </span>
 
-                                            @if(!$ind->deleted_at && auth('admin')->user()->hasPermission('generate_indigency_document') && in_array($ind->status, ['approved', 'ready_pickup', 'claimed']))
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $ind->id }}" title="Generate documents">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Documents unavailable">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @endif
+                                                @if($ind->purpose === 'other' && $ind->purpose_other)
+                                                    <span
+                                                        class="info-sub table-truncate"
+                                                        title="{{ $ind->purpose_other }}"
+                                                    >
+                                                        {{ $ind->purpose_other }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
 
-                                            @if($ind->deleted_at && auth('admin')->user()->hasPermission('delete_indigency'))
-                                            <form method="POST" action="{{ route('admin.indigency.restore', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this application?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
+                                        <td class="status-submitted-cell">
+                                            <div class="status-cell">
+                                                @if($ind->deleted_at)
+                                                    <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                                @elseif($ind->status === 'approved')
+                                                    <span class="badge bg-success-subtle text-success">Approved</span>
+                                                @elseif($ind->status === 'ready_pickup')
+                                                    <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                                @elseif($ind->status === 'claimed')
+                                                    <span class="badge bg-success-subtle text-success">Claimed</span>
+                                                @elseif($ind->status === 'rejected')
+                                                    <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                                @elseif($ind->status === 'pending')
+                                                    <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                                @elseif($ind->status === 'under_review')
+                                                    <span class="badge bg-primary-subtle text-primary">Under Review</span>
+                                                @else
+                                                    <span class="badge bg-warning-subtle text-warning">Processing</span>
+                                                @endif
+
+                                                <span class="status-date">
+                                                    <i class="far fa-calendar me-1" aria-hidden="true"></i>
+                                                    {{ $ind->created_at ? $ind->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-end pe-3 actions-cell">
+                                            <div class="action-buttons" aria-label="Controls for {{ $ind->full_name }}">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm action-btn action-primary action-view"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ $ind->id }}"
+                                                    title="View full details"
+                                                    aria-label="View {{ $ind->full_name }}"
+                                                >
+                                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                                    <span class="action-label">View</span>
                                                 </button>
-                                            </form>
-                                            @elseif(auth('admin')->user()->hasPermission('delete_indigency'))
-                                            <form method="POST" action="{{ route('admin.indigency.destroy', $ind->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this application?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
-                                                    <i class="fas fa-box-archive"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive unavailable">
-                                                <i class="fas fa-box-archive"></i>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
+
+                                                @if(!$ind->deleted_at && (auth('admin')->user()->hasPermission('update_indigency') || auth('admin')->user()->hasPermission('approve_indigency') || auth('admin')->user()->hasPermission('reject_indigency')))
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm action-btn action-primary action-update"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#updateStatusModal{{ $ind->id }}"
+                                                        title="Edit application status"
+                                                        aria-label="Edit status for {{ $ind->full_name }}"
+                                                    >
+                                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @else
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm action-btn action-primary action-update"
+                                                        disabled
+                                                        title="Edit unavailable"
+                                                        aria-label="Edit unavailable for {{ $ind->full_name }}"
+                                                    >
+                                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @endif
+
+                                                <div class="dropdown action-more-dropdown">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm action-btn action-more-toggle icon-only"
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport"
+                                                        data-bs-auto-close="outside"
+                                                        aria-expanded="false"
+                                                        title="More options"
+                                                        aria-label="More options for {{ $ind->full_name }}"
+                                                    >
+                                                        <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                        @if(!$ind->deleted_at && auth('admin')->user()->hasPermission('generate_indigency_document') && in_array($ind->status, ['approved', 'ready_pickup', 'claimed']))
+                                                            <button
+                                                                type="button"
+                                                                class="dropdown-item action-menu-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#docsModal{{ $ind->id }}"
+                                                            >
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Generate documents</strong>
+                                                                    <small>Create or download certificate files</small>
+                                                                </span>
+                                                            </button>
+                                                        @else
+                                                            <span
+                                                                class="dropdown-item action-menu-item disabled"
+                                                                aria-disabled="true"
+                                                                title="Documents are available after approval"
+                                                            >
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Documents unavailable</strong>
+                                                                    <small>Approve the application first</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+
+                                                        <div class="dropdown-divider"></div>
+
+                                                        @if($ind->deleted_at && auth('admin')->user()->hasPermission('delete_indigency'))
+                                                            <form
+                                                                method="POST"
+                                                                action="{{ route('admin.indigency.restore', $ind->id) }}"
+                                                                class="action-menu-form"
+                                                                onsubmit="return confirmDelete(event, 'Restore this application?')"
+                                                            >
+                                                                @csrf
+                                                                <button type="submit" class="dropdown-item action-menu-item">
+                                                                    <span class="action-menu-icon action-menu-icon-restore">
+                                                                        <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Restore application</strong>
+                                                                        <small>Return this record to the active list</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @elseif(auth('admin')->user()->hasPermission('delete_indigency'))
+                                                            <form
+                                                                method="POST"
+                                                                action="{{ route('admin.indigency.destroy', $ind->id) }}"
+                                                                class="action-menu-form"
+                                                                onsubmit="return confirmDelete(event, 'Archive this application?')"
+                                                            >
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item action-menu-item action-menu-danger">
+                                                                    <span class="action-menu-icon action-menu-icon-archive">
+                                                                        <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Archive application</strong>
+                                                                        <small>Keep the record without deleting it</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled" aria-disabled="true">
+                                                                <span class="action-menu-icon action-menu-icon-archive">
+                                                                    <i class="fas fa-box-archive" aria-hidden="true"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Archive unavailable</strong>
+                                                                    <small>You do not have permission</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-file-invoice fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No applications found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            @admin_can('create_indigency')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                                <i class="fas fa-plus me-2"></i>Add New
-                                            </button>
-                                            @endadmin_can
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="py-4">
+                                                <i class="fas fa-file-invoice fa-4x text-muted mb-3 opacity-50"></i>
+                                                <h5 class="text-muted">No applications found</h5>
+                                                <p class="text-muted mb-3 small">Try adjusting your search or filter.</p>
+
+                                                @admin_can('create_indigency')
+                                                    <button
+                                                        class="btn btn-primary btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#addApplicationModal"
+                                                    >
+                                                        <i class="fas fa-plus me-2"></i>
+                                                        Add New
+                                                    </button>
+                                                @endadmin_can
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -756,7 +917,9 @@
                                             <label class="form-label">Birthdate <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birthdate') is-invalid @enderror @endif" 
                                                 name="birthdate" id="edit_birthdate_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('birthdate', $ind->birthdate) : $ind->birthdate }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id
+                                                    ? old('birthdate', $ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '')
+                                                    : ($ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '') }}" 
                                                 required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('birthdate')
@@ -1003,8 +1166,8 @@
                                         </div>
                                         <div class="modal-summary-card">
                                             <span class="modal-summary-label">Income / Household</span>
-                                            <span class="modal-summary-value">{{ $ind->monthly_income ?: 'N/A' }}</span>
-                                            <span class="modal-summary-help">{{ $ind->household_members ?: 'N/A' }} household member(s)</span>
+                                            <span class="modal-summary-value">{{ $ind->monthly_income_label }}</span>
+                                            <span class="modal-summary-help">{{ $ind->household_label }}</span>
                                         </div>
                                         <div class="modal-summary-card">
                                             <span class="modal-summary-label">Submitted</span>
@@ -1027,7 +1190,7 @@
                                     <div class="detail-section-card">
                                         <div class="detail-section-title"><i class="fas fa-hand-holding-heart"></i>Indigency request</div>
                                         <div class="detail-grid">
-                                            <div class="detail-item"><span class="detail-label">Monthly income</span><div class="detail-value">{{ $ind->monthly_income ?: 'N/A' }}</div></div>
+                                            <div class="detail-item"><span class="detail-label">Monthly income</span><div class="detail-value">{{ $ind->monthly_income_label }}</div></div>
                                             <div class="detail-item"><span class="detail-label">Household members</span><div class="detail-value">{{ $ind->household_members ?: 'N/A' }}</div></div>
                                             <div class="detail-item" style="grid-column: 1 / -1;"><span class="detail-label">Purpose</span><div class="detail-value">{{ $ind->purpose ? ucwords(str_replace('_', ' ', $ind->purpose)) : 'N/A' }} {{ $ind->purpose_other ? '(' . $ind->purpose_other . ')' : '' }}</div></div>
                                         </div>
@@ -1080,7 +1243,7 @@
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>Middle Name</label><input type="text" name="middle_name" class="form-control" value="{{ $ind->middle_name }}"></div>
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>Last Name</label><input type="text" name="last_name" class="form-control" value="{{ $ind->last_name }}" required></div>
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-signature"></i>Suffix</label><select class="form-select" name="suffix"><option value="">None</option><option value="Jr." {{ $ind->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option><option value="Sr." {{ $ind->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option><option value="II" {{ $ind->suffix == 'II' ? 'selected' : '' }}>II</option><option value="III" {{ $ind->suffix == 'III' ? 'selected' : '' }}>III</option><option value="IV" {{ $ind->suffix == 'IV' ? 'selected' : '' }}>IV</option><option value="V" {{ $ind->suffix == 'V' ? 'selected' : '' }}>V</option></select></div>
-                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-calendar"></i>Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $ind->birthdate }}" required max="{{ date('Y-m-d') }}"></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-calendar"></i>Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '' }}" required max="{{ date('Y-m-d') }}"></div>
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-venus-mars"></i>Gender</label><select class="form-select" name="gender" required><option value="male" {{ $ind->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $ind->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $ind->gender == 'other' ? 'selected' : '' }}>Other</option></select></div>
                                             </div></div>
                                         </div>

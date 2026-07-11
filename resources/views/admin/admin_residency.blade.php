@@ -254,7 +254,7 @@
                         <div class="min-w-0">
                             <span class="table-kicker"><i class="fas fa-database"></i> Application records</span>
                             <h3>Residency application queue</h3>
-                            <p>Use the action buttons to view details, update status, generate documents, or archive records.</p>
+                            <p>Review applicant contact, residency details, purpose, household information, status, and available actions.</p>
                         </div>
                     </div>
                     <span class="table-count-pill"><i class="fas fa-list"></i>{{ $applications->total() }} records</span>
@@ -262,13 +262,27 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table align-middle mb-0" id="residencyTable">
+                            <colgroup>
+                                <col class="col-select">
+                                <col class="col-applicant">
+                                <col class="col-contact">
+                                <col class="col-residency">
+                                <col class="col-purpose">
+                                <col class="col-status">
+                                <col class="col-actions">
+                            </colgroup>
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input type="checkbox"
+                                               id="selectAll"
+                                               class="form-check-input table-checkbox"
+                                               onclick="toggleSelectAll()"
+                                               aria-label="Select all residency applications">
                                     </th>
                                     <th class="ps-0">
-                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
+                                           class="text-decoration-none text-dark">
                                             Applicant / Reference
                                             @if(request('sort') == 'created_at')
                                                 <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ms-1"></i>
@@ -277,137 +291,286 @@
                                             @endif
                                         </a>
                                     </th>
-                                    <th>Residency</th>
-                                    <th>Purpose / Contact</th>
+                                    <th>Contact</th>
+                                    <th>Residency Details</th>
+                                    <th>Purpose / Household</th>
                                     <th>Status / Submitted</th>
-                                    <th class="text-end pe-4">Actions</th>
+                                    <th class="text-end pe-3 actions-heading"><span class="visually-hidden">Application controls</span></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @forelse($applications as $app)
-                                
-                                <tr>
-                                    <td class="ps-4">
-                                        <input type="checkbox" value="{{ $app->id }}" class="application-checkbox">
-                                    </td>
-                                    <td class="ps-0">
-                                        <div class="application-primary">
-                                            <div class="application-avatar">
-                                                {{ strtoupper(substr($app->first_name, 0, 1) . substr($app->last_name, 0, 1)) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="application-name">{{ $app->first_name }} {{ $app->last_name }}</div>
-                                                <div class="application-ref">
-                                                    <span class="ref-pill"><i class="fas fa-hashtag"></i>{{ $app->reference_number }}</span>
-                                                    <span>{{ $app->created_at ? $app->created_at->format('M d, Y') : 'N/A' }}</span>
+                                    @php
+                                        $residencyTypeLabel = match($app->residency_type) {
+                                            'owner' => 'Homeowner / Property Owner',
+                                            'renter' => 'Renter / Tenant',
+                                            'family' => 'Living with Family',
+                                            'relative' => 'Living with Relative',
+                                            'boarder' => 'Boarder / Lodger',
+                                            default => $app->residency_type
+                                                ? ucwords(str_replace('_', ' ', $app->residency_type))
+                                                : 'N/A',
+                                        };
+
+                                        $yearsResidingLabel = match($app->years_residing) {
+                                            'less1' => 'Less than 1 year',
+                                            '1-3' => '1–3 years',
+                                            '3-5' => '3–5 years',
+                                            '5-10' => '5–10 years',
+                                            '10-20' => '10–20 years',
+                                            '20+' => 'More than 20 years',
+                                            default => $app->years_residing ?: 'N/A',
+                                        };
+
+                                        $purposeLabel = match($app->purpose) {
+                                            'government' => 'Government Transaction',
+                                            'school' => 'School Enrollment',
+                                            'employment' => 'Employment',
+                                            'legal' => 'Legal / Court Requirement',
+                                            'bank' => 'Bank Transaction',
+                                            'scholarship' => 'Scholarship',
+                                            'pwd' => 'PWD Application',
+                                            'senior' => 'Senior Citizen ID Application',
+                                            'other' => $app->purpose_other ?: 'Other',
+                                            default => $app->purpose
+                                                ? ucwords(str_replace('_', ' ', $app->purpose))
+                                                : 'N/A',
+                                        };
+                                    @endphp
+
+                                    <tr class="application-row {{ $app->deleted_at ? 'is-archived' : '' }}">
+                                        <td class="ps-4">
+                                            <input type="checkbox"
+                                                   value="{{ $app->id }}"
+                                                   class="form-check-input table-checkbox application-checkbox"
+                                                   aria-label="Select application {{ $app->reference_number }}">
+                                        </td>
+
+                                        <td class="ps-0 applicant-cell">
+                                            <div class="application-primary">
+                                                <div class="application-avatar">
+                                                    {{ strtoupper(substr($app->first_name, 0, 1) . substr($app->last_name, 0, 1)) }}
                                                 </div>
-                                                <div class="application-muted-line d-lg-none">
-                                                    <i class="fas fa-phone"></i>{{ $app->contact_number ?: 'No contact' }}
+                                                <div class="min-w-0">
+                                                    <div class="application-name">
+                                                        {{ trim($app->first_name . ' ' . $app->last_name) }}
+                                                    </div>
+                                                    <div class="application-ref">
+                                                        <span class="ref-pill">
+                                                            <i class="fas fa-hashtag"></i>{{ $app->reference_number }}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="info-main">{{ $app->residency_type ? ucwords(str_replace('_', ' ', $app->residency_type)) : 'N/A' }}</span>
-                                            <span class="info-sub"><i class="fas fa-clock me-1"></i>{{ $app->years_residing ?: 'N/A' }} residing</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-stack">
-                                            <span class="info-main">{{ $app->purpose ? ucwords(str_replace('_', ' ', $app->purpose)) : 'N/A' }}</span>
-                                            <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $app->contact_number ?: 'No contact' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="status-cell">
-                                            @if($app->deleted_at)
-                                                <span class="badge bg-danger-subtle text-danger">Archived</span>
-                                            @elseif($app->status == 'approved')
-                                                <span class="badge bg-success-subtle text-success">Approved</span>
-                                            @elseif($app->status == 'ready_pickup')
-                                                <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
-                                            @elseif($app->status == 'claimed')
-                                                <span class="badge bg-success-subtle text-success">Claimed</span>
-                                            @elseif($app->status == 'rejected')
-                                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
-                                            @elseif($app->status == 'pending')
-                                                <span class="badge bg-secondary-subtle text-secondary">Pending</span>
-                                            @elseif($app->status == 'under_review')
-                                                <span class="badge bg-primary-subtle text-primary">Under Review</span>
-                                            @else
-                                                <span class="badge bg-warning-subtle text-warning">Processing</span>
-                                            @endif
-                                            <span class="status-date"><i class="far fa-calendar me-1"></i>{{ $app->created_at ? $app->created_at->format('M d, Y h:i A') : 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <div class="action-buttons">
-                                            <button type="button" class="btn btn-sm action-btn action-view icon-only" data-bs-toggle="modal" data-bs-target="#viewModal{{ $app->id }}" title="View full details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                        </td>
 
-                                            @if(!$app->deleted_at && (auth('admin')->user()->hasPermission('update_residency') || auth('admin')->user()->hasPermission('approve_residency') || auth('admin')->user()->hasPermission('reject_residency')))
-                                            <button type="button" class="btn btn-sm action-btn action-update" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ $app->id }}" title="Update status">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-update" disabled title="Update unavailable">
-                                                <i class="fas fa-pen"></i>
-                                                <span class="action-label">Update</span>
-                                            </button>
-                                            @endif
+                                        <td class="contact-cell">
+                                            <div class="info-stack">
+                                                <span class="info-main contact-email"
+                                                      title="{{ $app->email ?: 'No email' }}">
+                                                    {{ $app->email ?: 'No email' }}
+                                                </span>
+                                                <span class="info-sub">
+                                                    <i class="fas fa-phone me-1"></i>{{ $app->contact_number ?: 'No contact number' }}
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                            @if(!$app->deleted_at && auth('admin')->user()->hasPermission('generate_residency_document') && in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" data-bs-toggle="modal" data-bs-target="#docsModal{{ $app->id }}" title="Generate documents">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-docs icon-only" disabled title="Documents unavailable">
-                                                <i class="fas fa-file-lines"></i>
-                                            </button>
-                                            @endif
+                                        <td class="residency-details-cell">
+                                            <div class="info-stack">
+                                                <span class="info-main">{{ $residencyTypeLabel }}</span>
+                                                <span class="info-sub">
+                                                    <i class="fas fa-house-user me-1"></i>{{ $yearsResidingLabel }}
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                            @if($app->deleted_at && auth('admin')->user()->hasPermission('delete_residency'))
-                                            <form method="POST" action="{{ route('admin.residency.restore', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this application?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm action-btn action-update icon-only" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
+                                        <td class="purpose-household-cell">
+                                            <div class="info-stack">
+                                                <span class="info-main purpose-text" title="{{ $purposeLabel }}">
+                                                    {{ $purposeLabel }}
+                                                </span>
+                                                <span class="info-sub">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    @if(is_null($app->household_members))
+                                                        Household not provided
+                                                    @else
+                                                        {{ number_format((int) $app->household_members) }}
+                                                        household member{{ (int) $app->household_members === 1 ? '' : 's' }}
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="status-submitted-cell">
+                                            <div class="status-cell">
+                                                @if($app->deleted_at)
+                                                    <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                                @elseif($app->status == 'approved')
+                                                    <span class="badge bg-success-subtle text-success">Approved</span>
+                                                @elseif($app->status == 'ready_pickup')
+                                                    <span class="badge bg-info-subtle text-info">Ready for Pickup</span>
+                                                @elseif($app->status == 'claimed')
+                                                    <span class="badge bg-success-subtle text-success">Claimed</span>
+                                                @elseif($app->status == 'rejected')
+                                                    <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                                @elseif($app->status == 'pending')
+                                                    <span class="badge bg-secondary-subtle text-secondary">Pending</span>
+                                                @elseif($app->status == 'under_review')
+                                                    <span class="badge bg-primary-subtle text-primary">Under Review</span>
+                                                @else
+                                                    <span class="badge bg-warning-subtle text-warning">Processing</span>
+                                                @endif
+
+                                                <span class="status-date">
+                                                    <i class="far fa-calendar me-1"></i>
+                                                    {{ $app->created_at ? $app->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-end pe-3 actions-cell">
+                                            <div class="action-buttons" aria-label="Controls for {{ $app->reference_number }}">
+                                                <button type="button"
+                                                        class="btn btn-sm action-btn action-primary action-view"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewModal{{ $app->id }}"
+                                                        title="View full details"
+                                                        aria-label="View application {{ $app->reference_number }}">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span class="action-label">View</span>
                                                 </button>
-                                            </form>
-                                            @elseif(auth('admin')->user()->hasPermission('delete_residency'))
-                                            <form method="POST" action="{{ route('admin.residency.destroy', $app->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this application?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm action-btn action-archive icon-only" title="Archive">
-                                                    <i class="fas fa-box-archive"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <button type="button" class="btn btn-sm action-btn action-archive icon-only" disabled title="Archive unavailable">
-                                                <i class="fas fa-box-archive"></i>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
+
+                                                @if(!$app->deleted_at && (auth('admin')->user()->hasPermission('update_residency') || auth('admin')->user()->hasPermission('approve_residency') || auth('admin')->user()->hasPermission('reject_residency')))
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-primary action-update"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateStatusModal{{ $app->id }}"
+                                                            title="Edit status"
+                                                            aria-label="Edit application status for {{ $app->reference_number }}">
+                                                        <i class="fas fa-pen"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @else
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-primary action-update"
+                                                            disabled
+                                                            title="Edit unavailable"
+                                                            aria-label="Edit unavailable">
+                                                        <i class="fas fa-pen"></i>
+                                                        <span class="action-label">Edit</span>
+                                                    </button>
+                                                @endif
+
+                                                <div class="dropdown action-more-dropdown">
+                                                    <button type="button"
+                                                            class="btn btn-sm action-btn action-more-toggle icon-only"
+                                                            data-bs-toggle="dropdown"
+                                                            data-bs-boundary="viewport"
+                                                            data-bs-auto-close="outside"
+                                                            aria-expanded="false"
+                                                            title="More options"
+                                                            aria-label="More options for {{ $app->reference_number }}">
+                                                        <i class="fas fa-ellipsis-vertical"></i>
+                                                    </button>
+
+                                                    <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                        @if(!$app->deleted_at && auth('admin')->user()->hasPermission('generate_residency_document') && in_array($app->status, ['approved', 'ready_pickup', 'claimed']))
+                                                            <button type="button"
+                                                                    class="dropdown-item action-menu-item"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#docsModal{{ $app->id }}">
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Generate documents</strong>
+                                                                    <small>Create or download certificate files</small>
+                                                                </span>
+                                                            </button>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled"
+                                                                  aria-disabled="true"
+                                                                  title="Documents are available after approval">
+                                                                <span class="action-menu-icon action-menu-icon-docs">
+                                                                    <i class="fas fa-file-lines"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Documents unavailable</strong>
+                                                                    <small>Approve the application first</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+
+                                                        <div class="dropdown-divider"></div>
+
+                                                        @if($app->deleted_at && auth('admin')->user()->hasPermission('delete_residency'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.residency.restore', $app->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Restore this application?')">
+                                                                @csrf
+                                                                <button type="submit" class="dropdown-item action-menu-item">
+                                                                    <span class="action-menu-icon action-menu-icon-restore">
+                                                                        <i class="fas fa-rotate-left"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Restore application</strong>
+                                                                        <small>Return this record to the active list</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @elseif(auth('admin')->user()->hasPermission('delete_residency'))
+                                                            <form method="POST"
+                                                                  action="{{ route('admin.residency.destroy', $app->id) }}"
+                                                                  class="action-menu-form"
+                                                                  onsubmit="return confirmDelete(event, 'Archive this application?')">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item action-menu-item action-menu-danger">
+                                                                    <span class="action-menu-icon action-menu-icon-archive">
+                                                                        <i class="fas fa-box-archive"></i>
+                                                                    </span>
+                                                                    <span class="action-menu-copy">
+                                                                        <strong>Archive application</strong>
+                                                                        <small>Keep the record without deleting it</small>
+                                                                    </span>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="dropdown-item action-menu-item disabled" aria-disabled="true">
+                                                                <span class="action-menu-icon action-menu-icon-archive">
+                                                                    <i class="fas fa-box-archive"></i>
+                                                                </span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Archive unavailable</strong>
+                                                                    <small>You do not have permission</small>
+                                                                </span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
-                                            <h5 class="text-muted">No applications found</h5>
-                                            <p class="text-muted mb-3 small">Try adjusting your search or filter</p>
-                                            @admin_can('create_residency')
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                                <i class="fas fa-plus me-2"></i>Add New
-                                            </button>
-                                            @endadmin_can
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="py-4">
+                                                <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
+                                                <h5 class="text-muted">No applications found</h5>
+                                                <p class="text-muted mb-3 small">Try adjusting your search or filter.</p>
+                                                @admin_can('create_residency')
+                                                    <button class="btn btn-primary btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#addApplicationModal">
+                                                        <i class="fas fa-plus me-2"></i>Add New
+                                                    </button>
+                                                @endadmin_can
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>

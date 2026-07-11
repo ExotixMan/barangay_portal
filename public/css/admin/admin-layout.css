@@ -1062,3 +1062,151 @@
         display: none;
     }
 }
+
+/* =========================================================
+   ACCESSIBILITY FONT SIZE
+   ========================================================= */
+
+html[data-font-size="small"] {
+    font-size: 62%;
+}
+
+html[data-font-size="normal"] {
+    font-size: 70%;
+}
+
+html[data-font-size="large"] {
+    font-size: 82%;
+}
+
+html[data-font-size="x-large"] {
+    font-size: 94%;
+}
+
+.admin-font-controls {
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    min-height: 42px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-font-control-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 .65rem;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--line);
+    font-size: .84rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        color .16s ease,
+        background-color .16s ease,
+        opacity .16s ease;
+}
+
+.admin-font-control-button:last-child {
+    border-right: 0;
+}
+
+.admin-font-control-button:hover:not(:disabled) {
+    color: var(--primary-dark);
+    background: var(--primary-soft);
+}
+
+.admin-font-control-button:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 3px solid color-mix(
+        in srgb,
+        var(--primary) 22%,
+        transparent
+    );
+    outline-offset: -3px;
+}
+
+.admin-font-control-button:disabled {
+    cursor: not-allowed;
+    opacity: .4;
+}
+
+.admin-font-control-reset {
+    min-width: 76px;
+}
+
+#adminFontSizeLabel {
+    min-width: 35px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Dark-mode compatibility */
+html[data-theme="dark"] .admin-font-controls,
+html.dark-mode .admin-font-controls {
+    background: var(--card);
+    border-color: var(--line);
+}
+
+html[data-theme="dark"] .admin-font-control-button,
+html.dark-mode .admin-font-control-button {
+    color: var(--text);
+    border-color: var(--line);
+}
+
+html[data-theme="dark"] .admin-font-control-button:hover:not(:disabled),
+html.dark-mode .admin-font-control-button:hover:not(:disabled) {
+    color: var(--primary);
+    background: var(--primary-soft);
+}
+
+@media (max-width: 768px) {
+    html[data-font-size="small"] {
+        font-size: 70%;
+    }
+
+    html[data-font-size="normal"] {
+        font-size: 78%;
+    }
+
+    html[data-font-size="large"] {
+        font-size: 88%;
+    }
+
+    html[data-font-size="x-large"] {
+        font-size: 100%;
+    }
+
+    .admin-font-controls {
+        min-height: 38px;
+    }
+
+    .admin-font-control-button {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 .5rem;
+    }
+
+    .admin-font-control-reset {
+        min-width: 64px;
+    }
+}
+
+@media (max-width: 575px) {
+    .admin-font-control-reset {
+        min-width: 38px;
+    }
+
+    #adminFontSizeLabel {
+        display: none;
+    }
+}

@@ -406,6 +406,78 @@
         color: var(--ink);
     }
 
+
+    .bhd-view-more-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 38px;
+        margin-top: 14px;
+        padding: 8px 13px;
+        border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--line));
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font: inherit;
+        font-size: 0.8rem;
+        font-weight: 950;
+        cursor: pointer;
+        transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .bhd-view-more-btn:hover {
+        transform: translateY(-1px);
+        border-color: var(--brand);
+        background: color-mix(in srgb, var(--brand) 14%, var(--surface));
+        color: var(--brand);
+    }
+
+    .bhd-detail-modal-label {
+        margin-bottom: 12px;
+    }
+
+    .bhd-detail-modal-description {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+        line-height: 1.75;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .bhd-detail-modal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+    }
+
+    .bhd-detail-modal-meta:empty {
+        display: none;
+    }
+
+    .bhd-detail-modal-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+        font-weight: 850;
+    }
+
+    .bhd-modal-card .modal-body {
+        padding: 24px;
+    }
+
+    .bhd-modal-card .btn-close {
+        filter: none;
+    }
+
     @media (max-width: 1024px) {
         .bhd-four-grid,
         .bhd-step-list {
@@ -590,6 +662,22 @@
                             @if(!empty($event->location))<span><i class="fas fa-location-dot"></i> {{ $event->location }}</span>@endif
                             @if(!empty($event->start_time))<span><i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}</span>@endif
                         </div>
+                        <button type="button"
+                                class="bhd-view-more-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bhdDetailsModal"
+                                data-detail-label="Upcoming Event"
+                                data-detail-title="{{ $event->title }}"
+                                data-detail-description="{{ $event->description }}"
+                                data-detail-date="{{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}"
+                                data-detail-time="{{ !empty($event->start_time) ? \Carbon\Carbon::parse($event->start_time)->format('g:i A') : '' }}"
+                                data-detail-location="{{ $event->location ?? '' }}"
+                                data-detail-attendees=""
+                                data-detail-start=""
+                                data-detail-target=""
+                                data-detail-completed="">
+                            <i class="fas fa-up-right-from-square"></i> View More
+                        </button>
                     </div>
                 </article>
             @empty
@@ -619,6 +707,22 @@
                         @if(!empty($project->start_date))<span><i class="fas fa-calendar-alt"></i> Started: {{ $project->start_date }}</span>@endif
                         @if(!empty($project->expected_completion))<span><i class="fas fa-flag-checkered"></i> Target: {{ $project->expected_completion }}</span>@endif
                     </div>
+                    <button type="button"
+                            class="bhd-view-more-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bhdDetailsModal"
+                            data-detail-label="Ongoing Project"
+                            data-detail-title="{{ $project->title }}"
+                            data-detail-description="{{ $project->description }}"
+                            data-detail-date=""
+                            data-detail-time=""
+                            data-detail-location=""
+                            data-detail-attendees=""
+                            data-detail-start="{{ !empty($project->start_date) ? 'Started: ' . $project->start_date : '' }}"
+                            data-detail-target="{{ !empty($project->expected_completion) ? 'Target: ' . $project->expected_completion : '' }}"
+                            data-detail-completed="">
+                        <i class="fas fa-up-right-from-square"></i> View More
+                    </button>
                 </article>
             @empty
                 <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_ongoing_projects_are_posted_yet') }}</div>
@@ -645,6 +749,22 @@
                     <div class="bhd-chip-list">
                         @if(!empty($project->expected_completion))<span><i class="fas fa-calendar-check"></i> Completed: {{ $project->expected_completion }}</span>@endif
                     </div>
+                    <button type="button"
+                            class="bhd-view-more-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bhdDetailsModal"
+                            data-detail-label="Completed Project"
+                            data-detail-title="{{ $project->title }}"
+                            data-detail-description="{{ $project->description }}"
+                            data-detail-date=""
+                            data-detail-time=""
+                            data-detail-location=""
+                            data-detail-attendees=""
+                            data-detail-start=""
+                            data-detail-target=""
+                            data-detail-completed="{{ !empty($project->expected_completion) ? 'Completed: ' . $project->expected_completion : '' }}">
+                        <i class="fas fa-up-right-from-square"></i> View More
+                    </button>
                 </article>
             @empty
                 <div class="bhd-empty-card">{{ __('messages.blade_events_blade_no_completed_projects_are_posted_yet') }}</div>
@@ -677,6 +797,22 @@
                             @if(!empty($event->attendees))<span><i class="fas fa-users"></i> {{ __('messages.blade_events_count_attendees', ['count' => $event->attendees]) }}</span>@endif
                             @if(!empty($event->location))<span><i class="fas fa-location-dot"></i> {{ $event->location }}</span>@endif
                         </div>
+                        <button type="button"
+                                class="bhd-view-more-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bhdDetailsModal"
+                                data-detail-label="Past Event"
+                                data-detail-title="{{ $event->title }}"
+                                data-detail-description="{{ $event->description }}"
+                                data-detail-date="{{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}"
+                                data-detail-time="{{ !empty($event->start_time) ? \Carbon\Carbon::parse($event->start_time)->format('g:i A') : '' }}"
+                                data-detail-location="{{ $event->location ?? '' }}"
+                                data-detail-attendees="{{ !empty($event->attendees) ? $event->attendees . ' attendees' : '' }}"
+                                data-detail-start=""
+                                data-detail-target=""
+                                data-detail-completed="">
+                            <i class="fas fa-up-right-from-square"></i> View More
+                        </button>
                     </div>
                 </article>
             @empty
@@ -685,5 +821,94 @@
         </div>
     </div>
 </section>
+
+<!-- Shared details modal for events and projects -->
+<div class="modal fade" id="bhdDetailsModal" tabindex="-1" aria-labelledby="bhdDetailsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content bhd-modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="bhdDetailsModalTitle">Details</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span class="bhd-status-pill bhd-detail-modal-label" id="bhdDetailsModalLabel">
+                    <i class="fas fa-circle-info"></i>
+                    <span>Details</span>
+                </span>
+
+                <p class="bhd-detail-modal-description" id="bhdDetailsModalDescription"></p>
+                <div class="bhd-detail-modal-meta" id="bhdDetailsModalMeta"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalElement = document.getElementById('bhdDetailsModal');
+
+        if (!modalElement) {
+            return;
+        }
+
+        modalElement.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const titleElement = document.getElementById('bhdDetailsModalTitle');
+            const labelElement = document.querySelector('#bhdDetailsModalLabel span');
+            const descriptionElement = document.getElementById('bhdDetailsModalDescription');
+            const metaElement = document.getElementById('bhdDetailsModalMeta');
+
+            const details = {
+                label: button.dataset.detailLabel || 'Details',
+                title: button.dataset.detailTitle || 'Details',
+                description: button.dataset.detailDescription || 'No description was provided.',
+                date: button.dataset.detailDate || '',
+                time: button.dataset.detailTime || '',
+                location: button.dataset.detailLocation || '',
+                attendees: button.dataset.detailAttendees || '',
+                start: button.dataset.detailStart || '',
+                target: button.dataset.detailTarget || '',
+                completed: button.dataset.detailCompleted || ''
+            };
+
+            titleElement.textContent = details.title;
+            labelElement.textContent = details.label;
+            descriptionElement.textContent = details.description;
+            metaElement.replaceChildren();
+
+            const metaItems = [
+                { icon: 'fa-calendar-days', value: details.date },
+                { icon: 'fa-clock', value: details.time },
+                { icon: 'fa-location-dot', value: details.location },
+                { icon: 'fa-users', value: details.attendees },
+                { icon: 'fa-calendar-plus', value: details.start },
+                { icon: 'fa-flag-checkered', value: details.target },
+                { icon: 'fa-circle-check', value: details.completed }
+            ];
+
+            metaItems.forEach(function (item) {
+                if (!item.value) {
+                    return;
+                }
+
+                const chip = document.createElement('span');
+                const icon = document.createElement('i');
+                const text = document.createElement('span');
+
+                icon.className = 'fas ' + item.icon;
+                text.textContent = item.value;
+                chip.append(icon, text);
+                metaElement.appendChild(chip);
+            });
+        });
+    });
+</script>
+@endpush
 
 @include('barangay_system.partials.public_layout_end')

@@ -719,7 +719,7 @@
             --radius-sm: 10px;
         }
 
-        html { font-size: 70%; scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; }
 
         body {
             background: var(--page-bg);
@@ -1887,14 +1887,7 @@
             .announcements-hero h2 { font-size: 1.7rem; }
         }
 
-    
-
-        /* ==========================================================
-           FINAL MOBILE POLISH V2 - Announcements
-           Clean card UX on phones. Desktop/tablet table stays unchanged.
-        ========================================================== */
         @media (max-width: 767.98px) {
-            html { font-size: 78% !important; }
             body { background: #f8fafc !important; }
 
             .main-content { min-width: 0 !important; }
