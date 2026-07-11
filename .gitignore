@@ -22,5 +22,4 @@ yarn-error.log
 /.vscode
 /.zed
 /venv/
-/public/analytics
 /pulic/uploads
