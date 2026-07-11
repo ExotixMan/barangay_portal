@@ -69,7 +69,6 @@
 
     @stack('scripts')
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="{{ asset('js/admin/admin-notifications.js') }}" defer></script>
 </body>
 </html>
