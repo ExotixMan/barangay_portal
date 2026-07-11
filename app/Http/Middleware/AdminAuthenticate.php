@@ -28,6 +28,6 @@ class AdminAuthenticate
         }
 
         // Guest user goes to admin login.
-        return redirect()->guest(route('admin.login'));
+        return redirect()->guest(route('barangay_system.login'));
     }
 }
