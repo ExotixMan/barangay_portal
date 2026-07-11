@@ -242,14 +242,12 @@
                                         </td>
                                         <td>
                                             <div class="info-stack">
-                                                <span class="info-label-mini">Email</span>
                                                 <span class="info-main">{{ $resident->email ?? 'N/A' }}</span>
                                                 <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $resident->contact ?? 'N/A' }}</span>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="info-stack">
-                                                <span class="info-label-mini">Age</span>
                                                 <span class="info-main">{{ $resident->age }} years old</span>
                                                 <span class="info-sub"><i class="fas fa-location-dot me-1"></i>{{ Str::limit($resident->address, 36) }}</span>
                                             </div>

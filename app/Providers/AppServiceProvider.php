@@ -45,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+        
         DB::listen(function (QueryExecuted $query) {
             if ($query->time > 1000) { // more than 1 second
                 Log::warning('Slow query', [

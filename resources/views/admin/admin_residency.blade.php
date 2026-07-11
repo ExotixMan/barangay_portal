@@ -310,14 +310,12 @@
                                     </td>
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Residency details</span>
                                             <span class="info-main">{{ $app->residency_type ? ucwords(str_replace('_', ' ', $app->residency_type)) : 'N/A' }}</span>
                                             <span class="info-sub"><i class="fas fa-clock me-1"></i>{{ $app->years_residing ?: 'N/A' }} residing</span>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Purpose</span>
                                             <span class="info-main">{{ $app->purpose ? ucwords(str_replace('_', ' ', $app->purpose)) : 'N/A' }}</span>
                                             <span class="info-sub"><i class="fas fa-phone me-1"></i>{{ $app->contact_number ?: 'No contact' }}</span>
                                         </div>

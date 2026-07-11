@@ -312,7 +312,6 @@
 
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Financial profile</span>
                                             <span class="income-badge"><i class="fas fa-wallet"></i>{{ $ind->monthly_income ?: 'N/A' }}</span>
                                             <span class="info-sub"><i class="fas fa-users me-1"></i>{{ $ind->household_members ?: 'N/A' }} household member(s)</span>
                                         </div>
@@ -320,7 +319,6 @@
 
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Purpose</span>
                                             <span class="info-main">
                                                 {{ $ind->purpose ? ucwords(str_replace('_', ' ', $ind->purpose)) : 'N/A' }}
                                             </span>

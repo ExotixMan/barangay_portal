@@ -315,7 +315,6 @@
                                     </td>
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Applicant details</span>
                                             <span class="info-main">
                                                 {{ $app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('M d, Y') : 'N/A' }}
                                             </span>
@@ -326,7 +325,6 @@
                                     </td>
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Purpose</span>
                                             <span class="info-main">
                                                 {{ $app->purpose ? ucwords(str_replace('_', ' ', $app->purpose)) : 'N/A' }}
                                                 @if($app->purpose_other)

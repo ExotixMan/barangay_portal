@@ -330,7 +330,6 @@
                                     </td>
                                     <td>
                                         <div class="info-stack">
-                                            <span class="info-label-mini">Type</span>
                                             <span class="incident-type-pill"><i class="fas fa-triangle-exclamation"></i>{{ ucfirst(str_replace('_', ' ', $blotter->report_type)) }}</span>
                                             <span class="confidentiality-pill confidentiality-{{ $blotter->confidentiality }}">
                                                 <i class="fas fa-lock"></i>{{ ucfirst($blotter->confidentiality) }}
