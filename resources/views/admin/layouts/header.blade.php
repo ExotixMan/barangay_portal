@@ -43,7 +43,6 @@
                         aria-label="Open notifications"
                         aria-haspopup="true"
                         aria-expanded="false">
-
                     <i class="fas fa-bell" aria-hidden="true"></i>
 
                     <span class="admin-notification__badge"
@@ -54,13 +53,10 @@
                     </span>
                 </button>
 
-                <section class ? '99+' : $adminUnreadNotificationCount }}
-                    </span>
-="admin-notification__dropdown"
+                <section class="admin-notification__dropdown"
                          id="adminNotificationDropdown"
                          aria-label="Notifications"
                          hidden>
-
                     <div class="admin-notification__header">
                         <div>
                             <strong>Notifications</strong>
@@ -90,7 +86,6 @@
 
                     <div class="admin-notification__list"
                          id="adminNotificationList">
-
                         @forelse ($recentAdminNotifications as $notification)
                             @php
                                 $notificationData = is_array($notification->data)
@@ -105,7 +100,6 @@
                                 ) }}"
                                class="admin-notification__item {{ is_null($notification->read_at) ? 'is-unread' : '' }}"
                                data-notification-id="{{ $notification->id }}">
-
                                 <span class="admin-notification__icon"
                                       aria-hidden="true">
                                     <i class="{{ $notificationData['icon'] ?? 'fas fa-bell' }}"></i>
@@ -133,7 +127,6 @@
                         @empty
                             <div class="admin-notification__empty"
                                  id="adminNotificationEmpty">
-
                                 <i class="far fa-bell-slash"
                                    aria-hidden="true"></i>
 
@@ -160,12 +153,13 @@
                 aria-label="Switch to dark mode"
                 aria-pressed="false"
                 title="Switch to dark mode">
-
-            <span class="theme-toggle-icon" aria-hidden="true">
+            <span class="theme-toggle-icon"
+                  aria-hidden="true">
                 <i class="fas fa-moon" data-theme-icon></i>
             </span>
 
-            <span class="theme-toggle-text" data-theme-text>
+            <span class="theme-toggle-text"
+                  data-theme-text>
                 Dark mode
             </span>
         </button>
