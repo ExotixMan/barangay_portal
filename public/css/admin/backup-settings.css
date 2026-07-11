@@ -477,9 +477,9 @@ body {
     gap: .65rem;
     margin-bottom: .9rem;
     padding: .8rem;
-    color: #7c2d12;
-    background: var(--warning-soft);
-    border: 1px solid #fed7aa;
+    color: var(--primary-dark);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-dark);
     border-radius: 14px;
     font-size: .84rem;
     line-height: 1.55;
