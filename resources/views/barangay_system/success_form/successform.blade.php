@@ -380,16 +380,6 @@
     $feeLabelText = session('fee_label', '');
 @endphp
 
-<header class="page-shell topbar">
-    <a href="{{ route('barangay_system.index') }}" class="brand" aria-label="{{ __('messages.blade_incident_success_blade_go_to_homepage') }}">
-        <span class="brand-logo"><img src="{{ asset('Images/logo.png') }}" alt="{{ __('messages.blade_incident_success_blade_barangay_hulong_duhat_logo') }}"></span>
-        <span class="brand-text">
-            <strong>{{ __('messages.footer_brand_name') }}</strong>
-            <span>{{ __('messages.blade_incident_success_blade_online_services_portal') }}</span>
-        </span>
-    </a>
-</header>
-
 <main class="main-layout" id="mainContent">
     <div class="page-shell success-grid">
         <section class="success-card" aria-labelledby="successTitle">
