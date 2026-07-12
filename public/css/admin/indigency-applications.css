@@ -2236,6 +2236,13 @@ body {
     border-radius: 0 !important;
 }
 
+@media (max-width: 575.98px) {
+    .input-group .form-control {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 .input-group .btn {
     border-radius: 0 12px 12px 0 !important;
 }
