@@ -235,7 +235,7 @@ class AdminPermissionController extends Controller
                     'user_id' => $adminId,
                     'action' => 'reset_permissions',
                     'module' => 'permissions',
-                    'details' => ['reset_to_default' => true],
+                    'details' => ['reset_to_default' => 'true'],
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ]);

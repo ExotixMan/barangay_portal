@@ -79,7 +79,7 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'category' => $request->category,
-            'is_featured' => $request->is_featured ?? false,
+            'is_featured' => $request->is_featured ?? 'false',
             'published_at' => now()
         ]);
 

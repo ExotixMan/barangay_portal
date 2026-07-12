@@ -207,7 +207,7 @@ class ChatbotController extends Controller
 
     public function resolveUnmatched(int $id): JsonResponse
     {
-        ChatbotUnmatched::findOrFail($id)->update(['resolved' => true]);
+        ChatbotUnmatched::findOrFail($id)->update(['resolved' => 'true']);
 
         return response()->json(['success' => true]);
     }

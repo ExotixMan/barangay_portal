@@ -245,7 +245,7 @@ class ResidentController extends Controller
                 $updateData[$field] = $this->storeResidentValidIdFile($request, $field);
 
                 // New ID image means it needs admin review again unless the admin selects Verified in the same update.
-                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_verified'] = 'false';
                 $updateData['valid_id_status'] = 'for_verification';
                 $updateData['valid_id_verified_at'] = null;
                 $updateData['valid_id_verified_by'] = null;
@@ -266,7 +266,7 @@ class ResidentController extends Controller
                         ->withInput();
                 }
 
-                $updateData['valid_id_verified'] = true;
+                $updateData['valid_id_verified'] = 'true';
                 $updateData['valid_id_status'] = 'verified';
                 $updateData['valid_id_verified_at'] = now('Asia/Manila');
                 $updateData['valid_id_verified_by'] = auth('admin')->id();
@@ -274,7 +274,7 @@ class ResidentController extends Controller
             }
 
             if ($status === 'rejected') {
-                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_verified'] = 'false';
                 $updateData['valid_id_status'] = 'rejected';
                 $updateData['valid_id_verified_at'] = null;
                 $updateData['valid_id_verified_by'] = null;
@@ -282,7 +282,7 @@ class ResidentController extends Controller
             }
 
             if ($status === 'for_verification') {
-                $updateData['valid_id_verified'] = false;
+                $updateData['valid_id_verified'] = 'false';
                 $updateData['valid_id_status'] = 'for_verification';
                 $updateData['valid_id_verified_at'] = null;
                 $updateData['valid_id_verified_by'] = null;
@@ -342,7 +342,7 @@ class ResidentController extends Controller
         }
 
         $resident->update([
-            'valid_id_verified' => true,
+            'valid_id_verified' => 'true',
             'valid_id_status' => 'verified',
             'valid_id_verified_at' => now('Asia/Manila'),
             'valid_id_verified_by' => auth('admin')->id(),
@@ -386,7 +386,7 @@ class ResidentController extends Controller
         }
 
         $resident->update([
-            'valid_id_verified' => false,
+            'valid_id_verified' => 'false',
             'valid_id_status' => 'rejected',
             'valid_id_verified_at' => null,
             'valid_id_verified_by' => null,
