@@ -1097,7 +1097,6 @@
             display: none !important;
         }
 
-        #idScannerManualCaptureBtn,
         .scanner-auto-option {
             display: none !important;
         }
@@ -1150,19 +1149,128 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .scanner-guide {
             position: absolute;
-            left: 12%;
-            right: 12%;
-            top: 23%;
-            bottom: 23%;
-            border: 2px dashed rgba(255, 255, 255, 0.82);
+            left: 50%;
+            top: 50%;
+            width: min(78%, 760px);
+            aspect-ratio: 1.586 / 1;
+            transform: translate(-50%, -50%);
+            border: 2px dashed rgba(255, 255, 255, 0.88);
             border-radius: 18px;
-            box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.28);
+            box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.22);
             pointer-events: none;
+        }
+
+        .scanner-side-banner {
+            position: absolute;
+            z-index: 4;
+            top: 0.75rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: auto auto;
+            align-items: center;
+            gap: 0.35rem 0.65rem;
+            width: min(calc(100% - 1.5rem), 540px);
+            padding: 0.65rem 0.8rem;
+            border-radius: 15px;
+            color: #fff;
+            background: rgba(15, 23, 42, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            text-align: left;
+            pointer-events: none;
+        }
+
+        .scanner-side-banner .scanner-step-pill {
+            grid-row: 1 / span 2;
+            display: grid;
+            place-items: center;
+            min-width: 52px;
+            min-height: 42px;
+            padding: 0.35rem;
+            border-radius: 12px;
+            color: #052e16;
+            background: #bbf7d0;
+            font-size: 0.75rem;
+            font-weight: 950;
+        }
+
+        .scanner-side-banner.is-back .scanner-step-pill {
+            color: #431407;
+            background: #fed7aa;
+        }
+
+        .scanner-side-banner strong {
+            font-size: 0.92rem;
+            font-weight: 950;
+            letter-spacing: 0.05em;
+        }
+
+        .scanner-side-banner small {
+            color: rgba(255, 255, 255, 0.80);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .scanner-transition-overlay {
+            position: absolute;
+            z-index: 6;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 1.2rem;
+            color: #fff;
+            background: rgba(2, 6, 23, 0.88);
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .scanner-transition-overlay.d-none {
+            display: none !important;
+        }
+
+        .scanner-transition-card {
+            display: grid;
+            place-items: center;
+            gap: 0.55rem;
+            width: min(100%, 420px);
+            padding: 1.3rem;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .scanner-transition-card i {
+            font-size: 2rem;
+        }
+
+        .scanner-transition-card strong {
+            font-size: clamp(1.25rem, 5vw, 2rem);
+            font-weight: 950;
+        }
+
+        .scanner-transition-card span {
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 0.92rem;
+            font-weight: 750;
+        }
+
+        .scanner-transition-countdown {
+            display: grid;
+            place-items: center;
+            width: 58px;
+            height: 58px;
+            margin-top: 0.35rem;
+            border-radius: 999px;
+            color: #0f172a;
+            background: #fff;
+            font-size: 1.45rem;
+            font-weight: 950;
         }
 
         .scanner-status {
@@ -1755,11 +1863,8 @@
             }
 
             .scanner-guide {
-                left: 7%;
-                right: 7%;
-                top: 34%;
-                bottom: 34%;
-                border-radius: 13px;
+                width: min(86%, 620px);
+                border-radius: 14px;
             }
 
             .scanner-status {
@@ -1788,10 +1893,7 @@
 
         @media (max-width: 576px) {
             .scanner-guide {
-                left: 5%;
-                right: 5%;
-                top: 18%;
-                bottom: 18%;
+                width: min(86%, 620px);
                 border-radius: 14px;
             }
 
@@ -1827,10 +1929,7 @@
             }
 
             .scanner-guide {
-                left: 5%;
-                right: 5%;
-                top: 18%;
-                bottom: 18%;
+                width: min(86%, 620px);
                 border-radius: 14px;
             }
         }
@@ -2533,6 +2632,22 @@
                         <video id="idScannerVideo" autoplay playsinline muted></video>
                         <canvas id="idScannerOverlay"></canvas>
                         <div class="scanner-guide" aria-hidden="true"></div>
+
+                        <div class="scanner-side-banner" id="idScannerSideBanner">
+                            <span class="scanner-step-pill" id="idScannerStepText">1 / 2</span>
+                            <strong id="idScannerSideText">FRONT SIDE</strong>
+                            <small id="idScannerSideHelp">Keep the entire ID visible. For laminated cards, tilt slightly to move glare away from the text.</small>
+                        </div>
+
+                        <div class="scanner-transition-overlay d-none" id="idScannerTransitionOverlay" aria-live="assertive">
+                            <div class="scanner-transition-card">
+                                <i class="fas fa-rotate"></i>
+                                <strong id="idScannerTransitionTitle">Front captured</strong>
+                                <span id="idScannerTransitionText">Flip the ID now. The scanner will capture the BACK side next.</span>
+                                <span class="scanner-transition-countdown" id="idScannerTransitionCountdown">3</span>
+                            </div>
+                        </div>
+
                         <div class="scanner-status" id="idScannerStatus">
                             <span class="d-inline-flex align-items-center gap-2">
                                 <span class="status-dot"></span>
@@ -2549,8 +2664,8 @@
                         <button type="button" class="btn-scanner-secondary" id="idScannerRetakeBtn">
                             <i class="fas fa-rotate-right"></i> {{ __('messages.blade_profile_blade_restart_camera') }}
                         </button>
-                        <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn" disabled aria-hidden="true">
-                            <i class="fas fa-camera"></i> {{ __('messages.blade_register_blade_auto_capture_enabled') }}
+                        <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn" disabled>
+                            <i class="fas fa-camera"></i> Capture inside guide
                         </button>
                         <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
                             <i class="fas fa-xmark"></i> {{ __('messages.register_cancel_btn') }}
@@ -3339,6 +3454,14 @@
             const scannerStatus = document.getElementById('idScannerStatus');
             const scannerStatusText = document.getElementById('idScannerStatusText');
             const scannerTargetText = document.getElementById('idScannerTargetText');
+            const scannerSideBanner = document.getElementById('idScannerSideBanner');
+            const scannerStepText = document.getElementById('idScannerStepText');
+            const scannerSideText = document.getElementById('idScannerSideText');
+            const scannerSideHelp = document.getElementById('idScannerSideHelp');
+            const scannerTransitionOverlay = document.getElementById('idScannerTransitionOverlay');
+            const scannerTransitionTitle = document.getElementById('idScannerTransitionTitle');
+            const scannerTransitionText = document.getElementById('idScannerTransitionText');
+            const scannerTransitionCountdown = document.getElementById('idScannerTransitionCountdown');
             const scannerAutoCapture = document.getElementById('idScannerAutoCapture');
             const scannerManualCaptureBtn = document.getElementById('idScannerManualCaptureBtn');
             const scannerRetakeBtn = document.getElementById('idScannerRetakeBtn');
@@ -3377,6 +3500,8 @@
                 detectionFrames: 0,
                 lastCandidateAt: 0,
                 lastCandidateMessage: '',
+                flipTimerId: null,
+                flipIntervalId: null,
             };
 
             function setScannerStatus(message, state = 'waiting') {
@@ -3384,6 +3509,51 @@
                 if (!scannerStatus) return;
                 scannerStatus.classList.toggle('is-ready', state === 'ready');
                 scannerStatus.classList.toggle('is-error', state === 'error');
+            }
+
+            function updateScannerSideUi(inputId) {
+                const isBack = inputId === 'valid_id_back';
+                const total = scannerState.scanMode === 'both' ? 2 : 1;
+                const current = scannerState.scanMode === 'both' ? (isBack ? 2 : 1) : 1;
+
+                if (scannerStepText) scannerStepText.textContent = `${current} / ${total}`;
+                if (scannerSideText) scannerSideText.textContent = isBack ? 'BACK SIDE' : 'FRONT SIDE';
+                if (scannerSideHelp) {
+                    scannerSideHelp.textContent = isBack
+                        ? 'Show the whole back side. It may have fewer printed edges, so keep the card inside the guide.'
+                        : 'Keep the entire ID visible. For laminated cards, tilt slightly to move glare away from the text.';
+                }
+                if (scannerSideBanner) scannerSideBanner.classList.toggle('is-back', isBack);
+            }
+
+            function hideScannerTransition() {
+                if (scannerState.flipTimerId) window.clearTimeout(scannerState.flipTimerId);
+                if (scannerState.flipIntervalId) window.clearInterval(scannerState.flipIntervalId);
+                scannerState.flipTimerId = null;
+                scannerState.flipIntervalId = null;
+                if (scannerTransitionOverlay) scannerTransitionOverlay.classList.add('d-none');
+            }
+
+            function showBackSideTransition(onComplete) {
+                hideScannerTransition();
+
+                let seconds = 3;
+                if (scannerTransitionTitle) scannerTransitionTitle.textContent = 'FRONT SIDE CAPTURED';
+                if (scannerTransitionText) scannerTransitionText.textContent = 'Flip the ID now. The scanner will capture the BACK side next.';
+                if (scannerTransitionCountdown) scannerTransitionCountdown.textContent = String(seconds);
+                if (scannerTransitionOverlay) scannerTransitionOverlay.classList.remove('d-none');
+
+                if (navigator.vibrate) navigator.vibrate([140, 80, 140]);
+
+                scannerState.flipIntervalId = window.setInterval(() => {
+                    seconds -= 1;
+                    if (scannerTransitionCountdown) scannerTransitionCountdown.textContent = String(Math.max(1, seconds));
+                }, 1000);
+
+                scannerState.flipTimerId = window.setTimeout(() => {
+                    hideScannerTransition();
+                    onComplete();
+                }, 3000);
             }
 
             function resetScannerDetection() {
@@ -3410,6 +3580,7 @@
                 scannerState.targetLabel = label;
 
                 if (scannerTargetText) scannerTargetText.textContent = label;
+                updateScannerSideUi(inputId);
 
                 const title = document.getElementById('idScannerModalLabel');
                 if (title) title.textContent = @json(__('messages.blade_profile_blade_automatic_valid_id_scanner'));
@@ -3611,29 +3782,58 @@
 
                 let source = null;
                 let gray = null;
+                let equalized = null;
                 let blurred = null;
                 let edges = null;
+                let thresholded = null;
+                let combined = null;
                 let contours = null;
                 let hierarchy = null;
+                let closeKernel = null;
 
                 try {
                     source = cv.imread(scannerWorkCanvas);
                     gray = new cv.Mat();
+                    equalized = new cv.Mat();
                     blurred = new cv.Mat();
                     edges = new cv.Mat();
+                    thresholded = new cv.Mat();
+                    combined = new cv.Mat();
                     contours = new cv.MatVector();
                     hierarchy = new cv.Mat();
+                    closeKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(7, 7));
 
                     cv.cvtColor(source, gray, cv.COLOR_RGBA2GRAY);
-                    cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
-                    cv.Canny(blurred, edges, 70, 180);
-                    cv.dilate(edges, edges, cv.Mat.ones(3, 3, cv.CV_8U));
-                    cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                    // Equalization makes weak card borders and low-contrast back sides easier to see.
+                    cv.equalizeHist(gray, equalized);
+                    cv.GaussianBlur(equalized, blurred, new cv.Size(5, 5), 0);
+
+                    // First pass: normal edges. Lower thresholds retain borders affected by lamination glare.
+                    cv.Canny(blurred, edges, 45, 145);
+
+                    // Second pass: local thresholding survives uneven lighting and bright reflection patches.
+                    cv.adaptiveThreshold(
+                        blurred,
+                        thresholded,
+                        255,
+                        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+                        cv.THRESH_BINARY,
+                        31,
+                        7
+                    );
+                    cv.bitwise_not(thresholded, thresholded);
+                    cv.bitwise_or(edges, thresholded, combined);
+                    cv.morphologyEx(combined, combined, cv.MORPH_CLOSE, closeKernel);
+                    cv.dilate(combined, combined, closeKernel, new cv.Point(-1, -1), 1);
+                    cv.findContours(combined, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
                     let bestPoints = null;
-                    let bestArea = 0;
+                    let bestScore = -Infinity;
                     const frameArea = source.rows * source.cols;
-                    const minimumArea = frameArea * 0.055;
+                    const frameCenter = { x: source.cols / 2, y: source.rows / 2 };
+                    const minimumArea = frameArea * 0.025;
+                    const idealRatio = 1.586;
 
                     for (let i = 0; i < contours.size(); i++) {
                         const contour = contours.get(i);
@@ -3646,17 +3846,38 @@
 
                         const perimeter = cv.arcLength(contour, true);
                         const approx = new cv.Mat();
-                        cv.approxPolyDP(contour, approx, 0.025 * perimeter, true);
+                        cv.approxPolyDP(contour, approx, 0.032 * perimeter, true);
+
+                        let points = null;
+                        let rectangularity = 0;
 
                         if (approx.rows === 4 && cv.isContourConvex(approx)) {
-                            const points = [];
+                            points = [];
                             for (let row = 0; row < 4; row++) {
                                 points.push({
                                     x: approx.data32S[row * 2],
                                     y: approx.data32S[row * 2 + 1],
                                 });
                             }
+                            rectangularity = 1;
+                        } else {
+                            // Laminated cards often produce broken contours. Use the enclosing rectangle
+                            // as a fallback instead of requiring exactly four detected contour points.
+                            const rect = cv.boundingRect(contour);
+                            const rectArea = Math.max(1, rect.width * rect.height);
+                            rectangularity = area / rectArea;
 
+                            if (rectangularity >= 0.42) {
+                                points = [
+                                    { x: rect.x, y: rect.y },
+                                    { x: rect.x + rect.width, y: rect.y },
+                                    { x: rect.x + rect.width, y: rect.y + rect.height },
+                                    { x: rect.x, y: rect.y + rect.height },
+                                ];
+                            }
+                        }
+
+                        if (points) {
                             const ordered = orderQuadPoints(points);
                             const topWidth = distanceBetweenPoints(ordered[0], ordered[1]);
                             const bottomWidth = distanceBetweenPoints(ordered[3], ordered[2]);
@@ -3664,11 +3885,25 @@
                             const rightHeight = distanceBetweenPoints(ordered[1], ordered[2]);
                             const width = Math.max(topWidth, bottomWidth);
                             const height = Math.max(leftHeight, rightHeight);
-                            const ratio = width / Math.max(height, 1);
 
-                            if (ratio >= 1.2 && ratio <= 2.35 && area > bestArea) {
-                                bestArea = area;
-                                bestPoints = points;
+                            // Use orientation-independent ratio so portrait student IDs are accepted.
+                            const ratio = Math.max(width, height) / Math.max(1, Math.min(width, height));
+                            const center = ordered.reduce((result, point) => ({
+                                x: result.x + point.x / 4,
+                                y: result.y + point.y / 4,
+                            }), { x: 0, y: 0 });
+                            const centerDistance = Math.hypot(center.x - frameCenter.x, center.y - frameCenter.y);
+                            const normalizedCenterDistance = centerDistance / Math.max(1, Math.hypot(frameCenter.x, frameCenter.y));
+                            const ratioScore = Math.max(0, 1 - Math.abs(ratio - idealRatio) / 1.35);
+                            const areaScore = area / frameArea;
+                            const centerScore = Math.max(0, 1 - normalizedCenterDistance);
+
+                            if (ratio >= 1.05 && ratio <= 2.85) {
+                                const score = (areaScore * 5.0) + (ratioScore * 1.25) + (centerScore * 0.65) + (rectangularity * 0.45);
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                    bestPoints = points;
+                                }
                             }
                         }
 
@@ -3683,11 +3918,36 @@
                 } finally {
                     if (source) source.delete();
                     if (gray) gray.delete();
+                    if (equalized) equalized.delete();
                     if (blurred) blurred.delete();
                     if (edges) edges.delete();
+                    if (thresholded) thresholded.delete();
+                    if (combined) combined.delete();
                     if (contours) contours.delete();
                     if (hierarchy) hierarchy.delete();
+                    if (closeKernel) closeKernel.delete();
                 }
+            }
+
+            function getGuideFallbackPoints() {
+                if (!scannerWorkCanvas) return null;
+
+                const frameWidth = scannerWorkCanvas.width || scannerVideo?.videoWidth || 1280;
+                const frameHeight = scannerWorkCanvas.height || scannerVideo?.videoHeight || 720;
+                const targetRatio = 1.586;
+                const maxWidth = frameWidth * 0.78;
+                const maxHeight = frameHeight * 0.58;
+                const width = Math.min(maxWidth, maxHeight * targetRatio);
+                const height = width / targetRatio;
+                const left = (frameWidth - width) / 2;
+                const top = (frameHeight - height) / 2;
+
+                return [
+                    { x: left, y: top },
+                    { x: left + width, y: top },
+                    { x: left + width, y: top + height },
+                    { x: left, y: top + height },
+                ];
             }
 
             function cropGuideFallback() {
@@ -3699,10 +3959,11 @@
 
                 const sourceWidth = scannerWorkCanvas.width;
                 const sourceHeight = scannerWorkCanvas.height;
-                const cropX = Math.round(sourceWidth * 0.12);
-                const cropY = Math.round(sourceHeight * 0.23);
-                const cropWidth = Math.round(sourceWidth * 0.76);
-                const cropHeight = Math.round(sourceHeight * 0.54);
+                const guidePoints = getGuideFallbackPoints();
+                const cropX = Math.max(0, Math.round(guidePoints[0].x));
+                const cropY = Math.max(0, Math.round(guidePoints[0].y));
+                const cropWidth = Math.min(sourceWidth - cropX, Math.round(guidePoints[1].x - guidePoints[0].x));
+                const cropHeight = Math.min(sourceHeight - cropY, Math.round(guidePoints[3].y - guidePoints[0].y));
 
                 scannerResultCanvas.width = cropWidth;
                 scannerResultCanvas.height = cropHeight;
@@ -3893,8 +4154,6 @@
 
                 const sharpness = sharpnessCount ? sharpnessTotal / sharpnessCount : 0;
 
-                // Laplacian variance is a stronger blur detector than simple brightness/contrast.
-                // Blurry images have low variance because edges/text are smeared.
                 let laplacianTotal = 0;
                 let laplacianSquaredTotal = 0;
                 let laplacianCount = 0;
@@ -4088,9 +4347,11 @@
                 if (histogramDifference < 0.12) confidence += 0.10;
                 if (ratioDifference > 0.18) confidence -= 0.15;
 
-                const duplicate = confidence >= 0.65
-                    || (averageDifference < 0.065 && hammingDifference < 0.24)
-                    || (correlation > 0.92 && hammingDifference < 0.26);
+                // Only reject near-identical captures. Student IDs often reuse the same colors
+                // and layout on both sides, so an aggressive similarity test creates false rejects.
+                const duplicate = confidence >= 0.90
+                    || (averageDifference < 0.045 && hammingDifference < 0.13 && correlation > 0.96)
+                    || (correlation > 0.985 && hammingDifference < 0.10);
 
                 return {
                     duplicate,
@@ -4127,7 +4388,7 @@
                 const frameArea = Math.max(1, scannerWorkCanvas.width * scannerWorkCanvas.height);
                 const areaRatio = detectedArea / frameArea;
 
-                if (areaRatio < 0.10) {
+                if (areaRatio < 0.055) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_too_far')),
@@ -4141,7 +4402,7 @@
                     };
                 }
 
-                if (detectedRatio < 1.25 || detectedRatio > 2.35) {
+                if (detectedRatio < 1.05 || detectedRatio > 2.85) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_shape_invalid')),
@@ -4152,14 +4413,14 @@
                 const cropLongSide = Math.max(canvas.width, canvas.height);
                 const cropRatio = cropLongSide / Math.max(1, cropShortSide);
 
-                if (cropShortSide < 220 || cropLongSide < 360) {
+                if (cropShortSide < 160 || cropLongSide < 260) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_crop_small')),
                     };
                 }
 
-                if (cropRatio < 1.25 || cropRatio > 2.35) {
+                if (cropRatio < 1.05 || cropRatio > 2.85) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_crop_shape')),
@@ -4168,21 +4429,21 @@
 
                 const analysis = getCanvasAnalysis(canvas);
 
-                if (analysis.brightness < 45) {
+                if (analysis.brightness < 35) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_dark_rescan')),
                     };
                 }
 
-                if (analysis.brightness > 235) {
+                if (analysis.brightness > 246) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_bright_rescan')),
                     };
                 }
 
-                if (analysis.contrast < 18) {
+                if (analysis.contrast < 12) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_unclear_rescan')),
@@ -4190,7 +4451,7 @@
                     };
                 }
 
-                if (analysis.darkPixelRatio > 0.36) {
+                if (analysis.darkPixelRatio > 0.46) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_dark_ratio')),
@@ -4198,7 +4459,7 @@
                     };
                 }
 
-                if (analysis.brightPixelRatio > 0.30) {
+                if (analysis.brightPixelRatio > 0.43) {
                     return {
                         passed: false,
                         message: @json(__('messages.blade_runtime_id_glare_ratio')),
@@ -4206,10 +4467,17 @@
                     };
                 }
 
-                const isBlurry = analysis.laplacianVariance < 90
-                    || analysis.sharpness < 8
-                    || analysis.edgeDensity < 0.018
-                    || analysis.centerEdgeDensity < 0.014;
+                const isBackSide = inputId === 'valid_id_back';
+                const blurSignals = [
+                    analysis.laplacianVariance < (isBackSide ? 42 : 58),
+                    analysis.sharpness < (isBackSide ? 5.2 : 6.0),
+                    analysis.edgeDensity < (isBackSide ? 0.008 : 0.011),
+                    analysis.centerEdgeDensity < (isBackSide ? 0.005 : 0.008),
+                ].filter(Boolean).length;
+
+                // A weak back side can naturally contain fewer edges. Reject only when multiple
+                // independent blur indicators fail, instead of rejecting on a single low metric.
+                const isBlurry = analysis.laplacianVariance < 24 || blurSignals >= 3;
 
                 if (isBlurry) {
                     console.info('ID scan rejected as blurry:', analysis);
@@ -4398,7 +4666,7 @@
                             setScannerStatus(@json(__('messages.blade_runtime_scanner_front_saved_flip')), 'ready');
                             resetScannerDetection();
 
-                            window.setTimeout(() => {
+                            showBackSideTransition(() => {
                                 const nextSide = scannerFlowSides[1];
                                 scannerState.flowIndex = 1;
                                 setScannerTarget(nextSide.inputId, nextSide.label);
@@ -4410,7 +4678,7 @@
                                 if (scannerState.stream) {
                                     scannerFrameLoop();
                                 }
-                            }, 3000);
+                            });
 
                             return;
                         }
@@ -4462,8 +4730,19 @@
                 }
 
                 if (!scannerState.detectedPoints) {
-                    setScannerStatus(@json(__('messages.blade_runtime_scanner_no_id')), 'error');
-                    return;
+                    if (!force) {
+                        setScannerStatus(@json(__('messages.blade_runtime_scanner_no_id')), 'error');
+                        return;
+                    }
+
+                    // Manual fallback for laminated or very plain back sides whose physical border
+                    // cannot be isolated. The user controls this capture by aligning the ID in the guide.
+                    scannerState.detectedPoints = getGuideFallbackPoints();
+                    if (!scannerState.detectedPoints) {
+                        setScannerStatus(@json(__('messages.blade_runtime_scanner_no_id')), 'error');
+                        return;
+                    }
+                    setScannerStatus('Using the guide area. Keep the entire card visible and avoid glare.', 'waiting');
                 }
 
                 scannerState.isCapturing = true;
@@ -4536,7 +4815,7 @@
                         if (!window.cvReady || typeof cv === 'undefined') {
                             setScannerStatus(@json(__('messages.blade_runtime_scanner_engine_manual')), 'waiting');
                         } else {
-                            setScannerStatus(@json(__('messages.blade_runtime_scanner_place_id')), 'waiting');
+                            setScannerStatus('Place the whole ID inside the guide. If a laminated card has no green outline, use “Capture inside guide”.', 'waiting');
                         }
                     }
                 } finally {
@@ -4545,6 +4824,9 @@
             }
 
             function stopScannerCamera() {
+                hideScannerTransition();
+                if (scannerManualCaptureBtn) scannerManualCaptureBtn.disabled = true;
+
                 if (scannerState.rafId) {
                     cancelAnimationFrame(scannerState.rafId);
                     scannerState.rafId = null;
@@ -4595,6 +4877,18 @@
                     scannerState.stream = stream;
                     scannerVideo.srcObject = stream;
                     await scannerVideo.play();
+
+                    const videoTrack = stream.getVideoTracks()[0];
+                    try {
+                        const capabilities = videoTrack?.getCapabilities?.() || {};
+                        if (Array.isArray(capabilities.focusMode) && capabilities.focusMode.includes('continuous')) {
+                            await videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                        }
+                    } catch (focusError) {
+                        console.info('Continuous autofocus is not supported by this browser:', focusError);
+                    }
+
+                    if (scannerManualCaptureBtn) scannerManualCaptureBtn.disabled = false;
                     syncScannerCanvases();
                     setScannerStatus(@json(__('messages.blade_runtime_scanner_place_id')), window.cvReady ? 'waiting' : 'waiting');
                     scannerFrameLoop();
