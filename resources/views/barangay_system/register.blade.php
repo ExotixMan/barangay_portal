@@ -3472,12 +3472,14 @@
                 { inputId: 'valid_id_back', label: @json(__('messages.blade_profile_blade_back_side')), title: @json(__('messages.blade_profile_blade_automatic_valid_id_scanner')) },
             ];
 
-            // Movement-friendly capture settings.
-            // The scanner no longer waits for the ID to be perfectly still; it collects the best sharp frame.
-            const SCANNER_STABLE_FRAME_TARGET = 8;
-            const SCANNER_CANDIDATE_SAMPLE_INTERVAL_MS = 150;
-            const SCANNER_MIN_GOOD_CANDIDATES = 2;
-            const SCANNER_FRAME_MOVEMENT_TOLERANCE = 46;
+            // Quality-first capture settings. Auto-capture is allowed only after the card
+            // remains steady and several consecutive frames pass the sharpness checks.
+            const SCANNER_STABLE_FRAME_TARGET = 12;
+            const SCANNER_CANDIDATE_SAMPLE_INTERVAL_MS = 120;
+            const SCANNER_MIN_GOOD_CANDIDATES = 4;
+            const SCANNER_MAX_MOTION_DIFFERENCE = 0.045;
+            const SCANNER_MIN_STABLE_DURATION_MS = 550;
+            const SCANNER_AUTOFOCUS_SETTLE_MS = 500;
 
             const scannerState = {
                 targetInput: null,
@@ -3486,7 +3488,11 @@
                 flowIndex: 0,
                 stream: null,
                 rafId: null,
+                frameCallbackType: null,
                 stableFrames: 0,
+                stableStartedAt: 0,
+                consecutiveClearFrames: 0,
+                previousMotionSample: null,
                 lastPoints: null,
                 detectedPoints: null,
                 isCapturing: false,
@@ -3558,6 +3564,9 @@
 
             function resetScannerDetection() {
                 scannerState.stableFrames = 0;
+                scannerState.stableStartedAt = 0;
+                scannerState.consecutiveClearFrames = 0;
+                scannerState.previousMotionSample = null;
                 scannerState.lastPoints = null;
                 scannerState.detectedPoints = null;
                 scannerState.isProcessing = false;
@@ -3735,7 +3744,20 @@
                     return total + distanceBetweenPoints(point, previous[index]);
                 }, 0) / 4;
 
-                return averageMovement < SCANNER_FRAME_MOVEMENT_TOLERANCE;
+                const cardWidth = Math.max(
+                    distanceBetweenPoints(current[0], current[1]),
+                    distanceBetweenPoints(current[3], current[2])
+                );
+                const cardHeight = Math.max(
+                    distanceBetweenPoints(current[0], current[3]),
+                    distanceBetweenPoints(current[1], current[2])
+                );
+                const cardDiagonal = Math.hypot(cardWidth, cardHeight);
+
+                // Scale the permitted movement to the apparent card size. This is much
+                // stricter than a fixed 46-pixel allowance but still works across cameras.
+                const movementTolerance = Math.max(6, Math.min(16, cardDiagonal * 0.012));
+                return averageMovement <= movementTolerance;
             }
 
             function syncScannerCanvases() {
@@ -4475,9 +4497,12 @@
                     analysis.centerEdgeDensity < (isBackSide ? 0.005 : 0.008),
                 ].filter(Boolean).length;
 
-                // A weak back side can naturally contain fewer edges. Reject only when multiple
-                // independent blur indicators fail, instead of rejecting on a single low metric.
-                const isBlurry = analysis.laplacianVariance < 24 || blurSignals >= 3;
+                // The back of some IDs naturally has fewer printed edges, so it keeps a
+                // slightly more tolerant multi-signal rule. Motion is checked separately.
+                const absoluteBlurFloor = isBackSide ? 30 : 42;
+                const requiredBlurSignals = isBackSide ? 3 : 2;
+                const isBlurry = analysis.laplacianVariance < absoluteBlurFloor
+                    || blurSignals >= requiredBlurSignals;
 
                 if (isBlurry) {
                     console.info('ID scan rejected as blurry:', analysis);
@@ -4605,7 +4630,55 @@
                     .sort((a, b) => b.score - a.score)[0];
             }
 
-            function sampleMovingScannerFrame(points) {
+            function createMotionSample(canvas) {
+                if (!canvas) return null;
+
+                const width = 64;
+                const height = 40;
+                const sampleCanvas = document.createElement('canvas');
+                sampleCanvas.width = width;
+                sampleCanvas.height = height;
+
+                const context = sampleCanvas.getContext('2d', { willReadFrequently: true });
+                context.imageSmoothingEnabled = true;
+                context.drawImage(canvas, 0, 0, width, height);
+
+                const rgba = context.getImageData(0, 0, width, height).data;
+                const grayscale = new Float32Array(width * height);
+
+                for (let index = 0, pixel = 0; index < rgba.length; index += 4, pixel++) {
+                    grayscale[pixel] = (
+                        (rgba[index] * 0.299)
+                        + (rgba[index + 1] * 0.587)
+                        + (rgba[index + 2] * 0.114)
+                    ) / 255;
+                }
+
+                return grayscale;
+            }
+
+            function calculateMotionDifference(previous, current) {
+                if (!previous || !current || previous.length !== current.length) return 1;
+
+                let difference = 0;
+                for (let index = 0; index < current.length; index++) {
+                    difference += Math.abs(current[index] - previous[index]);
+                }
+
+                return difference / current.length;
+            }
+
+            function resetMotionTracking(clearCandidates = true) {
+                scannerState.previousMotionSample = null;
+                scannerState.stableStartedAt = 0;
+                scannerState.consecutiveClearFrames = 0;
+
+                if (clearCandidates) {
+                    scannerState.candidateFrames = [];
+                }
+            }
+
+            function sampleMovingScannerFrame(points, pointsAreStable) {
                 if (!scannerState.targetInput || !points || scannerState.isWaitingForFlip) return null;
 
                 const now = performance.now();
@@ -4614,15 +4687,39 @@
                 }
 
                 scannerState.lastCandidateAt = now;
-
                 const canvas = cropDetectedCard(points);
-                const qualityResult = validateIdCaptureQuality(canvas, points, scannerState.targetInput.id);
+                if (!canvas) return null;
 
-                if (!qualityResult.passed) {
-                    scannerState.lastCandidateMessage = qualityResult.message;
-                    return getBestScannerCandidate();
+                const currentMotionSample = createMotionSample(canvas);
+                const previousMotionSample = scannerState.previousMotionSample;
+                scannerState.previousMotionSample = currentMotionSample;
+
+                const motionDifference = previousMotionSample
+                    ? calculateMotionDifference(previousMotionSample, currentMotionSample)
+                    : 0;
+
+                const frameIsMoving = !pointsAreStable
+                    || (previousMotionSample && motionDifference > SCANNER_MAX_MOTION_DIFFERENCE);
+
+                if (frameIsMoving) {
+                    resetMotionTracking(true);
+                    scannerState.lastCandidateMessage = 'Movement detected. Hold the ID and phone steady.';
+                    return null;
                 }
 
+                if (!scannerState.stableStartedAt) {
+                    scannerState.stableStartedAt = now;
+                }
+
+                const qualityResult = validateIdCaptureQuality(canvas, points, scannerState.targetInput.id);
+                if (!qualityResult.passed) {
+                    scannerState.consecutiveClearFrames = 0;
+                    scannerState.candidateFrames = [];
+                    scannerState.lastCandidateMessage = qualityResult.message;
+                    return null;
+                }
+
+                scannerState.consecutiveClearFrames++;
                 scannerState.lastCandidateMessage = '';
                 return rememberScannerCandidate(canvas, points, qualityResult);
             }
@@ -4761,13 +4858,24 @@
                 attachScannerImageToInput(canvas);
             }
 
+            function scheduleScannerFrame() {
+                if (!scannerVideo || !scannerState.stream || scannerState.isCapturing || scannerState.completedBothSides) return;
+
+                if (typeof scannerVideo.requestVideoFrameCallback === 'function') {
+                    scannerState.frameCallbackType = 'video';
+                    scannerState.rafId = scannerVideo.requestVideoFrameCallback(scannerFrameLoop);
+                } else {
+                    scannerState.frameCallbackType = 'animation';
+                    scannerState.rafId = requestAnimationFrame(scannerFrameLoop);
+                }
+            }
+
             function scannerFrameLoop() {
                 if (!scannerState.stream || !scannerVideo || scannerState.isCapturing || scannerState.completedBothSides) return;
 
-                scannerState.rafId = requestAnimationFrame(scannerFrameLoop);
+                scheduleScannerFrame();
 
                 if (scannerVideo.readyState < 2 || scannerState.isProcessing) return;
-
                 scannerState.isProcessing = true;
 
                 try {
@@ -4778,15 +4886,20 @@
                         const pointsAreStableEnough = arePointsStable(points, scannerState.lastPoints);
                         scannerState.stableFrames = pointsAreStableEnough
                             ? scannerState.stableFrames + 1
-                            : Math.max(1, Math.floor(scannerState.stableFrames * 0.55));
+                            : 0;
                         scannerState.detectionFrames++;
                         scannerState.lastPoints = points;
                         scannerState.detectedPoints = points;
 
-                        const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? @json(__('messages.blade_profile_blade_back_side')) : @json(__('messages.blade_profile_blade_front_side'));
-                        const bestCandidate = sampleMovingScannerFrame(points);
+                        const sideLabel = scannerState.targetInput?.id === 'valid_id_back'
+                            ? @json(__('messages.blade_profile_blade_back_side'))
+                            : @json(__('messages.blade_profile_blade_front_side'));
+                        const bestCandidate = sampleMovingScannerFrame(points, pointsAreStableEnough);
                         const goodFrameCount = scannerState.candidateFrames.length;
-                        const progress = Math.min(SCANNER_STABLE_FRAME_TARGET, Math.max(scannerState.stableFrames, goodFrameCount * 3));
+                        const progress = Math.min(
+                            SCANNER_STABLE_FRAME_TARGET,
+                            Math.max(scannerState.stableFrames, scannerState.consecutiveClearFrames * 2)
+                        );
 
                         if (bestCandidate) {
                             setScannerStatus(@json(__('messages.blade_runtime_scanner_good_frame')).replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
@@ -4796,12 +4909,16 @@
                             setScannerStatus(@json(__('messages.blade_register_scanner_side_detected_keep_it_inside_the_guide_progress_target')).replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
                         }
 
+                        const stableDuration = scannerState.stableStartedAt
+                            ? performance.now() - scannerState.stableStartedAt
+                            : 0;
+
                         const canAutoCaptureBestFrame = scannerAutoCapture?.checked
                             && bestCandidate
-                            && (
-                                scannerState.stableFrames >= SCANNER_STABLE_FRAME_TARGET
-                                || (goodFrameCount >= SCANNER_MIN_GOOD_CANDIDATES && scannerState.detectionFrames >= 4)
-                            );
+                            && scannerState.stableFrames >= SCANNER_STABLE_FRAME_TARGET
+                            && scannerState.consecutiveClearFrames >= SCANNER_MIN_GOOD_CANDIDATES
+                            && goodFrameCount >= SCANNER_MIN_GOOD_CANDIDATES
+                            && stableDuration >= SCANNER_MIN_STABLE_DURATION_MS;
 
                         if (canAutoCaptureBestFrame) {
                             captureScannerFrame(true);
@@ -4811,6 +4928,7 @@
                         scannerState.detectionFrames = 0;
                         scannerState.lastPoints = null;
                         scannerState.detectedPoints = null;
+                        resetMotionTracking(true);
 
                         if (!window.cvReady || typeof cv === 'undefined') {
                             setScannerStatus(@json(__('messages.blade_runtime_scanner_engine_manual')), 'waiting');
@@ -4827,9 +4945,16 @@
                 hideScannerTransition();
                 if (scannerManualCaptureBtn) scannerManualCaptureBtn.disabled = true;
 
-                if (scannerState.rafId) {
-                    cancelAnimationFrame(scannerState.rafId);
+                if (scannerState.rafId !== null) {
+                    if (scannerState.frameCallbackType === 'video'
+                        && typeof scannerVideo?.cancelVideoFrameCallback === 'function') {
+                        scannerVideo.cancelVideoFrameCallback(scannerState.rafId);
+                    } else {
+                        cancelAnimationFrame(scannerState.rafId);
+                    }
+
                     scannerState.rafId = null;
+                    scannerState.frameCallbackType = null;
                 }
 
                 if (scannerState.stream) {
@@ -4844,6 +4969,9 @@
                 }
 
                 scannerState.stableFrames = 0;
+                scannerState.stableStartedAt = 0;
+                scannerState.consecutiveClearFrames = 0;
+                scannerState.previousMotionSample = null;
                 scannerState.lastPoints = null;
                 scannerState.detectedPoints = null;
                 scannerState.candidateFrames = [];
@@ -4871,6 +4999,7 @@
                             facingMode: { ideal: 'environment' },
                             width: { ideal: 1920 },
                             height: { ideal: 1080 },
+                            frameRate: { ideal: 30, max: 30 },
                         },
                     });
 
@@ -4881,12 +5010,28 @@
                     const videoTrack = stream.getVideoTracks()[0];
                     try {
                         const capabilities = videoTrack?.getCapabilities?.() || {};
+                        const continuousSettings = {};
+
                         if (Array.isArray(capabilities.focusMode) && capabilities.focusMode.includes('continuous')) {
-                            await videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                            continuousSettings.focusMode = 'continuous';
                         }
-                    } catch (focusError) {
-                        console.info('Continuous autofocus is not supported by this browser:', focusError);
+                        if (Array.isArray(capabilities.exposureMode) && capabilities.exposureMode.includes('continuous')) {
+                            continuousSettings.exposureMode = 'continuous';
+                        }
+                        if (Array.isArray(capabilities.whiteBalanceMode) && capabilities.whiteBalanceMode.includes('continuous')) {
+                            continuousSettings.whiteBalanceMode = 'continuous';
+                        }
+
+                        if (Object.keys(continuousSettings).length) {
+                            await videoTrack.applyConstraints({ advanced: [continuousSettings] });
+                        }
+                    } catch (cameraConstraintError) {
+                        console.info('Continuous camera controls are not supported by this browser:', cameraConstraintError);
                     }
+
+                    // Give the phone camera a brief moment to settle autofocus and exposure
+                    // before any frame is considered for capture.
+                    await new Promise(resolve => window.setTimeout(resolve, SCANNER_AUTOFOCUS_SETTLE_MS));
 
                     if (scannerManualCaptureBtn) scannerManualCaptureBtn.disabled = false;
                     syncScannerCanvases();
