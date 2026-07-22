@@ -1152,7 +1152,11 @@
             object-fit: contain;
         }
 
+        .scanner-stage video { z-index: 0; }
+        .scanner-stage canvas { z-index: 1; pointer-events: none; }
+
         .scanner-guide {
+            z-index: 2;
             position: absolute;
             left: 50%;
             top: 50%;
@@ -3804,133 +3808,171 @@
 
                 let source = null;
                 let gray = null;
-                let equalized = null;
                 let blurred = null;
-                let edges = null;
-                let thresholded = null;
-                let combined = null;
-                let contours = null;
-                let hierarchy = null;
-                let closeKernel = null;
+                let equalized = null;
+                let brightMask = null;
+                let darkMask = null;
+                let edgeMask = null;
+                let largeKernel = null;
+                let smallKernel = null;
+                let openKernel = null;
 
                 try {
                     source = cv.imread(scannerWorkCanvas);
                     gray = new cv.Mat();
-                    equalized = new cv.Mat();
                     blurred = new cv.Mat();
-                    edges = new cv.Mat();
-                    thresholded = new cv.Mat();
-                    combined = new cv.Mat();
-                    contours = new cv.MatVector();
-                    hierarchy = new cv.Mat();
-                    closeKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(7, 7));
+                    equalized = new cv.Mat();
+                    brightMask = new cv.Mat();
+                    darkMask = new cv.Mat();
+                    edgeMask = new cv.Mat();
+
+                    largeKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(9, 9));
+                    smallKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));
+                    openKernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 3));
 
                     cv.cvtColor(source, gray, cv.COLOR_RGBA2GRAY);
-
-                    // Equalization makes weak card borders and low-contrast back sides easier to see.
+                    cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
                     cv.equalizeHist(gray, equalized);
-                    cv.GaussianBlur(equalized, blurred, new cv.Size(5, 5), 0);
 
-                    // First pass: normal edges. Lower thresholds retain borders affected by lamination glare.
-                    cv.Canny(blurred, edges, 45, 145);
+                    // Pass 1: light IDs on dark or mixed backgrounds, such as the sample TIN card.
+                    // Otsu chooses a threshold from the current lighting rather than relying on a fixed value.
+                    cv.threshold(blurred, brightMask, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
+                    cv.morphologyEx(brightMask, brightMask, cv.MORPH_CLOSE, largeKernel, new cv.Point(-1, -1), 2);
+                    cv.morphologyEx(brightMask, brightMask, cv.MORPH_OPEN, openKernel);
 
-                    // Second pass: local thresholding survives uneven lighting and bright reflection patches.
-                    cv.adaptiveThreshold(
-                        blurred,
-                        thresholded,
-                        255,
-                        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-                        cv.THRESH_BINARY,
-                        31,
-                        7
-                    );
-                    cv.bitwise_not(thresholded, thresholded);
-                    cv.bitwise_or(edges, thresholded, combined);
-                    cv.morphologyEx(combined, combined, cv.MORPH_CLOSE, closeKernel);
-                    cv.dilate(combined, combined, closeKernel, new cv.Point(-1, -1), 1);
-                    cv.findContours(combined, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                    // Pass 2: dark IDs placed on a light table or sheet of paper.
+                    cv.threshold(blurred, darkMask, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+                    cv.morphologyEx(darkMask, darkMask, cv.MORPH_CLOSE, largeKernel, new cv.Point(-1, -1), 2);
+                    cv.morphologyEx(darkMask, darkMask, cv.MORPH_OPEN, openKernel);
 
-                    let bestPoints = null;
-                    let bestScore = -Infinity;
+                    // Pass 3: border/edge fallback for multicolored and laminated cards.
+                    cv.Canny(equalized, edgeMask, 35, 125);
+                    cv.morphologyEx(edgeMask, edgeMask, cv.MORPH_CLOSE, smallKernel, new cv.Point(-1, -1), 2);
+
                     const frameArea = source.rows * source.cols;
                     const frameCenter = { x: source.cols / 2, y: source.rows / 2 };
-                    const minimumArea = frameArea * 0.025;
                     const idealRatio = 1.586;
+                    let bestPoints = null;
+                    let bestScore = -Infinity;
 
-                    for (let i = 0; i < contours.size(); i++) {
-                        const contour = contours.get(i);
-                        const area = cv.contourArea(contour);
+                    const detectionPasses = [
+                        { mat: brightMask, type: 'tone', retrieval: cv.RETR_EXTERNAL, bonus: 0.28 },
+                        { mat: darkMask, type: 'tone', retrieval: cv.RETR_EXTERNAL, bonus: 0.18 },
+                        { mat: edgeMask, type: 'edge', retrieval: cv.RETR_LIST, bonus: 0 },
+                    ];
 
-                        if (area < minimumArea) {
-                            contour.delete();
-                            continue;
-                        }
+                    for (const pass of detectionPasses) {
+                        const contours = new cv.MatVector();
+                        const hierarchy = new cv.Mat();
+                        const contourInput = pass.mat.clone();
 
-                        const perimeter = cv.arcLength(contour, true);
-                        const approx = new cv.Mat();
-                        cv.approxPolyDP(contour, approx, 0.032 * perimeter, true);
+                        try {
+                            cv.findContours(contourInput, contours, hierarchy, pass.retrieval, cv.CHAIN_APPROX_SIMPLE);
 
-                        let points = null;
-                        let rectangularity = 0;
+                            for (let i = 0; i < contours.size(); i++) {
+                                const contour = contours.get(i);
+                                let approx = null;
 
-                        if (approx.rows === 4 && cv.isContourConvex(approx)) {
-                            points = [];
-                            for (let row = 0; row < 4; row++) {
-                                points.push({
-                                    x: approx.data32S[row * 2],
-                                    y: approx.data32S[row * 2 + 1],
-                                });
-                            }
-                            rectangularity = 1;
-                        } else {
-                            // Laminated cards often produce broken contours. Use the enclosing rectangle
-                            // as a fallback instead of requiring exactly four detected contour points.
-                            const rect = cv.boundingRect(contour);
-                            const rectArea = Math.max(1, rect.width * rect.height);
-                            rectangularity = area / rectArea;
+                                try {
+                                    const area = cv.contourArea(contour);
+                                    const areaRatio = area / Math.max(1, frameArea);
 
-                            if (rectangularity >= 0.42) {
-                                points = [
-                                    { x: rect.x, y: rect.y },
-                                    { x: rect.x + rect.width, y: rect.y },
-                                    { x: rect.x + rect.width, y: rect.y + rect.height },
-                                    { x: rect.x, y: rect.y + rect.height },
-                                ];
-                            }
-                        }
+                                    // Ignore tiny details and, critically, reject a contour that is nearly
+                                    // the whole portrait camera frame. That was the cause of the sample failure.
+                                    if (areaRatio < 0.025 || areaRatio > 0.84) continue;
 
-                        if (points) {
-                            const ordered = orderQuadPoints(points);
-                            const topWidth = distanceBetweenPoints(ordered[0], ordered[1]);
-                            const bottomWidth = distanceBetweenPoints(ordered[3], ordered[2]);
-                            const leftHeight = distanceBetweenPoints(ordered[0], ordered[3]);
-                            const rightHeight = distanceBetweenPoints(ordered[1], ordered[2]);
-                            const width = Math.max(topWidth, bottomWidth);
-                            const height = Math.max(leftHeight, rightHeight);
+                                    const rect = cv.boundingRect(contour);
+                                    const widthCoverage = rect.width / Math.max(1, source.cols);
+                                    const heightCoverage = rect.height / Math.max(1, source.rows);
 
-                            // Use orientation-independent ratio so portrait student IDs are accepted.
-                            const ratio = Math.max(width, height) / Math.max(1, Math.min(width, height));
-                            const center = ordered.reduce((result, point) => ({
-                                x: result.x + point.x / 4,
-                                y: result.y + point.y / 4,
-                            }), { x: 0, y: 0 });
-                            const centerDistance = Math.hypot(center.x - frameCenter.x, center.y - frameCenter.y);
-                            const normalizedCenterDistance = centerDistance / Math.max(1, Math.hypot(frameCenter.x, frameCenter.y));
-                            const ratioScore = Math.max(0, 1 - Math.abs(ratio - idealRatio) / 1.35);
-                            const areaScore = area / frameArea;
-                            const centerScore = Math.max(0, 1 - normalizedCenterDistance);
+                                    if (widthCoverage > 0.97 && heightCoverage > 0.97) continue;
+                                    if (rect.width < source.cols * 0.14 || rect.height < source.rows * 0.08) continue;
 
-                            if (ratio >= 1.05 && ratio <= 2.85) {
-                                const score = (areaScore * 5.0) + (ratioScore * 1.25) + (centerScore * 0.65) + (rectangularity * 0.45);
-                                if (score > bestScore) {
-                                    bestScore = score;
-                                    bestPoints = points;
+                                    const rectArea = Math.max(1, rect.width * rect.height);
+                                    const rectangularity = area / rectArea;
+                                    const perimeter = cv.arcLength(contour, true);
+                                    approx = new cv.Mat();
+                                    cv.approxPolyDP(contour, approx, 0.02 * perimeter, true);
+
+                                    let points = null;
+
+                                    if (approx.rows === 4 && cv.isContourConvex(approx)) {
+                                        points = [];
+                                        for (let row = 0; row < 4; row++) {
+                                            points.push({
+                                                x: approx.data32S[row * 2],
+                                                y: approx.data32S[row * 2 + 1],
+                                            });
+                                        }
+                                    } else {
+                                        // Tone masks normally isolate the complete card. The edge pass is
+                                        // allowed a slightly lower rectangularity because lamination can break borders.
+                                        const minimumRectangularity = pass.type === 'tone' ? 0.48 : 0.28;
+                                        if (rectangularity < minimumRectangularity) continue;
+
+                                        points = [
+                                            { x: rect.x, y: rect.y },
+                                            { x: rect.x + rect.width, y: rect.y },
+                                            { x: rect.x + rect.width, y: rect.y + rect.height },
+                                            { x: rect.x, y: rect.y + rect.height },
+                                        ];
+                                    }
+
+                                    const ordered = orderQuadPoints(points);
+                                    const topWidth = distanceBetweenPoints(ordered[0], ordered[1]);
+                                    const bottomWidth = distanceBetweenPoints(ordered[3], ordered[2]);
+                                    const leftHeight = distanceBetweenPoints(ordered[0], ordered[3]);
+                                    const rightHeight = distanceBetweenPoints(ordered[1], ordered[2]);
+                                    const detectedWidth = Math.max(topWidth, bottomWidth);
+                                    const detectedHeight = Math.max(leftHeight, rightHeight);
+                                    const ratio = Math.max(detectedWidth, detectedHeight) /
+                                        Math.max(1, Math.min(detectedWidth, detectedHeight));
+
+                                    // Keep portrait IDs valid, but reject square laptop/background regions.
+                                    if (ratio < 1.08 || ratio > 2.65) continue;
+
+                                    const center = ordered.reduce((result, point) => ({
+                                        x: result.x + point.x / 4,
+                                        y: result.y + point.y / 4,
+                                    }), { x: 0, y: 0 });
+
+                                    const normalizedCenterDistance = Math.hypot(
+                                        center.x - frameCenter.x,
+                                        center.y - frameCenter.y
+                                    ) / Math.max(1, Math.hypot(frameCenter.x, frameCenter.y));
+
+                                    const centerScore = Math.max(0, 1 - normalizedCenterDistance);
+                                    const ratioScore = Math.max(0, 1 - Math.abs(ratio - idealRatio) / 1.10);
+
+                                    const touchesFrameEdges = [
+                                        rect.x <= 2,
+                                        rect.y <= 2,
+                                        rect.x + rect.width >= source.cols - 2,
+                                        rect.y + rect.height >= source.rows - 2,
+                                    ].filter(Boolean).length;
+
+                                    const score =
+                                        (areaRatio * 5.0) +
+                                        (ratioScore * 1.4) +
+                                        (centerScore * 0.50) +
+                                        (rectangularity * 0.70) +
+                                        pass.bonus -
+                                        (touchesFrameEdges * 0.12);
+
+                                    if (score > bestScore) {
+                                        bestScore = score;
+                                        bestPoints = points;
+                                    }
+                                } finally {
+                                    if (approx) approx.delete();
+                                    contour.delete();
                                 }
                             }
+                        } finally {
+                            contourInput.delete();
+                            contours.delete();
+                            hierarchy.delete();
                         }
-
-                        approx.delete();
-                        contour.delete();
                     }
 
                     return bestPoints;
@@ -3940,14 +3982,14 @@
                 } finally {
                     if (source) source.delete();
                     if (gray) gray.delete();
-                    if (equalized) equalized.delete();
                     if (blurred) blurred.delete();
-                    if (edges) edges.delete();
-                    if (thresholded) thresholded.delete();
-                    if (combined) combined.delete();
-                    if (contours) contours.delete();
-                    if (hierarchy) hierarchy.delete();
-                    if (closeKernel) closeKernel.delete();
+                    if (equalized) equalized.delete();
+                    if (brightMask) brightMask.delete();
+                    if (darkMask) darkMask.delete();
+                    if (edgeMask) edgeMask.delete();
+                    if (largeKernel) largeKernel.delete();
+                    if (smallKernel) smallKernel.delete();
+                    if (openKernel) openKernel.delete();
                 }
             }
 
@@ -4933,7 +4975,7 @@
                         if (!window.cvReady || typeof cv === 'undefined') {
                             setScannerStatus(@json(__('messages.blade_runtime_scanner_engine_manual')), 'waiting');
                         } else {
-                            setScannerStatus('Place the whole ID inside the guide. If a laminated card has no green outline, use “Capture inside guide”.', 'waiting');
+                            setScannerStatus('Place the whole ID inside the center guide. Keep all four corners visible. If no green outline appears, use “Capture inside guide”.', 'waiting');
                         }
                     }
                 } finally {
