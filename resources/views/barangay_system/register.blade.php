@@ -2308,12 +2308,6 @@
                                 <span class="section-kicker"><i class="fas fa-id-card-clip"></i> {{ __('messages.blade_register_blade_valid_id_scanner') }}</span>
                                 <h4>{{ __('messages.blade_register_blade_scan_both_sides_of_your_valid_id') }}</h4>
                             </div>
-                            <span class="section-badge"><i class="fas fa-user-shield"></i> {{ __('messages.blade_register_blade_auto_crop_admin_review') }}</span>
-                        </div>
-
-                        <div class="verification-note">
-                            <i class="fas fa-circle-info"></i>
-                            <span>{{ __('messages.blade_register_blade_this_scanner_helps_capture_a_clear_front_and_back_image') }}</span>
                         </div>
 
                         <div class="scan-both-panel scan-both-panel-single">

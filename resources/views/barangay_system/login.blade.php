@@ -142,7 +142,7 @@
             border-left: 3px solid var(--primary-red);
             border-radius: 8px;
             height: 48px !important;
-            padding: 12px 12px 12px 40px !important;
+            padding: 12px 45px 12px 40px !important;
             font-family: 'Assistant', sans-serif;
             font-size: 0.85rem;
             line-height: 24px !important;
@@ -177,7 +177,7 @@
 
         .form-floating > .form-control:focus ~ label,
         .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            transform: scale(0.75) translateY(-12px) translateX(40px) !important;
+            transform: scale(0.75) translateY(-6px) translateX(40px) !important;
             background: white !important;
             padding: 0 6px !important;
             height: auto !important;
@@ -705,14 +705,14 @@
 
             .form-floating > .form-control,
             .form-floating > label {
-                height: 42px !important;
-                padding: 10px 10px 10px 40px !important;
+                height: 56px !important;
+                padding: 10px 45px 10px 40px !important;
                 line-height: 22px !important;
             }
             
             .form-floating > .form-control:focus ~ label,
             .form-floating > .form-control:not(:placeholder-shown) ~ label {
-                transform: scale(0.8) translateY(-10px) translateX(5px) !important;
+                transform: scale(0.8) translateY(-7.5px) translateX(40px) !important;
                 height: 18px !important;
                 line-height: 18px !important;
             }

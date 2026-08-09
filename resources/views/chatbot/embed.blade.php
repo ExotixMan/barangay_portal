@@ -87,6 +87,11 @@ body.hulobot-open #backToTop {
     to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+.chatbot-quick-chat-icon {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
 /* Header */
 .hbm-header {
     position: relative;
@@ -478,6 +483,11 @@ body.hulobot-open #backToTop {
 
 /* Mobile */
 @media (max-width: 640px) {
+    .chatbot-quick-chat-icon {
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+
     #hulobot-modal {
         inset: 0;
         width: 100%;
@@ -873,7 +883,7 @@ body.hulobot-open #backToTop {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'hbm-chip';
-            button.innerHTML = `<i class="bi bi-plus-circle"></i>${esc(suggestion)}`;
+            button.innerHTML = `<i class="bi bi-plus-circle chatbot-quick-chat-icon"></i>${esc(suggestion)}`;
             button.addEventListener('click', function () {
                 input.value = suggestion;
                 send();

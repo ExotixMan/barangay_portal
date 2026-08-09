@@ -938,11 +938,12 @@
             }
 
             .page-title {
-                min-width: 0;
+                display: none;
+                /* min-width: 0;
                 font-size: 1.02rem;
                 white-space: nowrap;
                 overflow: hidden;
-                text-overflow: ellipsis;
+                text-overflow: ellipsis; */
             }
 
             .title-icon,
