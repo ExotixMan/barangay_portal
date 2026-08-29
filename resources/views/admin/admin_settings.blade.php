@@ -50,6 +50,11 @@
                 $generalHealth = (int) round((($portalNameReady ? 1 : 0) + ($barangayNameReady ? 1 : 0) + ($contactEmailReady ? 1 : 0)) / 3 * 100);
 
                 $smsApiReady = trim((string) data_get($settings, 'sms.api_key', '')) !== '';
+                $emailPasswordReady = trim((string) data_get($settings, 'email.password', '')) !== '';
+                $geminiKeyReady = trim((string) data_get($settings, 'ai.keys.gemini', '')) !== '';
+                $groqKeyReady = trim((string) data_get($settings, 'ai.keys.groq', '')) !== '';
+                $cloudflareKeyReady = trim((string) data_get($settings, 'ai.keys.cloudflare', '')) !== '';
+                $recaptchaSecretReady = trim((string) data_get($settings, 'security.recaptcha_secret_key', '')) !== '';
                 $smsEndpointReady = trim((string) data_get($settings, 'sms.api_base_url', '')) !== '';
                 $smsSenderReady = trim((string) data_get($settings, 'sms.sender_name', '')) !== '';
                 $smsSetupHealth = (int) round((($smsApiReady ? 1 : 0) + ($smsEndpointReady ? 1 : 0) + ($smsSenderReady ? 1 : 0)) / 3 * 100);
@@ -546,11 +551,13 @@
                                         <div class="field-card-v2 @error('sms.api_key') has-error @enderror">
                                             <label for="sms_api_key">API Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="sms_api_key" name="sms[api_key]" value="{{ old('sms.api_key', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('sms.api_key') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="sms_api_key" name="sms[api_key]" value="{{ old('sms.api_key', '') }}" placeholder="{{ $smsApiReady ? 'Configured — enter a new key to replace it' : 'Enter Semaphore API key' }}" class="form-control @error('sms.api_key') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide SMS API key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('sms.api_key')
                                                 <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $smsApiReady ? 'text-success' : '' }}"><i class="fas {{ $smsApiReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $smsApiReady ? 'Semaphore API key is configured. Leave blank to keep it.' : 'No Semaphore API key configured.' }}</small>
                                             @enderror
                                         </div>
                                         <div class="field-card-v2 @error('sms.sender_name') has-error @enderror">
@@ -663,10 +670,14 @@
                                         <div class="field-card-v2 span-two @error('email.api_key') has-error @enderror" data-email-provider-group="api">
                                             <label for="email_api_key">Provider API Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="email_api_key" name="email[api_key]" value="{{ old('email.api_key', '') }}" placeholder="Leave blank to keep current API key" class="form-control @error('email.api_key') is-invalid @enderror" data-secret-field autocomplete="off" placeholder="API key">
+                                                <input type="password" id="email_api_key" name="email[api_key]" value="{{ old('email.api_key', '') }}" placeholder="{{ $emailApiReady ? 'Configured — enter a new key to replace it' : 'Enter provider API key' }}" class="form-control @error('email.api_key') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide API key"><i class="fas fa-eye"></i></button>
                                             </div>
-                                            @error('email.api_key')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                            @error('email.api_key')
+                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $emailApiReady ? 'text-success' : '' }}"><i class="fas {{ $emailApiReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $emailApiReady ? 'Provider API key is configured. Leave blank to keep it.' : 'No provider API key configured.' }}</small>
+                                            @enderror
                                         </div>
 
                                         <div class="field-card-v2 span-two @error('email.domain') has-error @enderror" data-email-provider-group="mailgun">
@@ -716,10 +727,14 @@
                                         <div class="field-card-v2 span-two @error('email.password') has-error @enderror" data-email-provider-group="smtp">
                                             <label for="email_password">SMTP Password</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="email_password" name="email[password]" value="{{ old('email.password', '') }}" placeholder="Leave blank to keep current SMTP password" class="form-control @error('email.password') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="email_password" name="email[password]" value="{{ old('email.password', '') }}" placeholder="{{ $emailPasswordReady ? 'Configured — enter a new password to replace it' : 'Enter SMTP password' }}" class="form-control @error('email.password') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide SMTP password"><i class="fas fa-eye"></i></button>
                                             </div>
-                                            @error('email.password')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                            @error('email.password')
+                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $emailPasswordReady ? 'text-success' : '' }}"><i class="fas {{ $emailPasswordReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $emailPasswordReady ? 'SMTP password is configured. Leave blank to keep it.' : 'No SMTP password configured.' }}</small>
+                                            @enderror
                                         </div>
 
                                         <div class="field-card-v2 span-two @error('email.from_address') has-error @enderror">
@@ -779,31 +794,37 @@
                                         <div class="field-card-v2 @error('ai.keys.gemini') has-error @enderror">
                                             <label for="ai_keys_gemini">Gemini Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_gemini" name="ai[keys][gemini]" value="{{ old('ai.keys.gemini', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('ai.keys.gemini') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_gemini" name="ai[keys][gemini]" value="{{ old('ai.keys.gemini', '') }}" placeholder="{{ $geminiKeyReady ? 'Configured — enter a new key to replace it' : 'Enter Gemini API key' }}" class="form-control @error('ai.keys.gemini') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Gemini key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.gemini')
                                                 <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $geminiKeyReady ? 'text-success' : '' }}"><i class="fas {{ $geminiKeyReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $geminiKeyReady ? 'Gemini API key is configured. Leave blank to keep it.' : 'No Gemini API key configured.' }}</small>
                                             @enderror
                                         </div>
                                         <div class="field-card-v2 @error('ai.keys.groq') has-error @enderror">
                                             <label for="ai_keys_groq">Groq Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_groq" name="ai[keys][groq]" value="{{ old('ai.keys.groq', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('ai.keys.groq') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_groq" name="ai[keys][groq]" value="{{ old('ai.keys.groq', '') }}" placeholder="{{ $groqKeyReady ? 'Configured — enter a new key to replace it' : 'Enter Groq API key' }}" class="form-control @error('ai.keys.groq') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Groq key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.groq')
                                                 <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $groqKeyReady ? 'text-success' : '' }}"><i class="fas {{ $groqKeyReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $groqKeyReady ? 'Groq API key is configured. Leave blank to keep it.' : 'No Groq API key configured.' }}</small>
                                             @enderror
                                         </div>
                                         <div class="field-card-v2 full-span @error('ai.keys.cloudflare') has-error @enderror">
                                             <label for="ai_keys_cloudflare">Cloudflare Token</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_cloudflare" name="ai[keys][cloudflare]" value="{{ old('ai.keys.cloudflare', '') }}" placeholder="Leave blank to keep current token" class="form-control @error('ai.keys.cloudflare') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_cloudflare" name="ai[keys][cloudflare]" value="{{ old('ai.keys.cloudflare', '') }}" placeholder="{{ $cloudflareKeyReady ? 'Configured — enter a new token to replace it' : 'Enter Cloudflare token' }}" class="form-control @error('ai.keys.cloudflare') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Cloudflare token"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.cloudflare')
                                                 <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $cloudflareKeyReady ? 'text-success' : '' }}"><i class="fas {{ $cloudflareKeyReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $cloudflareKeyReady ? 'Cloudflare token is configured. Leave blank to keep it.' : 'No Cloudflare token configured.' }}</small>
                                             @enderror
                                         </div>
                                     </div>
@@ -870,11 +891,13 @@
                                         <div class="field-card-v2 @error('security.recaptcha_secret_key') has-error @enderror">
                                             <label for="security_recaptcha_secret_key">reCAPTCHA Secret Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="security_recaptcha_secret_key" name="security[recaptcha_secret_key]" value="{{ old('security.recaptcha_secret_key', '') }}" placeholder="Leave blank to keep current secret" class="form-control @error('security.recaptcha_secret_key') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="security_recaptcha_secret_key" name="security[recaptcha_secret_key]" value="{{ old('security.recaptcha_secret_key', '') }}" placeholder="{{ $recaptchaSecretReady ? 'Configured — enter a new secret to replace it' : 'Enter reCAPTCHA secret key' }}" class="form-control @error('security.recaptcha_secret_key') is-invalid @enderror" data-secret-field autocomplete="new-password">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide reCAPTCHA secret key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('security.recaptcha_secret_key')
                                                 <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
+                                            @else
+                                                <small class="helper-text {{ $recaptchaSecretReady ? 'text-success' : '' }}"><i class="fas {{ $recaptchaSecretReady ? 'fa-circle-check' : 'fa-circle-info' }} me-1"></i>{{ $recaptchaSecretReady ? 'reCAPTCHA secret key is configured. Leave blank to keep it.' : 'No reCAPTCHA secret key configured.' }}</small>
                                             @enderror
                                         </div>
                                     </div>

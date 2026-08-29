@@ -78,7 +78,7 @@ class AdminRoleController extends Controller
                 'name' => $request->name,
                 'display_name' => $request->display_name,
                 'description' => $request->description,
-                'is_system_role' => DB::raw("'f'::boolean"),  
+                'is_system_role' => DB::raw('FALSE'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

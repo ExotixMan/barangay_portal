@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use App\Models\Announcement;
@@ -74,7 +75,7 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'category' => $request->category,
-            'is_featured' => $request->is_featured ?? 'false',
+            'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE'),
             'published_at' => now()
         ]);
 

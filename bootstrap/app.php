@@ -8,6 +8,7 @@ use App\Http\Middleware\NoPendingProfileCorrection;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +18,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Render terminates HTTPS at its proxy. Trust forwarded headers so Laravel
+        // generates HTTPS URLs for assets, redirects, cookies, and route helpers.
+        $middleware->trustProxies(
+            at: '*',
+            headers:
+                Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_PROTO
+        );
+
         $middleware->append(SecurityHeaders::class);
 
         $middleware->web(append:[

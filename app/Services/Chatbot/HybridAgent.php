@@ -225,14 +225,14 @@ class HybridAgent
             $alreadyExists = ChatbotUnmatched::query()
                 ->where('session_id', $sessionId)
                 ->whereRaw('LOWER(query) = ?', [$normalized])
-                ->where('resolved', false)
+                ->whereRaw('resolved IS FALSE')
                 ->exists();
 
             if (! $alreadyExists) {
                 ChatbotUnmatched::create([
                     'query'      => mb_substr($query, 0, 500),
                     'session_id' => $sessionId,
-                    'resolved'   => false,
+                    'resolved'   => DB::raw('FALSE'),
                     'created_at' => now(),
                 ]);
             }

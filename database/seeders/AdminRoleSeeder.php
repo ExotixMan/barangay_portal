@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\AdminRole;
 use App\Models\AdminPermission;
+use Illuminate\Support\Facades\DB;
 
 class AdminRoleSeeder extends Seeder
 {
@@ -16,25 +17,25 @@ class AdminRoleSeeder extends Seeder
                 'name' => 'super_admin',
                 'display_name' => 'Super Admin',
                 'description' => 'Full system access with all permissions',
-                'is_system_role' => true,
+                'is_system_role' => DB::raw('TRUE'),
             ],
             [
                 'name' => 'admin',
                 'display_name' => 'Admin',
                 'description' => 'Administrative access with limited system controls',
-                'is_system_role' => true,
+                'is_system_role' => DB::raw('TRUE'),
             ],
             [
                 'name' => 'staff',
                 'display_name' => 'Staff',
                 'description' => 'Basic staff access for daily operations',
-                'is_system_role' => true,
+                'is_system_role' => DB::raw('TRUE'),
             ],
             [
                 'name' => 'secretary',
                 'display_name' => 'Secretary',
                 'description' => 'Document and content management access',
-                'is_system_role' => true,
+                'is_system_role' => DB::raw('TRUE'),
             ],
         ];
 

@@ -47,12 +47,12 @@ class AdminRole extends Model
 
     public function scopeSystem(Builder $query): Builder
     {
-        return $query->where('is_system_role', true);
+        return $query->whereRaw('is_system_role IS TRUE');
     }
 
     public function scopeCustom(Builder $query): Builder
     {
-        return $query->where('is_system_role', false);
+        return $query->whereRaw('is_system_role IS FALSE');
     }
 
     public function hasPermission(string $permissionName)

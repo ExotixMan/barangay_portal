@@ -509,7 +509,7 @@ class ResidentsController extends Controller
             $resident->update([
                 'valid_id' => $frontPath,
                 'valid_id_back' => $backPath,
-                'valid_id_verified' => false,
+                'valid_id_verified' => DB::raw('FALSE'),
                 'valid_id_status' => 'for_verification',
                 'valid_id_verified_at' => null,
                 'valid_id_verified_by' => null,
@@ -726,7 +726,7 @@ class ResidentsController extends Controller
         }
 
         $resident->update([
-            'phone_verified' => true,
+            'phone_verified' => DB::raw('TRUE'),
             'phone_otp' => null,
             'phone_otp_expires_at' => null,
         ]);

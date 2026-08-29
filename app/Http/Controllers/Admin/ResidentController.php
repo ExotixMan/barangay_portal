@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
@@ -204,7 +205,7 @@ class ResidentController extends Controller
                 'password' => Hash::make($validated['password']),
                 'valid_id' => $frontPath,
                 'valid_id_back' => $backPath,
-                'valid_id_verified' => false,
+                'valid_id_verified' => DB::raw('FALSE'),
                 'valid_id_status' => 'for_verification',
                 'valid_id_verified_at' => null,
                 'valid_id_verified_by' => null,

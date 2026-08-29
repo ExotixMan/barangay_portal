@@ -23,7 +23,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/nav.css') }}?v={{ filemtime(public_path('css/admin/nav.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-layout.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-notifications.css') }}">
 
@@ -49,8 +49,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/admin/nav.js') }}"></script>
-    <script src="{{ asset('js/admin/admin-dropdowns.js') }}"></script>
+    <script src="{{ asset('js/admin/nav.js') }}?v={{ filemtime(public_path('js/admin/nav.js')) }}"></script>
+    <script src="{{ asset('js/admin/admin-dropdowns.js') }}?v={{ filemtime(public_path('js/admin/admin-dropdowns.js')) }}"></script>
     <script src="{{ asset('js/action-bindings.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>

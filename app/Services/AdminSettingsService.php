@@ -433,7 +433,9 @@ class AdminSettingsService
                 ['setting_key' => $settingKey],
                 [
                     'setting_value' => is_bool($value) ? ($value ? '1' : '0') : (string) ($value ?? ''),
-                    'is_secret' => in_array($settingKey, $this->secretKeys, true),
+                    // PostgreSQL has a native boolean type and rejects integer 0/1
+                    // bindings for boolean columns. Use SQL boolean literals explicitly.
+                    'is_secret' => DB::raw(in_array($settingKey, $this->secretKeys, true) ? 'TRUE' : 'FALSE'),
                     'updated_at' => $now,
                     'created_at' => $now,
                 ]
