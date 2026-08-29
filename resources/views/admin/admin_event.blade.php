@@ -6,6 +6,833 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/events.css') }}">
+
+    <style>
+        /* Event admin UX refresh — presentation only */
+        .events-page {
+            --evt-primary: #4338ca;
+            --evt-primary-soft: #eef2ff;
+            --evt-border: #e5e7eb;
+            --evt-border-strong: #d8dee8;
+            --evt-text: #172033;
+            --evt-muted: #667085;
+            --evt-soft: #f8fafc;
+            --evt-success: #15803d;
+            --evt-warning: #a16207;
+            --evt-danger: #b42318;
+        }
+
+        /* Remove duplicated dashboard-like content from a CRUD workspace */
+        .events-page .events-hero,
+        .events-page .events-stats-row {
+            display: none !important;
+        }
+
+        .events-page .events-panel {
+            overflow: hidden;
+            border: 1px solid var(--evt-border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+        }
+
+        .events-page .events-filter-panel { margin-bottom: 18px; }
+
+        .events-page .events-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--evt-border);
+            background: #fff;
+        }
+
+        .events-page .events-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .events-page .events-panel-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: var(--evt-primary-soft);
+            color: var(--evt-primary);
+        }
+
+        .events-page .events-panel-title h3 {
+            margin: 0;
+            color: var(--evt-text);
+            font-size: .98rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .events-page .section-kicker,
+        .events-page .events-panel-copy { display: none; }
+
+        .events-page .events-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .events-page .events-filter-body { padding: 14px 18px 16px; }
+
+        .events-page .events-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(280px, 1.8fr) minmax(150px, .65fr) minmax(150px, .65fr) auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .events-page .events-search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .events-page .events-search-control {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .events-page .events-search-control > i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            color: #98a2b3;
+            pointer-events: none;
+        }
+
+        .events-page .events-search-control .form-control { padding-left: 38px; }
+
+        .events-page .form-control,
+        .events-page .form-select {
+            min-height: 42px;
+            border-color: var(--evt-border-strong);
+            border-radius: 10px;
+            color: var(--evt-text);
+            font-size: .86rem;
+            box-shadow: none;
+        }
+
+        .events-page .form-control:focus,
+        .events-page .form-select:focus {
+            border-color: var(--evt-primary);
+            box-shadow: 0 0 0 .2rem rgba(67, 56, 202, .09);
+        }
+
+        .events-page .btn {
+            min-height: 40px;
+            border-radius: 10px;
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .events-page .btn i { margin-right: .38rem; }
+        .events-page .icon-only i,
+        .events-page .btn-close i { margin-right: 0; }
+
+        .events-page .events-bulk-row {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--evt-border);
+        }
+
+        .events-page .selected-count {
+            color: var(--evt-muted);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .events-page table { margin: 0; }
+
+        .events-page .table thead th {
+            padding-top: 11px;
+            padding-bottom: 11px;
+            border-bottom: 1px solid var(--evt-border);
+            background: #f8fafc;
+            color: #475467;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .events-page .table tbody td {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            border-color: #eef1f5;
+            color: var(--evt-text);
+            font-size: .83rem;
+            vertical-align: middle;
+        }
+
+        .events-page .table tbody tr:hover { background: #fafbff; }
+
+        .events-page .event-thumb {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            overflow: hidden;
+            border: 1px solid var(--evt-border);
+            border-radius: 10px;
+            background: var(--evt-soft);
+        }
+
+        .events-page .event-thumb img {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            object-fit: cover;
+        }
+
+        .events-page .event-title-text {
+            max-width: 320px;
+            overflow: hidden;
+            color: var(--evt-text);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .events-page .event-mobile-meta {
+            display: none;
+            margin-top: 4px;
+            color: var(--evt-muted);
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        .events-page .event-mobile-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 8px;
+        }
+
+        .events-page .location-text {
+            display: inline-block;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .events-page .attendees-badge,
+        .events-page .events-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #475467;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .events-page .table .badge {
+            padding: .42rem .58rem;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 800;
+        }
+
+        /* Compact row actions */
+        .events-page .action-cluster {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .events-page .action-view-btn {
+            min-height: 34px;
+            padding: .38rem .65rem;
+            border-color: #d0d5dd;
+            background: #fff;
+            color: #344054;
+        }
+
+        .events-page .action-more-toggle {
+            width: 34px;
+            min-height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-color: #d0d5dd;
+            background: #fff;
+            color: #475467;
+        }
+
+        .events-page .action-more-toggle i { margin: 0; }
+
+        .events-page .action-menu {
+            min-width: 238px;
+            padding: 7px;
+            border: 1px solid var(--evt-border);
+            border-radius: 12px;
+            box-shadow: 0 16px 38px rgba(16, 24, 40, .14);
+        }
+
+        .events-page .action-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 42px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: #344054;
+            font-size: .8rem;
+            font-weight: 750;
+        }
+
+        .events-page .action-menu .dropdown-item:hover { background: #f8fafc; }
+        .events-page .action-menu form { margin: 0; }
+        .events-page .action-menu .dropdown-item i {
+            width: 18px;
+            margin: 0;
+            text-align: center;
+        }
+        .events-page .action-menu .action-menu-edit i { color: #2563eb; }
+        .events-page .action-menu .action-menu-positive {
+            color: #166534;
+            background: #f0fdf4;
+        }
+        .events-page .action-menu .action-menu-positive:hover { background: #dcfce7; }
+        .events-page .action-menu .action-menu-positive i { color: #15803d; }
+        .events-page .action-menu .action-menu-danger { color: #b42318; }
+        .events-page .action-menu .action-menu-danger i { color: #b42318; }
+        .events-page .action-menu .action-menu-danger:hover { background: #fff1f2; }
+
+        /* Consistent modal system */
+        .events-page .modal-dialog {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .events-page .modal-content {
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, .20);
+        }
+
+        .events-page .modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--evt-border);
+            background: #fff;
+        }
+
+        .events-page .modal-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .events-page .modal-heading-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 11px;
+            background: var(--evt-primary-soft);
+            color: var(--evt-primary);
+        }
+
+        .events-page .modal-heading-copy { min-width: 0; }
+
+        .events-page .modal-title {
+            margin: 0;
+            color: var(--evt-text);
+            font-size: 1rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .events-page .modal-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: var(--evt-muted);
+            font-size: .76rem;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .events-page .modal-header .btn-close {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin: 0;
+            flex: 0 0 auto;
+            border-radius: 9px;
+            background-size: 12px;
+            opacity: .65;
+        }
+
+        .events-page .modal-header .btn-close:hover {
+            background-color: #f2f4f7;
+            opacity: 1;
+        }
+
+        .events-page .modal-body {
+            padding: 18px 20px;
+            background: #f8fafc;
+        }
+
+        .events-page .modal-form-intro {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: var(--evt-muted);
+            font-size: .76rem;
+        }
+
+        .events-page .form-step-card,
+        .events-page .detail-section-card {
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--evt-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .events-page .form-step-card:last-child,
+        .events-page .detail-section-card:last-child { margin-bottom: 0; }
+
+        .events-page .form-section-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .events-page .section-step {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--evt-primary-soft);
+            color: var(--evt-primary);
+            font-size: .76rem;
+            font-weight: 900;
+        }
+
+        .events-page .form-section-heading h6,
+        .events-page .detail-section-title {
+            margin: 0;
+            color: var(--evt-text);
+            font-size: .87rem;
+            font-weight: 850;
+        }
+
+        .events-page .form-section-heading p {
+            margin: 2px 0 0;
+            color: var(--evt-muted);
+            font-size: .72rem;
+            line-height: 1.45;
+        }
+
+        .events-page .modal .form-label {
+            margin-bottom: 6px;
+            color: #344054;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .events-page .modal .form-label > i {
+            width: 15px;
+            margin-right: 5px;
+            color: #98a2b3;
+            font-size: .74rem;
+            text-align: center;
+        }
+
+        .events-page .modal .form-control,
+        .events-page .modal .form-select {
+            min-height: 44px;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .events-page .modal textarea.form-control {
+            min-height: auto;
+            line-height: 1.55;
+            resize: vertical;
+        }
+
+        .events-page .field-hint,
+        .events-page .modal small.text-muted {
+            display: block;
+            margin-top: 5px;
+            color: var(--evt-muted) !important;
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        .events-page .schedule-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .events-page .details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .events-page .upload-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px;
+            border: 1px dashed #cfd6e3;
+            border-radius: 12px;
+            background: #fbfcfe;
+        }
+
+        .events-page .upload-card-icon {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: var(--evt-primary-soft);
+            color: var(--evt-primary);
+        }
+
+        .events-page .image-preview {
+            width: 100%;
+            max-height: 260px;
+            margin-top: 10px;
+            object-fit: cover;
+            border: 1px solid var(--evt-border);
+            border-radius: 12px;
+        }
+
+        .events-page .image-preview-button {
+            width: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            text-align: left;
+        }
+
+        .events-page .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 20px;
+            border-top: 1px solid var(--evt-border);
+            background: #fff;
+        }
+
+        .events-page .modal-footer .btn { min-width: 112px; }
+
+        /* View modal */
+        .events-page .event-view-hero {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 14px;
+            border: 1px solid var(--evt-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .events-page .event-view-hero img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .events-page .event-view-title-block { padding: 14px 15px; }
+        .events-page .event-detail-title {
+            margin: 0;
+            color: var(--evt-text);
+            font-size: 1.12rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .events-page .event-view-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 7px;
+        }
+
+        .events-page .view-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .events-page .view-summary-item {
+            padding: 11px 12px;
+            border: 1px solid var(--evt-border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .events-page .view-summary-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--evt-muted);
+            font-size: .67rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .events-page .view-summary-value {
+            display: block;
+            overflow-wrap: anywhere;
+            color: var(--evt-text);
+            font-size: .82rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .events-page .event-description-box {
+            padding: 14px;
+            border: 1px solid var(--evt-border);
+            border-radius: 11px;
+            background: #fff;
+            color: #344054;
+            font-size: .84rem;
+            line-height: 1.65;
+        }
+
+        .events-page .image-zoom-modal .modal-body {
+            padding: 12px;
+            background: #0f172a;
+        }
+
+        .events-page .image-zoom-modal #zoomedImage {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            max-height: 76vh;
+            margin: 0 auto;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        /* Semantic action colors */
+        .events-page .btn-success {
+            border-color: #15803d;
+            background: #15803d;
+        }
+        .events-page .btn-success:hover {
+            border-color: #166534;
+            background: #166534;
+        }
+        .events-page .btn-outline-success {
+            border-color: #86efac;
+            background: #f0fdf4;
+            color: #166534;
+        }
+        .events-page .btn-outline-success:hover {
+            border-color: #16a34a;
+            background: #dcfce7;
+            color: #14532d;
+        }
+        .events-page .btn-outline-danger {
+            border-color: #fda4af;
+            background: #fff;
+            color: #b42318;
+        }
+        .events-page .btn-outline-danger:hover {
+            border-color: #e11d48;
+            background: #fff1f2;
+            color: #9f1239;
+        }
+
+        @media (max-width: 1199.98px) {
+            .events-page .events-filter-toolbar {
+                grid-template-columns: minmax(240px, 1.4fr) repeat(2, minmax(135px, .7fr));
+            }
+            .events-page .events-filter-toolbar .filter-submit-btn { grid-column: 3; }
+        }
+
+        @media (max-width: 767.98px) {
+            .events-page { padding-bottom: 14px; }
+
+            .events-page .events-panel { border-radius: 13px; }
+            .events-page .events-panel-header {
+                align-items: flex-start;
+                padding: 13px 14px;
+            }
+            .events-page .events-panel-icon { display: none; }
+            .events-page .events-panel-title h3 { font-size: .9rem; }
+            .events-page .events-panel-actions .events-count-pill { font-size: .7rem; }
+
+            .events-page .events-filter-body { padding: 12px 14px 14px; }
+            .events-page .events-filter-toolbar { display: flex; flex-direction: column; align-items: stretch; gap: 9px; }
+            .events-page .events-search-group { width: 100%; }
+            .events-page .events-search-btn { flex: 0 0 auto; }
+            .events-page .events-filter-toolbar > .form-select,
+            .events-page .events-filter-toolbar > .btn { width: 100%; }
+
+            .events-page .events-bulk-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            /* Keep the event table useful without horizontal clutter */
+            .events-page #eventsTable th:nth-child(5),
+            .events-page #eventsTable td:nth-child(5),
+            .events-page #eventsTable th:nth-child(7),
+            .events-page #eventsTable td:nth-child(7) {
+                display: none !important;
+            }
+
+            .events-page #eventsTable th:first-child,
+            .events-page #eventsTable td:first-child { width: 38px; padding-left: 12px !important; }
+            .events-page #eventsTable th:nth-child(2),
+            .events-page #eventsTable td:nth-child(2) { padding-left: 0 !important; }
+            .events-page #eventsTable th:last-child,
+            .events-page #eventsTable td:last-child { width: 76px; padding-right: 12px !important; }
+
+            .events-page .event-title-text { max-width: min(46vw, 260px); }
+            .events-page .event-mobile-meta { display: block; }
+            .events-page .action-view-btn .action-label { display: none; }
+            .events-page .action-view-btn { width: 34px; padding: 0; }
+            .events-page .action-view-btn i { margin: 0; }
+
+            .events-page .modal-dialog {
+                width: calc(100% - 16px);
+                max-width: none;
+                margin: 8px auto;
+                min-height: calc(100% - 16px);
+            }
+
+            .events-page .modal-content {
+                max-height: calc(100vh - 16px);
+                border-radius: 14px;
+            }
+
+            .events-page .modal-header { padding: 14px; gap: 10px; }
+            .events-page .modal-heading-icon { width: 36px; height: 36px; border-radius: 10px; }
+            .events-page .modal-title { font-size: .93rem; }
+            .events-page .modal-subtitle { font-size: .69rem; }
+            .events-page .modal-body { padding: 12px; }
+            .events-page .form-step-card,
+            .events-page .detail-section-card { padding: 13px; margin-bottom: 10px; border-radius: 12px; }
+            .events-page .form-section-heading { margin-bottom: 11px; }
+            .events-page .section-step { width: 29px; height: 29px; }
+            .events-page .schedule-grid,
+            .events-page .details-grid { grid-template-columns: 1fr; gap: 10px; }
+            .events-page .upload-card { flex-direction: column; }
+            .events-page .view-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .events-page .modal-footer { padding: 11px 12px; }
+            .events-page .modal-footer .btn { min-width: 0; flex: 1; }
+
+            .events-page .action-menu {
+                min-width: min(230px, calc(100vw - 28px));
+                max-width: calc(100vw - 28px);
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .events-page .events-panel-header { flex-direction: column; gap: 10px; }
+            .events-page .events-panel-actions { width: 100%; justify-content: space-between; }
+            .events-page .events-panel-actions .btn { flex: 1; }
+            .events-page .events-search-group { flex-direction: column; }
+            .events-page .events-search-btn { width: 100%; }
+            .events-page .events-bulk-row { align-items: stretch; flex-direction: column; }
+            .events-page .events-bulk-row .btn { width: 100%; }
+            .events-page .event-title-text { max-width: 42vw; }
+            .events-page .view-summary { grid-template-columns: 1fr; }
+            .events-page .modal-heading-icon { display: none; }
+            .events-page .modal-footer { flex-direction: column-reverse; }
+            .events-page .modal-footer .btn { width: 100%; }
+        }
+
+        /* Dark mode support */
+        [data-theme="dark"] .events-page .events-panel,
+        [data-theme="dark"] .events-page .events-panel-header,
+        [data-theme="dark"] .events-page .modal-content,
+        [data-theme="dark"] .events-page .modal-header,
+        [data-theme="dark"] .events-page .modal-footer,
+        [data-theme="dark"] .events-page .form-step-card,
+        [data-theme="dark"] .events-page .detail-section-card,
+        [data-theme="dark"] .events-page .view-summary-item,
+        [data-theme="dark"] .events-page .event-description-box,
+        body.dark-mode .events-page .events-panel,
+        body.dark-mode .events-page .events-panel-header,
+        body.dark-mode .events-page .modal-content,
+        body.dark-mode .events-page .modal-header,
+        body.dark-mode .events-page .modal-footer,
+        body.dark-mode .events-page .form-step-card,
+        body.dark-mode .events-page .detail-section-card,
+        body.dark-mode .events-page .view-summary-item,
+        body.dark-mode .events-page .event-description-box {
+            border-color: #2f3b4f;
+            background: #182230;
+        }
+
+        [data-theme="dark"] .events-page .modal-body,
+        body.dark-mode .events-page .modal-body { background: #111827; }
+
+        [data-theme="dark"] .events-page .events-panel-title h3,
+        [data-theme="dark"] .events-page .modal-title,
+        [data-theme="dark"] .events-page .form-section-heading h6,
+        [data-theme="dark"] .events-page .event-detail-title,
+        [data-theme="dark"] .events-page .view-summary-value,
+        body.dark-mode .events-page .events-panel-title h3,
+        body.dark-mode .events-page .modal-title,
+        body.dark-mode .events-page .form-section-heading h6,
+        body.dark-mode .events-page .event-detail-title,
+        body.dark-mode .events-page .view-summary-value { color: #f8fafc; }
+
+        [data-theme="dark"] .events-page .form-control,
+        [data-theme="dark"] .events-page .form-select,
+        body.dark-mode .events-page .form-control,
+        body.dark-mode .events-page .form-select {
+            border-color: #3b475a;
+            background-color: #111827;
+            color: #f8fafc;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -321,8 +1148,20 @@
                                                 @endif
                                             </div>
                                             <div>
-                                                <div class="fw-semibold">{{ Str::limit($event->title, 30) }}</div>
-                                                <small class="text-muted d-md-none">{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</small>
+                                                <div class="fw-semibold event-title-text">{{ Str::limit($event->title, 30) }}</div>
+                                                <div class="event-mobile-meta d-md-none">
+                                                    <span><i class="far fa-calendar"></i>{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
+                                                    <span><i class="fas fa-location-dot"></i>{{ Str::limit($event->location ?? 'No location', 22) }}</span>
+                                                    <span>
+                                                        @if($event->deleted_at)
+                                                            <i class="fas fa-box-archive"></i>Archived
+                                                        @elseif($event->type == 'upcoming')
+                                                            <i class="fas fa-clock"></i>Upcoming
+                                                        @else
+                                                            <i class="fas fa-check"></i>Past
+                                                        @endif
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -357,40 +1196,60 @@
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (everyone with view_events can view) -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $event->id }}" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="action-cluster">
+                                            <button type="button"
+                                                    class="btn btn-sm action-view-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ $event->id }}"
+                                                    title="View event details">
+                                                <i class="fas fa-eye"></i><span class="action-label">View</span>
                                             </button>
 
-                                            <!-- Edit (requires update_events permission) -->
-                                            @if(!$event->deleted_at)
-                                            @admin_can('update_events')
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editEventModal{{ $event->id }}" title="Edit Event">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            @endadmin_can
-                                            @endif
+                                            <div class="dropdown">
+                                                <button type="button"
+                                                        class="btn btn-sm action-more-toggle icon-only"
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport"
+                                                        aria-expanded="false"
+                                                        title="More actions">
+                                                    <i class="fas fa-ellipsis-vertical"></i>
+                                                </button>
 
-                                            <!-- Delete (requires delete_events permission) -->
-                                            @admin_can('delete_events')
-                                            @if($event->deleted_at)
-                                            <form method="POST" action="{{ route('admin.events.restore', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this event?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this event?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                            @endif
-                                            @endadmin_can
+                                                <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                    @if(!$event->deleted_at)
+                                                        @admin_can('update_events')
+                                                        <button type="button"
+                                                                class="dropdown-item action-menu-edit"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editEventModal{{ $event->id }}">
+                                                            <i class="fas fa-pen"></i>
+                                                            <span>Edit Event</span>
+                                                        </button>
+                                                        @endadmin_can
+                                                    @endif
+
+                                                    @admin_can('delete_events')
+                                                    @if($event->deleted_at)
+                                                        <form method="POST" action="{{ route('admin.events.restore', $event->id) }}" onsubmit="return confirmDelete(event, 'Restore this event?')">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item action-menu-positive">
+                                                                <i class="fas fa-rotate-left"></i>
+                                                                <span>Restore Event</span>
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" onsubmit="return confirmDelete(event, 'Archive this event?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item action-menu-danger">
+                                                                <i class="fas fa-box-archive"></i>
+                                                                <span>Archive Event</span>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    @endadmin_can
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -435,145 +1294,169 @@
             <!-- Add Event Modal with Validation - Only if user has create_events permission -->
             @admin_can('create_events')
             <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-calendar-plus"></i>
-                                <span class="modal-title-stack">
-                                    <span>New Event</span>
-                                    <span class="modal-subtitle">Add a clear event record with schedule, location, attendees, type, and image.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-calendar-plus"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">New Event</h5>
+                                    <span class="modal-subtitle">Create the event in three clear sections. Fields marked <span class="text-danger">*</span> are required.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data" id="addEventForm">
-                            @csrf
-                            <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Event Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                @csrf
+                                <input type="hidden" name="form_type" value="add">
 
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif" 
-                                                  name="description" rows="4" placeholder="Write event description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
-                                        @if(session('form_type') == 'add')
-                                            @error('description')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
+                                        <div>
+                                            <h6>Event Information</h6>
+                                            <p>Use a clear title and description that residents can understand quickly.</p>
+                                        </div>
                                     </div>
-
-                                    <!-- Date and Time -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Event Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('event_date') is-invalid @enderror @endif" 
-                                               name="event_date" value="{{ session('form_type') == 'add' ? old('event_date') : '' }}" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('event_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Start Time</label>
-                                        <input type="time" class="form-control @if(session('form_type') == 'add') @error('start_time') is-invalid @enderror @endif" 
-                                               name="start_time" value="{{ session('form_type') == 'add' ? old('start_time') : '' }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('start_time')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">End Time</label>
-                                        <input type="time" class="form-control @if(session('form_type') == 'add') @error('end_time') is-invalid @enderror @endif" 
-                                               name="end_time" value="{{ session('form_type') == 'add' ? old('end_time') : '' }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('end_time')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Location -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Location <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif" 
-                                               name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="Venue or address" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('location')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Attendees</label>
-                                        <input type="number" class="form-control @if(session('form_type') == 'add') @error('attendees') is-invalid @enderror @endif" 
-                                               name="attendees" value="{{ session('form_type') == 'add' ? old('attendees', 0) : 0 }}" min="0">
-                                        @if(session('form_type') == 'add')
-                                            @error('attendees')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Event Type <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('type') is-invalid @enderror @endif" 
-                                                name="type" required>
-                                            <option value="">Select type</option>
-                                            <option value="upcoming" {{ (session('form_type') == 'add' && old('type') == 'upcoming') ? 'selected' : '' }}>Upcoming</option>
-                                            <option value="past" {{ (session('form_type') == 'add' && old('type') == 'past') ? 'selected' : '' }}>Past</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('type')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Image -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Event Image</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Event Banner/Image</label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif" 
-                                               name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
-                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('image')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                        <div id="addImagePreview" class="mt-2"></div>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-heading"></i>Event Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif"
+                                                   name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-align-left"></i>Description <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif"
+                                                      name="description" rows="4" placeholder="Write event description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
+                                            <small class="field-hint">Include the purpose, important instructions, or other details residents should know.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('description')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" form="addEventForm" class="btn btn-success" id="submitAddForm">
-                                    <i class="fas fa-save me-2"></i>Save Event
-                                </button>
-                            </div>
-                        </form>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Schedule &amp; Event Details</h6>
+                                            <p>Set when and where the event happens, then record its current type and expected attendance.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-grid">
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-calendar-day"></i>Event Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('event_date') is-invalid @enderror @endif"
+                                                   name="event_date" value="{{ session('form_type') == 'add' ? old('event_date') : '' }}" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('event_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-clock"></i>Start Time</label>
+                                            <input type="time" class="form-control @if(session('form_type') == 'add') @error('start_time') is-invalid @enderror @endif"
+                                                   name="start_time" value="{{ session('form_type') == 'add' ? old('start_time') : '' }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('start_time')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-clock"></i>End Time</label>
+                                            <input type="time" class="form-control @if(session('form_type') == 'add') @error('end_time') is-invalid @enderror @endif"
+                                                   name="end_time" value="{{ session('form_type') == 'add' ? old('end_time') : '' }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('end_time')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="details-grid mt-3">
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-location-dot"></i>Location <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif"
+                                                   name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="Venue or address" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('location')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-users"></i>Attendees</label>
+                                            <input type="number" class="form-control @if(session('form_type') == 'add') @error('attendees') is-invalid @enderror @endif"
+                                                   name="attendees" value="{{ session('form_type') == 'add' ? old('attendees', 0) : 0 }}" min="0">
+                                            @if(session('form_type') == 'add')
+                                                @error('attendees')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-tag"></i>Event Type <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('type') is-invalid @enderror @endif" name="type" required>
+                                                <option value="">Select type</option>
+                                                <option value="upcoming" {{ (session('form_type') == 'add' && old('type') == 'upcoming') ? 'selected' : '' }}>Upcoming</option>
+                                                <option value="past" {{ (session('form_type') == 'add' && old('type') == 'past') ? 'selected' : '' }}>Past</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('type')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Event Image</h6>
+                                            <p>Add an optional banner or photo so residents can recognize the event more easily.</p>
+                                        </div>
+                                    </div>
+                                    <div class="upload-card">
+                                        <div class="upload-card-icon"><i class="fas fa-image"></i></div>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <label class="form-label">Event Banner/Image</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif"
+                                                   name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                                            <small class="field-hint">JPG, PNG, or GIF. Maximum file size: 5MB.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('image')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                            <div id="addImagePreview"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i>Cancel
+                            </button>
+                            <button type="submit" form="addEventForm" class="btn btn-success" id="submitAddForm">
+                                <i class="fas fa-save"></i>Save Event
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -583,152 +1466,176 @@
             @if(auth('admin')->user()->hasPermission('update_events'))
                 @foreach($events as $event)
                 <div class="modal fade" id="editEventModal{{ $event->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-edit"></i>
-                                    <span class="modal-title-stack">
-                                        <span>Edit Event</span>
-                                        <span class="modal-subtitle">Update event details, schedule, location, attendees, type, and image.</span>
-                                    </span>
-                                </h5>
+                                <div class="modal-heading">
+                                    <div class="modal-heading-icon"><i class="fas fa-pen"></i></div>
+                                    <div class="modal-heading-copy">
+                                        <h5 class="modal-title">Edit Event</h5>
+                                        <span class="modal-subtitle">Update the event information without changing the existing event workflow.</span>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.events.update', $event->id) }}" enctype="multipart/form-data" id="editEventForm{{ $event->id }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="form_type" value="edit_{{ $event->id }}">
 
-                                    <div class="row g-3">
-                                        <!-- Basic Information -->
-                                        <div class="col-12">
-                                            <label class="form-label">Event Title <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('title') is-invalid @enderror @endif" 
-                                                   name="title" value="{{ session('form_type') == 'edit_' . $event->id ? old('title', $event->title) : $event->title }}" required>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('title')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">1</div>
+                                            <div>
+                                                <h6>Event Information</h6>
+                                                <p>Review the title and description shown to residents.</p>
+                                            </div>
                                         </div>
-
-                                        <div class="col-12">
-                                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('description') is-invalid @enderror @endif" 
-                                                      name="description" rows="4" required>{{ session('form_type') == 'edit_' . $event->id ? old('description', $event->description) : $event->description }}</textarea>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('description')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <!-- Date and Time -->
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Event Date <span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('event_date') is-invalid @enderror @endif" 
-                                                   name="event_date" value="{{ session('form_type') == 'edit_' . $event->id ? old('event_date', $event->event_date->format('Y-m-d')) : $event->event_date->format('Y-m-d') }}" required>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('event_date')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">Start Time</label>
-                                            <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('start_time') is-invalid @enderror @endif" 
-                                                   name="start_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('start_time', $event->start_time) : $event->start_time }}">
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('start_time')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">End Time</label>
-                                            <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('end_time') is-invalid @enderror @endif" 
-                                                   name="end_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('end_time', $event->end_time) : $event->end_time }}">
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('end_time')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <!-- Location -->
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Location <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('location') is-invalid @enderror @endif" 
-                                                   name="location" value="{{ session('form_type') == 'edit_' . $event->id ? old('location', $event->location) : $event->location }}" required>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('location')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">Attendees</label>
-                                            <input type="number" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('attendees') is-invalid @enderror @endif" 
-                                                   name="attendees" value="{{ session('form_type') == 'edit_' . $event->id ? old('attendees', $event->attendees) : $event->attendees }}" min="0">
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('attendees')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">Event Type <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $event->id) @error('type') is-invalid @enderror @endif" 
-                                                    name="type" required>
-                                                <option value="">Select type</option>
-                                                <option value="upcoming" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                                                <option value="past" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'past' ? 'selected' : '' }}>Past</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <!-- Image -->
-                                        <div class="col-12 mt-3">
-                                            <h6 class="fw-semibold text-primary">Event Image</h6>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Event Banner/Image (Leave empty to keep current)</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('image') is-invalid @enderror @endif" 
-                                                   name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $event->id }}')">
-                                            <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                            @if(session('form_type') == 'edit_' . $event->id)
-                                                @error('image')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                            <div id="editImagePreview{{ $event->id }}" class="mt-2">
-                                                @if($event->image)
-                                                    <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
-                                                    <small class="d-block text-muted">Current image</small>
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-heading"></i>Event Title <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('title') is-invalid @enderror @endif"
+                                                       name="title" value="{{ session('form_type') == 'edit_' . $event->id ? old('title', $event->title) : $event->title }}" required>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('title')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-align-left"></i>Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('description') is-invalid @enderror @endif"
+                                                          name="description" rows="4" required>{{ session('form_type') == 'edit_' . $event->id ? old('description', $event->description) : $event->description }}</textarea>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('description')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" form="editEventForm{{ $event->id }}" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
-                                        <i class="fas fa-save me-2"></i>Update Event
-                                    </button>
-                                </div>
+
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">2</div>
+                                            <div>
+                                                <h6>Schedule &amp; Event Details</h6>
+                                                <p>Keep the event date, time, venue, attendance, and type accurate.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="schedule-grid">
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-calendar-day"></i>Event Date <span class="text-danger">*</span></label>
+                                                <input type="date" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('event_date') is-invalid @enderror @endif"
+                                                       name="event_date" value="{{ session('form_type') == 'edit_' . $event->id ? old('event_date', $event->event_date->format('Y-m-d')) : $event->event_date->format('Y-m-d') }}" required>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('event_date')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-clock"></i>Start Time</label>
+                                                <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('start_time') is-invalid @enderror @endif"
+                                                       name="start_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('start_time', $event->start_time) : $event->start_time }}">
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('start_time')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-clock"></i>End Time</label>
+                                                <input type="time" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('end_time') is-invalid @enderror @endif"
+                                                       name="end_time" value="{{ session('form_type') == 'edit_' . $event->id ? old('end_time', $event->end_time) : $event->end_time }}">
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('end_time')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="details-grid mt-3">
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-location-dot"></i>Location <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('location') is-invalid @enderror @endif"
+                                                       name="location" value="{{ session('form_type') == 'edit_' . $event->id ? old('location', $event->location) : $event->location }}" required>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('location')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-users"></i>Attendees</label>
+                                                <input type="number" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('attendees') is-invalid @enderror @endif"
+                                                       name="attendees" value="{{ session('form_type') == 'edit_' . $event->id ? old('attendees', $event->attendees) : $event->attendees }}" min="0">
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('attendees')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-tag"></i>Event Type <span class="text-danger">*</span></label>
+                                                <select class="form-select @if(session('form_type') == 'edit_' . $event->id) @error('type') is-invalid @enderror @endif" name="type" required>
+                                                    <option value="">Select type</option>
+                                                    <option value="upcoming" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                                    <option value="past" {{ (session('form_type') == 'edit_' . $event->id ? old('type', $event->type) : $event->type) == 'past' ? 'selected' : '' }}>Past</option>
+                                                </select>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('type')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">3</div>
+                                            <div>
+                                                <h6>Event Image</h6>
+                                                <p>Upload a replacement only when the current event image needs to change.</p>
+                                            </div>
+                                        </div>
+                                        <div class="upload-card">
+                                            <div class="upload-card-icon"><i class="fas fa-image"></i></div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <label class="form-label">Event Banner/Image</label>
+                                                <input type="file" class="form-control @if(session('form_type') == 'edit_' . $event->id) @error('image') is-invalid @enderror @endif"
+                                                       name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $event->id }}')">
+                                                <small class="field-hint">Leave empty to keep the current image. JPG, PNG, or GIF; maximum 5MB.</small>
+                                                @if(session('form_type') == 'edit_' . $event->id)
+                                                    @error('image')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
+                                                <div id="editImagePreview{{ $event->id }}">
+                                                    @if($event->image)
+                                                        <button type="button" class="image-preview-button" onclick="openZoomModal('{{ asset($event->image) }}')" title="View current event image">
+                                                            <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
+                                                        </button>
+                                                        <small class="field-hint">Current image — click to preview.</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i>Cancel
+                                </button>
+                                <button type="submit" form="editEventForm{{ $event->id }}" class="btn btn-primary" id="submitEditForm{{ $event->id }}">
+                                    <i class="fas fa-save"></i>Update Event
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -738,81 +1645,73 @@
             <!-- View Modals (always visible since they just show data) -->
             @foreach($events as $event)
             <div class="modal fade" id="viewModal{{ $event->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span class="modal-title-stack">
-                                    <span>Event Details</span>
-                                    <span class="modal-subtitle">Review event schedule, location, attendees, image, and description.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-calendar-days"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">Event Details</h5>
+                                    <span class="modal-subtitle">Review the event schedule, venue, attendance, status, image, and description.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body event-view-body">
-                            <div class="row g-3">
+                            <div class="event-view-hero">
                                 @if($event->image)
-                                <div class="col-12 text-center">
-                                    <div class="event-image-card">
-                                        <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" class="img-fluid rounded">
-                                    </div>
-                                </div>
+                                    <button type="button" class="image-preview-button" onclick="openZoomModal('{{ asset($event->image) }}')" title="View event image">
+                                        <img src="{{ asset($event->image) }}" alt="{{ $event->title }}">
+                                    </button>
                                 @endif
-                                
-                                <div class="col-12">
-                                    <h4 class="fw-bold event-detail-title">{{ $event->title }}</h4>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Event Date</label>
-                                    <p><i class="fas fa-calendar me-2 text-primary"></i>{{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</p>
-                                </div>
-                                
-                                @if($event->start_time && $event->end_time)
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Event Time</label>
-                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}</p>
-                                </div>
-                                @endif
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Location</label>
-                                    <p><i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ $event->location }}</p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Attendees</label>
-                                    <p><span class="attendees-badge"><i class="fas fa-users me-1"></i>{{ number_format($event->attendees ?? 0) }}</span></p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Event Type</label>
-                                    <p>
-                                        @if($event->type == 'upcoming')
+                                <div class="event-view-title-block">
+                                    <h4 class="event-detail-title">{{ $event->title }}</h4>
+                                    <div class="event-view-meta">
+                                        @if($event->deleted_at)
+                                            <span class="badge bg-danger-subtle text-danger">Archived</span>
+                                        @elseif($event->type == 'upcoming')
                                             <span class="badge bg-success-subtle text-success">Upcoming</span>
                                         @else
                                             <span class="badge bg-secondary-subtle text-secondary">Past</span>
                                         @endif
-                                    </p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Created At</label>
-                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ $event->created_at ? $event->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Description</label>
-                                    <div class="p-3 bg-light rounded">
-                                        {!! nl2br(e($event->description)) !!}
+                                        <span class="text-muted small"><i class="fas fa-location-dot me-1"></i>{{ $event->location }}</span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="view-summary">
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Event Date</span>
+                                    <span class="view-summary-value">{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Event Time</span>
+                                    <span class="view-summary-value">
+                                        @if($event->start_time && $event->end_time)
+                                            {{ \Carbon\Carbon::parse($event->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('h:i A') }}
+                                        @else
+                                            Not specified
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Attendees</span>
+                                    <span class="view-summary-value">{{ number_format($event->attendees ?? 0) }}</span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Created</span>
+                                    <span class="view-summary-value">{{ $event->created_at ? $event->created_at->format('M d, Y') : 'N/A' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="detail-section-title mb-2"><i class="fas fa-align-left me-2 text-primary"></i>Description</div>
+                                <div class="event-description-box">{!! nl2br(e($event->description)) !!}</div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Close
+                                <i class="fas fa-times"></i>Close
                             </button>
                         </div>
                     </div>
@@ -821,11 +1720,21 @@
             @endforeach
 
             <!-- Global Image Zoom Modal -->
-            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+            <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-image"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">Image Preview</h5>
+                                    <span class="modal-subtitle">View the uploaded event image at a larger size.</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                         <div class="modal-body text-center">
-                            <img id="zoomedImage" class="img-fluid">
+                            <img id="zoomedImage" class="img-fluid" alt="Uploaded image preview">
                         </div>
                     </div>
                 </div>

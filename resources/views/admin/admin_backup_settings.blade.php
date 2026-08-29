@@ -4,6 +4,15 @@
 @section('page_title', 'Backup Settings')
 @section('page_icon', 'fas fa-database')
 
+@section('header_actions')
+<form method="POST" action="{{ route('admin.backup.store') }}" class="m-0">
+    @csrf
+    <button type="submit" class="btn btn-primary" title="Create new backup">
+        <i class="fas fa-plus-circle"></i><span>Create Backup</span>
+    </button>
+</form>
+@endsection
+
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/backup-settings.css') }}">
 @endpush

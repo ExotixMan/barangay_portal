@@ -402,13 +402,6 @@
             font-size: 0.9rem;
         }
 
-        .modal-body p {
-            color: #1e293b;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
         .modal-footer {
             padding: 1.5rem;
             border-top: 1px solid var(--border-color);
@@ -1702,7 +1695,6 @@
             border-top: 1px solid var(--line) !important;
         }
 
-        .modal-body h6,
         .modal-section-title {
             display: flex;
             align-items: center;
@@ -1720,15 +1712,6 @@
         }
 
         .modal-body h6:first-child { margin-top: 0 !important; }
-
-        .modal-body p {
-            margin-bottom: .7rem !important;
-            padding: .65rem .75rem !important;
-            color: var(--text) !important;
-            background: #f9fafb;
-            border: 1px solid var(--line) !important;
-            border-radius: 12px;
-        }
 
         .modal-body strong {
             color: #344054 !important;

@@ -6,6 +6,985 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/announcements.css') }}">
+    <style>
+        /* Announcement admin UX refresh — presentation only */
+        .announcements-page {
+            --ann-primary: #4338ca;
+            --ann-primary-soft: #eef2ff;
+            --ann-border: #e5e7eb;
+            --ann-border-strong: #d8dee8;
+            --ann-text: #172033;
+            --ann-muted: #667085;
+            --ann-soft: #f8fafc;
+            --ann-success: #15803d;
+            --ann-warning: #a16207;
+            --ann-danger: #b42318;
+        }
+
+        .announcements-page .announcements-hero,
+        .announcements-page .announcements-stats-row {
+            display: none !important;
+        }
+
+        .announcements-page .announcements-panel {
+            border: 1px solid var(--ann-border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+            overflow: hidden;
+        }
+
+        .announcements-page .announcements-filter-panel {
+            margin-bottom: 18px;
+        }
+
+        .announcements-page .announcements-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--ann-border);
+            background: #fff;
+        }
+
+        .announcements-page .announcements-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .announcements-page .announcements-panel-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: var(--ann-primary-soft);
+            color: var(--ann-primary);
+        }
+
+        .announcements-page .announcements-panel-title h3 {
+            margin: 0;
+            color: var(--ann-text);
+            font-size: .98rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .announcements-page .section-kicker,
+        .announcements-page .panel-copy {
+            display: none;
+        }
+
+        .announcements-page .announcements-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .announcements-page .announcements-filter-body {
+            padding: 14px 18px 16px;
+        }
+
+        .announcements-page .announcements-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.8fr) repeat(3, minmax(140px, .7fr)) auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .announcements-page .announcements-search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .announcements-page .announcements-search-field {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .announcements-page .announcements-search-field > i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            color: #98a2b3;
+            pointer-events: none;
+        }
+
+        .announcements-page .announcements-search-field .form-control {
+            padding-left: 38px;
+        }
+
+        .announcements-page .form-control,
+        .announcements-page .form-select {
+            min-height: 42px;
+            border-color: var(--ann-border-strong);
+            border-radius: 10px;
+            color: var(--ann-text);
+            font-size: .86rem;
+            box-shadow: none;
+        }
+
+        .announcements-page .form-control:focus,
+        .announcements-page .form-select:focus {
+            border-color: var(--ann-primary);
+            box-shadow: 0 0 0 .2rem rgba(67, 56, 202, .09);
+        }
+
+        .announcements-page .btn {
+            min-height: 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .82rem;
+        }
+
+        .announcements-page .btn i {
+            margin-right: .38rem;
+        }
+
+        .announcements-page .icon-only i,
+        .announcements-page .btn-close i {
+            margin-right: 0;
+        }
+
+        .announcements-page .announcements-bulk-row {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--ann-border);
+        }
+
+        .announcements-page .selected-count {
+            color: var(--ann-muted);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .announcements-page table {
+            margin: 0;
+        }
+
+        .announcements-page .table thead th {
+            padding-top: 11px;
+            padding-bottom: 11px;
+            border-bottom: 1px solid var(--ann-border);
+            background: #f8fafc;
+            color: #475467;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .announcements-page .table tbody td {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            border-color: #eef1f5;
+            color: var(--ann-text);
+            font-size: .83rem;
+            vertical-align: middle;
+        }
+
+        .announcements-page .table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .announcements-page .announcement-icon {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            overflow: hidden;
+            border: 1px solid var(--ann-border);
+            border-radius: 10px;
+            background: var(--ann-soft);
+        }
+
+        .announcements-page .announcement-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .announcements-page .views-badge,
+        .announcements-page .date-badge,
+        .announcements-page .announcements-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #475467;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .announcements-page .table .badge {
+            padding: .42rem .58rem;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 800;
+        }
+
+        .announcements-page .action-cluster {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .announcements-page .action-view-btn {
+            min-height: 34px;
+            padding: .38rem .65rem;
+            border-color: #d0d5dd;
+            color: #344054;
+            background: #fff;
+        }
+
+        .announcements-page .action-more-toggle {
+            width: 34px;
+            min-height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-color: #d0d5dd;
+            color: #475467;
+            background: #fff;
+        }
+
+        .announcements-page .action-more-toggle i {
+            margin: 0;
+        }
+
+        .announcements-page .action-menu {
+            min-width: 240px;
+            padding: 7px;
+            border: 1px solid var(--ann-border);
+            border-radius: 12px;
+            box-shadow: 0 16px 38px rgba(16, 24, 40, .14);
+        }
+
+        .announcements-page .action-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 40px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: #344054;
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .announcements-page .action-menu .dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+        .announcements-page .action-menu .dropdown-item i {
+            width: 16px;
+            color: #667085;
+            text-align: center;
+        }
+
+        .announcements-page .action-menu .dropdown-item.text-danger i {
+            color: var(--ann-danger);
+        }
+
+        .announcements-page .action-menu form {
+            margin: 0;
+        }
+
+        /* Consistent modal system */
+        .announcements-page .modal-dialog {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .announcements-page .modal-content {
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, .20);
+        }
+
+        .announcements-page .modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--ann-border);
+            background: #fff;
+        }
+
+        .announcements-page .modal-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .announcements-page .modal-heading-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 11px;
+            background: var(--ann-primary-soft);
+            color: var(--ann-primary);
+        }
+
+        .announcements-page .modal-heading-copy {
+            min-width: 0;
+        }
+
+        .announcements-page .modal-title {
+            margin: 0;
+            color: var(--ann-text);
+            font-size: 1rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .announcements-page .modal-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: var(--ann-muted);
+            font-size: .76rem;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .announcements-page .modal-header .btn-close {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin: 0;
+            flex: 0 0 auto;
+            border-radius: 9px;
+            background-size: 12px;
+            opacity: .65;
+        }
+
+        .announcements-page .modal-header .btn-close:hover {
+            background-color: #f2f4f7;
+            opacity: 1;
+        }
+
+        .announcements-page .modal-body {
+            padding: 18px 20px;
+            background: #f8fafc;
+        }
+
+        .announcements-page .modal-form-intro {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: var(--ann-muted);
+            font-size: .76rem;
+        }
+
+        .announcements-page .form-step-card,
+        .announcements-page .detail-section-card {
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--ann-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .announcements-page .form-step-card:last-child,
+        .announcements-page .detail-section-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .announcements-page .form-section-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .announcements-page .section-step {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--ann-primary-soft);
+            color: var(--ann-primary);
+            font-size: .76rem;
+            font-weight: 900;
+        }
+
+        .announcements-page .form-section-heading h6,
+        .announcements-page .detail-section-title {
+            margin: 0;
+            color: var(--ann-text);
+            font-size: .87rem;
+            font-weight: 850;
+        }
+
+        .announcements-page .form-section-heading p {
+            margin: 2px 0 0;
+            color: var(--ann-muted);
+            font-size: .72rem;
+            line-height: 1.45;
+        }
+
+        .announcements-page .modal .form-label {
+            margin-bottom: 6px;
+            color: #344054;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .announcements-page .modal .form-label > i {
+            width: 15px;
+            margin-right: 5px;
+            color: #98a2b3;
+            font-size: .74rem;
+            text-align: center;
+        }
+
+        .announcements-page .modal .form-control,
+        .announcements-page .modal .form-select {
+            min-height: 44px;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .announcements-page .modal textarea.form-control {
+            min-height: auto;
+            line-height: 1.55;
+            resize: vertical;
+        }
+
+        .announcements-page .field-hint,
+        .announcements-page .modal .text-muted.small,
+        .announcements-page .modal small.text-muted {
+            display: block;
+            margin-top: 5px;
+            color: var(--ann-muted) !important;
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        .announcements-page .publish-setting-card {
+            height: 100%;
+            padding: 12px 13px;
+            border: 1px solid var(--ann-border);
+            border-radius: 11px;
+            background: #fbfcfe;
+        }
+
+        .announcements-page .publish-setting-card .form-check {
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+        }
+
+        .announcements-page .publish-setting-card .form-check-input {
+            width: 2.1rem;
+            height: 1.1rem;
+            margin: 2px 0 0;
+            flex: 0 0 auto;
+        }
+
+        .announcements-page .upload-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px;
+            border: 1px dashed #cfd6e3;
+            border-radius: 12px;
+            background: #fbfcfe;
+        }
+
+        .announcements-page .upload-card-icon {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: var(--ann-primary-soft);
+            color: var(--ann-primary);
+        }
+
+        .announcements-page .image-preview,
+        .announcements-page .modal-image-hero {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid var(--ann-border);
+        }
+
+        .announcements-page .photo-view-btn {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .announcements-page .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 20px;
+            border-top: 1px solid var(--ann-border);
+            background: #fff;
+        }
+
+        .announcements-page .modal-footer .btn {
+            min-width: 112px;
+        }
+
+        .announcements-page .view-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .announcements-page .view-summary-item {
+            padding: 11px 12px;
+            border: 1px solid var(--ann-border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .announcements-page .view-summary-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--ann-muted);
+            font-size: .67rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .announcements-page .view-summary-value {
+            display: block;
+            color: var(--ann-text);
+            font-size: .82rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .announcements-page .announcement-view-title {
+            margin: 0 0 8px;
+            color: var(--ann-text);
+            font-size: 1.2rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .announcements-page .announcement-content-box {
+            padding: 14px;
+            border: 1px solid var(--ann-border);
+            border-radius: 11px;
+            background: #fff;
+            color: #344054;
+            font-size: .84rem;
+            line-height: 1.65;
+            white-space: normal;
+        }
+
+        /* Bulk notify modal */
+        .announcements-page #bulkNotifyResidentsModal .modal-form-grid > .col-12 > hr {
+            margin-top: 4px !important;
+            border-color: var(--ann-border);
+            opacity: 1;
+        }
+
+        .announcements-page #bulkNotifyResidentsModal .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ann-text);
+            font-size: .88rem;
+            font-weight: 850;
+        }
+
+        .announcements-page .notification-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .announcements-page .notification-summary-card {
+            padding: 10px 11px;
+            border: 1px solid var(--ann-border);
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .announcements-page .notification-summary-card span,
+        .announcements-page .sms-credit-label {
+            display: block;
+            color: var(--ann-muted);
+            font-size: .68rem;
+            font-weight: 700;
+        }
+
+        .announcements-page .notification-summary-card strong {
+            display: block;
+            margin-top: 2px;
+            color: var(--ann-text);
+            font-size: 1rem;
+            font-weight: 850;
+        }
+
+        .announcements-page .resident-picker-list {
+            max-height: 230px;
+            overflow-y: auto;
+            padding: 6px;
+            border: 1px solid var(--ann-border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .announcements-page .resident-picker-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            padding: 9px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .announcements-page .resident-picker-item:hover {
+            background: #f8fafc;
+        }
+
+        .announcements-page .resident-picker-item strong,
+        .announcements-page .resident-picker-item small {
+            display: block;
+        }
+
+        .announcements-page .resident-picker-item strong {
+            color: #344054;
+            font-size: .78rem;
+        }
+
+        .announcements-page .resident-picker-item small {
+            margin-top: 2px;
+            color: var(--ann-muted);
+            font-size: .68rem;
+        }
+
+        .announcements-page .notification-preview-box,
+        .announcements-page .sms-credit-box,
+        .announcements-page .notification-warning-box {
+            border: 1px solid var(--ann-border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .announcements-page .notification-preview-box,
+        .announcements-page .sms-credit-box {
+            padding: 13px;
+        }
+
+        .announcements-page .notification-warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            padding: 11px 12px;
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #854d0e;
+            font-size: .74rem;
+        }
+
+        .announcements-page .notification-preview-header,
+        .announcements-page .sms-credit-main,
+        .announcements-page .sms-credit-details {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .announcements-page .notification-preview-header {
+            margin-bottom: 8px;
+            color: #475467;
+            font-size: .73rem;
+            font-weight: 800;
+        }
+
+        .announcements-page .notification-preview-box p {
+            margin: 0;
+            color: #344054;
+            font-size: .82rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .announcements-page .sms-credit-main strong {
+            display: block;
+            margin-top: 2px;
+            color: var(--ann-text);
+            font-size: 1.1rem;
+        }
+
+        .announcements-page .sms-credit-main small {
+            margin-top: 2px;
+        }
+
+        .announcements-page .sms-credit-status {
+            padding: .38rem .55rem;
+            border-radius: 999px;
+            background: #f2f4f7;
+            color: #475467;
+            font-size: .68rem;
+            font-weight: 800;
+        }
+
+        .announcements-page .sms-credit-status.is-ok {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .announcements-page .sms-credit-status.is-danger {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+        .announcements-page .sms-credit-details {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            margin-top: 11px;
+            padding-top: 10px;
+            border-top: 1px solid var(--ann-border);
+            color: #475467;
+            font-size: .7rem;
+        }
+
+        .announcements-page .resident-picker-search > i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            color: #98a2b3;
+            pointer-events: none;
+        }
+
+        .announcements-page .resident-picker-search .form-control {
+            padding-left: 38px;
+        }
+
+        .announcements-page .announcement-icon .photo-view-btn {
+            width: 100%;
+            height: 100%;
+        }
+
+        .announcements-page .photo-view-btn {
+            position: relative;
+            display: block;
+        }
+
+        .announcements-page .zoom-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 6px;
+            color: var(--ann-muted);
+            font-size: .69rem;
+            font-weight: 700;
+        }
+
+        .announcements-page .image-zoom-modal .modal-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 360px;
+            padding: 16px;
+            background: #101828;
+        }
+
+        .announcements-page .zoomed-image {
+            display: block;
+            max-width: 100%;
+            max-height: 72vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1199.98px) {
+            .announcements-page .announcements-filter-toolbar {
+                grid-template-columns: minmax(240px, 1.5fr) repeat(2, minmax(140px, .7fr));
+            }
+
+            .announcements-page .filter-submit-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .announcements-page .announcements-panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .announcements-page .announcements-panel-actions,
+            .announcements-page .announcements-panel-actions .btn,
+            .announcements-page .announcements-panel-actions a.btn {
+                width: 100%;
+            }
+
+            .announcements-page .announcements-panel-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .announcements-page .announcements-panel-actions .btn-primary:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .announcements-page .announcements-filter-toolbar {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .announcements-page .announcements-search-group {
+                grid-column: 1 / -1;
+            }
+
+            .announcements-page .filter-submit-btn {
+                grid-column: 1 / -1;
+            }
+
+            .announcements-page .modal-dialog {
+                margin: .6rem;
+            }
+
+            .announcements-page .modal-header,
+            .announcements-page .modal-body,
+            .announcements-page .modal-footer {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .announcements-page .view-summary,
+            .announcements-page .notification-summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .announcements-page .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .announcements-page .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .announcements-page .announcements-filter-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .announcements-page .announcements-search-group {
+                display: grid;
+                grid-template-columns: 1fr auto;
+            }
+
+            .announcements-page .announcements-panel-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .announcements-page .announcements-panel-actions .btn-primary:first-child {
+                grid-column: auto;
+            }
+
+            .announcements-page .view-summary,
+            .announcements-page .notification-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .announcements-page .upload-card {
+                flex-direction: column;
+            }
+        }
+
+        [data-theme="dark"] .announcements-page,
+        body.dark-mode .announcements-page {
+            --ann-border: #2b3445;
+            --ann-border-strong: #3a4558;
+            --ann-text: #f2f4f7;
+            --ann-muted: #98a2b3;
+            --ann-soft: #182230;
+        }
+
+        [data-theme="dark"] .announcements-page .announcements-panel,
+        [data-theme="dark"] .announcements-page .announcements-panel-header,
+        [data-theme="dark"] .announcements-page .modal-content,
+        [data-theme="dark"] .announcements-page .modal-header,
+        [data-theme="dark"] .announcements-page .modal-footer,
+        [data-theme="dark"] .announcements-page .form-step-card,
+        [data-theme="dark"] .announcements-page .detail-section-card,
+        [data-theme="dark"] .announcements-page .view-summary-item,
+        [data-theme="dark"] .announcements-page .notification-summary-card,
+        [data-theme="dark"] .announcements-page .resident-picker-list,
+        [data-theme="dark"] .announcements-page .notification-preview-box,
+        [data-theme="dark"] .announcements-page .sms-credit-box,
+        body.dark-mode .announcements-page .announcements-panel,
+        body.dark-mode .announcements-page .announcements-panel-header,
+        body.dark-mode .announcements-page .modal-content,
+        body.dark-mode .announcements-page .modal-header,
+        body.dark-mode .announcements-page .modal-footer,
+        body.dark-mode .announcements-page .form-step-card,
+        body.dark-mode .announcements-page .detail-section-card,
+        body.dark-mode .announcements-page .view-summary-item,
+        body.dark-mode .announcements-page .notification-summary-card,
+        body.dark-mode .announcements-page .resident-picker-list,
+        body.dark-mode .announcements-page .notification-preview-box,
+        body.dark-mode .announcements-page .sms-credit-box {
+            background: #111827;
+        }
+
+        [data-theme="dark"] .announcements-page .modal-body,
+        body.dark-mode .announcements-page .modal-body {
+            background: #0f172a;
+        }
+
+        [data-theme="dark"] .announcements-page .form-control,
+        [data-theme="dark"] .announcements-page .form-select,
+        [data-theme="dark"] .announcements-page .publish-setting-card,
+        [data-theme="dark"] .announcements-page .upload-card,
+        body.dark-mode .announcements-page .form-control,
+        body.dark-mode .announcements-page .form-select,
+        body.dark-mode .announcements-page .publish-setting-card,
+        body.dark-mode .announcements-page .upload-card {
+            background-color: #182230;
+            border-color: #3a4558;
+            color: #f2f4f7;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -42,92 +1021,6 @@
 
 
 
-            <section class="announcements-hero">
-                <div class="announcements-hero-content">
-                    <div class="min-w-0">
-                        <div class="announcements-hero-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="announcements-kicker">Announcement Center</div>
-                        <h2>Publish barangay announcements with a cleaner workflow.</h2>
-                        <p>Manage public advisories, featured posts, drafts, and archived records using the same compact design used in Projects.</p>
-                    </div>
-                    <div class="announcements-hero-actions">
-                        @admin_can('create_announcements')
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
-                            <i class="fas fa-plus"></i>Add Announcement
-                        </button>
-                        @endadmin_can
-                        <a href="{{ route('admin.announcements.index') }}" class="btn btn-light-soft">
-                            <i class="fas fa-rotate"></i>Reset View
-                        </a>
-                        @admin_can('create_announcements')
-                        <button type="button" class="btn btn-light-soft" data-bs-toggle="modal" data-bs-target="#bulkNotifyResidentsModal">
-                            <i class="fas fa-paper-plane"></i>Notify Residents
-                        </button>
-                        @endadmin_can
-                    </div>
-                </div>
-            </section>
-
-            <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4 announcements-stats-row">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="stat-label text-muted mb-1">Total</div>
-                            <div class="stat-number">{{ $total_count ?? 0 }}</div>
-                            <small class="text-success mt-2 d-none d-sm-block">
-                                <i class="fas fa-arrow-up me-1"></i>All time
-                            </small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-bullhorn"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="stat-label text-muted mb-1">Published</div>
-                            <div class="stat-number">{{ $published_count ?? 0 }}</div>
-                            <small class="text-success mt-2 d-none d-sm-block">
-                                <i class="fas fa-globe me-1"></i>Live
-                            </small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="stat-label text-muted mb-1">Drafts</div>
-                            <div class="stat-number">{{ $draft_count ?? 0 }}</div>
-                            <small class="text-warning mt-2 d-none d-sm-block">
-                                <i class="fas fa-pen me-1"></i>In progress
-                            </small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-pen"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="stat-label text-muted mb-1">Featured</div>
-                            <div class="stat-number">{{ $featured_count ?? 0 }}</div>
-                            <small class="text-warning mt-2 d-none d-sm-block">
-                                <i class="fas fa-star me-1"></i>Important
-                            </small>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Filters - UX Improved -->
             <div class="announcements-panel announcements-filter-panel">
                 <form method="GET" action="{{ route('admin.announcements.index') }}" id="searchForm">
@@ -136,8 +1029,8 @@
                             <div class="announcements-panel-icon"><i class="fas fa-filter"></i></div>
                             <div class="min-w-0">
                                 <div class="section-kicker"><i class="fas fa-bullhorn"></i> Announcement Directory</div>
-                                <h3>Search and filter announcements</h3>
-                                <p class="panel-copy">Find announcements by title or content, then filter by status, category, or featured visibility.</p>
+                                <h3>Announcements</h3>
+                                <p class="panel-copy">Search, filter, publish, and manage resident-facing announcements.</p>
                             </div>
                         </div>
 
@@ -145,6 +1038,11 @@
                             @admin_can('create_announcements')
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
                                 <i class="fas fa-plus"></i>Add Announcement
+                            </button>
+                            @endadmin_can
+                            @admin_can('create_announcements')
+                            <button type="button" class="btn btn-light-soft" data-bs-toggle="modal" data-bs-target="#bulkNotifyResidentsModal">
+                                <i class="fas fa-paper-plane"></i>Notify Residents
                             </button>
                             @endadmin_can
                             <a href="{{ route('admin.announcements.index') }}" class="btn btn-light-soft">
@@ -369,66 +1267,81 @@
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (everyone with view_announcements can view) -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $ann->id }}" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="action-cluster">
+                                            <button type="button"
+                                                    class="btn btn-sm action-view-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ $ann->id }}"
+                                                    title="View announcement details">
+                                                <i class="fas fa-eye"></i>View
                                             </button>
 
-                                            <!-- Edit (requires update_announcements permission) -->
-                                            @if(!$ann->deleted_at)
-                                            @admin_can('update_announcements')
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ $ann->id }}" title="Edit Announcement">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            @endadmin_can
-                                            @endif
+                                            <div class="dropdown">
+                                                <button type="button"
+                                                        class="btn btn-sm action-more-toggle icon-only"
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport"
+                                                        aria-expanded="false"
+                                                        title="More actions"
+                                                        aria-label="More actions for {{ $ann->title }}">
+                                                    <i class="fas fa-ellipsis-vertical"></i>
+                                                </button>
 
-                                            <!-- Feature/Unfeature (requires feature_announcements permission) -->
-                                            @if(!$ann->deleted_at && $ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
-                                                <form method="POST" action="{{ route('admin.announcements.toggle-feature', $ann->id) }}" style="display: inline;">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ $ann->is_featured ? 'Remove Featured' : 'Mark as Featured' }}" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
-                                                        <i class="fas fa-star{{ $ann->is_featured ? '' : '-o' }}"></i>
+                                                <div class="dropdown-menu dropdown-menu-end action-menu">
+                                                    @if(!$ann->deleted_at)
+                                                    @admin_can('update_announcements')
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ $ann->id }}">
+                                                        <i class="fas fa-pen"></i><span>Edit announcement</span>
                                                     </button>
-                                                </form>
-                                            @endif
+                                                    @endadmin_can
+                                                    @endif
 
-                                            <!-- Archive / Restore / Publish action -->
-                                            @admin_can('delete_announcements')
-                                            @if($ann->deleted_at)
-                                            <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this announcement from the deleted bin?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore from deleted bin" aria-label="Restore from deleted bin">
-                                                    <i class="fas fa-rotate-left"></i>
-                                                </button>
-                                            </form>
-                                            @elseif($ann->status == 'archived')
-                                            <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Publish this archived announcement again?')">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="title" value="{{ $ann->title }}">
-                                                <textarea name="content" class="d-none">{{ $ann->content }}</textarea>
-                                                <input type="hidden" name="category" value="{{ $ann->category }}">
-                                                <input type="hidden" name="status" value="published">
-                                                <input type="hidden" name="published_at" value="{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i') }}">
-                                                @if($ann->is_featured)
-                                                    <input type="hidden" name="is_featured" value="1">
-                                                @endif
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Publish again" aria-label="Publish again">
-                                                    <i class="fas fa-globe"></i>
-                                                </button>
-                                            </form>
-                                            @else
-                                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this announcement?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive" aria-label="Archive">
-                                                    <i class="fas fa-box-archive"></i>
-                                                </button>
-                                            </form>
-                                            @endif
-                                            @endadmin_can
+                                                    @if(!$ann->deleted_at && $ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
+                                                    <form method="POST" action="{{ route('admin.announcements.toggle-feature', $ann->id) }}">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
+                                                            <i class="fas fa-star"></i>
+                                                            <span>{{ $ann->is_featured ? 'Remove featured' : 'Mark as featured' }}</span>
+                                                        </button>
+                                                    </form>
+                                                    @endif
+
+                                                    @admin_can('delete_announcements')
+                                                    @if($ann->deleted_at)
+                                                    <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" onsubmit="return confirmDelete(event, 'Restore this announcement from the deleted bin?')">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-rotate-left"></i><span>Restore announcement</span>
+                                                        </button>
+                                                    </form>
+                                                    @elseif($ann->status == 'archived')
+                                                    <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" onsubmit="return confirmDelete(event, 'Publish this archived announcement again?')">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="title" value="{{ $ann->title }}">
+                                                        <textarea name="content" class="d-none">{{ $ann->content }}</textarea>
+                                                        <input type="hidden" name="category" value="{{ $ann->category }}">
+                                                        <input type="hidden" name="status" value="published">
+                                                        <input type="hidden" name="published_at" value="{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i') }}">
+                                                        @if($ann->is_featured)
+                                                            <input type="hidden" name="is_featured" value="1">
+                                                        @endif
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-globe"></i><span>Publish again</span>
+                                                        </button>
+                                                    </form>
+                                                    @else
+                                                    <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" onsubmit="return confirmDelete(event, 'Archive this announcement?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="fas fa-box-archive"></i><span>Archive announcement</span>
+                                                        </button>
+                                                    </form>
+                                                    @endif
+                                                    @endadmin_can
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -472,136 +1385,162 @@
 
             <!-- Add Announcement Modal with Validation - Only if user has create_announcements permission -->
             @admin_can('create_announcements')
-            <div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal fade announcement-form-modal" id="addAnnouncementModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-bullhorn"></i>
-                                <span class="modal-title-stack">
-                                    <span>New Announcement</span>
-                                    <span class="modal-subtitle">Create a clear public advisory with category, status, publish date, featured setting, and optional image.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-bullhorn"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">New Announcement</h5>
+                                    <span class="modal-subtitle">Create a resident-facing announcement. Fields marked <span class="text-danger">*</span> are required.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="{{ route('admin.announcements.store') }}" enctype="multipart/form-data" id="addAnnouncementForm">
-                            @csrf
-                            <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" required>
-                                        <small class="field-hint">Use a short title residents can understand quickly.</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                @csrf
+                                <input type="hidden" name="form_type" value="add">
 
-                                    <div class="col-12">
-                                        <label class="form-label">Content <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'add') @error('content') is-invalid @enderror @endif" 
-                                                  name="content" rows="6" placeholder="Write your announcement content here..." required>{{ session('form_type') == 'add' ? old('content') : '' }}</textarea>
-                                        <small class="field-hint">Keep the message direct. Include dates, requirements, or contact details when needed.</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('content')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                <div class="modal-form-intro">
+                                    <i class="fas fa-circle-info"></i>
+                                    <span>Use a clear title and message first, then choose publishing settings and optional media.</span>
+                                </div>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Category <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('category') is-invalid @enderror @endif" 
-                                                name="category" required>
-                                            <option value="">Select category</option>
-                                            <option value="important" {{ (session('form_type') == 'add' && old('category') == 'important') ? 'selected' : '' }}>Important</option>
-                                            <option value="events" {{ (session('form_type') == 'add' && old('category') == 'events') ? 'selected' : '' }}>Events</option>
-                                            <option value="health" {{ (session('form_type') == 'add' && old('category') == 'health') ? 'selected' : '' }}>Health</option>
-                                            <option value="services" {{ (session('form_type') == 'add' && old('category') == 'services') ? 'selected' : '' }}>Services</option>
-                                            <option value="other" {{ (session('form_type') == 'add' && old('category') == 'other') ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('category')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" 
-                                                name="status" required>
-                                            <option value="">Select status</option>
-                                            <option value="published" {{ (session('form_type') == 'add' && old('status') == 'published') ? 'selected' : '' }}>Published</option>
-                                            <option value="draft" {{ (session('form_type') == 'add' && old('status') == 'draft') ? 'selected' : '' }}>Draft</option>
-                                            <option value="archived" {{ (session('form_type') == 'add' && old('status') == 'archived') ? 'selected' : '' }}>Archived</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('status')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Published Date</label>
-                                        <input type="datetime-local" class="form-control @if(session('form_type') == 'add') @error('published_at') is-invalid @enderror @endif" 
-                                               name="published_at" value="{{ session('form_type') == 'add' ? old('published_at') : '' }}">
-                                        <small class="text-muted">Leave empty for immediate publishing</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('published_at')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Featured</label>
-                                        <div class="form-check mt-2 d-flex align-items-center gap-2">
-                                            <input type="checkbox" class="form-check-input @if(session('form_type') == 'add') @error('is_featured') is-invalid @enderror @endif" 
-                                                   name="is_featured" id="is_featured" value="1" {{ (session('form_type') == 'add' && old('is_featured')) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="is_featured">Mark as featured announcement</label>
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
+                                        <div>
+                                            <h6>Announcement Content</h6>
+                                            <p>Write the title and public message residents will read.</p>
                                         </div>
-                                        @if(session('form_type') == 'add')
-                                            @error('is_featured')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
                                     </div>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-heading"></i>Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif"
+                                                   name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" placeholder="Example: Scheduled Water Interruption" required>
+                                            <small class="field-hint">Keep it short and specific so residents understand the topic at a glance.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
 
-                                    <!-- Image -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Announcement Image</h6>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Featured Image</label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif" 
-                                               name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
-                                        <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('image')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                        <div id="addImagePreview" class="mt-2"></div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-align-left"></i>Content <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'add') @error('content') is-invalid @enderror @endif"
+                                                      name="content" rows="7" placeholder="Write the announcement details, dates, requirements, and contact information..." required>{{ session('form_type') == 'add' ? old('content') : '' }}</textarea>
+                                            <small class="field-hint">Put the most important information first and keep instructions easy to scan.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('content')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" form="addAnnouncementForm" class="btn btn-success" id="submitAddForm">
-                                    <i class="fas fa-save me-2"></i>Save Announcement
-                                </button>
-                            </div>
-                        </form>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Publishing Settings</h6>
+                                            <p>Choose where the announcement belongs and when it should be visible.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-folder"></i>Category <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('category') is-invalid @enderror @endif" name="category" required>
+                                                <option value="">Select category</option>
+                                                <option value="important" {{ (session('form_type') == 'add' && old('category') == 'important') ? 'selected' : '' }}>Important</option>
+                                                <option value="events" {{ (session('form_type') == 'add' && old('category') == 'events') ? 'selected' : '' }}>Events</option>
+                                                <option value="health" {{ (session('form_type') == 'add' && old('category') == 'health') ? 'selected' : '' }}>Health</option>
+                                                <option value="services" {{ (session('form_type') == 'add' && old('category') == 'services') ? 'selected' : '' }}>Services</option>
+                                                <option value="other" {{ (session('form_type') == 'add' && old('category') == 'other') ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-circle-check"></i>Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" name="status" required>
+                                                <option value="">Select status</option>
+                                                <option value="published" {{ (session('form_type') == 'add' && old('status') == 'published') ? 'selected' : '' }}>Published</option>
+                                                <option value="draft" {{ (session('form_type') == 'add' && old('status') == 'draft') ? 'selected' : '' }}>Draft</option>
+                                                <option value="archived" {{ (session('form_type') == 'add' && old('status') == 'archived') ? 'selected' : '' }}>Archived</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-calendar-days"></i>Published Date</label>
+                                            <input type="datetime-local" class="form-control @if(session('form_type') == 'add') @error('published_at') is-invalid @enderror @endif"
+                                                   name="published_at" value="{{ session('form_type') == 'add' ? old('published_at') : '' }}">
+                                            <small class="field-hint">Leave empty for immediate publishing.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('published_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-star"></i>Featured</label>
+                                            <div class="publish-setting-card">
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" class="form-check-input @if(session('form_type') == 'add') @error('is_featured') is-invalid @enderror @endif"
+                                                           name="is_featured" id="is_featured" value="1" {{ (session('form_type') == 'add' && old('is_featured')) ? 'checked' : '' }}>
+                                                    <div>
+                                                        <label class="form-check-label fw-semibold" for="is_featured">Highlight this announcement</label>
+                                                        <small class="field-hint mb-0">Use featured status only for notices that need extra visibility.</small>
+                                                    </div>
+                                                </div>
+                                                @if(session('form_type') == 'add')
+                                                    @error('is_featured')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Announcement Image</h6>
+                                            <p>Add an optional image when it helps residents understand the notice faster.</p>
+                                        </div>
+                                    </div>
+                                    <div class="upload-card">
+                                        <div class="upload-card-icon"><i class="fas fa-image"></i></div>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <label class="form-label">Featured Image</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif"
+                                                   name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                                            <small class="field-hint">JPG, PNG, or GIF. Maximum file size: 5MB.</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                            <div id="addImagePreview" class="mt-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i>Cancel
+                            </button>
+                            <button type="submit" form="addAnnouncementForm" class="btn btn-primary" id="submitAddForm">
+                                <i class="fas fa-save"></i>Save Announcement
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -610,146 +1549,161 @@
             <!-- Edit Announcement Modals with Validation - Only if user has update_announcements permission -->
             @if(auth('admin')->user()->hasPermission('update_announcements'))
                 @foreach($announcements as $ann)
-                <div class="modal fade" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal fade announcement-form-modal" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-edit"></i>
-                                    <span class="modal-title-stack">
-                                        <span>Edit Announcement</span>
-                                        <span class="modal-subtitle">Update the content, visibility, schedule, and image without changing the existing workflow.</span>
-                                    </span>
-                                </h5>
+                                <div class="modal-heading">
+                                    <div class="modal-heading-icon"><i class="fas fa-pen"></i></div>
+                                    <div class="modal-heading-copy">
+                                        <h5 class="modal-title">Edit Announcement</h5>
+                                        <span class="modal-subtitle">Update the content, publishing settings, or image for this announcement.</span>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" enctype="multipart/form-data" id="editAnnouncementForm{{ $ann->id }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="form_type" value="edit_{{ $ann->id }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="form_type" value="edit_{{ $ann->id }}">
 
-                                    <div class="row g-3">
-                                        <!-- Basic Information -->
-                                        <div class="col-12">
-                                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif" 
-                                                   name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
-                                            <small class="field-hint">Use a clear, resident-friendly title.</small>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('title')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label class="form-label">Content <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif" 
-                                                      name="content" rows="6" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
-                                            <small class="field-hint">Review the full message before saving changes.</small>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('content')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Category <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('category') is-invalid @enderror @endif" 
-                                                    name="category" required>
-                                                <option value="">Select category</option>
-                                                <option value="important" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'important' ? 'selected' : '' }}>Important</option>
-                                                <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
-                                                <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
-                                                <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
-                                                <option value="other" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'other' ? 'selected' : '' }}>Other</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('category')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Status <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('status') is-invalid @enderror @endif" 
-                                                    name="status" required>
-                                                <option value="">Select status</option>
-                                                <option value="published" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'published' ? 'selected' : '' }}>Published</option>
-                                                <option value="draft" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                <option value="archived" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'archived' ? 'selected' : '' }}>Archived</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('status')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Published Date</label>
-                                            <input type="datetime-local" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('published_at') is-invalid @enderror @endif" 
-                                                   name="published_at" value="{{ session('form_type') == 'edit_' . $ann->id ? old('published_at', $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') : ($ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') }}">
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('published_at')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Featured</label>
-                                            <div class="form-check mt-2 d-flex align-items-center gap-2">
-                                                <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif" 
-                                                       name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1" 
-                                                       {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="edit_is_featured_{{ $ann->id }}">Mark as featured announcement</label>
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">1</div>
+                                            <div>
+                                                <h6>Announcement Content</h6>
+                                                <p>Review the resident-facing title and message.</p>
                                             </div>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('is_featured')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
                                         </div>
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-heading"></i>Title <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('title') is-invalid @enderror @endif"
+                                                       name="title" value="{{ session('form_type') == 'edit_' . $ann->id ? old('title', $ann->title) : $ann->title }}" required>
+                                                <small class="field-hint">Keep the title specific and easy to recognize in the announcement list.</small>
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
 
-                                        <!-- Image -->
-                                        <div class="col-12 mt-3">
-                                            <h6 class="fw-semibold text-primary">Announcement Image</h6>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Featured Image (Leave empty to keep current)</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif" 
-                                                   name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
-                                            <small class="text-muted">Upload image (JPG, PNG, GIF - Max: 5MB)</small>
-                                            @if(session('form_type') == 'edit_' . $ann->id)
-                                                @error('image')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                            <div id="editImagePreview{{ $ann->id }}" class="mt-2">
-                                                @if($ann->image)
-                                                    <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View current photo">
-                                                        <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview zoomable-image">
-                                                        <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
-                                                    </button>
-                                                    <small class="d-block text-muted mt-2">Current image</small>
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-align-left"></i>Content <span class="text-danger">*</span></label>
+                                                <textarea class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('content') is-invalid @enderror @endif"
+                                                          name="content" rows="7" required>{{ session('form_type') == 'edit_' . $ann->id ? old('content', $ann->content) : $ann->content }}</textarea>
+                                                <small class="field-hint">Check dates, requirements, locations, and contact details before saving.</small>
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" form="editAnnouncementForm{{ $ann->id }}" class="btn btn-primary" id="submitEditForm{{ $ann->id }}">
-                                        <i class="fas fa-save me-2"></i>Update Announcement
-                                    </button>
-                                </div>
+
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">2</div>
+                                            <div>
+                                                <h6>Publishing Settings</h6>
+                                                <p>Change category, visibility, schedule, or featured status.</p>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label"><i class="fas fa-folder"></i>Category <span class="text-danger">*</span></label>
+                                                <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('category') is-invalid @enderror @endif" name="category" required>
+                                                    <option value="">Select category</option>
+                                                    <option value="important" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'important' ? 'selected' : '' }}>Important</option>
+                                                    <option value="events" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'events' ? 'selected' : '' }}>Events</option>
+                                                    <option value="health" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'health' ? 'selected' : '' }}>Health</option>
+                                                    <option value="services" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'services' ? 'selected' : '' }}>Services</option>
+                                                    <option value="other" {{ (session('form_type') == 'edit_' . $ann->id ? old('category', $ann->category) : $ann->category) == 'other' ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label"><i class="fas fa-circle-check"></i>Status <span class="text-danger">*</span></label>
+                                                <select class="form-select @if(session('form_type') == 'edit_' . $ann->id) @error('status') is-invalid @enderror @endif" name="status" required>
+                                                    <option value="">Select status</option>
+                                                    <option value="published" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'published' ? 'selected' : '' }}>Published</option>
+                                                    <option value="draft" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                    <option value="archived" {{ (session('form_type') == 'edit_' . $ann->id ? old('status', $ann->status) : $ann->status) == 'archived' ? 'selected' : '' }}>Archived</option>
+                                                </select>
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label"><i class="fas fa-calendar-days"></i>Published Date</label>
+                                                <input type="datetime-local" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('published_at') is-invalid @enderror @endif"
+                                                       name="published_at" value="{{ session('form_type') == 'edit_' . $ann->id ? old('published_at', $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') : ($ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('Y-m-d\TH:i') : '') }}">
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('published_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label"><i class="fas fa-star"></i>Featured</label>
+                                                <div class="publish-setting-card">
+                                                    <div class="form-check form-switch">
+                                                        <input type="checkbox" class="form-check-input @if(session('form_type') == 'edit_' . $ann->id) @error('is_featured') is-invalid @enderror @endif"
+                                                               name="is_featured" id="edit_is_featured_{{ $ann->id }}" value="1"
+                                                               {{ (session('form_type') == 'edit_' . $ann->id ? old('is_featured', $ann->is_featured) : $ann->is_featured) ? 'checked' : '' }}>
+                                                        <div>
+                                                            <label class="form-check-label fw-semibold" for="edit_is_featured_{{ $ann->id }}">Highlight this announcement</label>
+                                                            <small class="field-hint mb-0">Keep this enabled only while the notice needs extra visibility.</small>
+                                                        </div>
+                                                    </div>
+                                                    @if(session('form_type') == 'edit_' . $ann->id)
+                                                        @error('is_featured')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">3</div>
+                                            <div>
+                                                <h6>Announcement Image</h6>
+                                                <p>Leave the upload empty to keep the current image.</p>
+                                            </div>
+                                        </div>
+                                        <div class="upload-card">
+                                            <div class="upload-card-icon"><i class="fas fa-image"></i></div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <label class="form-label">Featured Image</label>
+                                                <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif"
+                                                       name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
+                                                <small class="field-hint">JPG, PNG, or GIF. Maximum file size: 5MB.</small>
+                                                @if(session('form_type') == 'edit_' . $ann->id)
+                                                    @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                                <div id="editImagePreview{{ $ann->id }}" class="mt-2">
+                                                    @if($ann->image)
+                                                    <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View current photo">
+                                                        <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview zoomable-image">
+                                                        <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View current image</span>
+                                                    </button>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i>Cancel
+                                </button>
+                                <button type="submit" form="editAnnouncementForm{{ $ann->id }}" class="btn btn-primary" id="submitEditForm{{ $ann->id }}">
+                                    <i class="fas fa-save"></i>Update Announcement
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -758,83 +1712,93 @@
 
             <!-- View Modals (always visible since they just show data) -->
             @foreach($announcements as $ann)
-            <div class="modal fade" id="viewModal{{ $ann->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal fade announcement-view-modal" id="viewModal{{ $ann->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-bullhorn"></i>
-                                <span class="modal-title-stack">
-                                    <span>Announcement Details</span>
-                                    <span class="modal-subtitle">Review the announcement content, metadata, featured status, views, and publish timeline.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-bullhorn"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">Announcement Details</h5>
+                                    <span class="modal-subtitle">Review the published content and visibility information in one place.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="row g-3">
-                                @if($ann->image)
-                                <div class="col-12 text-center">
-                                    <button type="button" class="photo-view-btn photo-view-main" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View full announcement photo">
-                                        <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
-                                        <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
-                                    </button>
-                                </div>
-                                @endif
-                                
-                                <div class="col-12">
-                                    <h4 class="fw-bold">{{ $ann->title }}</h4>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Category</label>
-                                    <p><span class="badge bg-info-subtle text-info">{{ ucfirst($ann->category) }}</span></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Status</label>
-                                    <p>
-                                        @if($ann->status == 'published')
-                                            <span class="badge bg-success-subtle text-success">Published</span>
-                                        @elseif($ann->status == 'draft')
-                                            <span class="badge bg-warning-subtle text-warning">Draft</span>
-                                        @else
-                                            <span class="badge bg-secondary-subtle text-secondary">Archived</span>
+                            <div class="view-summary">
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Status</span>
+                                    <span class="view-summary-value">
+                                        @if($ann->status == 'published') Published
+                                        @elseif($ann->status == 'draft') Draft
+                                        @else Archived
                                         @endif
-                                    </p>
+                                    </span>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Featured</label>
-                                    <p>
-                                        @if($ann->is_featured)
-                                            <span class="badge bg-warning-subtle text-warning">Featured</span>
-                                        @else
-                                            <span class="text-muted">No</span>
-                                        @endif
-                                    </p>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Category</span>
+                                    <span class="view-summary-value">{{ ucfirst($ann->category) }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Views</label>
-                                    <p><span class="views-badge"><i class="fas fa-eye me-1"></i>{{ number_format($ann->views) }}</span></p>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Visibility</span>
+                                    <span class="view-summary-value">{{ $ann->is_featured ? 'Featured' : 'Standard' }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Published At</label>
-                                    <p>{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('F d, Y h:i A') : 'Not published' }}</p>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Views</span>
+                                    <span class="view-summary-value">{{ number_format($ann->views) }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Created At</label>
-                                    <p>{{ $ann->created_at ? $ann->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Content</label>
-                                    <div class="description-box">
-                                        {!! nl2br(e($ann->content)) !!}
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="row g-3 align-items-start">
+                                    @if($ann->image)
+                                    <div class="col-12 col-lg-4">
+                                        <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View full announcement photo">
+                                            <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
+                                            <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View larger image</span>
+                                        </button>
+                                    </div>
+                                    @endif
+
+                                    <div class="col-12 {{ $ann->image ? 'col-lg-8' : '' }}">
+                                        <h4 class="announcement-view-title">{{ $ann->title }}</h4>
+                                        <div class="d-flex flex-wrap gap-2 mb-3">
+                                            <span class="badge bg-info-subtle text-info">{{ ucfirst($ann->category) }}</span>
+                                            @if($ann->status == 'published')
+                                                <span class="badge bg-success-subtle text-success">Published</span>
+                                            @elseif($ann->status == 'draft')
+                                                <span class="badge bg-warning-subtle text-warning">Draft</span>
+                                            @else
+                                                <span class="badge bg-secondary-subtle text-secondary">Archived</span>
+                                            @endif
+                                            @if($ann->is_featured)
+                                                <span class="badge bg-warning-subtle text-warning"><i class="fas fa-star"></i>Featured</span>
+                                            @endif
+                                        </div>
+
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <span class="view-summary-label">Published At</span>
+                                                <span class="view-summary-value">{{ $ann->published_at ? \Carbon\Carbon::parse($ann->published_at)->format('F d, Y h:i A') : 'Not published' }}</span>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <span class="view-summary-label">Created At</span>
+                                                <span class="view-summary-value">{{ $ann->created_at ? $ann->created_at->format('F d, Y h:i A') : 'N/A' }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="detail-section-title mb-2"><i class="fas fa-align-left me-2"></i>Announcement Content</div>
+                                <div class="announcement-content-box">{!! nl2br(e($ann->content)) !!}</div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Close
+                                <i class="fas fa-times"></i>Close
                             </button>
                         </div>
                     </div>
@@ -843,234 +1807,255 @@
             @endforeach
 
             @admin_can('create_announcements')
-            <div class="modal fade" id="bulkNotifyResidentsModal" tabindex="-1" aria-labelledby="bulkNotifyResidentsModalLabel" aria-hidden="true">
+            <div class="modal fade announcement-form-modal notification-modal" id="bulkNotifyResidentsModal" tabindex="-1" aria-labelledby="bulkNotifyResidentsModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <form method="POST"
-                            action="{{ route('admin.announcements.bulkNotifyResidents') }}"
-                            id="bulkNotifyResidentsForm"
-                            onsubmit="return confirmBulkResidentNotification(event)">
+                              action="{{ route('admin.announcements.bulkNotifyResidents') }}"
+                              id="bulkNotifyResidentsForm"
+                              onsubmit="return confirmBulkResidentNotification(event)">
                             @csrf
                             <input type="hidden" name="form_type" value="bulk_notify">
 
                             <div class="modal-header">
-                                <h5 class="modal-title" id="bulkNotifyResidentsModalLabel">
-                                    <i class="fas fa-paper-plane"></i>
-                                    <span class="modal-title-stack">
-                                        <span>Bulk Notify Residents</span>
-                                        <span class="modal-subtitle">
-                                            Send one clear SMS or email blast to residents for ayuda, emergency advisories, schedules, and barangay reminders.
-                                        </span>
-                                    </span>
-                                </h5>
+                                <div class="modal-heading">
+                                    <div class="modal-heading-icon"><i class="fas fa-paper-plane"></i></div>
+                                    <div class="modal-heading-copy">
+                                        <h5 class="modal-title" id="bulkNotifyResidentsModalLabel">Notify Residents</h5>
+                                        <span class="modal-subtitle">Choose recipients, compose the message, review delivery estimates, then send.</span>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
                             <div class="modal-body">
-                                <div class="notification-summary-grid mb-3">
-                                    <div class="notification-summary-card">
-                                        <span>Total residents</span>
-                                        <strong>{{ number_format($residentNotificationStats['all'] ?? 0) }}</strong>
-                                    </div>
-                                    <div class="notification-summary-card">
-                                        <span>With email</span>
-                                        <strong>{{ number_format($residentNotificationStats['email'] ?? 0) }}</strong>
-                                    </div>
-                                    <div class="notification-summary-card">
-                                        <span>With mobile</span>
-                                        <strong>{{ number_format($residentNotificationStats['sms'] ?? 0) }}</strong>
-                                    </div>
-                                    <div class="notification-summary-card">
-                                        <span>Verified</span>
-                                        <strong>{{ number_format($residentNotificationStats['verified'] ?? 0) }}</strong>
-                                    </div>
-                                </div>
-
-                                <div class="sms-credit-box mb-3"
-                                    id="smsCreditBox"
-                                    data-credit-balance="{{ $semaphoreAccount['credit_balance'] ?? 0 }}">
-                                    <div class="sms-credit-main">
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
                                         <div>
-                                            <span class="sms-credit-label">Semaphore SMS Credits</span>
-                                            <strong id="smsAvailableCredits">
-                                                {{ number_format((float) ($semaphoreAccount['credit_balance'] ?? 0), 2) }}
-                                            </strong>
-                                            <small>
-                                                {{ $semaphoreAccount['success'] ?? false
-                                                    ? 'Live balance from Semaphore account.'
-                                                    : ($semaphoreAccount['message'] ?? 'Unable to load Semaphore balance.') }}
-                                            </small>
-                                        </div>
-
-                                        <div class="sms-credit-status" id="smsCreditStatusBadge">
-                                            Checking estimate
+                                            <h6>Recipients &amp; Delivery</h6>
+                                            <p>Choose the delivery channel and which residents should receive the notice.</p>
                                         </div>
                                     </div>
 
-                                    <div class="sms-credit-details">
-                                        <span>SMS recipients: <strong id="smsEstimatedRecipients">0</strong></span>
-                                        <span>SMS segments: <strong id="smsEstimatedSegments">0</strong></span>
-                                        <span>Credits needed: <strong id="smsEstimatedCredits">0</strong></span>
-                                        <span>After send: <strong id="smsRemainingCredits">0</strong></span>
+                                    <div class="notification-summary-grid mb-3">
+                                        <div class="notification-summary-card">
+                                            <span>Total residents</span>
+                                            <strong>{{ number_format($residentNotificationStats['all'] ?? 0) }}</strong>
+                                        </div>
+                                        <div class="notification-summary-card">
+                                            <span>With email</span>
+                                            <strong>{{ number_format($residentNotificationStats['email'] ?? 0) }}</strong>
+                                        </div>
+                                        <div class="notification-summary-card">
+                                            <span>With mobile</span>
+                                            <strong>{{ number_format($residentNotificationStats['sms'] ?? 0) }}</strong>
+                                        </div>
+                                        <div class="notification-summary-card">
+                                            <span>Verified</span>
+                                            <strong>{{ number_format($residentNotificationStats['verified'] ?? 0) }}</strong>
+                                        </div>
                                     </div>
 
-                                    <input type="hidden" name="estimated_sms_credits" id="estimatedSmsCreditsInput" value="0">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-lg-6">
+                                            <label class="form-label"><i class="fas fa-paper-plane"></i>Send Through <span class="text-danger">*</span></label>
+                                            <select name="channel" id="notifyChannel" class="form-select" required>
+                                                <option value="sms" {{ old('channel') === 'sms' ? 'selected' : '' }}>SMS only</option>
+                                                <option value="email" {{ old('channel') === 'email' ? 'selected' : '' }}>Email only</option>
+                                                <option value="both" {{ old('channel') === 'both' ? 'selected' : '' }}>SMS and Email</option>
+                                            </select>
+                                            <small class="field-hint">Choose SMS for urgent notices. Use email for longer details.</small>
+                                        </div>
+
+                                        <div class="col-12 col-lg-6">
+                                            <label class="form-label"><i class="fas fa-users"></i>Audience <span class="text-danger">*</span></label>
+                                            <select name="audience" id="notifyAudience" class="form-select" required>
+                                                <option value="all" {{ old('audience') === 'all' ? 'selected' : '' }}>All residents</option>
+                                                <option value="selected" {{ old('audience') === 'selected' ? 'selected' : '' }}>Selected residents only</option>
+                                                <option value="verified" {{ old('audience') === 'verified' ? 'selected' : '' }}>Verified residents</option>
+                                                <option value="unverified" {{ old('audience') === 'unverified' ? 'selected' : '' }}>Unverified residents</option>
+                                                <option value="senior" {{ old('audience') === 'senior' ? 'selected' : '' }}>Senior citizens</option>
+                                                <option value="male" {{ old('audience') === 'male' ? 'selected' : '' }}>Male residents</option>
+                                                <option value="female" {{ old('audience') === 'female' ? 'selected' : '' }}>Female residents</option>
+                                                <option value="with_valid_id" {{ old('audience') === 'with_valid_id' ? 'selected' : '' }}>Residents with valid ID</option>
+                                                <option value="email_ready" {{ old('audience') === 'email_ready' ? 'selected' : '' }}>Residents with email</option>
+                                                <option value="sms_ready" {{ old('audience') === 'sms_ready' ? 'selected' : '' }}>Residents with mobile number</option>
+                                            </select>
+                                            <small class="field-hint">The system skips missing contact details that cannot use the selected channel.</small>
+                                        </div>
+
+                                        <div class="col-12" id="selectedResidentsBox" style="display: none;">
+                                            <label class="form-label"><i class="fas fa-user-check"></i>Choose Residents <span class="text-danger">*</span></label>
+
+                                            <div class="resident-picker-search mb-2 position-relative">
+                                                <i class="fas fa-search"></i>
+                                                <input type="text"
+                                                       id="residentPickerSearch"
+                                                       class="form-control"
+                                                       placeholder="Search resident name, email, or mobile number...">
+                                            </div>
+
+                                            <div class="resident-picker-list">
+                                                @forelse($residentsForNotification ?? [] as $resident)
+                                                    @php
+                                                        $residentFullName = trim(collect([
+                                                            $resident->firstname ?? '',
+                                                            $resident->middlename ?? '',
+                                                            $resident->lastname ?? '',
+                                                            $resident->suffix ?? '',
+                                                        ])->filter()->implode(' '));
+
+                                                        $searchText = strtolower($residentFullName . ' ' . ($resident->email ?? '') . ' ' . ($resident->contact ?? ''));
+                                                    @endphp
+
+                                                    <label class="resident-picker-item" data-search="{{ $searchText }}">
+                                                        <input type="checkbox"
+                                                               name="resident_ids[]"
+                                                               value="{{ $resident->id }}"
+                                                               {{ in_array($resident->id, old('resident_ids', [])) ? 'checked' : '' }}>
+                                                        <span>
+                                                            <strong>{{ $residentFullName ?: 'Resident #' . $resident->id }}</strong>
+                                                            <small>{{ $resident->contact ?: 'No mobile' }} · {{ $resident->email ?: 'No email' }}</small>
+                                                        </span>
+                                                    </label>
+                                                @empty
+                                                    <div class="notification-warning-box">
+                                                        <i class="fas fa-circle-info"></i>
+                                                        <div>No residents found for manual selection.</div>
+                                                    </div>
+                                                @endforelse
+                                            </div>
+
+                                            <small class="field-hint" id="selectedResidentCounter">0 residents selected</small>
+
+                                            @if(session('form_type') === 'bulk_notify')
+                                                @error('resident_ids')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="row g-3 modal-form-grid">
-                                    <div class="col-12">
-                                        <div class="modal-section-title">
-                                            <i class="fas fa-sliders"></i>Notification setup
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Compose Message</h6>
+                                            <p>Start from a template or write a custom message, then review the subject and message body.</p>
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-lg-4">
-                                        <label class="form-label">Send through <span class="text-danger">*</span></label>
-                                        <select name="channel" id="notifyChannel" class="form-select" required>
-                                            <option value="sms" {{ old('channel') === 'sms' ? 'selected' : '' }}>SMS only</option>
-                                            <option value="email" {{ old('channel') === 'email' ? 'selected' : '' }}>Email only</option>
-                                            <option value="both" {{ old('channel') === 'both' ? 'selected' : '' }}>SMS and Email</option>
-                                        </select>
-                                        <small class="field-hint">Choose SMS for urgent notices. Use email for longer details.</small>
-                                    </div>
-
-                                    <div class="col-12 col-lg-4">
-                                        <label class="form-label">Audience <span class="text-danger">*</span></label>
-                                        <select name="audience" id="notifyAudience" class="form-select" required>
-                                            <option value="all" {{ old('audience') === 'all' ? 'selected' : '' }}>All residents</option>
-                                            <option value="selected" {{ old('audience') === 'selected' ? 'selected' : '' }}>Selected residents only</option>
-                                            <option value="verified" {{ old('audience') === 'verified' ? 'selected' : '' }}>Verified residents</option>
-                                            <option value="unverified" {{ old('audience') === 'unverified' ? 'selected' : '' }}>Unverified residents</option>
-                                            <option value="senior" {{ old('audience') === 'senior' ? 'selected' : '' }}>Senior citizens</option>
-                                            <option value="male" {{ old('audience') === 'male' ? 'selected' : '' }}>Male residents</option>
-                                            <option value="female" {{ old('audience') === 'female' ? 'selected' : '' }}>Female residents</option>
-                                            <option value="with_valid_id" {{ old('audience') === 'with_valid_id' ? 'selected' : '' }}>Residents with valid ID</option>
-                                            <option value="email_ready" {{ old('audience') === 'email_ready' ? 'selected' : '' }}>Residents with email</option>
-                                            <option value="sms_ready" {{ old('audience') === 'sms_ready' ? 'selected' : '' }}>Residents with mobile number</option>
-                                        </select>
-                                        <small class="field-hint">The system automatically skips missing email/mobile contacts depending on the channel.</small>
-                                    </div>
-
-                                    <div class="col-12 col-lg-4">
-                                        <label class="form-label">Template</label>
-                                        <select id="notifyTemplate" class="form-select">
-                                            <option value="">Write custom message</option>
-                                            <option value="ayuda">Ayuda Distribution</option>
-                                            <option value="emergency">Emergency Advisory</option>
-                                            <option value="documents">Document Release Reminder</option>
-                                            <option value="event">Barangay Event</option>
-                                        </select>
-                                        <small class="field-hint">Templates are editable after selection.</small>
-                                    </div>
-
-                                    <div class="col-12" id="selectedResidentsBox" style="display: none;">
-                                        <label class="form-label">Choose residents <span class="text-danger">*</span></label>
-
-                                        <input type="text"
-                                            id="residentPickerSearch"
-                                            class="form-control mb-2"
-                                            placeholder="Search resident name, email, or mobile number...">
-
-                                        <div class="resident-picker-list">
-                                            @forelse($residentsForNotification ?? [] as $resident)
-                                                @php
-                                                    $residentFullName = trim(collect([
-                                                        $resident->firstname ?? '',
-                                                        $resident->middlename ?? '',
-                                                        $resident->lastname ?? '',
-                                                        $resident->suffix ?? '',
-                                                    ])->filter()->implode(' '));
-
-                                                    $searchText = strtolower($residentFullName . ' ' . ($resident->email ?? '') . ' ' . ($resident->contact ?? ''));
-                                                @endphp
-
-                                                <label class="resident-picker-item" data-search="{{ $searchText }}">
-                                                    <input type="checkbox"
-                                                        name="resident_ids[]"
-                                                        value="{{ $resident->id }}"
-                                                        {{ in_array($resident->id, old('resident_ids', [])) ? 'checked' : '' }}>
-                                                    <span>
-                                                        <strong>{{ $residentFullName ?: 'Resident #' . $resident->id }}</strong>
-                                                        <small>
-                                                            {{ $resident->contact ?: 'No mobile' }} · {{ $resident->email ?: 'No email' }}
-                                                        </small>
-                                                    </span>
-                                                </label>
-                                            @empty
-                                                <div class="notification-warning-box">
-                                                    <i class="fas fa-circle-info"></i>
-                                                    <div>No residents found for manual selection.</div>
-                                                </div>
-                                            @endforelse
+                                    <div class="row g-3">
+                                        <div class="col-12 col-lg-4">
+                                            <label class="form-label"><i class="fas fa-wand-magic-sparkles"></i>Template</label>
+                                            <select id="notifyTemplate" class="form-select">
+                                                <option value="">Write custom message</option>
+                                                <option value="ayuda">Ayuda Distribution</option>
+                                                <option value="emergency">Emergency Advisory</option>
+                                                <option value="documents">Document Release Reminder</option>
+                                                <option value="event">Barangay Event</option>
+                                            </select>
+                                            <small class="field-hint">Templates remain editable after selection.</small>
                                         </div>
 
-                                        <small class="field-hint" id="selectedResidentCounter">0 residents selected</small>
-
-                                        @if(session('form_type') === 'bulk_notify')
-                                            @error('resident_ids')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Email subject</label>
-                                        <input type="text"
-                                            name="subject"
-                                            id="notifySubject"
-                                            class="form-control @if(session('form_type') === 'bulk_notify') @error('subject') is-invalid @enderror @endif"
-                                            value="{{ session('form_type') === 'bulk_notify' ? old('subject') : '' }}"
-                                            placeholder="Example: Ayuda Distribution Notice">
-                                        <small class="field-hint">Required only when sending email or both SMS and email.</small>
-                                        @if(session('form_type') === 'bulk_notify')
-                                            @error('subject')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Message <span class="text-danger">*</span></label>
-                                        <textarea name="message"
-                                                id="notifyMessage"
-                                                rows="7"
-                                                class="form-control @if(session('form_type') === 'bulk_notify') @error('message') is-invalid @enderror @endif"
-                                                required
-                                                maxlength="1000"
-                                                placeholder="Write a clear message for residents...">{{ session('form_type') === 'bulk_notify' ? old('message') : '' }}</textarea>
-
-                                        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-2">
-                                            <small class="field-hint mb-0">
-                                                Available placeholders: <strong>{name}</strong>, <strong>{firstname}</strong>, <strong>{barangay}</strong>
-                                            </small>
-                                            <small class="field-hint mb-0" id="notifyCharCounter">0 / 1000 characters</small>
+                                        <div class="col-12 col-lg-8">
+                                            <label class="form-label"><i class="fas fa-envelope"></i>Email Subject</label>
+                                            <input type="text"
+                                                   name="subject"
+                                                   id="notifySubject"
+                                                   class="form-control @if(session('form_type') === 'bulk_notify') @error('subject') is-invalid @enderror @endif"
+                                                   value="{{ session('form_type') === 'bulk_notify' ? old('subject') : '' }}"
+                                                   placeholder="Example: Ayuda Distribution Notice">
+                                            <small class="field-hint">Required only when sending email or both SMS and email.</small>
+                                            @if(session('form_type') === 'bulk_notify')
+                                                @error('subject')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
                                         </div>
 
-                                        @if(session('form_type') === 'bulk_notify')
-                                            @error('message')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-message"></i>Message <span class="text-danger">*</span></label>
+                                            <textarea name="message"
+                                                      id="notifyMessage"
+                                                      rows="7"
+                                                      class="form-control @if(session('form_type') === 'bulk_notify') @error('message') is-invalid @enderror @endif"
+                                                      required
+                                                      maxlength="1000"
+                                                      placeholder="Write a clear message for residents...">{{ session('form_type') === 'bulk_notify' ? old('message') : '' }}</textarea>
 
-                                    <div class="col-12">
-                                        <div class="notification-preview-box">
-                                            <div class="notification-preview-header">
-                                                <span><i class="fas fa-eye"></i> Resident preview</span>
-                                                <span id="notifyPreviewChannel">SMS</span>
+                                            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-2">
+                                                <small class="field-hint mb-0">Available placeholders: <strong>{name}</strong>, <strong>{firstname}</strong>, <strong>{barangay}</strong></small>
+                                                <small class="field-hint mb-0" id="notifyCharCounter">0 / 1000 characters</small>
                                             </div>
-                                            <p id="notifyPreviewText">
-                                                Your message preview will appear here.
-                                            </p>
+
+                                            @if(session('form_type') === 'bulk_notify')
+                                                @error('message')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Review &amp; Send</h6>
+                                            <p>Preview the resident message and verify the estimated SMS credit usage before sending.</p>
                                         </div>
                                     </div>
 
-                                    <div class="col-12">
-                                        <div class="notification-warning-box">
-                                            <i class="fas fa-circle-info"></i>
-                                            <div>
-                                                <strong>Review before sending.</strong>
-                                                Bulk notifications are sent immediately and each result will be saved in notification logs.
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="notification-preview-box">
+                                                <div class="notification-preview-header">
+                                                    <span><i class="fas fa-eye"></i> Resident preview</span>
+                                                    <span id="notifyPreviewChannel">SMS</span>
+                                                </div>
+                                                <p id="notifyPreviewText">Your message preview will appear here.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="sms-credit-box"
+                                                 id="smsCreditBox"
+                                                 data-credit-balance="{{ $semaphoreAccount['credit_balance'] ?? 0 }}">
+                                                <div class="sms-credit-main">
+                                                    <div>
+                                                        <span class="sms-credit-label">Semaphore SMS Credits</span>
+                                                        <strong id="smsAvailableCredits">{{ number_format((float) ($semaphoreAccount['credit_balance'] ?? 0), 2) }}</strong>
+                                                        <small>
+                                                            {{ $semaphoreAccount['success'] ?? false
+                                                                ? 'Live balance from Semaphore account.'
+                                                                : ($semaphoreAccount['message'] ?? 'Unable to load Semaphore balance.') }}
+                                                        </small>
+                                                    </div>
+
+                                                    <div class="sms-credit-status" id="smsCreditStatusBadge">Checking estimate</div>
+                                                </div>
+
+                                                <div class="sms-credit-details">
+                                                    <span>SMS recipients: <strong id="smsEstimatedRecipients">0</strong></span>
+                                                    <span>SMS segments: <strong id="smsEstimatedSegments">0</strong></span>
+                                                    <span>Credits needed: <strong id="smsEstimatedCredits">0</strong></span>
+                                                    <span>After send: <strong id="smsRemainingCredits">0</strong></span>
+                                                </div>
+
+                                                <input type="hidden" name="estimated_sms_credits" id="estimatedSmsCreditsInput" value="0">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="notification-warning-box">
+                                                <i class="fas fa-circle-info"></i>
+                                                <div>
+                                                    <strong>Review before sending.</strong>
+                                                    Bulk notifications are sent immediately and each result will be saved in notification logs.
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1078,8 +2063,8 @@
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-light-soft" data-bs-dismiss="modal">
-                                    <i class="fas fa-xmark"></i>Cancel
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i>Cancel
                                 </button>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane"></i>Send Notification
@@ -1092,17 +2077,17 @@
             @endadmin_can
 
             <!-- Global Image Zoom Modal -->
-            <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
+            <div class="modal fade image-zoom-modal announcement-view-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-image"></i>
-                                <span class="modal-title-stack">
-                                    <span>Announcement Photo</span>
-                                    <span class="modal-subtitle">View the uploaded image in a larger preview.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-image"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">Announcement Photo</h5>
+                                    <span class="modal-subtitle">Large preview of the uploaded announcement image.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-center">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Residency;
+use App\Models\Residents;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -91,8 +92,18 @@ class ResidencyController extends Controller
 
         $applications = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
+        $residents = Residents::query()
+            ->whereNull('deleted_at')
+            ->orderBy('firstname')
+            ->orderBy('lastname')
+            ->get([
+                'id', 'firstname', 'middlename', 'lastname', 'suffix', 'birthdate',
+                'gender', 'address', 'contact', 'email', 'valid_id',
+            ]);
+
         return view('admin.admin_residency', compact(
-            'applications', 
+            'applications',
+            'residents',
             'total_count',
             'pending_count',
             'under_review_count',
@@ -114,8 +125,34 @@ class ResidencyController extends Controller
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
+        $selectedResident = null;
+        if ($request->filled('resident_id')) {
+            $selectedResident = Residents::whereKey($request->input('resident_id'))
+                ->whereNull('deleted_at')
+                ->firstOrFail();
+
+            $request->merge([
+                'first_name' => $selectedResident->firstname,
+                'middle_name' => $selectedResident->middlename,
+                'last_name' => $selectedResident->lastname,
+                'suffix' => $selectedResident->suffix,
+                'birthdate' => optional($selectedResident->birthdate)->format('Y-m-d'),
+                'gender' => $selectedResident->gender,
+                'address' => $selectedResident->address,
+                'contact_number' => $selectedResident->contact,
+                'email' => $selectedResident->email,
+            ]);
+        }
+
         // Validate based on residency applications table schema
         $data = $request->validate([
+            'resident_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('residents', 'id')
+                    ->whereNull('deleted_at'),
+            ],
+
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',

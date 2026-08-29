@@ -1,0 +1,840 @@
+/*
+ * BISIG Admin Modal System
+ * Consistent modal UI/UX for every admin workflow.
+ * Presentation only: no route, form, validation, permission, ID, or JavaScript logic changes.
+ */
+
+:root {
+    --admin-modal-surface: var(--admin-surface, #ffffff);
+    --admin-modal-canvas: #f8fafc;
+    --admin-modal-border: var(--admin-border, #e4e7ec);
+    --admin-modal-border-strong: var(--admin-border-strong, #d0d5dd);
+    --admin-modal-text: var(--admin-text, #101828);
+    --admin-modal-muted: var(--admin-muted, #667085);
+    --admin-modal-radius: 16px;
+    --admin-modal-control-radius: 10px;
+    --admin-modal-section-radius: 12px;
+    --admin-modal-shadow: 0 24px 70px rgba(15, 23, 42, .20);
+}
+
+/* Backdrop and motion */
+.modal-backdrop.show {
+    opacity: .44 !important;
+    backdrop-filter: blur(1.5px);
+}
+
+.admin-page .modal.fade .modal-dialog {
+    transform: translateY(8px) scale(.992);
+    transition: transform .18s ease-out;
+}
+
+.admin-page .modal.show .modal-dialog {
+    transform: none;
+}
+
+/* Core shell */
+.admin-page .modal:not(#globalImageZoomModal) .modal-content,
+.admin-page #globalImageZoomModal .modal-content,
+.admin-page #chartFocusModal .modal-content {
+    overflow: hidden;
+    color: var(--admin-modal-text) !important;
+    background: var(--admin-modal-surface) !important;
+    border: 1px solid var(--admin-modal-border) !important;
+    border-radius: var(--admin-modal-radius) !important;
+    box-shadow: var(--admin-modal-shadow) !important;
+}
+
+.admin-page .modal-dialog:not(.modal-fullscreen) {
+    padding-inline: .25rem;
+}
+
+/* Header: same hierarchy used by Add Application */
+.admin-page .modal-header {
+    min-height: 68px;
+    padding: 1rem 1.15rem !important;
+    gap: .85rem;
+    background: var(--admin-modal-surface) !important;
+    border-bottom: 1px solid var(--admin-modal-border) !important;
+}
+
+.admin-page .modal-header > :first-child:not(.btn-close) {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.admin-page .modal-title {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin: 0;
+    color: var(--admin-modal-text) !important;
+    font-size: .98rem !important;
+    font-weight: 800 !important;
+    line-height: 1.25;
+    letter-spacing: -.015em;
+}
+
+.admin-page .modal-title > i:first-child,
+.admin-page .modal-heading-icon,
+.admin-page .modal-title-icon,
+.admin-page .knowledge-modal-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent) !important;
+    border-radius: 10px !important;
+    background: var(--primary-soft, #fff1f1) !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+    font-size: .9rem !important;
+}
+
+.admin-page .modal-title-stack,
+.admin-page .modal-heading {
+    min-width: 0;
+}
+
+.admin-page .modal-title-stack {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+}
+
+.admin-page .modal-subtitle,
+.admin-page .modal-header p,
+.admin-page .modal-heading p {
+    margin: .18rem 0 0 !important;
+    color: var(--admin-modal-muted) !important;
+    font-size: .74rem !important;
+    font-weight: 500 !important;
+    line-height: 1.45 !important;
+}
+
+.admin-page .modal-header .btn-close {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: .6rem !important;
+    flex: 0 0 auto;
+    border-radius: 9px !important;
+    opacity: .62 !important;
+    background-color: #f2f4f7 !important;
+    background-size: 10px !important;
+    transition: background-color .15s ease, opacity .15s ease;
+}
+
+.admin-page .modal-header .btn-close:hover,
+.admin-page .modal-header .btn-close:focus-visible {
+    opacity: 1 !important;
+    background-color: #e4e7ec !important;
+    box-shadow: none !important;
+}
+
+/* Body */
+.admin-page .modal-body {
+    padding: 1.1rem 1.15rem !important;
+    background: var(--admin-modal-canvas) !important;
+    color: var(--admin-modal-text) !important;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.admin-page .modal-body > :first-child {
+    margin-top: 0;
+}
+
+.admin-page .modal-body > :last-child {
+    margin-bottom: 0;
+}
+
+.admin-page .modal-body p,
+.admin-page .modal-body small,
+.admin-page .modal-body .text-muted {
+    color: var(--admin-modal-muted) !important;
+}
+
+/* Form controls: consistent density and focus */
+.admin-page .modal .form-label {
+    margin-bottom: .38rem;
+    color: #344054 !important;
+    font-size: .76rem !important;
+    font-weight: 700 !important;
+    line-height: 1.35;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+.admin-page .modal .form-label > i {
+    width: 15px;
+    margin-right: .3rem;
+    color: #98a2b3 !important;
+    text-align: center;
+    font-size: .72rem;
+}
+
+.admin-page .modal .form-control,
+.admin-page .modal .form-select,
+.admin-page .modal .input-group-text {
+    min-height: 42px;
+    border-color: #d0d5dd !important;
+    border-radius: var(--admin-modal-control-radius) !important;
+    background-color: #fff !important;
+    color: var(--admin-modal-text) !important;
+    font-size: .8rem !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal textarea.form-control {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.admin-page .modal .form-control::placeholder {
+    color: #98a2b3 !important;
+}
+
+.admin-page .modal .form-control:focus,
+.admin-page .modal .form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 11%, transparent) !important;
+}
+
+.admin-page .modal .input-group > .form-control:not(:first-child),
+.admin-page .modal .input-group > .form-select:not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.admin-page .modal .input-group > .form-control:not(:last-child),
+.admin-page .modal .input-group > .form-select:not(:last-child) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.admin-page .modal .input-group-text:first-child {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.admin-page .modal .input-group-text:last-child,
+.admin-page .modal .input-group > .btn:last-child {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.admin-page .modal .form-check-input {
+    border-color: #b8c1cc;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .form-check-input:checked {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.admin-page .modal .form-check-input:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 11%, transparent) !important;
+}
+
+.admin-page .modal .invalid-feedback {
+    margin-top: .3rem;
+    font-size: .7rem;
+    font-weight: 600;
+}
+
+.admin-page .modal .form-control.is-invalid,
+.admin-page .modal .form-select.is-invalid {
+    border-color: var(--bs-danger) !important;
+}
+
+.admin-page .modal .field-hint,
+.admin-page .modal .form-text {
+    display: block;
+    margin-top: .32rem;
+    color: var(--admin-modal-muted) !important;
+    font-size: .7rem !important;
+    line-height: 1.4;
+}
+
+/* Section grouping: visually match the step cards used in Add Application */
+.admin-page .modal .form-step-card,
+.admin-page .modal .resident-picker-section,
+.admin-page .modal .modal-section,
+.admin-page .modal .edit-section-card,
+.admin-page .modal .detail-section-card,
+.admin-page .modal .status-flow-card,
+.admin-page .modal .document-preview-card,
+.admin-page .modal .permission-module,
+.admin-page .modal .profile-summary-card,
+.admin-page .modal .bg-light.rounded,
+.admin-page .modal .p-3.bg-light.rounded {
+    border: 1px solid var(--admin-modal-border) !important;
+    border-radius: var(--admin-modal-section-radius) !important;
+    background: var(--admin-modal-surface) !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .form-step-card,
+.admin-page .modal .resident-picker-section,
+.admin-page .modal .modal-section,
+.admin-page .modal .edit-section-card,
+.admin-page .modal .detail-section-card,
+.admin-page .modal .status-flow-card,
+.admin-page .modal .permission-module {
+    padding: .9rem 1rem !important;
+}
+
+.admin-page .modal .form-section-heading {
+    gap: .7rem !important;
+    margin-bottom: .85rem !important;
+}
+
+.admin-page .modal .section-step {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, transparent) !important;
+    border-radius: 9px !important;
+    background: var(--primary-soft, #fff1f1) !important;
+    color: var(--primary) !important;
+    font-size: .76rem !important;
+    font-weight: 800 !important;
+}
+
+.admin-page .modal .form-section-heading h6,
+.admin-page .modal .modal-section-title,
+.admin-page .modal h6.fw-semibold.text-primary {
+    margin: 0;
+    color: var(--admin-modal-text) !important;
+    font-size: .84rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -.01em;
+}
+
+.admin-page .modal .modal-section-title {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    padding-bottom: .55rem;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.admin-page .modal .modal-section-title i,
+.admin-page .modal h6.fw-semibold.text-primary i {
+    color: var(--primary) !important;
+}
+
+.admin-page .modal .form-section-heading p {
+    margin: .12rem 0 0 !important;
+    color: var(--admin-modal-muted) !important;
+    font-size: .72rem !important;
+    line-height: 1.4;
+}
+
+/* Details / summary blocks */
+.admin-page .modal .application-modal-summary {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .65rem !important;
+    margin-bottom: .9rem !important;
+}
+
+.admin-page .modal .modal-summary-card {
+    min-width: 0;
+    padding: .78rem .85rem !important;
+    border: 1px solid var(--admin-modal-border) !important;
+    border-radius: 11px !important;
+    background: var(--admin-modal-surface) !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .modal-summary-card.is-primary {
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--admin-modal-border)) !important;
+    background: color-mix(in srgb, var(--primary-soft, #fff1f1) 55%, #fff) !important;
+}
+
+.admin-page .modal .modal-summary-label {
+    color: var(--admin-modal-muted) !important;
+    font-size: .66rem !important;
+    font-weight: 750 !important;
+    text-transform: uppercase;
+    letter-spacing: .045em;
+}
+
+.admin-page .modal .modal-summary-value {
+    display: block;
+    margin-top: .22rem;
+    overflow: hidden;
+    color: var(--admin-modal-text) !important;
+    font-size: .82rem !important;
+    font-weight: 800 !important;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+}
+
+.admin-page .modal .modal-summary-help {
+    display: block;
+    margin-top: .2rem;
+    color: var(--admin-modal-muted) !important;
+    font-size: .67rem !important;
+}
+
+/* Tabs inside view/edit modals */
+.admin-page .modal .nav-tabs,
+.admin-page .modal .view-tabs {
+    gap: .25rem;
+    padding: .28rem !important;
+    border: 1px solid var(--admin-modal-border) !important;
+    border-radius: 10px !important;
+    background: #f2f4f7 !important;
+}
+
+.admin-page .modal .nav-tabs .nav-link,
+.admin-page .modal .view-tabs .nav-link {
+    margin: 0 !important;
+    padding: .5rem .72rem !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    color: var(--admin-modal-muted) !important;
+    font-size: .74rem !important;
+    font-weight: 700 !important;
+}
+
+.admin-page .modal .nav-tabs .nav-link:hover,
+.admin-page .modal .view-tabs .nav-link:hover {
+    color: var(--admin-modal-text) !important;
+    background: rgba(255,255,255,.7) !important;
+}
+
+.admin-page .modal .nav-tabs .nav-link.active,
+.admin-page .modal .view-tabs .nav-link.active {
+    color: var(--primary) !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(16,24,40,.06) !important;
+}
+
+/* Resident/file helper cards */
+.admin-page .modal .selected-resident-card,
+.admin-page .modal .document-upload-card,
+.admin-page .modal .edit-file-card,
+.admin-page .modal .current-file,
+.admin-page .modal .file-preview,
+.admin-page .modal .evidence-card,
+.admin-page .modal .witness-card {
+    border-color: var(--admin-modal-border) !important;
+    border-radius: 11px !important;
+    background: var(--admin-modal-surface) !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .resident-search-box .form-control {
+    min-height: 46px !important;
+    border-radius: 11px !important;
+}
+
+.admin-page .modal .resident-search-results {
+    border-color: var(--admin-modal-border) !important;
+    border-radius: 11px !important;
+    box-shadow: 0 16px 36px rgba(15,23,42,.14) !important;
+}
+
+/* Status selectors */
+.admin-page .modal .status-grid {
+    gap: .5rem !important;
+}
+
+.admin-page .modal .status-option {
+    min-height: 40px;
+    padding: .55rem .7rem !important;
+    border: 1px solid var(--admin-modal-border) !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #475467 !important;
+    font-size: .74rem !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .status-option:hover {
+    border-color: var(--admin-modal-border-strong) !important;
+    background: #f9fafb !important;
+}
+
+.admin-page .modal .status-option.active,
+.admin-page .modal .status-option.selected {
+    border-color: var(--primary) !important;
+    background: var(--primary-soft, #fff1f1) !important;
+    color: var(--primary-dark, var(--primary)) !important;
+}
+
+/* Footer: stable action area */
+.admin-page .modal-footer {
+    min-height: 62px;
+    padding: .78rem 1.15rem !important;
+    gap: .55rem;
+    background: var(--admin-modal-surface) !important;
+    border-top: 1px solid var(--admin-modal-border) !important;
+}
+
+.admin-page .modal-footer .btn,
+.admin-page .modal-footer button,
+.admin-page .modal-footer a.btn {
+    min-height: 40px;
+    padding: .55rem .9rem !important;
+    border-radius: 9px !important;
+    font-size: .76rem !important;
+    font-weight: 750 !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal-footer .btn-outline-secondary,
+.admin-page .modal-footer .btn-light-soft,
+.admin-page .modal-footer .btn-secondary {
+    border-color: #d0d5dd !important;
+    background: #fff !important;
+    color: #475467 !important;
+}
+
+.admin-page .modal-footer .btn-outline-secondary:hover,
+.admin-page .modal-footer .btn-light-soft:hover,
+.admin-page .modal-footer .btn-secondary:hover {
+    border-color: #b8c1cc !important;
+    background: #f9fafb !important;
+    color: #1d2939 !important;
+}
+
+.admin-page .modal-footer form {
+    margin: 0;
+}
+
+.admin-page .modal-footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .55rem;
+}
+
+.admin-page .modal-safe-note {
+    color: var(--admin-modal-muted) !important;
+    font-size: .69rem !important;
+}
+
+/* View modal headers that use an avatar instead of h5.modal-title */
+.admin-page .modal .view-modal-head {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.admin-page .modal .view-modal-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent) !important;
+    border-radius: 10px !important;
+    background: var(--primary-soft, #fff1f1) !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .view-modal-name {
+    color: var(--admin-modal-text) !important;
+    font-size: .92rem !important;
+    font-weight: 800 !important;
+    line-height: 1.25;
+}
+
+.admin-page .modal .view-modal-sub {
+    margin-top: .12rem;
+    color: var(--admin-modal-muted) !important;
+    font-size: .7rem !important;
+}
+
+/* Permission management cards retain their logic but use the same surfaces. */
+.admin-page .modal .module-header {
+    padding: .7rem .8rem !important;
+    border-bottom: 1px solid var(--admin-modal-border) !important;
+    background: #f8fafc !important;
+}
+
+.admin-page .modal .module-header h4 {
+    margin: 0 !important;
+    color: var(--admin-modal-text) !important;
+    font-size: .8rem !important;
+    font-weight: 800 !important;
+}
+
+.admin-page .modal .module-permissions {
+    padding: .75rem .8rem !important;
+}
+
+.admin-page .modal .perm-check {
+    min-height: 38px;
+    padding: .5rem .6rem !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+}
+
+.admin-page .modal .perm-check:hover {
+    border-color: var(--admin-modal-border) !important;
+    background: #f8fafc !important;
+}
+
+/* Confirmation modal: same shell, clearer destructive/important decision hierarchy. */
+.admin-page #confirmActionModal .modal-content {
+    max-width: 480px;
+    margin-inline: auto;
+}
+
+.admin-page #confirmActionModal .modal-body {
+    padding: 1.15rem !important;
+    background: var(--admin-modal-surface) !important;
+}
+
+.admin-page #confirmActionModal .modal-warning-icon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #fedf89 !important;
+    border-radius: 10px !important;
+    background: #fffaeb !important;
+    color: #b54708 !important;
+    box-shadow: none !important;
+}
+
+.admin-page #confirmActionModal .modal-title {
+    display: block;
+}
+
+.admin-page #confirmActionModal .modal-footer {
+    padding-top: .75rem !important;
+    border-top: 1px solid var(--admin-modal-border) !important;
+}
+
+/* Media preview: same chrome, dark canvas where the image itself is the task. */
+.admin-page #globalImageZoomModal .modal-body {
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .85rem !important;
+    background: #111827 !important;
+}
+
+.admin-page #globalImageZoomModal .modal-body img {
+    max-height: min(72vh, 780px);
+    width: auto;
+    max-width: 100%;
+    border-radius: 9px !important;
+    object-fit: contain;
+}
+
+/* Dashboard chart is a special full-screen modal but uses the same header chrome. */
+.admin-page #chartFocusModal .modal-content {
+    border-radius: 0 !important;
+}
+
+.admin-page #chartFocusModal .modal-body {
+    background: var(--admin-modal-canvas) !important;
+}
+
+/* Empty/help states in short utility modals */
+.admin-page .modal .alert {
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+.admin-page .modal .badge {
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .admin-page .modal-dialog.modal-xl,
+    .admin-page .modal-dialog.modal-lg {
+        max-width: calc(100% - 1.5rem) !important;
+        margin-inline: auto !important;
+    }
+
+    .admin-page .modal .application-modal-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-page .modal-dialog:not(.modal-fullscreen) {
+        width: auto !important;
+        max-width: none !important;
+        margin: .6rem !important;
+        padding: 0 !important;
+    }
+
+    .admin-page .modal:not(#globalImageZoomModal) .modal-content,
+    .admin-page #globalImageZoomModal .modal-content {
+        border-radius: 14px !important;
+    }
+
+    .admin-page .modal-header {
+        min-height: 62px;
+        padding: .85rem .9rem !important;
+        align-items: flex-start;
+    }
+
+    .admin-page .modal-title {
+        font-size: .9rem !important;
+    }
+
+    .admin-page .modal-title > i:first-child,
+    .admin-page .modal-heading-icon,
+    .admin-page .modal-title-icon,
+    .admin-page .knowledge-modal-icon {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+    }
+
+    .admin-page .modal-subtitle,
+    .admin-page .modal-header p,
+    .admin-page .modal-heading p {
+        font-size: .69rem !important;
+    }
+
+    .admin-page .modal-body {
+        padding: .9rem !important;
+    }
+
+    .admin-page .modal .form-step-card,
+    .admin-page .modal .resident-picker-section,
+    .admin-page .modal .modal-section,
+    .admin-page .modal .edit-section-card,
+    .admin-page .modal .detail-section-card,
+    .admin-page .modal .status-flow-card,
+    .admin-page .modal .permission-module {
+        padding: .78rem !important;
+    }
+
+    .admin-page .modal .application-modal-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page .modal-footer {
+        min-height: auto;
+        padding: .75rem .9rem !important;
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .admin-page .modal-footer .btn,
+    .admin-page .modal-footer form,
+    .admin-page .modal-footer form .btn,
+    .admin-page .modal-footer-actions,
+    .admin-page .modal-footer-actions .btn {
+        width: 100% !important;
+    }
+
+    .admin-page .modal-footer-actions {
+        flex-direction: column-reverse;
+    }
+
+    .admin-page .modal-safe-note {
+        width: 100%;
+        margin-bottom: .2rem;
+        text-align: center;
+    }
+
+    .admin-page #globalImageZoomModal .modal-body {
+        min-height: 220px;
+    }
+}
+
+/* Dark mode */
+html[data-theme="dark"] {
+    --admin-modal-surface: var(--card);
+    --admin-modal-canvas: color-mix(in srgb, var(--card) 91%, #000 9%);
+    --admin-modal-border: var(--line);
+    --admin-modal-border-strong: var(--line-strong);
+    --admin-modal-text: var(--text);
+    --admin-modal-muted: var(--muted);
+}
+
+html[data-theme="dark"] .admin-page .modal-header,
+html[data-theme="dark"] .admin-page .modal-footer,
+html[data-theme="dark"] .admin-page .modal .form-step-card,
+html[data-theme="dark"] .admin-page .modal .resident-picker-section,
+html[data-theme="dark"] .admin-page .modal .modal-section,
+html[data-theme="dark"] .admin-page .modal .edit-section-card,
+html[data-theme="dark"] .admin-page .modal .detail-section-card,
+html[data-theme="dark"] .admin-page .modal .status-flow-card,
+html[data-theme="dark"] .admin-page .modal .document-preview-card,
+html[data-theme="dark"] .admin-page .modal .permission-module,
+html[data-theme="dark"] .admin-page .modal .modal-summary-card,
+html[data-theme="dark"] .admin-page .modal .selected-resident-card,
+html[data-theme="dark"] .admin-page .modal .document-upload-card,
+html[data-theme="dark"] .admin-page .modal .edit-file-card,
+html[data-theme="dark"] .admin-page #confirmActionModal .modal-body {
+    background: var(--admin-modal-surface) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal .form-label,
+html[data-theme="dark"] .admin-page .modal .form-section-heading h6,
+html[data-theme="dark"] .admin-page .modal .modal-section-title,
+html[data-theme="dark"] .admin-page .modal h6.fw-semibold.text-primary,
+html[data-theme="dark"] .admin-page .modal .module-header h4 {
+    color: var(--admin-modal-text) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal .form-control,
+html[data-theme="dark"] .admin-page .modal .form-select,
+html[data-theme="dark"] .admin-page .modal .input-group-text,
+html[data-theme="dark"] .admin-page .modal .status-option,
+html[data-theme="dark"] .admin-page .modal .nav-tabs .nav-link.active,
+html[data-theme="dark"] .admin-page .modal .view-tabs .nav-link.active,
+html[data-theme="dark"] .admin-page .modal-footer .btn-outline-secondary,
+html[data-theme="dark"] .admin-page .modal-footer .btn-light-soft,
+html[data-theme="dark"] .admin-page .modal-footer .btn-secondary {
+    border-color: var(--admin-modal-border) !important;
+    background: color-mix(in srgb, var(--card) 94%, #fff 6%) !important;
+    color: var(--admin-modal-text) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal .nav-tabs,
+html[data-theme="dark"] .admin-page .modal .view-tabs,
+html[data-theme="dark"] .admin-page .modal .module-header {
+    border-color: var(--admin-modal-border) !important;
+    background: color-mix(in srgb, var(--card) 84%, #000 16%) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal-header .btn-close {
+    filter: invert(1) grayscale(1);
+    background-color: rgba(255,255,255,.08) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal-header .btn-close:hover {
+    background-color: rgba(255,255,255,.14) !important;
+}
+
+html[data-theme="dark"] .admin-page .modal .modal-summary-card.is-primary {
+    background: color-mix(in srgb, var(--primary) 12%, var(--card)) !important;
+}
+
+html[data-theme="dark"] .admin-page #confirmActionModal .modal-warning-icon {
+    border-color: rgba(247, 144, 9, .35) !important;
+    background: rgba(247, 144, 9, .12) !important;
+    color: #fdb022 !important;
+}

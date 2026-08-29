@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\IndigencyApplication;
+use App\Models\Residents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -82,7 +83,16 @@ class IndigencyController extends Controller
 
         $indigency = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
-        return view('admin.admin_indigency', compact('indigency', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
+        $residents = Residents::query()
+            ->whereNull('deleted_at')
+            ->orderBy('firstname')
+            ->orderBy('lastname')
+            ->get([
+                'id', 'firstname', 'middlename', 'lastname', 'suffix', 'birthdate',
+                'gender', 'address', 'contact', 'email', 'valid_id',
+            ]);
+
+        return view('admin.admin_indigency', compact('indigency', 'residents', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }
 
     public function store(Request $request)
@@ -95,7 +105,33 @@ class IndigencyController extends Controller
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
+        $selectedResident = null;
+        if ($request->filled('resident_id')) {
+            $selectedResident = Residents::whereKey($request->input('resident_id'))
+                ->whereNull('deleted_at')
+                ->firstOrFail();
+
+            $request->merge([
+                'first_name' => $selectedResident->firstname,
+                'middle_name' => $selectedResident->middlename,
+                'last_name' => $selectedResident->lastname,
+                'suffix' => $selectedResident->suffix,
+                'birthdate' => optional($selectedResident->birthdate)->format('Y-m-d'),
+                'gender' => $selectedResident->gender,
+                'address' => $selectedResident->address,
+                'contact_number' => $selectedResident->contact,
+                'email' => $selectedResident->email,
+            ]);
+        }
+
         $data = $request->validate([
+            'resident_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('residents', 'id')
+                    ->whereNull('deleted_at'),
+            ],
+
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -103,15 +139,54 @@ class IndigencyController extends Controller
             'birthdate' => 'required|date',
             'gender' => 'required',
             'address' => 'required',
-            'contact_number' => ['required','regex:/^09\d{9}$/'],
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email',
-            'monthly_income' => 'required',
-            'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
-            'purpose' => 'required|in:medical,scholarship,government,legal,employment,burial,other',
-            'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
-            'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+            'monthly_income' => 'required|in:below 5k,5k-8k,8k-10k,10k-15k,no income',
+
+            'household_members' => [
+                'required',
+                'regex:/^(?:[1-9]|1\d|20)$/'
+            ],
+
+            'purpose' => [
+                'required',
+                'in:medical,scholarship,government,legal,employment,burial,other'
+            ],
+
+            'purpose_other' => [
+                'required_if:purpose,other',
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'primary_proof' => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,pdf',
+                'max:5120'
+            ],
+
+            'valid_id_path' => [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,pdf',
+                'max:5120'
+            ],
         ]);
+
+        if ($selectedResident && !$request->hasFile('valid_id_path') && filled($selectedResident->valid_id)) {
+            $data['valid_id_path'] = $selectedResident->valid_id;
+        }
+
+        unset($data['resident_id']);
+
+        if (!filled($data['valid_id_path'] ?? null)) {
+            return back()->withInput()->withErrors([
+                'valid_id_path' => 'Select a resident with a saved valid ID or upload a valid ID file.',
+            ]);
+        }
 
         try {
             // Proof of residency
@@ -387,7 +462,7 @@ class IndigencyController extends Controller
                 'required',
                 'integer',
                 'distinct',
-                Rule::exists('residency_applications', 'id')
+                Rule::exists('indigency_applications', 'id')
                     ->whereNull('deleted_at'),
             ],
         ]);
@@ -408,7 +483,7 @@ class IndigencyController extends Controller
                 AdminActivityLog::create([
                     'user_id' => auth('admin')->id(),
                     'action' => 'BULK_ARCHIVE',
-                    'module' => 'Residency',
+                    'module' => 'Indigency',
                     'details' => [
                         'ids' => $applications->pluck('id')->all(),
                         'count' => $applications->count(),

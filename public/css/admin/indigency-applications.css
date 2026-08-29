@@ -1321,13 +1321,6 @@ body {
     font-size: 0.9rem;
 }
 
-.modal-body p {
-    color: #1e293b;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px dashed var(--border-color);
-}
-
 .modal-footer {
     padding: 1.5rem;
     border-top: 1px solid var(--border-color);
@@ -1921,7 +1914,7 @@ body {
 }
 
 .min-w-0 { min-width: 0 !important; }
-.residency-hero-icon,
+.indigency-hero-icon,
 .stat-icon,
 .table-head-icon,
 .modal-heading-icon,
@@ -1977,13 +1970,13 @@ body {
     font-weight: 850 !important;
 }
 
-.residency-page {
+.indigency-page {
     width: 100%;
     max-width: 1380px;
     margin: 0 auto;
 }
 
-.residency-alert,
+.indigency-alert,
 .alert {
     border: 0 !important;
     border-radius: var(--radius-lg) !important;
@@ -2002,10 +1995,10 @@ body {
     border: 1px solid rgba(220,38,38,.16) !important;
 }
 
-.residency-hero,
+.indigency-hero,
 .stat-card,
-.residency-filter-card,
-.residency-table-card,
+.indigency-filter-card,
+.indigency-table-card,
 .modal-content {
     background: var(--card) !important;
     border: 1px solid var(--line) !important;
@@ -2013,14 +2006,14 @@ body {
     box-shadow: var(--shadow-xs) !important;
 }
 
-.residency-hero {
+.indigency-hero {
     position: relative;
     overflow: hidden;
     padding: clamp(1rem, 1.8vw, 1.6rem);
     margin-bottom: 1rem;
 }
 
-.residency-hero::before {
+.indigency-hero::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -2031,7 +2024,7 @@ body {
     pointer-events: none;
 }
 
-.residency-hero-content {
+.indigency-hero-content {
     position: relative;
     z-index: 1;
     display: grid;
@@ -2040,7 +2033,7 @@ body {
     align-items: center;
 }
 
-.residency-hero-icon {
+.indigency-hero-icon {
     width: 46px;
     height: 46px;
     margin-bottom: .75rem;
@@ -2051,7 +2044,7 @@ body {
     font-size: 1.05rem;
 }
 
-.residency-kicker,
+.indigency-kicker,
 .table-kicker,
 .modal-section-title {
     display: inline-flex;
@@ -2064,7 +2057,7 @@ body {
     letter-spacing: .09em;
 }
 
-.residency-hero h2 {
+.indigency-hero h2 {
     margin: .45rem 0 .4rem;
     color: var(--text);
     font-size: clamp(1.55rem, 2.4vw, 2.25rem);
@@ -2073,7 +2066,7 @@ body {
     letter-spacing: -.055em;
 }
 
-.residency-hero p {
+.indigency-hero p {
     max-width: 790px;
     margin: 0;
     color: var(--muted);
@@ -2081,14 +2074,14 @@ body {
     line-height: 1.6;
 }
 
-.residency-hero-actions {
+.indigency-hero-actions {
     display: flex;
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: .55rem;
 }
 
-.residency-hero-meta {
+.indigency-hero-meta {
     position: relative;
     z-index: 1;
     display: flex;
@@ -2100,7 +2093,7 @@ body {
     font-weight: 700;
 }
 
-.residency-hero-meta span {
+.indigency-hero-meta span {
     display: inline-flex;
     align-items: center;
     gap: .42rem;
@@ -2110,7 +2103,7 @@ body {
     border-radius: 999px;
 }
 
-.residency-stats {
+.indigency-stats {
     margin-bottom: 1rem !important;
 }
 
@@ -2126,8 +2119,8 @@ body {
 .stat-card::before { display: none !important; }
 
 .stat-card:hover,
-.residency-filter-card:hover,
-.residency-table-card:hover {
+.indigency-filter-card:hover,
+.indigency-table-card:hover {
     transform: translateY(-1px) !important;
     border-color: var(--line-strong) !important;
     box-shadow: var(--shadow-sm) !important;
@@ -2170,16 +2163,16 @@ body {
     font-size: 1rem !important;
 }
 
-.residency-stats > div:nth-child(2) .stat-icon { color: var(--warning) !important; background: var(--warning-soft) !important; border-color: #fed7aa; }
-.residency-stats > div:nth-child(3) .stat-icon { color: var(--success) !important; background: var(--success-soft) !important; border-color: rgba(22,128,60,.14); }
-.residency-stats > div:nth-child(4) .stat-icon { color: var(--danger) !important; background: var(--danger-soft) !important; border-color: rgba(220,38,38,.14); }
+.indigency-stats > div:nth-child(2) .stat-icon { color: var(--warning) !important; background: var(--warning-soft) !important; border-color: #fed7aa; }
+.indigency-stats > div:nth-child(3) .stat-icon { color: var(--success) !important; background: var(--success-soft) !important; border-color: rgba(22,128,60,.14); }
+.indigency-stats > div:nth-child(4) .stat-icon { color: var(--danger) !important; background: var(--danger-soft) !important; border-color: rgba(220,38,38,.14); }
 
-.residency-filter-card {
+.indigency-filter-card {
     overflow: hidden;
     margin-bottom: 1rem !important;
 }
 
-.residency-filter-card .card-body {
+.indigency-filter-card .card-body {
     padding: 1rem !important;
 }
 
@@ -2340,11 +2333,11 @@ textarea.form-control {
     border-color: var(--success) !important;
 }
 
-.residency-table-card {
+.indigency-table-card {
     overflow: hidden;
 }
 
-.residency-table-head {
+.indigency-table-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -2371,7 +2364,7 @@ textarea.form-control {
     border-radius: 14px;
 }
 
-.residency-table-head h3 {
+.indigency-table-head h3 {
     margin: .15rem 0 .12rem;
     color: var(--text);
     font-size: 1.02rem;
@@ -2379,7 +2372,7 @@ textarea.form-control {
     letter-spacing: -.025em;
 }
 
-.residency-table-head p {
+.indigency-table-head p {
     margin: 0;
     color: var(--muted);
     font-size: .84rem;
@@ -2647,7 +2640,6 @@ textarea.form-control {
     border-top: 1px solid var(--line) !important;
 }
 
-.modal-body h6,
 .modal-section-title {
     display: flex;
     align-items: center;
@@ -2665,15 +2657,6 @@ textarea.form-control {
 }
 
 .modal-body h6:first-child { margin-top: 0 !important; }
-
-.modal-body p {
-    margin-bottom: .7rem !important;
-    padding: .65rem .75rem !important;
-    color: var(--text) !important;
-    background: #f9fafb;
-    border: 1px solid var(--line) !important;
-    border-radius: 12px;
-}
 
 .modal-body strong {
     color: #344054 !important;
@@ -2794,9 +2777,9 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 991px) {
-    .residency-hero-content { grid-template-columns: minmax(0, 1fr); }
-    .residency-hero-actions { justify-content: flex-start; }
-    .residency-table-head { flex-direction: column; }
+    .indigency-hero-content { grid-template-columns: minmax(0, 1fr); }
+    .indigency-hero-actions { justify-content: flex-start; }
+    .indigency-table-head { flex-direction: column; }
     .table-count-pill { align-self: flex-start; }
     .profile-badge span:not(.role-badge) { display: none; }
 }
@@ -2806,15 +2789,15 @@ input[type="checkbox"] {
     .title-icon, .mobile-menu-btn { width: 38px; height: 38px; }
     .profile-badge { display: none !important; }
     main.p-3, main.p-lg-4 { padding: .85rem !important; }
-    .residency-page { max-width: 100%; }
-    .residency-hero, .stat-card, .residency-filter-card, .residency-table-card, .modal-content { border-radius: 16px !important; }
-    .residency-stats > div { margin-bottom: .75rem; }
-    .residency-filter-card .d-flex.gap-2 { width: 100%; }
-    .residency-filter-card .d-flex.gap-2 .btn,
-    .residency-filter-card form[id="bulkForm"],
-    .residency-filter-card form[id="exportForm"] { flex: 1 1 140px; }
-    .residency-filter-card form[id="bulkForm"] .btn,
-    .residency-filter-card form[id="exportForm"] .btn { width: 100%; }
+    .indigency-page { max-width: 100%; }
+    .indigency-hero, .stat-card, .indigency-filter-card, .indigency-table-card, .modal-content { border-radius: 16px !important; }
+    .indigency-stats > div { margin-bottom: .75rem; }
+    .indigency-filter-card .d-flex.gap-2 { width: 100%; }
+    .indigency-filter-card .d-flex.gap-2 .btn,
+    .indigency-filter-card form[id="bulkForm"],
+    .indigency-filter-card form[id="exportForm"] { flex: 1 1 140px; }
+    .indigency-filter-card form[id="bulkForm"] .btn,
+    .indigency-filter-card form[id="exportForm"] .btn { width: 100%; }
     .table { min-width: 980px !important; }
     .modal-dialog { padding: .45rem; }
     .modal-body, .modal-header, .modal-footer { padding: .9rem !important; }
@@ -2826,8 +2809,8 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 575px) {
-    .residency-hero h2 { font-size: 1.55rem; }
-    .residency-hero-actions .btn { width: 100%; }
+    .indigency-hero h2 { font-size: 1.55rem; }
+    .indigency-hero-actions .btn { width: 100%; }
     .stat-card { min-height: auto; }
     .action-label { display: none !important; }
     .action-btn.action-update { width: 36px !important; padding: 0 !important; }
@@ -2839,7 +2822,7 @@ input[type="checkbox"] {
     Shows only high-value information in the table and moves
     full details into cleaner modals.
 ========================================================== */
-.residency-table-card .table {
+.indigency-table-card .table {
     min-width: 780px !important;
 }
 
@@ -3211,7 +3194,7 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 768px) {
-    .residency-table-card .table {
+    .indigency-table-card .table {
         min-width: 720px !important;
     }
     .application-primary {
@@ -3715,7 +3698,7 @@ input[type="checkbox"] {
 }
 
 @media (min-width: 1200px) {
-    .residency-table-card .table-responsive {
+    .indigency-table-card .table-responsive {
         width: 100%;
         overflow-x: visible;
     }
@@ -3804,7 +3787,7 @@ input[type="checkbox"] {
 
 /* On smaller screens, keep the controls reachable while the table scrolls. */
 @media (max-width: 1199.98px) {
-    .residency-table-card .table-responsive {
+    .indigency-table-card .table-responsive {
         overflow-x: auto !important;
     }
 
@@ -3851,3 +3834,26 @@ input[type="checkbox"] {
     }
 }
 
+/*  TABLE DROPDOWN OVERFLOW FIX  */
+.indigency-table-card:has(.dropdown-menu.show),
+.indigency-table-card:has(.dropdown-menu.show) .card-body,
+.indigency-table-card:has(.dropdown-menu.show) .table-responsive {
+    overflow: visible !important;
+}
+
+.indigency-table-card .resident-action-dropdown {
+    position: relative;
+    z-index: 1030;
+}
+
+.indigency-table-card .resident-action-menu.show {
+    z-index: 1080 !important;
+    display: block;
+    visibility: visible;
+}
+
+.indigency-table-card .resident-action-menu {
+    position: absolute;
+    z-index: 1080 !important;
+    min-width: 285px;
+}

@@ -255,6 +255,15 @@ button, input, select, textarea { font: inherit; }
     font-weight: 750;
 }
 
+.bhd-drop-menu a.active {
+    color: var(--brand);
+    background: var(--brand-soft);
+}
+
+/* .bhd-drop-menu a.active i {
+    color: white;
+} */
+
 .bhd-drop-menu a:hover {
     background: var(--brand-soft);
     color: var(--brand);

@@ -12,58 +12,99 @@
             ->get();
     }
 
-    $pendingProfileCorrection = $profileCorrectionConcerns->first(function ($concern) {
-        return in_array(strtolower((string) $concern->status), ['pending', 'reviewed'], true);
-    });
+    $pendingProfileCorrection = $profileCorrectionConcerns->first(
+        fn ($concern) => in_array(strtolower(trim((string) $concern->status)), [
+            'pending',
+            'reviewed',
+            'under_review',
+            'in_review',
+            'reviewing',
+        ], true)
+    );
 
     $latestProfileCorrection = $profileCorrectionConcerns->first();
+    $activeCorrection = $pendingProfileCorrection ?: $latestProfileCorrection;
+    $pastProfileCorrections = $profileCorrectionConcerns->filter(
+        fn ($concern) => !$activeCorrection || $concern->id !== $activeCorrection->id
+    );
 
     $correctionStatusMeta = function (?string $status): array {
-        return match (strtolower((string) $status)) {
+        $normalizedStatus = strtolower(trim((string) $status));
+
+        return match ($normalizedStatus) {
             'pending' => [
-                'class' => 'warning',
-                'icon' => 'fa-clock',
-                'label' => 'Pending Review',
-                'message' => 'Your correction request is waiting for barangay review.',
+                'class'   => 'warning',
+                'icon'    => 'fa-clock',
+                'label'   => 'Pending Review',
+                'message' => 'Waiting for barangay review.',
             ],
-            'reviewed' => [
-                'class' => 'warning',
-                'icon' => 'fa-eye',
-                'label' => 'Under Review',
-                'message' => 'Barangay staff already opened your concern and is checking the details.',
+            'reviewed', 'under_review', 'in_review', 'reviewing' => [
+                'class'   => 'warning',
+                'icon'    => 'fa-eye',
+                'label'   => 'Under Review',
+                'message' => 'Barangay staff is checking the details.',
             ],
-            'corrected' => [
-                'class' => 'success',
-                'icon' => 'fa-check-circle',
-                'label' => 'Corrected / Approved',
-                'message' => 'Your profile correction has been approved. You may submit service requests again.',
+            'resolved', 'corrected' => [
+                'class'   => 'success',
+                'icon'    => 'fa-check-circle',
+                'label'   => 'Resolved / Approved',
+                'message' => 'Approved. You may submit service requests again.',
             ],
             'rejected' => [
-                'class' => 'danger',
-                'icon' => 'fa-circle-xmark',
-                'label' => 'Rejected',
-                'message' => 'Your correction request was not approved. Please review the remarks or contact the barangay.',
+                'class'   => 'danger',
+                'icon'    => 'fa-circle-xmark',
+                'label'   => 'Rejected',
+                'message' => 'Not approved. Review the remarks below or visit the barangay office.',
             ],
             default => [
-                'class' => 'neutral',
-                'icon' => 'fa-circle-info',
-                'label' => 'No Active Concern',
+                'class'   => 'neutral',
+                'icon'    => 'fa-circle-info',
+                'label'   => 'No Active Concern',
                 'message' => 'You do not have a pending profile correction concern.',
             ],
         };
     };
 
-    $activeCorrectionMeta = $correctionStatusMeta($pendingProfileCorrection?->status ?? $latestProfileCorrection?->status);
+    $activeCorrectionMeta = $correctionStatusMeta($activeCorrection?->status);
 
-    $formatConcernId = function ($concern): string {
-        if (! $concern) {
-            return 'PCC-' . now()->format('Y') . '-000000';
-        }
+    $formatConcernId = function (?\App\Models\ResidentProfileCorrectionConcern $concern) {
+        $year = $concern
+            ? (optional($concern->created_at)->format('Y') ?: now()->format('Y'))
+            : now()->format('Y');
+        $id = $concern->id ?? 0;
 
-        $year = optional($concern->created_at)->format('Y') ?: now()->format('Y');
-
-        return 'PCC-' . $year . '-' . str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT);
+        return 'PCC-' . $year . '-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
     };
+
+    $shouldAutoExpand = $activeCorrection
+        && in_array(strtolower(trim((string) $activeCorrection->status)), [
+            'pending',
+            'reviewed',
+            'under_review',
+            'in_review',
+            'reviewing',
+            'rejected',
+        ], true);
+
+    $sessionAlerts = collect([
+        'success_info'     => 'success',
+        'success_account'  => 'success',
+        'success_password' => 'success',
+        'success_photo'    => 'success',
+        'success_id'       => 'success',
+        'success'          => 'success',
+        'warning'          => 'warning',
+        'error'            => 'danger',
+    ])->map(fn ($type, $key) => ['message' => session($key), 'type' => $type])
+      ->filter(fn ($alert) => filled($alert['message']));
+
+    $alertIcon = fn ($type) => match ($type) {
+        'success' => 'fa-check-circle',
+        'warning' => 'fa-exclamation-triangle',
+        default   => 'fa-exclamation-circle',
+    };
+
+    $hasSessionAlertAlready = $sessionAlerts->isNotEmpty();
 @endphp
 
 @push('styles')
@@ -395,193 +436,251 @@
     }
 
     .bhd-correction-card {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 18px;
-        align-items: start;
-        margin-bottom: 18px;
-        padding: clamp(16px, 3vw, 22px);
+        margin-bottom: 22px;
         border: 1px solid var(--line);
-        border-radius: 22px;
+        border-radius: 20px;
         background: var(--surface);
         box-shadow: var(--shadow);
+        overflow: hidden;
     }
+
+    .bhd-correction-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        background: color-mix(in srgb, var(--warning-soft) 82%, var(--surface) 18%);
+    }
+
+    .bhd-correction-card.success .bhd-correction-hero {
+        background: color-mix(in srgb, var(--success-soft) 82%, var(--surface) 18%);
+    }
+
+    .bhd-correction-card.danger .bhd-correction-hero {
+        background: color-mix(in srgb, var(--danger-soft, #fee2e2) 82%, var(--surface) 18%);
+    }
+
+    .bhd-correction-card.neutral .bhd-correction-hero {
+        background: var(--surface-soft);
+    }
+
+    .bhd-correction-hero .bhd-correction-main { align-items: center; }
+    .bhd-correction-hero .bhd-correction-main > div { min-width: 0; }
+    .bhd-correction-hero .bhd-correction-main h2 { margin-bottom: 2px; font-size: .98rem; line-height: 1.25; }
+    .bhd-correction-hero .bhd-correction-main p { font-size: .82rem; line-height: 1.45; }
+
+    .bhd-correction-hero .bhd-correction-status {
+        flex: 0 0 auto;
+        width: 42px;
+        height: 42px;
+        justify-content: center;
+        padding: 0;
+        background: rgba(255,255,255,.38);
+        border-color: color-mix(in srgb, var(--warning) 20%, var(--line));
+        color: var(--warning);
+    }
+
+    .bhd-correction-toggle { border: 0; cursor: pointer; }
+    .bhd-correction-toggle i:last-child { transition: transform .18s ease; }
+    .bhd-correction-card.is-collapsed .bhd-correction-toggle i:last-child { transform: rotate(-90deg); }
+
+    .bhd-correction-body {
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+    }
+    .bhd-correction-card.is-collapsed .bhd-correction-body { display: none; }
+
+    .bhd-correction-card.is-collapsed .bhd-correction-body[hidden] { display: none; }
 
     .bhd-correction-main {
         display: flex;
         gap: 14px;
         align-items: flex-start;
         min-width: 0;
+        flex: 1 1 auto;
     }
 
     .bhd-correction-icon {
-        width: 44px;
-        height: 44px;
-        display: grid;
-        place-items: center;
-        flex: 0 0 auto;
+        width: 44px; height: 44px;
+        display: grid; place-items: center;
+        flex: 0 0 44px;
         border-radius: 15px;
         background: var(--brand-soft);
         color: var(--brand);
     }
-
-    .bhd-correction-card.success .bhd-correction-icon {
-        background: var(--success-soft);
-        color: var(--success);
-    }
-
-    .bhd-correction-card.warning .bhd-correction-icon {
-        background: var(--warning-soft);
-        color: var(--warning);
-    }
-
+    .bhd-correction-card.success .bhd-correction-icon { background: var(--success-soft); color: var(--success); }
+    .bhd-correction-card.warning .bhd-correction-icon { background: var(--warning-soft); color: var(--warning); }
     .bhd-correction-card.danger .bhd-correction-icon {
-        background: color-mix(in srgb, #dc2626 10%, var(--surface));
-        color: #b91c1c;
+        background: color-mix(in srgb, #dc2626 10%, var(--surface)); color: #b91c1c;
     }
 
     .bhd-correction-main h2 {
-        color: var(--ink);
-        font-size: 1.02rem;
-        font-weight: 950;
+        color: var(--ink); font-size: 1.02rem; font-weight: 950;
         margin: 0 0 5px;
     }
-
     .bhd-correction-main p {
-        color: var(--muted);
-        font-size: 0.86rem;
-        margin: 0;
-        line-height: 1.55;
+        color: var(--muted); font-size: .86rem; margin: 0; line-height: 1.55;
     }
 
     .bhd-correction-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        width: fit-content;
-        padding: 7px 11px;
-        border-radius: 999px;
+        display: inline-flex; align-items: center; gap: 7px;
+        width: fit-content; min-height: 36px;
+        padding: 7px 11px; border-radius: 999px;
         border: 1px solid var(--line);
-        background: var(--surface-soft);
-        color: var(--ink-soft);
-        font-size: 0.74rem;
-        font-weight: 950;
-        white-space: nowrap;
+        background: var(--surface-soft); color: var(--ink-soft);
+        font-size: .74rem; font-weight: 950; white-space: nowrap;
     }
-
     .bhd-correction-status.success {
         border-color: color-mix(in srgb, var(--success) 30%, var(--line));
-        background: var(--success-soft);
-        color: var(--success);
+        background: var(--success-soft); color: var(--success);
     }
-
     .bhd-correction-status.warning {
         border-color: color-mix(in srgb, var(--warning) 34%, var(--line));
-        background: var(--warning-soft);
-        color: var(--warning);
+        background: var(--warning-soft); color: var(--warning);
     }
-
     .bhd-correction-status.danger {
         border-color: color-mix(in srgb, #dc2626 30%, var(--line));
-        background: color-mix(in srgb, #dc2626 9%, var(--surface));
-        color: #b91c1c;
+        background: color-mix(in srgb, #dc2626 9%, var(--surface)); color: #b91c1c;
     }
 
-    .bhd-correction-details {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-        padding-top: 14px;
-        border-top: 1px solid var(--line);
+    .bhd-correction-details { display: grid; gap: 12px; }
+    .bhd-correction-box-head {
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 10px 16px;
+        padding: 0 2px; color: var(--muted); font-size: .78rem; font-weight: 900;
     }
-
-    .bhd-correction-box {
-        min-width: 0;
-        padding: 12px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        background: var(--surface-soft);
+    .bhd-correction-box-head > div:first-child {
+        display: flex !important; align-items: center;
+        min-width: 0 !important; width: auto !important;
     }
+    .bhd-correction-box-head > div:last-child { margin-left: auto; min-width: 0; }
+    .bhd-correction-box-head strong { color: var(--muted); }
 
-    .bhd-correction-box span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.68rem;
-        font-weight: 950;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 5px;
+    .bhd-correction-correcting {
+        display: flex; flex-direction: column; gap: 4px; padding: 2px 2px 0;
     }
-
-    .bhd-correction-box strong {
-        display: block;
-        color: var(--ink);
-        font-size: 0.84rem;
-        font-weight: 950;
+    .bhd-correction-correcting span { color: var(--muted); font-size: .78rem; font-weight: 800; }
+    .bhd-correction-correcting strong {
+        color: var(--ink); font-size: 1rem; font-weight: 950; line-height: 1.35;
         overflow-wrap: anywhere;
+    }
+
+    .bhd-correction-compare {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 40px minmax(0,1fr);
+        align-items: stretch; gap: 10px;
+        padding: 10px; border-radius: 16px;
+        background: var(--surface-soft); color: var(--muted);
+    }
+    .bhd-correction-compare-box {
+        min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 5px;
+        background: var(--surface); padding: 13px 14px;
+        border: 1px solid var(--line); border-radius: 14px;
+        align-items: center;
+    }
+    .bhd-correction-compare-box span {
+        display: block; color: var(--muted); font-size: .68rem; font-weight: 950;
+        letter-spacing: .07em; text-transform: uppercase;
+    }
+    .bhd-correction-compare-box strong {
+        display: block; color: var(--ink); font-size: .9rem; font-weight: 950;
+        line-height: 1.35; overflow-wrap: anywhere; word-break: break-word;
+    }
+    .bhd-correction-compare-arrow {
+        width: 40px; height: 40px; align-self: center;
+        display: grid; place-items: center; border-radius: 999px;
+        background: var(--brand-soft); color: var(--brand); font-size: .9rem;
     }
 
     .bhd-correction-note {
-        grid-column: 1 / -1;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 12px 14px;
-        border-radius: 16px;
-        background: var(--surface-soft);
-        color: var(--muted);
-        font-size: 0.83rem;
-        font-weight: 800;
-        line-height: 1.5;
+        display: flex; align-items: flex-start; gap: 9px;
+        color: var(--muted); font-size: .82rem; line-height: 1.5;
     }
+    .bhd-correction-note i { flex: 0 0 auto; color: var(--brand); margin-top: 3px; }
 
-    .bhd-correction-note i {
-        color: var(--brand);
-        margin-top: 2px;
+    .bhd-correction-resubmit {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 14px; flex-wrap: wrap;
+        margin-top: 6px; padding: 14px 16px;
+        border: 1px solid color-mix(in srgb, #dc2626 22%, var(--line));
+        border-radius: 16px;
+        background: color-mix(in srgb, #dc2626 6%, var(--surface));
+    }
+    .bhd-correction-resubmit-copy {
+        display: flex; align-items: flex-start; gap: 10px;
+        min-width: 220px; flex: 1 1 260px;
+        color: var(--ink-soft); font-size: .84rem; font-weight: 800; line-height: 1.5;
+    }
+    .bhd-correction-resubmit-copy i { color: #b91c1c; margin-top: 2px; flex: 0 0 auto; }
+    .bhd-correction-resubmit .bhd-btn { flex: 0 0 auto; }
+
+    @media (max-width: 480px) {
+        .bhd-correction-resubmit { flex-direction: column; align-items: stretch; }
+        .bhd-correction-resubmit .bhd-btn { justify-content: center; }
     }
 
     .bhd-correction-history {
-        grid-column: 1 / -1;
-        display: grid;
-        gap: 8px;
+        display: none; gap: 8px; padding-top: 10px;
     }
+    .bhd-correction-history.is-open { display: grid; }
+
+    .bhd-correction-history-toggle {
+        display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+        border: 1px solid var(--line); background: var(--surface-soft);
+        color: var(--ink-soft);
+        border-radius: 999px;
+        font-size: .8rem; font-weight: 950; padding: 8px 14px; cursor: pointer;
+        margin-top: 12px;
+    }
+    .bhd-correction-history-toggle:hover,
+    .bhd-correction-history-toggle[aria-expanded="true"] {
+        border-color: color-mix(in srgb, var(--brand) 32%, var(--line));
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+    .bhd-correction-history-toggle i { font-size: .72rem; transition: transform .18s ease; }
+    .bhd-correction-history-toggle[aria-expanded="true"] i { transform: rotate(180deg); }
 
     .bhd-correction-history-title {
-        color: var(--ink);
-        font-size: 0.86rem;
-        font-weight: 950;
-        margin: 2px 0 0;
+        color: var(--ink); font-size: .86rem; font-weight: 950; margin: 2px 0 0;
     }
-
     .bhd-correction-history-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 10px;
-        align-items: center;
-        padding: 10px 12px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
+        display: grid; grid-template-columns: minmax(0,1fr) auto;
+        gap: 10px; align-items: center; padding: 10px 12px;
+        border: 1px solid var(--line); border-radius: 14px;
         background: var(--surface-soft);
     }
-
     .bhd-correction-history-row strong {
-        display: block;
-        color: var(--ink);
-        font-size: 0.82rem;
-        font-weight: 950;
+        display: block; color: var(--ink); font-size: .82rem; font-weight: 950;
         overflow-wrap: anywhere;
     }
-
     .bhd-correction-history-row span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.74rem;
-        font-weight: 800;
-        margin-top: 2px;
+        display: block; color: var(--muted); font-size: .74rem; font-weight: 800; margin-top: 2px;
     }
 
-
+    .bhd-correction-history-status {
+        display: inline-flex !important; align-items: center; gap: 7px;
+        width: fit-content; min-height: 30px; padding: 5px 9px;
+        border: 1px solid var(--line); border-radius: 999px;
+        background: var(--surface); color: var(--ink-soft); font: inherit;
+        font-size: .7rem !important; font-weight: 950 !important; cursor: pointer;
+    }
+    .bhd-correction-history-status:hover,
+    .bhd-correction-history-status:focus-visible { border-color: var(--brand); color: var(--brand); outline: none; }
+    .bhd-correction-history-status.success { border-color: color-mix(in srgb, var(--success) 30%, var(--line)); background: var(--success-soft); color: var(--success); }
+    .bhd-correction-history-status.warning { border-color: color-mix(in srgb, var(--warning) 34%, var(--line)); background: var(--warning-soft); color: var(--warning); }
+    .bhd-correction-history-status.danger { border-color: color-mix(in srgb, #dc2626 30%, var(--line)); background: color-mix(in srgb, #dc2626 9%, var(--surface)); color: #b91c1c; }
+    .bhd-correction-history-status i:last-child { transition: transform .18s ease; }
+    .bhd-correction-history-status[aria-expanded="true"] i:last-child { transform: rotate(180deg); }
+    .bhd-correction-history-detail {
+        display: none; grid-column: 1 / -1; gap: 8px; padding: 9px 0 1px;
+        border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; line-height: 1.45;
+    }
+    .bhd-correction-history-detail.is-open { display: grid; }
+    .bhd-correction-history-detail strong { color: var(--ink); font-weight: 950; }
+    .bhd-correction-history-detail .remarks { color: var(--ink-soft); overflow-wrap: anywhere; }
 
     /* Secure profile identity fields */
     .bhd-sensitive-notice {
@@ -700,6 +799,14 @@
     }
 
     @media (max-width: 768px) {
+        .bhd-correction-hero { align-items: flex-start; }
+        .bhd-correction-hero .bhd-correction-status { width: 38px; height: 38px; }
+        .bhd-correction-compare { grid-template-columns: 1fr; }
+        .bhd-correction-compare-arrow { margin: -2px auto; transform: rotate(90deg); }
+        .bhd-correction-box-head > div:last-child { margin-left: 0; width: 100%; }
+        .bhd-correction-history-row { grid-template-columns: 1fr; align-items: flex-start; }
+        .bhd-correction-history-row > .bhd-correction-status { width: fit-content; }
+
         .bhd-locked-grid {
             grid-template-columns: 1fr;
         }
@@ -925,6 +1032,7 @@
     .bhd-verified-badge.verified {
         background: var(--success-soft);
         color: var(--success);
+        align-items: center;
     }
 
     .bhd-verified-badge.unverified {
@@ -947,31 +1055,46 @@
         color: var(--brand);
     }
 
+    /* Tab strip now lives on top of the content card (not the profile
+       summary sidebar) so it reads as "these control the panel below",
+       not as a second navigation menu bolted onto the profile card. */
     .bhd-profile-tabs {
         display: grid;
-        gap: 8px;
-        margin-top: 18px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        padding: 6px;
+        margin-bottom: 22px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 16px;
     }
 
     .bhd-profile-tab {
         width: 100%;
-        border: 1px solid var(--line);
-        background: var(--surface);
-        color: var(--ink-soft);
-        border-radius: 14px;
-        padding: 11px 12px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 12px;
+        padding: 10px 10px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        gap: 8px;
         font-weight: 900;
-        text-align: left;
+        font-size: 0.86rem;
+        text-align: center;
+        line-height: 1.15;
     }
 
-    .bhd-profile-tab.active,
     .bhd-profile-tab:hover {
-        background: var(--brand-soft);
+        color: var(--ink);
+    }
+
+    .bhd-profile-tab.active {
+        background: var(--surface);
         color: var(--brand);
-        border-color: color-mix(in srgb, var(--brand) 32%, var(--line));
+        border-color: var(--line);
+        box-shadow: var(--shadow);
     }
 
     .bhd-profile-panel {
@@ -980,6 +1103,12 @@
 
     .bhd-profile-panel.active {
         display: block;
+        animation: bhdPanelIn .16s ease;
+    }
+
+    @keyframes bhdPanelIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .bhd-panel-head {
@@ -987,9 +1116,35 @@
         justify-content: space-between;
         gap: 14px;
         flex-wrap: wrap;
+        align-items: flex-start;
         border-bottom: 1px solid var(--line);
         padding-bottom: 16px;
         margin-bottom: 18px;
+    }
+
+    /* Small uppercase divider used to separate distinct groups of fields
+       within a single tab panel (e.g. "read-only" vs "editable"). */
+    .bhd-section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 950;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 22px 0 12px;
+    }
+
+    .bhd-section-label:first-child {
+        margin-top: 0;
+    }
+
+    .bhd-section-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--line);
     }
 
     .bhd-panel-head h2 {
@@ -1107,14 +1262,7 @@
         }
 
         .bhd-profile-tabs {
-            display: flex;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 4px;
-        }
-
-        .bhd-profile-tab {
-            min-width: max-content;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
     }
 
@@ -1135,8 +1283,7 @@
         }
 
         .bhd-profile-tabs {
-            margin-left: -2px;
-            margin-right: -2px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 
@@ -1590,13 +1737,6 @@
             min-height: 150px;
         }
     }
-
-
-
-    /* =========================================================
-       FINAL MOBILE RESPONSIVE OVERRIDES
-       These overrides keep the current design but fix mobile layout.
-       ========================================================= */
 
     *, *::before, *::after {
         box-sizing: border-box;
@@ -2182,16 +2322,16 @@
 
 
     @media (max-width: 900px) {
-        .bhd-correction-card {
-            grid-template-columns: 1fr;
+        .bhd-correction-hero {
+            flex-direction: column;
         }
 
         .bhd-correction-status {
             justify-self: start;
         }
 
-        .bhd-correction-details {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        .bhd-correction-compare {
+            flex-direction: column;
         }
     }
 
@@ -2201,9 +2341,1003 @@
             gap: 10px;
         }
 
-        .bhd-correction-details,
         .bhd-correction-history-row {
             grid-template-columns: 1fr;
+        }
+
+        .bhd-correction-compare {
+            padding: 12px;
+        }
+    }
+
+
+    /* Request + Valid ID redesign */
+    .bhd-request-summary {
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:12px;
+        margin:0 0 22px;
+    }
+
+    .bhd-request-stat {
+        position:relative;
+        display:flex;
+        align-items:center;
+        gap:13px;
+        min-width:0;
+        padding:16px;
+        border:1px solid var(--line);
+        border-radius:18px;
+        background:var(--surface);
+        box-shadow:0 6px 20px rgba(15,23,42,.035);
+        transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+    }
+
+    .bhd-request-stat:hover {
+        transform:translateY(-2px);
+        border-color:color-mix(in srgb,var(--brand) 30%,var(--line));
+        box-shadow:0 12px 28px rgba(15,23,42,.07);
+    }
+
+    .bhd-request-stat-icon {
+        width:42px;
+        height:42px;
+        flex:0 0 42px;
+        display:grid;
+        place-items:center;
+        border-radius:13px;
+        background:var(--brand-soft);
+        color:var(--brand);
+        font-size:.95rem;
+    }
+
+    .bhd-request-stat-copy {
+        min-width:0;
+    }
+
+    .bhd-request-stat-copy span {
+        display:block;
+        color:var(--muted);
+        font-size:.72rem;
+        font-weight:900;
+        line-height:1.2;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+
+    .bhd-request-stat-copy strong {
+        display:block;
+        margin-top:3px;
+        color:var(--ink);
+        font-family:'Space Grotesk','Inter',sans-serif;
+        font-size:1.35rem;
+        line-height:1;
+        font-weight:950;
+    }
+
+    .bhd-request-history {
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:20px;
+        background:var(--surface);
+    }
+
+    .bhd-request-history-head {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        padding:15px 18px;
+        border-bottom:1px solid var(--line);
+        background:var(--surface-soft);
+    }
+
+    .bhd-request-history-head strong {
+        color:var(--ink);
+        font-size:.92rem;
+        font-weight:950;
+    }
+
+    .bhd-request-history-head span {
+        color:var(--muted);
+        font-size:.76rem;
+        font-weight:800;
+    }
+
+    .bhd-request-history .bhd-table-wrap {
+        border-radius:0;
+    }
+
+    .bhd-request-history .bhd-table {
+        min-width:620px;
+    }
+
+    .bhd-request-history .bhd-table th {
+        padding:11px 16px;
+        background:var(--surface);
+    }
+
+    .bhd-request-history .bhd-table td {
+        padding:15px 16px;
+    }
+
+    .bhd-request-history .bhd-table tbody tr:last-child td {
+        border-bottom:0;
+    }
+
+    .bhd-request-ref {
+        display:flex;
+        flex-direction:column;
+        gap:3px;
+    }
+
+    .bhd-request-ref strong {
+        color:var(--ink);
+        font-size:.82rem;
+        font-weight:950;
+    }
+
+    .bhd-request-ref span {
+        color:var(--muted);
+        font-size:.7rem;
+        font-weight:750;
+    }
+
+    .bhd-request-type {
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        min-width:0;
+        color:var(--ink-soft);
+        font-size:.82rem;
+        font-weight:900;
+    }
+
+    .bhd-request-type i {
+        color:var(--brand);
+        flex:0 0 auto;
+    }
+
+    .bhd-request-status {
+        display:inline-flex;
+        align-items:center;
+        width:max-content;
+        min-height:28px;
+        padding:5px 9px;
+        border-radius:999px;
+        background:var(--surface-soft);
+        border:1px solid var(--line);
+        color:var(--ink-soft);
+        font-size:.7rem;
+        font-weight:950;
+    }
+
+    .bhd-valid-id-intro {
+        display:none;
+        align-items:flex-start;
+        gap:12px;
+        padding:14px 16px;
+        margin-bottom:18px;
+        border:1px solid color-mix(in srgb,var(--brand) 20%,var(--line));
+        border-radius:17px;
+        background:color-mix(in srgb,var(--brand-soft) 45%,var(--surface));
+    }
+
+    .bhd-valid-id-intro-icon {
+        width:38px;
+        height:38px;
+        flex:0 0 38px;
+        display:grid;
+        place-items:center;
+        border-radius:12px;
+        background:var(--brand-soft);
+        color:var(--brand);
+    }
+
+    .bhd-valid-id-intro strong {
+        display:block;
+        color:var(--ink);
+        font-size:.88rem;
+        font-weight:950;
+        margin-bottom:2px;
+    }
+
+    .bhd-valid-id-intro span {
+        display:block;
+        color:var(--muted);
+        font-size:.78rem;
+        line-height:1.45;
+    }
+
+    .bhd-current-id-grid {
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:8px;
+        margin-bottom:10px;
+    }
+
+    .bhd-current-id-card {
+        display:grid;
+        grid-template-columns:78px minmax(0,1fr);
+        gap:10px;
+        align-items:center;
+        min-width:0;
+        padding:8px;
+        border:1px solid var(--line);
+        border-radius:14px;
+        background:var(--surface);
+    }
+
+    .bhd-current-id-preview {
+        height:58px;
+        display:grid;
+        place-items:center;
+        overflow:hidden;
+        border-radius:12px;
+        background:var(--surface-soft);
+        border:1px solid var(--line);
+    }
+
+    .bhd-current-id-preview img {
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+
+    .bhd-current-id-preview .bhd-id-empty {
+        padding:8px;
+        font-size:.68rem;
+    }
+
+    .bhd-current-id-preview .bhd-id-empty i {
+        font-size:1.15rem;
+        margin-bottom:4px;
+    }
+
+    .bhd-current-id-copy {
+        min-width:0;
+    }
+
+    .bhd-current-id-copy .eyebrow {
+        display:block;
+        margin-bottom:3px;
+        color:var(--muted);
+        font-size:.66rem;
+        font-weight:950;
+        letter-spacing:.07em;
+        text-transform:uppercase;
+    }
+
+    .bhd-current-id-copy strong {
+        display:block;
+        color:var(--ink);
+        font-size:.76rem;
+        font-weight:950;
+    }
+
+    .bhd-current-id-copy span {
+        display:block;
+        margin-top:3px;
+        color:var(--muted);
+        font-size:.7rem;
+        line-height:1.35;
+    }
+
+    .bhd-id-update-card {
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:20px;
+        background:var(--surface);
+    }
+
+    .bhd-id-update-head {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        padding:11px 13px;
+        border-bottom:1px solid var(--line);
+        background:var(--surface-soft);
+    }
+
+    .bhd-id-update-title {
+        display:flex;
+        align-items:center;
+        gap:11px;
+        min-width:0;
+    }
+
+    .bhd-id-update-title-icon {
+        width:38px;
+        height:38px;
+        flex:0 0 38px;
+        display:grid;
+        place-items:center;
+        border-radius:12px;
+        background:var(--brand-soft);
+        color:var(--brand);
+    }
+
+    .bhd-id-update-title strong {
+        display:block;
+        color:var(--ink);
+        font-size:.92rem;
+        font-weight:950;
+    }
+
+    .bhd-id-update-title span {
+        display:flex;
+        color:var(--muted);
+        font-size:.73rem;
+        margin-top:2px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bhd-id-required {
+        flex:0 0 auto;
+        padding:5px 8px;
+        border-radius:999px;
+        background:var(--warning-soft);
+        color:var(--warning);
+        font-size:.67rem;
+        font-weight:950;
+    }
+
+    .bhd-id-update-body {
+        padding:12px;
+    }
+
+    .bhd-id-steps {
+        display:none;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:10px;
+        margin-bottom:15px;
+    }
+
+    .bhd-id-step {
+        display:flex;
+        align-items:flex-start;
+        gap:9px;
+        min-width:0;
+        padding:11px;
+        border:1px solid var(--line);
+        border-radius:14px;
+        background:var(--surface-soft);
+    }
+
+    .bhd-id-step-number {
+        width:25px;
+        height:25px;
+        flex:0 0 25px;
+        display:grid;
+        place-items:center;
+        border-radius:8px;
+        background:var(--brand);
+        color:#fff;
+        font-size:.68rem;
+        font-weight:950;
+    }
+
+    .bhd-id-step strong {
+        display:block;
+        color:var(--ink);
+        font-size:.72rem;
+        font-weight:950;
+        line-height:1.25;
+    }
+
+    .bhd-id-step span {
+        display:block;
+        color:var(--muted);
+        font-size:.66rem;
+        line-height:1.35;
+        margin-top:2px;
+    }
+
+    .bhd-scan-panel {
+        margin-bottom:10px;
+        padding:13px 14px;
+        border-radius:16px;
+    }
+
+    .bhd-scan-panel strong {
+        font-size:.86rem;
+    }
+
+    .bhd-scan-panel span {
+        font-size:.75rem;
+        line-height:1.4;
+    }
+
+    .bhd-scan-status {
+        margin-bottom:12px;
+        padding:11px 12px;
+        border-radius:15px;
+    }
+
+    .bhd-upload-choice-grid {
+        gap:10px;
+        margin-bottom:13px;
+    }
+
+    .bhd-file-choice {
+        min-height:70px;
+        border-radius:15px;
+        padding:10px;
+    }
+
+    .bhd-id-new-grid {
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+    }
+
+    .bhd-id-new-card {
+        min-width:0;
+        padding:10px;
+        border:1px solid var(--line);
+        border-radius:16px;
+        background:var(--surface-soft);
+    }
+
+    .bhd-id-new-card-head {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        margin-bottom:8px;
+    }
+
+    .bhd-id-new-card-head strong {
+        color:var(--ink);
+        font-size:.74rem;
+        font-weight:950;
+    }
+
+    .bhd-id-new-card-head span {
+        color:var(--muted);
+        font-size:.64rem;
+        font-weight:900;
+    }
+
+    .bhd-id-new-card .bhd-id-preview-shell {
+        min-height:145px;
+        border-radius:12px;
+        background:var(--surface);
+    }
+
+    .bhd-id-new-card .bhd-id-empty {
+        padding:12px;
+        font-size:.7rem;
+    }
+
+    .bhd-id-new-card .bhd-id-empty i {
+        font-size:1.35rem;
+    }
+
+    .bhd-id-update-actions {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        padding-top:14px;
+        margin-top:14px;
+        border-top:1px solid var(--line);
+    }
+
+    .bhd-id-update-actions small {
+        max-width:470px;
+        color:var(--muted);
+        font-size:.7rem;
+        line-height:1.45;
+    }
+
+    .bhd-id-verification.is-verified {
+        border-color: color-mix(in srgb, var(--success) 28%, var(--line));
+        background: color-mix(in srgb, var(--success-soft) 45%, var(--surface));
+    }
+
+    .bhd-id-verification.is-unverified {
+        border-color: color-mix(in srgb, var(--danger) 28%, var(--line));
+        background: color-mix(in srgb, var(--danger-soft) 35%, var(--surface));
+    }
+
+    .bhd-id-verification.is-verified .bhd-id-verification-copy i {
+        background: var(--success-soft);
+        color: var(--success);
+    }
+
+    .bhd-id-verification.is-unverified .bhd-id-verification-copy i {
+        background: var(--danger-soft);
+        color: var(--danger);
+    }
+
+    .bhd-id-verification .bhd-status-pill.is-verified {
+        background: var(--success-soft);
+        color: var(--success);
+        border-color: color-mix(in srgb, var(--success) 25%, var(--line));
+    }
+
+    .bhd-id-verification .bhd-status-pill.is-unverified {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border-color: color-mix(in srgb, var(--danger) 25%, var(--line));
+    }
+
+    .bhd-file-choice {
+        position:relative;
+        align-items:center;
+    }
+
+    .bhd-file-choice .bhd-file-icon {
+        align-self:center;
+        justify-self:center;
+    }
+
+    .bhd-file-remove {
+        position:absolute;
+        top:7px;
+        right:7px;
+        width:27px;
+        height:27px;
+        display:none;
+        place-items:center;
+        border:1px solid color-mix(in srgb,var(--danger) 25%,var(--line));
+        border-radius:50%;
+        background:var(--danger-soft);
+        color:var(--danger);
+        cursor:pointer;
+        z-index:3;
+    }
+
+    .bhd-file-remove.is-visible {
+        display:grid;
+    }
+
+    .bhd-id-new-card .bhd-id-empty,
+    .bhd-id-preview-shell .bhd-id-empty {
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+    }
+
+    .bhd-id-new-card .bhd-id-empty i {
+        margin-inline:auto;
+    }
+
+    .bhd-id-verification {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:14px;
+        margin-top:12px;
+        padding:12px 14px;
+        border:1px solid var(--line);
+        border-radius:16px;
+        background:var(--surface-soft);
+    }
+
+    .bhd-id-verification-copy {
+        display:flex;
+        align-items:center;
+        gap:10px;
+        min-width:0;
+    }
+
+    .bhd-id-verification-copy i {
+        width:34px;
+        height:34px;
+        flex:0 0 34px;
+        display:grid;
+        place-items:center;
+        border-radius:11px;
+        background:var(--brand-soft);
+        color:var(--brand);
+    }
+
+    .bhd-id-verification-copy strong {
+        display:block;
+        color:var(--ink);
+        font-size:.78rem;
+        font-weight:950;
+    }
+
+    .bhd-id-verification-copy span {
+        display:block;
+        color:var(--muted);
+        font-size:.68rem;
+        margin-top:2px;
+    }
+
+    @media (max-width:1024px) {
+        .bhd-request-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .bhd-current-id-grid { grid-template-columns:1fr; }
+    }
+
+    @media (max-width:768px) {
+        .bhd-request-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .bhd-id-steps { grid-template-columns:1fr; }
+        .bhd-id-new-grid { grid-template-columns:1fr; }
+        .bhd-id-update-actions {
+            align-items:stretch;
+            flex-direction:column-reverse;
+        }
+        .bhd-id-update-actions .bhd-btn { width:100%; justify-content:center; }
+        .bhd-id-verification { align-items:flex-start; flex-direction:column; }
+    }
+
+    @media (max-width:575px) {
+        .bhd-request-summary { grid-template-columns:1fr 1fr; gap:9px; }
+        .bhd-request-stat { padding:12px; gap:9px; }
+        .bhd-request-stat-icon { width:36px; height:36px; flex-basis:36px; }
+        .bhd-request-stat-copy strong { font-size:1.15rem; }
+        .bhd-request-stat-copy span { font-size:.66rem; }
+        .bhd-current-id-card { grid-template-columns:88px minmax(0,1fr); }
+        .bhd-current-id-preview { height:68px; }
+        .bhd-id-update-head { padding:13px 14px; }
+        .bhd-id-update-body { padding:12px; }
+        .bhd-id-required { display:none; }
+    }
+
+    @media (max-width:390px) {
+        .bhd-request-summary { grid-template-columns:1fr; }
+    }
+
+    .bhd-correction-lock-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted, #6c757d);
+        margin-top: 6px;
+    }
+
+
+    /* ================================================================
+       Profile UI/UX refinement layer
+       - Keeps the interface at normal scale (no zoom / transform:scale)
+       - Improves hierarchy, spacing, focus states and responsive flow
+       ================================================================ */
+
+    .bhd-profile-layout {
+        grid-template-columns: minmax(290px, 320px) minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .bhd-profile-sidebar {
+        top: 96px;
+        padding: 24px;
+        border-radius: 26px;
+        box-shadow: 0 16px 42px rgba(15, 23, 42, 0.07);
+    }
+
+    .bhd-avatar-wrap {
+        margin-bottom: 18px;
+    }
+
+    .bhd-avatar-img,
+    .bhd-avatar-initials {
+        box-shadow:
+            0 0 0 5px var(--surface),
+            0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    .bhd-avatar-edit {
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .bhd-avatar-edit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
+    }
+
+    .bhd-avatar-edit:focus-visible,
+    .bhd-profile-tab:focus-visible,
+    .bhd-toggle-pw:focus-visible,
+    .bhd-file-choice:focus-within {
+        outline: 3px solid color-mix(in srgb, var(--brand) 28%, transparent);
+        outline-offset: 3px;
+    }
+
+    .bhd-profile-name {
+        font-size: 1.08rem;
+        letter-spacing: -0.015em;
+    }
+
+    .bhd-profile-username {
+        margin-top: 6px;
+    }
+
+    .bhd-profile-meta {
+        margin-top: 18px;
+        padding: 2px 14px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: var(--surface-soft);
+    }
+
+    .bhd-profile-meta .bhd-profile-stat {
+        padding: 12px 2px;
+    }
+
+    .bhd-profile-meta .bhd-profile-stat:first-child {
+        border-top: 0;
+    }
+
+    .bhd-profile-meta .bhd-profile-stat strong {
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .bhd-profile-content {
+        padding: 0;
+        overflow: hidden;
+        border-radius: 26px;
+        box-shadow: 0 16px 42px rgba(15, 23, 42, 0.07);
+    }
+
+    .bhd-profile-content .bhd-profile-tabs {
+        position: relative;
+        z-index: 2;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+        padding: 12px;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        background: color-mix(in srgb, var(--surface-soft) 88%, var(--surface));
+    }
+
+    .bhd-profile-content .bhd-profile-tab {
+        min-height: 52px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        line-height: 1.2;
+        transition: color .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .bhd-profile-content .bhd-profile-tab i {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 30px;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--surface) 80%, transparent);
+        color: var(--muted);
+        transition: color .16s ease, background .16s ease;
+    }
+
+    .bhd-profile-content .bhd-profile-tab:hover {
+        background: color-mix(in srgb, var(--surface) 72%, transparent);
+        color: var(--ink);
+    }
+
+    .bhd-profile-content .bhd-profile-tab.active {
+        border-color: color-mix(in srgb, var(--brand) 18%, var(--line));
+        box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+    }
+
+    .bhd-profile-content .bhd-profile-tab.active i {
+        background: var(--brand-soft);
+        color: var(--brand);
+    }
+
+    .bhd-profile-content .bhd-profile-panel {
+        padding: clamp(22px, 2.6vw, 30px);
+    }
+
+    .bhd-profile-content .bhd-panel-head {
+        align-items: center;
+        padding-bottom: 18px;
+        margin-bottom: 22px;
+    }
+
+    .bhd-profile-content .bhd-panel-head h2 {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 1.24rem;
+        letter-spacing: -0.02em;
+    }
+
+    .bhd-profile-content .bhd-panel-head h2 > i {
+        color: var(--brand);
+    }
+
+    .bhd-profile-content .bhd-panel-head p {
+        max-width: 680px;
+        line-height: 1.55;
+    }
+
+    .bhd-profile-content .bhd-section-label {
+        margin-top: 26px;
+        margin-bottom: 14px;
+    }
+
+    .bhd-profile-content .bhd-contact-card {
+        margin-top: 0;
+        padding: 18px;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
+    }
+
+    .bhd-profile-content .bhd-sensitive-notice,
+    .bhd-profile-content .bhd-scan-panel,
+    .bhd-profile-content .bhd-scan-status,
+    .bhd-profile-content .bhd-valid-id-intro {
+        box-shadow: 0 7px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .bhd-profile-content .bhd-profile-control,
+    .bhd-profile-content .bhd-phone-input {
+        min-height: 50px;
+    }
+
+    .bhd-profile-content .bhd-profile-control {
+        border-radius: 15px;
+    }
+
+    .bhd-profile-content .bhd-form-actions {
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 2px;
+    }
+
+    .bhd-profile-content .bhd-request-stat,
+    .bhd-profile-content .bhd-current-id-card,
+    .bhd-profile-content .bhd-id-new-card {
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
+    }
+
+    .bhd-profile-content .bhd-empty-state {
+        min-height: 260px;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 4px;
+        border: 1px dashed var(--line-strong);
+        border-radius: 20px;
+        background: var(--surface-soft);
+    }
+
+    .bhd-correction-card {
+        border-radius: 22px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.055);
+    }
+
+    .bhd-correction-hero {
+        padding: 16px 18px;
+    }
+
+    .bhd-correction-body {
+        padding: 18px;
+    }
+
+    @media (max-width: 1200px) {
+        .bhd-profile-layout {
+            grid-template-columns: minmax(270px, 290px) minmax(0, 1fr);
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .bhd-profile-layout {
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .bhd-profile-sidebar {
+            position: static;
+        }
+
+        .bhd-profile-content .bhd-profile-tabs {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .bhd-profile-content,
+        .bhd-profile-sidebar {
+            border-radius: 22px;
+        }
+
+        .bhd-profile-content .bhd-profile-tabs {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 10px;
+        }
+
+        .bhd-profile-content .bhd-profile-tab {
+            min-height: 52px;
+            font-size: .86rem;
+        }
+
+        .bhd-profile-content .bhd-profile-panel {
+            padding: 20px;
+        }
+
+        .bhd-profile-content .bhd-panel-head {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .bhd-profile-content .bhd-panel-head h2 {
+            font-size: 1.14rem;
+        }
+
+        .bhd-profile-content .bhd-form-actions {
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        /* Keep tab/button text at normal readable size; scroll instead of shrinking. */
+        .bhd-profile-content .bhd-profile-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            scroll-snap-type: inline proximity;
+            scrollbar-width: thin;
+            padding: 10px;
+        }
+
+        .bhd-profile-content .bhd-profile-tab {
+            flex: 0 0 auto;
+            width: auto;
+            min-width: 154px;
+            min-height: 52px;
+            justify-content: flex-start;
+            text-align: left;
+            scroll-snap-align: start;
+            font-size: .86rem;
+            padding: 10px 12px;
+            white-space: nowrap;
+        }
+
+        .bhd-profile-content .bhd-profile-panel {
+            padding: 18px;
+        }
+
+        .bhd-profile-sidebar {
+            padding: 20px;
+        }
+
+        .bhd-profile-meta {
+            padding-inline: 12px;
+        }
+
+        .bhd-profile-content .bhd-contact-card {
+            padding: 16px;
+        }
+
+        .bhd-profile-content .bhd-form-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .bhd-profile-content .bhd-form-actions .bhd-btn {
+            width: 100%;
+            justify-content: center;
+            min-height: 46px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bhd-profile-panel.active,
+        .bhd-profile-tab,
+        .bhd-avatar-edit {
+            animation: none !important;
+            transition: none !important;
         }
     }
 
@@ -2235,160 +3369,171 @@
 
 <section class="bhd-section pt-0">
     <div class="bhd-shell">
-        @if(session('success_info'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success_info') }}</div>
-        @endif
-        @if(session('success_account'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success_account') }}</div>
-        @endif
-        @if(session('success_password'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success_password') }}</div>
-        @endif
-        @if(session('success_photo'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success_photo') }}</div>
-        @endif
-        @if(session('success_id'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success_id') }}</div>
-        @endif
+        @foreach($sessionAlerts as $alert)
+            <div class="bhd-alert {{ $alert['type'] }}">
+                <i class="fas {{ $alertIcon($alert['type']) }}"></i> {{ $alert['message'] }}
 
-        @if(session('success'))
-            <div class="bhd-alert success"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
-        @endif
-
-        @if(session('warning'))
-            <div class="bhd-alert warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                {{ session('warning') }}
-
-                @if(session('pending_correction_id'))
-                    <div class="small mt-1">Concern reference:
-                @if($pendingProfileCorrection)
-                    {{ $formatConcernId($pendingProfileCorrection) }}
-                @else
-                    {{ 'PCC-' . now()->format('Y') . '-' . str_pad((string) session('pending_correction_id'), 6, '0', STR_PAD_LEFT) }}
-                @endif</div>
+                @if($alert['type'] === 'warning' && session('pending_correction_id'))
+                    <div class="small mt-1">
+                        Concern reference: {{ $formatConcernId($pendingProfileCorrection) }}
+                    </div>
                 @endif
             </div>
-        @endif
+        @endforeach
 
-        @if(session('error'))
-            <div class="bhd-alert danger"><i class="fas fa-exclamation-circle"></i> {{ session('error') }}</div>
-        @endif
+        @php $checkerClass = $activeCorrectionMeta['class'] ?? 'neutral'; @endphp
 
-        @php
-            $checkerClass = $activeCorrectionMeta['class'] ?? 'neutral';
-        @endphp
+        <article class="bhd-correction-card {{ $checkerClass }} {{ $shouldAutoExpand ? '' : 'is-collapsed' }}" id="profileCorrectionCard">
+            <div class="bhd-correction-hero">
+                <div class="bhd-correction-main">
+                    <span class="bhd-correction-icon">
+                        <i class="fas {{ $activeCorrectionMeta['icon'] }}"></i>
+                    </span>
 
-        <article class="bhd-correction-card {{ $checkerClass }}">
-            <div class="bhd-correction-main">
-                <span class="bhd-correction-icon">
-                    <i class="fas {{ $activeCorrectionMeta['icon'] ?? 'fa-circle-info' }}"></i>
-                </span>
+                    <div>
+                        @if($activeCorrection)
+                            <h2>
+                                {{ str_replace('_', ' ', ucfirst($activeCorrection->field_name)) }} correction —
+                                {{ $activeCorrectionMeta['label'] }}
+                            </h2>
+                        @else
+                            <h2>{{ __('messages.blade_profile_blade_profile_correction_concern_status') }}</h2>
+                        @endif
+                        <p>{{ $activeCorrectionMeta['message'] }}</p>
 
-                <div>
-                    <h2>{{ __('messages.blade_profile_blade_profile_correction_concern_status') }}</h2>
-                    <p>{{ $activeCorrectionMeta['message'] ?? 'You do not have a pending profile correction concern.' }}</p>
+                        {{-- Compact pill instead of a second full sentence when an alert already said it --}}
+                        @if($pendingProfileCorrection)
+                            <span class="bhd-correction-lock-pill">
+                                <i class="fas fa-lock"></i>
+                                {{ $hasSessionAlertAlready ? 'Forms locked' : 'Request forms are locked while this is pending' }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
+
+                <button type="button"
+                        class="bhd-correction-status bhd-correction-toggle {{ $checkerClass }}"
+                        id="profileCorrectionToggle"
+                        aria-expanded="{{ $shouldAutoExpand ? 'true' : 'false' }}"
+                        aria-controls="profileCorrectionBody">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
 
-            <span class="bhd-correction-status {{ $checkerClass }}">
-                <i class="fas {{ $activeCorrectionMeta['icon'] ?? 'fa-circle-info' }}"></i>
-                {{ $activeCorrectionMeta['label'] ?? 'No Active Concern' }}
-            </span>
-
-            @if($latestProfileCorrection)
-                <div class="bhd-correction-details">
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_profile_blade_concern_id') }}</span>
-                        <strong>{{ $formatConcernId($latestProfileCorrection) }}</strong>
+            <div class="bhd-correction-body" id="profileCorrectionBody" {{ $shouldAutoExpand ? '' : 'hidden' }}>
+                @if(!$pendingProfileCorrection)
+                    <div class="bhd-correction-note">
+                        <i class="fas fa-unlock"></i>
+                        <span>{{ __('messages.blade_profile_blade_no_pending_correction_is_blocking_your_service_request_') }}</span>
                     </div>
+                @endif
 
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_mission_vision_blade_service') }}</span>
-                        <strong>{{ $latestProfileCorrection->service ?: 'General Profile' }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_profile_blade_field') }}</span>
-                        <strong>{{ str_replace('_', ' ', ucfirst($latestProfileCorrection->field_name)) }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_index_blade_submitted') }}</span>
-                        <strong>{{ optional($latestProfileCorrection->created_at)->format('M d, Y h:i A') }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_profile_blade_current_value') }}</span>
-                        <strong>{{ $latestProfileCorrection->current_value ?: __('messages.blade_announcement_blade_n_a') }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_profile_blade_correct_value') }}</span>
-                        <strong>{{ $latestProfileCorrection->correct_value ?: __('messages.blade_announcement_blade_n_a') }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.profile_table_status') }}</span>
-                        <strong>{{ ucfirst($latestProfileCorrection->status) }}</strong>
-                    </div>
-
-                    <div class="bhd-correction-box">
-                        <span>{{ __('messages.blade_profile_blade_reviewed') }}</span>
-                        <strong>{{ $latestProfileCorrection->reviewed_at ? $latestProfileCorrection->reviewed_at->format('M d, Y h:i A') : __('messages.blade_fallback_not_yet') }}</strong>
-                    </div>
-
-                    @if(!empty($latestProfileCorrection->message))
-                        <div class="bhd-correction-note">
-                            <i class="fas fa-message"></i>
-                            <span>{{ $latestProfileCorrection->message }}</span>
+                @if($latestProfileCorrection)
+                    <div class="bhd-correction-details">
+                        @php $latestCorrectionMeta = $correctionStatusMeta($latestProfileCorrection->status); @endphp
+                        <div class="bhd-correction-box-head">
+                            <span class="bhd-correction-status {{ $latestCorrectionMeta['class'] }}">
+                                <i class="fas {{ $latestCorrectionMeta['icon'] }}"></i>
+                                {{ $latestCorrectionMeta['label'] }}
+                            </span>
+                            <strong>{{ $formatConcernId($latestProfileCorrection) }}</strong>
                         </div>
-                    @endif
 
-                    @if($pendingProfileCorrection)
-                        <div class="bhd-correction-note">
-                            <i class="fas fa-lock"></i>
+                        <div class="bhd-correction-correcting">
+                            <span class="fw-bold">You're correcting</span>
+                            <strong>{{ str_replace('_', ' ', ucfirst($latestProfileCorrection->field_name)) }} on your {{ $latestProfileCorrection->service }}</strong>
+                        </div>
+
+                        <div class="bhd-correction-compare">
+                            <div class="bhd-correction-compare-box">
+                                <span>{{ __('messages.blade_profile_blade_current_value') }}</span>
+                                <strong class="text-strike">{{ $latestProfileCorrection->current_value ?: __('messages.blade_announcement_blade_n_a') }}</strong>
+                            </div>
+                            <div class="bhd-correction-compare-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="bhd-correction-compare-box">
+                                <span>{{ __('messages.blade_profile_blade_correct_value') }}</span>
+                                <strong>{{ $latestProfileCorrection->correct_value ?: __('messages.blade_announcement_blade_n_a') }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="bhd-correction-note justify-content-between">
+                            @if(!empty($latestProfileCorrection->message))
+                                <div class="bhd-correction-note bhd-correction-remarks">
+                                    <i class="fas fa-message"></i>
+                                    <span>{{ $latestProfileCorrection->message }}</span>
+                                </div>
+                            @endif
                             <span>
-                                {{ __('messages.blade_profile_blade_request_forms_are_temporarily_locked_while_this_concern') }}
+                                {{ __('messages.blade_index_blade_submitted') }} {{ optional($latestProfileCorrection->created_at)->format('M d, Y') }}.
+                                {{ $latestProfileCorrection->reviewed_at ? $latestProfileCorrection->reviewed_at->format('M d, Y h:i A') . ' reviewed' : __('messages.blade_fallback_not_yet') . ' reviewed' }} by barangay staff.
                             </span>
                         </div>
-                    @else
-                        <div class="bhd-correction-note">
-                            <i class="fas fa-unlock"></i>
-                            <span>{{ __('messages.blade_profile_blade_no_pending_correction_is_blocking_your_service_request_') }}</span>
-                        </div>
-                    @endif
 
-                    @if($profileCorrectionConcerns->count() > 1)
-                        <div class="bhd-correction-history">
-                            <div class="bhd-correction-history-title">{{ __('messages.blade_profile_blade_recent_correction_concerns') }}</div>
-
-                            @foreach($profileCorrectionConcerns->skip(1) as $concern)
-                                @php $historyMeta = $correctionStatusMeta($concern->status); @endphp
-
-                                <div class="bhd-correction-history-row">
-                                    <div>
-                                        <strong>{{ $formatConcernId($concern) }} · {{ str_replace('_', ' ', ucfirst($concern->field_name)) }}</strong>
-                                        <span>{{ $concern->service ?: 'General Profile' }} · {{ optional($concern->created_at)->format('M d, Y h:i A') }}</span>
-                                    </div>
-
-                                    <span class="bhd-correction-status {{ $historyMeta['class'] }}">
-                                        <i class="fas {{ $historyMeta['icon'] }}"></i>
-                                        {{ $historyMeta['label'] }}
-                                    </span>
+                        @if(strtolower(trim((string) $latestProfileCorrection->status)) === 'rejected')
+                            <div class="bhd-correction-resubmit">
+                                <div class="bhd-correction-resubmit-copy">
+                                    <i class="fas fa-circle-info"></i>
+                                    <span>This request wasn't approved. You can submit a new one with the correct details.</span>
                                 </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            @else
-                <div class="bhd-correction-details">
+                                <button type="button" class="bhd-btn bhd-btn-primary" data-bs-toggle="modal" data-bs-target="#profileCorrectionModal">
+                                    <i class="fas fa-rotate-right"></i> Submit again
+                                </button>
+                            </div>
+                        @endif
+
+                        @if($pastProfileCorrections->isNotEmpty())
+                            <button type="button"
+                                    class="bhd-correction-history-toggle"
+                                    id="profileCorrectionHistoryToggle"
+                                    aria-expanded="false"
+                                    aria-controls="profileCorrectionHistory">
+                                <i class="fas fa-chevron-down"></i>
+                                {{ $pastProfileCorrections->count() }} past concern{{ $pastProfileCorrections->count() > 1 ? 's' : '' }}
+                            </button>
+
+                            <div class="bhd-correction-history" id="profileCorrectionHistory">
+                                @foreach($pastProfileCorrections as $concern)
+                                    @php $historyMeta = $correctionStatusMeta($concern->status); @endphp
+                                    <div class="bhd-correction-history-row">
+                                        <div>
+                                            <strong>{{ str_replace('_', ' ', ucfirst($concern->field_name)) }}</strong>
+                                            <span>{{ optional($concern->created_at)->format('M d, Y') }} · {{ $formatConcernId($concern) }}</span>
+                                        </div>
+                                        <button type="button"
+                                                class="bhd-correction-history-status {{ $historyMeta['class'] }}"
+                                                data-history-target="profileCorrectionHistoryDetail{{ $concern->id }}"
+                                                aria-expanded="false"
+                                                aria-controls="profileCorrectionHistoryDetail{{ $concern->id }}">
+                                            <i class="fas {{ $historyMeta['icon'] }}"></i>
+                                            {{ $historyMeta['label'] }}
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                        <div class="bhd-correction-history-detail" id="profileCorrectionHistoryDetail{{ $concern->id }}">
+                                            <div>
+                                                <strong>{{ __('messages.blade_profile_blade_current_value') }}:</strong>
+                                                {{ $concern->current_value ?: __('messages.blade_announcement_blade_n_a') }}
+                                                <strong>{{ __('messages.blade_profile_blade_correct_value') }}:</strong>
+                                                {{ $concern->correct_value ?: __('messages.blade_announcement_blade_n_a') }}
+                                            </div>
+                                            <div class="remarks">
+                                                <strong>Admin remarks:</strong>
+                                                {{ $concern->remarks ?: 'No admin remarks were added.' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @else
                     <div class="bhd-correction-note">
                         <i class="fas fa-circle-info"></i>
                         <span>{{ __('messages.blade_profile_blade_no_profile_correction_concern_has_been_submitted_yet') }}</span>
                     </div>
-                </div>
-            @endif
+                @endif
+            </div>
         </article>
 
         <div class="bhd-profile-layout">
@@ -2402,7 +3547,7 @@
                         </div>
                     @endif
 
-                    <label for="quickPhotoInput" class="bhd-avatar-edit" title="{{ __('messages.blade_profile_blade_change_photo') }}">
+                    <label for="quickPhotoInput" class="bhd-avatar-edit" title="{{ __('messages.blade_profile_blade_change_photo') }}" role="button" tabindex="0" aria-label="{{ __('messages.blade_profile_blade_change_photo') }}">
                         <i class="fas fa-camera"></i>
                     </label>
                 </div>
@@ -2425,25 +3570,27 @@
                     <span class="bhd-verified-badge unverified"><i class="fas fa-exclamation-circle me-1"></i> {{ __('messages.profile_badge_unverified') }}</span>
                 @endif
 
-                <div class="mt-3">
+                <div class="bhd-profile-meta">
                     <div class="bhd-profile-stat"><span>{{ __('messages.profile_stat_member_since') }}</span><strong>{{ $resident->created_at->format('M Y') }}</strong></div>
                     <div class="bhd-profile-stat"><span>{{ __('messages.profile_stat_total_requests') }}</span><strong>{{ $totalRequests }}</strong></div>
                 </div>
-
-                <nav class="bhd-profile-tabs" id="profileTabs">
-                    <button class="bhd-profile-tab active" type="button" data-tab="info"><i class="fas fa-user"></i> {{ __('messages.form_step_personal_info') }}</button>
-                    <button class="bhd-profile-tab" type="button" data-tab="account"><i class="fas fa-cog"></i> {{ __('messages.blade_public_nav_blade_account') }}</button>
-                    <button class="bhd-profile-tab" type="button" data-tab="requests"><i class="fas fa-file-alt"></i> {{ __('messages.blade_profile_blade_requests') }}</button>
-                    <button class="bhd-profile-tab" type="button" data-tab="valid-id"><i class="fas fa-id-card"></i> {{ __('messages.blade_certificate_indigency_blade_valid_id') }}</button>
-                </nav>
 
                 <a href="{{ route('logout.res') }}" class="bhd-btn bhd-btn-line w-100 mt-3">
                     <i class="fas fa-right-from-bracket"></i> {{ __('messages.profile_signout_btn') }}
                 </a>
             </aside>
 
-            <div class="bhd-form-card">
-                <div class="bhd-profile-panel active" id="tab-info">
+            <div class="bhd-form-card bhd-profile-content">
+                {{-- Section tabs live with the content they control, not
+                     stacked inside the profile-summary card above. --}}
+                <nav class="bhd-profile-tabs" id="profileTabs" role="tablist" aria-label="{{ __('messages.nav_my_profile') }}">
+                    <button class="bhd-profile-tab active" id="profile-tab-info" type="button" role="tab" aria-selected="true" aria-controls="tab-info" tabindex="0" data-tab="info"><i class="fas fa-user"></i> {{ __('messages.form_step_personal_info') }}</button>
+                    <button class="bhd-profile-tab" id="profile-tab-account" type="button" role="tab" aria-selected="false" aria-controls="tab-account" tabindex="-1" data-tab="account"><i class="fas fa-cog"></i> {{ __('messages.blade_public_nav_blade_account') }}</button>
+                    <button class="bhd-profile-tab" id="profile-tab-requests" type="button" role="tab" aria-selected="false" aria-controls="tab-requests" tabindex="-1" data-tab="requests"><i class="fas fa-file-alt"></i> {{ __('messages.blade_profile_blade_requests') }}</button>
+                    <button class="bhd-profile-tab" id="profile-tab-valid-id" type="button" role="tab" aria-selected="false" aria-controls="tab-valid-id" tabindex="-1" data-tab="valid-id"><i class="fas fa-id-card"></i> {{ __('messages.blade_certificate_indigency_blade_valid_id') }}</button>
+                </nav>
+
+                <div class="bhd-profile-panel active" id="tab-info" role="tabpanel" aria-labelledby="profile-tab-info">
                     <div class="bhd-panel-head">
                         <div>
                             <h2><i class="fas fa-user me-2"></i>{{ __('messages.register_step1_heading') }}</h2>
@@ -2492,6 +3639,8 @@
                             </div>
                         </div>
                     @endif
+
+                    <div class="bhd-section-label"><i class="fas fa-lock"></i> Identity details (read-only)</div>
 
                     <div class="bhd-locked-grid">
                         <div class="bhd-locked-box">
@@ -2561,6 +3710,8 @@
                         </div>
                     </div>
 
+                    <div class="bhd-section-label"><i class="fas fa-pen"></i> Editable</div>
+
                     <div class="bhd-contact-card">
                         <h3><i class="fas fa-phone me-2"></i>{{ __('messages.register_contact_label') }}</h3>
                         <p>{{ __('messages.blade_profile_blade_you_can_update_your_contact_number_directly_because_thi') }}</p>
@@ -2599,7 +3750,7 @@
                     </div>
                 </div>
 
-                <div class="bhd-profile-panel" id="tab-account">
+                <div class="bhd-profile-panel" id="tab-account" role="tabpanel" aria-labelledby="profile-tab-account">
                     <div class="bhd-panel-head">
                         <div>
                             <h2><i class="fas fa-cog me-2"></i>{{ __('messages.profile_nav_account_settings') }}</h2>
@@ -2620,37 +3771,41 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('profile.account') }}">
-                        @csrf
+                    <div class="bhd-section-label"><i class="fas fa-id-badge"></i> Account details</div>
 
-                        <div class="bhd-form-grid">
-                            <div>
-                                <label class="bhd-profile-label">{{ __('messages.form_username_label') }}</label>
-                                <input type="text" name="username" value="{{ old('username', $resident->username) }}" class="bhd-profile-control @error('username') is-invalid @enderror" required>
+                    <div class="bhd-contact-card">
+                        <form method="POST" action="{{ route('profile.account') }}">
+                            @csrf
+
+                            <div class="bhd-form-grid">
+                                <div>
+                                    <label class="bhd-profile-label">{{ __('messages.form_username_label') }}</label>
+                                    <input type="text" name="username" value="{{ old('username', $resident->username) }}" class="bhd-profile-control @error('username') is-invalid @enderror" required>
+                                </div>
+
+                                <div>
+                                    <label class="bhd-profile-label">{{ __('messages.blade_profile_blade_email') }}</label>
+                                    <input type="email" name="email" value="{{ old('email', $resident->email) }}" class="bhd-profile-control @error('email') is-invalid @enderror" required>
+                                </div>
                             </div>
 
-                            <div>
-                                <label class="bhd-profile-label">{{ __('messages.blade_profile_blade_email') }}</label>
-                                <input type="email" name="email" value="{{ old('email', $resident->email) }}" class="bhd-profile-control @error('email') is-invalid @enderror" required>
+                            <div class="bhd-form-actions">
+                                <button type="submit" class="bhd-btn bhd-btn-primary"><i class="fas fa-save"></i> {{ __('messages.blade_profile_blade_update_account') }}</button>
+
+                                @unless($resident->email_verified_at)
+                                    <button type="button" class="bhd-btn bhd-btn-soft" onclick="document.getElementById('resendVerifyForm').submit();">
+                                        <i class="fas fa-envelope"></i> {{ __('messages.blade_profile_blade_verify_email') }}
+                                    </button>
+                                @endunless
                             </div>
-                        </div>
-
-                        <div class="bhd-form-actions">
-                            <button type="submit" class="bhd-btn bhd-btn-primary"><i class="fas fa-save"></i> {{ __('messages.blade_profile_blade_update_account') }}</button>
-
-                            @unless($resident->email_verified_at)
-                                <button type="button" class="bhd-btn bhd-btn-soft" onclick="document.getElementById('resendVerifyForm').submit();">
-                                    <i class="fas fa-envelope"></i> {{ __('messages.blade_profile_blade_verify_email') }}
-                                </button>
-                            @endunless
-                        </div>
-                    </form>
+                        </form>
+                    </div>
 
                     <form id="resendVerifyForm" method="POST" action="{{ route('verification.send') }}" class="d-none">
                         @csrf
                     </form>
 
-                    <hr class="my-4">
+                    <div class="bhd-section-label"><i class="fas fa-key"></i> Change password</div>
 
                     @if($errors->hasAny(['current_password','new_password']))
                         <div class="bhd-alert danger">
@@ -2665,19 +3820,20 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('profile.password') }}" id="passwordForm">
-                        @csrf
+                    <div class="bhd-contact-card">
+                        <form method="POST" action="{{ route('profile.password') }}" id="passwordForm">
+                            @csrf
 
-                        <div class="bhd-form-grid">
-                            <div class="bhd-form-group full">
-                                <label class="bhd-profile-label">{{ __('messages.profile_current_password_label') }}</label>
-                                <div class="position-relative">
-                                    <input type="password" name="current_password" id="currentPw" class="bhd-profile-control @error('current_password') is-invalid @enderror" autocomplete="current-password" placeholder="{{ __('messages.blade_profile_blade_enter_current_password') }}" style="padding-right:48px;">
-                                    <button type="button" class="bhd-toggle-pw" data-target="currentPw"><i class="fas fa-eye"></i></button>
+                            <div class="bhd-form-grid">
+                                <div>
+                                    <label class="bhd-profile-label">{{ __('messages.profile_current_password_label') }}</label>
+                                    <div class="position-relative">
+                                        <input type="password" name="current_password" id="currentPw" class="bhd-profile-control @error('current_password') is-invalid @enderror" autocomplete="current-password" placeholder="{{ __('messages.blade_profile_blade_enter_current_password') }}" style="padding-right:48px;">
+                                        <button type="button" class="bhd-toggle-pw" data-target="currentPw"><i class="fas fa-eye"></i></button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div>
+                                <div>
                                 <label class="bhd-profile-label">{{ __('messages.profile_new_password_label') }}</label>
                                 <div class="position-relative">
                                     <input type="password" name="new_password" id="newPw" class="bhd-profile-control @error('new_password') is-invalid @enderror" autocomplete="new-password" placeholder="{{ __('messages.blade_profile_blade_create_a_stronger_password') }}" style="padding-right:48px;">
@@ -2701,9 +3857,10 @@
                             <button type="submit" class="bhd-btn bhd-btn-primary"><i class="fas fa-lock"></i> {{ __('messages.profile_change_password_subheading') }}</button>
                         </div>
                     </form>
+                    </div>
                 </div>
 
-                <div class="bhd-profile-panel" id="tab-requests">
+                <div class="bhd-profile-panel" id="tab-requests" role="tabpanel" aria-labelledby="profile-tab-requests">
                     <div class="bhd-panel-head">
                         <div>
                             <h2><i class="fas fa-file-alt me-2"></i>{{ __('messages.profile_nav_request_history') }}</h2>
@@ -2711,71 +3868,112 @@
                         </div>
                     </div>
 
-                    <div class="bhd-four-grid mb-4">
-                        <article class="bhd-simple-card"><span class="bhd-card-icon"><i class="fas fa-certificate"></i></span><h3>{{ $clearanceCount }}</h3><p>{{ __('messages.profile_counter_clearances') }}</p></article>
-                        <article class="bhd-simple-card"><span class="bhd-card-icon"><i class="fas fa-house-user"></i></span><h3>{{ $residencyCount }}</h3><p>{{ __('messages.profile_counter_residency') }}</p></article>
-                        <article class="bhd-simple-card"><span class="bhd-card-icon"><i class="fas fa-hands-helping"></i></span><h3>{{ $indigencyCount }}</h3><p>{{ __('messages.profile_counter_indigency') }}</p></article>
-                        <article class="bhd-simple-card"><span class="bhd-card-icon"><i class="fas fa-triangle-exclamation"></i></span><h3>{{ $blotterCount }}</h3><p>{{ __('messages.blade_profile_blade_reports') }}</p></article>
+                    <div class="bhd-request-summary">
+                        <article class="bhd-request-stat">
+                            <span class="bhd-request-stat-icon"><i class="fas fa-certificate"></i></span>
+                            <div class="bhd-request-stat-copy">
+                                <span>{{ __('messages.profile_counter_clearances') }}</span>
+                                <strong>{{ $clearanceCount }}</strong>
+                            </div>
+                        </article>
+
+                        <article class="bhd-request-stat">
+                            <span class="bhd-request-stat-icon"><i class="fas fa-house-user"></i></span>
+                            <div class="bhd-request-stat-copy">
+                                <span>{{ __('messages.profile_counter_residency') }}</span>
+                                <strong>{{ $residencyCount }}</strong>
+                            </div>
+                        </article>
+
+                        <article class="bhd-request-stat">
+                            <span class="bhd-request-stat-icon"><i class="fas fa-hands-helping"></i></span>
+                            <div class="bhd-request-stat-copy">
+                                <span>{{ __('messages.profile_counter_indigency') }}</span>
+                                <strong>{{ $indigencyCount }}</strong>
+                            </div>
+                        </article>
+
+                        <article class="bhd-request-stat">
+                            <span class="bhd-request-stat-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                            <div class="bhd-request-stat-copy">
+                                <span>{{ __('messages.profile_counter_blotter') }}</span>
+                                <strong>{{ $blotterCount }}</strong>
+                            </div>
+                        </article>
                     </div>
 
                     @if(count($recentRequests))
-                        <div class="bhd-table-wrap">
-                            <table class="bhd-table">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('messages.blade_profile_blade_reference') }}</th>
-                                        <th>{{ __('messages.profile_table_type') }}</th>
-                                        <th>{{ __('messages.profile_table_status') }}</th>
-                                        <th>{{ __('messages.blade_profile_blade_date') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($recentRequests as $req)
-                                        @php
-                                            $referenceNumber = data_get($req, 'reference')
-                                                ?? data_get($req, 'reference_number')
-                                                ?? data_get($req, 'incident_number')
-                                                ?? __('messages.blade_announcement_blade_n_a');
+                        <section class="bhd-request-history">
+                            <div class="bhd-request-history-head">
+                                <strong><i class="fas fa-clock-rotate-left me-2"></i>{{ __('messages.profile_nav_request_history') }}</strong>
+                                <span>{{ count($recentRequests) }} recent</span>
+                            </div>
 
-                                            $requestType = data_get($req, 'type')
-                                                ?? data_get($req, 'request_type')
-                                                ?? 'Request';
-
-                                            $requestStatus = data_get($req, 'status') ?: 'Pending';
-
-                                            $rawDate = data_get($req, 'date')
-                                                ?? data_get($req, 'created_at')
-                                                ?? data_get($req, 'submitted_at')
-                                                ?? null;
-
-                                            $displayDate = 'N/A';
-
-                                            if ($rawDate) {
-                                                try {
-                                                    $displayDate = $rawDate instanceof \Carbon\CarbonInterface
-                                                        ? $rawDate->format('M d, Y')
-                                                        : \Carbon\Carbon::parse($rawDate)->format('M d, Y');
-                                                } catch (\Throwable $e) {
-                                                    $displayDate = (string) $rawDate;
-                                                }
-                                            }
-                                        @endphp
-
+                            <div class="bhd-table-wrap">
+                                <table class="bhd-table">
+                                    <thead>
                                         <tr>
-                                            <td data-label="{{ __('messages.profile_table_ref') }}"><strong>{{ $referenceNumber }}</strong></td>
-                                            <td data-label="{{ __('messages.profile_table_type') }}">
-                                                <span class="bhd-request-type">
-                                                    <i class="fas fa-file-alt"></i>
-                                                    {{ $requestType }}
-                                                </span>
-                                            </td>
-                                            <td data-label="{{ __('messages.profile_table_status') }}"><span class="bhd-status-pill">{{ ucfirst((string) $requestStatus) }}</span></td>
-                                            <td data-label="{{ __('messages.profile_table_date') }}">{{ $displayDate }}</td>
+                                            <th>{{ __('messages.blade_profile_blade_reference') }}</th>
+                                            <th>{{ __('messages.profile_table_type') }}</th>
+                                            <th>{{ __('messages.profile_table_status') }}</th>
+                                            <th>{{ __('messages.blade_profile_blade_date') }}</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentRequests as $req)
+                                            @php
+                                                $referenceNumber = data_get($req, 'reference')
+                                                    ?? data_get($req, 'reference_number')
+                                                    ?? data_get($req, 'incident_number')
+                                                    ?? __('messages.blade_announcement_blade_n_a');
+
+                                                $requestType = data_get($req, 'type')
+                                                    ?? data_get($req, 'request_type')
+                                                    ?? 'Request';
+
+                                                $requestStatus = data_get($req, 'status') ?: 'Pending';
+
+                                                $rawDate = data_get($req, 'date')
+                                                    ?? data_get($req, 'created_at')
+                                                    ?? data_get($req, 'submitted_at')
+                                                    ?? null;
+
+                                                $displayDate = 'N/A';
+
+                                                if ($rawDate) {
+                                                    try {
+                                                        $displayDate = $rawDate instanceof \Carbon\CarbonInterface
+                                                            ? $rawDate->format('M d, Y')
+                                                            : \Carbon\Carbon::parse($rawDate)->format('M d, Y');
+                                                    } catch (\Throwable $e) {
+                                                        $displayDate = (string) $rawDate;
+                                                    }
+                                                }
+                                            @endphp
+
+                                            <tr>
+                                                <td data-label="{{ __('messages.profile_table_ref') }}">
+                                                    <div class="bhd-request-ref">
+                                                        <strong>{{ $referenceNumber }}</strong>
+                                                        <span>{{ __('messages.blade_profile_blade_reference') }}</span>
+                                                    </div>
+                                                </td>
+                                                <td data-label="{{ __('messages.profile_table_type') }}">
+                                                    <span class="bhd-request-type">
+                                                        <i class="fas fa-file-lines"></i>
+                                                        {{ $requestType }}
+                                                    </span>
+                                                </td>
+                                                <td data-label="{{ __('messages.profile_table_status') }}">
+                                                    <span class="bhd-request-status">{{ ucfirst((string) $requestStatus) }}</span>
+                                                </td>
+                                                <td data-label="{{ __('messages.profile_table_date') }}">{{ $displayDate }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
                     @else
                         <div class="bhd-empty-state">
                             <i class="fas fa-inbox fa-2x mb-2"></i>
@@ -2785,7 +3983,7 @@
                     @endif
                 </div>
 
-                <div class="bhd-profile-panel" id="tab-valid-id">
+                <div class="bhd-profile-panel" id="tab-valid-id" role="tabpanel" aria-labelledby="profile-tab-valid-id">
                     <div class="bhd-panel-head">
                         <div>
                             <h2><i class="fas fa-id-card me-2"></i>{{ __('messages.profile_nav_valid_id') }}</h2>
@@ -2793,24 +3991,36 @@
                         </div>
                     </div>
 
-                    <div class="bhd-valid-id-grid mb-4">
-                        <article class="bhd-id-side-card">
-                            <div class="bhd-id-side-head">
-                                <strong><i class="fas fa-id-card"></i> {{ __('messages.blade_profile_blade_current_front') }}</strong>
-                                <span>{{ __('messages.blade_profile_blade_front') }}</span>
-                            </div>
+                    <div class="bhd-valid-id-intro">
+                        <span class="bhd-valid-id-intro-icon"><i class="fas fa-shield-halved"></i></span>
+                        <div>
+                            <strong>Keep both sides of your ID clear and readable.</strong>
+                            <span>Check your current ID first. If you need to replace it, upload or scan the front and back below, then submit once.</span>
+                        </div>
+                    </div>
 
-                            <div class="bhd-id-preview-shell">
+                    <div class="bhd-section-label"><i class="fas fa-eye"></i> Currently on file</div>
+
+                    <div class="bhd-current-id-grid">
+                        <article class="bhd-current-id-card">
+                            <div class="bhd-current-id-preview"
+                                @if($resident->valid_id && in_array(strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp']))
+                                    data-id-viewer
+                                    data-img-src="{{ asset($resident->valid_id) }}"
+                                    data-img-label="{{ __('messages.blade_profile_blade_front') }} — {{ __('messages.blade_profile_blade_current_front') }}"
+                                    role="button"
+                                    tabindex="0"
+                                @endif
+                            >
                                 @if($resident->valid_id)
                                     @php $frontExt = pathinfo($resident->valid_id, PATHINFO_EXTENSION); @endphp
-
                                     @if(in_array(strtolower($frontExt), ['jpg','jpeg','png','webp']))
                                         <img src="{{ asset($resident->valid_id) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_front') }}" loading="lazy">
+                                        <span class="bhd-id-view-hint"><i class="fas fa-magnifying-glass-plus"></i></span>
                                     @else
                                         <div class="bhd-id-empty">
                                             <i class="fas fa-file-pdf"></i>
-                                            <p class="mb-1">{{ __('messages.blade_profile_blade_front_id_file_uploaded') }}</p>
-                                            <a href="{{ asset($resident->valid_id) }}" target="_blank" class="bhd-link">{{ __('messages.blade_profile_blade_open_file') }} <i class="fas fa-arrow-right"></i></a>
+                                            <p class="mb-0">{{ __('messages.blade_profile_blade_front_id_file_uploaded') }}</p>
                                         </div>
                                     @endif
                                 @else
@@ -2820,25 +4030,32 @@
                                     </div>
                                 @endif
                             </div>
+                            <div class="bhd-current-id-copy">
+                                <span class="eyebrow">{{ __('messages.blade_profile_blade_front') }}</span>
+                                <strong>{{ __('messages.blade_profile_blade_current_front') }}</strong>
+                                <span>{{ $resident->valid_id ? 'A front-side ID is currently saved.' : __('messages.blade_profile_blade_no_front_id_uploaded_yet') }}</span>
+                            </div>
                         </article>
 
-                        <article class="bhd-id-side-card">
-                            <div class="bhd-id-side-head">
-                                <strong><i class="fas fa-id-card-clip"></i> {{ __('messages.blade_profile_blade_current_back') }}</strong>
-                                <span>{{ __('messages.blade_profile_blade_back') }}</span>
-                            </div>
-
-                            <div class="bhd-id-preview-shell">
+                        <article class="bhd-current-id-card">
+                            <div class="bhd-current-id-preview"
+                                @if(!empty($resident->valid_id_back) && in_array(strtolower(pathinfo($resident->valid_id_back, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp']))
+                                    data-id-viewer
+                                    data-img-src="{{ asset($resident->valid_id_back) }}"
+                                    data-img-label="{{ __('messages.blade_profile_blade_back') }} — {{ __('messages.blade_profile_blade_current_back') }}"
+                                    role="button"
+                                    tabindex="0"
+                                @endif
+                            >
                                 @if(!empty($resident->valid_id_back))
                                     @php $backExt = pathinfo($resident->valid_id_back, PATHINFO_EXTENSION); @endphp
-
                                     @if(in_array(strtolower($backExt), ['jpg','jpeg','png','webp']))
                                         <img src="{{ asset($resident->valid_id_back) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_back') }}" loading="lazy">
+                                        <span class="bhd-id-view-hint"><i class="fas fa-magnifying-glass-plus"></i></span>
                                     @else
                                         <div class="bhd-id-empty">
                                             <i class="fas fa-file-pdf"></i>
-                                            <p class="mb-1">{{ __('messages.blade_profile_blade_back_id_file_uploaded') }}</p>
-                                            <a href="{{ asset($resident->valid_id_back) }}" target="_blank" class="bhd-link">{{ __('messages.blade_profile_blade_open_file') }} <i class="fas fa-arrow-right"></i></a>
+                                            <p class="mb-0">{{ __('messages.blade_profile_blade_back_id_file_uploaded') }}</p>
                                         </div>
                                     @endif
                                 @else
@@ -2848,26 +4065,31 @@
                                     </div>
                                 @endif
                             </div>
+                            <div class="bhd-current-id-copy">
+                                <span class="eyebrow">{{ __('messages.blade_profile_blade_back') }}</span>
+                                <strong>{{ __('messages.blade_profile_blade_current_back') }}</strong>
+                                <span>{{ !empty($resident->valid_id_back) ? 'A back-side ID is currently saved.' : __('messages.blade_profile_blade_no_back_id_uploaded_yet') }}</span>
+                            </div>
                         </article>
                     </div>
 
-                    <article class="bhd-simple-card mb-3">
-                        <span class="bhd-card-icon"><i class="fas fa-shield-alt"></i></span>
-                        <h3>{{ __('messages.blade_profile_blade_verification_status') }}</h3>
-
+                    <div class="bhd-id-verification {{ ($resident->valid_id_verified ?? false) ? 'is-verified' : 'is-unverified' }}">
+                        <div class="bhd-id-verification-copy">
+                            <i class="fas fa-shield-halved"></i>
+                            <div>
+                                <strong>{{ __('messages.blade_profile_blade_verification_status') }}</strong>
+                                <span>{{ !empty($resident->valid_id_remarks) ? $resident->valid_id_remarks : 'Your uploaded ID is checked by barangay staff.' }}</span>
+                            </div>
+                        </div>
                         @if($resident->valid_id_verified ?? false)
-                            <span class="bhd-status-pill"><i class="fas fa-check-circle"></i> {{ __('messages.blade_profile_blade_verified') }}</span>
+                            <span class="bhd-status-pill is-verified"><i class="fas fa-check-circle"></i> {{ __('messages.blade_profile_blade_verified') }}</span>
                         @else
-                            <span class="bhd-status-pill"><i class="fas fa-clock"></i> {{ __('messages.blade_profile_blade_for_verification') }}</span>
+                            <span class="bhd-status-pill is-unverified"><i class="fas fa-circle-xmark"></i> Not verified</span>
                         @endif
-
-                        @if(!empty($resident->valid_id_remarks))
-                            <p class="mt-3"><strong>{{ __('messages.print_remarks_label') }}</strong> {{ $resident->valid_id_remarks }}</p>
-                        @endif
-                    </article>
+                    </div>
 
                     @if($errors->has('valid_id') || $errors->has('valid_id_back'))
-                        <div class="bhd-alert danger">
+                        <div class="bhd-alert danger mt-3">
                             <i class="fas fa-exclamation-triangle"></i>
                             <div>
                                 @error('valid_id') <div>{{ $message }}</div> @enderror
@@ -2876,110 +4098,147 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('profile.id') }}" enctype="multipart/form-data" id="idUploadForm">
-                        @csrf
+                    <div class="bhd-section-label"><i class="fas fa-arrow-up-from-bracket"></i> Replace it</div>
 
-                        <div class="bhd-scan-panel">
-                            <div>
-                                <strong>{{ __('messages.blade_profile_blade_automatic_front_and_back_id_scan') }}</strong>
-                                <span>{{ __('messages.blade_profile_blade_click_once_the_scanner_captures_the_front_side_first_th') }}</span>
-                            </div>
-
-                            <button type="button" class="bhd-btn bhd-btn-primary" id="scanBothSidesBtn">
-                                <i class="fas fa-camera-retro"></i>
-                                {{ __('messages.blade_profile_blade_start_id_scan') }}
-                            </button>
-                        </div>
-
-                        <div class="bhd-scan-status" id="idAutoScanStatus">
-                            <i class="fas fa-id-card-clip"></i>
-                            <div>
-                                <strong id="idAutoScanStatusTitle">{{ __('messages.blade_profile_blade_no_new_id_scan_yet') }}</strong>
-                                <span id="idAutoScanStatusText">{{ __('messages.blade_profile_blade_use_the_scanner_or_manually_choose_both_front_and_back_') }}</span>
-                                <span class="d-none" id="validIdFrontText">{{ __('messages.blade_profile_blade_no_front_file_selected') }}</span>
-                                <span class="d-none" id="validIdBackText">{{ __('messages.blade_profile_blade_no_back_file_selected') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="bhd-upload-choice-grid">
-                            <label class="bhd-file-choice" for="valid_id">
-                                <span class="bhd-file-icon"><i class="fas fa-image"></i></span>
-                                <span class="bhd-file-copy">
-                                    <strong>{{ __('messages.blade_profile_blade_choose_front_manually') }}</strong>
-                                    <span id="manualFrontText">{{ __('messages.blade_profile_blade_no_front_image_selected') }}</span>
-                                </span>
-
-                                <input type="file"
-                                       id="valid_id"
-                                       name="valid_id"
-                                       accept="image/*"
-                                       data-file-text="manualFrontText"
-                                       data-preview="validIdFrontPreview"
-                                       data-preview-shell="validIdFrontPreviewShell"
-                                       required>
-                            </label>
-
-                            <label class="bhd-file-choice" for="valid_id_back">
-                                <span class="bhd-file-icon"><i class="fas fa-image"></i></span>
-                                <span class="bhd-file-copy">
-                                    <strong>{{ __('messages.blade_profile_blade_choose_back_manually') }}</strong>
-                                    <span id="manualBackText">{{ __('messages.blade_profile_blade_no_back_image_selected') }}</span>
-                                </span>
-
-                                <input type="file"
-                                       id="valid_id_back"
-                                       name="valid_id_back"
-                                       accept="image/*"
-                                       data-file-text="manualBackText"
-                                       data-preview="validIdBackPreview"
-                                       data-preview-shell="validIdBackPreviewShell"
-                                       required>
-                            </label>
-                        </div>
-
-                        <div class="bhd-valid-id-grid mt-3">
-                            <article class="bhd-id-side-card">
-                                <div class="bhd-id-side-head">
-                                    <strong><i class="fas fa-camera"></i> {{ __('messages.blade_profile_blade_new_front_preview') }}</strong>
-                                    <span>{{ __('messages.blade_profile_blade_required') }}</span>
+                    <article class="bhd-id-update-card mt-3">
+                        <div class="bhd-id-update-head">
+                            <div class="bhd-id-update-title">
+                                <span class="bhd-id-update-title-icon"><i class="fas fa-camera"></i></span>
+                                <div>
+                                    <strong>Replace your valid ID</strong>
+                                    <span>Choose one method, then make sure both sides are attached.</span>
                                 </div>
+                            </div>
+                            <span class="bhd-id-required">FRONT + BACK REQUIRED</span>
+                        </div>
 
-                                <div class="bhd-id-preview-shell" id="validIdFrontPreviewShell">
-                                    <img src="" alt="{{ __('messages.blade_profile_blade_new_front_id_preview') }}" id="validIdFrontPreview" class="d-none">
-                                    <div class="bhd-id-empty">
-                                        <i class="fas fa-image"></i>
-                                        <p class="mb-0">{{ __('messages.blade_profile_blade_front_preview_will_appear_here') }}</p>
+                        <div class="bhd-id-update-body">
+                            <div class="bhd-id-steps">
+                                <div class="bhd-id-step">
+                                    <span class="bhd-id-step-number">1</span>
+                                    <div>
+                                        <strong>Capture or choose</strong>
+                                        <span>Scan the ID or select images manually.</span>
                                     </div>
                                 </div>
-                            </article>
-
-                            <article class="bhd-id-side-card">
-                                <div class="bhd-id-side-head">
-                                    <strong><i class="fas fa-camera"></i> {{ __('messages.blade_profile_blade_new_back_preview') }}</strong>
-                                    <span>{{ __('messages.blade_profile_blade_required') }}</span>
-                                </div>
-
-                                <div class="bhd-id-preview-shell" id="validIdBackPreviewShell">
-                                    <img src="" alt="{{ __('messages.blade_profile_blade_new_back_id_preview') }}" id="validIdBackPreview" class="d-none">
-                                    <div class="bhd-id-empty">
-                                        <i class="fas fa-image"></i>
-                                        <p class="mb-0">{{ __('messages.blade_profile_blade_back_preview_will_appear_here') }}</p>
+                                <div class="bhd-id-step">
+                                    <span class="bhd-id-step-number">2</span>
+                                    <div>
+                                        <strong>Check both sides</strong>
+                                        <span>Make sure front and back previews are correct.</span>
                                     </div>
                                 </div>
-                            </article>
-                        </div>
+                                <div class="bhd-id-step">
+                                    <span class="bhd-id-step-number">3</span>
+                                    <div>
+                                        <strong>Submit once</strong>
+                                        <span>Update both sides together for verification.</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="bhd-form-actions">
-                            <button type="submit" class="bhd-btn bhd-btn-primary">
-                                <i class="fas fa-upload"></i>
-                                {{ __('messages.blade_profile_blade_update_front_and_back_id') }}
-                            </button>
-                        </div>
+                            <form method="POST" action="{{ route('profile.id') }}" enctype="multipart/form-data" id="idUploadForm">
+                                @csrf
 
-                        <small class="text-muted d-block mt-2">
-                            {{ __('messages.blade_profile_blade_jpg_png_or_webp_only_uploading_a_new_id_should_reset_the_v') }}
-                        </small>
-                    </form>
+                                <div class="bhd-scan-panel">
+                                    <div>
+                                        <strong><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('messages.blade_profile_blade_automatic_front_and_back_id_scan') }}</strong>
+                                        <span>{{ __('messages.blade_profile_blade_click_once_the_scanner_captures_the_front_side_first_th') }}</span>
+                                    </div>
+                                    <button type="button" class="bhd-btn bhd-btn-primary" id="scanBothSidesBtn">
+                                        <i class="fas fa-camera-retro"></i>
+                                        {{ __('messages.blade_profile_blade_start_id_scan') }}
+                                    </button>
+                                </div>
+
+                                <div class="bhd-scan-status" id="idAutoScanStatus">
+                                    <i class="fas fa-id-card-clip"></i>
+                                    <div>
+                                        <strong id="idAutoScanStatusTitle">{{ __('messages.blade_profile_blade_no_new_id_scan_yet') }}</strong>
+                                        <span id="idAutoScanStatusText">{{ __('messages.blade_profile_blade_use_the_scanner_or_manually_choose_both_front_and_back_') }}</span>
+                                        <span class="d-none" id="validIdFrontText">{{ __('messages.blade_profile_blade_no_front_file_selected') }}</span>
+                                        <span class="d-none" id="validIdBackText">{{ __('messages.blade_profile_blade_no_back_file_selected') }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="bhd-upload-choice-grid">
+                                    <label class="bhd-file-choice" for="valid_id">
+                                        <button type="button" class="bhd-file-remove" data-remove-file="valid_id" aria-label="Remove front ID"><i class="fas fa-xmark"></i></button>
+                                        <span class="bhd-file-icon"><i class="fas fa-image"></i></span>
+                                        <span class="bhd-file-copy">
+                                            <strong>{{ __('messages.blade_profile_blade_choose_front_manually') }}</strong>
+                                            <span id="manualFrontText">{{ __('messages.blade_profile_blade_no_front_image_selected') }}</span>
+                                        </span>
+                                        <input type="file"
+                                               id="valid_id"
+                                               name="valid_id"
+                                               accept="image/*"
+                                               data-file-text="manualFrontText"
+                                               data-preview="validIdFrontPreview"
+                                               data-preview-shell="validIdFrontPreviewShell"
+                                               required>
+                                    </label>
+
+                                    <label class="bhd-file-choice" for="valid_id_back">
+                                        <button type="button" class="bhd-file-remove" data-remove-file="valid_id_back" aria-label="Remove back ID"><i class="fas fa-xmark"></i></button>
+                                        <span class="bhd-file-icon"><i class="fas fa-image"></i></span>
+                                        <span class="bhd-file-copy">
+                                            <strong>{{ __('messages.blade_profile_blade_choose_back_manually') }}</strong>
+                                            <span id="manualBackText">{{ __('messages.blade_profile_blade_no_back_image_selected') }}</span>
+                                        </span>
+                                        <input type="file"
+                                               id="valid_id_back"
+                                               name="valid_id_back"
+                                               accept="image/*"
+                                               data-file-text="manualBackText"
+                                               data-preview="validIdBackPreview"
+                                               data-preview-shell="validIdBackPreviewShell"
+                                               required>
+                                    </label>
+                                </div>
+
+                                <div class="bhd-id-new-grid">
+                                    <article class="bhd-id-new-card">
+                                        <div class="bhd-id-new-card-head">
+                                            <strong><i class="fas fa-camera me-1"></i>{{ __('messages.blade_profile_blade_new_front_preview') }}</strong>
+                                            <span>{{ __('messages.blade_profile_blade_required') }}</span>
+                                        </div>
+                                        <div class="bhd-id-preview-shell" id="validIdFrontPreviewShell">
+                                            <img src="" alt="{{ __('messages.blade_profile_blade_new_front_id_preview') }}" id="validIdFrontPreview" class="d-none">
+                                            <div class="bhd-id-empty">
+                                                <i class="fas fa-image"></i>
+                                                <p class="mb-0">{{ __('messages.blade_profile_blade_front_preview_will_appear_here') }}</p>
+                                            </div>
+                                        </div>
+                                    </article>
+
+                                    <article class="bhd-id-new-card">
+                                        <div class="bhd-id-new-card-head">
+                                            <strong><i class="fas fa-camera me-1"></i>{{ __('messages.blade_profile_blade_new_back_preview') }}</strong>
+                                            <span>{{ __('messages.blade_profile_blade_required') }}</span>
+                                        </div>
+                                        <div class="bhd-id-preview-shell" id="validIdBackPreviewShell">
+                                            <img src="" alt="{{ __('messages.blade_profile_blade_new_back_id_preview') }}" id="validIdBackPreview" class="d-none">
+                                            <div class="bhd-id-empty">
+                                                <i class="fas fa-image"></i>
+                                                <p class="mb-0">{{ __('messages.blade_profile_blade_back_preview_will_appear_here') }}</p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+
+                                <div class="bhd-id-update-actions">
+                                    <small>
+                                        {{ __('messages.blade_profile_blade_jpg_png_or_webp_only_uploading_a_new_id_should_reset_the_v') }}
+                                    </small>
+                                    <button type="submit" class="bhd-btn bhd-btn-primary">
+                                        <i class="fas fa-upload"></i>
+                                        {{ __('messages.blade_profile_blade_update_front_and_back_id') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </article>
                 </div>            </div>
         </div>
     </div>
@@ -3033,6 +4292,20 @@
                         {{ __('messages.register_cancel_btn') }}
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="idImageViewModal" tabindex="-1" aria-labelledby="idImageViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bhd-modal-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="idImageViewModalLabel">{{ __('messages.blade_certificate_indigency_blade_valid_id') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="idImageViewModalImg" src="" alt="{{ __('messages.blade_certificate_indigency_blade_valid_id') }}" style="max-width:100%;max-height:75vh;border-radius:16px;object-fit:contain;">
             </div>
         </div>
     </div>
@@ -3156,22 +4429,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const tabs = document.querySelectorAll('#profileTabs .bhd-profile-tab');
     const panels = document.querySelectorAll('.bhd-profile-panel');
 
-    function activateTab(tabId) {
-        panels.forEach(panel => panel.classList.remove('active'));
-        tabs.forEach(tab => tab.classList.remove('active'));
+    function activateTab(tabId, options = {}) {
+        const { focus = false, reveal = false } = options;
+
+        panels.forEach(panel => {
+            panel.classList.remove('active');
+            panel.hidden = true;
+        });
+
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            tab.setAttribute('aria-selected', 'false');
+            tab.setAttribute('tabindex', '-1');
+        });
 
         const targetPanel = document.getElementById('tab-' + tabId);
         const targetTab = document.querySelector('.bhd-profile-tab[data-tab="' + tabId + '"]');
 
-        if (targetPanel) targetPanel.classList.add('active');
-        if (targetTab) targetTab.classList.add('active');
+        if (targetPanel) {
+            targetPanel.hidden = false;
+            targetPanel.classList.add('active');
+        }
+
+        if (targetTab) {
+            targetTab.classList.add('active');
+            targetTab.setAttribute('aria-selected', 'true');
+            targetTab.setAttribute('tabindex', '0');
+
+            if (focus) targetTab.focus({ preventScroll: true });
+
+            if (reveal && window.innerWidth <= 575) {
+                const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+                targetTab.scrollIntoView({ behavior, block: 'nearest', inline: 'center' });
+            }
+        }
     }
 
-    tabs.forEach(tab => {
+    tabs.forEach((tab, index) => {
         tab.addEventListener('click', function () {
-            activateTab(tab.dataset.tab);
+            activateTab(tab.dataset.tab, { reveal: true });
+        });
+
+        tab.addEventListener('keydown', function (event) {
+            let nextIndex = null;
+
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % tabs.length;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = tabs.length - 1;
+
+            if (nextIndex === null) return;
+
+            event.preventDefault();
+            const nextTab = tabs[nextIndex];
+            activateTab(nextTab.dataset.tab, { focus: true, reveal: true });
         });
     });
+
+    const initiallyActiveTab = document.querySelector('#profileTabs .bhd-profile-tab.active');
+    if (initiallyActiveTab) activateTab(initiallyActiveTab.dataset.tab);
 
     @if($errors->hasAny(['username','email','current_password','new_password']))
         activateTab('account');
@@ -3203,6 +4519,37 @@ document.addEventListener('DOMContentLoaded', function () {
         syncCorrectionCurrentValue();
     }
 
+    const profileCorrectionCard = document.getElementById('profileCorrectionCard');
+    const profileCorrectionToggle = document.getElementById('profileCorrectionToggle');
+    const profileCorrectionBody = document.getElementById('profileCorrectionBody');
+
+    if (profileCorrectionCard && profileCorrectionToggle && profileCorrectionBody) {
+        profileCorrectionToggle.addEventListener('click', function () {
+            const collapsed = profileCorrectionCard.classList.toggle('is-collapsed');
+            profileCorrectionToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        });
+    }
+
+    const profileCorrectionHistoryToggle = document.getElementById('profileCorrectionHistoryToggle');
+    const profileCorrectionHistory = document.getElementById('profileCorrectionHistory');
+
+    if (profileCorrectionHistoryToggle && profileCorrectionHistory) {
+        profileCorrectionHistoryToggle.addEventListener('click', function () {
+            const open = profileCorrectionHistory.classList.toggle('is-open');
+            profileCorrectionHistoryToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    }
+
+    document.querySelectorAll('[data-history-target]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const detail = document.getElementById(button.getAttribute('data-history-target'));
+            if (!detail) return;
+
+            const open = detail.classList.toggle('is-open');
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    });
+
 
     @if($errors->hasAny(['field_name','correct_value','message']))
         const correctionModalElement = document.getElementById('profileCorrectionModal');
@@ -3213,6 +4560,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const quickInput = document.getElementById('quickPhotoInput');
     const quickForm = document.getElementById('quickPhotoForm');
+
+    const quickPhotoTrigger = document.querySelector('label[for="quickPhotoInput"]');
+
+    if (quickPhotoTrigger && quickInput) {
+        quickPhotoTrigger.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            quickInput.click();
+        });
+    }
 
     if (quickInput && quickForm) {
         quickInput.addEventListener('change', function () {
@@ -3336,6 +4693,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert.remove();
             }, 500);
         }, 5000);
+    });
+
+    const idViewerTriggers = document.querySelectorAll('[data-id-viewer]');
+    const idImageViewModalEl = document.getElementById('idImageViewModal');
+    const idImageViewModalImg = document.getElementById('idImageViewModalImg');
+    const idImageViewModalLabel = document.getElementById('idImageViewModalLabel');
+
+    idViewerTriggers.forEach(function (trigger) {
+        trigger.addEventListener('click', function () {
+            const src = trigger.getAttribute('data-img-src');
+            if (!src || !idImageViewModalEl) return;
+
+            if (idImageViewModalImg) idImageViewModalImg.src = src;
+            if (idImageViewModalLabel) {
+                idImageViewModalLabel.textContent = trigger.getAttribute('data-img-label') || idImageViewModalLabel.textContent;
+            }
+
+            if (window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(idImageViewModalEl).show();
+            }
+        });
+
+        trigger.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                trigger.click();
+            }
+        });
     });
 });
 </script>
@@ -3465,6 +4850,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(@json(__('messages.blade_profile_blade_id_image_must_not_exceed_5mb')));
                 input.value = '';
                 updateSelectedFilePreview(input, null);
+                document.querySelector(`[data-remove-file="${input.id}"]`)?.classList.remove('is-visible');
                 updateScanStatus();
                 return;
             }
@@ -3473,11 +4859,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(@json(__('messages.blade_profile_blade_please_choose_an_image_file_only')));
                 input.value = '';
                 updateSelectedFilePreview(input, null);
+                document.querySelector(`[data-remove-file="${input.id}"]`)?.classList.remove('is-visible');
                 updateScanStatus();
                 return;
             }
 
             updateSelectedFilePreview(input, file);
+            const removeBtn = document.querySelector(`[data-remove-file="${input.id}"]`);
+            removeBtn?.classList.toggle('is-visible', !!file);
+            updateScanStatus();
+        });
+    });
+
+    document.querySelectorAll('[data-remove-file]').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const input = document.getElementById(button.getAttribute('data-remove-file'));
+            if (!input) return;
+
+            input.value = '';
+            updateSelectedFilePreview(input, null);
+            button.classList.remove('is-visible');
             updateScanStatus();
         });
     });

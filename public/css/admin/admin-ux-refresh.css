@@ -1,0 +1,710 @@
+/*
+ * BISIG Admin UX Refresh
+ * Purpose: turn the admin area into a focused working interface.
+ * The existing page-specific styles remain intact for functionality; this file
+ * deliberately removes decorative/duplicated presentation and normalizes the UI.
+ */
+
+:root {
+    --sidebar-width: 252px;
+    --sidebar-collapsed-width: 72px;
+    --admin-canvas: #f7f8fa;
+    --admin-surface: #ffffff;
+    --admin-surface-subtle: #fafbfc;
+    --admin-border: #e4e7ec;
+    --admin-border-strong: #d0d5dd;
+    --admin-text: #101828;
+    --admin-muted: #667085;
+    --admin-radius: 12px;
+    --admin-radius-sm: 9px;
+    --admin-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+body {
+    background: var(--admin-canvas);
+}
+
+.admin-page {
+    max-width: 1540px;
+}
+
+.main-content > main {
+    padding-top: 1.25rem !important;
+}
+
+/* ---------------------------------------------------------
+   SINGLE PAGE HEADER
+   The sticky header is the page identity. Large in-page heroes duplicate it.
+   --------------------------------------------------------- */
+.header {
+    min-height: 64px;
+    padding: .7rem 1.25rem;
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    border-bottom: 1px solid var(--admin-border);
+    box-shadow: none;
+}
+
+.page-title {
+    gap: .65rem;
+    font-size: 1.08rem;
+    font-weight: 750;
+    letter-spacing: -.02em;
+}
+
+.title-icon {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 9px;
+    box-shadow: none;
+}
+
+.header-controls {
+    gap: .55rem !important;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.header-actions .btn {
+    min-height: 36px;
+    padding: .5rem .8rem;
+    border-radius: 9px;
+    box-shadow: none !important;
+}
+
+/* Remove redundant marketing-style page headers. */
+.dashboard-hero,
+.residency-hero,
+.indigency-hero,
+.announcements-hero,
+.events-hero,
+.projects-hero,
+.users-hero,
+.chatbot-hero,
+.backup-hero,
+.settings-hero-v2 {
+    display: none !important;
+}
+
+/* CRUD pages do not need four summary cards before every table. */
+.residency-stats,
+.indigency-stats,
+.announcements-stats-row,
+.events-stats-row,
+.projects-stats-row,
+.users-stats-row,
+.chatbot-stats-grid,
+.backup-stats-grid,
+.settings-stat-grid {
+    display: none !important;
+}
+
+/* ---------------------------------------------------------
+   NAVIGATION
+   --------------------------------------------------------- */
+.sidebar {
+    background: var(--admin-surface);
+    border-right: 1px solid var(--admin-border);
+    box-shadow: none;
+}
+
+.brand {
+    min-height: 64px;
+    padding: .9rem 1rem;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.brand-left {
+    gap: .75rem;
+    min-width: 0;
+}
+
+.logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    box-shadow: 0 0 0 1px var(--admin-border);
+}
+
+.brand-title {
+    color: var(--admin-text);
+    font-size: .95rem;
+    font-weight: 750;
+}
+
+.brand-sub {
+    margin-top: .1rem;
+    color: var(--admin-muted);
+    font-size: .72rem;
+}
+
+.toggle-btn {
+    color: var(--admin-muted);
+    padding: .45rem;
+    border-radius: 8px;
+}
+
+.toggle-btn:hover {
+    color: var(--primary);
+    background: var(--primary-soft);
+    transform: none;
+}
+
+.menu-section {
+    padding: 1rem 1rem .35rem;
+    color: #98a2b3;
+    font-size: .64rem;
+    font-weight: 750;
+    letter-spacing: .09em;
+}
+
+.sidebar a,
+.dropdown-btn {
+    width: calc(100% - 1rem);
+    margin: .12rem .5rem;
+    padding: .68rem .75rem;
+    gap: .72rem;
+    color: #475467;
+    border: 0 !important;
+    border-radius: 9px;
+    font-size: .84rem;
+    font-weight: 600;
+}
+
+.sidebar a i,
+.dropdown-btn i {
+    width: 18px;
+    color: #667085;
+    text-align: center;
+}
+
+.sidebar a:hover,
+.dropdown-btn:hover {
+    color: var(--admin-text);
+    background: #f2f4f7;
+}
+
+.sidebar a.active,
+.dropdown-btn.active {
+    color: var(--primary-dark);
+    background: var(--primary-soft);
+    box-shadow: inset 3px 0 0 var(--primary);
+    font-weight: 700;
+}
+
+.sidebar a.active i,
+.dropdown-btn.active i {
+    color: var(--primary);
+}
+
+.submenu {
+    padding: .15rem 0 .25rem .75rem;
+    background: transparent;
+}
+
+.submenu a {
+    padding: .58rem .72rem;
+    font-size: .8rem;
+}
+
+/* ---------------------------------------------------------
+   PANELS: less card-within-card, more workspace
+   --------------------------------------------------------- */
+.card,
+.admin-filter-card,
+.admin-table-card,
+.announcements-panel,
+.events-panel,
+.projects-panel,
+.users-panel,
+.chatbot-panel,
+.restore-panel,
+.archive-panel,
+.settings-panel-card,
+.settings-side-card,
+.schedule-panel {
+    border: 1px solid var(--admin-border) !important;
+    border-radius: var(--admin-radius) !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+.card:hover,
+.admin-filter-card:hover,
+.admin-table-card:hover,
+.announcements-panel:hover,
+.events-panel:hover,
+.projects-panel:hover,
+.users-panel:hover,
+.chatbot-panel:hover,
+.restore-panel:hover,
+.archive-panel:hover,
+.settings-panel-card:hover {
+    transform: none !important;
+    border-color: var(--admin-border) !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+/* Common list/filter containers should sit close together. */
+.residency-filter-card,
+.announcements-filter-panel,
+.events-filter-panel,
+.projects-filter-panel,
+.users-filter-panel,
+.chatbot-toolbar,
+.dashboard-control-panel {
+    margin-bottom: .85rem !important;
+}
+
+/* Remove decorative gradients and oversized icon blocks in working panels. */
+.residency-table-head,
+.announcements-panel-header,
+.events-panel-header,
+.projects-panel-header,
+.users-panel-header,
+.archive-header,
+.panel-header,
+.dashboard-card .card-head {
+    background: var(--admin-surface) !important;
+    border-color: var(--admin-border) !important;
+}
+
+.residency-table-head,
+.announcements-panel-header,
+.events-panel-header,
+.projects-panel-header,
+.users-panel-header,
+.archive-header {
+    padding: .9rem 1rem !important;
+}
+
+.table-head-icon,
+.announcements-panel-icon,
+.events-panel-icon,
+.projects-panel-icon,
+.users-panel-icon,
+.restore-icon,
+.archive-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
+}
+
+.section-kicker,
+.table-kicker,
+.admin-kicker {
+    font-size: .65rem !important;
+    letter-spacing: .08em !important;
+}
+
+/* Explanatory copy is helpful, but should not dominate admin workflows. */
+.panel-copy,
+.residency-table-head p,
+.announcements-panel-header p,
+.events-panel-header p,
+.projects-panel-header p,
+.users-panel-header p,
+.archive-header p {
+    max-width: 720px;
+    color: var(--admin-muted) !important;
+    font-size: .78rem !important;
+    line-height: 1.45 !important;
+}
+
+/* ---------------------------------------------------------
+   FILTERS / TOOLBARS
+   --------------------------------------------------------- */
+.residency-filter-card .card-body,
+.announcements-filter-body,
+.events-filter-body,
+.projects-filter-body,
+.users-filter-body,
+.chatbot-toolbar-body {
+    padding: .9rem 1rem !important;
+}
+
+.form-control,
+.form-select {
+    min-height: 40px;
+    border-color: var(--admin-border-strong);
+    border-radius: var(--admin-radius-sm);
+    font-size: .83rem;
+    font-weight: 500;
+    box-shadow: none !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: color-mix(in srgb, var(--primary) 48%, #ffffff);
+    outline: 0;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+
+.form-label {
+    margin-bottom: .35rem;
+    color: #344054;
+    font-size: .76rem;
+    font-weight: 700 !important;
+}
+
+.btn {
+    min-height: 40px;
+    padding: .58rem .82rem;
+    border-radius: var(--admin-radius-sm);
+    font-size: .82rem;
+    font-weight: 700;
+    box-shadow: none !important;
+}
+
+.btn:hover {
+    transform: none !important;
+}
+
+.btn-sm,
+.btn-group-sm > .btn {
+    min-height: 32px;
+    padding: .4rem .58rem;
+    border-radius: 8px;
+    font-size: .75rem;
+}
+
+/* ---------------------------------------------------------
+   TABLES: scan first, decorate second
+   --------------------------------------------------------- */
+.table-responsive {
+    border-radius: 0 0 var(--admin-radius) var(--admin-radius);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: .72rem .82rem !important;
+    color: #475467 !important;
+    background: #f9fafb !important;
+    border-bottom: 1px solid var(--admin-border) !important;
+    font-size: .66rem !important;
+    font-weight: 750 !important;
+    letter-spacing: .055em !important;
+}
+
+.table tbody td {
+    padding: .75rem .82rem !important;
+    border-bottom-color: #eaecf0 !important;
+    font-size: .8rem !important;
+}
+
+.table tbody tr:hover > * {
+    background: #fafafa !important;
+}
+
+.table-count-pill,
+.archive-count {
+    border: 1px solid var(--admin-border) !important;
+    background: #f9fafb !important;
+    color: var(--admin-muted) !important;
+    box-shadow: none !important;
+}
+
+.badge {
+    padding: .32rem .52rem;
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+   DASHBOARD
+   Keep useful KPIs, but remove decorative card effects.
+   --------------------------------------------------------- */
+.dashboard-metrics-grid {
+    gap: .75rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.metric-card,
+.dashboard-card,
+.chart-card,
+.compact-card,
+.no-permission-card {
+    border: 1px solid var(--admin-border) !important;
+    border-radius: var(--admin-radius) !important;
+    background: var(--admin-surface) !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+.metric-card:hover,
+.dashboard-card:hover,
+.chart-card:hover {
+    transform: none !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+.metric-card::before,
+.metric-card::after,
+.dashboard-card::before,
+.dashboard-card::after {
+    display: none !important;
+}
+
+.metric-card {
+    padding: .95rem !important;
+}
+
+.metric-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 9px !important;
+}
+
+.metric-value {
+    font-size: 1.65rem !important;
+}
+
+.metric-note {
+    color: var(--admin-muted) !important;
+}
+
+/* ---------------------------------------------------------
+   SETTINGS / BACKUPS / CHATBOT
+   --------------------------------------------------------- */
+.settings-workspace {
+    gap: .9rem !important;
+}
+
+.settings-side-card {
+    top: 76px !important;
+}
+
+.settings-side-nav a,
+.settings-side-nav button {
+    border-radius: 8px !important;
+}
+
+.settings-panel-card {
+    padding: 1rem !important;
+}
+
+.field-card-v2,
+.switch-card-v2,
+.doc-template-card,
+.template-help-card,
+.usage-card-v2,
+.sms-credit-sync-card,
+.settings-tip-card,
+.brand-preview-card {
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+/* Field cards are grouping aids, not standalone feature cards. */
+.field-card-v2 {
+    padding: .8rem !important;
+    border: 1px solid #eaecf0 !important;
+    background: #fff !important;
+}
+
+.backup-workspace {
+    gap: .9rem !important;
+}
+
+.schedule-panel {
+    margin-bottom: .9rem !important;
+    padding: .85rem 1rem !important;
+    background: var(--admin-surface) !important;
+}
+
+.schedule-icon {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+}
+
+.archive-row {
+    border-radius: 9px !important;
+    box-shadow: none !important;
+}
+
+.restore-dropzone {
+    border-radius: 10px !important;
+}
+
+/* ---------------------------------------------------------
+   MODALS
+   --------------------------------------------------------- */
+.modal-content {
+    border: 1px solid var(--admin-border);
+    border-radius: 14px !important;
+    box-shadow: 0 24px 64px rgba(16, 24, 40, .18) !important;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--admin-border) !important;
+    background: var(--admin-surface) !important;
+}
+
+.modal-header {
+    padding: .9rem 1rem !important;
+}
+
+.modal-body {
+    padding: 1rem !important;
+}
+
+.modal-footer {
+    padding: .75rem 1rem !important;
+}
+
+.modal-summary-card,
+.detail-section-card,
+.edit-section-card,
+.document-preview-card,
+.status-flow-card {
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+/* ---------------------------------------------------------
+   ACCESSIBILITY / RESPONSIVE
+   --------------------------------------------------------- */
+:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary) 20%, transparent);
+    outline-offset: 2px;
+}
+
+@media (max-width: 1199.98px) {
+    :root {
+        --sidebar-width: 236px;
+    }
+
+    .admin-page {
+        max-width: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    :root {
+        --sidebar-width: 264px;
+    }
+
+    .header {
+        padding-inline: .85rem;
+    }
+
+    .main-content > main {
+        padding: .9rem !important;
+    }
+
+    .header-actions .btn span,
+    .theme-toggle-text,
+    .admin-font-control-reset span:not(.visually-hidden) {
+        display: none !important;
+    }
+
+    .header-actions .btn,
+    .theme-toggle-button,
+    .admin-font-control-button,
+    .admin-notification__toggle {
+        min-width: 36px;
+        width: 36px;
+        height: 36px;
+        padding: 0 !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .header {
+        min-height: 58px;
+    }
+
+    .title-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .page-title {
+        font-size: .96rem;
+    }
+
+    .header-controls {
+        gap: .3rem !important;
+    }
+
+    .admin-font-controls {
+        display: none !important;
+    }
+
+    .residency-table-head,
+    .announcements-panel-header,
+    .events-panel-header,
+    .projects-panel-header,
+    .users-panel-header,
+    .archive-header {
+        align-items: flex-start !important;
+        gap: .65rem !important;
+    }
+
+    .panel-copy,
+    .residency-table-head p,
+    .announcements-panel-header p,
+    .events-panel-header p,
+    .projects-panel-header p,
+    .users-panel-header p,
+    .archive-header p {
+        display: none !important;
+    }
+
+    .table tbody td {
+        padding-block: .68rem !important;
+    }
+}
+
+/* Dark mode: preserve the same information hierarchy without forcing white surfaces. */
+html[data-theme="dark"] {
+    --admin-canvas: var(--page-bg);
+    --admin-surface: var(--card);
+    --admin-surface-subtle: color-mix(in srgb, var(--card) 92%, #ffffff 8%);
+    --admin-border: var(--line);
+    --admin-border-strong: var(--line-strong);
+    --admin-text: var(--text);
+    --admin-muted: var(--muted);
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .header,
+html[data-theme="dark"] .residency-table-head,
+html[data-theme="dark"] .announcements-panel-header,
+html[data-theme="dark"] .events-panel-header,
+html[data-theme="dark"] .projects-panel-header,
+html[data-theme="dark"] .users-panel-header,
+html[data-theme="dark"] .archive-header,
+html[data-theme="dark"] .panel-header,
+html[data-theme="dark"] .dashboard-card .card-head,
+html[data-theme="dark"] .schedule-panel,
+html[data-theme="dark"] .field-card-v2,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    background: var(--card) !important;
+}
+
+html[data-theme="dark"] .sidebar a:hover,
+html[data-theme="dark"] .dropdown-btn:hover,
+html[data-theme="dark"] .table tbody tr:hover > * {
+    background: color-mix(in srgb, var(--card) 86%, #ffffff 14%) !important;
+}
+
+html[data-theme="dark"] .table thead th,
+html[data-theme="dark"] .table-count-pill,
+html[data-theme="dark"] .archive-count {
+    background: color-mix(in srgb, var(--card) 90%, #ffffff 10%) !important;
+    color: var(--muted) !important;
+}

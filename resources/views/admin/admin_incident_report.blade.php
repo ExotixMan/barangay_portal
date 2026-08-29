@@ -6,6 +6,168 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/incident-reports.css') }}">
+    <style>
+        /* Add Incident modal - follows the Clearance Add Application form layout */
+        #addIncidentModal .form-step-card {
+            padding: 1rem 1.1rem 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        #addIncidentModal .form-step-card:last-of-type {
+            margin-bottom: 0;
+        }
+
+        #addIncidentModal .form-section-heading {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: .8rem;
+        }
+
+        #addIncidentModal .section-step {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        #addIncidentModal .form-section-heading h6 {
+            margin: 0;
+            font-size: .92rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        #addIncidentModal .form-section-heading p {
+            margin: .15rem 0 0;
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        #addIncidentModal .form-label {
+            font-weight: 700;
+        }
+
+        #addIncidentModal .incident-witness-section,
+        #addIncidentModal .incident-evidence-section,
+        #addIncidentModal .incident-additional-section {
+            margin-top: .25rem;
+        }
+
+        #addIncidentModal .incident-witness-section {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        #addIncidentModal .incident-evidence-section {
+            padding-top: .25rem;
+        }
+
+        #addIncidentModal .supporting-subsection-title,
+        #addIncidentModal .modal-section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .35rem;
+            color: var(--text);
+            font-size: .84rem;
+            font-weight: 800;
+        }
+
+        #addIncidentModal .supporting-subsection-title i,
+        #addIncidentModal .modal-section-title i {
+            color: #4338ca;
+        }
+
+        #addIncidentModal .incident-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .75rem;
+            margin-top: .75rem;
+        }
+
+        #addIncidentModal .incident-upload-card {
+            min-width: 0;
+            padding: .85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        #addIncidentModal .incident-upload-card .form-label {
+            min-height: 2.5em;
+            margin-bottom: .45rem;
+            font-size: .78rem;
+            line-height: 1.35;
+        }
+
+        #addIncidentModal .incident-upload-card .text-muted {
+            display: block;
+            margin-top: .4rem;
+            line-height: 1.35;
+        }
+
+        #addIncidentModal .incident-additional-section {
+            padding-top: .25rem;
+        }
+
+        #addIncidentModal .witness-card {
+            padding: .9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        [data-theme="dark"] #addIncidentModal .form-step-card,
+        body.dark-mode #addIncidentModal .form-step-card {
+            background: var(--card-bg, #111827);
+        }
+
+        [data-theme="dark"] #addIncidentModal .incident-upload-card,
+        [data-theme="dark"] #addIncidentModal .witness-card,
+        body.dark-mode #addIncidentModal .incident-upload-card,
+        body.dark-mode #addIncidentModal .witness-card {
+            background: rgba(255,255,255,.03);
+            border-color: var(--line);
+        }
+
+        @media (max-width: 991.98px) {
+            #addIncidentModal .incident-upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #addIncidentModal .form-step-card {
+                padding: .9rem;
+                border-radius: 14px;
+            }
+
+            #addIncidentModal .form-section-heading {
+                align-items: flex-start;
+            }
+
+            #addIncidentModal .incident-witness-section .d-flex {
+                align-items: flex-start !important;
+                gap: .75rem;
+                flex-direction: column;
+            }
+
+            #addIncidentModal .incident-witness-section .btn {
+                width: 100%;
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -582,24 +744,31 @@
             <!-- Add Incident Modal with Witnesses and Evidence - Only if user has create_blotter permission -->
             @admin_can('create_blotter')
             <div class="modal fade" id="addIncidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                New Incident Report
-                            </h5>
+                            <div>
+                                <h5 class="modal-title">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    New Incident Report
+                                </h5>
+                                <p class="mb-0 mt-1 text-muted small">Complete all 4 steps below. Fields marked <span class="text-danger">*</span> are required.</p>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="{{ route('admin.blotter.store') }}" id="addIncidentForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <!-- Incident Details -->
-                                    <div class="col-12">
-                                        <h6 class="fw-semibold text-primary">Incident Details</h6>
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
+                                        <div>
+                                            <h6>Incident Details</h6>
+                                            <p>Record what happened, when it happened, where it occurred, and how the case should be classified.</p>
+                                        </div>
                                     </div>
+                                    <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Report Type <span class="text-danger">*</span></label>
                                         <select class="form-select @if(session('form_type') == 'add') @error('reportType') is-invalid @enderror @endif" 
@@ -682,10 +851,19 @@
                                         @endif
                                     </div>
 
-                                    <!-- Complainant Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Complainant Information</h6>
+                                    
                                     </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Complainant Information</h6>
+                                            <p>Enter the complainant’s contact details and current address for case follow-up.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Complainant Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('complainantName') is-invalid @enderror @endif" 
@@ -728,10 +906,19 @@
                                         @endif
                                     </div>
 
-                                    <!-- Respondent Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Respondent Information (Optional)</h6>
+                                    
                                     </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Respondent Information</h6>
+                                            <p>Add respondent information when available. These fields remain optional.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label">Respondent Name</label>
                                         <input type="text" class="form-control @if(session('form_type') == 'add') @error('respondentName') is-invalid @enderror @endif" 
@@ -773,9 +960,21 @@
                                         @endif
                                     </div>
 
-                                    <!-- Witnesses Section -->
+                                    
+                                    </div>
+                                </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">4</div>
+                                        <div>
+                                            <h6>Supporting Information</h6>
+                                            <p>Add witnesses, supporting evidence, and any additional case information before saving the report.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
                                     @if(auth('admin')->user()->hasPermission('add_witness'))
-                                    <div class="col-12 mt-3">
+                                    <div class="col-12 incident-witness-section">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="modal-section-title"><i class="fas fa-users"></i> Witnesses</div>
                                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addWitnessField()">
@@ -790,12 +989,13 @@
                                     </div>
                                     @endif
 
-                                    <!-- Evidence Section -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary mb-3">Evidence Upload</h6>
+                                    
+                                    <div class="col-12 incident-evidence-section">
+                                        <div class="supporting-subsection-title"><i class="fas fa-paperclip"></i> Evidence Upload</div>
                                         
+                                        <div class="incident-upload-grid">
                                         <!-- Photos -->
-                                        <div class="mb-3">
+                                        <div class="incident-upload-card">
                                             <label class="form-label">Photos (Max: 10MB each, JPG/PNG only)</label>
                                             <input type="file" class="form-control @if(session('form_type') == 'add') @error('photos') is-invalid @enderror @endif" 
                                                 name="photos[]" accept="image/jpeg,image/jpg,image/png">
@@ -808,7 +1008,7 @@
                                         </div>
 
                                         <!-- Videos -->
-                                        <div class="mb-3">
+                                        <div class="incident-upload-card">
                                             <label class="form-label">Videos (Max: 50MB each, MP4/AVI/MOV only)</label>
                                             <input type="file" class="form-control @if(session('form_type') == 'add') @error('videos') is-invalid @enderror @endif" 
                                                 name="videos[]" accept="video/mp4,video/avi,video/quicktime">
@@ -821,7 +1021,7 @@
                                         </div>
 
                                         <!-- Documents -->
-                                        <div class="mb-3">
+                                        <div class="incident-upload-card">
                                             <label class="form-label">Documents (Max: 5MB each, PDF/DOC/DOCX only)</label>
                                             <input type="file" class="form-control @if(session('form_type') == 'add') @error('documents') is-invalid @enderror @endif" 
                                                 name="documents[]" accept=".pdf,.doc,.docx">
@@ -832,10 +1032,11 @@
                                                 @enderror
                                             @endif
                                         </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Additional Information -->
-                                    <div class="col-12 mt-3">
+                                    
+                                    <div class="col-12 incident-additional-section">
                                         <label class="form-label">Additional Information (Optional)</label>
                                         <textarea class="form-control @if(session('form_type') == 'add') @error('additionalInfo') is-invalid @enderror @endif" 
                                                 name="additionalInfo" rows="2" placeholder="Any additional information...">{{ session('form_type') == 'add' ? old('additionalInfo') : '' }}</textarea>
@@ -844,6 +1045,7 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         @endif
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -1717,11 +1919,21 @@
             @endforeach
 
             <!-- Global Image Zoom Modal -->
-            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+            <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-image"></i>
+                                <span class="modal-title-stack">
+                                    <span>Image Preview</span>
+                                    <span class="modal-subtitle">View the uploaded image in a larger preview.</span>
+                                </span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                         <div class="modal-body text-center">
-                            <img id="zoomedImage" class="img-fluid">
+                            <img id="zoomedImage" class="img-fluid" alt="Uploaded image preview">
                         </div>
                     </div>
                 </div>

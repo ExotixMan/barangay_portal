@@ -6,6 +6,893 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/projects.css') }}">
+
+    <style>
+        /* Project admin UX refresh — presentation only */
+        .projects-page {
+            --prj-primary: #4338ca;
+            --prj-primary-soft: #eef2ff;
+            --prj-border: #e5e7eb;
+            --prj-border-strong: #d8dee8;
+            --prj-text: #172033;
+            --prj-muted: #667085;
+            --prj-soft: #f8fafc;
+            --prj-success: #15803d;
+            --prj-warning: #a16207;
+            --prj-danger: #b42318;
+        }
+
+        /* CRUD pages should prioritize work, not dashboard decoration */
+        .projects-page .projects-hero,
+        .projects-page .projects-stats-row {
+            display: none !important;
+        }
+
+        .projects-page .projects-panel {
+            overflow: visible;
+            border: 1px solid var(--prj-border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+        }
+
+        .projects-page .projects-filter-panel {
+            overflow: visible;
+            margin-bottom: 18px;
+        }
+
+        .projects-page .projects-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--prj-border);
+            background: #fff;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .projects-page .projects-panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .projects-page .projects-panel-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: var(--prj-primary-soft);
+            color: var(--prj-primary);
+        }
+
+        .projects-page .projects-panel-title h3 {
+            margin: 0;
+            color: var(--prj-text);
+            font-size: .98rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .projects-page .section-kicker,
+        .projects-page .panel-copy { display: none; }
+
+        .projects-page .projects-panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .projects-page .projects-filter-body { padding: 14px 18px 16px; }
+
+        .projects-page .projects-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(300px, 1.8fr) minmax(150px, .65fr) minmax(150px, .65fr) auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .projects-page .projects-search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .projects-page .projects-search-field {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .projects-page .projects-search-field > i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            z-index: 2;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            pointer-events: none;
+        }
+
+        .projects-page .projects-search-field .form-control { padding-left: 38px; }
+
+        .projects-page .form-control,
+        .projects-page .form-select {
+            min-height: 42px;
+            border-color: var(--prj-border-strong);
+            border-radius: 10px;
+            color: var(--prj-text);
+            font-size: .86rem;
+            box-shadow: none;
+        }
+
+        .projects-page .form-control:focus,
+        .projects-page .form-select:focus {
+            border-color: var(--prj-primary);
+            box-shadow: 0 0 0 .2rem rgba(67, 56, 202, .09);
+        }
+
+        .projects-page .btn {
+            min-height: 40px;
+            border-radius: 10px;
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .projects-page .btn i { margin-right: .38rem; }
+        .projects-page .icon-only i { margin-right: 0; }
+
+        .projects-page .projects-bulk-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--prj-border);
+        }
+
+        .projects-page .selected-count {
+            color: var(--prj-muted);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .projects-page table { margin: 0; }
+
+        .projects-page .table thead th {
+            padding-top: 11px;
+            padding-bottom: 11px;
+            border-bottom: 1px solid var(--prj-border);
+            background: #f8fafc;
+            color: #475467;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .projects-page .table tbody td {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            border-color: #eef1f5;
+            color: var(--prj-text);
+            font-size: .83rem;
+            vertical-align: middle;
+        }
+
+        .projects-page .table tbody tr:hover { background: #fafbff; }
+
+        .projects-page .project-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border: 1px solid var(--prj-border);
+            border-radius: 10px;
+            background: var(--prj-soft);
+        }
+
+        .projects-page .project-title-text {
+            max-width: 330px;
+            overflow: hidden;
+            color: var(--prj-text);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 750;
+        }
+
+        .projects-page .project-mobile-meta {
+            display: none;
+            margin-top: 4px;
+            color: var(--prj-muted);
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        .projects-page .project-mobile-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 8px;
+        }
+
+        .projects-page .project-progress-wrap {
+            min-width: 150px;
+        }
+
+        .projects-page .project-progress-track {
+            height: 7px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #eef2f6;
+        }
+
+        .projects-page .project-progress-track .progress-bar {
+            min-width: 0;
+            border-radius: 999px;
+            font-size: 0;
+        }
+
+        .projects-page .project-progress-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 5px;
+            color: var(--prj-muted);
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        .projects-page .row-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .projects-page .action-view-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 34px;
+            padding: 0 10px;
+        }
+
+        .projects-page .action-more-btn {
+            width: 34px;
+            min-height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .projects-page .action-dropdown .dropdown-menu {
+            width: 250px;
+            padding: 7px;
+            border: 1px solid var(--prj-border);
+            border-radius: 12px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .14);
+            z-index: 1090;
+        }
+
+        .projects-page .action-dropdown .dropdown-item,
+        .projects-page .action-dropdown form .dropdown-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 10px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #344054;
+            text-align: left;
+            white-space: normal;
+        }
+
+        .projects-page .action-dropdown .dropdown-item:hover { background: #f8fafc; }
+
+        .projects-page .action-menu-icon {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 8px;
+            background: #f2f4f7;
+        }
+
+        .projects-page .action-menu-copy strong {
+            display: block;
+            color: inherit;
+            font-size: .77rem;
+            line-height: 1.25;
+        }
+
+        .projects-page .action-menu-copy small {
+            display: block;
+            margin-top: 2px;
+            color: #667085;
+            font-size: .67rem;
+            line-height: 1.35;
+        }
+
+        .projects-page .action-edit { color: #1d4ed8 !important; }
+        .projects-page .action-edit .action-menu-icon { background: #eff6ff; color: #2563eb; }
+        .projects-page .action-restore { color: #166534 !important; background: #f0fdf4 !important; }
+        .projects-page .action-restore .action-menu-icon { background: #dcfce7; color: #15803d; }
+        .projects-page .action-archive { color: #b42318 !important; }
+        .projects-page .action-archive .action-menu-icon { background: #fff1f2; color: #e11d48; }
+
+        /* Modal system */
+        .projects-page .modal { --bs-modal-zindex: 1060; }
+        .projects-page .modal-dialog { max-width: 900px; }
+        .projects-page .modal-dialog.modal-xl { max-width: 980px; }
+
+        .projects-page .modal-content {
+            overflow: hidden;
+            border: 1px solid rgba(208, 213, 221, .85);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 22px 60px rgba(15, 23, 42, .18);
+        }
+
+        .projects-page .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--prj-border);
+            background: #fff;
+        }
+
+        .projects-page .modal-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .projects-page .modal-heading-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 11px;
+            background: var(--prj-primary-soft);
+            color: var(--prj-primary);
+        }
+
+        .projects-page .modal-heading-copy { min-width: 0; }
+
+        .projects-page .modal-title {
+            margin: 0;
+            color: var(--prj-text);
+            font-size: 1rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .projects-page .modal-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: var(--prj-muted);
+            font-size: .76rem;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .projects-page .modal-header .btn-close {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin: 0;
+            flex: 0 0 auto;
+            border-radius: 9px;
+            background-size: 12px;
+            opacity: .65;
+        }
+
+        .projects-page .modal-header .btn-close:hover {
+            background-color: #f2f4f7;
+            opacity: 1;
+        }
+
+        .projects-page .modal-body {
+            padding: 18px 20px;
+            background: #f8fafc;
+        }
+
+        .projects-page .modal-form-intro {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: var(--prj-muted);
+            font-size: .76rem;
+        }
+
+        .projects-page .form-step-card,
+        .projects-page .detail-section-card {
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--prj-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .projects-page .form-step-card:last-child,
+        .projects-page .detail-section-card:last-child { margin-bottom: 0; }
+
+        .projects-page .form-section-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .projects-page .section-step {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--prj-primary-soft);
+            color: var(--prj-primary);
+            font-size: .76rem;
+            font-weight: 900;
+        }
+
+        .projects-page .form-section-heading h6,
+        .projects-page .detail-section-title {
+            margin: 0;
+            color: var(--prj-text);
+            font-size: .87rem;
+            font-weight: 850;
+        }
+
+        .projects-page .form-section-heading p {
+            margin: 2px 0 0;
+            color: var(--prj-muted);
+            font-size: .72rem;
+            line-height: 1.45;
+        }
+
+        .projects-page .modal .form-label {
+            margin-bottom: 6px;
+            color: #344054;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .projects-page .modal .form-label > i {
+            width: 15px;
+            margin-right: 5px;
+            color: #98a2b3;
+            font-size: .74rem;
+            text-align: center;
+        }
+
+        .projects-page .modal .form-control,
+        .projects-page .modal .form-select {
+            min-height: 44px;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .projects-page .modal textarea.form-control {
+            min-height: auto;
+            line-height: 1.55;
+            resize: vertical;
+        }
+
+        .projects-page .field-hint,
+        .projects-page .modal small.text-muted {
+            display: block;
+            margin-top: 5px;
+            color: var(--prj-muted) !important;
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        .projects-page .timeline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .projects-page .status-progress-grid {
+            display: grid;
+            grid-template-columns: minmax(220px, .75fr) minmax(320px, 1.25fr);
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .projects-page .progress-control-card {
+            height: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--prj-border);
+            border-radius: 12px;
+            background: #fbfcfe;
+        }
+
+        .projects-page .progress-control-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .projects-page .progress-value-pill {
+            min-width: 48px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: var(--prj-primary-soft);
+            color: var(--prj-primary);
+            font-size: .73rem;
+            font-weight: 850;
+            text-align: center;
+        }
+
+        .projects-page .form-range { margin: 6px 0 0; }
+
+        .projects-page .progress-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            color: var(--prj-muted);
+            font-size: .65rem;
+            font-weight: 700;
+        }
+
+        .projects-page .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 20px;
+            border-top: 1px solid var(--prj-border);
+            background: #fff;
+        }
+
+        .projects-page .modal-footer .btn { min-width: 112px; }
+
+        /* View project */
+        .projects-page .project-view-hero {
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--prj-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .projects-page .project-view-title {
+            margin: 0;
+            overflow-wrap: anywhere;
+            color: var(--prj-text);
+            font-size: 1.12rem;
+            font-weight: 850;
+            line-height: 1.35;
+        }
+
+        .projects-page .project-view-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .projects-page .view-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .projects-page .view-summary-item {
+            padding: 11px 12px;
+            border: 1px solid var(--prj-border);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .projects-page .view-summary-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--prj-muted);
+            font-size: .67rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .projects-page .view-summary-value {
+            display: block;
+            overflow-wrap: anywhere;
+            color: var(--prj-text);
+            font-size: .82rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .projects-page .view-progress-card {
+            padding: 13px;
+            margin-bottom: 14px;
+            border: 1px solid var(--prj-border);
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .projects-page .view-progress-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: #344054;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .projects-page .view-progress-card .progress {
+            height: 8px !important;
+            border-radius: 999px;
+            background: #eef2f6;
+        }
+
+        .projects-page .view-progress-card .progress-bar {
+            border-radius: 999px;
+            font-size: 0;
+        }
+
+        .projects-page .project-description-box {
+            padding: 14px;
+            border: 1px solid var(--prj-border);
+            border-radius: 11px;
+            background: #fff;
+            color: #344054;
+            font-size: .84rem;
+            line-height: 1.65;
+            overflow-wrap: anywhere;
+        }
+
+        /* Semantic action colors */
+        .projects-page .btn-success {
+            border-color: #15803d;
+            background: #15803d;
+        }
+        .projects-page .btn-success:hover {
+            border-color: #166534;
+            background: #166534;
+        }
+        .projects-page .btn-outline-success {
+            border-color: #86efac;
+            background: #f0fdf4;
+            color: #166534;
+        }
+        .projects-page .btn-outline-success:hover {
+            border-color: #16a34a;
+            background: #dcfce7;
+            color: #14532d;
+        }
+        .projects-page .btn-outline-danger {
+            border-color: #fda4af;
+            background: #fff;
+            color: #b42318;
+        }
+        .projects-page .btn-outline-danger:hover {
+            border-color: #e11d48;
+            background: #fff1f2;
+            color: #9f1239;
+        }
+
+        @media (max-width: 1199.98px) {
+            .projects-page .projects-filter-toolbar {
+                grid-template-columns: minmax(250px, 1.4fr) repeat(2, minmax(135px, .7fr));
+            }
+            .projects-page .projects-filter-toolbar .filter-submit-btn { grid-column: 3; }
+            .projects-page .view-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 767.98px) {
+            .projects-page { padding-bottom: 14px; }
+
+            .projects-page .projects-panel { border-radius: 13px; }
+            .projects-page .projects-panel-header {
+                align-items: flex-start;
+                padding: 13px 14px;
+            }
+            .projects-page .projects-panel-icon { display: none; }
+            .projects-page .projects-panel-title h3 { font-size: .9rem; }
+            .projects-page .projects-count-pill { font-size: .7rem; }
+
+            .projects-page .projects-filter-body { padding: 12px 14px 14px; }
+            .projects-page .projects-filter-toolbar {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 9px;
+            }
+            .projects-page .projects-search-group { width: 100%; }
+            .projects-page .search-submit-btn { flex: 0 0 auto; }
+            .projects-page .projects-filter-toolbar > .form-select,
+            .projects-page .projects-filter-toolbar > .btn { width: 100%; }
+
+            .projects-page .projects-bulk-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .projects-page .projects-bulk-row .btn { width: 100%; }
+
+            /* Compact mobile project table: selection + project summary + actions */
+            .projects-page #projectsTable th:nth-child(3),
+            .projects-page #projectsTable td:nth-child(3),
+            .projects-page #projectsTable th:nth-child(4),
+            .projects-page #projectsTable td:nth-child(4),
+            .projects-page #projectsTable th:nth-child(5),
+            .projects-page #projectsTable td:nth-child(5),
+            .projects-page #projectsTable th:nth-child(6),
+            .projects-page #projectsTable td:nth-child(6),
+            .projects-page #projectsTable th:nth-child(7),
+            .projects-page #projectsTable td:nth-child(7) {
+                display: none !important;
+            }
+
+            .projects-page #projectsTable th:first-child,
+            .projects-page #projectsTable td:first-child {
+                width: 38px;
+                padding-left: 12px !important;
+            }
+            .projects-page #projectsTable th:nth-child(2),
+            .projects-page #projectsTable td:nth-child(2) { padding-left: 0 !important; }
+            .projects-page #projectsTable th:last-child,
+            .projects-page #projectsTable td:last-child {
+                width: 76px;
+                padding-right: 12px !important;
+            }
+
+            .projects-page .project-title-text { max-width: min(53vw, 280px); }
+            .projects-page .project-mobile-meta { display: block; }
+            .projects-page .action-view-btn .action-label { display: none; }
+            .projects-page .action-view-btn { width: 34px; padding: 0; }
+            .projects-page .action-view-btn i { margin: 0; }
+
+            .projects-page .modal-dialog {
+                width: calc(100% - 16px);
+                max-width: none;
+                margin: 8px auto;
+                min-height: calc(100% - 16px);
+            }
+
+            .projects-page .modal-content {
+                max-height: calc(100vh - 16px);
+                border-radius: 14px;
+            }
+
+            .projects-page .modal-header { padding: 14px; gap: 10px; }
+            .projects-page .modal-heading-icon { width: 36px; height: 36px; border-radius: 10px; }
+            .projects-page .modal-title { font-size: .93rem; }
+            .projects-page .modal-subtitle { font-size: .69rem; }
+            .projects-page .modal-body { padding: 12px; }
+            .projects-page .form-step-card,
+            .projects-page .detail-section-card { padding: 13px; margin-bottom: 10px; border-radius: 12px; }
+            .projects-page .form-section-heading { margin-bottom: 11px; }
+            .projects-page .section-step { width: 29px; height: 29px; }
+
+            .projects-page .timeline-grid,
+            .projects-page .status-progress-grid { grid-template-columns: 1fr; }
+            .projects-page .progress-control-card { height: auto; }
+            .projects-page .view-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+            .projects-page .modal-footer {
+                padding: 11px 12px;
+                gap: 7px;
+            }
+            .projects-page .modal-footer .btn {
+                min-width: 0;
+                flex: 1;
+            }
+
+            .projects-page .action-dropdown .dropdown-menu {
+                width: min(250px, calc(100vw - 24px));
+            }
+        }
+
+        @media (max-width: 420px) {
+            .projects-page .projects-panel-header { gap: 8px; }
+            .projects-page .projects-panel-actions { width: auto; }
+            .projects-page .projects-panel-actions .btn {
+                min-height: 36px;
+                padding: .4rem .55rem;
+            }
+            .projects-page .projects-search-group { flex-direction: column; }
+            .projects-page .projects-search-group .btn { width: 100%; }
+            .projects-page .project-icon { width: 34px; height: 34px; }
+            .projects-page .project-title-text { max-width: 49vw; font-size: .78rem; }
+            .projects-page .project-mobile-meta { font-size: .65rem; }
+            .projects-page .view-summary { grid-template-columns: 1fr; }
+            .projects-page .modal-heading-icon { display: none; }
+            .projects-page .modal-footer { flex-direction: column-reverse; }
+            .projects-page .modal-footer .btn { width: 100%; flex: none; }
+        }
+
+        html[data-theme="dark"] .projects-page,
+        body.dark-mode .projects-page {
+            --prj-border: #2b3443;
+            --prj-border-strong: #3a4658;
+            --prj-text: #e5e7eb;
+            --prj-muted: #9ca3af;
+            --prj-soft: #111827;
+        }
+
+        html[data-theme="dark"] .projects-page .projects-panel,
+        html[data-theme="dark"] .projects-page .projects-panel-header,
+        html[data-theme="dark"] .projects-page .modal-content,
+        html[data-theme="dark"] .projects-page .modal-header,
+        html[data-theme="dark"] .projects-page .modal-footer,
+        html[data-theme="dark"] .projects-page .form-step-card,
+        html[data-theme="dark"] .projects-page .detail-section-card,
+        html[data-theme="dark"] .projects-page .project-view-hero,
+        html[data-theme="dark"] .projects-page .view-summary-item,
+        html[data-theme="dark"] .projects-page .view-progress-card,
+        html[data-theme="dark"] .projects-page .project-description-box,
+        body.dark-mode .projects-page .projects-panel,
+        body.dark-mode .projects-page .projects-panel-header,
+        body.dark-mode .projects-page .modal-content,
+        body.dark-mode .projects-page .modal-header,
+        body.dark-mode .projects-page .modal-footer,
+        body.dark-mode .projects-page .form-step-card,
+        body.dark-mode .projects-page .detail-section-card,
+        body.dark-mode .projects-page .project-view-hero,
+        body.dark-mode .projects-page .view-summary-item,
+        body.dark-mode .projects-page .view-progress-card,
+        body.dark-mode .projects-page .project-description-box {
+            background: #111827;
+        }
+
+        html[data-theme="dark"] .projects-page .modal-body,
+        body.dark-mode .projects-page .modal-body { background: #0b1220; }
+
+        html[data-theme="dark"] .projects-page .form-control,
+        html[data-theme="dark"] .projects-page .form-select,
+        html[data-theme="dark"] .projects-page .progress-control-card,
+        body.dark-mode .projects-page .form-control,
+        body.dark-mode .projects-page .form-select,
+        body.dark-mode .projects-page .progress-control-card {
+            border-color: var(--prj-border-strong);
+            background: #0f172a;
+            color: var(--prj-text);
+        }
+
+        html[data-theme="dark"] .projects-page .table thead th,
+        body.dark-mode .projects-page .table thead th { background: #0f172a; color: #aab4c3; }
+
+        html[data-theme="dark"] .projects-page .table tbody td,
+        body.dark-mode .projects-page .table tbody td { color: var(--prj-text); }
+    </style>
 @endpush
 
 @section('content')
@@ -311,9 +1198,20 @@
                                             <div class="project-icon me-2">
                                                 <i class="fas fa-hard-hat text-primary"></i>
                                             </div>
-                                            <div>
-                                                <div class="fw-semibold">{{ Str::limit($project->title, 30) }}</div>
-                                                <small class="text-muted d-md-none">{{ $project->location ?? 'No location' }}</small>
+                                            <div class="min-w-0">
+                                                <div class="project-title-text" title="{{ $project->title }}">{{ Str::limit($project->title, 42) }}</div>
+                                                <div class="project-mobile-meta">
+                                                    <span><i class="fas fa-location-dot"></i>{{ Str::limit($project->location ?? 'No location', 26) }}</span>
+                                                    <span>
+                                                        @if($project->deleted_at)
+                                                            <i class="fas fa-box-archive"></i>Archived
+                                                        @elseif($project->status == 'ongoing')
+                                                            <i class="fas fa-hourglass-half"></i>Ongoing · {{ $project->progress }}%
+                                                        @else
+                                                            <i class="fas fa-circle-check"></i>Completed · {{ $project->progress }}%
+                                                        @endif
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -350,56 +1248,84 @@
                                         @endif
                                     </td>
                                     <td class="progress-cell">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                        <div class="project-progress-wrap">
+                                            <div class="progress project-progress-track">
                                                 <div class="progress-bar {{ $project->status == 'completed' ? 'bg-success' : '' }}"
                                                     role="progressbar"
                                                     style="width: {{ $project->progress }}%;"
                                                     aria-valuenow="{{ $project->progress }}"
                                                     aria-valuemin="0"
-                                                    aria-valuemax="100">
-                                                    {{ $project->progress }}%
-                                                </div>
+                                                    aria-valuemax="100"></div>
                                             </div>
-                                            <small class="fw-semibold">{{ $project->progress }}%</small>
+                                            <div class="project-progress-label">
+                                                <span>{{ $project->status == 'completed' ? 'Completed' : 'Progress' }}</span>
+                                                <strong>{{ $project->progress }}%</strong>
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="text-end pe-4">
-                                        <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                            <!-- View (everyone with view_projects can view) -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $project->id }}" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="row-actions" aria-label="Actions for {{ $project->title }}">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary action-view-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ $project->id }}"
+                                                    title="View project details">
+                                                <i class="fas fa-eye"></i><span class="action-label">View</span>
                                             </button>
 
-                                            <!-- Edit (requires update_projects permission) -->
-                                            @if(!$project->deleted_at)
-                                            @admin_can('update_projects')
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProjectModal{{ $project->id }}" title="Edit Project">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            @endadmin_can
-                                            @endif
-
-
-                                            <!-- Delete (requires delete_projects permission) -->
-                                            @admin_can('delete_projects')
-                                            @if($project->deleted_at)
-                                            <form method="POST" action="{{ route('admin.projects.restore', $project->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Restore this project?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
-                                                    <i class="fas fa-rotate-left"></i>
+                                            <div class="dropdown action-dropdown">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-light-soft action-more-btn icon-only"
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport"
+                                                        aria-expanded="false"
+                                                        title="More actions">
+                                                    <i class="fas fa-ellipsis-vertical"></i>
                                                 </button>
-                                            </form>
-                                            @else
-                                            <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Archive this project?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                            @endif
-                                            @endadmin_can
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    @if(!$project->deleted_at)
+                                                        @admin_can('update_projects')
+                                                        <button type="button"
+                                                                class="dropdown-item action-edit"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editProjectModal{{ $project->id }}">
+                                                            <span class="action-menu-icon"><i class="fas fa-pen"></i></span>
+                                                            <span class="action-menu-copy">
+                                                                <strong>Edit project</strong>
+                                                                <small>Update project details and progress</small>
+                                                            </span>
+                                                        </button>
+                                                        @endadmin_can
+                                                    @endif
+
+                                                    @admin_can('delete_projects')
+                                                        @if($project->deleted_at)
+                                                        <form method="POST" action="{{ route('admin.projects.restore', $project->id) }}" onsubmit="return confirmDelete(event, 'Restore this project?')">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item action-restore">
+                                                                <span class="action-menu-icon"><i class="fas fa-rotate-left"></i></span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Restore project</strong>
+                                                                    <small>Return this project to the active list</small>
+                                                                </span>
+                                                            </button>
+                                                        </form>
+                                                        @else
+                                                        <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" onsubmit="return confirmDelete(event, 'Archive this project?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item action-archive">
+                                                                <span class="action-menu-icon"><i class="fas fa-box-archive"></i></span>
+                                                                <span class="action-menu-copy">
+                                                                    <strong>Archive project</strong>
+                                                                    <small>Remove it from the active project list</small>
+                                                                </span>
+                                                            </button>
+                                                        </form>
+                                                        @endif
+                                                    @endadmin_can
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -441,357 +1367,377 @@
                 </div>
             </div>
 
-            <!-- Add Project Modal with Validation - Only if user has create_projects permission -->
+            <!-- Add Project Modal -->
             @admin_can('create_projects')
             <div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-hard-hat"></i>
-                                <span class="modal-title-stack">
-                                    <span>New Project</span>
-                                    <span class="modal-subtitle">Add a clear project record with status, dates, location, and progress.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-hard-hat"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">New Project</h5>
+                                    <span class="modal-subtitle">Create a project record in three clear sections. Fields marked <span class="text-danger">*</span> are required.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+
                         <div class="modal-body">
                             <form method="POST" action="{{ route('admin.projects.store') }}" id="addProjectForm">
-                            @csrf
-                            <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <!-- Basic Information -->
-                                    <div class="col-12">
-                                        <label class="form-label">Project Title <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif" 
-                                               name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" placeholder="e.g. Drainage Rehabilitation Phase 1" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('title')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                @csrf
+                                <input type="hidden" name="form_type" value="add">
 
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif" 
-                                                  name="description" rows="4" placeholder="Write project description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
-                                        @if(session('form_type') == 'add')
-                                            @error('description')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                <div class="modal-form-intro">
+                                    <i class="fas fa-circle-info"></i>
+                                    <span>Keep the project title and description clear so administrators can recognize the work quickly.</span>
+                                </div>
 
-                                    <!-- Dates -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Start Date</label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('start_date') is-invalid @enderror @endif" 
-                                               name="start_date" value="{{ session('form_type') == 'add' ? old('start_date') : '' }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('start_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
+                                        <div>
+                                            <h6>Project Information</h6>
+                                            <p>Describe the project and its intended work.</p>
+                                        </div>
                                     </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Expected Completion</label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('expected_completion') is-invalid @enderror @endif" 
-                                               name="expected_completion" value="{{ session('form_type') == 'add' ? old('expected_completion') : '' }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('expected_completion')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-heading"></i>Project Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('title') is-invalid @enderror @endif"
+                                                   name="title" value="{{ session('form_type') == 'add' ? old('title') : '' }}" placeholder="e.g. Drainage Rehabilitation Phase 1" required>
+                                            <span class="field-hint">Use a short, specific project name that is easy to identify.</span>
+                                            @if(session('form_type') == 'add')
+                                                @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-align-left"></i>Description <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'add') @error('description') is-invalid @enderror @endif"
+                                                      name="description" rows="5" placeholder="Write project description here..." required>{{ session('form_type') == 'add' ? old('description') : '' }}</textarea>
+                                            <span class="field-hint">Include the scope, expected outcome, and important details.</span>
+                                            @if(session('form_type') == 'add')
+                                                @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
                                     </div>
+                                </div>
 
-                                    <!-- Location -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Location</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif" 
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Timeline &amp; Location</h6>
+                                            <p>Set the project schedule and where the work will take place.</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-grid">
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-calendar-day"></i>Start Date</label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('start_date') is-invalid @enderror @endif"
+                                                   name="start_date" value="{{ session('form_type') == 'add' ? old('start_date') : '' }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-calendar-check"></i>Expected Completion</label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('expected_completion') is-invalid @enderror @endif"
+                                                   name="expected_completion" value="{{ session('form_type') == 'add' ? old('expected_completion') : '' }}">
+                                            <span class="field-hint">Must not be earlier than the start date.</span>
+                                            @if(session('form_type') == 'add')
+                                                @error('expected_completion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <label class="form-label"><i class="fas fa-location-dot"></i>Location</label>
+                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('location') is-invalid @enderror @endif"
                                                name="location" value="{{ session('form_type') == 'add' ? old('location') : '' }}" placeholder="e.g. Zone 3, Hulong Duhat">
                                         @if(session('form_type') == 'add')
-                                            @error('location')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <!-- Status and Progress -->
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" 
-                                                name="status" required>
-                                            <option value="">Select status</option>
-                                            <option value="ongoing" {{ (session('form_type') == 'add' && old('status') == 'ongoing') ? 'selected' : '' }}>Ongoing</option>
-                                            <option value="completed" {{ (session('form_type') == 'add' && old('status') == 'completed') ? 'selected' : '' }}>Completed</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('status')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                                        <input type="range" class="form-range" id="addProgressRange" min="0" max="100" step="1" value="{{ old('progress', 0) }}">
-                                        <div class="text-center mt-2">
-                                            <span class="badge bg-primary" id="addProgressValue">0%</span>
-                                        </div>
-                                        <input type="hidden" name="progress" id="addProgressHidden" value="{{ old('progress', 0) }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('progress')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            @error('location')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         @endif
                                     </div>
                                 </div>
+
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Status &amp; Progress</h6>
+                                            <p>Keep project status consistent with its completion percentage.</p>
+                                        </div>
+                                    </div>
+                                    <div class="status-progress-grid">
+                                        <div>
+                                            <label class="form-label"><i class="fas fa-circle-half-stroke"></i>Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('status') is-invalid @enderror @endif" name="status" required>
+                                                <option value="">Select status</option>
+                                                <option value="ongoing" {{ (session('form_type') == 'add' && old('status') == 'ongoing') ? 'selected' : '' }}>Ongoing</option>
+                                                <option value="completed" {{ (session('form_type') == 'add' && old('status') == 'completed') ? 'selected' : '' }}>Completed</option>
+                                            </select>
+                                            <span class="field-hint">Completed is valid only when progress reaches 100%.</span>
+                                            @if(session('form_type') == 'add')
+                                                @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                        <div class="progress-control-card">
+                                            <div class="progress-control-head">
+                                                <label class="form-label mb-0"><i class="fas fa-chart-line"></i>Progress <span class="text-danger">*</span></label>
+                                                <span class="progress-value-pill" id="addProgressValue">{{ old('progress', 0) }}%</span>
+                                            </div>
+                                            <input type="range" class="form-range" id="addProgressRange" min="0" max="100" step="1" value="{{ old('progress', 0) }}">
+                                            <div class="progress-scale"><span>0%</span><span>50%</span><span>100%</span></div>
+                                            <input type="hidden" name="progress" id="addProgressHidden" value="{{ old('progress', 0) }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('progress')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" form="addProjectForm" class="btn btn-success" id="submitAddForm">
-                                    <i class="fas fa-save me-2"></i>Save Project
-                                </button>
-                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i>Cancel</button>
+                            <button type="submit" form="addProjectForm" class="btn btn-success" id="submitAddForm"><i class="fas fa-save"></i>Save Project</button>
+                        </div>
                     </div>
                 </div>
             </div>
             @endadmin_can
 
-            <!-- Edit Project Modals with Validation - Only if user has update_projects permission -->
+            <!-- Edit Project Modals -->
             @if(auth('admin')->user()->hasPermission('update_projects'))
                 @foreach($projects as $project)
                 <div class="modal fade" id="editProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-edit"></i>
-                                    <span class="modal-title-stack">
-                                        <span>Edit Project</span>
-                                        <span class="modal-subtitle">Update project details and keep progress aligned with the selected status.</span>
-                                    </span>
-                                </h5>
+                                <div class="modal-heading">
+                                    <div class="modal-heading-icon"><i class="fas fa-pen"></i></div>
+                                    <div class="modal-heading-copy">
+                                        <h5 class="modal-title">Edit Project</h5>
+                                        <span class="modal-subtitle">Update {{ $project->title }} while keeping its dates, status, and progress consistent.</span>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
+
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" id="editProjectForm{{ $project->id }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="form_type" value="edit_{{ $project->id }}">
 
-                                    <div class="row g-3">
-                                        <!-- Basic Information -->
-                                        <div class="col-12">
-                                            <label class="form-label">Project Title <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('title') is-invalid @enderror @endif" 
-                                                   name="title" value="{{ session('form_type') == 'edit_' . $project->id ? old('title', $project->title) : $project->title }}" required>
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('title')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">1</div>
+                                            <div>
+                                                <h6>Project Information</h6>
+                                                <p>Update the project name and description.</p>
+                                            </div>
                                         </div>
-
-                                        <div class="col-12">
-                                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('description') is-invalid @enderror @endif" 
-                                                      name="description" rows="4" required>{{ session('form_type') == 'edit_' . $project->id ? old('description', $project->description) : $project->description }}</textarea>
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('description')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-heading"></i>Project Title <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('title') is-invalid @enderror @endif"
+                                                       name="title" value="{{ session('form_type') == 'edit_' . $project->id ? old('title', $project->title) : $project->title }}" required>
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label"><i class="fas fa-align-left"></i>Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('description') is-invalid @enderror @endif"
+                                                          name="description" rows="5" required>{{ session('form_type') == 'edit_' . $project->id ? old('description', $project->description) : $project->description }}</textarea>
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
                                         </div>
+                                    </div>
 
-                                        <!-- Dates -->
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Start Date</label>
-                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('start_date') is-invalid @enderror @endif" 
-                                                   name="start_date" value="{{ session('form_type') == 'edit_' . $project->id ? old('start_date', $project->start_date ? $project->start_date->format('Y-m-d') : '') : ($project->start_date ? $project->start_date->format('Y-m-d') : '') }}">
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('start_date')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">2</div>
+                                            <div>
+                                                <h6>Timeline &amp; Location</h6>
+                                                <p>Adjust dates and location without changing the existing workflow.</p>
+                                            </div>
                                         </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Expected Completion</label>
-                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('expected_completion') is-invalid @enderror @endif" 
-                                                   name="expected_completion" value="{{ session('form_type') == 'edit_' . $project->id ? old('expected_completion', $project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') : ($project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') }}">
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('expected_completion')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
+                                        <div class="timeline-grid">
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-calendar-day"></i>Start Date</label>
+                                                <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('start_date') is-invalid @enderror @endif"
+                                                       name="start_date" value="{{ session('form_type') == 'edit_' . $project->id ? old('start_date', $project->start_date ? $project->start_date->format('Y-m-d') : '') : ($project->start_date ? $project->start_date->format('Y-m-d') : '') }}">
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-calendar-check"></i>Expected Completion</label>
+                                                <input type="date" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('expected_completion') is-invalid @enderror @endif"
+                                                       name="expected_completion" value="{{ session('form_type') == 'edit_' . $project->id ? old('expected_completion', $project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') : ($project->expected_completion ? $project->expected_completion->format('Y-m-d') : '') }}">
+                                                <span class="field-hint">Must not be earlier than the start date.</span>
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('expected_completion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
                                         </div>
-
-                                        <!-- Location -->
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Location</label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('location') is-invalid @enderror @endif" 
+                                        <div class="mt-3">
+                                            <label class="form-label"><i class="fas fa-location-dot"></i>Location</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $project->id) @error('location') is-invalid @enderror @endif"
                                                    name="location" value="{{ session('form_type') == 'edit_' . $project->id ? old('location', $project->location) : $project->location }}">
                                             @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('location')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <!-- Status and Progress -->
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">Status <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $project->id) @error('status') is-invalid @enderror @endif" 
-                                                    name="status" id="edit_status_{{ $project->id }}" required>
-                                                <option value="">Select status</option>
-                                                <option value="ongoing" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
-                                                <option value="completed" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'completed' ? 'selected' : '' }}>Completed</option>
-                                            </select>
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('status')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            @endif
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                                            <input type="range" class="form-range" id="editProgressRange{{ $project->id }}" min="0" max="100" step="1" value="{{ $project->progress }}">
-                                            <div class="text-center mt-2">
-                                                <span class="badge bg-primary" id="editProgressValue{{ $project->id }}">{{ $project->progress }}%</span>
-                                            </div>
-                                            <input type="hidden" name="progress" id="editProgressHidden{{ $project->id }}" value="{{ $project->progress }}">
-                                            @if(session('form_type') == 'edit_' . $project->id)
-                                                @error('progress')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
+                                                @error('location')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                             @endif
                                         </div>
                                     </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" form="editProjectForm{{ $project->id }}" class="btn btn-primary" id="submitEditForm{{ $project->id }}">
-                                        <i class="fas fa-save me-2"></i>Update Project
-                                    </button>
-                                </div>
+
+                                    <div class="form-step-card">
+                                        <div class="form-section-heading">
+                                            <div class="section-step">3</div>
+                                            <div>
+                                                <h6>Status &amp; Progress</h6>
+                                                <p>Progress automatically keeps the status aligned with completion.</p>
+                                            </div>
+                                        </div>
+                                        <div class="status-progress-grid">
+                                            <div>
+                                                <label class="form-label"><i class="fas fa-circle-half-stroke"></i>Status <span class="text-danger">*</span></label>
+                                                <select class="form-select @if(session('form_type') == 'edit_' . $project->id) @error('status') is-invalid @enderror @endif"
+                                                        name="status" id="edit_status_{{ $project->id }}" required>
+                                                    <option value="">Select status</option>
+                                                    <option value="ongoing" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                                    <option value="completed" {{ (session('form_type') == 'edit_' . $project->id ? old('status', $project->status) : $project->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                                                </select>
+                                                <span class="field-hint">Completed is valid only when progress reaches 100%.</span>
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+                                            <div class="progress-control-card">
+                                                <div class="progress-control-head">
+                                                    <label class="form-label mb-0"><i class="fas fa-chart-line"></i>Progress <span class="text-danger">*</span></label>
+                                                    <span class="progress-value-pill" id="editProgressValue{{ $project->id }}">{{ $project->progress }}%</span>
+                                                </div>
+                                                <input type="range" class="form-range" id="editProgressRange{{ $project->id }}" min="0" max="100" step="1" value="{{ $project->progress }}">
+                                                <div class="progress-scale"><span>0%</span><span>50%</span><span>100%</span></div>
+                                                <input type="hidden" name="progress" id="editProgressHidden{{ $project->id }}" value="{{ $project->progress }}">
+                                                @if(session('form_type') == 'edit_' . $project->id)
+                                                    @error('progress')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i>Cancel</button>
+                                <button type="submit" form="editProjectForm{{ $project->id }}" class="btn btn-primary" id="submitEditForm{{ $project->id }}"><i class="fas fa-save"></i>Update Project</button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @endforeach
             @endif
 
-            <!-- View Modals (always visible since they just show data) -->
+            <!-- View Project Modals -->
             @foreach($projects as $project)
             <div class="modal fade" id="viewModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-hard-hat"></i>
-                                <span class="modal-title-stack">
-                                    <span>Project Details</span>
-                                    <span class="modal-subtitle">Review project timeline, location, progress, and description.</span>
-                                </span>
-                            </h5>
+                            <div class="modal-heading">
+                                <div class="modal-heading-icon"><i class="fas fa-hard-hat"></i></div>
+                                <div class="modal-heading-copy">
+                                    <h5 class="modal-title">Project Details</h5>
+                                    <span class="modal-subtitle">Review project status, timeline, progress, location, and description.</span>
+                                </div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+
                         <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <h4 class="fw-bold">{{ $project->title }}</h4>
+                            <div class="project-view-hero">
+                                <h4 class="project-view-title">{{ $project->title }}</h4>
+                                <div class="project-view-meta">
+                                    @if($project->deleted_at)
+                                        <span class="badge bg-danger-subtle text-danger"><i class="fas fa-box-archive me-1"></i>Archived</span>
+                                    @elseif($project->status == 'ongoing')
+                                        <span class="badge bg-warning-subtle text-warning"><i class="fas fa-hourglass-half me-1"></i>Ongoing</span>
+                                    @else
+                                        <span class="badge bg-success-subtle text-success"><i class="fas fa-circle-check me-1"></i>Completed</span>
+                                    @endif
+                                    @if($project->is_overdue)
+                                        <span class="badge bg-danger-subtle text-danger"><i class="fas fa-triangle-exclamation me-1"></i>Overdue</span>
+                                    @endif
                                 </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Status</label>
-                                    <p>
-                                        @if($project->status == 'ongoing')
-                                            <span class="badge bg-warning-subtle text-warning">Ongoing</span>
-                                        @else
-                                            <span class="badge bg-success-subtle text-success">Completed</span>
-                                        @endif
-                                    </p>
-                                </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Progress</label>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress flex-grow-1" style="height: 20px;">
-                                            <div class="progress-bar {{ $project->status == 'completed' ? 'bg-success' : '' }}"
-                                                role="progressbar"
-                                                style="width: {{ $project->progress }}%;">
-                                                {{ $project->progress }}%
-                                            </div>
-                                        </div>
-                                        <span class="fw-semibold">{{ $project->progress }}%</span>
+                            <div class="view-summary">
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Location</span>
+                                    <span class="view-summary-value">{{ $project->location ?: 'Not specified' }}</span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Start Date</span>
+                                    <span class="view-summary-value">{{ $project->start_date ? $project->start_date->format('M d, Y') : 'Not set' }}</span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Expected Completion</span>
+                                    <span class="view-summary-value">{{ $project->expected_completion ? $project->expected_completion->format('M d, Y') : 'Not set' }}</span>
+                                </div>
+                                <div class="view-summary-item">
+                                    <span class="view-summary-label">Last Updated</span>
+                                    <span class="view-summary-value">{{ $project->updated_at ? $project->updated_at->format('M d, Y') : 'N/A' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="view-progress-card">
+                                <div class="view-progress-head">
+                                    <span><i class="fas fa-chart-line me-1"></i>Project Progress</span>
+                                    <strong>{{ $project->progress }}%</strong>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar {{ $project->status == 'completed' ? 'bg-success' : '' }}"
+                                         role="progressbar"
+                                         style="width: {{ $project->progress }}%;"
+                                         aria-valuenow="{{ $project->progress }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="detail-section-title mb-2"><i class="fas fa-align-left me-2"></i>Project Description</div>
+                                <div class="project-description-box">{!! nl2br(e($project->description)) !!}</div>
+                            </div>
+
+                            <div class="detail-section-card">
+                                <div class="detail-section-title mb-2"><i class="fas fa-clock-rotate-left me-2"></i>Record Information</div>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <span class="view-summary-label">Created At</span>
+                                        <span class="view-summary-value">{{ $project->created_at ? $project->created_at->format('F d, Y h:i A') : 'N/A' }}</span>
                                     </div>
-                                </div>
-
-                                @if($project->location)
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Location</label>
-                                    <p><i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ $project->location }}</p>
-                                </div>
-                                @endif
-
-                                @if($project->start_date)
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Start Date</label>
-                                    <p><i class="fas fa-calendar me-2 text-primary"></i>{{ $project->start_date->format('F d, Y') }}</p>
-                                </div>
-                                @endif
-
-                                @if($project->expected_completion)
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Expected Completion</label>
-                                    <p>
-                                        <i class="fas fa-calendar-check me-2 text-primary"></i>
-                                        {{ $project->expected_completion->format('F d, Y') }}
-                                        @if($project->is_overdue)
-                                            <span class="badge bg-danger-subtle text-danger ms-2">Overdue</span>
-                                        @endif
-                                    </p>
-                                </div>
-                                @endif
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Created At</label>
-                                    <p><i class="fas fa-clock me-2 text-primary"></i>{{ $project->created_at ? $project->created_at->format('F d, Y h:i A') : 'N/A' }}</p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Last Updated</label>
-                                    <p><i class="fas fa-sync me-2 text-primary"></i>{{ $project->updated_at ? $project->updated_at->format('F d, Y h:i A') : 'N/A' }}</p>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label text-muted">Description</label>
-                                    <div class="p-3 bg-light rounded">
-                                        {!! nl2br(e($project->description)) !!}
+                                    <div class="col-12 col-md-6">
+                                        <span class="view-summary-label">Last Updated</span>
+                                        <span class="view-summary-value">{{ $project->updated_at ? $project->updated_at->format('F d, Y h:i A') : 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-2"></i>Close
-                            </button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i>Close</button>
                         </div>
                     </div>
                 </div>
             </div>
             @endforeach
-
 
             @if ($errors->any() && session('form_type') == 'add')
             <script>

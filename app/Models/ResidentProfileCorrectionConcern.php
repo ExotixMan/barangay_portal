@@ -16,6 +16,7 @@ class ResidentProfileCorrectionConcern extends Model
         'status',
         'reviewed_by',
         'reviewed_at',
+        'remarks',
     ];
 
     protected $casts = [

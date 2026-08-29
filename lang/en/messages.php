@@ -1240,7 +1240,7 @@ return [
     'blade_profile_blade_profile_correction_concern_status'                                     => 'Profile Correction Concern Status',
     'blade_profile_blade_concern_id'                                                            => 'Concern ID',
     'blade_profile_blade_field'                                                                 => 'Field',
-    'blade_profile_blade_current_value'                                                         => 'Current Value',
+    'blade_profile_blade_current_value'                                                         => 'Current',
     'blade_profile_blade_correct_value'                                                         => 'Correct Value',
     'blade_profile_blade_reviewed'                                                              => 'Reviewed',
     'blade_profile_blade_request_forms_are_temporarily_locked_while_this_concern'               => 'Request forms are temporarily locked while this concern is still pending. You can use services again after barangay staff marks it as corrected/approved.',

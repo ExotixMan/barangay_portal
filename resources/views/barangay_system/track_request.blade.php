@@ -117,7 +117,7 @@
 
     .bhd-reference-input-wrap i {
         position: absolute;
-        left: 14px;
+        left: 10px;
         top: 50%;
         transform: translateY(-50%);
         color: var(--muted);

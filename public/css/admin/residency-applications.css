@@ -1712,7 +1712,7 @@ textarea.form-control {
     border-top: 1px solid var(--line) !important;
 }
 
-.modal-body h6,
+/* .modal-body h6, */
 .modal-section-title {
     display: flex;
     align-items: center;
@@ -1730,15 +1730,6 @@ textarea.form-control {
 }
 
 .modal-body h6:first-child { margin-top: 0 !important; }
-
-.modal-body p {
-    margin-bottom: .7rem !important;
-    padding: .65rem .75rem !important;
-    color: var(--text) !important;
-    background: #f9fafb;
-    border: 1px solid var(--line) !important;
-    border-radius: 12px;
-}
 
 .modal-body strong {
     color: #344054 !important;
@@ -3024,3 +3015,26 @@ min-width: 1160px !important;
     }
 }
 
+/*  TABLE DROPDOWN OVERFLOW FIX  */
+.residency-table-card:has(.dropdown-menu.show),
+.residency-table-card:has(.dropdown-menu.show) .card-body,
+.residency-table-card:has(.dropdown-menu.show) .table-responsive {
+    overflow: visible !important;
+}
+
+.residency-table-card .resident-action-dropdown {
+    position: relative;
+    z-index: 1030;
+}
+
+.residency-table-card .resident-action-menu.show {
+    z-index: 1080 !important;
+    display: block;
+    visibility: visible;
+}
+
+.residency-table-card .resident-action-menu {
+    position: absolute;
+    z-index: 1080 !important;
+    min-width: 285px;
+}

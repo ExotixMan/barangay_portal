@@ -62,6 +62,8 @@
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/dark-mode.css') }}">
     @include('admin.layouts.theme-colors')
+    <link rel="stylesheet" href="{{ asset('css/admin/admin-ux-refresh.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/admin-modal-system.css') }}">
 </head>
 <body>
     @include('admin.layouts.sidebar')

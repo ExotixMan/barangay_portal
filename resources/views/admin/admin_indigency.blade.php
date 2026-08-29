@@ -6,14 +6,379 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/indigency-applications.css') }}">
+    <style>
+        /* Resident picker / auto-fill UX */
+        .resident-picker-section {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #f8fafc;
+        }
+
+        .form-step-card {
+            padding: 1rem 1.1rem 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .form-step-card:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .form-step-card .form-label i {
+            width: 16px;
+            color: #94a3b8;
+            margin-right: .35rem;
+            font-size: .78rem;
+        }
+
+        .form-section-heading {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: .8rem;
+        }
+
+        .section-step {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            background: #fff1f2;
+            color: #dc2626;
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        .form-section-heading h6 {
+            margin: 0;
+            font-size: .92rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .form-section-heading p {
+            margin: .15rem 0 0;
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        .resident-search-wrapper {
+            position: relative;
+            z-index: 30;
+        }
+
+        .resident-search-box {
+            position: relative;
+        }
+
+        .resident-search-box .form-control {
+            height: 48px;
+            padding-left: 2.8rem;
+            padding-right: 2.8rem;
+            border-radius: 12px;
+            border: 1px solid #d8dee6;
+            background: #fff;
+        }
+
+        .resident-search-box .form-control:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 .2rem rgba(220,38,38,.08);
+        }
+
+        .resident-search-icon,
+        .resident-search-clear {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        .resident-search-icon {
+            left: 1rem;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .resident-search-clear {
+            right: .5rem;
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .resident-search-clear:hover {
+            background: #e2e8f0;
+        }
+
+        .resident-search-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 6px);
+            z-index: 1080;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 16px 38px rgba(15,23,42,.14);
+        }
+
+        .resident-result-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .8rem .9rem;
+            border: 0;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fff;
+            text-align: left;
+            transition: background .15s ease;
+        }
+
+        .resident-result-item:last-child {
+            border-bottom: 0;
+        }
+
+        .resident-result-item:hover,
+        .resident-result-item:focus {
+            background: #fff7f7;
+            outline: none;
+        }
+
+        .resident-result-avatar,
+        .selected-resident-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 50%;
+        }
+
+        .resident-result-avatar {
+            width: 40px;
+            height: 40px;
+            background: #fff1f2;
+            color: #dc2626;
+        }
+
+        .resident-result-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .resident-result-name {
+            color: #111827;
+            font-size: .84rem;
+            font-weight: 800;
+        }
+
+        .resident-result-meta {
+            margin-top: .15rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #64748b;
+            font-size: .72rem;
+        }
+
+        .resident-result-arrow {
+            flex: 0 0 auto;
+            color: #94a3b8;
+        }
+
+        .resident-no-results {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: 1rem;
+            color: #64748b;
+        }
+
+        .no-results-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .resident-no-results strong {
+            display: block;
+            color: #334155;
+            font-size: .8rem;
+        }
+
+        .resident-no-results small {
+            display: block;
+            margin-top: .15rem;
+            font-size: .72rem;
+        }
+
+        .selected-resident-card {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .85rem;
+            margin-top: .75rem;
+            border: 1px solid #dbe3ea;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .selected-resident-avatar {
+            width: 44px;
+            height: 44px;
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .selected-resident-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .selected-resident-name {
+            color: #111827;
+            font-size: .86rem;
+            font-weight: 800;
+        }
+
+        .selected-resident-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .25rem;
+            margin-top: .1rem;
+            color: #64748b;
+            font-size: .71rem;
+        }
+
+        .resident-active-status {
+            color: #15803d;
+        }
+
+        .resident-active-status i {
+            font-size: .4rem;
+            vertical-align: middle;
+        }
+
+        .selected-resident-address {
+            margin-top: .15rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #64748b;
+            font-size: .71rem;
+        }
+
+        .resident-change-btn {
+            flex: 0 0 auto;
+        }
+
+        .resident-autofill-status {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .55rem;
+            color: var(--muted);
+            font-size: .74rem;
+        }
+
+        .resident-autofill-status.is-ready {
+            color: #198754;
+        }
+
+        .resident-autofill-status.is-warning {
+            color: #a15c00;
+        }
+
+        .resident-autofilled {
+            background-color: #f4fbf6 !important;
+            border-color: rgba(25, 135, 84, .28) !important;
+        }
+
+        .document-upload-card {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            padding: .85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        .document-upload-icon {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            background: #fff1f2;
+            color: #dc2626;
+        }
+
+        .resident-document-status {
+            margin-top: .45rem;
+            font-size: .74rem;
+            line-height: 1.45;
+        }
+
+        .resident-document-status.is-ready {
+            color: #198754;
+        }
+
+        .resident-document-status.is-warning {
+            color: #a15c00;
+        }
+
+        @media (max-width: 576px) {
+            .selected-resident-card {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .resident-change-btn {
+                width: 100%;
+            }
+
+            .selected-resident-address {
+                white-space: normal;
+            }
+
+            .document-upload-card {
+                flex-direction: column;
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
-<div class="residency-page">
+<div class="indigency-page">
 
             <!-- Success/Error Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show residency-alert" role="alert">
+                <div class="alert alert-success alert-dismissible fade show indigency-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -21,7 +386,7 @@
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show residency-alert" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show indigency-alert" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -29,7 +394,7 @@
             @endif
 
             @if ($errors->any() && !session('form_type'))
-                <div class="alert alert-danger alert-dismissible fade show residency-alert" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show indigency-alert" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
@@ -41,16 +406,16 @@
             @endif
 
 
-            <section class="residency-hero">
-                <div class="residency-hero-content">
+            <section class="indigency-hero">
+                <div class="indigency-hero-content">
                     <div class="min-w-0">
-                        <div class="residency-hero-icon"><i class="fas fa-file-invoice"></i></div>
-                        <div class="residency-kicker">Indigency application management</div>
+                        <div class="indigency-hero-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="indigency-kicker">Indigency application management</div>
                         <h2>Review assistance requests with only the details that matter.</h2>
                         <p>Focus on the applicant, income bracket, household size, purpose, status, and next action. Full personal details and documents stay inside the modal for cleaner management.</p>
                     </div>
 
-                    <div class="residency-hero-actions">
+                    <div class="indigency-hero-actions">
                         @admin_can('create_indigency')
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
                             <i class="fas fa-plus"></i>
@@ -63,7 +428,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="residency-hero-meta">
+                <div class="indigency-hero-meta">
                     <span><i class="fas fa-list-check"></i> Total: <strong>{{ $total_count ?? 0 }}</strong></span>
                     <span><i class="fas fa-clock"></i> Processing: <strong>{{ $processing_count ?? 0 }}</strong></span>
                     <span><i class="fas fa-check-circle"></i> Approved: <strong>{{ $approved_count ?? 0 }}</strong></span>
@@ -72,7 +437,7 @@
             </section>
 
             <!-- Stats Cards - Mobile Responsive -->
-            <div class="row g-3 g-lg-4 mb-4 residency-stats">
+            <div class="row g-3 g-lg-4 mb-4 indigency-stats">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
                         <div>
@@ -132,7 +497,7 @@
             </div>
 
             <!-- Filters - Mobile Responsive -->
-            <div class="card border-0 mb-4 residency-filter-card">
+            <div class="card border-0 mb-4 indigency-filter-card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.indigency.index') }}" id="searchForm">
                         <div class="row g-3 align-items-center mb-3">
@@ -248,9 +613,9 @@
             </div>
 
             <!-- Indigency Table - Simplified Management View -->
-            <div class="card border-0 residency-table-card">
+            <div class="card border-0 indigency-table-card">
                 <div class="card-body p-0">
-                    <div class="residency-table-head">
+                    <div class="indigency-table-head">
                         <div class="table-head-title">
                             <span class="table-head-icon"><i class="fas fa-list-check"></i></span>
                             <div>
@@ -603,234 +968,377 @@
             <!-- Add Application Modal with Validation - Only if user has create_indigency permission -->
             @admin_can('create_indigency')
             <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-file-invoice me-2"></i>
-                                New Indigency Application
-                            </h5>
+                            <div>
+                                <h5 class="modal-title">
+                                    <i class="fas fa-file-invoice me-2"></i>
+                                    New Indigency Application
+                                </h5>
+                                <p class="mb-0 mt-1 text-muted small">Complete all 5 steps below. Fields marked <span class="text-danger">*</span> are required.</p>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="{{ route('admin.indigency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                                <div class="row g-3">
-                                    <!-- Personal Information -->
-                                    <div class="col-12">
-                                        <h6 class="fw-semibold text-primary">Personal Information</h6>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif" 
-                                               name="first_name" value="{{ session('form_type') == 'add' ? old('first_name') : '' }}" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('first_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif" 
-                                               name="middle_name" value="{{ session('form_type') == 'add' ? old('middle_name') : '' }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('middle_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif" 
-                                               name="last_name" value="{{ session('form_type') == 'add' ? old('last_name') : '' }}" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('last_name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Suffix</label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
-                                                name="suffix">
-                                            <option value="">None</option>
-                                            <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
-                                            <option value="Sr." {{ (session('form_type') == 'add' && old('suffix') == 'Sr.') ? 'selected' : '' }}>Sr.</option>
-                                            <option value="II" {{ (session('form_type') == 'add' && old('suffix') == 'II') ? 'selected' : '' }}>II</option>
-                                            <option value="III" {{ (session('form_type') == 'add' && old('suffix') == 'III') ? 'selected' : '' }}>III</option>
-                                            <option value="IV" {{ (session('form_type') == 'add' && old('suffix') == 'IV') ? 'selected' : '' }}>IV</option>
-                                            <option value="V" {{ (session('form_type') == 'add' && old('suffix') == 'V') ? 'selected' : '' }}>V</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('suffix')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
-                                               name="birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ date('Y-m-d') }}">
-                                        @if(session('form_type') == 'add')
-                                            @error('birthdate')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif" 
-                                                name="gender" required>
-                                            <option value="">Select gender</option>
-                                            <option value="male" {{ (session('form_type') == 'add' && old('gender') == 'male') ? 'selected' : '' }}>Male</option>
-                                            <option value="female" {{ (session('form_type') == 'add' && old('gender') == 'female') ? 'selected' : '' }}>Female</option>
-                                            <option value="other" {{ (session('form_type') == 'add' && old('gender') == 'other') ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('gender')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                <!-- Step 1: Resident Selection -->
+                                <div class="resident-picker-section mb-4">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">1</div>
+                                        <div>
+                                            <h6>Select Resident</h6>
+                                            <p>Search by resident name or Resident ID.</p>
+                                        </div>
                                     </div>
 
-                                    <!-- Contact Information -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Contact Information</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
-                                               name="email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" placeholder="email@example.com" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif" 
-                                               name="contact_number" value="{{ session('form_type') == 'add' ? old('contact_number') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
-                                        <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('contact_number')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
-                                                  name="address" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
-                                        @if(session('form_type') == 'add')
-                                            @error('address')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                    <div class="resident-search-wrapper position-relative">
+                                        <div class="resident-search-box">
+                                            <i class="fas fa-search resident-search-icon" aria-hidden="true"></i>
+
+                                            <input
+                                                type="text"
+                                                id="residentSearchInput"
+                                                class="form-control"
+                                                placeholder="Search by name or Resident ID..."
+                                                autocomplete="off"
+                                                aria-label="Search registered resident"
+                                                aria-controls="residentSearchResults"
+                                                aria-expanded="false"
+                                            >
+
+                                            <button
+                                                type="button"
+                                                id="clearResidentSearch"
+                                                class="resident-search-clear d-none"
+                                                aria-label="Clear resident search"
+                                            >
+                                                <i class="fas fa-times" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+
+                                        <div
+                                            id="residentSearchResults"
+                                            class="resident-search-results d-none"
+                                            role="listbox"
+                                            aria-label="Resident search results"
+                                        ></div>
                                     </div>
 
-                                    <!-- Indigency Details -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Indigency Details</h6>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Monthly Income <span class="text-danger">*</span></label>
-                                        <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
-                                               name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
-                                               <option value="">Select income bracket</option>
-                                                <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below &#8369;5,000</option>
-                                                <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>&#8369;5,000 - &#8369;8,000</option>
-                                                <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>&#8369;8,001 - &#8369;10,000</option>
-                                                <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>&#8369;10,001 - &#8369;15,000</option>
-                                                <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('monthly_income')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label">Household Members <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control @if(session('form_type') == 'add') @error('household_members') is-invalid @enderror @endif" 
-                                               name="household_members" value="{{ session('form_type') == 'add' ? old('household_members') : '' }}" min="1" max="20" placeholder="e.g., 4" required>
-                                        @if(session('form_type') == 'add')
-                                            @error('household_members')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                    <input type="hidden" name="resident_id" id="addResidentSelect" value="{{ old('resident_id') }}">
+
+                                    <div id="selectedResidentCard" class="selected-resident-card d-none">
+                                        <div class="selected-resident-avatar" aria-hidden="true">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+
+                                        <div class="selected-resident-content">
+                                            <div class="selected-resident-name" id="selectedResidentName"></div>
+
+                                            <div class="selected-resident-meta">
+                                                <span id="selectedResidentId"></span>
+                                                <span>•</span>
+                                                <span class="resident-active-status">
+                                                    <i class="fas fa-circle me-1" aria-hidden="true"></i>Active resident
+                                                </span>
+                                            </div>
+
+                                            <div class="selected-resident-address" id="selectedResidentAddress"></div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-secondary resident-change-btn"
+                                            id="changeResidentBtn"
+                                        >
+                                            <i class="fas fa-rotate me-1"></i>
+                                            Change
+                                        </button>
                                     </div>
 
-                                    <!-- Purpose -->
-                                    <div class="col-12">
-                                        <label class="form-label">Purpose <span class="text-danger">*</span></label>
-                                        <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif" 
-                                                name="purpose" id="purpose" required>
-                                            <option value="">Select purpose</option>
-                                            <option value="medical" {{ (session('form_type') == 'add' && old('purpose') == 'medical') ? 'selected' : '' }}>Medical / Hospital assistance</option>
-                                            <option value="scholarship" {{ (session('form_type') == 'add' && old('purpose') == 'scholarship') ? 'selected' : '' }}>Scholarship / Financial aid</option>
-                                            <option value="government" {{ (session('form_type') == 'add' && old('purpose') == 'government') ? 'selected' : '' }}>Government program (4Ps, AICS)</option>
-                                            <option value="legal" {{ (session('form_type') == 'add' && old('purpose') == 'legal') ? 'selected' : '' }}>Legal assistance (PAO, etc.)</option>
-                                            <option value="employment" {{ (session('form_type') == 'add' && old('purpose') == 'employment') ? 'selected' : '' }}>Employment requirement (low income proof)</option>
-                                            <option value="burial" {{ (session('form_type') == 'add' && old('purpose') == 'burial') ? 'selected' : '' }}>Burial assistance</option>
-                                            <option value="other" {{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if(session('form_type') == 'add')
-                                            @error('purpose')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                    <div class="resident-autofill-status" id="addResidentStatus">
+                                        <i class="fas fa-circle-info" aria-hidden="true"></i>
+                                        <span>Select a registered resident to automatically fill their information.</span>
                                     </div>
-                                    <div class="col-12" id="otherPurposeField" style="{{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'display:block;' : 'display:none;' }}">
-                                        <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif" 
-                                               name="purpose_other" value="{{ session('form_type') == 'add' ? old('purpose_other') : '' }}" placeholder="Please specify">
-                                        @if(session('form_type') == 'add')
-                                            @error('purpose_other')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
-                                    </div>
+                                </div>
 
-                                    <!-- Documents -->
-                                    <div class="col-12 mt-3">
-                                        <h6 class="fw-semibold text-primary">Required Documents</h6>
+                                <!-- Step 2: Personal Information -->
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">2</div>
+                                        <div>
+                                            <h6>Personal Information</h6>
+                                            <p>Legal name and basic profile details as they should appear on the certificate.</p>
+                                        </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Proof of Residency <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif" 
-                                               name="primary_proof" accept="image/*,.pdf" required>
-                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('primary_proof')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-user"></i>First Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif" 
+                                                   name="first_name" id="add_first_name" value="{{ session('form_type') == 'add' ? old('first_name') : '' }}" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('first_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-user"></i>Middle Name</label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif" 
+                                                   name="middle_name" id="add_middle_name" value="{{ session('form_type') == 'add' ? old('middle_name') : '' }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('middle_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-user"></i>Last Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif" 
+                                                   name="last_name" id="add_last_name" value="{{ session('form_type') == 'add' ? old('last_name') : '' }}" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('last_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-signature"></i>Suffix</label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                                       name="suffix" id="add_suffix">
+                                                <option value="">None</option>
+                                                <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
+                                                <option value="Sr." {{ (session('form_type') == 'add' && old('suffix') == 'Sr.') ? 'selected' : '' }}>Sr.</option>
+                                                <option value="II" {{ (session('form_type') == 'add' && old('suffix') == 'II') ? 'selected' : '' }}>II</option>
+                                                <option value="III" {{ (session('form_type') == 'add' && old('suffix') == 'III') ? 'selected' : '' }}>III</option>
+                                                <option value="IV" {{ (session('form_type') == 'add' && old('suffix') == 'IV') ? 'selected' : '' }}>IV</option>
+                                                <option value="V" {{ (session('form_type') == 'add' && old('suffix') == 'V') ? 'selected' : '' }}>V</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('suffix')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-calendar"></i>Birthdate <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
+                                                   name="birthdate" id="add_birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ date('Y-m-d') }}">
+                                            @if(session('form_type') == 'add')
+                                                @error('birthdate')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-venus-mars"></i>Gender <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif" 
+                                                       name="gender" id="add_gender" required>
+                                                <option value="">Select gender</option>
+                                                <option value="male" {{ (session('form_type') == 'add' && old('gender') == 'male') ? 'selected' : '' }}>Male</option>
+                                                <option value="female" {{ (session('form_type') == 'add' && old('gender') == 'female') ? 'selected' : '' }}>Female</option>
+                                                <option value="other" {{ (session('form_type') == 'add' && old('gender') == 'other') ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('gender')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Valid ID <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif" 
-                                               name="valid_id_path" accept="image/*,.pdf" required>
-                                        <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
-                                        @if(session('form_type') == 'add')
-                                            @error('valid_id_path')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        @endif
+                                </div>
+
+                                <!-- Step 3: Contact Information -->
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">3</div>
+                                        <div>
+                                            <h6>Contact Information</h6>
+                                            <p>How the applicant should be reached and notified about this request.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-envelope"></i>Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
+                                                   name="email" id="add_email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" placeholder="email@example.com" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('email')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-phone"></i>Contact Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif" 
+                                                   name="contact_number" id="add_contact_number" value="{{ session('form_type') == 'add' ? old('contact_number') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
+                                            <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
+                                            @if(session('form_type') == 'add')
+                                                @error('contact_number')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-map-marker-alt"></i>Address <span class="text-danger">*</span></label>
+                                            <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
+                                                      name="address" id="add_address" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
+                                            @if(session('form_type') == 'add')
+                                                @error('address')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: Indigency Details -->
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">4</div>
+                                        <div>
+                                            <h6>Indigency Details</h6>
+                                            <p>These values describe the basis of the indigency certificate.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-wallet"></i>Monthly Income <span class="text-danger">*</span></label>
+                                            <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
+                                                   name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
+                                                   <option value="">Select income bracket</option>
+                                                    <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below &#8369;5,000</option>
+                                                    <option value="5k-8k" {{ (session('form_type') == 'add' && old('monthly_income') == '5k-8k') ? 'selected' : '' }}>&#8369;5,000 - &#8369;8,000</option>
+                                                    <option value="8k-10k" {{ (session('form_type') == 'add' && old('monthly_income') == '8k-10k') ? 'selected' : '' }}>&#8369;8,001 - &#8369;10,000</option>
+                                                    <option value="10k-15k" {{ (session('form_type') == 'add' && old('monthly_income') == '10k-15k') ? 'selected' : '' }}>&#8369;10,001 - &#8369;15,000</option>
+                                                    <option value="no income" {{ (session('form_type') == 'add' && old('monthly_income') == 'no income') ? 'selected' : '' }}>No fixed income</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('monthly_income')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label"><i class="fas fa-users"></i>Household Members <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @if(session('form_type') == 'add') @error('household_members') is-invalid @enderror @endif" 
+                                                   name="household_members" value="{{ session('form_type') == 'add' ? old('household_members') : '' }}" min="1" max="20" placeholder="e.g., 4" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('household_members')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label"><i class="fas fa-bullseye"></i>Purpose <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif" 
+                                                    name="purpose" id="purpose" required>
+                                                <option value="">Select purpose</option>
+                                                <option value="medical" {{ (session('form_type') == 'add' && old('purpose') == 'medical') ? 'selected' : '' }}>Medical / Hospital assistance</option>
+                                                <option value="scholarship" {{ (session('form_type') == 'add' && old('purpose') == 'scholarship') ? 'selected' : '' }}>Scholarship / Financial aid</option>
+                                                <option value="government" {{ (session('form_type') == 'add' && old('purpose') == 'government') ? 'selected' : '' }}>Government program (4Ps, AICS)</option>
+                                                <option value="legal" {{ (session('form_type') == 'add' && old('purpose') == 'legal') ? 'selected' : '' }}>Legal assistance (PAO, etc.)</option>
+                                                <option value="employment" {{ (session('form_type') == 'add' && old('purpose') == 'employment') ? 'selected' : '' }}>Employment requirement (low income proof)</option>
+                                                <option value="burial" {{ (session('form_type') == 'add' && old('purpose') == 'burial') ? 'selected' : '' }}>Burial assistance</option>
+                                                <option value="other" {{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('purpose')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12" id="otherPurposeField" style="{{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'display:block;' : 'display:none;' }}">
+                                            <label class="form-label"><i class="fas fa-pen-line"></i>Specify Other Purpose <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif" 
+                                                   name="purpose_other" value="{{ session('form_type') == 'add' ? old('purpose_other') : '' }}" placeholder="Please specify">
+                                            @if(session('form_type') == 'add')
+                                                @error('purpose_other')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 5: Required Documents -->
+                                <div class="form-step-card">
+                                    <div class="form-section-heading">
+                                        <div class="section-step">5</div>
+                                        <div>
+                                            <h6>Required Documents</h6>
+                                            <p>Upload clear copies to support this application. JPG, PNG or PDF, max 5MB each.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="document-upload-card">
+                                                <div class="document-upload-icon" aria-hidden="true">
+                                                    <i class="fas fa-house-chimney"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <label class="form-label mb-1">Proof of Residency <span class="text-danger">*</span></label>
+                                                    <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif" 
+                                                           name="primary_proof" accept="image/*,.pdf" required>
+                                                    <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
+                                                    @if(session('form_type') == 'add')
+                                                        @error('primary_proof')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="document-upload-card">
+                                                <div class="document-upload-icon" aria-hidden="true">
+                                                    <i class="fas fa-id-card"></i>
+                                                </div>
+
+                                                <div class="flex-grow-1">
+                                                    <label class="form-label mb-1">
+                                                        Valid ID
+                                                    </label>
+
+                                                    <input
+                                                        type="file"
+                                                        class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif"
+                                                        name="valid_id_path"
+                                                        id="add_valid_id_path"
+                                                        accept="image/*,.pdf"
+                                                    >
+
+                                                    <small class="text-muted">
+                                                        JPG, JPEG, PNG or PDF • Maximum 5MB
+                                                    </small>
+
+                                                    <div
+                                                        id="addResidentIdStatus"
+                                                        class="resident-document-status d-none"
+                                                    ></div>
+
+                                                    @if(session('form_type') == 'add')
+                                                        @error('valid_id_path')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="submit" form="addApplicationForm" class="btn btn-primary" id="submitAddForm">
-                                    <i class="fas fa-save me-2"></i>Save Application
-                                </button>
-                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <button type="submit" form="addApplicationForm" class="btn btn-primary" id="submitAddForm">
+                                <i class="fas fa-save me-2"></i>Save Application
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1372,11 +1880,21 @@
             @endforeach
 
             <!-- Global Image Zoom Modal -->
-            <div class="modal fade" id="globalImageZoomModal" tabindex="-1">
+            <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-image"></i>
+                                <span class="modal-title-stack">
+                                    <span>Image Preview</span>
+                                    <span class="modal-subtitle">View the uploaded image in a larger preview.</span>
+                                </span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                         <div class="modal-body text-center">
-                            <img id="zoomedImage" class="img-fluid">
+                            <img id="zoomedImage" class="img-fluid" alt="Uploaded image preview">
                         </div>
                     </div>
                 </div>
@@ -1649,18 +2167,12 @@
                     });
                 }
 
-                // Monthly income validation
-                const income = document.querySelector('input[name="monthly_income"]');
+                // Monthly income is a controlled select; no numeric parsing is needed.
+                const income = document.querySelector('[name="monthly_income"]');
                 if (income) {
-                    income.addEventListener('input', function() {
-                        const val = parseFloat(this.value);
-                        if (val < 0) {
-                            this.setCustomValidity('Monthly income cannot be negative');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
+                    income.addEventListener('change', function() {
+                        this.setCustomValidity('');
+                        this.classList.remove('is-invalid');
                     });
                 }
 
@@ -1715,6 +2227,379 @@
             const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
             zoomModal.show();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const residentSearchInput = document.getElementById('residentSearchInput');
+            const residentSearchResults = document.getElementById('residentSearchResults');
+            const clearResidentSearch = document.getElementById('clearResidentSearch');
+            const residentSelect = document.getElementById('addResidentSelect');
+            const selectedResidentCard = document.getElementById('selectedResidentCard');
+            const selectedResidentName = document.getElementById('selectedResidentName');
+            const selectedResidentId = document.getElementById('selectedResidentId');
+            const selectedResidentAddress = document.getElementById('selectedResidentAddress');
+            const changeResidentButton = document.getElementById('changeResidentBtn');
+            const residentStatus = document.getElementById('addResidentStatus');
+            const residentIdStatus = document.getElementById('addResidentIdStatus');
+            const addForm = document.getElementById('addApplicationForm');
+
+            if (!residentSearchInput || !residentSearchResults || !residentSelect || !addForm) {
+                return;
+            }
+
+            @php
+                $residentsForJs = $residents->map(function ($resident) {
+                    return [
+                        'id' => $resident->id,
+                        'first_name' => $resident->firstname,
+                        'middle_name' => $resident->middlename,
+                        'last_name' => $resident->lastname,
+                        'suffix' => $resident->suffix,
+                        'birthdate' => optional($resident->birthdate)->format('Y-m-d'),
+                        'gender' => strtolower((string) $resident->gender),
+                        'address' => $resident->address,
+                        'contact' => $resident->contact,
+                        'email' => $resident->email,
+                        'valid_id' => $resident->valid_id,
+                        'full_name' => $resident->full_name,
+                    ];
+                })->values();
+            @endphp
+            const residents = @json($residentsForJs);
+
+            const fields = {
+                first_name: addForm.querySelector('[name="first_name"]'),
+                middle_name: addForm.querySelector('[name="middle_name"]'),
+                last_name: addForm.querySelector('[name="last_name"]'),
+                suffix: addForm.querySelector('[name="suffix"]'),
+                birthdate: addForm.querySelector('[name="birthdate"]'),
+                gender: addForm.querySelector('[name="gender"]'),
+                address: addForm.querySelector('[name="address"]'),
+                contact_number: addForm.querySelector('[name="contact_number"]'),
+                email: addForm.querySelector('[name="email"]')
+            };
+
+            const manualEntryNotice = document.createElement('div');
+            manualEntryNotice.className = 'resident-autofill-status';
+            manualEntryNotice.innerHTML = '<i class="fas fa-pen-to-square"></i><span>No resident selected. You may enter applicant details manually.</span>';
+            manualEntryNotice.id = 'manualEntryNotice';
+
+            const searchWrapper = residentSearchInput.closest('.resident-search-wrapper');
+            if (searchWrapper) {
+                searchWrapper.insertAdjacentElement('afterend', manualEntryNotice);
+            }
+
+            function normalize(value) {
+                return String(value ?? '')
+                    .toLowerCase()
+                    .replace(/^#/, '')
+                    .trim();
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function formatResidentAddress(value) {
+                return value ? escapeHtml(value) : 'Address not recorded';
+            }
+
+            function updateSearchState(open) {
+                residentSearchInput.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (open) {
+                    residentSearchResults.classList.remove('d-none');
+                } else {
+                    residentSearchResults.classList.add('d-none');
+                }
+            }
+
+            function renderResults(query) {
+                const search = normalize(query);
+                residentSearchResults.innerHTML = '';
+
+                if (!search) {
+                    updateSearchState(false);
+                    return;
+                }
+
+                const matches = residents
+                    .filter(function (resident) {
+                        const name = normalize(resident.full_name);
+                        const id = normalize(resident.id);
+                        return name.includes(search) || id.includes(search);
+                    })
+                    .slice(0, 8);
+
+                if (!matches.length) {
+                    residentSearchResults.innerHTML = `
+                        <div class="resident-no-results">
+                            <div class="no-results-icon" aria-hidden="true">
+                                <i class="fas fa-user-slash"></i>
+                            </div>
+                            <div>
+                                <strong>No resident found</strong>
+                                <small>Try the resident's name or Resident ID.</small>
+                            </div>
+                        </div>
+                    `;
+                    updateSearchState(true);
+                    return;
+                }
+
+                matches.forEach(function (resident) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'resident-result-item';
+                    button.setAttribute('role', 'option');
+
+                    button.innerHTML = `
+                        <div class="resident-result-avatar" aria-hidden="true">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="resident-result-content">
+                            <div class="resident-result-name">
+                                ${escapeHtml(resident.full_name)}
+                            </div>
+                            <div class="resident-result-meta">
+                                Resident ID #${escapeHtml(resident.id)}
+                                <span>•</span>
+                                ${formatResidentAddress(resident.address)}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right resident-result-arrow" aria-hidden="true"></i>
+                    `;
+
+                    button.addEventListener('click', function () {
+                        selectResident(resident);
+                    });
+
+                    residentSearchResults.appendChild(button);
+                });
+
+                updateSearchState(true);
+            }
+
+            function setField(field, value) {
+                if (!field) return;
+
+                field.value = value ?? '';
+                field.classList.add('resident-autofilled');
+            }
+
+            function clearField(field) {
+                if (!field) return;
+
+                field.value = '';
+                field.classList.remove('resident-autofilled');
+            }
+
+            function setResidentStatus(message, type = '') {
+                if (!residentStatus) return;
+
+                residentStatus.className = 'resident-autofill-status' + (type ? ` ${type}` : '');
+                residentStatus.innerHTML = message;
+            }
+
+            function updateValidIdStatus(resident) {
+                if (!residentIdStatus) return;
+
+                if (resident?.valid_id) {
+                    residentIdStatus.className = 'resident-document-status is-ready';
+                    residentIdStatus.innerHTML = `
+                        <i class="fas fa-circle-check me-1"></i>
+                        <strong>Valid ID already on file.</strong>
+                        No new upload is required unless you want to replace it.
+                    `;
+                } else {
+                    residentIdStatus.className = 'resident-document-status is-warning';
+                    residentIdStatus.innerHTML = `
+                        <i class="fas fa-triangle-exclamation me-1"></i>
+                        <strong>No Valid ID on file.</strong>
+                        Upload a valid ID before submitting this application.
+                    `;
+                }
+            }
+
+            function selectResident(resident) {
+                residentSelect.value = resident.id;
+
+                residentSearchInput.value = resident.full_name || '';
+                clearResidentSearch.classList.remove('d-none');
+
+                selectedResidentName.textContent = resident.full_name || 'Unnamed resident';
+                selectedResidentId.textContent = `Resident ID #${resident.id}`;
+                selectedResidentAddress.textContent = resident.address || 'Address not recorded';
+
+                selectedResidentCard.classList.remove('d-none');
+                updateSearchState(false);
+
+                setField(fields.first_name, resident.first_name);
+                setField(fields.middle_name, resident.middle_name);
+                setField(fields.last_name, resident.last_name);
+                setField(fields.suffix, resident.suffix);
+                setField(fields.birthdate, resident.birthdate);
+                setField(fields.gender, resident.gender);
+                setField(fields.address, resident.address);
+                setField(fields.contact_number, resident.contact);
+                setField(fields.email, resident.email);
+
+                setResidentStatus(
+                    '<i class="fas fa-circle-check"></i><span>Resident information loaded from the registered profile. Review the application details before submitting.</span>',
+                    'is-ready'
+                );
+
+                manualEntryNotice.classList.add('d-none');
+                updateValidIdStatus(resident);
+            }
+
+            function clearResidentSelection({ clearFields = true } = {}) {
+                residentSelect.value = '';
+                residentSearchInput.value = '';
+                clearResidentSearch.classList.add('d-none');
+
+                selectedResidentCard.classList.add('d-none');
+                updateSearchState(false);
+
+                if (clearFields) {
+                    Object.values(fields).forEach(clearField);
+                }
+
+                setResidentStatus(
+                    '<i class="fas fa-circle-info"></i><span>Select a registered resident to automatically fill identity and contact details.</span>'
+                );
+
+                manualEntryNotice.classList.remove('d-none');
+
+                if (residentIdStatus) {
+                    residentIdStatus.className = 'resident-document-status d-none';
+                    residentIdStatus.innerHTML = '';
+                }
+            }
+
+            function initializeOldResident() {
+                const oldResidentId = residentSelect.value;
+
+                if (!oldResidentId) {
+                    manualEntryNotice.classList.remove('d-none');
+                    return;
+                }
+
+                const resident = residents.find(function (item) {
+                    return String(item.id) === String(oldResidentId);
+                });
+
+                if (resident) {
+                    selectResident(resident);
+                } else {
+                    residentSelect.value = '';
+                }
+            }
+
+            residentSearchInput.addEventListener('input', function () {
+                const value = this.value.trim();
+
+                clearResidentSearch.classList.toggle('d-none', !value);
+
+                if (residentSelect.value) {
+                    residentSelect.value = '';
+                    selectedResidentCard.classList.add('d-none');
+
+                    Object.values(fields).forEach(function (field) {
+                        if (field) {
+                            field.classList.remove('resident-autofilled');
+                        }
+                    });
+
+                    residentIdStatus?.classList.add('d-none');
+                    manualEntryNotice.classList.remove('d-none');
+                }
+
+                renderResults(value);
+            });
+
+            residentSearchInput.addEventListener('focus', function () {
+                if (this.value.trim()) {
+                    renderResults(this.value);
+                }
+            });
+
+            clearResidentSearch.addEventListener('click', function () {
+                clearResidentSelection();
+                residentSearchInput.focus();
+            });
+
+            changeResidentButton.addEventListener('click', function () {
+                clearResidentSelection();
+                residentSearchInput.focus();
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.resident-search-wrapper')) {
+                    updateSearchState(false);
+                }
+            });
+
+            residentSearchInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    updateSearchState(false);
+                }
+            });
+
+            addForm.addEventListener('submit', function (event) {
+                const savedIdResident = residentSelect.value
+                    ? residents.find(function (resident) {
+                        return String(resident.id) === String(residentSelect.value);
+                    })
+                    : null;
+
+                const uploadedId = addForm.querySelector('[name="valid_id_path"]');
+                const hasUploadedId = !!uploadedId?.files?.length;
+                const hasSavedId = !!savedIdResident?.valid_id;
+
+                if (!hasSavedId && !hasUploadedId) {
+                    event.preventDefault();
+
+                    if (residentIdStatus) {
+                        residentIdStatus.className = 'resident-document-status is-warning';
+                        residentIdStatus.innerHTML = `
+                            <i class="fas fa-triangle-exclamation me-1"></i>
+                            <strong>Valid ID required.</strong>
+                            Select a resident with a saved Valid ID or upload one below.
+                        `;
+                    }
+
+                    uploadedId?.focus();
+                    return;
+                }
+
+                const submitButton = document.getElementById('submitAddForm');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving...';
+                }
+            });
+
+            const uploadedIdInput = document.getElementById('add_valid_id_path');
+
+            uploadedIdInput?.addEventListener('change', function () {
+                if (!this.files?.length || !residentIdStatus) {
+                    return;
+                }
+
+                residentIdStatus.className = 'resident-document-status is-ready';
+                residentIdStatus.innerHTML = `
+                    <i class="fas fa-circle-check me-1"></i>
+                    <strong>Valid ID selected.</strong>
+                    The uploaded file will be used for this application.
+                `;
+            });
+
+            initializeOldResident();
+        });
 
         // Real-time validation for edit forms
         @if(auth('admin')->user()->hasPermission('update_indigency'))
@@ -1961,13 +2846,24 @@
                     return;
                 }
                 list.innerHTML = timeline.map(function(item) {
-                    const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : '';
-                    const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' � ' + (item.created_at || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || '') + '</div>';
-                    return '<div class="activity-item py-2 border-bottom"><div class="fw-semibold">' + (item.title || 'Activity') + '</div>' + actor + details + '</div>';
+                    const details = item.details ? '<div class="text-muted mt-1">' + escapeHtmlHistory(item.details) + '</div>' : '';
+                    const actor = item.actor
+                        ? '<div class="small text-muted">' + escapeHtmlHistory(item.actor) + ' &middot; ' + escapeHtmlHistory(item.created_at || '') + '</div>'
+                        : '<div class="small text-muted">' + escapeHtmlHistory(item.created_at || '') + '</div>';
+                    return '<div class="activity-item py-2 border-bottom"><div class="fw-semibold">' + escapeHtmlHistory(item.title || 'Activity') + '</div>' + actor + details + '</div>';
                 }).join('');
             } catch (error) {
                 list.innerHTML = '<div class="text-danger">Unable to load history right now.</div>';
             }
+        }
+
+        function escapeHtmlHistory(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function switchViewTab(appId, tabName) {

@@ -24,10 +24,10 @@
                 </button>
 
                 <div class="bhd-drop-menu">
-                    <a href="{{ route('history') }}"><i class="fas fa-history"></i> {{ __('messages.nav_history') }}</a>
-                    <a href="{{ route('mission_vision') }}"><i class="fas fa-bullseye"></i> {{ __('messages.nav_mission_vision') }}</a>
-                    <a href="{{ route('officials') }}"><i class="fas fa-users"></i> {{ __('messages.nav_barangay_officials') }}</a>
-                    <a href="{{ route('map') }}"><i class="fas fa-map"></i> {{ __('messages.nav_barangay_map') }}</a>
+                    <a href="{{ route('history') }}" class="{{ $activePage === 'history' ? 'active' : '' }}"><i class="fas fa-history"></i> {{ __('messages.nav_history') }}</a>
+                    <a href="{{ route('mission_vision') }}" class="{{ $activePage === 'mission_vision' ? 'active' : '' }}"><i class="fas fa-bullseye"></i> {{ __('messages.nav_mission_vision') }}</a>
+                    <a href="{{ route('officials') }}" class="{{ $activePage === 'officials' ? 'active' : '' }}"><i class="fas fa-users"></i> {{ __('messages.nav_barangay_officials') }}</a>
+                    <a href="{{ route('map') }}" class="{{ $activePage === 'map' ? 'active' : '' }}"><i class="fas fa-map"></i> {{ __('messages.nav_barangay_map') }}</a>
                 </div>
             </div>
 
@@ -39,10 +39,10 @@
                 </button>
 
                 <div class="bhd-drop-menu">
-                    <a href="{{ route('services') }}"><i class="fas fa-list"></i> {{ __('messages.nav_all_services') }}</a>
-                    <a href="{{ route('clearance') }}"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</a>
-                    <a href="{{ route('residency') }}"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</a>
-                    <a href="{{ route('indigency') }}"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</a>
+                    <a href="{{ route('services') }}" class="{{ $activePage === 'services' ? 'active' : '' }}"><i class="fas fa-list"></i> {{ __('messages.nav_all_services') }}</a>
+                    <a href="{{ route('clearance') }}" class="{{ $activePage === 'clearance' ? 'active' : '' }}"><i class="fas fa-certificate"></i> {{ __('messages.nav_barangay_clearance') }}</a>
+                    <a href="{{ route('residency') }}" class="{{ $activePage === 'residency' ? 'active' : '' }}"><i class="fas fa-house-user"></i> {{ __('messages.nav_certificate_residency') }}</a>
+                    <a href="{{ route('indigency') }}" class="{{ $activePage === 'indigency' ? 'active' : '' }}"><i class="fas fa-hands-helping"></i> {{ __('messages.nav_certificate_indigency') }}</a>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@
                 </button>
 
                 <div class="bhd-drop-menu">
-                    <a href="{{ route('announcements') }}">
+                    <a href="{{ route('announcements') }}" class="{{ $activePage === 'announcements' ? 'active' : '' }}">
                         <i class="fas fa-bullhorn"></i> {{ __('messages.nav_announcements') }}
                     </a>
 
@@ -87,8 +87,12 @@
                     </button>
 
                     <div class="bhd-drop-menu bhd-user-menu">
-                        <a href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a>
-                        <a href="{{ route('logout.res') }}"><i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}</a>
+                        <a href="{{ route('profile') }}" class="{{ $activePage === 'profile' ? 'active' : '' }}">
+                            <i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}
+                        </a>
+                        <a href="{{ route('logout.res') }}" class="{{ $activePage === 'logout' ? 'active' : '' }}">
+                            <i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}
+                        </a>
                     </div>
                 </div>
             @else

@@ -6,6 +6,1386 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/chatbot.css') }}">
+
+    <style>
+        /* Chatbot Management UX refresh
+           Presentation-only overrides. Existing routes, IDs, permissions and JS hooks are preserved. */
+        .chatbot-page {
+            --cb-primary: #4f46e5;
+            --cb-primary-soft: #eef2ff;
+            --cb-success: #15803d;
+            --cb-success-soft: #ecfdf3;
+            --cb-danger: #dc2626;
+            --cb-danger-soft: #fef2f2;
+            --cb-warning: #a16207;
+            --cb-warning-soft: #fffbeb;
+            --cb-text: #172033;
+            --cb-muted: #687386;
+            --cb-border: #e3e8ef;
+            --cb-surface: #ffffff;
+            --cb-surface-soft: #f8fafc;
+            --cb-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .chatbot-page *,
+        .chatbot-page *::before,
+        .chatbot-page *::after {
+            box-sizing: border-box;
+        }
+
+        .chatbot-page .chatbot-alert {
+            margin: 0;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            box-shadow: none;
+        }
+
+        /* Compact page heading instead of a large hero */
+        .chatbot-page .chatbot-hero {
+            margin: 0;
+        }
+
+        .chatbot-page .hero-panel {
+            border: 1px solid var(--cb-border);
+            border-radius: 16px;
+            background: var(--cb-surface);
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        .chatbot-page .hero-content {
+            min-height: 0;
+            padding: 18px 20px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+                "icon kicker actions"
+                "icon title actions"
+                "icon copy actions";
+            align-items: center;
+            column-gap: 14px;
+            row-gap: 2px;
+        }
+
+        .chatbot-page .hero-icon {
+            grid-area: icon;
+            width: 44px;
+            height: 44px;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--cb-primary-soft);
+            color: var(--cb-primary);
+            font-size: 1.05rem;
+        }
+
+        .chatbot-page .hero-kicker {
+            grid-area: kicker;
+            margin: 0;
+            color: var(--cb-primary);
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .chatbot-page .hero-content h2 {
+            grid-area: title;
+            margin: 0;
+            color: var(--cb-text);
+            font-size: 1.05rem;
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .chatbot-page .hero-content > p {
+            grid-area: copy;
+            margin: 2px 0 0;
+            max-width: 760px;
+            color: var(--cb-muted);
+            font-size: .8rem;
+            line-height: 1.5;
+        }
+
+        .chatbot-page .hero-actions {
+            grid-area: actions;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .chatbot-page .hero-actions .btn {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+
+        /* Operational metric strip */
+        .chatbot-page .chatbot-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin: 0;
+        }
+
+        .chatbot-page .chatbot-stat {
+            min-width: 0;
+            min-height: 76px;
+            padding: 12px 14px;
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr);
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--cb-border);
+            border-radius: 13px;
+            background: var(--cb-surface);
+            box-shadow: none;
+        }
+
+        .chatbot-page .chatbot-stat-icon {
+            width: 36px;
+            height: 36px;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--cb-surface-soft);
+            color: var(--cb-primary);
+            font-size: .95rem;
+        }
+
+        .chatbot-page .chatbot-stat span {
+            display: block;
+            color: var(--cb-muted);
+            font-size: .68rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .chatbot-page .chatbot-stat strong {
+            display: inline-block;
+            margin-top: 2px;
+            color: var(--cb-text);
+            font-size: 1.15rem;
+            line-height: 1.05;
+            font-weight: 850;
+        }
+
+        .chatbot-page .chatbot-stat small {
+            display: none;
+        }
+
+        .chatbot-page .training-note {
+            margin: 0;
+            padding: 11px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 1px solid #fde7b0;
+            border-radius: 12px;
+            background: #fffdf5;
+            box-shadow: none;
+        }
+
+        .chatbot-page .training-note .panel-icon {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            border-radius: 9px;
+            background: var(--cb-warning-soft);
+            color: var(--cb-warning);
+        }
+
+        .chatbot-page .training-note h3 {
+            margin: 0 0 2px;
+            color: var(--cb-text);
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        .chatbot-page .training-note p {
+            margin: 0;
+            color: var(--cb-muted);
+            font-size: .75rem;
+            line-height: 1.45;
+        }
+
+        /* Tabs */
+        .chatbot-page .tab-navigation {
+            width: fit-content;
+            max-width: 100%;
+            margin: 0;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid var(--cb-border);
+            border-radius: 12px;
+            background: var(--cb-surface-soft);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .chatbot-page .tab-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chatbot-page .tab-link {
+            min-height: 36px;
+            padding: 7px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--cb-muted);
+            font-size: .78rem;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .chatbot-page .tab-link:hover {
+            color: var(--cb-text);
+            background: #fff;
+        }
+
+        .chatbot-page .tab-link.active {
+            color: var(--cb-primary);
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+        }
+
+        .chatbot-page .chatbot-workspace,
+        .chatbot-page .tab-content {
+            min-width: 0;
+        }
+
+        .chatbot-page .tab-content:not(.active) {
+            display: none;
+        }
+
+        .chatbot-page .chatbot-panel {
+            border: 1px solid var(--cb-border);
+            border-radius: 16px;
+            background: var(--cb-surface);
+            box-shadow: var(--cb-shadow);
+            overflow: hidden;
+        }
+
+        .chatbot-page .panel-header {
+            padding: 15px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            border-bottom: 1px solid var(--cb-border);
+            background: #fff;
+        }
+
+        .chatbot-page .panel-title {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .chatbot-page .panel-title .panel-icon {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--cb-primary-soft);
+            color: var(--cb-primary);
+        }
+
+        .chatbot-page .section-kicker {
+            margin-bottom: 1px;
+            color: var(--cb-primary);
+            font-size: .66rem;
+            font-weight: 800;
+            letter-spacing: .055em;
+            text-transform: uppercase;
+        }
+
+        .chatbot-page .panel-title h3 {
+            margin: 0;
+            color: var(--cb-text);
+            font-size: .96rem;
+            font-weight: 820;
+        }
+
+        .chatbot-page .panel-copy {
+            margin: 2px 0 0;
+            color: var(--cb-muted);
+            font-size: .74rem;
+            line-height: 1.4;
+        }
+
+        .chatbot-page .chatbot-count {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 5px 9px;
+            border: 1px solid var(--cb-border);
+            border-radius: 999px;
+            background: var(--cb-surface-soft);
+            color: var(--cb-muted);
+            font-size: .7rem;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        /* Search/filter workspace */
+        .chatbot-page .knowledge-toolbar {
+            padding: 12px 14px;
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto minmax(160px, .38fr) minmax(130px, .28fr) auto auto;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--cb-border);
+            background: var(--cb-surface-soft);
+        }
+
+        .chatbot-page .search-control,
+        .chatbot-page .filter-control {
+            position: relative;
+            min-width: 0;
+        }
+
+        .chatbot-page .search-control > i,
+        .chatbot-page .filter-control > i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            color: #98a2b3;
+            pointer-events: none;
+        }
+
+        .chatbot-page .search-control .form-control,
+        .chatbot-page .filter-control .form-select {
+            min-height: 38px;
+            padding-left: 34px;
+            border-color: #d7dde6;
+            border-radius: 10px;
+            background-color: #fff;
+            font-size: .76rem;
+        }
+
+        .chatbot-page .filter-control .form-select {
+            padding-right: 30px;
+        }
+
+        .chatbot-page .knowledge-toolbar .btn {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        /* Tables */
+        .chatbot-page .table-responsive {
+            overflow-x: auto;
+        }
+
+        .chatbot-page .table {
+            margin: 0;
+            min-width: 760px;
+        }
+
+        .chatbot-page .table thead th {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--cb-border);
+            background: #f8fafc;
+            color: #667085;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .chatbot-page .table tbody td {
+            padding: 12px;
+            border-color: #edf0f4;
+            color: var(--cb-text);
+            font-size: .77rem;
+            line-height: 1.45;
+            vertical-align: middle;
+        }
+
+        .chatbot-page .table tbody tr:hover > td {
+            background: #fbfcff;
+        }
+
+        .chatbot-page .kb-question {
+            color: #24324a;
+            font-weight: 750;
+        }
+
+        .chatbot-page .kb-answer {
+            max-width: 440px;
+            color: var(--cb-muted);
+        }
+
+        .chatbot-page .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .chatbot-page .keyword-chip,
+        .chatbot-page .keyword-more,
+        .chatbot-page .badge-category,
+        .chatbot-page .usage-pill,
+        .chatbot-page .session-pill {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            border-radius: 999px;
+            font-size: .67rem;
+            font-weight: 750;
+            line-height: 1.2;
+        }
+
+        .chatbot-page .keyword-chip {
+            padding: 4px 7px;
+            background: #f2f4f7;
+            color: #475467;
+        }
+
+        .chatbot-page .keyword-more {
+            padding: 4px 7px;
+            background: var(--cb-primary-soft);
+            color: var(--cb-primary);
+        }
+
+        .chatbot-page .badge-category {
+            padding: 5px 8px;
+            background: #eef6ff;
+            color: #175cd3;
+            text-transform: capitalize;
+        }
+
+        .chatbot-page .usage-pill {
+            min-width: 28px;
+            justify-content: center;
+            padding: 5px 7px;
+            background: #f2f4f7;
+            color: #475467;
+        }
+
+        .chatbot-page .table .btn-group {
+            gap: 5px;
+        }
+
+        .chatbot-page .table .btn-group > .btn {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px !important;
+        }
+
+        .chatbot-page .btn-edit {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .chatbot-page .btn-edit:hover {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .chatbot-page .btn-delete {
+            border-color: #fecaca;
+            background: var(--cb-danger-soft);
+            color: var(--cb-danger);
+        }
+
+        .chatbot-page .btn-delete:hover {
+            border-color: var(--cb-danger);
+            background: var(--cb-danger);
+            color: #fff;
+        }
+
+        .chatbot-page .session-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+        }
+
+        .chatbot-page .session-pill {
+            min-width: 0;
+            padding: 5px 8px;
+            background: #f2f4f7;
+            color: #475467;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chatbot-page .session-copy {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--cb-border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--cb-muted);
+        }
+
+        .chatbot-page .session-copy:hover {
+            color: var(--cb-primary);
+            border-color: #c7d2fe;
+            background: var(--cb-primary-soft);
+        }
+
+        .chatbot-page .query-time {
+            color: var(--cb-muted);
+            white-space: nowrap;
+        }
+
+        .chatbot-page .unmatched-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chatbot-page .unmatched-actions .btn {
+            width: auto;
+            min-height: 34px;
+            height: auto;
+            padding: 6px 9px;
+            gap: 5px;
+            border-radius: 9px !important;
+            font-size: .7rem;
+            font-weight: 750;
+        }
+
+        .chatbot-page .btn-train {
+            border: 1px solid #bbf7d0;
+            background: var(--cb-success-soft);
+            color: var(--cb-success);
+        }
+
+        .chatbot-page .btn-train:hover {
+            border-color: var(--cb-success);
+            background: var(--cb-success);
+            color: #fff;
+        }
+
+        .chatbot-page .btn-dismiss {
+            border: 1px solid #e4e7ec;
+            background: #fff;
+            color: #667085;
+        }
+
+        .chatbot-page .btn-dismiss:hover {
+            border-color: #fda4af;
+            background: #fff1f2;
+            color: #be123c;
+        }
+
+        .chatbot-page .empty-state {
+            padding: 38px 18px;
+            text-align: center;
+        }
+
+        .chatbot-page .empty-icon {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--cb-surface-soft);
+            color: #98a2b3;
+            font-size: 1.05rem;
+        }
+
+        .chatbot-page .empty-state h4 {
+            margin: 0 0 4px;
+            color: var(--cb-text);
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        .chatbot-page .empty-state p {
+            margin: 0;
+            color: var(--cb-muted);
+            font-size: .75rem;
+        }
+
+        /* Permission state */
+        .permission-panel {
+            padding: 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border: 1px solid #fed7aa;
+            border-radius: 14px;
+            background: #fffaf5;
+            color: #7c2d12;
+        }
+
+        .permission-panel > i {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #ffedd5;
+        }
+
+        /* Consistent Add/Edit modal system */
+        #addModal .modal-dialog,
+        #editModal .modal-dialog {
+            width: min(940px, calc(100vw - 32px));
+            max-width: 940px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #addModal .modal-content,
+        #editModal .modal-content {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(15, 23, 42, .18);
+        }
+
+        #addModal .modal-header,
+        #editModal .modal-header {
+            min-height: 72px;
+            padding: 15px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e7ebf0;
+            background: #fff;
+        }
+
+        #addModal .modal-heading,
+        #editModal .modal-heading {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        #addModal .knowledge-modal-icon,
+        #editModal .knowledge-modal-icon {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            background: var(--cb-primary-soft, #eef2ff);
+            color: var(--cb-primary, #4f46e5);
+            font-size: 1rem;
+        }
+
+        #addModal .modal-title,
+        #editModal .modal-title {
+            margin: 0;
+            color: #172033;
+            font-size: 1rem;
+            font-weight: 850;
+            line-height: 1.3;
+        }
+
+        #addModal .modal-subtitle,
+        #editModal .modal-subtitle {
+            margin: 2px 0 0;
+            max-width: 680px;
+            color: #687386;
+            font-size: .74rem;
+            line-height: 1.4;
+        }
+
+        #addModal .btn-close,
+        #editModal .btn-close {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+
+        #addModal .modal-body,
+        #editModal .modal-body {
+            padding: 16px 18px 18px;
+            background: #f8fafc;
+        }
+
+        #addModal .knowledge-form,
+        #editModal .knowledge-form {
+            margin: 0;
+        }
+
+        #addModal .knowledge-form-grid,
+        #editModal .knowledge-form-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+            gap: 12px;
+        }
+
+        #addModal .knowledge-form-panel,
+        #editModal .knowledge-form-panel {
+            min-width: 0;
+            padding: 15px;
+            border: 1px solid #e1e6ed;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        #addModal .knowledge-form-panel.is-soft,
+        #editModal .knowledge-form-panel.is-soft {
+            background: #fbfcff;
+        }
+
+        #addModal .knowledge-form-panel-title,
+        #editModal .knowledge-form-panel-title {
+            margin-bottom: 13px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #172033;
+            font-size: .82rem;
+            font-weight: 830;
+        }
+
+        #addModal .knowledge-form-panel-title::before,
+        #editModal .knowledge-form-panel-title::before {
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: .68rem;
+            font-weight: 850;
+        }
+
+        #addModal .knowledge-form-panel:first-child .knowledge-form-panel-title::before,
+        #editModal .knowledge-form-panel:first-child .knowledge-form-panel-title::before {
+            content: "1";
+        }
+
+        #addModal .knowledge-form-panel:nth-child(2) .knowledge-form-panel-title::before,
+        #editModal .knowledge-form-panel:nth-child(2) .knowledge-form-panel-title::before {
+            content: "2";
+        }
+
+        #addModal .knowledge-form-panel-title > i,
+        #editModal .knowledge-form-panel-title > i {
+            display: none;
+        }
+
+        #addModal .form-label,
+        #editModal .form-label {
+            margin-bottom: 6px;
+            color: #344054;
+            font-size: .73rem;
+            font-weight: 760;
+        }
+
+        #addModal .form-control,
+        #addModal .form-select,
+        #editModal .form-control,
+        #editModal .form-select {
+            min-height: 42px;
+            border-color: #d6dde6;
+            border-radius: 10px;
+            background-color: #fff;
+            color: #172033;
+            font-size: .78rem;
+        }
+
+        #addModal textarea.form-control,
+        #editModal textarea.form-control {
+            min-height: 164px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        #addModal .form-control:focus,
+        #addModal .form-select:focus,
+        #editModal .form-control:focus,
+        #editModal .form-select:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 .2rem rgba(79, 70, 229, .09);
+        }
+
+        #addModal .form-hint,
+        #editModal .form-hint {
+            display: block;
+            margin-top: 5px;
+            color: #7b8494;
+            font-size: .69rem;
+            line-height: 1.4;
+        }
+
+        #addModal .knowledge-tip,
+        #editModal .knowledge-tip {
+            margin-top: 13px;
+            padding: 10px 11px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            border: 1px solid #fde7b0;
+            border-radius: 10px;
+            background: #fffdf5;
+            color: #7c5b13;
+            font-size: .7rem;
+            line-height: 1.45;
+        }
+
+        #addModal .modal-footer,
+        #editModal .modal-footer {
+            min-height: 66px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-top: 1px solid #e7ebf0;
+            background: #fff;
+        }
+
+        #addModal .modal-safe-note,
+        #editModal .modal-safe-note {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #697386;
+            font-size: .7rem;
+            line-height: 1.35;
+        }
+
+        #addModal .modal-footer-actions,
+        #editModal .modal-footer-actions {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #addModal .modal-footer .btn,
+        #editModal .modal-footer .btn {
+            min-height: 38px;
+            padding: 7px 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border-radius: 10px;
+            font-size: .76rem;
+            font-weight: 760;
+        }
+
+        #addModal #save-add {
+            border-color: #16a34a;
+            background: #16a34a;
+            color: #fff;
+        }
+
+        #addModal #save-add:hover {
+            border-color: #15803d;
+            background: #15803d;
+        }
+
+        #editModal #save-edit {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #fff;
+        }
+
+        #editModal #save-edit:hover {
+            border-color: #1d4ed8;
+            background: #1d4ed8;
+        }
+
+        /* Mobile / tablet */
+        @media (max-width: 991.98px) {
+            .chatbot-page .hero-content {
+                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-areas:
+                    "icon kicker"
+                    "icon title"
+                    "icon copy"
+                    "actions actions";
+            }
+
+            .chatbot-page .hero-actions {
+                margin-top: 9px;
+                justify-content: flex-start;
+            }
+
+            .chatbot-page .chatbot-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .chatbot-page .knowledge-toolbar {
+                grid-template-columns: minmax(0, 1fr) auto minmax(170px, .55fr) minmax(140px, .45fr) auto;
+            }
+
+            .chatbot-page .knowledge-add-btn {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+            #addModal .knowledge-form-grid,
+            #editModal .knowledge-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .chatbot-page {
+                gap: 12px;
+            }
+
+            .chatbot-page .hero-content {
+                padding: 14px;
+                grid-template-columns: 38px minmax(0, 1fr);
+                column-gap: 10px;
+            }
+
+            .chatbot-page .hero-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+            }
+
+            .chatbot-page .hero-content h2 {
+                font-size: .93rem;
+            }
+
+            .chatbot-page .hero-content > p {
+                font-size: .73rem;
+            }
+
+            .chatbot-page .hero-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                width: 100%;
+            }
+
+            .chatbot-page .hero-actions .btn {
+                width: 100%;
+                min-width: 0;
+                padding-inline: 9px;
+                font-size: .73rem;
+            }
+
+            .chatbot-page .chatbot-stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .chatbot-page .chatbot-stat {
+                min-height: 66px;
+                padding: 10px;
+                grid-template-columns: 30px minmax(0, 1fr);
+                gap: 8px;
+            }
+
+            .chatbot-page .chatbot-stat-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                font-size: .8rem;
+            }
+
+            .chatbot-page .chatbot-stat strong {
+                font-size: 1rem;
+            }
+
+            .chatbot-page .training-note {
+                padding: 10px 11px;
+            }
+
+            .chatbot-page .tab-navigation {
+                width: 100%;
+            }
+
+            .chatbot-page .tab-link {
+                flex: 1 0 auto;
+            }
+
+            .chatbot-page .panel-header {
+                padding: 12px;
+                align-items: flex-start;
+            }
+
+            .chatbot-page .panel-title .panel-icon {
+                width: 34px;
+                height: 34px;
+                flex-basis: 34px;
+            }
+
+            .chatbot-page .panel-copy {
+                display: none;
+            }
+
+            .chatbot-page .knowledge-toolbar {
+                padding: 10px;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .chatbot-page .search-control {
+                grid-column: 1 / -1;
+            }
+
+            .chatbot-page .search-submit-btn {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+            .chatbot-page .filter-control {
+                min-width: 0;
+            }
+
+            .chatbot-page .filter-reset-btn {
+                width: 100%;
+            }
+
+            .chatbot-page .knowledge-add-btn {
+                grid-column: auto;
+                width: 100%;
+            }
+
+            /* Convert knowledge and unmatched tables to stacked records on phones */
+            .chatbot-page .table-responsive {
+                overflow: visible;
+            }
+
+            .chatbot-page #knowledge-table,
+            .chatbot-page #unmatched-table {
+                width: 100%;
+                min-width: 0;
+                border: 0;
+            }
+
+            .chatbot-page #knowledge-table thead,
+            .chatbot-page #unmatched-table thead {
+                display: none;
+            }
+
+            .chatbot-page #knowledge-table tbody,
+            .chatbot-page #unmatched-table tbody {
+                display: block;
+                padding: 8px;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id],
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id] {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0;
+                margin-bottom: 8px;
+                border: 1px solid var(--cb-border);
+                border-radius: 12px;
+                background: #fff;
+                overflow: hidden;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id]:last-child,
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id]:last-child {
+                margin-bottom: 0;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id] > td,
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id] > td {
+                width: 100% !important;
+                padding: 9px 11px;
+                display: grid;
+                grid-template-columns: 88px minmax(0, 1fr);
+                align-items: start;
+                gap: 9px;
+                border: 0;
+                border-bottom: 1px solid #edf0f4;
+                background: #fff;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id] > td:last-child,
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id] > td:last-child {
+                border-bottom: 0;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id] > td::before,
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id] > td::before {
+                content: attr(data-label);
+                color: #7b8494;
+                font-size: .65rem;
+                font-weight: 800;
+                letter-spacing: .025em;
+                text-transform: uppercase;
+            }
+
+            .chatbot-page #knowledge-table .kb-question,
+            .chatbot-page #unmatched-table .unmatched-query {
+                font-size: .78rem;
+            }
+
+            .chatbot-page #knowledge-table .kb-answer {
+                max-width: none;
+            }
+
+            .chatbot-page #knowledge-table .btn-group,
+            .chatbot-page #unmatched-table .unmatched-actions {
+                justify-content: flex-start;
+            }
+
+            .chatbot-page #knowledge-table tbody tr:not([data-id]) td,
+            .chatbot-page #unmatched-table tbody tr:not([data-unmatched-id]) td {
+                display: block;
+                padding: 0;
+                border: 0;
+            }
+
+            #addModal .modal-dialog,
+            #editModal .modal-dialog {
+                width: calc(100vw - 16px);
+                max-width: none;
+                margin: 8px auto;
+                min-height: calc(100vh - 16px);
+            }
+
+            #addModal .modal-content,
+            #editModal .modal-content {
+                max-height: calc(100vh - 16px);
+                border-radius: 14px;
+            }
+
+            #addModal .modal-header,
+            #editModal .modal-header {
+                min-height: 0;
+                padding: 12px;
+                align-items: flex-start;
+            }
+
+            #addModal .knowledge-modal-icon,
+            #editModal .knowledge-modal-icon {
+                width: 34px;
+                height: 34px;
+                flex-basis: 34px;
+                border-radius: 9px;
+            }
+
+            #addModal .modal-title,
+            #editModal .modal-title {
+                font-size: .9rem;
+            }
+
+            #addModal .modal-subtitle,
+            #editModal .modal-subtitle {
+                font-size: .69rem;
+            }
+
+            #addModal .modal-body,
+            #editModal .modal-body {
+                padding: 10px;
+            }
+
+            #addModal .knowledge-form-grid,
+            #editModal .knowledge-form-grid {
+                gap: 9px;
+            }
+
+            #addModal .knowledge-form-panel,
+            #editModal .knowledge-form-panel {
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            #addModal .modal-footer,
+            #editModal .modal-footer {
+                padding: 10px;
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            #addModal .modal-safe-note,
+            #editModal .modal-safe-note {
+                width: 100%;
+            }
+
+            #addModal .modal-footer-actions,
+            #editModal .modal-footer-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            #addModal .modal-footer .btn,
+            #editModal .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 479.98px) {
+            .chatbot-page .hero-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-page .chatbot-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .chatbot-page .chatbot-stat {
+                grid-template-columns: 1fr;
+                align-items: start;
+            }
+
+            .chatbot-page .chatbot-stat-icon {
+                display: none;
+            }
+
+            .chatbot-page .knowledge-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-page .search-control,
+            .chatbot-page .search-submit-btn,
+            .chatbot-page .knowledge-add-btn {
+                grid-column: auto;
+            }
+
+            .chatbot-page #knowledge-table tbody tr[data-id] > td,
+            .chatbot-page #unmatched-table tbody tr[data-unmatched-id] > td {
+                grid-template-columns: 74px minmax(0, 1fr);
+                padding: 8px 9px;
+            }
+
+            #addModal .modal-footer-actions,
+            #editModal .modal-footer-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Dark mode compatibility */
+        [data-theme="dark"] .chatbot-page {
+            --cb-text: #e5e7eb;
+            --cb-muted: #9ca3af;
+            --cb-border: #303744;
+            --cb-surface: #171b24;
+            --cb-surface-soft: #202631;
+            --cb-shadow: none;
+        }
+
+        [data-theme="dark"] .chatbot-page .hero-panel,
+        [data-theme="dark"] .chatbot-page .chatbot-stat,
+        [data-theme="dark"] .chatbot-page .chatbot-panel,
+        [data-theme="dark"] .chatbot-page .panel-header,
+        [data-theme="dark"] .chatbot-page .table tbody td,
+        [data-theme="dark"] .chatbot-page #knowledge-table tbody tr[data-id],
+        [data-theme="dark"] .chatbot-page #unmatched-table tbody tr[data-unmatched-id],
+        [data-theme="dark"] .chatbot-page #knowledge-table tbody tr[data-id] > td,
+        [data-theme="dark"] .chatbot-page #unmatched-table tbody tr[data-unmatched-id] > td {
+            background: var(--cb-surface);
+        }
+
+        [data-theme="dark"] .chatbot-page .knowledge-toolbar,
+        [data-theme="dark"] .chatbot-page .table thead th,
+        [data-theme="dark"] .chatbot-page .tab-navigation {
+            background: var(--cb-surface-soft);
+        }
+
+        [data-theme="dark"] .chatbot-page .tab-link.active,
+        [data-theme="dark"] .chatbot-page .tab-link:hover,
+        [data-theme="dark"] .chatbot-page .search-control .form-control,
+        [data-theme="dark"] .chatbot-page .filter-control .form-select,
+        [data-theme="dark"] .chatbot-page .session-copy {
+            background: #171b24;
+            color: #e5e7eb;
+        }
+
+        [data-theme="dark"] #addModal .modal-content,
+        [data-theme="dark"] #editModal .modal-content,
+        [data-theme="dark"] #addModal .modal-header,
+        [data-theme="dark"] #editModal .modal-header,
+        [data-theme="dark"] #addModal .modal-footer,
+        [data-theme="dark"] #editModal .modal-footer,
+        [data-theme="dark"] #addModal .knowledge-form-panel,
+        [data-theme="dark"] #editModal .knowledge-form-panel,
+        [data-theme="dark"] #addModal .knowledge-form-panel.is-soft,
+        [data-theme="dark"] #editModal .knowledge-form-panel.is-soft {
+            background: #171b24;
+            border-color: #303744;
+        }
+
+        [data-theme="dark"] #addModal .modal-body,
+        [data-theme="dark"] #editModal .modal-body {
+            background: #11151d;
+        }
+
+        [data-theme="dark"] #addModal .modal-title,
+        [data-theme="dark"] #editModal .modal-title,
+        [data-theme="dark"] #addModal .knowledge-form-panel-title,
+        [data-theme="dark"] #editModal .knowledge-form-panel-title,
+        [data-theme="dark"] #addModal .form-label,
+        [data-theme="dark"] #editModal .form-label {
+            color: #e5e7eb;
+        }
+
+        [data-theme="dark"] #addModal .modal-subtitle,
+        [data-theme="dark"] #editModal .modal-subtitle,
+        [data-theme="dark"] #addModal .form-hint,
+        [data-theme="dark"] #editModal .form-hint,
+        [data-theme="dark"] #addModal .modal-safe-note,
+        [data-theme="dark"] #editModal .modal-safe-note {
+            color: #9ca3af;
+        }
+
+        [data-theme="dark"] #addModal .form-control,
+        [data-theme="dark"] #addModal .form-select,
+        [data-theme="dark"] #editModal .form-control,
+        [data-theme="dark"] #editModal .form-select {
+            border-color: #374151;
+            background-color: #11151d;
+            color: #e5e7eb;
+        }
+    </style>
+
 @endpush
 
 @section('content')
@@ -36,9 +1416,9 @@
                     <div class="hero-panel">
                         <div class="hero-content">
                             <div class="hero-icon"><i class="fas fa-robot"></i></div>
-                            <div class="hero-kicker">Chatbot Control Center</div>
-                            <h2>Keep chatbot answers clean, useful, and easy to train.</h2>
-                            <p>Manage the bot knowledge base, review unanswered questions, and improve future responses with the same minimal card layout used in Backup Settings.</p>
+                            <div class="hero-kicker">Knowledge &amp; Training</div>
+                            <h2>Manage chatbot answers and training from one workspace.</h2>
+                            <p>Maintain resident-facing answers, organize keywords, and review questions the chatbot could not match.</p>
 
                             <div class="hero-actions">
                                 @admin_can('create_content')
@@ -190,15 +1570,15 @@
                                     <tbody id="knowledge-tbody">
                                         @forelse($knowledge as $k)
                                         <tr data-id="{{ $k['id'] }}" data-category="{{ strtolower($k['category'] ?? 'general') }}" data-usage="{{ $k['usage_count'] ?? 0 }}">
-                                            <td class="kb-question">{{ Str::limit($k['question'], 90) }}</td>
-                                            <td class="kb-answer">{{ Str::limit($k['answer'], 130) }}</td>
+                                            <td class="kb-question" data-label="Question">{{ Str::limit($k['question'], 90) }}</td>
+                                            <td class="kb-answer" data-label="Answer">{{ Str::limit($k['answer'], 130) }}</td>
                                             @php
                                                 $keywordList = collect(explode(',', (string) ($k['keywords'] ?? '')))
                                                     ->map(fn ($keyword) => trim($keyword))
                                                     ->filter()
                                                     ->values();
                                             @endphp
-                                            <td title="{{ $keywordList->implode(', ') }}">
+                                            <td data-label="Keywords" title="{{ $keywordList->implode(', ') }}">
                                                 <div class="keyword-list">
                                                     @forelse($keywordList->take(3) as $keyword)
                                                         <span class="keyword-chip">{{ Str::limit($keyword, 22) }}</span>
@@ -210,12 +1590,12 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td><span class="badge-category">{{ $k['category'] ?? 'general' }}</span></td>
-                                            <td><span class="usage-pill">{{ $k['usage_count'] ?? 0 }}</span></td>
-                                            <td>
+                                            <td data-label="Category"><span class="badge-category">{{ $k['category'] ?? 'general' }}</span></td>
+                                            <td data-label="Uses"><span class="usage-pill">{{ $k['usage_count'] ?? 0 }}</span></td>
+                                            <td data-label="Actions">
                                                 <div class="btn-group btn-group-sm">
                                                     @admin_can('edit_content')
-                                                    <button class="btn btn-outline-secondary btn-edit" data-id="{{ $k['id'] }}" data-question="{{ $k['question'] }}" data-answer="{{ $k['answer'] }}" data-keywords="{{ $k['keywords'] ?? '' }}" data-category="{{ $k['category'] ?? 'general' }}" title="Edit knowledge" aria-label="Edit knowledge" type="button">
+                                                    <button class="btn btn-outline-primary btn-edit" data-id="{{ $k['id'] }}" data-question="{{ $k['question'] }}" data-answer="{{ $k['answer'] }}" data-keywords="{{ $k['keywords'] ?? '' }}" data-category="{{ $k['category'] ?? 'general' }}" title="Edit knowledge" aria-label="Edit knowledge" type="button">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     @endadmin_can
@@ -285,8 +1665,8 @@
                                     <tbody id="unmatched-tbody">
                                         @forelse($pendingUnmatched as $u)
                                         <tr class="unmatched-row" data-unmatched-id="{{ $u['id'] }}">
-                                            <td class="unmatched-query" title="{{ $u['query'] }}">{{ $u['query'] }}</td>
-                                            <td>
+                                            <td class="unmatched-query" data-label="Query" title="{{ $u['query'] }}">{{ $u['query'] }}</td>
+                                            <td data-label="Session">
                                                 <div class="session-control">
                                                     <span class="session-pill" title="{{ $u['session_id'] ?? 'No session' }}">
                                                         {{ Str::limit($u['session_id'] ?? 'No session', 16) }}
@@ -301,8 +1681,8 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td><small class="query-time">{{ \Carbon\Carbon::parse($u['created_at'])->diffForHumans() }}</small></td>
-                                            <td>
+                                            <td data-label="Time"><small class="query-time">{{ \Carbon\Carbon::parse($u['created_at'])->diffForHumans() }}</small></td>
+                                            <td data-label="Actions">
                                                 <div class="btn-group btn-group-sm unmatched-actions">
                                                     @admin_can('create_content')
                                                     <button class="btn btn-train"
@@ -364,7 +1744,7 @@
                         <span class="knowledge-modal-icon"><i class="bi bi-plus-circle"></i></span>
                         <div class="min-w-0">
                             <h5 class="modal-title" id="addKnowledgeTitle">Add Knowledge</h5>
-                            <p class="modal-subtitle" id="addKnowledgeSubtitle">Create a clear chatbot answer residents can find through related keywords and category filtering.</p>
+                            <p class="modal-subtitle" id="addKnowledgeSubtitle">Create one clear resident-facing answer, then organize it so the chatbot can match related questions.</p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -374,10 +1754,10 @@
                         <input type="hidden" name="source_unmatched_id" id="source-unmatched-id" value="">
                         <div class="knowledge-form-grid">
                             <div class="knowledge-form-panel">
-                                <div class="knowledge-form-panel-title"><i class="bi bi-chat-square-text"></i> Main answer</div>
+                                <div class="knowledge-form-panel-title"><i class="bi bi-chat-square-text"></i> Answer Content</div>
                                 <div class="mb-3">
                                     <label class="form-label">Question / Topic <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="question" required placeholder="e.g. How do I track my Barangay Clearance request?">
+                                    <input type="text" class="form-control" name="question" required autocomplete="off" placeholder="e.g. How do I track my Barangay Clearance request?">
                                     <span class="form-hint">Use the same wording residents commonly ask.</span>
                                 </div>
                                 <div class="mb-0">
@@ -388,7 +1768,7 @@
                             </div>
 
                             <div class="knowledge-form-panel is-soft">
-                                <div class="knowledge-form-panel-title"><i class="bi bi-sliders"></i> Organization</div>
+                                <div class="knowledge-form-panel-title"><i class="bi bi-sliders"></i> Organization &amp; Matching</div>
                                 <div class="mb-3">
                                     <label class="form-label">Category</label>
                                     <select class="form-select" name="category">
@@ -440,7 +1820,7 @@
                         <span class="knowledge-modal-icon"><i class="bi bi-pencil-square"></i></span>
                         <div class="min-w-0">
                             <h5 class="modal-title" id="editKnowledgeTitle">Edit Knowledge</h5>
-                            <p class="modal-subtitle">Update the chatbot answer, keywords, and category without changing the existing management flow.</p>
+                            <p class="modal-subtitle">Review the answer first, then update its category and search keywords when needed.</p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -450,10 +1830,10 @@
                         <input type="hidden" name="id" id="edit-id">
                         <div class="knowledge-form-grid">
                             <div class="knowledge-form-panel">
-                                <div class="knowledge-form-panel-title"><i class="bi bi-chat-square-text"></i> Main answer</div>
+                                <div class="knowledge-form-panel-title"><i class="bi bi-chat-square-text"></i> Answer Content</div>
                                 <div class="mb-3">
                                     <label class="form-label">Question / Topic <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="question" id="edit-question" required>
+                                    <input type="text" class="form-control" name="question" id="edit-question" required autocomplete="off">
                                     <span class="form-hint">Edit the resident-facing question or topic title.</span>
                                 </div>
                                 <div class="mb-0">
@@ -464,7 +1844,7 @@
                             </div>
 
                             <div class="knowledge-form-panel is-soft">
-                                <div class="knowledge-form-panel-title"><i class="bi bi-sliders"></i> Organization</div>
+                                <div class="knowledge-form-panel-title"><i class="bi bi-sliders"></i> Organization &amp; Matching</div>
                                 <div class="mb-3">
                                     <label class="form-label">Category</label>
                                     <select class="form-select" name="category" id="edit-category">
