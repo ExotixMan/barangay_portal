@@ -261,21 +261,21 @@ const __cfg_barangay_system_incident_form_1 = JSON.parse(document.getElementById
             function validatePersonName(field, required = false, requiredMessage = __cfg_barangay_system_incident_form_1.v41, invalidMessage = __cfg_barangay_system_incident_form_1.v42) {
                 const value = field.value.trim(), nameRegex = /^[\p{L}\s'.,-]+$/u;
                 if (!value) { if (required) showFieldError(field, requiredMessage); return !required; }
-                if (value.length < 2) { showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v43 + '); return false; }
-                if (value.length > 120) { showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v44 + '); return false; }
+                if (value.length < 2) { showFieldError(field, __cfg_barangay_system_incident_form_1.v43); return false; }
+                if (value.length > 120) { showFieldError(field, __cfg_barangay_system_incident_form_1.v44); return false; }
                 if (!nameRegex.test(value)) { showFieldError(field, invalidMessage); return false; }
                 return true;
             }
             function validatePhone(field, required = false) {
                 const value = field.value.replace(/\s|-/g, '').trim(), phoneRegex = /^09\d{9}$/;
-                if (!value) { if (required) showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v45 + '); return !required; }
-                if (!phoneRegex.test(value)) { showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v46 + '); return false; }
+                if (!value) { if (required) showFieldError(field, __cfg_barangay_system_incident_form_1.v45); return !required; }
+                if (!phoneRegex.test(value)) { showFieldError(field, __cfg_barangay_system_incident_form_1.v46); return false; }
                 field.value = value; return true;
             }
             function validateEmail(field, required = false) {
                 const value = field.value.trim(), emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!value) { if (required) showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v47 + '); return !required; }
-                if (value.length > 255 || !emailRegex.test(value)) { showFieldError(field, ' + __cfg_barangay_system_incident_form_1.v48 + '); return false; }
+                if (!value) { if (required) showFieldError(field, __cfg_barangay_system_incident_form_1.v47); return !required; }
+                if (value.length > 255 || !emailRegex.test(value)) { showFieldError(field, __cfg_barangay_system_incident_form_1.v48); return false; }
                 return true;
             }
             function clearStepErrors(stepElement) {
@@ -307,16 +307,16 @@ const __cfg_barangay_system_incident_form_1 = JSON.parse(document.getElementById
             function updateProgress() { const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100; if (progressFill) progressFill.style.width = `${progressPercentage}%`; progressSteps.forEach(step => { const stepNumber = parseInt(step.getAttribute('data-step'),10); step.classList.toggle('active', stepNumber === currentStep); }); }
             function updateReview() {
                 const selectedReport = document.querySelector('input[name="reportType"]:checked'), selectedConfidentiality = document.querySelector('input[name="confidentiality"]:checked');
-                const reportType = selectedReport ? selectedReport.closest('.report-type-option')?.querySelector('h4')?.textContent.trim() || selectedReport.value : ' + __cfg_barangay_system_incident_form_1.v49 + ';
-                const confidentialityMap = { low: ' + __cfg_barangay_system_incident_form_1.v50 + ', medium: 'Confidential Report', high: ' + __cfg_barangay_system_incident_form_1.v51 + ' };
+                const reportType = selectedReport ? selectedReport.closest('.report-type-option')?.querySelector('h4')?.textContent.trim() || selectedReport.value : __cfg_barangay_system_incident_form_1.v49;
+                const confidentialityMap = { low: __cfg_barangay_system_incident_form_1.v50, medium: 'Confidential Report', high: __cfg_barangay_system_incident_form_1.v51 };
                 const incidentReview = byId('reviewIncident'), partiesReview = byId('reviewParties'), evidenceReview = byId('reviewEvidence');
-                if (incidentReview) incidentReview.innerHTML = reviewRows([[' + __cfg_barangay_system_incident_form_1.v52 + ', reportType], [' + __cfg_barangay_system_incident_form_1.v53 + ', ' + __cfg_barangay_system_incident_form_1.v54 + '.replace(':date', formatDate(getValue('incidentDate'))).replace(':time', getValue('incidentTime') || ' + __cfg_barangay_system_incident_form_1.v55 + ')], [' + __cfg_barangay_system_incident_form_1.v56 + ', getValue('incidentLocation') || ' + __cfg_barangay_system_incident_form_1.v55 + '], [' + __cfg_barangay_system_incident_form_1.v57 + ', summarize(getValue('incidentDescription'), 140)]]);
-                if (partiesReview) partiesReview.innerHTML = reviewRows([[' + __cfg_barangay_system_incident_form_1.v58 + ', getValue('complainantName') || ' + __cfg_barangay_system_incident_form_1.v55 + '], [' + __cfg_barangay_system_incident_form_1.v6 + ', getValue('complainantContact') || ' + __cfg_barangay_system_incident_form_1.v55 + '], [' + __cfg_barangay_system_incident_form_1.v59 + ', getValue('respondentName') || getValue('respondentDescription') || ' + __cfg_barangay_system_incident_form_1.v55 + '], [' + __cfg_barangay_system_incident_form_1.v60 + ', ' + __cfg_barangay_system_incident_form_1.v61 + '.replace(':count', getWitnessItems().length)]]);
-                if (evidenceReview) evidenceReview.innerHTML = reviewRows([[' + __cfg_barangay_system_incident_form_1.v62 + ', ' + __cfg_barangay_system_incident_form_1.v63 + '.replace(':count', byId('photos')?.files.length || 0)], [' + __cfg_barangay_system_incident_form_1.v64 + ', ' + __cfg_barangay_system_incident_form_1.v63 + '.replace(':count', byId('videos')?.files.length || 0)], [' + __cfg_barangay_system_incident_form_1.v65 + ', ' + __cfg_barangay_system_incident_form_1.v63 + '.replace(':count', byId('documents')?.files.length || 0)], [' + __cfg_barangay_system_incident_form_1.v66 + ', selectedConfidentiality ? confidentialityMap[selectedConfidentiality.value] : ' + __cfg_barangay_system_incident_form_1.v49 + ']]);
+                if (incidentReview) incidentReview.innerHTML = reviewRows([[__cfg_barangay_system_incident_form_1.v52, reportType], [__cfg_barangay_system_incident_form_1.v53, __cfg_barangay_system_incident_form_1.v54.replace(':date', formatDate(getValue('incidentDate'))).replace(':time', getValue('incidentTime') || __cfg_barangay_system_incident_form_1.v55)], [__cfg_barangay_system_incident_form_1.v56, getValue('incidentLocation') || __cfg_barangay_system_incident_form_1.v55], [__cfg_barangay_system_incident_form_1.v57, summarize(getValue('incidentDescription'), 140)]]);
+                if (partiesReview) partiesReview.innerHTML = reviewRows([[__cfg_barangay_system_incident_form_1.v58, getValue('complainantName') || __cfg_barangay_system_incident_form_1.v55], [__cfg_barangay_system_incident_form_1.v6, getValue('complainantContact') || __cfg_barangay_system_incident_form_1.v55], [__cfg_barangay_system_incident_form_1.v59, getValue('respondentName') || getValue('respondentDescription') || __cfg_barangay_system_incident_form_1.v55], [__cfg_barangay_system_incident_form_1.v60, __cfg_barangay_system_incident_form_1.v61.replace(':count', getWitnessItems().length)]]);
+                if (evidenceReview) evidenceReview.innerHTML = reviewRows([[__cfg_barangay_system_incident_form_1.v62, __cfg_barangay_system_incident_form_1.v63.replace(':count', byId('photos')?.files.length || 0)], [__cfg_barangay_system_incident_form_1.v64, __cfg_barangay_system_incident_form_1.v63.replace(':count', byId('videos')?.files.length || 0)], [__cfg_barangay_system_incident_form_1.v65, __cfg_barangay_system_incident_form_1.v63.replace(':count', byId('documents')?.files.length || 0)], [__cfg_barangay_system_incident_form_1.v66, selectedConfidentiality ? confidentialityMap[selectedConfidentiality.value] : __cfg_barangay_system_incident_form_1.v49]]);
             }
             function reviewRows(rows) { return rows.map(([label, value]) => `<div class="review-item"><div class="review-label">${escapeHtml(label)}</div><div class="review-value">${escapeHtml(value)}</div></div>`).join(''); }
-            function summarize(text, limit) { if (!text) return ' + __cfg_barangay_system_incident_form_1.v55 + '; return text.length > limit ? `${text.substring(0, limit)}...` : text; }
-            function formatDate(dateString) { if (!dateString) return ' + __cfg_barangay_system_incident_form_1.v55 + '; const date = parseLocalDate(dateString); if (Number.isNaN(date.getTime())) return 'Invalid date'; return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
+            function summarize(text, limit) { if (!text) return __cfg_barangay_system_incident_form_1.v55; return text.length > limit ? `${text.substring(0, limit)}...` : text; }
+            function formatDate(dateString) { if (!dateString) return __cfg_barangay_system_incident_form_1.v55; const date = parseLocalDate(dateString); if (Number.isNaN(date.getTime())) return 'Invalid date'; return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
             function parseLocalDate(dateString) { const [year, month, day] = dateString.split('-').map(Number); return new Date(year, month - 1, day); }
             function sameDate(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
             function toDateInputValue(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }

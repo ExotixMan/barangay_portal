@@ -18,6 +18,18 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'resend' => [
+        'key' => env('RESEND_KEY'),
+    ],
+
+    'sendgrid' => [
+        'key' => env('SENDGRID_API_KEY'),
+    ],
+
+    'barangay' => [
+        'support_email' => env('BISIG_CONTACT_EMAIL', env('MAIL_FROM_ADDRESS')),
+    ],
+
     'recaptcha' => [
         'site_key' => env('RECAPTCHA_SITE_KEY'),
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),

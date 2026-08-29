@@ -10,8 +10,6 @@ use App\Models\Witness;
 use App\Models\ReportFile;
 use Carbon\Carbon;
 use App\Models\StatusRemarkHistory;
-use App\Mail\Notification as NotificationMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminActivityLog;
@@ -511,7 +509,7 @@ class IncidentReportController extends Controller
             } else {
                 try {
                     $message = "Your incident report (Ref: {$blotter->reference_number}) status is now {$statusLabel}.{$remarksText}";
-                    Mail::to($blotter->complainant_email)->send(new NotificationMail($blotter->complainant_name ?? 'Complainant', $message));
+                    app(\App\Services\EmailDeliveryService::class)->sendNotification($blotter->complainant_email, $blotter->complainant_name ?? 'Complainant', $message);
 
                     $this->storeIncidentNotificationHistory($blotter, $status, $remarks !== '' ? $remarks : 'Email status update sent.', 'email', $blotter->complainant_email);
                     $results['email'] = 'sent';

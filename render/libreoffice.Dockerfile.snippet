@@ -1,0 +1,9 @@
+# Add to a Debian/Ubuntu based PHP Dockerfile used by Render.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libreoffice-writer \
+    libreoffice-core \
+    fonts-dejavu-core \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV LIBREOFFICE_BINARY=/usr/bin/soffice

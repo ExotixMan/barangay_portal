@@ -50,6 +50,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/admin/nav.js') }}"></script>
+    <script src="{{ asset('js/admin/admin-dropdowns.js') }}"></script>
     <script src="{{ asset('js/action-bindings.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>

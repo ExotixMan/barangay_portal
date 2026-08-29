@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -328,14 +327,11 @@ class BarangayClearanceController extends Controller
             . "Please verify this request before changing any locked identity or residency information.";
 
         try {
-            Mail::raw($body, function ($message) use ($barangayEmail, $subject, $resident) {
-                $message->to($barangayEmail)
-                    ->subject($subject);
-
-                if (! blank($resident->email)) {
-                    $message->replyTo($resident->email);
-                }
-            });
+            app(\App\Services\EmailDeliveryService::class)->sendText(
+                $barangayEmail,
+                $subject,
+                $body
+            );
         } catch (Throwable $e) {
             report($e);
 

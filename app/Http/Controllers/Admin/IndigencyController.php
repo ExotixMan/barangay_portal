@@ -8,12 +8,8 @@ use App\Models\Residents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\TemplateProcessor;
-use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\StatusRemarkHistory;
-use App\Mail\Notification as NotificationMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminActivityLog;
@@ -401,7 +397,7 @@ class IndigencyController extends Controller
             } else {
             try {
                 $message = "Your barangay indigency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
-                Mail::to($application->email)->send(new NotificationMail(trim($application->first_name . ' ' . $application->last_name), $message));
+                app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name . ' ' . $application->last_name), $message);
 
                 $this->storeNotificationHistory(
                     'indigency',
@@ -774,16 +770,26 @@ class IndigencyController extends Controller
         }
 
         if ($action === 'print') {
-            $phpWord = IOFactory::load($docxPath);
-            $objWriter = IOFactory::createWriter($phpWord, 'HTML');
+            $pdfFileName = 'indigency_' . ($record->reference_number ?? $record->id) . '.pdf';
+            $pdfPath = $outputDir . '/' . $pdfFileName;
+            try {
+                app(\App\Services\DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('PDF printing failed', [
+                    'module' => class_basename(static::class),
+                    'record_id' => $record->id,
+                    'error' => $e->getMessage(),
+                ]);
 
-            $tempHtml = $outputDir . '/temp.html';
-            $objWriter->save($tempHtml);
+                return back()->with('error', 'The Word document was created, but PDF printing failed. ' . $e->getMessage());
+            }
 
-            $htmlContent = file_get_contents($tempHtml);
-            $pdf = Pdf::loadHTML($htmlContent);
+            @unlink($docxPath);
 
-            return $pdf->stream('certification_of_indigency.pdf');
+            return response()->file($pdfPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="certification_of_indigency.pdf"',
+            ])->deleteFileAfterSend(true);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);

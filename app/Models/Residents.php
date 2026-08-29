@@ -8,8 +8,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
-use App\Notifications\CustomResetPassword;
-use App\Notifications\CustomVerifyEmail;
+use App\Services\EmailDeliveryService;
+use Illuminate\Support\Carbon as SupportCarbon;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\URL;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
@@ -92,12 +94,43 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new CustomVerifyEmail());
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            SupportCarbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $this->getKey(),
+                'hash' => sha1($this->getEmailForVerification()),
+            ]
+        );
+
+        app(EmailDeliveryService::class)->sendView(
+            $this->getEmailForVerification(),
+            'Verify Your Email – Barangay Hulong Duhat',
+            'email.verify-email',
+            [
+                'url' => $verificationUrl,
+                'name' => $this->firstname,
+                'expireIn' => Config::get('auth.verification.expire', 60),
+            ]
+        );
     }
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new CustomResetPassword($token));
+        $url = url(route('resident.password.reset', [
+            'token' => $token,
+            'email' => $this->email,
+        ], false));
+
+        app(EmailDeliveryService::class)->sendView(
+            $this->email,
+            'Reset Your Password – Barangay Hulong Duhat',
+            'email.reset-password',
+            [
+                'url' => $url,
+                'name' => $this->firstname,
+            ]
+        );
     }
 
     public function getAgeAttribute()

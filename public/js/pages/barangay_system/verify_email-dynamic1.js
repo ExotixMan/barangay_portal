@@ -13,7 +13,7 @@ const __cfg_barangay_system_verify_email_1 = JSON.parse(document.getElementById(
             } else {
                 localStorage.removeItem('verify_end_time');
                 btn.disabled = false;
-                btn.innerText = ' + __cfg_barangay_system_verify_email_1.v1 + ';
+                btn.innerText = __cfg_barangay_system_verify_email_1.v1;
             }
         }
 
@@ -46,10 +46,10 @@ const __cfg_barangay_system_verify_email_1 = JSON.parse(document.getElementById(
                 if (remainingSeconds <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = ' + __cfg_barangay_system_verify_email_1.v1 + ';
+                    btn.innerText = __cfg_barangay_system_verify_email_1.v1;
                     localStorage.removeItem('verify_end_time');
                 } else {
-                    btn.innerText = ' + __cfg_barangay_system_verify_email_1.v2 + ' + remainingSeconds + "s)";
+                    btn.innerText = __cfg_barangay_system_verify_email_1.v2 + remainingSeconds + "s)";
                 }
             }, 1000);
         }

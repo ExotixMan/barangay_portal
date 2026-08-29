@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Mail\Notification;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Traits\NotificationThrottler;
 use App\Models\StatusRemarkHistory;
@@ -16,13 +14,16 @@ use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
 use App\Services\AdminSettingsService;
+use App\Services\EmailDeliveryService;
 
 class NotificationController extends Controller
 {
     use NotificationThrottler;
 
-    public function __construct(private AdminSettingsService $settings)
-    {
+    public function __construct(
+        private AdminSettingsService $settings,
+        private EmailDeliveryService $emailDelivery
+    ) {
     }
 
     private const REMARKED_STATUSES = ['rejected', 'dropped'];
@@ -237,27 +238,24 @@ class NotificationController extends Controller
             $validated['message'] .= "\n\nRemarks: " . $validated['remarks'];
         }
 
-        $emailSettings = $this->settings->section('email');
-        config([
-            'mail.default' => $emailSettings['mailer'] ?? config('mail.default'),
-            'mail.mailers.smtp.host' => $emailSettings['host'] ?? config('mail.mailers.smtp.host'),
-            'mail.mailers.smtp.port' => $emailSettings['port'] ?? config('mail.mailers.smtp.port'),
-            'mail.mailers.smtp.username' => $emailSettings['username'] ?? config('mail.mailers.smtp.username'),
-            'mail.mailers.smtp.password' => $emailSettings['password'] ?? config('mail.mailers.smtp.password'),
-            'mail.mailers.smtp.encryption' => $emailSettings['encryption'] ?? config('mail.mailers.smtp.encryption'),
-            'mail.from.address' => $emailSettings['from_address'] ?? config('mail.from.address'),
-            'mail.from.name' => $emailSettings['from_name'] ?? config('mail.from.name'),
-        ]);
-
         if (!$this->canSendNotification('email', $validated['email'], 'email_channel')) {
             return back()->with('error', 'Too many emails sent. Please try again in a few moments.');
         }
 
-        Mail::to($validated['email'])
-            ->send(new Notification(
+        try {
+            $this->emailDelivery->sendNotification(
+                $validated['email'],
                 $validated['name'],
                 $validated['message']
-            ));
+            );
+        } catch (\Throwable $e) {
+            Log::error('Admin email notification failed', [
+                'recipient' => $validated['email'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Email was not sent: ' . $e->getMessage());
+        }
 
         $this->recordNotification('email', $validated['email'], 'email_channel');
         $this->storeStatusRemarkHistory($validated, 'email', $validated['email']);

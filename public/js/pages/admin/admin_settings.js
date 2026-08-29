@@ -970,3 +970,34 @@
                 syncForm.submit();
             });
         });
+
+// Email provider-aware settings UI.
+document.addEventListener('DOMContentLoaded', function () {
+    const provider = document.getElementById('email_mailer');
+    if (!provider) return;
+
+    const apiProviders = new Set(['resend', 'postmark', 'mailgun', 'sendgrid']);
+    const groups = Array.from(document.querySelectorAll('[data-email-provider-group]'));
+
+    function syncEmailProviderFields() {
+        const selected = String(provider.value || 'smtp').toLowerCase();
+
+        groups.forEach(function (group) {
+            const type = group.getAttribute('data-email-provider-group');
+            let visible = false;
+
+            if (type === 'smtp') visible = selected === 'smtp';
+            if (type === 'api') visible = apiProviders.has(selected);
+            if (type === 'mailgun') visible = selected === 'mailgun';
+            if (type === 'postmark') visible = selected === 'postmark';
+
+            group.hidden = !visible;
+            group.querySelectorAll('input, select, textarea').forEach(function (input) {
+                input.disabled = !visible;
+            });
+        });
+    }
+
+    provider.addEventListener('change', syncEmailProviderFields);
+    syncEmailProviderFields();
+});

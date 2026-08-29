@@ -45,6 +45,10 @@ class AdminSettingsService
         'email.username' => 'MAIL_USERNAME',
         'email.password' => 'MAIL_PASSWORD',
         'email.encryption' => 'MAIL_ENCRYPTION',
+        'email.api_key' => 'MAIL_API_KEY',
+        'email.domain' => 'MAIL_DOMAIN',
+        'email.endpoint' => 'MAIL_ENDPOINT',
+        'email.message_stream' => 'MAIL_MESSAGE_STREAM',
         'email.from_address' => 'MAIL_FROM_ADDRESS',
         'email.from_name' => 'MAIL_FROM_NAME',
 
@@ -73,6 +77,7 @@ class AdminSettingsService
     private array $secretKeys = [
         'sms.api_key',
         'email.password',
+        'email.api_key',
         'ai.keys.gemini',
         'ai.keys.groq',
         'ai.keys.cloudflare',
@@ -102,8 +107,7 @@ class AdminSettingsService
 
     public function all(): array
     {
-        $env = $this->readEnvFile();
-
+        $env = $this->readRuntimeEnvironment();
         $settings = $this->defaults();
 
         foreach ($this->envMap as $settingKey => $envKey) {
@@ -116,8 +120,31 @@ class AdminSettingsService
 
         foreach ($this->base64EnvMap as $settingKey => $envKey) {
             if (! empty($env[$envKey])) {
-                data_set($settings, $settingKey, base64_decode($env[$envKey]) ?: '');
+                data_set($settings, $settingKey, base64_decode((string) $env[$envKey], true) ?: '');
             }
+        }
+
+        foreach ($this->databaseValues() as $settingKey => $value) {
+            if (array_key_exists($settingKey, $this->envMap) || array_key_exists($settingKey, $this->base64EnvMap)) {
+                data_set($settings, $settingKey, $this->castValue($settingKey, $value));
+            }
+        }
+
+        $emailProvider = strtolower(trim((string) data_get($settings, 'email.mailer', 'smtp')));
+        if (blank(data_get($settings, 'email.api_key'))) {
+            $providerKey = match ($emailProvider) {
+                'resend' => env('RESEND_KEY'),
+                'postmark' => env('POSTMARK_TOKEN'),
+                'mailgun' => env('MAILGUN_SECRET'),
+                'sendgrid' => env('SENDGRID_API_KEY'),
+                default => null,
+            };
+            if (filled($providerKey)) {
+                data_set($settings, 'email.api_key', $providerKey);
+            }
+        }
+        if ($emailProvider === 'mailgun' && blank(data_get($settings, 'email.domain')) && filled(env('MAILGUN_DOMAIN'))) {
+            data_set($settings, 'email.domain', env('MAILGUN_DOMAIN'));
         }
 
         $settings['usage'] = array_replace_recursive(
@@ -172,9 +199,12 @@ class AdminSettingsService
             $updates[$envKey] = base64_encode((string) $flatPayload[$settingKey]);
         }
 
-        $updates['BISIG_SETTINGS_UPDATED_AT'] = now('Asia/Manila')->toDateTimeString();
-
-        $this->writeEnvValues($updates);
+        if ($this->settingsTableAvailable()) {
+            $this->writeDatabaseValues($flatPayload);
+        } else {
+            $updates['BISIG_SETTINGS_UPDATED_AT'] = now('Asia/Manila')->toDateTimeString();
+            $this->writeEnvValues($updates);
+        }
 
         return $this->all();
     }
@@ -344,6 +374,91 @@ class AdminSettingsService
         }
     }
 
+    private function readRuntimeEnvironment(): array
+    {
+        $values = $this->readEnvFile();
+
+        foreach (array_unique(array_merge(array_values($this->envMap), array_values($this->base64EnvMap))) as $envKey) {
+            if (array_key_exists($envKey, $values)) {
+                continue;
+            }
+
+            $value = env($envKey);
+            if ($value !== null) {
+                $values[$envKey] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    private function settingsTableAvailable(): bool
+    {
+        try {
+            return Schema::hasTable('system_settings');
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    private function databaseValues(): array
+    {
+        if (! $this->settingsTableAvailable()) {
+            return [];
+        }
+
+        try {
+            return DB::table('system_settings')->pluck('setting_value', 'setting_key')->all();
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    private function writeDatabaseValues(array $flatPayload): void
+    {
+        $now = now();
+        $allowed = array_merge(array_keys($this->envMap), array_keys($this->base64EnvMap));
+
+        foreach ($allowed as $settingKey) {
+            if (! array_key_exists($settingKey, $flatPayload)) {
+                continue;
+            }
+
+            $value = $flatPayload[$settingKey];
+            if (in_array($settingKey, $this->secretKeys, true) && blank($value)) {
+                continue;
+            }
+
+            DB::table('system_settings')->updateOrInsert(
+                ['setting_key' => $settingKey],
+                [
+                    'setting_value' => is_bool($value) ? ($value ? '1' : '0') : (string) ($value ?? ''),
+                    'is_secret' => in_array($settingKey, $this->secretKeys, true),
+                    'updated_at' => $now,
+                    'created_at' => $now,
+                ]
+            );
+        }
+    }
+
+    private function emailConfigurationReady(array $email): bool
+    {
+        $provider = strtolower(trim((string) ($email['mailer'] ?? 'smtp')));
+        $fromReady = filled($email['from_address'] ?? null);
+
+        if (! $fromReady) {
+            return false;
+        }
+
+        return match ($provider) {
+            'smtp', 'mail', 'failover' => filled($email['host'] ?? null) && filled($email['port'] ?? null),
+            'resend', 'postmark', 'sendgrid' => filled($email['api_key'] ?? null),
+            'mailgun' => filled($email['api_key'] ?? null) && filled($email['domain'] ?? null),
+            'log' => true,
+            default => false,
+        };
+    }
+
     private function readEnvFile(): array
     {
         if (! File::exists($this->envPath)) {
@@ -492,6 +607,10 @@ class AdminSettingsService
                 'username' => '',
                 'password' => '',
                 'encryption' => 'tls',
+                'api_key' => '',
+                'domain' => '',
+                'endpoint' => '',
+                'message_stream' => 'outbound',
                 'from_address' => '',
                 'from_name' => 'BISIG Hulong Duhat',
             ],

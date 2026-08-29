@@ -9,16 +9,19 @@ use App\Models\BarangayClearance;
 use App\Models\ResidencyApplication;
 use App\Models\RequestRecord;
 use App\Services\AdminSettingsService;
+use App\Services\DocumentPdfService;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
-    public function __construct(private AdminSettingsService $settings)
-    {
+    public function __construct(
+        private AdminSettingsService $settings,
+        private DocumentPdfService $documentPdf
+    ) {
     }
 
     public function document()
@@ -56,19 +59,8 @@ class DocumentController extends Controller
         $templateProcessor->saveAs($docxPath);
 
         if ($action === 'print') {
-            $phpWord = IOFactory::load($docxPath);
-            $objWriter = IOFactory::createWriter($phpWord, 'HTML');
-
-            $tempHtml = $outputDir . '/temp.html';
-            $objWriter->save($tempHtml);
-
-            $htmlContent = file_get_contents($tempHtml);
-            $pdf = Pdf::loadHTML($htmlContent);
             $pdfFileName = 'certificate_' . $record->request_id . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
-            $pdf->save($pdfPath);
-
-            return $this->renderPrintPreviewPage($pdfFileName);
+            return $this->convertForPrint($docxPath, $pdfFileName);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -114,19 +106,8 @@ class DocumentController extends Controller
         IOFactory::createWriter($phpWord, 'Word2007')->save($docxPath);
 
         if ($action === 'print') {
-            $phpWord = IOFactory::load($docxPath);
-            $objWriter = IOFactory::createWriter($phpWord, 'HTML');
-
-            $tempHtml = $outputDir . '/temp.html';
-            $objWriter->save($tempHtml);
-
-            $htmlContent = file_get_contents($tempHtml);
-            $pdf = Pdf::loadHTML($htmlContent);
             $pdfFileName = 'certificate_' . $record->request_id . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
-            $pdf->save($pdfPath);
-
-            return $this->renderPrintPreviewPage($pdfFileName);
+            return $this->convertForPrint($docxPath, $pdfFileName);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -174,11 +155,14 @@ class DocumentController extends Controller
         $createdDate = Carbon::parse($record->created_at);
 
         $adminUser = auth('admin')->user();
-        $resolvedStaffName = $adminUser?->full_name
-            ?? trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''))
-            ?? $adminUser?->username
-            ?? 'BARANGAY STAFF';
-        $staffName = strtoupper(trim($resolvedStaffName));
+        $resolvedStaffName = trim((string) ($adminUser?->full_name ?? ''));
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''));
+        }
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim((string) ($adminUser?->username ?? ''));
+        }
+        $staffName = strtoupper($resolvedStaffName !== '' ? $resolvedStaffName : 'BARANGAY STAFF');
 
         $day = strtoupper($createdDate->format('jS')); 
         $month = strtoupper($createdDate->format('F'));  
@@ -208,42 +192,7 @@ class DocumentController extends Controller
 
         if ($action === 'print') {
             $pdfFileName = 'indigency_' . $record->reference_number . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
-
-            if (file_exists($pdfPath)) {
-                @unlink($pdfPath);
-            }
-
-            $tempUserDir = $outputDir . '/libreoffice_profile';
-            if (!is_dir($tempUserDir)) {
-                mkdir($tempUserDir, 0775, true);
-            }
-
-            @chmod($tempUserDir, 0775);
-
-            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
-
-            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
-                . 'soffice --headless '
-                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
-                . '--convert-to pdf '
-                . '--outdir ' . escapeshellarg($outputDir) . ' '
-                . escapeshellarg($docxPath) . ' 2>&1';
-
-            $output = [];
-            $code = 1;
-            exec($cmd, $output, $code);
-
-            $converted = ($code === 0 && file_exists($pdfPath));
-
-            if ($converted) {
-                return $this->renderPrintPreviewPage($pdfFileName);
-            }
-
-            abort(500, "Print conversion failed\n"
-                . "Document: indigency | Reference: {$record->reference_number} | Exit code: {$code}\n"
-                . "Command\n{$cmd}\n"
-                . "Output\n" . implode("\n", $output));
+            return $this->convertForPrint($docxPath, $pdfFileName);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -273,11 +222,14 @@ class DocumentController extends Controller
         $createdDate = Carbon::parse($record->created_at);
 
         $adminUser = auth('admin')->user();
-        $resolvedStaffName = $adminUser?->full_name
-            ?? trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''))
-            ?? $adminUser?->username
-            ?? 'BARANGAY STAFF';
-        $staffName = strtoupper(trim($resolvedStaffName));
+        $resolvedStaffName = trim((string) ($adminUser?->full_name ?? ''));
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''));
+        }
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim((string) ($adminUser?->username ?? ''));
+        }
+        $staffName = strtoupper($resolvedStaffName !== '' ? $resolvedStaffName : 'BARANGAY STAFF');
 
         $day = strtoupper($createdDate->format('jS'));
         $month = strtoupper($createdDate->format('F'));
@@ -308,42 +260,7 @@ class DocumentController extends Controller
 
         if ($action === 'print') {
             $pdfFileName = 'clearance_' . $record->reference_number . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
-
-            if (file_exists($pdfPath)) {
-                @unlink($pdfPath);
-            }
-
-            $tempUserDir = $outputDir . '/libreoffice_profile';
-            if (!is_dir($tempUserDir)) {
-                mkdir($tempUserDir, 0775, true);
-            }
-
-            @chmod($tempUserDir, 0775);
-
-            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
-
-            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
-                . 'soffice --headless '
-                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
-                . '--convert-to pdf '
-                . '--outdir ' . escapeshellarg($outputDir) . ' '
-                . escapeshellarg($docxPath) . ' 2>&1';
-
-            $output = [];
-            $code = 1;
-            exec($cmd, $output, $code);
-
-            $converted = ($code === 0 && file_exists($pdfPath));
-
-            if ($converted) {
-                return $this->renderPrintPreviewPage($pdfFileName);
-            }
-
-            abort(500, "Print conversion failed\n"
-                . "Document: clearance | Reference: {$record->reference_number} | Exit code: {$code}\n"
-                . "Command\n{$cmd}\n"
-                . "Output\n" . implode("\n", $output));
+            return $this->convertForPrint($docxPath, $pdfFileName);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -373,11 +290,14 @@ class DocumentController extends Controller
         $createdDate = Carbon::parse($record->created_at);
 
         $adminUser = auth('admin')->user();
-        $resolvedStaffName = $adminUser?->full_name
-            ?? trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''))
-            ?? $adminUser?->username
-            ?? 'BARANGAY STAFF';
-        $staffName = strtoupper(trim($resolvedStaffName));
+        $resolvedStaffName = trim((string) ($adminUser?->full_name ?? ''));
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''));
+        }
+        if ($resolvedStaffName === '') {
+            $resolvedStaffName = trim((string) ($adminUser?->username ?? ''));
+        }
+        $staffName = strtoupper($resolvedStaffName !== '' ? $resolvedStaffName : 'BARANGAY STAFF');
 
         $day = strtoupper($createdDate->format('jS'));
         $month = strtoupper($createdDate->format('F'));
@@ -408,42 +328,7 @@ class DocumentController extends Controller
 
         if ($action === 'print') {
             $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
-
-            if (file_exists($pdfPath)) {
-                @unlink($pdfPath);
-            }
-
-            $tempUserDir = $outputDir . '/libreoffice_profile';
-            if (!is_dir($tempUserDir)) {
-                mkdir($tempUserDir, 0775, true);
-            }
-
-            @chmod($tempUserDir, 0775);
-
-            $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
-
-            $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
-                . 'soffice --headless '
-                . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
-                . '--convert-to pdf '
-                . '--outdir ' . escapeshellarg($outputDir) . ' '
-                . escapeshellarg($docxPath) . ' 2>&1';
-
-            $output = [];
-            $code = 1;
-            exec($cmd, $output, $code);
-
-            $converted = ($code === 0 && file_exists($pdfPath));
-
-            if ($converted) {
-                return $this->renderPrintPreviewPage($pdfFileName);
-            }
-
-            abort(500, "Print conversion failed\n"
-                . "Document: residency | Reference: {$record->reference_number} | Exit code: {$code}\n"
-                . "Command\n{$cmd}\n"
-                . "Output\n" . implode("\n", $output));
+            return $this->convertForPrint($docxPath, $pdfFileName);
         }
 
         return response()->download($docxPath)->deleteFileAfterSend(true);
@@ -467,6 +352,28 @@ class DocumentController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="Print Document.pdf"'
         ]);
+    }
+
+    private function convertForPrint(string $docxPath, string $pdfFileName)
+    {
+        $pdfPath = storage_path('app/generated/' . basename($pdfFileName));
+
+        try {
+            $this->documentPdf->convertDocxToPdf($docxPath, $pdfPath);
+        } catch (\Throwable $e) {
+            Log::error('Document PDF conversion failed', [
+                'docx' => basename($docxPath),
+                'pdf' => basename($pdfFileName),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with(
+                'error',
+                'The document was created, but PDF printing is unavailable. ' . $e->getMessage()
+            );
+        }
+
+        return $this->renderPrintPreviewPage($pdfFileName);
     }
 
     private function renderPrintPreviewPage(string $pdfFileName)

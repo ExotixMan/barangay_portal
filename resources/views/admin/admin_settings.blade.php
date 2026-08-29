@@ -55,14 +55,21 @@
                 $smsSetupHealth = (int) round((($smsApiReady ? 1 : 0) + ($smsEndpointReady ? 1 : 0) + ($smsSenderReady ? 1 : 0)) / 3 * 100);
                 $smsCreditHealth = $smsRemaining > 0 ? $smsRemainingPercent : 0;
 
-                $emailMailerReady = trim((string) data_get($settings, 'email.mailer', '')) !== '';
-                $emailHostReady = trim((string) data_get($settings, 'email.host', '')) !== '';
-                $emailPortReady = (int) data_get($settings, 'email.port', 0) > 0;
-                $emailUsernameReady = trim((string) data_get($settings, 'email.username', '')) !== '';
-                $emailPasswordReady = trim((string) data_get($settings, 'email.password', '')) !== '';
+                $emailProvider = strtolower(trim((string) data_get($settings, 'email.mailer', 'smtp')));
                 $emailFromValue = trim((string) data_get($settings, 'email.from_address', ''));
                 $emailFromReady = $emailFromValue !== '' && filter_var($emailFromValue, FILTER_VALIDATE_EMAIL);
-                $emailHealth = (int) round((($emailMailerReady ? 1 : 0) + ($emailHostReady ? 1 : 0) + ($emailPortReady ? 1 : 0) + ($emailUsernameReady ? 1 : 0) + ($emailPasswordReady ? 1 : 0) + ($emailFromReady ? 1 : 0)) / 6 * 100);
+                $emailApiReady = trim((string) data_get($settings, 'email.api_key', '')) !== '';
+                $emailDomainReady = trim((string) data_get($settings, 'email.domain', '')) !== '';
+                $emailHostReady = trim((string) data_get($settings, 'email.host', '')) !== '';
+                $emailPortReady = (int) data_get($settings, 'email.port', 0) > 0;
+                $emailProviderReady = match ($emailProvider) {
+                    'smtp' => $emailHostReady && $emailPortReady,
+                    'resend', 'postmark', 'sendgrid' => $emailApiReady,
+                    'mailgun' => $emailApiReady && $emailDomainReady,
+                    'log' => true,
+                    default => false,
+                };
+                $emailHealth = ($emailProviderReady && $emailFromReady) ? 100 : ($emailProviderReady || $emailFromReady ? 50 : 0);
 
                 $aiKeyReady = trim((string) data_get($settings, 'ai.keys.' . $provider, '')) !== '';
                 $cloudflareNeedsAccount = $provider === 'cloudflare';
@@ -82,7 +89,7 @@
                     ['label' => 'General identity', 'score' => $generalHealth, 'detail' => $portalNameReady && $barangayNameReady ? 'Portal and barangay name set' : 'Missing portal or barangay name'],
                     ['label' => 'SMS gateway', 'score' => $smsSetupHealth, 'detail' => $smsApiReady && $smsSenderReady ? 'API key and sender name set' : 'Check API key / sender name'],
                     ['label' => 'SMS credits', 'score' => $smsCreditHealth, 'detail' => $smsRemainingDisplay . ' credits left'],
-                    ['label' => 'Email SMTP', 'score' => $emailHealth, 'detail' => $emailHealth >= 80 ? 'SMTP fields look complete' : 'SMTP fields incomplete'],
+                    ['label' => 'Email provider', 'score' => $emailHealth, 'detail' => $emailHealth >= 80 ? ucfirst($emailProvider) . ' is configured' : 'Email provider setup incomplete'],
                     ['label' => 'AI provider', 'score' => $aiHealth, 'detail' => $aiHealth === 100 ? $providerDisplay . ' key ready' : 'Missing active provider key'],
                     ['label' => 'Security', 'score' => $securityHealth, 'detail' => $securityEnabledCount . '/2 security toggles on'],
                 ];
@@ -97,7 +104,7 @@
                     ['id' => 'general', 'label' => 'General', 'icon' => 'fas fa-sliders-h', 'desc' => 'Branding'],
                     ['id' => 'document', 'label' => 'Request Template', 'icon' => 'fas fa-file-signature', 'desc' => 'Certificates'],
                     ['id' => 'sms', 'label' => 'SMS & Credits', 'icon' => 'fas fa-sms', 'desc' => 'Gateway'],
-                    ['id' => 'email', 'label' => 'Email', 'icon' => 'fas fa-envelope', 'desc' => 'SMTP'],
+                    ['id' => 'email', 'label' => 'Email', 'icon' => 'fas fa-envelope', 'desc' => 'Providers'],
                     ['id' => 'ai', 'label' => 'AI Providers', 'icon' => 'fas fa-robot', 'desc' => 'Chatbot'],
                     ['id' => 'security', 'label' => 'Security', 'icon' => 'fas fa-shield-halved', 'desc' => 'Protection'],
                 ];
@@ -210,14 +217,14 @@
                                 <div>
                                     <div class="stat-label">Email Today</div>
                                     <div class="stat-value">{{ number_format($emailSentToday) }}</div>
-                                    <small>SMTP activity</small>
+                                    <small>Email delivery activity</small>
                                 </div>
                                 <div class="stat-icon"><i class="fas fa-envelope"></i></div>
                             </div>
                             <div class="stat-footer">
                                 <div class="stat-bar"><span style="width: {{ $emailHealth }}%"></span></div>
                                 <div class="stat-meta-row">
-                                    <span>SMTP setup</span>
+                                    <span>Email setup</span>
                                     <span class="stat-pill">{{ $emailHealth >= 80 ? 'Ready' : 'Incomplete' }}</span>
                                 </div>
                             </div>
@@ -539,7 +546,7 @@
                                         <div class="field-card-v2 @error('sms.api_key') has-error @enderror">
                                             <label for="sms_api_key">API Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="sms_api_key" name="sms[api_key]" value="{{ old('sms.api_key', data_get($settings, 'sms.api_key')) }}" class="form-control @error('sms.api_key') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="sms_api_key" name="sms[api_key]" value="{{ old('sms.api_key', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('sms.api_key') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide SMS API key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('sms.api_key')
@@ -631,71 +638,99 @@
                                         <div class="panel-icon"><i class="fas fa-envelope"></i></div>
                                         <div>
                                             <h2>Email</h2>
-                                            <p>Update SMTP transport, sender address, and display name.</p>
+                                            <p>Choose an email provider. API providers are recommended on Render because free web services cannot use normal SMTP ports.</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="panel-body">
                                     <div class="form-card-grid four-cols">
-                                        <div class="field-card-v2 @error('email.mailer') has-error @enderror">
-                                            <label for="email_mailer">Mailer</label>
-                                            <input type="text" id="email_mailer" name="email[mailer]" value="{{ old('email.mailer', data_get($settings, 'email.mailer')) }}" class="form-control @error('email.mailer') is-invalid @enderror" placeholder="smtp">
-                                            @error('email.mailer')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                        <div class="field-card-v2 span-two @error('email.mailer') has-error @enderror">
+                                            <label for="email_mailer">Email Provider</label>
+                                            @php($selectedMailer = old('email.mailer', data_get($settings, 'email.mailer', 'smtp')))
+                                            <select id="email_mailer" name="email[mailer]" class="form-select @error('email.mailer') is-invalid @enderror">
+                                                <option value="resend" {{ $selectedMailer === 'resend' ? 'selected' : '' }}>Resend API (recommended for Render)</option>
+                                                <option value="postmark" {{ $selectedMailer === 'postmark' ? 'selected' : '' }}>Postmark API</option>
+                                                <option value="mailgun" {{ $selectedMailer === 'mailgun' ? 'selected' : '' }}>Mailgun API</option>
+                                                <option value="sendgrid" {{ $selectedMailer === 'sendgrid' ? 'selected' : '' }}>SendGrid API</option>
+                                                <option value="smtp" {{ $selectedMailer === 'smtp' ? 'selected' : '' }}>SMTP</option>
+                                                <option value="log" {{ $selectedMailer === 'log' ? 'selected' : '' }}>Log only (testing)</option>
+                                            </select>
+                                            @error('email.mailer')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                            <small class="helper-text">On Render Free, use Resend/Postmark/Mailgun/SendGrid instead of SMTP.</small>
                                         </div>
-                                        <div class="field-card-v2 @error('email.host') has-error @enderror">
+
+                                        <div class="field-card-v2 span-two @error('email.api_key') has-error @enderror" data-email-provider-group="api">
+                                            <label for="email_api_key">Provider API Key</label>
+                                            <div class="input-group secret-group">
+                                                <input type="password" id="email_api_key" name="email[api_key]" value="{{ old('email.api_key', '') }}" placeholder="Leave blank to keep current API key" class="form-control @error('email.api_key') is-invalid @enderror" data-secret-field autocomplete="off" placeholder="API key">
+                                                <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide API key"><i class="fas fa-eye"></i></button>
+                                            </div>
+                                            @error('email.api_key')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                        </div>
+
+                                        <div class="field-card-v2 span-two @error('email.domain') has-error @enderror" data-email-provider-group="mailgun">
+                                            <label for="email_domain">Mailgun Domain</label>
+                                            <input type="text" id="email_domain" name="email[domain]" value="{{ old('email.domain', data_get($settings, 'email.domain')) }}" class="form-control @error('email.domain') is-invalid @enderror" placeholder="mg.example.com">
+                                            @error('email.domain')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                        </div>
+
+                                        <div class="field-card-v2 span-two @error('email.endpoint') has-error @enderror" data-email-provider-group="mailgun">
+                                            <label for="email_endpoint">Mailgun API Endpoint</label>
+                                            <input type="url" id="email_endpoint" name="email[endpoint]" value="{{ old('email.endpoint', data_get($settings, 'email.endpoint')) }}" class="form-control @error('email.endpoint') is-invalid @enderror" placeholder="https://api.mailgun.net">
+                                            @error('email.endpoint')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                        </div>
+
+                                        <div class="field-card-v2 span-two @error('email.message_stream') has-error @enderror" data-email-provider-group="postmark">
+                                            <label for="email_message_stream">Postmark Message Stream</label>
+                                            <input type="text" id="email_message_stream" name="email[message_stream]" value="{{ old('email.message_stream', data_get($settings, 'email.message_stream', 'outbound')) }}" class="form-control @error('email.message_stream') is-invalid @enderror" placeholder="outbound">
+                                            @error('email.message_stream')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
+                                        </div>
+
+                                        <div class="field-card-v2 @error('email.host') has-error @enderror" data-email-provider-group="smtp">
                                             <label for="email_host">SMTP Host</label>
-                                            <input type="text" id="email_host" name="email[host]" value="{{ old('email.host', data_get($settings, 'email.host')) }}" class="form-control @error('email.host') is-invalid @enderror" placeholder="smtp.gmail.com">
-                                            @error('email.host')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            <input type="text" id="email_host" name="email[host]" value="{{ old('email.host', data_get($settings, 'email.host')) }}" class="form-control @error('email.host') is-invalid @enderror" placeholder="smtp.example.com">
+                                            @error('email.host')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
-                                        <div class="field-card-v2 @error('email.port') has-error @enderror">
-                                            <label for="email_port">Port</label>
+                                        <div class="field-card-v2 @error('email.port') has-error @enderror" data-email-provider-group="smtp">
+                                            <label for="email_port">SMTP Port</label>
                                             <input type="number" id="email_port" name="email[port]" value="{{ old('email.port', data_get($settings, 'email.port')) }}" class="form-control @error('email.port') is-invalid @enderror" placeholder="587">
-                                            @error('email.port')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @error('email.port')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
-                                        <div class="field-card-v2 @error('email.encryption') has-error @enderror">
+                                        <div class="field-card-v2 @error('email.encryption') has-error @enderror" data-email-provider-group="smtp">
                                             <label for="email_encryption">Encryption</label>
-                                            <input type="text" id="email_encryption" name="email[encryption]" value="{{ old('email.encryption', data_get($settings, 'email.encryption')) }}" class="form-control @error('email.encryption') is-invalid @enderror" placeholder="tls">
-                                            @error('email.encryption')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @php($selectedEncryption = old('email.encryption', data_get($settings, 'email.encryption', 'tls')))
+                                            <select id="email_encryption" name="email[encryption]" class="form-select @error('email.encryption') is-invalid @enderror">
+                                                <option value="tls" {{ $selectedEncryption === 'tls' ? 'selected' : '' }}>TLS</option>
+                                                <option value="ssl" {{ $selectedEncryption === 'ssl' ? 'selected' : '' }}>SSL</option>
+                                                <option value="starttls" {{ $selectedEncryption === 'starttls' ? 'selected' : '' }}>STARTTLS</option>
+                                                <option value="none" {{ $selectedEncryption === 'none' ? 'selected' : '' }}>None</option>
+                                            </select>
+                                            @error('email.encryption')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
-                                        <div class="field-card-v2 span-two @error('email.username') has-error @enderror">
+                                        <div class="field-card-v2 span-two @error('email.username') has-error @enderror" data-email-provider-group="smtp">
                                             <label for="email_username">SMTP Username</label>
                                             <input type="text" id="email_username" name="email[username]" value="{{ old('email.username', data_get($settings, 'email.username')) }}" class="form-control @error('email.username') is-invalid @enderror" autocomplete="off">
-                                            @error('email.username')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @error('email.username')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
-                                        <div class="field-card-v2 span-two @error('email.password') has-error @enderror">
+                                        <div class="field-card-v2 span-two @error('email.password') has-error @enderror" data-email-provider-group="smtp">
                                             <label for="email_password">SMTP Password</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="email_password" name="email[password]" value="{{ old('email.password', data_get($settings, 'email.password')) }}" class="form-control @error('email.password') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="email_password" name="email[password]" value="{{ old('email.password', '') }}" placeholder="Leave blank to keep current SMTP password" class="form-control @error('email.password') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide SMTP password"><i class="fas fa-eye"></i></button>
                                             </div>
-                                            @error('email.password')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @error('email.password')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
+
                                         <div class="field-card-v2 span-two @error('email.from_address') has-error @enderror">
                                             <label for="email_from_address">From Address</label>
                                             <input type="email" id="email_from_address" name="email[from_address]" value="{{ old('email.from_address', data_get($settings, 'email.from_address')) }}" class="form-control @error('email.from_address') is-invalid @enderror" placeholder="no-reply@example.com">
-                                            @error('email.from_address')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @error('email.from_address')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
                                         <div class="field-card-v2 span-two @error('email.from_name') has-error @enderror">
                                             <label for="email_from_name">From Name</label>
                                             <input type="text" id="email_from_name" name="email[from_name]" value="{{ old('email.from_name', data_get($settings, 'email.from_name')) }}" class="form-control @error('email.from_name') is-invalid @enderror" placeholder="BISIG Hulong Duhat">
-                                            @error('email.from_name')
-                                                <small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>
-                                            @enderror
+                                            @error('email.from_name')<small class="field-error"><i class="fas fa-circle-exclamation"></i>{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                 </div>
@@ -744,7 +779,7 @@
                                         <div class="field-card-v2 @error('ai.keys.gemini') has-error @enderror">
                                             <label for="ai_keys_gemini">Gemini Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_gemini" name="ai[keys][gemini]" value="{{ old('ai.keys.gemini', data_get($settings, 'ai.keys.gemini')) }}" class="form-control @error('ai.keys.gemini') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_gemini" name="ai[keys][gemini]" value="{{ old('ai.keys.gemini', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('ai.keys.gemini') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Gemini key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.gemini')
@@ -754,7 +789,7 @@
                                         <div class="field-card-v2 @error('ai.keys.groq') has-error @enderror">
                                             <label for="ai_keys_groq">Groq Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_groq" name="ai[keys][groq]" value="{{ old('ai.keys.groq', data_get($settings, 'ai.keys.groq')) }}" class="form-control @error('ai.keys.groq') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_groq" name="ai[keys][groq]" value="{{ old('ai.keys.groq', '') }}" placeholder="Leave blank to keep current key" class="form-control @error('ai.keys.groq') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Groq key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.groq')
@@ -764,7 +799,7 @@
                                         <div class="field-card-v2 full-span @error('ai.keys.cloudflare') has-error @enderror">
                                             <label for="ai_keys_cloudflare">Cloudflare Token</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="ai_keys_cloudflare" name="ai[keys][cloudflare]" value="{{ old('ai.keys.cloudflare', data_get($settings, 'ai.keys.cloudflare')) }}" class="form-control @error('ai.keys.cloudflare') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="ai_keys_cloudflare" name="ai[keys][cloudflare]" value="{{ old('ai.keys.cloudflare', '') }}" placeholder="Leave blank to keep current token" class="form-control @error('ai.keys.cloudflare') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide Cloudflare token"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('ai.keys.cloudflare')
@@ -835,7 +870,7 @@
                                         <div class="field-card-v2 @error('security.recaptcha_secret_key') has-error @enderror">
                                             <label for="security_recaptcha_secret_key">reCAPTCHA Secret Key</label>
                                             <div class="input-group secret-group">
-                                                <input type="password" id="security_recaptcha_secret_key" name="security[recaptcha_secret_key]" value="{{ old('security.recaptcha_secret_key', data_get($settings, 'security.recaptcha_secret_key')) }}" class="form-control @error('security.recaptcha_secret_key') is-invalid @enderror" data-secret-field autocomplete="off">
+                                                <input type="password" id="security_recaptcha_secret_key" name="security[recaptcha_secret_key]" value="{{ old('security.recaptcha_secret_key', '') }}" placeholder="Leave blank to keep current secret" class="form-control @error('security.recaptcha_secret_key') is-invalid @enderror" data-secret-field autocomplete="off">
                                                 <button type="button" class="btn btn-outline-secondary toggle-secret" aria-label="Show or hide reCAPTCHA secret key"><i class="fas fa-eye"></i></button>
                                             </div>
                                             @error('security.recaptcha_secret_key')

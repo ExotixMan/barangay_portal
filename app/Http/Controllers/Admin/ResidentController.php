@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
@@ -512,10 +511,7 @@ class ResidentController extends Controller
                 }
 
                 try {
-                    Mail::raw($message, function ($mail) use ($resident, $subject) {
-                        $mail->to($resident->email)
-                            ->subject($subject);
-                    });
+                    app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, $subject, $message);
 
                     $notificationResult['email'] = 'sent';
 
@@ -918,10 +914,7 @@ class ResidentController extends Controller
 
         if (!empty($resident->email)) {
             try {
-                Mail::raw($message, function ($mail) use ($resident) {
-                    $mail->to($resident->email)
-                        ->subject('Valid ID Verification Rejected');
-                });
+                app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verification Rejected', $message);
 
                 $result['email'] = 'sent';
                 $this->logNotification('email', (string) $resident->email, 'sent', $message, $resident->id, null);
@@ -982,10 +975,7 @@ class ResidentController extends Controller
         $message = "Hello {$residentName}, your valid ID has been verified and approved. Your resident account is now fully verified. - Barangay Hulong Duhat";
 
         try {
-            Mail::raw($message, function ($mail) use ($resident) {
-                $mail->to($resident->email)
-                    ->subject('Valid ID Verified');
-            });
+            app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verified', $message);
 
             $result['email'] = 'sent';
             $this->logNotification('email', (string) $resident->email, 'sent', $message, $resident->id, null);

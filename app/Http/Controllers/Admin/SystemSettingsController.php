@@ -62,12 +62,16 @@ class SystemSettingsController extends Controller
             'sms.monthly_limit' => ['required', 'integer', 'min:0', 'max:100000'],
 
             
-            'email.mailer' => ['required', 'string', 'max:30'],
+            'email.mailer' => ['required', 'string', 'in:smtp,resend,postmark,mailgun,sendgrid,log'],
             'email.host' => ['nullable', 'string', 'max:255'],
             'email.port' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'email.username' => ['nullable', 'string', 'max:255'],
             'email.password' => ['nullable', 'string', 'max:255'],
-            'email.encryption' => ['nullable', 'string', 'max:20'],
+            'email.encryption' => ['nullable', 'string', 'in:tls,ssl,starttls,none'],
+            'email.api_key' => ['nullable', 'string', 'max:1000'],
+            'email.domain' => ['nullable', 'string', 'max:255'],
+            'email.endpoint' => ['nullable', 'url', 'max:255'],
+            'email.message_stream' => ['nullable', 'string', 'max:100'],
             'email.from_address' => ['nullable', 'email', 'max:255'],
             'email.from_name' => ['nullable', 'string', 'max:255'],
 
@@ -369,6 +373,7 @@ class SystemSettingsController extends Controller
         $secretFields = [
             'sms.api_key',
             'email.password',
+            'email.api_key',
             'ai.keys.gemini',
             'ai.keys.groq',
             'ai.keys.cloudflare',

@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Residents;
 use App\Models\NotificationLog;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -433,9 +432,7 @@ class AnnouncementController extends Controller
 
             if (in_array($channel, ['email', 'both'], true) && filled($resident->email)) {
                 try {
-                    Mail::raw($personalizedMessage, function ($mail) use ($resident, $subject) {
-                        $mail->to($resident->email)->subject($subject);
-                    });
+                    app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, $subject, $personalizedMessage);
 
                     $emailSent++;
 
