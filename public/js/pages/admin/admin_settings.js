@@ -618,11 +618,16 @@
                 const value = String(field.value || '');
                 const trimmed = value.trim();
 
-                if (options.required && trimmed === '') {
+                const alreadyConfigured = field.dataset.secretConfigured === '1';
+
+                if (options.required && trimmed === '' && !alreadyConfigured) {
                     addError(errors, field, label + ' is required.');
                     return false;
                 }
 
+                // Secret inputs are intentionally blank after saving. An existing
+                // configured value satisfies a required secret without exposing it
+                // back into the page or forcing the admin to re-enter it.
                 if (trimmed === '') {
                     clearClientError(field);
                     return true;
@@ -710,30 +715,37 @@
                     addError(errors, byId('sms_daily_limit'), 'SMS daily limit cannot be greater than the monthly limit.');
                 }
 
+                const emailMailerField = byId('email_mailer');
+                const emailMailer = emailMailerField ? cleanValue(emailMailerField).toLowerCase() : '';
+                const apiMailers = ['resend', 'postmark', 'mailgun', 'sendgrid'];
+
                 validatePlainText(errors, 'email_mailer', 'Mailer', {
                     required: true,
                     min: 3,
                     max: 20,
-                    pattern: /^(smtp|sendmail|log|array)$/i,
-                    patternMessage: 'Mailer must be smtp, sendmail, log, or array.'
+                    pattern: /^(smtp|resend|postmark|mailgun|sendgrid|log)$/i,
+                    patternMessage: 'Mailer must be smtp, resend, postmark, mailgun, sendgrid, or log.'
                 });
-                validateHostField(errors, 'email_host', 'SMTP host', true);
-                validateIntegerField(errors, 'email_port', 'SMTP port', 1, 65535, true);
+
+                const smtpSelected = emailMailer === 'smtp';
+                validateHostField(errors, 'email_host', 'SMTP host', smtpSelected);
+                validateIntegerField(errors, 'email_port', 'SMTP port', 1, 65535, smtpSelected);
                 validatePlainText(errors, 'email_encryption', 'Email encryption', {
-                    required: true,
+                    required: smtpSelected,
                     max: 10,
                     pattern: /^(tls|ssl|starttls|none)$/i,
                     patternMessage: 'Email encryption must be tls, ssl, starttls, or none.'
                 });
                 validatePlainText(errors, 'email_username', 'SMTP username', {
-                    required: true,
+                    required: smtpSelected,
                     min: 3,
                     max: 255,
                     pattern: /^[^\s<>]+$/,
                     patternMessage: 'SMTP username must not contain spaces or unsafe characters.'
                 });
-                validateSecretField(errors, 'email_password', 'SMTP password', { required: true, min: 8, max: 255 });
-                validateEmailField(errors, 'email_from_address', 'From address', true);
+                validateSecretField(errors, 'email_password', 'SMTP password', { required: smtpSelected, min: 8, max: 255 });
+                validateSecretField(errors, 'email_api_key', 'Email provider API key', { required: apiMailers.includes(emailMailer), min: 8, max: 1000 });
+                validateEmailField(errors, 'email_from_address', 'From address', emailMailer !== 'log');
                 validatePlainText(errors, 'email_from_name', 'From name', {
                     required: true,
                     min: 2,
