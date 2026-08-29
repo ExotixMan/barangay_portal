@@ -868,3 +868,267 @@ opacity: .38 !important;
             .modal[id^="viewResidentModal"] .view-tabs { display: grid; grid-template-columns: 1fr 1fr; }
             .modal[id^="viewResidentModal"] .view-tabs .nav-link { width: 100%; }
         }
+
+
+/* =========================================================
+   RESIDENTS TABLE — RESPONSIVE / BROWSER-ZOOM OVERRIDES
+   Keeps the table inside its card at medium widths and turns
+   each row into a readable card below the Bootstrap lg point.
+   ========================================================= */
+
+.residency-table-card,
+.residency-table-card .card-body {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.residency-table-card .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+}
+
+#residentsTable {
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 860px !important;
+    table-layout: auto;
+}
+
+/* Compress the desktop table as zoom reduces the CSS viewport. */
+@media (max-width: 1199.98px) {
+    #residentsTable {
+        min-width: 760px !important;
+    }
+
+    #residentsTable th,
+    #residentsTable td {
+        padding-left: .65rem !important;
+        padding-right: .65rem !important;
+    }
+
+    #residentsTable .application-primary {
+        min-width: 175px;
+        gap: .55rem;
+    }
+
+    #residentsTable .application-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+    }
+
+    #residentsTable .info-stack {
+        min-width: 110px;
+    }
+
+    #residentsTable .resident-address-cell {
+        width: 175px;
+        min-width: 150px;
+        max-width: 190px;
+    }
+
+    #residentsTable .action-btn.action-primary {
+        min-width: 36px !important;
+        padding: 0 .48rem !important;
+    }
+}
+
+/* At tablet/high-browser-zoom widths, use cards instead of a wide table. */
+@media (max-width: 991.98px) {
+    .residency-table-card {
+        overflow: visible;
+    }
+
+    .residency-table-card .table-responsive {
+        overflow: visible !important;
+        padding: .7rem;
+        background: #f8fafc;
+    }
+
+    #residentsTable {
+        display: block;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        border-collapse: separate;
+    }
+
+    #residentsTable thead {
+        display: none;
+    }
+
+    #residentsTable tbody {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: .75rem;
+        width: 100%;
+    }
+
+    #residentsTable tbody tr {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .7rem .9rem;
+        width: 100%;
+        padding: .9rem;
+        background: var(--card, #fff);
+        border: 1px solid var(--line, #e5e7eb);
+        border-radius: 16px;
+        box-shadow: var(--shadow-xs, 0 1px 2px rgba(15, 23, 42, .05));
+        overflow: visible;
+    }
+
+    #residentsTable tbody tr:hover {
+        background: var(--card, #fff);
+    }
+
+    #residentsTable tbody td {
+        display: block;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: 0 !important;
+        border: 0 !important;
+        text-align: left !important;
+        overflow: visible;
+    }
+
+    /* Selection checkbox */
+    #residentsTable tbody td:nth-child(1) {
+        position: absolute;
+        top: .9rem;
+        right: .9rem;
+        z-index: 2;
+        width: auto !important;
+    }
+
+    /* Resident identity spans the full card width. */
+    #residentsTable tbody td:nth-child(2) {
+        grid-column: 1 / -1;
+        padding-right: 2.2rem !important;
+    }
+
+    /* Contact / address sit side-by-side when there is room. */
+    #residentsTable tbody td:nth-child(3),
+    #residentsTable tbody td:nth-child(4),
+    #residentsTable tbody td:nth-child(5),
+    #residentsTable tbody td:nth-child(6) {
+        padding-top: .65rem !important;
+        border-top: 1px solid var(--line, #e5e7eb) !important;
+    }
+
+    #residentsTable tbody td:nth-child(3)::before,
+    #residentsTable tbody td:nth-child(4)::before,
+    #residentsTable tbody td:nth-child(5)::before,
+    #residentsTable tbody td:nth-child(6)::before {
+        display: block;
+        margin-bottom: .38rem;
+        color: var(--muted, #667085);
+        font-size: .64rem;
+        font-weight: 850;
+        line-height: 1.2;
+        letter-spacing: .065em;
+        text-transform: uppercase;
+    }
+
+    #residentsTable tbody td:nth-child(3)::before { content: "Contact"; }
+    #residentsTable tbody td:nth-child(4)::before { content: "Personal / Address"; }
+    #residentsTable tbody td:nth-child(5)::before { content: "Status / Verification"; }
+    #residentsTable tbody td:nth-child(6)::before { content: "Actions"; }
+
+    #residentsTable .application-primary,
+    #residentsTable .info-stack,
+    #residentsTable .resident-address,
+    #residentsTable .resident-address-cell {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    #residentsTable .resident-address-text {
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+    }
+
+    #residentsTable .status-cell {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    #residentsTable .action-buttons {
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+        min-width: 0 !important;
+        gap: .4rem !important;
+    }
+
+    #residentsTable .action-btn.action-primary {
+        width: auto !important;
+        min-width: 38px !important;
+        padding: 0 .55rem !important;
+    }
+
+    #residentsTable .action-label {
+        display: inline !important;
+    }
+
+    #residentsTable .resident-action-menu {
+        max-width: min(285px, calc(100vw - 2rem));
+    }
+}
+
+/* One-column cards on phones and very high browser zoom. */
+@media (max-width: 575.98px) {
+    .residency-table-card .table-responsive {
+        padding: .5rem;
+    }
+
+    #residentsTable tbody tr {
+        grid-template-columns: minmax(0, 1fr);
+        gap: .65rem;
+        padding: .8rem;
+        border-radius: 14px;
+    }
+
+    #residentsTable tbody td:nth-child(2),
+    #residentsTable tbody td:nth-child(3),
+    #residentsTable tbody td:nth-child(4),
+    #residentsTable tbody td:nth-child(5),
+    #residentsTable tbody td:nth-child(6) {
+        grid-column: 1 / -1;
+    }
+
+    #residentsTable tbody td:nth-child(1) {
+        top: .8rem;
+        right: .8rem;
+    }
+
+    #residentsTable .application-primary {
+        align-items: flex-start;
+    }
+
+    #residentsTable .action-buttons {
+        width: 100%;
+    }
+
+    #residentsTable .action-btn.action-primary {
+        width: 38px !important;
+        min-width: 38px !important;
+        padding: 0 !important;
+    }
+
+    #residentsTable .action-label {
+        display: none !important;
+    }
+
+    #residentsTable .resident-action-menu {
+        width: min(285px, calc(100vw - 1.5rem));
+        min-width: 0;
+    }
+}
