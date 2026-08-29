@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Install system packages
+# Install system packages, including LibreOffice for DOCX -> PDF conversion.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
@@ -10,7 +10,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libzip-dev \
     libpq-dev \
+    libreoffice-writer \
+    libreoffice-core \
+    libreoffice-common \
+    fonts-dejavu-core \
+    fonts-liberation \
+    fontconfig \
     && rm -rf /var/lib/apt/lists/*
+
+# Tell Laravel exactly where LibreOffice is installed.
+ENV LIBREOFFICE_BINARY=/usr/bin/soffice
+
+# Fail the image build immediately if LibreOffice was not installed correctly.
+RUN command -v soffice && soffice --headless --version
 
 # Install PHP extensions
 RUN docker-php-ext-install \
