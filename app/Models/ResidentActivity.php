@@ -15,10 +15,8 @@ class ResidentActivity extends Model
         'description'
     ];
 
-    // If you have timestamps
     public $timestamps = true;
 
-    // Relationship with Resident
     public function resident()
     {
         return $this->belongsTo(Residents::class, 'residents_id');

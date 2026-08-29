@@ -1,0 +1,198 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.4;
+            font-size: 12px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #C62828;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #C62828;
+            margin-bottom: 3px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header h1 i {
+            font-size: 18px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .details {
+            margin: 15px 0;
+        }
+
+        .details h3 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            color: #C62828;
+        }
+
+        .detail-row {
+            display: flex;
+            margin: 3px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+            width: 140px;
+            font-size: 12px;
+        }
+
+        .detail-value {
+            color: #444;
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .qr-code img {
+            width: 100px;
+            height: 100px;
+            margin: 5px auto;
+            display: block;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background: white;
+        }
+
+        .qr-code p {
+            margin: 3px 0;
+            font-size: 11px;
+        }
+
+        .instructions {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .instructions h3 {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #C62828;
+            font-size: 13px;
+            margin: 0 0 8px 0;
+        }
+
+        .instructions h3 i {
+            font-size: 12px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #FF9800;
+            border: 1px solid #FFE0B2;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #2196F3;
+            border: 1px solid #BBDEFB;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #4CAF50;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-claimed {
+            background: #d4edda;
+            color: #4CAF50;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #F44336;
+            border: 1px solid #FFCDD2;
+        }
+
+        .step {
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        .important-note {
+            margin-top: 8px;
+            padding: 6px 8px;
+            background: #fff3cd;
+            border-left: 3px solid #C62828;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 9px;
+            border-top: 1px solid #eee;
+            padding-top: 6px;
+        }
+
+        .footer p {
+            margin: 2px 0;
+        }
+
+        .location-info {
+            margin-top: 8px;
+            font-size: 10px;
+        }
+
+        .location-info strong {
+            color: #333;
+        }
+
+        @page {
+            size: 8.5in 11in;
+            margin: 0.3in;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                font-size: 11px;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            * {
+                page-break-inside: avoid !important;
+            }
+        }

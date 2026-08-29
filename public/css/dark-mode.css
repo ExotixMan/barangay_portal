@@ -1,9 +1,3 @@
-/* ============================================================
-   BARANGAY PORTAL - COMPREHENSIVE DARK MODE STYLESHEET
-   Applicable to ALL public-facing pages
-   ============================================================ */
-
-/* ===== CSS VARIABLES ===== */
 :root {
     --dm-bg-primary: #ffffff;
     --dm-bg-secondary: #f8f9fa;
@@ -20,8 +14,7 @@
     --dm-shadow: rgba(0,0,0,0.08);
 }
 
-body.dark-mode {
-    --dm-bg-primary: #121212;
+body.dark-mode {--dm-bg-primary: #121212;
     --dm-bg-secondary: #1a1a1a;
     --dm-bg-tertiary: #2d2d2d;
     --dm-text-primary: #e8e8e8;
@@ -33,16 +26,11 @@ body.dark-mode {
     --dm-input-bg: #2d2d2d;
     --dm-accent: #e53935;
     --dm-accent-light: #4a1a1a;
-    --dm-shadow: rgba(0,0,0,0.3);
-}
+    --dm-shadow: rgba(0,0,0,0.3);}
 
-/* ===== BODY & GLOBAL ===== */
-body.dark-mode {
-    background-color: var(--dm-bg-primary) !important;
-    color: var(--dm-text-primary) !important;
-}
+body.dark-mode {background-color: var(--dm-bg-primary) !important;
+    color: var(--dm-text-primary) !important;}
 
-/* ===== NAVBAR ===== */
 body.dark-mode .navbar {
     background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -104,9 +92,8 @@ body.dark-mode .navbar-toggler {
     }
 }
 
-/* ===== HERO SECTION ===== */
 body.dark-mode .hero {
-    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('/Images/homepage-bg.jpg');
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url("/Images/homepage-bg.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -157,7 +144,6 @@ body.dark-mode .hero-stats .stat-item {
     border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* ===== SECTION HEADERS ===== */
 body.dark-mode .section-title {
     color: var(--dm-accent);
 }
@@ -178,7 +164,6 @@ body.dark-mode .section-subtitle {
     color: var(--dm-text-secondary);
 }
 
-/* ===== QUICK ACCESS (Index) ===== */
 body.dark-mode .quick-access {
     background: var(--dm-bg-secondary);
 }
@@ -197,7 +182,6 @@ body.dark-mode .quick-card p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== ANNOUNCEMENTS & EVENTS (Index) ===== */
 body.dark-mode .announcements-events {
     background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
 }
@@ -270,7 +254,6 @@ body.dark-mode .dot.active {
     background: var(--dm-accent);
 }
 
-/* ===== ANNOUNCEMENT PAGE ===== */
 body.dark-mode .featured-section {
     background: var(--dm-bg-primary);
 }
@@ -364,7 +347,6 @@ body.dark-mode .sort-dropdown select option {
     color: var(--dm-text-primary);
 }
 
-/* ===== ABOUT SECTION (Index) ===== */
 body.dark-mode .about-section {
     background: linear-gradient(135deg, #1a1a1a 0%, #121212 100%);
 }
@@ -399,7 +381,6 @@ body.dark-mode .image-overlay {
     background: linear-gradient(135deg, var(--dm-accent), #d32f2f);
 }
 
-/* ===== SERVICES & COMMUNITY (Index) ===== */
 body.dark-mode .services-community {
     background: var(--dm-accent);
 }
@@ -442,7 +423,6 @@ body.dark-mode .snc-links {
     color: var(--dm-accent);
 }
 
-/* ===== REPORT & CONTACT (Index) ===== */
 body.dark-mode .report-contact {
     background: var(--dm-bg-secondary);
 }
@@ -471,7 +451,6 @@ body.dark-mode .report-type:hover {
     color: var(--dm-text-primary);
 }
 
-/* ===== SERVICES PAGE ===== */
 body.dark-mode .services-overview {
     background: var(--dm-bg-secondary);
 }
@@ -553,7 +532,6 @@ body.dark-mode .additional-card p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== CONTACTS PAGE ===== */
 body.dark-mode .section-bg {
     background: var(--dm-bg-secondary) !important;
 }
@@ -593,9 +571,6 @@ body.dark-mode .contact-form-card {
     border-color: var(--dm-border-color);
 }
 
-body.dark-mode .form-header p {
-    color: var(--dm-text-secondary);
-}
 
 body.dark-mode .departments-section {
     background: var(--dm-bg-primary);
@@ -626,7 +601,6 @@ body.dark-mode .success-message p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== HISTORY PAGE ===== */
 body.dark-mode .introduction-section {
     background: var(--dm-bg-primary);
 }
@@ -688,7 +662,6 @@ body.dark-mode .heritage-card p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== OFFICIALS PAGE ===== */
 body.dark-mode .captain-section {
     background: var(--dm-bg-secondary);
 }
@@ -778,7 +751,6 @@ body.dark-mode .org-box {
     border-color: var(--dm-border-color);
 }
 
-/* ===== EVENTS PAGE ===== */
 body.dark-mode .filter-section {
     background: var(--dm-bg-secondary);
 }
@@ -875,7 +847,6 @@ body.dark-mode .empty-state p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== CLEARANCE / RESIDENCY / INDIGENCY PAGES ===== */
 body.dark-mode .process-steps {
     background: var(--dm-bg-secondary);
 }
@@ -932,7 +903,6 @@ body.dark-mode .step-circle.completed {
     color: #ffffff;
 }
 
-/* ===== INCIDENT / BLOTTER PAGE ===== */
 body.dark-mode .action-cards-section {
     background: var(--dm-bg-secondary);
 }
@@ -1021,7 +991,6 @@ body.dark-mode .no-reports p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== TRACK REQUEST PAGE ===== */
 body.dark-mode .track-form-section {
     background: var(--dm-bg-secondary);
 }
@@ -1036,9 +1005,7 @@ body.dark-mode .form-header h2 {
     color: var(--dm-text-primary);
 }
 
-body.dark-mode .form-header p {
-    color: var(--dm-text-secondary);
-}
+body.dark-mode .form-header p {color: var(--dm-text-secondary);}
 
 body.dark-mode .track-result-section {
     background: var(--dm-bg-secondary);
@@ -1071,9 +1038,6 @@ body.dark-mode .progress-timeline h3 {
     color: var(--dm-text-primary);
 }
 
-body.dark-mode .timeline::before {
-    background: var(--dm-border-color);
-}
 
 body.dark-mode .status-card {
     background: var(--dm-card-bg);
@@ -1167,7 +1131,6 @@ body.dark-mode .no-requests .sub-text {
     color: var(--dm-text-muted);
 }
 
-/* ===== MISSION & VISION PAGE ===== */
 body.dark-mode .mission-vision-section {
     background: var(--dm-bg-secondary);
 }
@@ -1228,7 +1191,6 @@ body.dark-mode .quote-card blockquote {
     color: var(--dm-text-primary);
 }
 
-/* ===== FAQ SECTION ===== */
 body.dark-mode .faq-section {
     background: var(--dm-bg-primary);
 }
@@ -1267,7 +1229,6 @@ body.dark-mode .faq-answer p {
     color: var(--dm-text-secondary);
 }
 
-/* ===== FOOTER ===== */
 body.dark-mode footer {
     background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
 }
@@ -1334,7 +1295,6 @@ body.dark-mode .copyright-info p {
     color: var(--dm-text-muted);
 }
 
-/* ===== FAB & BACK TO TOP ===== */
 body.dark-mode .fab-action {
     background: #333333 !important;
     color: #ffffff !important;
@@ -1353,7 +1313,6 @@ body.dark-mode .back-to-top {
     background: var(--dm-accent) !important;
 }
 
-/* ===== CHAT MODAL ===== */
 body.dark-mode .chat-modal-content {
     background: var(--dm-card-bg);
     border-color: var(--dm-border-color);
@@ -1367,9 +1326,6 @@ body.dark-mode .chat-modal-close:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* ===== BOOTSTRAP COMPONENTS ===== */
-
-/* Forms */
 body.dark-mode .form-control {
     background-color: var(--dm-input-bg);
     border-color: var(--dm-border-color);
@@ -1432,7 +1388,6 @@ body.dark-mode .input-group-text {
     color: var(--dm-text-secondary);
 }
 
-/* Cards */
 body.dark-mode .card {
     background-color: var(--dm-card-bg);
     border-color: var(--dm-border-color);
@@ -1453,7 +1408,6 @@ body.dark-mode .card-footer {
     border-top-color: var(--dm-border-color);
 }
 
-/* Tables */
 body.dark-mode .table {
     color: var(--dm-text-primary);
     --bs-table-bg: transparent;
@@ -1479,7 +1433,6 @@ body.dark-mode .table-hover > tbody > tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Modals */
 body.dark-mode .modal-content {
     background-color: var(--dm-card-bg);
     border-color: var(--dm-border-color);
@@ -1502,7 +1455,6 @@ body.dark-mode .btn-close {
     filter: invert(1);
 }
 
-/* Pagination */
 body.dark-mode .pagination .page-link {
     background-color: var(--dm-bg-tertiary);
     border-color: #444444;
@@ -1526,7 +1478,6 @@ body.dark-mode .pagination .page-item.disabled .page-link {
     border-color: #333333;
 }
 
-/* Alerts */
 body.dark-mode .alert {
     border-color: var(--dm-border-color);
 }
@@ -1555,7 +1506,6 @@ body.dark-mode .alert-info {
     border-color: rgba(33, 150, 243, 0.3);
 }
 
-/* Badges */
 body.dark-mode .badge.bg-secondary {
     background-color: #444444 !important;
 }
@@ -1565,7 +1515,6 @@ body.dark-mode .badge.bg-light {
     color: var(--dm-text-primary) !important;
 }
 
-/* Buttons */
 body.dark-mode .btn-outline-secondary {
     color: var(--dm-text-secondary);
     border-color: var(--dm-border-color);
@@ -1582,7 +1531,6 @@ body.dark-mode .btn-light {
     color: var(--dm-text-primary);
 }
 
-/* Borders */
 body.dark-mode .border-top {
     border-top-color: var(--dm-border-color) !important;
 }
@@ -1595,7 +1543,6 @@ body.dark-mode .border {
     border-color: var(--dm-border-color) !important;
 }
 
-/* Backgrounds */
 body.dark-mode .bg-light {
     background-color: var(--dm-bg-secondary) !important;
 }
@@ -1608,7 +1555,6 @@ body.dark-mode .bg-secondary {
     background-color: #444444 !important;
 }
 
-/* Text */
 body.dark-mode .text-dark {
     color: var(--dm-text-primary) !important;
 }
@@ -1621,7 +1567,6 @@ body.dark-mode .text-secondary {
     color: var(--dm-text-secondary) !important;
 }
 
-/* No results / Empty state */
 body.dark-mode .no-results {
     background: var(--dm-bg-tertiary);
 }
@@ -1638,7 +1583,6 @@ body.dark-mode .no-results p {
     color: var(--dm-text-secondary);
 }
 
-/* Breadcrumbs */
 body.dark-mode .breadcrumb {
     background-color: var(--dm-bg-tertiary);
 }
@@ -1651,7 +1595,6 @@ body.dark-mode .breadcrumb-item.active {
     color: var(--dm-text-secondary);
 }
 
-/* Accordion */
 body.dark-mode .accordion-item {
     background-color: var(--dm-card-bg);
     border-color: var(--dm-border-color);
@@ -1672,13 +1615,11 @@ body.dark-mode .accordion-body {
     color: var(--dm-text-secondary);
 }
 
-/* Tooltips & Popovers */
 body.dark-mode .tooltip-inner {
     background-color: #2d2d2d;
     color: var(--dm-text-primary);
 }
 
-/* ===== AUTH PAGES (LOGIN / REGISTER / VERIFY) ===== */
 body.dark-mode .login-container,
 body.dark-mode .verify-card,
 body.dark-mode .otp-card,
@@ -1764,7 +1705,6 @@ body.dark-mode .btn-back:hover {
     color: #ffffff !important;
 }
 
-/* ===== FORMS / REVIEW / SUBMIT ===== */
 body.dark-mode .form-page-header {
     color: #f3f3f3 !important;
 }
@@ -1869,7 +1809,6 @@ body.dark-mode .notice-modal-section {
     border-color: var(--dm-border-color) !important;
 }
 
-/* ===== INDIGENCY PAGE TUNING ===== */
 body.dark-mode .benefits-section,
 body.dark-mode .benefits-section .container,
 body.dark-mode .requirements-section,
@@ -1902,7 +1841,6 @@ body.dark-mode .notice-content p {
     color: var(--dm-text-secondary) !important;
 }
 
-/* ===== TRACK REQUEST PAGE TUNING ===== */
 body.dark-mode .track-form-card,
 body.dark-mode .result-card,
 body.dark-mode .status-card,
@@ -1934,9 +1872,7 @@ body.dark-mode .input-wrapper .form-control {
     color: var(--dm-text-primary) !important;
 }
 
-body.dark-mode .timeline::before {
-    background: #3f3f3f !important;
-}
+body.dark-mode .timeline::before {background: #3f3f3f !important;}
 
 body.dark-mode .timeline-item.pending .timeline-marker {
     background: #3a3a3a !important;
@@ -1996,7 +1932,6 @@ body.dark-mode .quick-link-card:hover .link-arrow {
     color: #ffffff !important;
 }
 
-/* ===== ANNOUNCEMENT PAGE TUNING ===== */
 body.dark-mode .featured-section,
 body.dark-mode .announcements-grid-section {
     background: var(--dm-bg-secondary) !important;
@@ -2026,7 +1961,6 @@ body.dark-mode .section-header p {
     color: var(--dm-text-primary) !important;
 }
 
-/* Announcement action buttons in dark mode */
 body.dark-mode .read-more-btn,
 body.dark-mode .view-btn {
     background: linear-gradient(135deg, var(--dm-accent), #b71c1c) !important;
@@ -2041,7 +1975,6 @@ body.dark-mode .view-btn:hover {
     box-shadow: 0 8px 22px rgba(229, 57, 53, 0.35) !important;
 }
 
-/* ===== EVENTS PAGE TUNING ===== */
 body.dark-mode .upcoming-events,
 body.dark-mode .ongoing-projects,
 body.dark-mode .filter-section {
@@ -2076,7 +2009,6 @@ body.dark-mode .info-modal .modal-body p {
     color: var(--dm-text-secondary) !important;
 }
 
-/* Events/Projects action buttons in dark mode */
 body.dark-mode .event-btn,
 body.dark-mode .detail-btn {
     background: transparent !important;
@@ -2092,7 +2024,6 @@ body.dark-mode .detail-btn:hover {
     box-shadow: 0 8px 22px rgba(229, 57, 53, 0.35) !important;
 }
 
-/* ===== PROFILE PAGE TUNING ===== */
 body.dark-mode .profile-layout,
 body.dark-mode .profile-hero::before {
     background: var(--dm-bg-primary) !important;
@@ -2154,7 +2085,6 @@ body.dark-mode .popover {
     border-color: var(--dm-border-color);
 }
 
-/* Scrollbar */
 body.dark-mode ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -2173,7 +2103,6 @@ body.dark-mode ::-webkit-scrollbar-thumb:hover {
     background: #555555;
 }
 
-/* ===== FORM PAGES (clearance_form, residency_form, indigency_form, incident_form) ===== */
 body.dark-mode .form-page-header h1 {
     color: #ffffff;
 }
@@ -2192,7 +2121,6 @@ body.dark-mode .form-note {
     color: var(--dm-text-muted);
 }
 
-/* ===== SMOOTH TRANSITIONS ===== */
 body,
 body *,
 .navbar,
@@ -2207,7 +2135,6 @@ footer,
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Exclude elements that shouldn't transition (performance) */
 body.dark-mode img,
 body.dark-mode video,
 body.dark-mode iframe,
@@ -2219,7 +2146,6 @@ body.dark-mode .fab {
     transition: none !important;
 }
 
-/* ===== FORM FLOATING LABELS FIX ===== */
 body.dark-mode .form-floating > label {
     color: var(--dm-text-secondary) !important;
 }
@@ -2229,7 +2155,6 @@ body.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label {
     color: var(--dm-accent) !important;
 }
 
-/* ===== PRIVACY CHECKBOX ROW FIX ===== */
 body.dark-mode .privacy-check-row {
     background: rgba(229, 57, 53, 0.08) !important;
     border-color: rgba(229, 57, 53, 0.25) !important;

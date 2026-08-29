@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ── 1. Knowledge base ─────────────────────────────────────
+        
         Schema::create('chatbot_knowledge', function (Blueprint $table) {
             $table->id();
             $table->text('question');
@@ -20,7 +20,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // ── 2. Conversations ──────────────────────────────────────
         Schema::create('chatbot_conversations', function (Blueprint $table) {
             $table->id();
             $table->uuid('session_id')->unique();
@@ -28,11 +27,10 @@ return new class extends Migration
             $table->timestamp('ended_at')->nullable();
         });
 
-        // ── 3. Messages ───────────────────────────────────────────
         Schema::create('chatbot_messages', function (Blueprint $table) {
             $table->id();
             $table->uuid('session_id')->index();
-            $table->string('role', 10);   // 'user' | 'bot'
+            $table->string('role', 10);   
             $table->text('content');
             $table->boolean('matched')->default(false);
             $table->foreignId('knowledge_id')
@@ -42,7 +40,6 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
         });
 
-        // ── 4. Unmatched queries (for training) ───────────────────
         Schema::create('chatbot_unmatched', function (Blueprint $table) {
             $table->id();
             $table->text('query');
@@ -51,7 +48,6 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
         });
 
-        // ── Seed default eGovernance FAQs ─────────────────────────
         DB::table('chatbot_knowledge')->insert([
             [
                 'question'    => 'How do I request a Barangay Clearance?',

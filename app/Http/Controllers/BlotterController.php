@@ -39,7 +39,6 @@ class BlotterController extends Controller
             'complainantAddress' => 'required|string|max:255',
             'complainantEmail' => 'required|email',
 
-            // RESPONDENT OPTIONAL
             'respondentName' => 'nullable|string|max:255',
             'respondentContact' => 'nullable|string|max:11',
             'respondentAddress' => 'nullable|string|max:255',
@@ -47,7 +46,6 @@ class BlotterController extends Controller
 
             'confidentiality' => 'required|string',
 
-            // EVIDENCE OPTIONAL
             'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
             'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200',
             'documents.*' => 'nullable|mimes:pdf,doc,docx|max:5120',
@@ -57,7 +55,6 @@ class BlotterController extends Controller
 
         try {
 
-            // generate reference number
             $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
 
             $report = BlotterReport::create([
@@ -82,7 +79,6 @@ class BlotterController extends Controller
                 'status' => 'processing',
             ]);
 
-            // save witnesses
             if ($request->witnesses) {
                 foreach ($request->witnesses as $w) {
                     if (!empty($w['name']) || !empty($w['statement'])) {
@@ -96,7 +92,6 @@ class BlotterController extends Controller
                 }
             }
 
-            // handle uploads
             $this->uploadFiles($request, $report);
 
             DB::commit();
@@ -133,7 +128,7 @@ class BlotterController extends Controller
 
     private function uploadFiles(Request $request, BlotterReport $report)
     {
-        // PHOTOS
+        
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
 
@@ -150,7 +145,6 @@ class BlotterController extends Controller
             }
         }
 
-        // VIDEOS
         if ($request->hasFile('videos')) {
             foreach ($request->file('videos') as $video) {
 
@@ -167,7 +161,6 @@ class BlotterController extends Controller
             }
         }
 
-        // DOCUMENTS
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $doc) {
 

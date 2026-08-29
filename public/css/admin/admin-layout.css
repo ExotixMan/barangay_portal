@@ -1,5 +1,5 @@
 :root {
-            /* Values are supplied by resources/views/partials/theme-colors.blade.php. */
+
             --theme-primary: var(--saved-theme-primary, #d32f2f);
             --theme-secondary: var(--saved-theme-secondary, #b71c1c);
             --primary: var(--theme-primary);
@@ -38,7 +38,7 @@
 
         body {
             margin: 0;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background: var(--page-bg);
             color: var(--text);
             overflow-x: hidden;
@@ -114,7 +114,7 @@
         }
 
         .alert-danger li::before {
-            content: '';
+            content: "";
             position: absolute;
             left: 0;
             top: .78rem;
@@ -124,7 +124,6 @@
             border-radius: 999px;
         }
 
-        /* HERO */
         .admin-hero {
             position: relative;
             overflow: hidden;
@@ -137,7 +136,7 @@
         }
 
         .admin-hero::before {
-            content: '';
+            content: "";
             position: absolute;
             inset: 0;
             background:
@@ -204,7 +203,6 @@
             gap: .6rem;
         }
 
-        /* KPI CARDS */
         .admin-stats,
         .admin-page > .row.g-3.g-lg-4.mb-4 {
             display: grid !important;
@@ -296,7 +294,6 @@
             border-color: #fed7aa;
         }
 
-        /* PANELS */
         .card,
         .admin-filter-card,
         .admin-table-card {
@@ -467,7 +464,6 @@
             accent-color: var(--primary);
         }
 
-        /* BUTTONS */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -583,7 +579,6 @@
             font-size: .82rem;
         }
 
-        /* TABLE */
         .admin-table-card .card-body { background: #ffffff; }
 
         .admin-table-head {
@@ -721,7 +716,6 @@
             border-color: var(--primary);
         }
 
-        /* EMPTY */
         .empty-state-icon {
             width: 64px;
             height: 64px;
@@ -733,7 +727,6 @@
             font-size: 1.35rem;
         }
 
-        /* MODALS */
         .modal-backdrop.show { opacity: .38; }
 
         .modal-dialog {
@@ -939,11 +932,7 @@
 
             .page-title {
                 display: none;
-                /* min-width: 0;
-                font-size: 1.02rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis; */
+
             }
 
             .title-icon,
@@ -1029,10 +1018,9 @@
             .admin-hero-icon { width: 40px; height: 40px; }
             .input-group { display: grid; grid-template-columns: 44px 1fr; }
             .input-group .btn { grid-column: 1 / -1; border-radius: 12px !important; margin-top: .55rem; }
-            .input-group .form-control { border-radius: 0 12px 12px 0 !important; width: 100%; max-width: 100%; } 
+            .input-group .form-control { border-radius: 0 12px 12px 0 !important; width: 100%; max-width: 100%; }
         }
 
-/* Reusable stat icon tones */
 .stat-icon-success {
     color: var(--success) !important;
     background: var(--success-soft) !important;
@@ -1063,10 +1051,6 @@
         display: none;
     }
 }
-
-/* =========================================================
-   ACCESSIBILITY FONT SIZE
-   ========================================================= */
 
 html[data-font-size="small"] {
     font-size: 62%;
@@ -1151,7 +1135,6 @@ html[data-font-size="x-large"] {
     font-variant-numeric: tabular-nums;
 }
 
-/* Dark-mode compatibility */
 html[data-theme="dark"] .admin-font-controls,
 html.dark-mode .admin-font-controls {
     background: var(--card);

@@ -6,29 +6,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-/**
- * LIVE DATABASE LOOKUP LAYER
- * ─────────────────────────
- * Answers safe public/database-backed questions before AI fallback.
- *
- * Supported from current schema:
- * - Request tracking by reference_number
- * - Latest published announcements
- * - Upcoming events
- * - Latest barangay projects
- *
- * Privacy rule:
- * Never expose resident private fields, uploaded ID paths, OTPs, passwords,
- * contacts, email addresses, birthdates, addresses, or admin-only data here.
- */
+
 class DatabaseLookupService
 {
     private const LIMIT = 3;
 
-    /**
-     * Tables that are safe to search by Reference Number.
-     * These tables exist in the provided backup.sql.
-     */
+    
     private array $trackingTables = [
         [
             'table' => 'barangay_clearances',
@@ -101,7 +84,7 @@ class DatabaseLookupService
                 ->where('u.status', 'active')
                 ->whereNull('u.deleted_at')
 
-                // Exclude roles that should not appear in public chatbot
+                
                 ->whereRaw("
                     LOWER(COALESCE(r.name, '')) NOT IN (?, ?, ?)
                     AND LOWER(COALESCE(r.display_name, '')) NOT IN (?, ?, ?)
@@ -392,25 +375,12 @@ class DatabaseLookupService
     {
         $upper = strtoupper(trim($message));
 
-        /*
-        |--------------------------------------------------------------------------
-        | Barangay reference formats
-        |--------------------------------------------------------------------------
-        | Supports:
-        | RES-20260328220122-W4Z0
-        | IND-2026-P9FBWE
-        | BL-2026-69C7EABA1E276
-        | BC-2026-KLUGBZ
-        */
+        
         if (preg_match('/\b(?:RES|IND|BL|BC)[-_][0-9]{4,20}[-_][A-Z0-9]{3,50}\b/', $upper, $matches)) {
             return str_replace('_', '-', $matches[0]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fallback for similar future reference formats
-        |--------------------------------------------------------------------------
-        */
+        
         if (preg_match('/\b[A-Z]{2,10}[-_][0-9]{4,20}[-_][A-Z0-9]{3,50}\b/', $upper, $matches)) {
             return str_replace('_', '-', $matches[0]);
         }

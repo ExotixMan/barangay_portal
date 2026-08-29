@@ -14,8 +14,7 @@
     <div class="d-flex align-items-center gap-3 min-w-0">
         <button type="button"
                 class="mobile-menu-btn"
-                aria-label="Open navigation"
-                onclick="toggleMobileSidebar()">
+                aria-label="Open navigation">
             <i class="fas fa-bars"></i>
         </button>
 
@@ -203,35 +202,24 @@
 </header>
 
 @if ($adminUser)
-    <script>
-        window.adminNotificationConfig = {
-            adminId: @json($adminUser->getKey()),
-
-            feedUrl: @json(
-                route('admin.notifications.feed', [], false)
-            ),
-
-            readAllUrl: @json(
-                route('admin.notifications.read-all', [], false)
-            ),
-
-            readUrlTemplate: @json(
-                route(
+    @include('shared.js-config', [
+    'id' => 'js-config-admin-layouts-header-1',
+    'data' => [
+        'v1' => $adminUser->getKey(),
+        'v2' => route('admin.notifications.feed', [], false),
+        'v3' => route('admin.notifications.read-all', [], false),
+        'v4' => route(
                     'admin.notifications.read',
                     ['notification' => '__NOTIFICATION_ID__'],
                     false
-                )
-            ),
-
-            openUrlTemplate: @json(
-                route(
+                ),
+        'v5' => route(
                     'admin.notifications.open',
                     ['notification' => '__NOTIFICATION_ID__'],
                     false
-                )
-            ),
-
-            csrfToken: @json(csrf_token())
-        };
-    </script>
+                ),
+        'v6' => csrf_token(),
+    ],
+])
+<script src="{{ asset('js/pages/admin/layouts/header-dynamic1.js') }}"></script>
 @endif

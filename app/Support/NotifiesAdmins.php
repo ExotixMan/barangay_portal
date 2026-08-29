@@ -30,11 +30,9 @@ trait NotifiesAdmins
                 );
             }
 
-            /** @var Model $adminModel */
             $adminModel = new $adminModelClass();
             $query = $adminModelClass::query();
 
-            // Apply the active filter only when the admin table actually has it.
             if (Schema::hasColumn($adminModel->getTable(), 'status')) {
                 $query->where(function ($statusQuery) {
                     $statusQuery
@@ -60,7 +58,7 @@ trait NotifiesAdmins
                 )
             );
         } catch (Throwable $e) {
-            // A notification problem must never cancel a resident submission.
+            
             report($e);
         }
     }

@@ -15,7 +15,6 @@ class ProjectController extends Controller
     {
         $query = Project::query();
 
-        // Search
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -25,7 +24,6 @@ class ProjectController extends Controller
             });
         }
 
-        // Status filter
         if ($request->status && in_array($request->status, ['ongoing', 'completed', 'deleted'], true)) {
             if ($request->status === 'deleted') {
                 $query->onlyTrashed();
@@ -34,7 +32,6 @@ class ProjectController extends Controller
             }
         }
 
-        // Progress range filter
         if ($request->progress) {
             switch ($request->progress) {
                 case '0-25':
@@ -52,7 +49,6 @@ class ProjectController extends Controller
             }
         }
 
-        // Date range filters (optional)
         if ($request->from_date) {
             $query->whereDate('start_date', '>=', $request->from_date);
         }
@@ -61,13 +57,11 @@ class ProjectController extends Controller
             $query->whereDate('expected_completion', '<=', $request->to_date);
         }
 
-        // Stats
         $total_count = Project::withTrashed()->count();
         $ongoing_count = Project::where('status', 'ongoing')->count();
         $completed_count = Project::where('status', 'completed')->count();
         $avg_progress = round(Project::avg('progress') ?? 0);
 
-        // Sorting
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['title', 'location', 'start_date', 'expected_completion', 'status', 'progress', 'created_at'];
@@ -91,7 +85,7 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
         $data = $request->validate([
@@ -109,7 +103,7 @@ class ProjectController extends Controller
         try {
             Project::create($data);
 
-            return redirect()->route('admin.projects.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.projects.index') 
                 ->with('success', 'Project created successfully.');
 
         } catch (\Exception $e) {
@@ -120,7 +114,7 @@ class ProjectController extends Controller
 
     public function update(Request $request, int $id)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'edit_' . $id);
 
         $project = Project::findOrFail($id);
@@ -140,7 +134,7 @@ class ProjectController extends Controller
         try {
             $project->update($data);
 
-            return redirect()->route('admin.projects.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.projects.index') 
                 ->with('success', 'Project updated successfully.');
 
         } catch (\Exception $e) {

@@ -14,7 +14,6 @@ class EventController extends Controller
     {
         $query = Event::query();
 
-        // Search
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -24,7 +23,6 @@ class EventController extends Controller
             });
         }
 
-        // Type filter (upcoming/past)
         if ($request->type && in_array($request->type, ['upcoming', 'past', 'deleted'], true)) {
             if ($request->type === 'deleted') {
                 $query->onlyTrashed();
@@ -33,23 +31,19 @@ class EventController extends Controller
             }
         }
 
-        // Month filter
         if ($request->month) {
             $query->whereMonth('event_date', $request->month);
         }
 
-        // Year filter (optional)
         if ($request->year) {
             $query->whereYear('event_date', $request->year);
         }
 
-        // Stats
         $total_count = Event::withTrashed()->count();
         $upcoming_count = Event::where('type', 'upcoming')->count();
         $past_count = Event::where('type', 'past')->count();
         $total_attendees = Event::sum('attendees');
 
-        // Sorting
         $sort = $request->get('sort', 'event_date');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['title', 'event_date', 'location', 'attendees', 'type', 'created_at'];
@@ -73,7 +67,7 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
         $data = $request->validate([
@@ -89,7 +83,7 @@ class EventController extends Controller
         ]);
 
         try {
-            // Handle image upload
+            
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
@@ -97,7 +91,6 @@ class EventController extends Controller
                 $data['image'] = 'uploads/events/' . $imageName;
             }
 
-            // Set default attendees if not provided
             if (!isset($data['attendees'])) {
                 $data['attendees'] = 0;
             }
@@ -115,7 +108,7 @@ class EventController extends Controller
 
     public function update(Request $request, int $id)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'edit_' . $id);
 
         $event = Event::findOrFail($id);
@@ -133,9 +126,9 @@ class EventController extends Controller
         ]);
 
         try {
-            // Handle image upload
+            
             if ($request->hasFile('image')) {
-                // Delete old image
+                
                 if ($event->image && file_exists(public_path($event->image))) {
                     unlink(public_path($event->image));
                 }
@@ -148,7 +141,7 @@ class EventController extends Controller
 
             $event->update($data);
 
-            return redirect()->route('admin.events.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.events.index') 
                 ->with('success', 'Event updated successfully.');
 
         } catch (\Exception $e) {

@@ -10,7 +10,6 @@ class Announcement extends Model
 {
     use SoftDeletes;
 
-
     protected $fillable = [
         'title',
         'slug',
@@ -46,7 +45,6 @@ class Announcement extends Model
             return asset('Images/logo.png');
         }
 
-        // Normalize Windows-style paths stored with backslashes.
         $normalized = str_replace('\\', '/', $image);
 
         if (Str::startsWith($normalized, ['http://', 'https://', '//'])) {

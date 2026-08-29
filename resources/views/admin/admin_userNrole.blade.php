@@ -11,7 +11,6 @@
 @section('content')
             <div class="users-page">
 
-            <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show users-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
@@ -31,7 +30,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-
 
             <section class="users-hero">
                 <div class="users-hero-content">
@@ -54,7 +52,6 @@
                 </div>
             </section>
 
-            <!-- Stats Cards -->
             <div class="row g-3 g-lg-4 mb-4 users-stats-row">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
@@ -114,28 +111,25 @@
                 </div>
             </div>
 
-            <!-- Tab Navigation -->
             <div class="tab-navigation">
-                <button class="tab-link active" onclick="switchTab('users', event)">
+                <button class="tab-link active" data-click-call="switchTab" data-click-pass="args,event" data-click-args='["users"]'>
                     <i class="fas fa-users me-2"></i>Users
                 </button>
-                <button class="tab-link" onclick="switchTab('roles', event)">
+                <button class="tab-link" data-click-call="switchTab" data-click-pass="args,event" data-click-args='["roles"]'>
                     <i class="fas fa-shield-alt me-2"></i>Roles
                 </button>
                 @admin_can('view_permissions')
-                <button class="tab-link" onclick="switchTab('permissions', event)">
+                <button class="tab-link" data-click-call="switchTab" data-click-pass="args,event" data-click-args='["permissions"]'>
                     <i class="fas fa-lock me-2"></i>Permissions
                 </button>
                 @endadmin_can
-                <button class="tab-link" onclick="switchTab('audit', event)">
+                <button class="tab-link" data-click-call="switchTab" data-click-pass="args,event" data-click-args='["audit"]'>
                     <i class="fas fa-clipboard-list me-2"></i>Audit Logs
                 </button>
             </div>
 
-            <!-- USERS TAB -->
             <div id="usersTab" class="tab-content active">
 
-                <!-- Filters and Actions -->
                 <div class="users-panel mb-4">
                     <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm">
                         <input type="hidden" name="tab" value="users">
@@ -204,7 +198,6 @@
                     </form>
                 </div>
 
-                <!-- Users Table -->
                 <div class="card border-0 users-table-panel">
                     <div class="card-body p-0">
                         <div class="users-table-header">
@@ -229,7 +222,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th width="50" class="ps-4">
-                                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                            <input type="checkbox" id="selectAll" data-click-call="toggleSelectAll">
                                         </th>
                                         <th>User</th>
                                         <th>Email</th>
@@ -274,40 +267,36 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="d-flex gap-1 gap-sm-2 justify-content-end">
-                                                <!-- View (everyone with view_users can view) -->
+
                                                 <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewUserModal{{ $user->id }}" title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
 
-                                                <!-- Edit (requires update_users permission) -->
                                                 @admin_can('update_users')
                                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="Edit User">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 @endadmin_can
 
-                                                <!-- Permissions (requires manage_user_permissions permission) -->
                                                 @admin_can('manage_user_permissions')
                                                 <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#userPermissionsModal{{ $user->id }}" title="Manage Permissions">
                                                     <i class="fas fa-shield-alt"></i>
                                                 </button>
                                                 @endadmin_can
 
-                                                <!-- Reset Password (requires reset_user_password permission) -->
                                                 @admin_can('reset_user_password')
-                                                <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}" style="display: inline;" id="resetPasswordForm_{{ $user->id }}" onsubmit="return confirmResetPassword(event, this, '{{ $user->first_name }} {{ $user->last_name }}')">
+                                                <form method="POST" action="{{ route('admin.users.reset-password', $user->id) }}" style="display: inline;" id="resetPasswordForm_{{ $user->id }}" data-submit-call="confirmResetPassword" data-submit-pass="event,self,args" data-submit-args="{{ json_encode([trim($user->first_name . ' ' . $user->last_name)]) }}">
                                                     @csrf
                                                     <input type="hidden" name="new_password" id="new_password_{{ $user->id }}" value="">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning" title="Reset Password" 
-                                                            onclick="promptNewPassword('{{ $user->id }}', '{{ $user->first_name }} {{ $user->last_name }}')">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" title="Reset Password"
+                                                            data-click-call="promptNewPassword" data-click-args="{{ json_encode([$user->id, trim($user->first_name . ' ' . $user->last_name)]) }}">
                                                         <i class="fas fa-key"></i>
                                                     </button>
                                                 </form>
                                                 @endadmin_can
 
-                                                <!-- Delete (only for non-super-admin and if user has delete_users permission) -->
                                                 @if($user->role->name != 'super_admin' && auth('admin')->user()->hasPermission('delete_users'))
-                                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" style="display: inline;" onsubmit="return confirmDelete(event, 'Delete this user permanently?')">
+                                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" style="display: inline;" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Delete this user permanently?']) }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
@@ -335,7 +324,6 @@
                             </table>
                         </div>
 
-                        <!-- Pagination -->
                         @if(isset($users) && $users->total() > 0)
                         <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                             <small class="text-muted order-2 order-md-1">
@@ -351,7 +339,6 @@
                 </div>
             </div>
 
-            <!-- ROLES TAB -->
             <div id="rolesTab" class="tab-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-semibold mb-0">
@@ -402,7 +389,7 @@
                                 @empty
                                     <div class="permission-item text-muted"><i class="fas fa-info-circle me-2"></i>No permissions configured</div>
                                 @endforelse
-                                
+
                                 @if($role->permissions->count() > 5)
                                 <div class="permission-item text-muted">
                                     <i class="fas fa-ellipsis-h me-2"></i>and {{ $role->permissions->count() - 5 }} more...
@@ -439,7 +426,6 @@
                 </div>
             </div>
 
-            <!-- PERMISSIONS TAB -->
             @admin_can('view_permissions')
             <div id="permissionsTab" class="tab-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -456,7 +442,7 @@
                             @if($selectedRole)
                                 <input type="hidden" name="role_id" value="{{ $selectedRole->id }}">
                             @endif
-                            <button type="submit" class="btn btn-outline-secondary" onclick="return confirmReset()">
+                            <button type="submit" class="btn btn-outline-secondary" data-click-call="confirmReset">
                                 <i class="fas fa-undo me-2"></i>Reset Defaults
                             </button>
                         </form>
@@ -464,7 +450,6 @@
                     </div>
                 </div>
 
-                <!-- Role Selection Form -->
                 <form method="GET" action="{{ route('admin.users.index') }}" id="selectRoleForm">
                     <input type="hidden" name="tab" value="permissions">
                     <div class="card border-0 mb-4">
@@ -472,7 +457,7 @@
                             <div class="row align-items-center">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Select Role to Configure</label>
-                                    <select name="role_id" class="form-select" onchange="this.form.submit()">
+                                    <select name="role_id" class="form-select" data-submit-parent-form>
                                         <option value="">Choose a role...</option>
                                         @foreach($roles as $role)
                                             <option value="{{ $role->id }}" {{ $selectedRole && $selectedRole->id == $role->id ? 'selected' : '' }}>
@@ -493,13 +478,12 @@
                 </form>
 
                 @if($selectedRole)
-                    <!-- Current Role Indicator -->
+
                     <div class="alert alert-info d-flex align-items-center mb-4">
                         <i class="fas fa-info-circle me-2 fs-5"></i>
                         <div>Currently configuring permissions for: <strong>{{ $selectedRole->display_name }}</strong></div>
                     </div>
 
-                    <!-- Super Admin Warning -->
                     @if($selectedRole->name === 'super_admin')
                         <div class="alert alert-warning d-flex align-items-center mb-4">
                             <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
@@ -507,13 +491,12 @@
                         </div>
                     @endif
 
-                    <!-- Permissions Form -->
                     <form method="POST" action="{{ route('admin.roles.permissions.update', $selectedRole->id) }}" id="permissionsForm">
                         @csrf
                         <div class="permissions-grid">
                             @foreach($allPermissions as $module => $permissions)
                             <div class="permission-module" data-module="{{ $module }}">
-                                <div class="module-header"> 
+                                <div class="module-header">
                                     <h4>
                                         @switch($module)
                                             @case('dashboard')
@@ -570,9 +553,9 @@
                                 <div class="module-permissions">
                                     @foreach($permissions as $permission)
                                     <div class="perm-item">
-                                        <input type="checkbox" 
-                                            name="permissions[]" 
-                                            value="{{ $permission->id }}" 
+                                        <input type="checkbox"
+                                            name="permissions[]"
+                                            value="{{ $permission->id }}"
                                             id="perm_{{ $permission->id }}"
                                             {{ in_array($permission->id, $selectedRolePermissionIds) ? 'checked' : '' }}
                                             {{ ($selectedRole->name === 'super_admin' || !auth('admin')->user()->hasPermission('manage_role_permissions')) ? 'disabled' : '' }}>
@@ -602,7 +585,6 @@
             </div>
             @endadmin_can
 
-            <!-- AUDIT LOGS TAB -->
             <div id="auditTab" class="tab-content">
                 <div class="card border-0 mb-4">
                     <div class="card-body">
@@ -776,7 +758,6 @@
                 </div>
             </div>
 
-            <!-- ADD USER MODAL -->
             @admin_can('create_users')
             <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -872,7 +853,6 @@
             </div>
             @endadmin_can
 
-            <!-- RESET PASSWORD MODAL -->
             @admin_can('reset_user_password')
                 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                     <div class="modal-dialog modal-dialog-centered">
@@ -902,8 +882,8 @@
                                         <label class="form-label">New Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" name="password" id="resetPassword" required minlength="8"
-                                                   onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
-                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPassword')">
+                                                   data-no-spaces>
+                                            <button class="btn btn-outline-secondary" type="button" data-click-call="togglePasswordVisibility" data-click-args='["resetPassword"]'>
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
@@ -914,8 +894,8 @@
                                         <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" name="password_confirmation" id="resetPasswordConfirm" required
-                                                   onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
-                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('resetPasswordConfirm')">
+                                                   data-no-spaces>
+                                            <button class="btn btn-outline-secondary" type="button" data-click-call="togglePasswordVisibility" data-click-args='["resetPasswordConfirm"]'>
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
@@ -949,7 +929,6 @@
                 </div>
             @endadmin_can
 
-            <!-- ADD ROLE MODAL -->
             @admin_can('create_roles')
             <div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1011,12 +990,12 @@
                                         <h6 class="fw-semibold text-primary">Assign Permissions</h6>
                                         <p class="text-muted small">Select the permissions this role should have</p>
                                     </div>
-                                    
+
                                     <div class="col-12">
                                         @php
                                             $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
                                         @endphp
-                                        
+
                                         @foreach($allPermissions as $module => $permissions)
                                             <div class="permission-module mb-3">
                                                 <div class="module-header">
@@ -1099,7 +1078,6 @@
             </div>
             @endadmin_can
 
-            <!-- VIEW USER MODALS (Sample for each user) -->
             @forelse($users ?? [] as $user)
             <div class="modal fade" id="viewUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -1182,7 +1160,6 @@
             @empty
             @endforelse
 
-            <!-- EDIT USER MODALS -->
             @if(auth('admin')->user()->hasPermission('update_users'))
                 @forelse($users ?? [] as $user)
                 <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1279,7 +1256,6 @@
                 @endforelse
             @endif
 
-            <!-- USER PERMISSIONS MODALS -->
             @if(auth('admin')->user()->hasPermission('manage_user_permissions'))
                 @forelse($users ?? [] as $user)
                 <div class="modal fade" id="userPermissionsModal{{ $user->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1320,7 +1296,7 @@
                                         @php
                                             $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
                                         @endphp
-                                        
+
                                         @foreach($allPermissions as $module => $permissions)
                                         <div class="permission-module">
                                             <div class="module-header">
@@ -1409,7 +1385,6 @@
                 @endforelse
             @endif
 
-            <!-- EDIT ROLE MODAL -->
             @if(auth('admin')->user()->hasPermission('update_roles'))
                 @if(isset($roles) && $roles->count() > 0)
                     @foreach($roles as $role)
@@ -1439,8 +1414,8 @@
 
                                             <div class="col-12 col-md-6">
                                                 <label class="form-label">Role Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                                    name="name" value="{{ old('name', $role->name) }}" 
+                                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                                    name="name" value="{{ old('name', $role->name) }}"
                                                     {{ $role->is_system_role ? 'readonly' : '' }} required>
                                                 @error('name')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1450,7 +1425,7 @@
 
                                             <div class="col-12 col-md-6">
                                                 <label class="form-label">Display Name</label>
-                                                <input type="text" class="form-control @error('display_name') is-invalid @enderror" 
+                                                <input type="text" class="form-control @error('display_name') is-invalid @enderror"
                                                     name="display_name" value="{{ old('display_name', $role->display_name) }}">
                                                 @error('display_name')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1459,7 +1434,7 @@
 
                                             <div class="col-12">
                                                 <label class="form-label">Description</label>
-                                                <textarea class="form-control @error('description') is-invalid @enderror" 
+                                                <textarea class="form-control @error('description') is-invalid @enderror"
                                                         name="description" rows="2">{{ old('description', $role->description) }}</textarea>
                                                 @error('description')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -1471,13 +1446,13 @@
                                                 <h6 class="fw-semibold text-primary">Role Permissions</h6>
                                                 <p class="text-muted small">Configure which permissions this role should have</p>
                                             </div>
-                                            
+
                                             <div class="col-12">
                                                 @php
                                                     $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
                                                     $rolePermissionIds = $role->permissions->pluck('id')->toArray();
                                                 @endphp
-                                                
+
                                                 @foreach($allPermissions as $module => $permissions)
                                                     <div class="permission-module mb-3">
                                                         <div class="module-header">
@@ -1532,8 +1507,8 @@
                                                                 @foreach($permissions as $permission)
                                                                 <div class="perm-check">
                                                                     <label>
-                                                                        <input type="checkbox" 
-                                                                            name="permissions[]" 
+                                                                        <input type="checkbox"
+                                                                            name="permissions[]"
                                                                             value="{{ $permission->id }}"
                                                                             {{ in_array($permission->id, $rolePermissionIds) ? 'checked' : '' }}>
                                                                         {{ $permission->display_name }}
@@ -1564,7 +1539,6 @@
                 @endif
             @endif
 
-            <!-- VIEW ROLE MEMBERS MODAL -->
             @if(auth('admin')->user()->hasAnyPermission(['manage_role_permissions', 'view_users']))
                 @if(isset($roles) && $roles->count() > 0)
                     @foreach($roles as $role)
@@ -1631,9 +1605,9 @@
                                                     </td>
                                                     @if(auth('admin')->user()->hasPermission('manage_role_permissions'))
                                                     <td class="text-end">
-                                                        <form method="POST" action="{{ route('admin.roles.members.remove', [$role->id, $user->id]) }}" 
-                                                              style="display: inline;" 
-                                                              onsubmit="return confirmDelete(event, 'Remove this user from the role?')">
+                                                        <form method="POST" action="{{ route('admin.roles.members.remove', [$role->id, $user->id]) }}"
+                                                              style="display: inline;"
+                                                              data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Remove this user from the role?']) }}">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from role">
@@ -1666,7 +1640,6 @@
                         </div>
                     </div>
 
-                    <!-- ADD MEMBER TO ROLE MODAL -->
                     @if(auth('admin')->user()->hasPermission('manage_role_permissions'))
                     <div class="modal fade" id="addMemberToRoleModal{{ $role->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
@@ -1688,7 +1661,7 @@
                                                 @foreach($allUsers ?? [] as $user)
                                                     @if(!$role->users->contains($user->id))
                                                     <option value="{{ $user->id }}">
-                                                        {{ $user->first_name }} {{ $user->last_name }} 
+                                                        {{ $user->first_name }} {{ $user->last_name }}
                                                         ({{ $user->email }}) - {{ $user->department ?? 'No Department' }}
                                                     </option>
                                                     @endif
@@ -1721,748 +1694,45 @@
 
 @push('scripts')
 @if ($errors->any() && session('form_type') == 'add_role')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tabLinks = document.querySelectorAll('.tab-link');
-            tabLinks.forEach(link => {
-                if (link.textContent.toLowerCase().includes('roles')) {
-                    link.click();
-                }
-            });
-
-            const modalEl = document.getElementById('addRoleModal');
-            if (modalEl) {
-                new bootstrap.Modal(modalEl).show();
-            }
-        });
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const userSearch = document.getElementById('globalSearch');
-            if (!userSearch) return;
-
-            document.addEventListener('keydown', function(event) {
-                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-                    event.preventDefault();
-                    userSearch.focus();
-                    userSearch.select();
-                }
-            });
-        });
-
-    </script>
+    <script src="{{ asset('js/pages/admin/admin_userNrole-part1.js') }}"></script>
     @endif
 
     @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_role_'))
         @php
             $editRoleId = str_replace('edit_role_', '', session('form_type'));
         @endphp
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const tabLinks = document.querySelectorAll('.tab-link');
-                tabLinks.forEach(link => {
-                    if (link.textContent.toLowerCase().includes('roles')) {
-                        link.click();
-                    }
-                });
-
-                const modalEl = document.getElementById('editRoleModal{{ $editRoleId }}');
-                if (modalEl) {
-                    new bootstrap.Modal(modalEl).show();
-                }
-            });
-        </script>
+        @include('shared.js-config', [
+    'id' => 'js-config-admin-admin-usernrole-1',
+    'data' => [
+        'v1' => e($editRoleId),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_userNrole-dynamic1.js') }}"></script>
     @endif
 
     @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'user_permissions_'))
         @php
             $permissionsUserId = str_replace('user_permissions_', '', session('form_type'));
         @endphp
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const tabLinks = document.querySelectorAll('.tab-link');
-                tabLinks.forEach(link => {
-                    if (link.textContent.toLowerCase().includes('users')) {
-                        link.click();
-                    }
-                });
-
-                const modalEl = document.getElementById('userPermissionsModal{{ $permissionsUserId }}');
-                if (modalEl) {
-                    new bootstrap.Modal(modalEl).show();
-                }
-            });
-        </script>
+        @include('shared.js-config', [
+    'id' => 'js-config-admin-admin-usernrole-2',
+    'data' => [
+        'v1' => e($permissionsUserId),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_userNrole-dynamic2.js') }}"></script>
     @endif
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-            window.isStrongPassword = function(value) {
-            return value.length >= 8
-                && /[A-Z]/.test(value)
-                && /[a-z]/.test(value)
-                && /[0-9]/.test(value)
-                && /[^A-Za-z0-9]/.test(value);
-            };
+    <script src="{{ asset('js/pages/admin/admin_userNrole-part2.js') }}"></script>
 
-        function sf(el, msg) {
-            if (!el) return;
-            el.classList.add('is-invalid');
-            let fb = el.parentElement.querySelector('.invalid-feedback');
-                if (!fb) {
-                    fb = document.createElement('div');
-                    fb.className = 'invalid-feedback';
-                    fb.dataset.generated = 'true';
-                    el.insertAdjacentElement('afterend', fb);
-                }
-            fb.textContent = msg;
-        }
-            function cf(el) {
-                if (!el) return;
-                el.classList.remove('is-invalid');
-                const fb = el.parentElement.querySelector('.invalid-feedback[data-generated="true"]');
-                if (fb) {
-                    fb.remove();
-                }
-            }
+    @include('shared.js-config', [
+    'id' => 'js-config-admin-users-roles',
+    'data' => [
+        'passwordResetSuccess' => session('success') && str_contains(session('success'), 'Password reset') ? session('success') : null,
+        'passwordError' => session('error') && str_contains(session('error'), 'password') ? session('error') : null,
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_userNrole-main.js') }}"></script>
 
-        // --- User form validation (shared for add + edit) ---
-        function attachUserValidation(form) {
-            if (!form) return;
-            const firstName = form.querySelector('[name="first_name"]');
-            const middleInitial = form.querySelector('[name="middle_initial"]');
-            const lastName  = form.querySelector('[name="last_name"]');
-            const email     = form.querySelector('[name="email"]');
-            const contact   = form.querySelector('[name="contact_number"]');
-            const username  = form.querySelector('[name="username"]');
-            const password  = form.querySelector('[name="password"]');
-            const roleId    = form.querySelector('[name="role_id"]');
-
-            const namePattern = /^[a-zA-Z\s\-\.]+$/;
-            const middleInitialPattern = /^[A-Za-z]\.?$/;
-
-            if (firstName) {
-                firstName.addEventListener('input', function() { cf(this); }, {once: true});
-                firstName.addEventListener('input', function() {
-                    const v = this.value.trim();
-                    if (!v) sf(this, 'First name is required.');
-                    else if (v.length < 2) sf(this, 'First name must be at least 2 characters.');
-                    else if (!namePattern.test(v)) sf(this, 'First name can only contain letters, spaces, hyphens, or periods.');
-                    else cf(this);
-                });
-            }
-            if (lastName) {
-                lastName.addEventListener('input', function() { cf(this); }, {once: true});
-                lastName.addEventListener('input', function() {
-                    const v = this.value.trim();
-                    if (!v) sf(this, 'Last name is required.');
-                    else if (v.length < 2) sf(this, 'Last name must be at least 2 characters.');
-                    else if (!namePattern.test(v)) sf(this, 'Last name can only contain letters, spaces, hyphens, or periods.');
-                    else cf(this);
-                });
-            }
-            if (middleInitial) {
-                middleInitial.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^A-Za-z\.]/g, '').slice(0, 3).toUpperCase();
-                    const v = this.value.trim();
-                    if (!v) cf(this);
-                    else if (!middleInitialPattern.test(v)) sf(this, 'Middle initial must be one letter, optional period (e.g. A or A.).');
-                    else cf(this);
-                });
-            }
-            if (email) {
-                email.addEventListener('input', function() { cf(this); }, {once: true});
-                email.addEventListener('input', function() {
-                    const v = this.value.trim();
-                    if (!v) sf(this, 'Email is required.');
-                    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) sf(this, 'Enter a valid email address.');
-                    else cf(this);
-                });
-            }
-            if (contact) {
-                contact.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-                    if (this.value.length > 0) {
-                        if (!this.value.startsWith('09')) sf(this, 'Contact must start with 09.');
-                        else if (this.value.length !== 11) sf(this, 'Contact must be exactly 11 digits.');
-                        else cf(this);
-                    } else cf(this);
-                });
-            }
-            if (username) {
-                username.addEventListener('input', function() { cf(this); }, {once: true});
-                username.addEventListener('input', function() {
-                    const v = this.value.trim();
-                    if (!v) sf(this, 'Username is required.');
-                    else if (v.length < 3) sf(this, 'Username must be at least 3 characters.');
-                    else if (!/^[a-zA-Z0-9_.\-]+$/.test(v)) sf(this, 'Username can only contain letters, numbers, underscores, dots, or hyphens.');
-                    else cf(this);
-                });
-            }
-            if (password) {
-                password.addEventListener('input', function() { cf(this); }, {once: true});
-                password.addEventListener('input', function() {
-                    if (!this.value) sf(this, 'Password is required.');
-                    else if (!window.isStrongPassword(this.value)) sf(this, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.');
-                    else cf(this);
-                });
-            }
-            if (roleId) roleId.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Please select a role.'); else cf(this);
-            });
-
-            form.addEventListener('submit', function(e) {
-                let valid = true;
-                if (firstName) {
-                    const v = firstName.value.trim();
-                    if (!v) { sf(firstName, 'First name is required.'); valid = false; }
-                    else if (v.length < 2) { sf(firstName, 'First name must be at least 2 characters.'); valid = false; }
-                    else if (!namePattern.test(v)) { sf(firstName, 'First name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
-                }
-                if (lastName) {
-                    const v = lastName.value.trim();
-                    if (!v) { sf(lastName, 'Last name is required.'); valid = false; }
-                    else if (v.length < 2) { sf(lastName, 'Last name must be at least 2 characters.'); valid = false; }
-                    else if (!namePattern.test(v)) { sf(lastName, 'Last name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
-                }
-                if (middleInitial) {
-                    const v = middleInitial.value.trim();
-                    if (v && !middleInitialPattern.test(v)) {
-                        sf(middleInitial, 'Middle initial must be one letter, optional period (e.g. A or A.).');
-                        valid = false;
-                    }
-                }
-                if (email) {
-                    const v = email.value.trim();
-                    if (!v) { sf(email, 'Email is required.'); valid = false; }
-                    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { sf(email, 'Enter a valid email address.'); valid = false; }
-                }
-                if (contact && contact.value.length > 0) {
-                    if (!contact.value.startsWith('09') || contact.value.length !== 11) {
-                        sf(contact, 'Contact must be 11 digits starting with 09.'); valid = false;
-                    }
-                }
-                if (username) {
-                    const v = username.value.trim();
-                    if (!v) { sf(username, 'Username is required.'); valid = false; }
-                    else if (v.length < 3) { sf(username, 'Username must be at least 3 characters.'); valid = false; }
-                    else if (!/^[a-zA-Z0-9_.\-]+$/.test(v)) { sf(username, 'Username can only contain letters, numbers, underscores, dots, or hyphens.'); valid = false; }
-                }
-                if (password) {
-                    if (!password.value) { sf(password, 'Password is required.'); valid = false; }
-                    else if (!window.isStrongPassword(password.value)) { sf(password, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.'); valid = false; }
-                }
-                if (roleId && !roleId.value) { sf(roleId, 'Please select a role.'); valid = false; }
-                if (!valid) e.preventDefault();
-            });
-        }
-
-        // --- Reset password form validation ---
-        const resetForm = document.getElementById('resetPasswordForm');
-        if (resetForm) {
-            const pwField    = document.getElementById('resetPassword');
-            const pwConfirm  = document.getElementById('resetPasswordConfirm');
-
-            if (pwField) {
-                pwField.addEventListener('input', function() { cf(this); }, {once: true});
-                pwField.addEventListener('input', function() {
-                    // Remove spaces from password
-                    this.value = this.value.replace(/\s/g, "");
-                    if (!this.value) sf(this, 'Password is required.');
-                    else if (!window.isStrongPassword(this.value)) sf(this, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.');
-                    else cf(this);
-                    if (pwConfirm && pwConfirm.value) {
-                        if (pwConfirm.value !== this.value) sf(pwConfirm, 'Passwords do not match.');
-                        else cf(pwConfirm);
-                    }
-                });
-            }
-            if (pwConfirm) {
-                pwConfirm.addEventListener('input', function() {
-                    // Remove spaces from confirm password
-                    this.value = this.value.replace(/\s/g, "");
-                    if (!this.value) sf(this, 'Please confirm your password.');
-                    else if (pwField && this.value !== pwField.value) sf(this, 'Passwords do not match.');
-                    else cf(this);
-                });
-            }
-            resetForm.addEventListener('submit', function(e) {
-                let valid = true;
-                if (pwField) {
-                    if (!pwField.value) { sf(pwField, 'Password is required.'); valid = false; }
-                    else if (!window.isStrongPassword(pwField.value)) { sf(pwField, 'Password must be 8+ chars with uppercase, lowercase, number, and special character.'); valid = false; }
-                }
-                if (pwConfirm) {
-                    if (!pwConfirm.value) { sf(pwConfirm, 'Please confirm your password.'); valid = false; }
-                    else if (pwField && pwConfirm.value !== pwField.value) { sf(pwConfirm, 'Passwords do not match.'); valid = false; }
-                }
-                if (!valid) e.preventDefault();
-            });
-        }
-
-        // --- Role form validation (shared for add + edit) ---
-        function attachRoleValidation(form) {
-            if (!form) return;
-            const roleName = form.querySelector('[name="name"]');
-
-            if (roleName && !roleName.readOnly) {
-                roleName.addEventListener('input', function() { cf(this); }, {once: true});
-                roleName.addEventListener('input', function() {
-                    const v = this.value.trim();
-                    if (!v) sf(this, 'Role name is required.');
-                    else if (v.length < 2) sf(this, 'Role name must be at least 2 characters.');
-                    else if (/\s/.test(v)) sf(this, 'Role name must not contain spaces.');
-                    else if (!/^[a-z_]+$/.test(v)) sf(this, 'Role name must be lowercase letters and underscores only.');
-                    else cf(this);
-                });
-            }
-
-            form.addEventListener('submit', function(e) {
-                let valid = true;
-                if (roleName && !roleName.readOnly) {
-                    const v = roleName.value.trim();
-                    if (!v) { sf(roleName, 'Role name is required.'); valid = false; }
-                    else if (v.length < 2) { sf(roleName, 'Role name must be at least 2 characters.'); valid = false; }
-                    else if (/\s/.test(v)) { sf(roleName, 'Role name must not contain spaces.'); valid = false; }
-                    else if (!/^[a-z_]+$/.test(v)) { sf(roleName, 'Role name must be lowercase letters and underscores only.'); valid = false; }
-                }
-                if (!valid) e.preventDefault();
-            });
-        }
-
-        // Attach to all user forms
-        attachUserValidation(document.getElementById('addUserForm'));
-        document.querySelectorAll('[id^="editUserForm"]').forEach(attachUserValidation);
-
-        // Attach to all role forms
-        attachRoleValidation(document.getElementById('addRoleForm'));
-        document.querySelectorAll('[id^="editRoleForm"]').forEach(attachRoleValidation);
-    });
-    </script>
-
-    <script>
-        // Add to your existing script section
-        function confirmReset() {
-            return confirm('Are you sure you want to reset all permissions to default values? This action cannot be undone.');
-        }
-
-        // Tab Switching with query parameter
-        function switchTab(tabName, event) {
-            // Remove active class from all tabs and content
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
-            
-            // Add active class to selected tab and content
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            event.currentTarget.classList.add('active');
-            
-            // Update URL with tab parameter (without page reload)
-            const url = new URL(window.location);
-            url.searchParams.set('tab', tabName);
-            window.history.pushState({}, '', url);
-        }
-
-        // Confirm delete with SweetAlert
-        function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: message || 'You won\'t be able to revert this!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, proceed!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-            
-            return false;
-        }
-
-        // Role Actions
-        function editRole(roleId) {
-            Swal.fire({
-                title: 'Edit Role',
-                text: 'Opening role editor for ' + roleId,
-                icon: 'info',
-                confirmButtonColor: '#3085d6'
-            });
-        }
-
-        function viewRoleMembers(roleId) {
-            Swal.fire({
-                title: 'Role Members',
-                text: 'Viewing members of ' + roleId + ' role',
-                icon: 'info',
-                confirmButtonColor: '#3085d6'
-            });
-        }
-
-        // Permissions Actions
-        function savePermissions() {
-            Swal.fire({
-                title: 'Success!',
-                text: 'Permissions saved successfully',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-            });
-        }
-
-        function resetPermissions() {
-            Swal.fire({
-                title: 'Reset Permissions?',
-                text: 'This will reset all permissions to default values',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, reset'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Reset checkboxes logic here
-                    Swal.fire('Reset Complete', 'Permissions have been reset to default', 'success');
-                }
-            });
-        }
-
-        // Function to prompt for new password
-        function promptNewPassword(userId, userName) {
-            Swal.fire({
-                title: 'Reset Password for ' + userName,
-                html: `
-                    <div class="mb-3 text-start">
-                        <label class="form-label">New Password</label>
-                        <input type="password" id="new_password_input" class="form-control" placeholder="Enter new password" minlength="8">
-                        <small class="text-muted">Minimum 8 characters</small>
-                    </div>
-                    <div class="mb-3 text-start">
-                        <label class="form-label">Confirm Password</label>
-                        <input type="password" id="confirm_password_input" class="form-control" placeholder="Confirm new password">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Reset Password',
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                preConfirm: () => {
-                    const password = document.getElementById('new_password_input');
-                    const confirm = document.getElementById('confirm_password_input');
-                    
-                    if (!password || !confirm) {
-                        Swal.showValidationMessage('Error finding input fields');
-                        return false;
-                    }
-                    
-                    if (!password.value) {
-                        Swal.showValidationMessage('Password is required');
-                        return false;
-                    }
-                    if (password.value.length < 8) {
-                        Swal.showValidationMessage('Password must be at least 8 characters');
-                        return false;
-                    }
-                    if (!window.isStrongPassword(password.value)) {
-                        Swal.showValidationMessage('Password must include uppercase, lowercase, number, and special character');
-                        return false;
-                    }
-                    if (password.value !== confirm.value) {
-                        Swal.showValidationMessage('Passwords do not match');
-                        return false;
-                    }
-                    return password.value;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Check if the hidden input exists before setting value
-                    const hiddenInput = document.getElementById('new_password_' + userId);
-                    const form = document.getElementById('resetPasswordForm_' + userId);
-                    
-                    if (hiddenInput && form) {
-                        // Set the password in the hidden input
-                        hiddenInput.value = result.value;
-                        
-                        // Submit the form
-                        form.submit();
-                    } else {
-                        console.error('Form elements not found:', {
-                            hiddenInput: hiddenInput ? 'found' : 'not found',
-                            form: form ? 'found' : 'not found',
-                            userId: userId
-                        });
-                        
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'Could not find form elements. Please try again or refresh the page.',
-                            icon: 'error',
-                            confirmButtonColor: '#3085d6'
-                        });
-                    }
-                }
-            });
-        }
-
-        // Confirm reset password form submission
-        function confirmResetPassword(event, form, userName) {
-            event.preventDefault();
-            
-            const passwordInput = form.querySelector('input[name="new_password"]');
-            
-            if (!passwordInput.value) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Please enter a new password',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-                return false;
-            }
-            
-            Swal.fire({
-                title: 'Reset Password',
-                html: `Are you sure you want to reset password for <strong>${userName}</strong>?<br><br>New password will be: <strong>${passwordInput.value}</strong>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, reset it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-            
-            return false;
-        }
-
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-
-        // Update select all checkbox when individual checkboxes change
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.user-checkbox');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            
-            if (checkboxes.length > 0 && selectAllCheckbox) {
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        
-                        selectAllCheckbox.checked = allChecked;
-                        selectAllCheckbox.indeterminate = !allChecked && anyChecked;
-                    });
-                });
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tab = urlParams.get('tab');
-            
-            if (tab && tab !== 'users') {
-                // Find and click the corresponding tab
-                const tabLinks = document.querySelectorAll('.tab-link');
-                tabLinks.forEach(link => {
-                    if (link.textContent.toLowerCase().includes(tab)) {
-                        link.click();
-                    }
-                });
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const detailButtons = document.querySelectorAll('.view-log-details-btn');
-
-            detailButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const detailsRaw = this.dataset.logDetails || '{}';
-                    let prettyJson = '{}';
-
-                    try {
-                        const parsed = JSON.parse(detailsRaw);
-                        prettyJson = JSON.stringify(parsed, null, 2);
-                    } catch (error) {
-                        prettyJson = detailsRaw;
-                    }
-
-                    const userEl = document.getElementById('auditDetailUser');
-                    const timeEl = document.getElementById('auditDetailTime');
-                    const actionEl = document.getElementById('auditDetailAction');
-                    const moduleEl = document.getElementById('auditDetailModule');
-                    const jsonEl = document.getElementById('auditDetailJson');
-
-                    if (userEl) userEl.textContent = this.dataset.logUser || '-';
-                    if (timeEl) timeEl.textContent = this.dataset.logTime || '-';
-                    if (actionEl) actionEl.textContent = this.dataset.logAction || '-';
-                    if (moduleEl) moduleEl.textContent = this.dataset.logModule || '-';
-                    if (jsonEl) jsonEl.textContent = prettyJson;
-                });
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle password reset success message
-            @if(session('success') && str_contains(session('success'), 'Password reset'))
-                Swal.fire({
-                    title: 'Success!',
-                    text: '{{ session('success') }}',
-                    icon: 'success',
-                    confirmButtonColor: '#28a745',
-                    timer: 5000
-                });
-            @endif
-            
-            @if(session('error') && str_contains(session('error'), 'password'))
-                Swal.fire({
-                    title: 'Error!',
-                    text: '{{ session('error') }}',
-                    icon: 'error',
-                    confirmButtonColor: '#d33'
-                });
-            @endif
-        });
-    </script>
-
-    <script>
-        (function () {
-            'use strict';
-
-            const modalCopy = [
-                ['addUserModal', 'Create an administrator account, assign a role, and set the first login details.'],
-                ['resetPasswordModal', 'Set a secure temporary password and choose whether to send reset instructions.'],
-                ['addRoleModal', 'Create a role with only the permissions needed for that responsibility.'],
-                ['auditLogDetailsModal', 'Review the recorded action, actor, timestamp, module, and stored event details.']
-            ];
-
-            function resolveModalSubtitle(modal) {
-                const id = modal.getAttribute('id') || '';
-
-                for (const [key, copy] of modalCopy) {
-                    if (id === key) return copy;
-                }
-
-                if (id.startsWith('viewUserModal')) {
-                    return 'View account profile, role, contact, and activity information without editing anything.';
-                }
-
-                if (id.startsWith('editUserModal')) {
-                    return 'Update only the account fields that need to change, then save the user record.';
-                }
-
-                if (id.startsWith('userPermissionsModal')) {
-                    return 'Grant or remove direct user permissions. Use search to quickly find a permission.';
-                }
-
-                if (id.startsWith('editRoleModal')) {
-                    return 'Update the role name, description, and permission set for this role.';
-                }
-
-                if (id.startsWith('viewRoleMembersModal')) {
-                    return 'Review the administrator accounts currently assigned to this role.';
-                }
-
-                return 'Review the details below before saving changes.';
-            }
-
-            function enhanceModalHeaders() {
-                document.querySelectorAll('.modal').forEach((modal) => {
-                    const header = modal.querySelector('.modal-header');
-                    const title = modal.querySelector('.modal-title');
-
-                    if (!header || !title || header.querySelector('.ux-modal-subtitle')) {
-                        return;
-                    }
-
-                    const subtitle = document.createElement('p');
-                    subtitle.className = 'ux-modal-subtitle';
-                    subtitle.textContent = resolveModalSubtitle(modal);
-
-                    const closeBtn = header.querySelector('.btn-close');
-                    if (closeBtn) {
-                        header.insertBefore(subtitle, closeBtn);
-                    } else {
-                        header.appendChild(subtitle);
-                    }
-                });
-            }
-
-            function addPermissionSearch() {
-                document.querySelectorAll('.modal').forEach((modal) => {
-                    const id = modal.getAttribute('id') || '';
-                    const hasPermissions = modal.querySelector('.permission-checklist, .module-permissions');
-
-                    if (!hasPermissions || modal.querySelector('.ux-permission-search')) {
-                        return;
-                    }
-
-                    if (!id.includes('Permission') && !id.includes('Role')) {
-                        return;
-                    }
-
-                    const body = modal.querySelector('.modal-body');
-                    if (!body) {
-                        return;
-                    }
-
-                    const modules = Array.from(modal.querySelectorAll('.permission-module'));
-                    const checks = Array.from(modal.querySelectorAll('.perm-check, .perm-item'));
-                    const search = document.createElement('div');
-                    search.className = 'ux-permission-search';
-                    search.innerHTML = `
-                        <div class="users-search-field">
-                            <i class="fas fa-search"></i>
-                            <input type="search" class="form-control ux-permission-input" placeholder="Search permission..." aria-label="Search permissions">
-                        </div>
-                        <span class="users-count-pill"><i class="fas fa-shield-alt"></i>${checks.length} permissions</span>
-                    `;
-
-                    body.insertBefore(search, body.firstElementChild);
-
-                    const input = search.querySelector('.ux-permission-input');
-
-                    input.addEventListener('input', () => {
-                        const query = input.value.trim().toLowerCase();
-
-                        checks.forEach((item) => {
-                            const match = item.textContent.toLowerCase().includes(query);
-                            item.classList.toggle('is-hidden', query !== '' && !match);
-                        });
-
-                        modules.forEach((module) => {
-                            const visible = Array.from(module.querySelectorAll('.perm-check, .perm-item'))
-                                .some((item) => !item.classList.contains('is-hidden'));
-                            module.classList.toggle('is-empty', !visible);
-                        });
-                    });
-                });
-            }
-
-            function keepModalFocusClean() {
-                document.querySelectorAll('.modal').forEach((modal) => {
-                    modal.addEventListener('shown.bs.modal', () => {
-                        const first = modal.querySelector('input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])');
-                        if (first && !modal.querySelector('.ux-permission-input')) {
-                            setTimeout(() => first.focus(), 80);
-                        }
-                    });
-                });
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                enhanceModalHeaders();
-                addPermissionSearch();
-                keepModalFocusClean();
-            });
-        })();
-    </script>
+    <script src="{{ asset('js/pages/admin/admin_userNrole-part3.js') }}"></script>
 @endpush

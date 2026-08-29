@@ -30,7 +30,6 @@
     --radius-sm: 10px;
 }
 
-/* Thin Red Scrollbar Styles */
 .sidebar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -56,7 +55,6 @@
     background: transparent;
 }
 
-/* Firefox support */
 @supports (scrollbar-width: thin) {
     .sidebar {
         scrollbar-width: thin;
@@ -64,12 +62,8 @@
     }
 }
 
-/* Edge/IE fallback */
-.sidebar {
-    -ms-overflow-style: -ms-autohiding-scrollbar;
-}
+.sidebar {-ms-overflow-style: -ms-autohiding-scrollbar;}
 
-/* Thin Red Scrollbar Styles for content tables */
 .table-responsive::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -106,7 +100,6 @@
     -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
-/* Header */
 .header {
     min-height: 70px;
     padding: .9rem 1.5rem;
@@ -159,7 +152,7 @@
     .page-title {
         font-size: 1.2rem;
     }
-    
+
     .page-title i {
         font-size: 1rem;
     }
@@ -182,12 +175,10 @@
     transform: translateY(-2px);
 }
 
-/* Sidebar Styles */
-.sidebar {
-    position: fixed;
+.sidebar {position: fixed;
     top: 0;
     left: 0;
-    height: 100vh; /* changed from 135vh */
+    height: 100vh;
     width: var(--sidebar-width);
     background: white;
     box-shadow: 2px 0 10px rgba(0,0,0,0.05);
@@ -198,10 +189,8 @@
     white-space: nowrap;
 
     display: flex;
-    flex-direction: column;
-}
+    flex-direction: column;}
 
-/* Collapsed Sidebar - ICONS ONLY (Desktop) */
 .sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
     cursor: pointer;
@@ -221,7 +210,7 @@
 .sidebar.collapsed .dropdown-btn {
     justify-content: center;
     padding: 0.875rem 0;
-    /* pointer-events: none; */
+
 }
 
 .sidebar.collapsed .dropdown-btn i:first-child {
@@ -238,7 +227,7 @@
 .sidebar.collapsed a {
     justify-content: center;
     padding: 0.875rem 0;
-    /* pointer-events: none; */
+
 }
 
 .sidebar.collapsed a i {
@@ -268,7 +257,6 @@
     display: block;
 }
 
-/* Mobile Sidebar Styles */
 @media (max-width: 992px) {
     .sidebar {
         transform: translateX(-100%);
@@ -281,7 +269,6 @@
         transform: translateX(0);
     }
 
-    /* Disable collapsed mode on mobile */
     .sidebar.collapsed {
         transform: translateX(-100%);
         width: min(85vw, var(--sidebar-width)) !important;
@@ -291,7 +278,6 @@
         transform: translateX(0);
     }
 
-    /* Override collapsed styles for mobile */
     .sidebar.collapsed .brand-text,
     .sidebar.collapsed .menu-section,
     .sidebar.collapsed .dropdown-btn span,
@@ -411,7 +397,6 @@
     transform: scale(1.1);
 }
 
-/* Menu Items */
 .menu-section {
     padding: 1.5rem 1.5rem 0.5rem;
     font-size: 0.7rem;
@@ -466,7 +451,6 @@
     color: var(--primary);
 }
 
-/* Dropdown Styles */
 .dropdown-btn {
     display: flex;
     align-items: center;
@@ -512,7 +496,6 @@
     border-left-color: var(--primary);
 }
 
-/* Main Content */
 .main-content {
     margin-left: var(--sidebar-width);
     transition: margin-left 0.3s ease;
@@ -525,8 +508,6 @@
     width: calc(100% - var(--sidebar-collapsed-width));
 }
 
-
-/* Mobile Menu Button */
 .mobile-menu-btn {
     display: none;
     background: none;
@@ -537,7 +518,6 @@
     padding: 0.5rem;
 }
 
-/* Mobile Overlay */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -556,7 +536,6 @@
     opacity: 1;
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
     .main-content {
         margin-left: 0;
@@ -664,7 +643,7 @@
     .d-flex.gap-3 {
         flex-wrap: wrap;
     }
-    
+
     .toggle-btn {
         padding: 0.75rem;
         background: var(--primary-light);
@@ -719,7 +698,6 @@
     }
 }
 
-/* Keep profile badge complete on mobile like desktop (name + role visible). */
 @media (max-width: 768px) {
     .header .profile-badge {
         border-radius: 40px !important;
@@ -785,10 +763,6 @@
     }
 }
 
-/* =========================================================
-   SIDEBAR ADMIN PROFILE
-   ========================================================= */
-
 .sidebar-account {
     flex: 0 0 auto;
     width: 100%;
@@ -829,7 +803,6 @@
     font-size: 1.35rem;
 }
 
-/* Important: allows the text area to shrink */
 .sidebar-user-details {
     flex: 1 1 auto;
     width: 0;
@@ -851,10 +824,6 @@
     white-space: nowrap;
 }
 
-/*
- Role is block-level so it appears below the name,
- even though it is currently nested inside sidebar-user-name.
-*/
 .sidebar-user-role {
     display: flex;
     align-items: center;
@@ -919,7 +888,6 @@
     border-color: var(--primary);
 }
 
-/* Collapsed desktop sidebar */
 .sidebar.collapsed .sidebar-user-details,
 .sidebar.collapsed .sidebar-logout-text {
     display: none;
@@ -941,7 +909,6 @@
     height: 38px;
 }
 
-/* Restore complete profile when mobile sidebar opens */
 @media (max-width: 992px) {
     .sidebar.collapsed .sidebar-user-details {
         display: block;

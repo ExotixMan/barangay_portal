@@ -40,43 +40,35 @@ class AdminLoginController extends Controller
         $loginInput = (string) $request->input('login');
         $password = (string) $request->input('password');
 
-        // Email or Username in Admin Login Page
         $loginField = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $credentials = [
             $loginField => $loginInput,
             'password' => $password,
         ];
-        
-        // Use the admin guard
+
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            
-            // is the user admin?
+
             $user = Auth::guard('admin')->user();
-            
-            // Check if user is active
+
             if ($user->status !== 'active') {
                 Auth::guard('admin')->logout();
                 return back()->withErrors([
                     'login' => 'Your account is not active. Please contact administrator.',
                 ])->withInput($request->except('password'));
             }
-            
-            // Update the last_login_at timestamp for accurate login tracking
+
             DB::table('admin_users')->where('id', $user->id)->update(['last_login_at' => now()]);
-            
-            // Store login time in session
+
             $this->storeLoginTime($request);
-            
-            // Log the login activity
+
             $this->logActivity($user, 'LOGIN', 'Authentication', [
                 'email' => $user->email,
                 'username' => $user->username,
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ]);
-            
-            // Redirect based on user's role and permissions
+
             return $this->redirectBasedOnRole($user);
         }
 
@@ -85,18 +77,15 @@ class AdminLoginController extends Controller
         ])->withInput($request->except('password'));
     }
 
-    //Redirect user based on their role and permissions
     protected function redirectBasedOnRole(AdminUser $user)
     {
-        // Load the user's role if relationship exists
+        
         if (method_exists($user, 'load')) {
             $user->load('role');
         }
-        
-        // Get the role name
+
         $roleName = $user->role ? $user->role->name : null;
-        
-        // First, check if user has any specific module permissions
+
         $permissionRoutes = [
             'view_forecast' => 'admin.dashboard.index',
             'view_dashboard' => 'admin.dashboard.index',
@@ -113,11 +102,10 @@ class AdminLoginController extends Controller
             'view_roles' => 'admin.roles.index',
             'view_permissions' => 'admin.permissions.index',
         ];
-        
-        // Check each permission and redirect to the first available
+
         foreach ($permissionRoutes as $permission => $route) {
             if ($this->checkPermission($user, $permission)) {
-                // Log the permission-based redirection
+                
                 $this->logActivity($user, 'REDIRECT', 'Authorization', [
                     'method' => 'permission_based',
                     'permission' => $permission,
@@ -127,76 +115,73 @@ class AdminLoginController extends Controller
                 return redirect()->intended(route($route));
             }
         }
-        
-        // If no specific permissions, try role-based redirection
+
         switch ($roleName) {
             case 'super_admin':
-                // Super admin has full access - go to main dashboard
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'barangay_captain':
-                // Captain can see overall dashboard
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'barangay_secretary':
-                // Secretary focuses on documents and records
+                
                 if ($this->checkPermission($user, 'view_clearance')) {
                     return redirect()->intended(route('admin.clearance.index'));
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'barangay_treasurer':
-                // Treasurer focuses on financial records
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'barangay_kagawad':
-                // Kagawad focuses on their assigned committees
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'records_officer':
-                // Records officer focuses on resident records
+                
                 if ($this->checkPermission($user, 'view_residents')) {
                     return redirect()->intended(route('admin.residents.index'));
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'certificate_encoder':
-                // Certificate encoder focuses on certificate requests
+                
                 if ($this->checkPermission($user, 'view_requests')) {
                     return redirect()->intended(route('admin.request.index'));
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'complaints_officer':
-                // Complaints officer focuses on blotter/complaints
+                
                 if ($this->checkPermission($user, 'view_blotter')) {
                     return redirect()->intended(route('admin.blotter.index'));
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'staff':
-                // General staff - show dashboard
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             case 'viewer':
-                // Viewer - can only view dashboard
+                
                 return redirect()->intended(route('admin.dashboard.index'));
                 
             default:
-                // Default fallback to dashboard
+                
                 return redirect()->intended(route('admin.dashboard.index'));
         }
     }
 
-    // Check if user has a specific permission using your permission system
     protected function checkPermission(AdminUser $user, string $permissionName)
     {
-        // If user is super admin, they have all permissions
+        
         if ($user->role && $user->role->name === 'super_admin') {
             return true;
         }
-        
-        // Check if the user's role has the permission
+
         if ($user->role && method_exists($user->role, 'permissions')) {
             return $user->role->permissions()
                 ->where('name', $permissionName)
@@ -206,7 +191,6 @@ class AdminLoginController extends Controller
         return false;
     }
 
-    // Log user activity using AdminActivityLog model
     protected function logActivity(AdminUser $user, string $action, string $module, array $details = [])
     {
         try {
@@ -223,7 +207,7 @@ class AdminLoginController extends Controller
                 'user_agent' => request()->userAgent()
             ]);
         } catch (\Exception $e) {
-            // Log error but don't interrupt the login process
+            
             Log::error('Failed to log admin activity: ' . $e->getMessage());
         }
     }
@@ -231,8 +215,7 @@ class AdminLoginController extends Controller
     public function logout(Request $request)
     {
         $user = Auth::guard('admin')->user();
-        
-        // Log the logout activity
+
         if ($user) {
             $this->logActivity($user, 'LOGOUT', 'Authentication', [
                 'email' => $user->email,
@@ -248,13 +231,11 @@ class AdminLoginController extends Controller
         return redirect()->route('login');
     }
 
-    // Store login time in session
     protected function storeLoginTime(Request $request)
     {
         $request->session()->put('login_time', now());
     }
 
-    // Calculate session duration
     protected function getSessionDuration(Request $request)
     {
         $loginTime = $request->session()->get('login_time');

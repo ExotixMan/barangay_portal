@@ -27,9 +27,8 @@ class ResidencyController extends Controller
     {
         $query = Residency::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
-        // Search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
@@ -39,7 +38,6 @@ class ResidencyController extends Controller
             });
         }
 
-        // Filter by status - UPDATED to include all statuses
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected', 'archived'];
         if ($request->status && in_array($request->status, $allowedStatuses, true)) {
             if ($request->status === 'archived') {
@@ -49,12 +47,10 @@ class ResidencyController extends Controller
             }
         }
 
-        // Filter by residency type
         if ($request->residency_type && in_array($request->residency_type, ['owner', 'renter', 'family', 'relative', 'boarder'])) {
             $query->where('residency_type', $request->residency_type);
         }
 
-        // UPDATED counts for new statuses
         $total_count = Residency::withTrashed()->count();
         $pending_count = Residency::where('status', 'pending')->count();
         $under_review_count = Residency::where('status', 'under_review')->count();
@@ -64,7 +60,6 @@ class ResidencyController extends Controller
         $claimed_count = Residency::where('status', 'claimed')->count();
         $rejected_count = Residency::where('status', 'rejected')->count();
 
-        // SORTING
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['first_name', 'years_residing', 'created_at'];
@@ -98,7 +93,8 @@ class ResidencyController extends Controller
             ->orderBy('lastname')
             ->get([
                 'id', 'firstname', 'middlename', 'lastname', 'suffix', 'birthdate',
-                'gender', 'address', 'contact', 'email', 'valid_id',
+                'gender', 'civil_status', 'place_of_birth', 'address', 'contact', 'email',
+                'valid_id', 'valid_id_back', 'valid_id_status', 'valid_id_verified',
             ]);
 
         return view('admin.admin_residency', compact(
@@ -117,10 +113,9 @@ class ResidencyController extends Controller
 
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
-        // Normalize phone input (remove spaces/dashes/etc.) before validation.
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
@@ -137,14 +132,15 @@ class ResidencyController extends Controller
                 'last_name' => $selectedResident->lastname,
                 'suffix' => $selectedResident->suffix,
                 'birthdate' => optional($selectedResident->birthdate)->format('Y-m-d'),
-                'gender' => $selectedResident->gender,
+                'gender' => strtolower((string) $selectedResident->gender),
+                'civil_status' => strtolower((string) $selectedResident->civil_status),
+                'birth_place' => $selectedResident->place_of_birth,
                 'address' => $selectedResident->address,
                 'contact_number' => $selectedResident->contact,
                 'email' => $selectedResident->email,
             ]);
         }
 
-        // Validate based on residency applications table schema
         $data = $request->validate([
             'resident_id' => [
                 'nullable',
@@ -170,11 +166,34 @@ class ResidencyController extends Controller
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'government_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'government_id' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'government_id_back' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
+        if ($selectedResident) {
+            $data['user_id'] = $selectedResident->id;
+            if (! $request->hasFile('government_id') && filled($selectedResident->valid_id)) {
+                $data['government_id'] = $selectedResident->valid_id;
+            }
+            if (! $request->hasFile('government_id_back') && filled($selectedResident->valid_id_back)) {
+                $data['government_id_back'] = $selectedResident->valid_id_back;
+            }
+        }
+        unset($data['resident_id']);
+
+        $documentErrors = [];
+        if (! filled($data['government_id'] ?? null)) {
+            $documentErrors['government_id'] = 'Select a resident with a saved front Valid ID or upload the front side.';
+        }
+        if (! filled($data['government_id_back'] ?? null)) {
+            $documentErrors['government_id_back'] = 'Select a resident with a saved back Valid ID or upload the back side.';
+        }
+        if ($documentErrors) {
+            return back()->withInput()->withErrors($documentErrors);
+        }
+
         try {
-            // Upload primary proof
+            
             if ($request->hasFile('primary_proof')) {
                 $prip = $request->file('primary_proof');
                 $prip_ext = $prip->getClientOriginalExtension();
@@ -183,19 +202,24 @@ class ResidencyController extends Controller
                 $data['primary_proof'] = 'uploads/proof_of_residency/' . $prip_name;
             }
 
-            // Upload government ID
             if ($request->hasFile('government_id')) {
                 $gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
-                $gip_name = time() . '_id_' . Str::random(5) . '.' . $gip_ext;
+                $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
                 $gip->move(public_path('uploads/valid_id/residency'), $gip_name);
                 $data['government_id'] = 'uploads/valid_id/residency/' . $gip_name;
             }
 
-            // Generate reference number
+            if ($request->hasFile('government_id_back')) {
+                $gipBack = $request->file('government_id_back');
+                $gipBackExt = $gipBack->getClientOriginalExtension();
+                $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
+                $gipBack->move(public_path('uploads/valid_id/residency'), $gipBackName);
+                $data['government_id_back'] = 'uploads/valid_id/residency/' . $gipBackName;
+            }
+
             $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
-            
-            // Set default status to 'pending' instead of 'processing'
+
             $data['status'] = 'pending';
 
             Residency::create($data);
@@ -209,14 +233,10 @@ class ResidencyController extends Controller
         }
     }
 
-    /**
-     * NEW METHOD: Update status for any application
-     */
     public function updateStatus(Request $request, int $id)
     {
         $application = Residency::findOrFail($id);
-        
-        // Validate status
+
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
@@ -228,10 +248,8 @@ class ResidencyController extends Controller
         $oldStatus = $application->status;
         $remarks = trim((string) $request->input('remarks', ''));
 
-        // Optional: Add business logic rules for status transitions
-        // For example, prevent certain transitions if needed
         
-        // Update status and timestamp
+
         $application->status = $newStatus;
         $application->status_updated_at = now();
         $application->save();
@@ -249,7 +267,6 @@ class ResidencyController extends Controller
 
         $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
-        // Log approval/status update
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -267,7 +284,6 @@ class ResidencyController extends Controller
             ]);
         }
 
-        // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
         $deliverySummary = $this->formatDeliverySummary($deliveryResults);
@@ -388,48 +404,42 @@ class ResidencyController extends Controller
             'civil_status', 'email', 'contact_number', 'address', 'years_residing', 'residency_type',
             'household_members', 'purpose', 'purpose_other'
         ]);
-        
-        // Store form type in session with application ID
+
         session()->flash('form_type', 'edit_' . $application->id);
 
-        // Normalize phone input (remove spaces/dashes/etc.) before validation.
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
-        // Validate based on residency applications table schema
         $data = $request->validate([
-            // Personal Information
+            
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:50',
             'birthdate' => 'required|date|before:today',
             'birth_place' => 'required|string|max:500',
-            'gender' => 'required|in:male,female,other',
-            'civil_status' => 'required|in:single,married,widowed,separated',
+            'gender' => 'required|in:male,female,other,prefer not to say',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
 
-            // Contact Information
             'email' => 'required|email|max:255',
             'contact_number' => 'required|string|max:11|regex:/^09[0-9]{9}$/',
             'address' => 'required|string',
 
-            // Residency Details
             'years_residing' => 'required|in:less1,1-3,3-5,5-10,10-20,20+',
             'residency_type' => 'required|in:owner,renter,family,relative,boarder',
             'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
 
-            // Purpose
             'purpose' => 'required|in:government,school,employment,legal,bank,scholarship,pwd,senior,other',
             'purpose_other' => 'nullable|required_if:purpose,other|string|max:500',
 
-            // Document Uploads (optional for update)
             'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'government_id' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'government_id_back' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         try {
-            // Update fields
+            
             $application->first_name = $request->first_name;
             $application->middle_name = $request->middle_name;
             $application->last_name = $request->last_name;
@@ -447,9 +457,8 @@ class ResidencyController extends Controller
             $application->purpose = $request->purpose;
             $application->purpose_other = $request->purpose_other;
 
-            // Upload new primary proof if provided
             if ($request->hasFile('primary_proof')) {
-                // Delete old file
+                
                 if ($application->primary_proof && File::exists(public_path($application->primary_proof))) {
                     File::delete(public_path($application->primary_proof));
                 }
@@ -461,18 +470,29 @@ class ResidencyController extends Controller
                 $application->primary_proof = 'uploads/proof_of_residency/' . $prip_name;
             }
 
-            // Upload new government ID if provided
             if ($request->hasFile('government_id')) {
-                // Delete old file
+                
                 if ($application->government_id && File::exists(public_path($application->government_id))) {
                     File::delete(public_path($application->government_id));
                 }
 
                 $gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
-                $gip_name = time() . '_id_' . Str::random(5) . '.' . $gip_ext;
+                $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
                 $gip->move(public_path('uploads/valid_id/residency'), $gip_name);
                 $application->government_id = 'uploads/valid_id/residency/' . $gip_name;
+            }
+
+            if ($request->hasFile('government_id_back')) {
+                if ($application->government_id_back && File::exists(public_path($application->government_id_back))) {
+                    File::delete(public_path($application->government_id_back));
+                }
+
+                $gipBack = $request->file('government_id_back');
+                $gipBackExt = $gipBack->getClientOriginalExtension();
+                $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
+                $gipBack->move(public_path('uploads/valid_id/residency'), $gipBackName);
+                $application->government_id_back = 'uploads/valid_id/residency/' . $gipBackName;
             }
 
             $updatedValues = $application->only([
@@ -536,7 +556,7 @@ class ResidencyController extends Controller
                 ->get();
 
             foreach ($applications as $application) {
-                // Soft delete when Residency uses SoftDeletes.
+                
                 $application->delete();
             }
 
@@ -614,7 +634,6 @@ class ResidencyController extends Controller
                     default: $yearsDisplay = $app->years_residing;
                 }
 
-                // Format status display
                 $statusDisplay = ucfirst(str_replace('_', ' ', $app->status));
                 
                 fputcsv($file, [
@@ -629,7 +648,6 @@ class ResidencyController extends Controller
             fclose($file);
         };
 
-        // Log audit trail
         if (auth('admin')->check()) {
             $exportCount = Residency::query()->when($request->ids, function($q) use ($request) {
                 return $q->whereIn('id', $request->ids);
@@ -660,7 +678,7 @@ class ResidencyController extends Controller
         $reference = $application->reference_number;
 
         DB::transaction(function () use ($application, $reference) {
-            // This is a soft delete when Residency uses SoftDeletes.
+            
             $application->delete();
 
             if (auth('admin')->check()) {
@@ -755,7 +773,6 @@ class ResidencyController extends Controller
         $docxPath = $outputDir . '/' . $fileName;
         $templateProcessor->saveAs($docxPath);
 
-        // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),

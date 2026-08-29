@@ -38,11 +38,7 @@ class SystemSettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            /*
-            |--------------------------------------------------------------------------
-            | General Settings
-            |--------------------------------------------------------------------------
-            */
+            
             'general.portal_name' => ['required', 'string', 'max:150'],
             'general.barangay_name' => ['required', 'string', 'max:150'],
             'general.contact_email' => ['required', 'email', 'max:150'],
@@ -51,24 +47,13 @@ class SystemSettingsController extends Controller
             'general.primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'general.secondary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Document Template Settings
-            |--------------------------------------------------------------------------
-            */
+            
             'document' => ['nullable', 'array'],
             'document.request_title' => ['nullable', 'string', 'max:255'],
             'document.request_template' => ['nullable', 'string'],
             'document.request_footer' => ['nullable', 'string', 'max:255'],
 
-            /*
-            |--------------------------------------------------------------------------
-            | SMS Settings
-            |--------------------------------------------------------------------------
-            |
-            | remaining_credits was removed because it should not be manually edited.
-            | It should come from provider balance or internal usage tracking.
-            */
+            
             'sms.provider' => ['required', 'string', 'max:50'],
             'sms.api_base_url' => ['required', 'url', 'max:255'],
             'sms.api_key' => ['nullable', 'string', 'max:255'],
@@ -76,11 +61,7 @@ class SystemSettingsController extends Controller
             'sms.daily_limit' => ['required', 'integer', 'min:0', 'max:100000'],
             'sms.monthly_limit' => ['required', 'integer', 'min:0', 'max:100000'],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Email Settings
-            |--------------------------------------------------------------------------
-            */
+            
             'email.mailer' => ['required', 'string', 'max:30'],
             'email.host' => ['nullable', 'string', 'max:255'],
             'email.port' => ['nullable', 'integer', 'min:1', 'max:65535'],
@@ -90,11 +71,7 @@ class SystemSettingsController extends Controller
             'email.from_address' => ['nullable', 'email', 'max:255'],
             'email.from_name' => ['nullable', 'string', 'max:255'],
 
-            /*
-            |--------------------------------------------------------------------------
-            | AI Settings
-            |--------------------------------------------------------------------------
-            */
+            
             'ai.provider' => ['required', 'string', 'in:gemini,groq,cloudflare'],
             'ai.fallback_providers' => ['nullable', 'string', 'max:255'],
             'ai.cloudflare_account_id' => ['nullable', 'string', 'max:100'],
@@ -102,11 +79,7 @@ class SystemSettingsController extends Controller
             'ai.keys.groq' => ['nullable', 'string', 'max:500'],
             'ai.keys.cloudflare' => ['nullable', 'string', 'max:500'],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Security Settings
-            |--------------------------------------------------------------------------
-            */
+            
             'security.captcha_enabled' => ['nullable', 'boolean'],
             'security.recaptcha_site_key' => ['nullable', 'string', 'max:255'],
             'security.recaptcha_secret_key' => ['nullable', 'string', 'max:255'],
@@ -114,23 +87,11 @@ class SystemSettingsController extends Controller
             'security.session_timeout' => ['required', 'integer', 'min:300', 'max:86400'],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Checkbox Fix
-        |--------------------------------------------------------------------------
-        |
-        | HTML checkboxes do not submit when unchecked, so force true/false.
-        */
+        
         $validated['security']['captcha_enabled'] = $request->boolean('security.captcha_enabled');
         $validated['security']['login_otp_enabled'] = $request->boolean('security.login_otp_enabled');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Normalize Theme Colors
-        |--------------------------------------------------------------------------
-        |
-        | Store one predictable six-digit hex format for the shared CSS variables.
-        */
+        
         $validated['general']['primary_color'] = strtolower($validated['general']['primary_color']);
         $validated['general']['secondary_color'] = strtolower($validated['general']['secondary_color']);
 
@@ -258,13 +219,7 @@ class SystemSettingsController extends Controller
                 continue;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hide sensitive values from audit
-            |--------------------------------------------------------------------------
-            |
-            | We only record that the field changed, not the secret value.
-            */
+            
             $oldValue = data_get($oldSettings, $fullKey);
 
             if ((string) $oldValue !== (string) $value) {

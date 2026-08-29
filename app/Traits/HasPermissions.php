@@ -1,14 +1,14 @@
 <?php
-// app/Traits/HasPermissions.php
+
 
 namespace App\Traits;
 
 trait HasPermissions
 {
-    // Remove these methods from the trait since they're in the model
-    // Or keep them and remove from model - your choice
     
-    // If you want to keep using the trait, make sure it has ALL methods:
+    
+    
+    
     
     public function hasPermission($permission)
     {
@@ -107,7 +107,7 @@ trait HasPermissions
         return $this->role && $this->role->name === 'super_admin';
     }
 
-    // Role check methods
+    
     public function isBarangayCaptain()
     {
         return $this->role && $this->role->name === 'barangay_captain';

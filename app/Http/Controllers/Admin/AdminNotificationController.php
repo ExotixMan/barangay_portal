@@ -48,7 +48,6 @@ class AdminNotificationController extends Controller
     {
         $admin = $this->admin();
 
-        /** @var DatabaseNotification $item */
         $item = $admin->notifications()
             ->whereKey($notification)
             ->firstOrFail();
@@ -70,7 +69,6 @@ class AdminNotificationController extends Controller
     {
         $admin = $this->admin();
 
-        /** @var DatabaseNotification $item */
         $item = $admin->notifications()
             ->whereKey($notification)
             ->firstOrFail();
@@ -127,8 +125,7 @@ class AdminNotificationController extends Controller
         $queryString = (string) parse_url($destination, PHP_URL_QUERY);
         parse_str($queryString, $query);
 
-        // Repair destinations stored by the earlier notification version.
-        // This also respects a custom ADMIN_PATH because named routes generate it.
+        
         $legacyRouteMap = [
             '/incident-reports' => 'admin.blotter.index',
             '/blotter' => 'admin.blotter.index',

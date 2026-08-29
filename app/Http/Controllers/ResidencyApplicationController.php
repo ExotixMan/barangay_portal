@@ -62,11 +62,11 @@ class ResidencyApplicationController extends Controller
         $hasVerifiedResidency = $this->isTruthy($resident->residency_verified ?? false);
 
         $residentValidIdPath = $this->getResidentValidIdPath($resident);
+        $residentValidIdBackPath = $this->getResidentValidIdBackPath($resident);
 
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            // Request-specific fields only
             'years_residing' => ['required', 'string', 'max:255'],
             'residency_type' => ['required', 'string', 'max:255'],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
@@ -84,10 +84,12 @@ class ResidencyApplicationController extends Controller
             $rules['primary_proof'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
-        if (! $hasVerifiedValidId || blank($residentValidIdPath)) {
+        if (! $hasVerifiedValidId || blank($residentValidIdPath) || blank($residentValidIdBackPath)) {
             $rules['government_id'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['government_id_back'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         } else {
             $rules['government_id'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['government_id_back'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
         $validated = $request->validate($rules);
@@ -97,6 +99,7 @@ class ResidencyApplicationController extends Controller
 
             $primaryProofPath = null;
             $governmentIdPath = $residentValidIdPath;
+            $governmentIdBackPath = $residentValidIdBackPath;
 
             if ($request->hasFile('primary_proof')) {
                 $primaryProofPath = $this->uploadFile(
@@ -110,7 +113,15 @@ class ResidencyApplicationController extends Controller
                 $governmentIdPath = $this->uploadFile(
                     $request->file('government_id'),
                     'uploads/valid_id/residency',
-                    'valid_id'
+                    'valid_id_front'
+                );
+            }
+
+            if ($request->hasFile('government_id_back')) {
+                $governmentIdBackPath = $this->uploadFile(
+                    $request->file('government_id_back'),
+                    'uploads/valid_id/residency',
+                    'valid_id_back'
                 );
             }
 
@@ -119,7 +130,6 @@ class ResidencyApplicationController extends Controller
             $residencyData = [
                 'user_id' => $resident->id,
 
-                // Snapshot from verified resident profile
                 'first_name' => $resident->firstname,
                 'middle_name' => $resident->middlename,
                 'last_name' => $resident->lastname,
@@ -130,7 +140,6 @@ class ResidencyApplicationController extends Controller
                 'contact_number' => $resident->contact,
                 'email' => $resident->email,
 
-                // Request-specific data
                 'civil_status' => $resident->civil_status,
                 'birth_place' => $resident->place_of_birth,
                 'years_residing' => $validated['years_residing'],
@@ -140,6 +149,7 @@ class ResidencyApplicationController extends Controller
                 'purpose_other' => $validated['purpose_other'] ?? null,
                 'primary_proof' => $primaryProofPath,
                 'government_id' => $governmentIdPath,
+                'government_id_back' => $governmentIdBackPath,
 
                 'reference_number' => $referenceNumber,
                 'status' => 'processing',
@@ -365,6 +375,14 @@ class ResidencyApplicationController extends Controller
             $missing[] = 'Gender';
         }
 
+        if (blank($resident->civil_status ?? null)) {
+            $missing[] = 'Civil status';
+        }
+
+        if (blank($resident->place_of_birth ?? null)) {
+            $missing[] = 'Place of birth';
+        }
+
         if (blank($resident->address)) {
             $missing[] = 'Complete address';
         }
@@ -385,6 +403,13 @@ class ResidencyApplicationController extends Controller
         return $resident->valid_id_path
             ?? $resident->valid_id
             ?? $resident->valid_id_front
+            ?? null;
+    }
+
+    private function getResidentValidIdBackPath(object $resident): ?string
+    {
+        return $resident->valid_id_back_path
+            ?? $resident->valid_id_back
             ?? null;
     }
 

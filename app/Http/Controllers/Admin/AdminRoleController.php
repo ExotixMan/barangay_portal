@@ -73,12 +73,12 @@ class AdminRoleController extends Controller
         DB::beginTransaction();
 
         try {
-            // For PostgreSQL boolean compatibility
+            
             $roleId = DB::table('admin_roles')->insertGetId([
                 'name' => $request->name,
                 'display_name' => $request->display_name,
                 'description' => $request->description,
-                'is_system_role' => DB::raw("'f'::boolean"),  // PostgreSQL false
+                'is_system_role' => DB::raw("'f'::boolean"),  
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -89,7 +89,6 @@ class AdminRoleController extends Controller
                 $role->permissions()->sync($request->permissions);
             }
 
-            // Log activity
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
                 'action' => 'create_role',
@@ -117,7 +116,6 @@ class AdminRoleController extends Controller
     {
         $role = AdminRole::findOrFail($id);
 
-        // Prevent editing system roles
         if ($role->is_system_role) {
             return redirect()->back()
                 ->with('error', 'System roles cannot be edited.');
@@ -151,7 +149,6 @@ class AdminRoleController extends Controller
 
             $role->permissions()->sync($request->permissions ?? []);
 
-            // Log activity
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
                 'action' => 'update_role',
@@ -178,13 +175,11 @@ class AdminRoleController extends Controller
     {
         $role = AdminRole::findOrFail($id);
 
-        // Prevent deleting system roles
         if ($role->is_system_role) {
             return redirect()->back()
                 ->with('error', 'System roles cannot be deleted.');
         }
 
-        // Check if role has users
         if ($role->users()->exists()) {
             return redirect()->back()
                 ->with('error', 'Cannot delete role with assigned users.');
@@ -193,7 +188,7 @@ class AdminRoleController extends Controller
         DB::beginTransaction();
 
         try {
-            // Log before deletion
+            
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
                 'action' => 'delete_role',
@@ -238,7 +233,6 @@ class AdminRoleController extends Controller
             $user = AdminUser::findOrFail($request->user_id);
             $user->update(['role_id' => $roleId]);
 
-            // Log activity
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
                 'action' => 'add_user_to_role',
@@ -274,11 +268,9 @@ class AdminRoleController extends Controller
         DB::beginTransaction();
 
         try {
-            // Remove user from role (set to default role or null)
-            // You might want to set a default role like 'staff'
-            $user->update(['role_id' => null]); // or set to default role ID
 
-            // Log activity
+            $user->update(['role_id' => null]); 
+
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
                 'action' => 'remove_user_from_role',
@@ -338,7 +330,6 @@ class AdminRoleController extends Controller
     {
         $role = AdminRole::findOrFail($id);
 
-        // Prevent modifying system role permissions.
         if ($role->is_system_role || $role->name === 'super_admin') {
             return redirect()->back()
                 ->with('error', 'System role permissions cannot be modified.');

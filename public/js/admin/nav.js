@@ -1,11 +1,9 @@
-// ========== SIDEBAR COLLAPSE FUNCTIONALITY ==========
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
 const collapseBtn = document.getElementById('collapseBtn');
 const overlay = document.getElementById('sidebarOverlay');
 const isMobile = () => window.innerWidth <= 992;
 
-// Check localStorage for sidebar state on page load
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebarCollapsed && !isMobile()) {
@@ -17,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to toggle sidebar collapse (desktop only)
 function toggleSidebarCollapse() {
 
     if (isMobile()) return;
@@ -28,13 +25,13 @@ function toggleSidebarCollapse() {
     mainContent.classList.toggle('expanded');
 
     if (!wasCollapsed) {
-        // When collapsing → only hide submenus visually
+
         document.querySelectorAll('.submenu.show').forEach(menu => {
             menu.classList.add('temp-hidden');
             menu.classList.remove('show');
         });
     } else {
-        // When expanding again → restore previous open dropdowns
+
         document.querySelectorAll('.dropdown-btn.active').forEach(btn => {
             const submenu = btn.nextElementSibling;
             if (submenu) {
@@ -43,7 +40,6 @@ function toggleSidebarCollapse() {
         });
     }
 
-    // Toggle icon
     if (sidebar.classList.contains('collapsed')) {
         collapseBtn.classList.replace('fa-chevron-left','fa-chevron-right');
         collapseBtn.title = "Expand sidebar";
@@ -55,21 +51,19 @@ function toggleSidebarCollapse() {
     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
 }
 
-// Handle toggle button click (works on both mobile and desktop)
 function handleToggleButtonClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (isMobile()) {
-        // On mobile, close the sidebar
+
         closeMobileSidebar();
     } else {
-        // On desktop, toggle collapse
+
         toggleSidebarCollapse();
     }
 }
 
-// Handle click on sidebar to expand when collapsed (desktop only)
 function handleSidebarClick(event) {
     if (!isMobile() && sidebar.classList.contains('collapsed')) {
         if (!event.target.closest('.toggle-btn')) {
@@ -78,37 +72,32 @@ function handleSidebarClick(event) {
     }
 }
 
-// Handle link clicks
 function handleLinkClick(event, element) {
     event.preventDefault();
-    
+
     const href = element.getAttribute('href');
-    
+
     if (href && href !== '#') {
-        // Use Laravel's URL generator or just navigate
+
         window.location.href = href;
     }
-    
-    // Update active states
+
     document.querySelectorAll('.sidebar a').forEach(link => {
         link.classList.remove('active');
     });
     element.classList.add('active');
-    
-    // Close mobile sidebar
+
     if (window.innerWidth <= 768) {
         closeMobileSidebar();
     }
 }
 
-// Handle dropdown clicks
 function handleDropdownClick(event, element) {
     event.preventDefault();
     event.stopPropagation();
 
     const submenu = element.nextElementSibling;
 
-    // If sidebar is collapsed (desktop)
     if (!isMobile() && sidebar.classList.contains('collapsed')) {
 
         toggleSidebarCollapse();
@@ -120,22 +109,11 @@ function handleDropdownClick(event, element) {
         return;
     }
 
-    // Normal behavior (ONLY ONE OPEN)
     openSingleDropdown(element, submenu);
 }
 
 function openSingleDropdown(element, submenu) {
 
-    // // Close all other dropdowns
-    // document.querySelectorAll('.dropdown-btn').forEach(btn => {
-    //     if (btn !== element) btn.classList.remove('active');
-    // });
-
-    // document.querySelectorAll('.submenu').forEach(menu => {
-    //     if (menu !== submenu) menu.classList.remove('show');
-    // });
-
-    // Toggle current dropdown
     element.classList.toggle('active');
 
     if (submenu && submenu.classList.contains('submenu')) {
@@ -143,36 +121,21 @@ function openSingleDropdown(element, submenu) {
     }
 }
 
-// Handle submenu link clicks
-// function handleSubmenuClick(event) {
-//     event.preventDefault();
-//     event.stopPropagation();
-    
-//     // On mobile, close sidebar after clicking
-//     if (isMobile()) {
-//         closeMobileSidebar();
-//     }
-    
-//     // Add your navigation logic here
-//     console.log('Navigate to:', event.currentTarget.querySelector('span').textContent);
-// }
-
-// ========== MOBILE SIDEBAR TOGGLE ==========
 function toggleMobileSidebar() {
     if (!isMobile()) return;
-    
+
     sidebar.classList.toggle('show');
     if (sidebar.classList.contains('show')) {
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
-        // Change chevron icon to indicate close
+
         collapseBtn.classList.remove('fa-chevron-left');
         collapseBtn.classList.add('fa-chevron-left');
         collapseBtn.title = "Close sidebar";
     } else {
         overlay.classList.remove('show');
         document.body.style.overflow = '';
-        // Restore chevron icon
+
         collapseBtn.classList.remove('fa-chevron-left');
         collapseBtn.classList.add('fa-chevron-left');
         collapseBtn.title = "Close sidebar";
@@ -181,30 +144,28 @@ function toggleMobileSidebar() {
 
 function closeMobileSidebar() {
     if (!isMobile()) return;
-    
+
     sidebar.classList.remove('show');
     overlay.classList.remove('show');
     document.body.style.overflow = '';
-    // Restore chevron icon
+
     collapseBtn.classList.remove('fa-times');
     collapseBtn.classList.add('fa-chevron-left');
     collapseBtn.title = "Close sidebar";
 }
 
-// Handle window resize
 window.addEventListener('resize', function() {
     if (isMobile()) {
-        // On mobile, ensure sidebar is not in collapsed state
+
         sidebar.classList.remove('collapsed');
         mainContent.classList.remove('expanded');
         collapseBtn.classList.remove('fa-chevron-right');
         collapseBtn.classList.add('fa-chevron-left');
         collapseBtn.title = "Close sidebar";
-        
-        // Close sidebar if open
+
         closeMobileSidebar();
     } else {
-        // On desktop, restore collapsed state from localStorage
+
         const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (sidebarCollapsed) {
             sidebar.classList.add('collapsed');
@@ -222,7 +183,6 @@ window.addEventListener('resize', function() {
     }
 });
 
-// ========== ADMIN AUTO-SYNC (LIST PAGES) ==========
 document.addEventListener('DOMContentLoaded', function() {
     const AUTO_SYNC_INTERVAL_MS = 10000;
     const AUTO_SYNC_REQUEST_TIMEOUT_MS = 6000;
@@ -241,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         }
 
-        // Avoid reloading while user has selected rows for bulk actions.
         if (document.querySelector('tbody input[type="checkbox"]:checked')) {
             return true;
         }
@@ -314,10 +273,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
             currentSignature = nextSignature;
         } catch (error) {
-            // Ignore polling/network errors and retry next interval.
+
         } finally {
             clearTimeout(timeoutId);
             isSyncRunning = false;
         }
     }, AUTO_SYNC_INTERVAL_MS);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    overlay?.addEventListener('click', closeMobileSidebar);
+    sidebar?.addEventListener('click', handleSidebarClick);
+    collapseBtn?.addEventListener('click', handleToggleButtonClick);
+
+    document.querySelectorAll('.mobile-menu-btn').forEach(function (button) {
+        button.addEventListener('click', toggleMobileSidebar);
+    });
+
+    document.querySelectorAll('.sidebar .dropdown-btn').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            handleDropdownClick(event, button);
+        });
+    });
+
+    document.querySelectorAll('.sidebar a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (isMobile()) {
+                closeMobileSidebar();
+            }
+        });
+    });
 });

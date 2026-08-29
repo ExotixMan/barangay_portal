@@ -25,7 +25,6 @@ class Project extends Model
         'progress' => 'integer'
     ];
 
-    // Calculate days remaining
     public function getDaysRemainingAttribute()
     {
         if (!$this->expected_completion || $this->status === 'completed') {
@@ -42,7 +41,6 @@ class Project extends Model
         return $today->diffInDays($completionDate);
     }
 
-    // Check if project is overdue
     public function getIsOverdueAttribute()
     {
         if ($this->status === 'completed' || !$this->expected_completion) {
@@ -52,7 +50,6 @@ class Project extends Model
         return $this->expected_completion->isPast();
     }
 
-    // Get progress color class
     public function getProgressColorAttribute()
     {
         if ($this->progress >= 75) return 'success';

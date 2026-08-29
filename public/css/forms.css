@@ -58,9 +58,6 @@ body {
     transform: translateX(-5px);
 }
 
-.application-form-section {
-    padding: 20px 0 40px;
-}
 
 .form-container {
     max-width: 1200px;
@@ -68,11 +65,8 @@ body {
     padding: 0 20px;
 }
 
-/* Application Form Section */
-.application-form-section {
-    padding: 80px 0;
-    background: #f8f9fa;
-}
+.application-form-section {padding: 80px 0;
+    background: #f8f9fa;}
 
 .application-form-section .container {
     max-width: 1200px;
@@ -102,7 +96,6 @@ body {
     margin: 0 auto;
 }
 
-/* Form Progress - UPDATED FOR HORIZONTAL ON MOBILE */
 .form-progress {
     background: linear-gradient(135deg, #f8f9fa, #ffffff);
     border-radius: 15px;
@@ -120,7 +113,7 @@ body {
 }
 
 .progress-steps::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 25px;
     left: 10%;
@@ -190,7 +183,6 @@ body {
     transition: width 0.5s ease;
 }
 
-/* Form Steps */
 .requirement-form {
     background: white;
     border-radius: 20px;
@@ -266,7 +258,7 @@ body {
     border: 2px solid #eee;
     border-radius: 10px;
     font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: all 0.3s ease;
     background: #f8f9fa;
     color: #333;
@@ -292,7 +284,6 @@ body {
     margin-top: 5px;
 }
 
-/* Upload Area */
 .upload-section {
     display: flex;
     flex-direction: column;
@@ -399,7 +390,6 @@ body {
     justify-content: center;
 }
 
-/* Review Section */
 .review-section {
     display: flex;
     flex-direction: column;
@@ -546,7 +536,6 @@ body {
     left: 0;
 }
 
-/* Benefits Section */
 .benefits-section {
     margin: 30px 0;
     padding: 20px;
@@ -607,7 +596,6 @@ body {
     margin: 0;
 }
 
-/* Terms Section */
 .terms-section {
     background: linear-gradient(135deg, #f8f9fa, #ffffff);
     border-radius: 15px;
@@ -617,20 +605,8 @@ body {
     box-shadow: 0 3px 12px rgba(0,0,0,0.04);
 }
 
-.terms-checkbox {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: #333;
-    line-height: 1.4;
-}
+.terms-checkbox {color: #333;}
 
-.terms-checkbox:last-child {
-    margin-bottom: 0;
-}
 
 .terms-checkbox input {
     display: none;
@@ -653,7 +629,7 @@ body {
 }
 
 .checkmark::after {
-    content: '';
+    content: "";
     position: absolute;
     display: none;
     left: 6px;
@@ -675,7 +651,6 @@ body {
     font-weight: 600;
 }
 
-/* Terms checkbox text styling */
 .terms-checkbox .terms-text {
     flex: 1;
     line-height: 1.5;
@@ -694,25 +669,20 @@ body {
     text-decoration: underline;
 }
 
-.terms-checkbox {
-    display: flex;
+.terms-checkbox {display: flex;
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 15px;
     cursor: pointer;
     font-size: 0.95rem;
-    line-height: 1.5;
-}
+    line-height: 1.5;}
 
-.terms-checkbox:last-child {
-    margin-bottom: 0;
-}
+.terms-checkbox:last-child {margin-bottom: 0;}
 
 .terms-checkbox a:hover {
     text-decoration: underline;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     justify-content: space-between;
@@ -774,7 +744,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -869,7 +839,6 @@ body {
     }
 }
 
-/* Application Status */
 .application-status {
     background: white;
     border-radius: 20px;
@@ -923,7 +892,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 .btn-download,
@@ -951,25 +920,24 @@ body {
     transform: translateY(-2px);
 }
 
-/* Responsive Design */
 @media (max-width: 1366px) {
     .container {
         max-width: 1280px;
         padding: 0 25px;
     }
-    
+
     .clearance-hero h1 {
         font-size: 2.8rem;
     }
-    
+
     .content-grid {
         gap: 30px;
     }
-    
+
     .form-steps {
         gap: 30px;
     }
-    
+
     .requirements-box {
         padding: 25px;
     }
@@ -979,7 +947,7 @@ body {
     .steps-container {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .benefits-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -989,99 +957,98 @@ body {
     .clearance-hero {
         padding: 100px 0 60px;
     }
-    
+
     .clearance-hero h1 {
         font-size: 2.5rem;
     }
-    
+
     .requirement-form {
         padding: 30px;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .content-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .review-content {
         grid-template-columns: 1fr;
     }
-    
-    /* Keep progress steps horizontal on mobile */
+
     .progress-steps {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     .progress-steps::before {
         top: 25px;
         left: 5%;
         right: 5%;
     }
-    
+
     .step {
         flex: 1;
         min-width: 100px;
     }
 }
 
-@media (max-width: 768px) {    
+@media (max-width: 768px) {
     .steps-container {
         grid-template-columns: 1fr;
     }
-    
+
     .benefits-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-actions {
         flex-direction: row;
         flex-wrap: wrap;
     }
-    
+
     .btn-prev,
     .btn-next,
     .btn-submit {
         width: auto;
         min-width: 150px;
     }
-    
+
     .application-status {
         padding: 30px 20px;
     }
-    
+
     .status-actions {
         flex-direction: row;
         flex-wrap: wrap;
     }
-    
+
     .btn-download,
     .btn-track,
     .btn-back-info {
         width: auto;
         min-width: 150px;
     }
-    
+
     .form-header h2 {
         font-size: 2rem;
         flex-direction: row;
         gap: 15px;
     }
-    
+
     .progress-steps {
         gap: 10px;
     }
-    
+
     .step-circle {
         width: 40px;
         height: 40px;
         font-size: 1rem;
     }
-    
+
     .step span {
         font-size: 0.8rem;
     }
@@ -1091,7 +1058,7 @@ body {
         flex: 0 0 50%;
         max-width: 50%;
     }
-    
+
     .form-actions .btn-prev,
     .form-actions .btn-next,
     .form-actions .btn-submit {
@@ -1104,29 +1071,29 @@ body {
     .form-progress {
         padding: 20px;
     }
-    
+
     .form-step h3 {
         font-size: 1.3rem;
     }
-    
+
     .container {
         padding: 0 15px;
     }
-    
+
     .progress-steps {
         gap: 5px;
     }
-    
+
     .step {
         min-width: 80px;
     }
-    
+
     .step-circle {
         width: 35px;
         height: 35px;
         font-size: 0.9rem;
     }
-    
+
     .step span {
         font-size: 0.75rem;
     }
@@ -1144,17 +1111,17 @@ body {
     .progress-steps {
         gap: 3px;
     }
-    
+
     .step {
         min-width: 70px;
     }
-    
+
     .step-circle {
         width: 30px;
         height: 30px;
         font-size: 0.8rem;
     }
-    
+
     .step span {
         font-size: 0.7rem;
     }

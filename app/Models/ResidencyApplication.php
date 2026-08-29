@@ -27,6 +27,7 @@ class ResidencyApplication extends Model
         'purpose_other',
         'primary_proof',
         'government_id',
+        'government_id_back',
         'status',
     ];
 }

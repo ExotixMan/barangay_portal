@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
@@ -22,7 +21,7 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        /** @var Residents $resident */
+        
         $resident = Auth::user();
         $userId = $resident->id;
 
@@ -65,12 +64,7 @@ class ProfileController extends Controller
 
     public function updateInfo(Request $request)
     {
-        /*
-         * SECURITY RULE:
-         * Residents can update contact number directly.
-         * Identity fields used in certificates must go through profile correction concern + admin approval.
-         */
-        /** @var Residents $resident */
+
         $resident = Auth::user();
 
         $validated = $request->validate([
@@ -81,7 +75,6 @@ class ProfileController extends Controller
 
         $contact = $validated['contact'];
 
-        // Normalize contact: store always as 09XXXXXXXXX
         if (strlen($contact) === 10 && ! str_starts_with($contact, '0')) {
             $contact = '0' . $contact;
         }
@@ -98,14 +91,11 @@ class ProfileController extends Controller
 
     public function reportIncorrectProfile(Request $request)
     {
-        /** @var Residents $resident */
+        
         $resident = Auth::user();
 
         return DB::transaction(function () use ($request, $resident) {
-            /*
-            * Lock the resident row to prevent double-submit/race condition.
-            * This stops two fast requests from creating two pending concerns at the same time.
-            */
+            
             $resident = Residents::whereKey($resident->id)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -124,9 +114,6 @@ class ProfileController extends Controller
                     ->with('pending_correction_id', $existingPending->id);
             }
 
-            /*
-            * Cooldown: prevent repeated correction submissions too quickly.
-            */
             $latestConcern = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
                 ->latest()
@@ -139,9 +126,6 @@ class ProfileController extends Controller
                     ->with('warning', 'Please wait at least 10 minutes before submitting another profile correction concern.');
             }
 
-            /*
-            * Daily limit: prevent someone from attacking your staff/system with many concerns.
-            */
             $todayCount = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
                 ->whereDate('created_at', today())
@@ -183,10 +167,6 @@ class ProfileController extends Controller
                 'message.max' => 'Message is too long.',
             ]);
 
-            /*
-            * Do not trust current_value from the browser.
-            * Always read current value from the authenticated resident record.
-            */
             $allowedCurrentValues = [
                 'firstname' => $resident->firstname,
                 'middlename' => $resident->middlename,
@@ -206,10 +186,6 @@ class ProfileController extends Controller
                 $currentValue = $currentValue->format('Y-m-d');
             }
 
-            /*
-            * Prevent useless duplicate correction:
-            * correct value is same as current value.
-            */
             if (strtolower(trim((string) $currentValue)) === strtolower(trim((string) $validated['correct_value']))) {
                 return redirect()
                     ->route('profile')
@@ -236,7 +212,7 @@ class ProfileController extends Controller
 
     public function updateAccount(Request $request)
     {
-        /** @var Residents $resident */
+        
         $resident = Auth::user();
 
         $validated = $request->validate([
@@ -282,7 +258,7 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        /** @var Residents $resident */
+        
         $resident = Auth::user();
 
         $request->validate([
@@ -319,7 +295,6 @@ class ProfileController extends Controller
             'profile_photo.max'   => 'Photo must not exceed 5MB.',
         ]);
 
-        /** @var Residents $resident */
         $resident = Auth::user();
 
         if ($resident->profile_photo && file_exists(public_path($resident->profile_photo))) {
@@ -349,7 +324,7 @@ class ProfileController extends Controller
 
     public function removePhoto()
     {
-        /** @var Residents $resident */
+        
         $resident = Auth::user();
 
         if ($resident->profile_photo && file_exists(public_path($resident->profile_photo))) {
@@ -363,12 +338,6 @@ class ProfileController extends Controller
 
     public function updateId(Request $request)
     {
-        if (!Schema::hasColumn('residents', 'valid_id_back')) {
-            return redirect()->route('profile')
-                ->withErrors(['valid_id_back' => 'Database column valid_id_back is missing. Please run the migration first.'])
-                ->with('open_tab', 'valid-id');
-        }
-
         $request->validate([
             'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
             'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
@@ -381,7 +350,6 @@ class ProfileController extends Controller
             'valid_id_back.max' => 'Back ID must not exceed 5MB.',
         ]);
 
-        /** @var Residents $resident */
         $resident = Auth::user();
 
         $frontFile = $request->file('valid_id');
@@ -406,32 +374,15 @@ class ProfileController extends Controller
             $this->deletePublicFile($resident->valid_id);
             $this->deletePublicFile($resident->valid_id_back ?? null);
 
-            $updateData = [
+            $resident->forceFill([
                 'valid_id' => $frontPath,
                 'valid_id_back' => $backPath,
-            ];
-
-            if (Schema::hasColumn('residents', 'valid_id_verified')) {
-                $updateData['valid_id_verified'] = false;
-            }
-
-            if (Schema::hasColumn('residents', 'valid_id_status')) {
-                $updateData['valid_id_status'] = 'pending';
-            }
-
-            if (Schema::hasColumn('residents', 'valid_id_rejection_reason')) {
-                $updateData['valid_id_rejection_reason'] = null;
-            }
-
-            if (Schema::hasColumn('residents', 'valid_id_remarks')) {
-                $updateData['valid_id_remarks'] = null;
-            }
-
-            if (Schema::hasColumn('residents', 'valid_id_verified_at')) {
-                $updateData['valid_id_verified_at'] = null;
-            }
-
-            $resident->forceFill($updateData)->save();
+                'valid_id_verified' => false,
+                'valid_id_status' => 'for_verification',
+                'valid_id_verified_at' => null,
+                'valid_id_verified_by' => null,
+                'valid_id_rejection_reason' => null,
+            ])->save();
         } catch (\Throwable $e) {
             report($e);
 
@@ -485,21 +436,5 @@ class ProfileController extends Controller
         }
 
         return hash_file('sha256', $frontRealPath) === hash_file('sha256', $backRealPath);
-    }
-
-    // ---- keep the old Breeze stubs below so wweb.php routes don't break ----
-    public function edit(Request $request)
-    {
-        return redirect()->route('profile');
-    }
-
-    public function update(Request $request)
-    {
-        return redirect()->route('profile');
-    }
-
-    public function destroy(Request $request)
-    {
-        return redirect()->route('profile');
     }
 }

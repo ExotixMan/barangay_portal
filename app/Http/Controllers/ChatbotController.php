@@ -223,10 +223,6 @@ class ChatbotController extends Controller
         ];
     }
 
-    /**
-     * PostgreSQL UUID columns reject fake test IDs like ai-test-123.
-     * This converts any missing/invalid value into a valid UUID.
-     */
     private function normalizeSessionId(string $sessionId): string
     {
         $sessionId = trim($sessionId);

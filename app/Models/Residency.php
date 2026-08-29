@@ -9,7 +9,7 @@ class Residency extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'residency_applications'; // if your table is named residencies
+    protected $table = 'residency_applications'; 
 
     protected $fillable = [
         'user_id',
@@ -32,6 +32,7 @@ class Residency extends Model
         'purpose_other',
         'primary_proof',
         'government_id',
+        'government_id_back',
         'status',
         'status_updated_at',
     ];

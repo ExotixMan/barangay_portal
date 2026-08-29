@@ -67,7 +67,6 @@ class ResidentsController extends Controller
             'place_of_birth' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'contact' => 'required|string|max:11|regex:/^09\d{9}$/|unique:residents,contact',
 
-            // ID scanner fields. These may come from the camera auto-crop or manual upload fallback.
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_back' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_selfie' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
@@ -122,7 +121,6 @@ class ResidentsController extends Controller
                 ->withInput();
         }
 
-        // Remove non-database fields before creating the resident.
         unset($data['terms'], $data['g-recaptcha-response'], $data['password_confirmation']);
 
         $uploadedPaths = [];
@@ -148,7 +146,6 @@ class ResidentsController extends Controller
             $data['phone_verified'] = 'false';
             $data['valid_id_verified'] = 'false';
 
-            // Admin must approve the scanned ID manually.
             $data['valid_id_status'] = 'for_verification';
             $data['valid_id_verified_at'] = null;
             $data['valid_id_verified_by'] = null;
@@ -159,7 +156,7 @@ class ResidentsController extends Controller
             try {
                 $this->sendOtpAndLog($resident, $otp, 'register');
             } catch (\Throwable $exception) {
-                // Avoid leaving an unverified account and uploaded IDs when OTP sending fails.
+                
                 $this->deleteResidentValidIdFiles($resident);
                 $resident->forceDelete();
 
@@ -336,13 +333,6 @@ class ResidentsController extends Controller
         $password = (string) $request->input('password');
         $loginOtpEnabled = (bool) $this->settings->get('security.login_otp_enabled', 'false');
 
-        /*
-        |--------------------------------------------------------------------------
-        | 1. Try Admin Credentials First
-        |--------------------------------------------------------------------------
-        | Important: Do NOT use Auth::guard('admin')->attempt() here because that
-        | logs the admin in immediately. We only verify the password first.
-        */
         $adminLoginField = filter_var($rawLoginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $admin = AdminUser::where($adminLoginField, $rawLoginInput)->first();
@@ -376,30 +366,15 @@ class ResidentsController extends Controller
                 'admin_otp_expires_at' => now('Asia/Manila')->addMinutes(5)->toDateTimeString(),
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Admin OTP delivery
-            |--------------------------------------------------------------------------
-            | This sends OTP to admin email.
-            | If you want admin SMS OTP instead, your admin_users table needs a contact
-            | number and you need an SMS method for AdminUser.
-            */
-            //this is sms if ever for otp currently using email
+            
             $this->sendAdminOtpSms($admin, $otp);
-            // Mail::raw("Your admin login OTP is: {$otp}. This OTP will expire in 5 minutes.", function ($message) use ($admin) {
-            //     $message->to($admin->email)
-            //         ->subject('Admin Login OTP');
-            // });
+
+            
 
             return redirect()->route('otp.form')
                 ->with('success', 'Admin OTP has been sent to your contact number.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | 2. Try Resident Credentials
-        |--------------------------------------------------------------------------
-        */
         $loginInput = $rawLoginInput;
         $loginType = 'username';
 
@@ -423,6 +398,15 @@ class ResidentsController extends Controller
                 ->onlyInput('login');
         }
 
+        if ($resident->valid_id_status === 'rejected') {
+            $request->session()->regenerate();
+            $request->session()->put('valid_id_resubmit_resident_id', $resident->id);
+
+            return redirect()
+                ->route('valid-id.resubmit.form')
+                ->with('warning', $this->validIdRejectionMessage($resident));
+        }
+
         if ($message = $this->validIdLoginBlockMessage($resident)) {
             return back()
                 ->withErrors(['login' => $message])
@@ -443,11 +427,6 @@ class ResidentsController extends Controller
                 ->with('success', 'Logged in successfully.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Resident Login OTP
-        |--------------------------------------------------------------------------
-        */
         $otp = random_int(100000, 999999);
 
         $resident->update([
@@ -465,6 +444,96 @@ class ResidentsController extends Controller
             ->with('success', 'Please verify your mobile number with OTP to continue.');
     }
     
+    public function showValidIdResubmission(Request $request)
+    {
+        $residentId = $request->session()->get('valid_id_resubmit_resident_id');
+        $resident = $residentId ? Residents::find($residentId) : null;
+
+        if (!$resident || $resident->valid_id_status !== 'rejected') {
+            $request->session()->forget('valid_id_resubmit_resident_id');
+
+            return redirect()->route('login')
+                ->with('fail', 'Please sign in again to resubmit your valid ID.');
+        }
+
+        return view('barangay_system.valid_id_resubmit', compact('resident'));
+    }
+
+    public function resubmitValidId(Request $request)
+    {
+        $residentId = $request->session()->get('valid_id_resubmit_resident_id');
+        $resident = $residentId ? Residents::find($residentId) : null;
+
+        if (!$resident || $resident->valid_id_status !== 'rejected') {
+            $request->session()->forget('valid_id_resubmit_resident_id');
+
+            return redirect()->route('login')
+                ->with('fail', 'Your valid ID resubmission session expired. Please sign in again.');
+        }
+
+        $request->validate([
+            'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ], [
+            'valid_id.required' => 'Please upload the front side of your valid ID.',
+            'valid_id_back.required' => 'Please upload the back side of your valid ID.',
+            'valid_id.mimes' => 'The front valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id_back.mimes' => 'The back valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id.max' => 'The front valid ID must not exceed 5MB.',
+            'valid_id_back.max' => 'The back valid ID must not exceed 5MB.',
+        ]);
+
+        $frontFile = $request->file('valid_id');
+        $backFile = $request->file('valid_id_back');
+
+        if (!$frontFile || !$backFile || !$frontFile->isValid() || !$backFile->isValid()) {
+            return back()->withErrors(['valid_id' => 'Please upload valid front and back ID files.']);
+        }
+
+        if ($this->uploadedFilesAreIdentical($frontFile, $backFile)) {
+            return back()->withErrors([
+                'valid_id_back' => 'The back ID appears to be the same file as the front. Please upload the back side.',
+            ]);
+        }
+
+        $newPaths = [];
+        $oldFront = $resident->valid_id;
+        $oldBack = $resident->valid_id_back;
+
+        try {
+            $frontPath = $this->storeResidentValidIdFile($request, 'valid_id');
+            $newPaths[] = $frontPath;
+            $backPath = $this->storeResidentValidIdFile($request, 'valid_id_back');
+            $newPaths[] = $backPath;
+
+            $resident->update([
+                'valid_id' => $frontPath,
+                'valid_id_back' => $backPath,
+                'valid_id_verified' => false,
+                'valid_id_status' => 'for_verification',
+                'valid_id_verified_at' => null,
+                'valid_id_verified_by' => null,
+                'valid_id_rejection_reason' => null,
+            ]);
+
+            $this->deleteResidentValidIdFile($oldFront);
+            $this->deleteResidentValidIdFile($oldBack);
+        } catch (\Throwable $exception) {
+            foreach ($newPaths as $path) {
+                $this->deleteResidentValidIdFile($path);
+            }
+
+            report($exception);
+
+            return back()->with('fail', 'Valid ID resubmission failed. Please try again.');
+        }
+
+        $request->session()->forget('valid_id_resubmit_resident_id');
+
+        return redirect()->route('login')
+            ->with('success', 'Your new valid ID was submitted and is waiting for barangay verification.');
+    }
+
     public function resendOtp(Request $request)
     {
         $residentId = $request->session()->get('resident_id');
@@ -541,11 +610,6 @@ class ResidentsController extends Controller
 
         $accountType = (string) $request->session()->get('otp_account_type', 'resident');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Admin OTP Verification
-        |--------------------------------------------------------------------------
-        */
         if ($accountType === 'admin') {
             $adminId = $request->session()->get('admin_otp_user_id');
             $otpHash = $request->session()->get('admin_otp_hash');
@@ -605,11 +669,6 @@ class ResidentsController extends Controller
             return $this->redirectAdminBasedOnRole($admin);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Resident OTP Verification
-        |--------------------------------------------------------------------------
-        */
         $otpPurpose = (string) $request->session()->get('otp_purpose', 'login');
 
         $residentId = $request->session()->get('resident_id', $request->input('resident_id'));
@@ -774,11 +833,7 @@ class ResidentsController extends Controller
         }
 
         if ($resident->valid_id_status === 'rejected') {
-            $reason = trim((string) $resident->valid_id_rejection_reason);
-
-            return $reason !== ''
-                ? 'Your valid ID was rejected. Reason: ' . $reason
-                : 'Your valid ID was rejected. Please contact the barangay office or upload a clearer ID.';
+            return $this->validIdRejectionMessage($resident);
         }
 
         if ((bool) $resident->valid_id_verified !== true || $resident->valid_id_status !== 'verified') {
@@ -786,6 +841,27 @@ class ResidentsController extends Controller
         }
 
         return null;
+    }
+
+    private function validIdRejectionMessage(Residents $resident): string
+    {
+        $reason = trim((string) $resident->valid_id_rejection_reason);
+
+        return $reason !== ''
+            ? 'Your valid ID was rejected. Reason: ' . $reason . ' Please submit a new front and back copy.'
+            : 'Your valid ID was rejected. Please submit a clearer front and back copy.';
+    }
+
+    private function uploadedFilesAreIdentical($frontFile, $backFile): bool
+    {
+        $frontPath = $frontFile->getRealPath();
+        $backPath = $backFile->getRealPath();
+
+        if (!$frontPath || !$backPath || !is_file($frontPath) || !is_file($backPath)) {
+            return false;
+        }
+
+        return hash_file('sha256', $frontPath) === hash_file('sha256', $backPath);
     }
 
     private function storeResidentValidIdFile(Request $request, string $field): string

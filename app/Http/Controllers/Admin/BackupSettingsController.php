@@ -220,7 +220,7 @@ class BackupSettingsController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
         } catch (\Throwable $e) {
-            // Intentionally swallow logging failures to avoid blocking backup operations.
+            
         }
     }
 }

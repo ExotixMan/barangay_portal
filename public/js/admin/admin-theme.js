@@ -138,7 +138,7 @@
             try {
                 chart.update();
             } catch (ignored) {
-                // A chart can be in the middle of being destroyed during navigation.
+
             }
         }
     }
@@ -161,7 +161,7 @@
         try {
             window.localStorage.setItem(STORAGE_KEY, theme);
         } catch (error) {
-            // Local storage can be unavailable in private or restricted contexts.
+
         }
     }
 
@@ -259,7 +259,7 @@
             try {
                 window.localStorage.removeItem(STORAGE_KEY);
             } catch (error) {
-                // Ignore restricted storage errors.
+
             }
 
             applyTheme(systemTheme && systemTheme.matches ? DARK : LIGHT, {

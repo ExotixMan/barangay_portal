@@ -23,7 +23,7 @@ class IncidentReportController extends Controller
     {
         $query = BlotterReport::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -33,7 +33,6 @@ class IncidentReportController extends Controller
             });
         }
 
-        // Status filter
         $allowedStatuses = ['processing', 'resolved', 'dropped', 'archived'];
         if ($request->status && in_array($request->status, $allowedStatuses, true)) {
             if ($request->status === 'archived') {
@@ -42,12 +41,11 @@ class IncidentReportController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        // Filter by Type
+        
         if ($request->report_type && in_array($request->report_type, ['dispute', 'security', 'public', 'other'])) {
             $query->where('report_type', $request->report_type);
         }
 
-        // Sorting
         $sort = $request->get('sort', 'created_at');
         $direction = strtolower((string) $request->get('direction', 'desc'));
         $direction = $direction === 'asc' ? 'asc' : 'desc';
@@ -66,8 +64,7 @@ class IncidentReportController extends Controller
             $sort = 'created_at';
         }
 
-        // Always place dropped (rejected) reports after every active status.
-        // This must be applied before the selected column sorting so it works globally.
+        
         $query->orderByRaw("CASE WHEN status = 'dropped' THEN 1 ELSE 0 END ASC");
 
         if ($sort === 'status') {
@@ -78,7 +75,6 @@ class IncidentReportController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-        // Stable tie-breaker for records with equal sort values.
         $query->orderByDesc('id');
 
         $total_count = BlotterReport::withTrashed()->count();
@@ -91,7 +87,6 @@ class IncidentReportController extends Controller
         return view('admin.admin_incident_report', compact('incidents', 'total_count', 'processing_count', 'resolved_count', 'dropped_count'));
     }
 
-
     public function store(Request $request)
     {
         $this->normalizeIncidentInputs($request);
@@ -101,7 +96,7 @@ class IncidentReportController extends Controller
         DB::beginTransaction();
 
         try {
-            // generate reference number
+            
             $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
 
             $report = BlotterReport::create([
@@ -125,7 +120,6 @@ class IncidentReportController extends Controller
                 'status' => 'processing',
             ]);
 
-            // save witnesses
             if ($request->witnesses) {
                 foreach ($request->witnesses as $w) {
                     if (!empty($w['name']) || !empty($w['statement'])) {
@@ -139,12 +133,11 @@ class IncidentReportController extends Controller
                 }
             }
 
-            // handle uploads
             $this->uploadFiles($request, $report);
 
             DB::commit();
 
-            return redirect()->route('admin.blotter.index') // FIXED: added redirect with proper route
+            return redirect()->route('admin.blotter.index') 
                 ->with('success', 'Incident Report added successfully.');
 
         } catch (\Exception $e) {
@@ -165,7 +158,6 @@ class IncidentReportController extends Controller
         try {
             $report = BlotterReport::findOrFail($id);
 
-            // Update main report
             $report->update([
                 'report_type' => $request->reportType,
                 'incident_date' => $request->incidentDate,
@@ -185,12 +177,10 @@ class IncidentReportController extends Controller
                 'additional_info' => $request->additionalInfo,
             ]);
 
-            // Update witnesses - delete existing and add new ones
             if ($request->witnesses) {
-                // Delete existing witnesses
-                Witness::where('blotter_report_id', $report->id)->delete();
                 
-                // Add new witnesses
+                Witness::where('blotter_report_id', $report->id)->delete();
+
                 foreach ($request->witnesses as $w) {
                     if (!empty($w['name']) || !empty($w['statement'])) {
                         Witness::create([
@@ -203,7 +193,6 @@ class IncidentReportController extends Controller
                 }
             }
 
-            // handle new file uploads
             $this->uploadFiles($request, $report);
 
             DB::commit();
@@ -219,7 +208,7 @@ class IncidentReportController extends Controller
 
     private function uploadFiles(Request $request, object $report)
     {
-        // PHOTOS
+        
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
 
@@ -236,7 +225,6 @@ class IncidentReportController extends Controller
             }
         }
 
-        // VIDEOS
         if ($request->hasFile('videos')) {
             foreach ($request->file('videos') as $video) {
 
@@ -253,7 +241,6 @@ class IncidentReportController extends Controller
             }
         }
 
-        // DOCUMENTS
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $doc) {
 
@@ -291,7 +278,6 @@ class IncidentReportController extends Controller
             'complainantAddress' => 'required|string|min:5|max:255',
             'complainantEmail' => 'required|email:rfc',
 
-            // Respondent fields are optional, but validated if provided.
             'respondentName' => [
                 'nullable',
                 'string',
@@ -317,7 +303,6 @@ class IncidentReportController extends Controller
             'witnesses.*.contact' => ['nullable', 'regex:/^09\d{9}$/'],
             'witnesses.*.statement' => 'nullable|string|max:1000',
 
-            // Evidence uploads
             'photos' => 'nullable|array',
             'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
             'videos' => 'nullable|array',
@@ -373,7 +358,6 @@ class IncidentReportController extends Controller
             return null;
         }
 
-        // Convert +63XXXXXXXXXX or 63XXXXXXXXXX into local 09XXXXXXXXX format.
         if (str_starts_with($digits, '63') && strlen($digits) === 12) {
             $digits = '0' . substr($digits, 2);
         }
@@ -405,7 +389,6 @@ class IncidentReportController extends Controller
 
         $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'resolved', $remarks);
 
-        // Log approval
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -494,7 +477,6 @@ class IncidentReportController extends Controller
 
         $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'dropped', $remarks);
 
-        // Log rejection
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -662,20 +644,17 @@ class IncidentReportController extends Controller
     public function forceDelete(int $id)
     {
         $report = BlotterReport::withTrashed()->findOrFail($id);
-        
-        // Delete associated files from storage
+
         foreach ($report->files as $file) {
             $filePath = public_path($file->file_path);
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
-            $file->forceDelete(); // Permanently delete file records
+            $file->forceDelete(); 
         }
-        
-        // Permanently delete witnesses
+
         $report->witnesses()->forceDelete();
-        
-        // Permanently delete the report
+
         $report->forceDelete();
         
         return back()->with('success', 'Incident report permanently deleted.');
@@ -703,7 +682,6 @@ class IncidentReportController extends Controller
 
             foreach ($reports as $report) {
 
-                // Soft delete when BlotterReport uses SoftDeletes.
                 $report->delete();
             }
 
@@ -758,7 +736,7 @@ class IncidentReportController extends Controller
             ->get();
         
         foreach ($reports as $report) {
-            // Delete associated files from storage
+            
             foreach ($report->files as $file) {
                 $filePath = public_path($file->file_path);
                 if (file_exists($filePath)) {
@@ -766,12 +744,10 @@ class IncidentReportController extends Controller
                 }
                 $file->forceDelete();
             }
-            
-            // Permanently delete witnesses
+
             $report->witnesses()->forceDelete();
         }
-        
-        // Permanently delete reports
+
         BlotterReport::withTrashed()
             ->whereIn('id', $request->ids)
             ->forceDelete();
@@ -804,10 +780,8 @@ class IncidentReportController extends Controller
         $callback = function () use ($incidents) {
             $file = fopen('php://output', 'w');
 
-            // Add UTF-8 BOM for Excel compatibility
             fwrite($file, "\xEF\xBB\xBF");
 
-            // CSV Header Row
             fputcsv($file, [
                 'ID',
                 'Reference Number',
@@ -836,7 +810,7 @@ class IncidentReportController extends Controller
             ]);
 
             foreach ($incidents as $incident) {
-                // Format values for better readability
+                
                 $confidentialityDisplay = match ($incident->confidentiality) {
                     'low' => 'Public Report',
                     'medium' => 'Confidential Report',

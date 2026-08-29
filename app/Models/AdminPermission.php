@@ -16,18 +16,16 @@ class AdminPermission extends Model
         'description'
     ];
 
-    // Relationships
     public function roles()
     {
         return $this->belongsToMany(
             AdminRole::class,
-            'admin_role_permissions',  // pivot table name
-            'permission_id',            // foreign key for this model in pivot table
-            'role_id'                   // foreign key for the related model in pivot table
-        )->withTimestamps();            // since pivot table has created_at/updated_at
+            'admin_role_permissions',  
+            'permission_id',            
+            'role_id'                   
+        )->withTimestamps();            
     }
 
-    // Scopes
     public function scopeByModule(Builder $query, string $module): Builder
     {
         return $query->where('module', $module);

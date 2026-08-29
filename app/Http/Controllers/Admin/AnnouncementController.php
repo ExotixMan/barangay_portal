@@ -25,7 +25,6 @@ class AnnouncementController extends Controller
 
         $query = Announcement::query();
 
-        // Search
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $search = preg_replace('/[^a-zA-Z0-9\s\-\.@,]/', '', $search);
@@ -39,7 +38,6 @@ class AnnouncementController extends Controller
             });
         }
 
-        // Status filter
         $status = strtolower(trim((string) $request->get('status', '')));
         if ($status !== '' && in_array($status, ['published', 'draft', 'archived', 'deleted'], true)) {
             if ($status === 'deleted') {
@@ -49,13 +47,11 @@ class AnnouncementController extends Controller
             }
         }
 
-        // Category filter
         $category = strtolower(trim((string) $request->get('category', '')));
         if ($category !== '') {
             $query->whereRaw('LOWER(category) = ?', [$category]);
         }
 
-        // Featured filter
         if ($request->has('featured') && $request->featured !== '') {
             $isFeaturedFilter = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             if (!is_null($isFeaturedFilter)) {
@@ -63,13 +59,11 @@ class AnnouncementController extends Controller
             }
         }
 
-        // Stats
         $total_count = Announcement::withTrashed()->count();
         $published_count = Announcement::where('status', 'published')->count();
         $draft_count = Announcement::where('status', 'draft')->count();
         $featured_count = Announcement::whereRaw('is_featured IS TRUE')->count();
 
-        // Sorting
         $sort = $request->get('sort', 'created_at');
         $direction = strtolower((string) $request->get('direction', 'desc'));
         $direction = $direction === 'asc' ? 'asc' : 'desc';
@@ -84,14 +78,13 @@ class AnnouncementController extends Controller
         } elseif ($sort === 'is_featured') {
             $query->orderBy('is_featured', $direction);
         } elseif ($sort === 'published_at') {
-            // Keep nulls consistently last regardless of direction.
+            
             $query->orderByRaw('published_at IS NULL ASC')
                 ->orderBy('published_at', $direction);
         } else {
             $query->orderBy($sort, $direction);
         }
 
-        // Secondary sort follows selected direction so status-only buckets
         if ($sort !== 'created_at') {
             $query->orderBy('created_at', $direction);
         }
@@ -136,7 +129,7 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
         $data = $request->validate([
@@ -150,7 +143,7 @@ class AnnouncementController extends Controller
         ]);
 
         try {
-            // Handle image upload
+            
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
@@ -158,15 +151,12 @@ class AnnouncementController extends Controller
                 $data['image'] = 'announcement_pic/' . $imageName;
             }
 
-            // Generate slug
             $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
 
-            // Set published_at if status is published
             if ($request->status == 'published' && !$request->published_at) {
                 $data['published_at'] = now();
             }
 
-            // PostgreSQL-safe boolean literal to avoid boolean/integer binding mismatch.
             unset($data['is_featured']);
 
             $announcement = Announcement::create($data);
@@ -176,7 +166,7 @@ class AnnouncementController extends Controller
                     'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
                 ]);
 
-            return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.announcements.index') 
                 ->with('success', 'Announcement created successfully.');
 
         } catch (\Exception $e) {
@@ -187,7 +177,7 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, int $id)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'edit_' . $id);
 
         $announcement = Announcement::findOrFail($id);
@@ -203,9 +193,9 @@ class AnnouncementController extends Controller
         ]);
 
         try {
-            // Handle image upload
+            
             if ($request->hasFile('image')) {
-                // Delete old image
+                
                 if ($announcement->image && file_exists(public_path($announcement->image))) {
                     unlink(public_path($announcement->image));
                 }
@@ -216,17 +206,14 @@ class AnnouncementController extends Controller
                 $data['image'] = 'announcement_pic/' . $imageName;
             }
 
-            // Update slug only if title changed
             if ($announcement->title != $request->title) {
                 $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
             }
 
-            // Set published_at if status changed to published
             if ($request->status == 'published' && !$request->published_at && $announcement->status != 'published') {
                 $data['published_at'] = now();
             }
 
-            // PostgreSQL-safe boolean literal to avoid boolean/integer binding mismatch.
             unset($data['is_featured']);
 
             $announcement->update($data);
@@ -236,7 +223,7 @@ class AnnouncementController extends Controller
                     'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
                 ]);
 
-            return redirect()->route('admin.announcements.index') // FIXED: added 'admin.' prefix
+            return redirect()->route('admin.announcements.index') 
                 ->with('success', 'Announcement updated successfully.');
 
         } catch (\Exception $e) {
@@ -307,8 +294,7 @@ class AnnouncementController extends Controller
     public function show(string $slug)
     {
         $announcement = Announcement::where('slug', $slug)->firstOrFail();
-        
-        // Increment views
+
         $announcement->increment('views');
 
         return view('announcements.show', compact('announcement'));

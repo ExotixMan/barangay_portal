@@ -27,8 +27,10 @@
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ asset('css/barangay-public.css') }}">
 
+    @include('shared.theme-meta')
+    <script src="{{ asset('js/theme-vars.js') }}"></script>
+
     @stack('styles')
-    @include('barangay_system.partials.theme-colors')
 </head>
 <body>
 

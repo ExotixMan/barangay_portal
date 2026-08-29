@@ -1,5 +1,5 @@
 <?php
-// app/Models/UserActivityLog.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +38,6 @@ class AdminActivityLog extends Model
             $fingerprint = self::buildDuplicateFingerprint($log);
             $cacheKey = 'admin_activity_log:dedupe:' . sha1($fingerprint);
 
-            // Cache::add is atomic, so concurrent duplicate writes are rejected.
             return Cache::add($cacheKey, true, now()->addSeconds(self::DUPLICATE_GUARD_SECONDS));
         });
     }
@@ -107,13 +106,11 @@ class AdminActivityLog extends Model
         }
     }
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(AdminUser::class, 'user_id');
     }
 
-    // Scopes
     public function scopeByUser(Builder $query, int $userId)
     {
         return $query->where('user_id', $userId);
@@ -129,7 +126,6 @@ class AdminActivityLog extends Model
         return $query->where('action', $action);
     }
 
-    // Accessors
     public function getFormattedDetailsAttribute()
     {
         if (is_array($this->details)) {

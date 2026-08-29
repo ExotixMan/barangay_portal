@@ -1,5 +1,4 @@
 <?php
-// app/Models/AdminUser.php
 
 namespace App\Models;
 
@@ -101,7 +100,6 @@ class AdminUser extends Authenticatable
         )->withTimestamps();
     }
 
-    // Accessors
     public function getFullNameAttribute()
     {
         return trim($this->first_name . ' ' . ($this->middle_initial ? $this->middle_initial . ' ' : '') . $this->last_name);
@@ -114,7 +112,6 @@ class AdminUser extends Authenticatable
         return strtoupper($first . $last);
     }
 
-    // Scopes
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');

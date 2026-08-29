@@ -5,12 +5,10 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
-        // Backfill clearance requests
+        
         DB::table('barangay_clearances')
             ->whereNull('user_id')
             ->orderBy('id')
@@ -35,7 +33,6 @@ return new class extends Migration
                 }
             });
 
-        // Backfill residency requests
         DB::table('residency_applications')
             ->whereNull('user_id')
             ->orderBy('id')
@@ -60,7 +57,6 @@ return new class extends Migration
                 }
             });
 
-        // Backfill indigency requests
         DB::table('indigency_applications')
             ->whereNull('user_id')
             ->orderBy('id')
@@ -85,7 +81,6 @@ return new class extends Migration
                 }
             });
 
-        // Backfill blotter/incident reports
         DB::table('blotter_reports')
             ->whereNull('user_id')
             ->orderBy('id')
@@ -111,11 +106,8 @@ return new class extends Migration
             });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Intentionally left blank: do not null out backfilled user_id values.
+        
     }
 };

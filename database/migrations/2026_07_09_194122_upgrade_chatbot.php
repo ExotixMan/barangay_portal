@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        // No destructive rollback needed. Keep boolean columns as-is.
+        
     }
 };

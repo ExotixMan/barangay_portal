@@ -22,7 +22,7 @@ class ResidentController extends Controller
     {
         $query = Residents::withTrashed();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -33,7 +33,6 @@ class ResidentController extends Controller
             });
         }
 
-        // FILTER BY STATUS
         if ($request->status === 'active') {
             $query->whereNull('deleted_at');
         }
@@ -42,7 +41,6 @@ class ResidentController extends Controller
             $query->onlyTrashed();
         }
 
-        // FILTER BY AGE RANGE
         if ($request->age_range) {
             switch ($request->age_range) {
                 case 'minor':
@@ -57,7 +55,6 @@ class ResidentController extends Controller
             }
         }
 
-        // SORTING
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['firstname', 'username', 'age', 'created_at'];
@@ -93,17 +90,11 @@ class ResidentController extends Controller
 
         $residents = $query->paginate(20);
 
-        /* ==============================
-        DASHBOARD STATISTICS
-        ============================== */
-
-        //TOTAL (including deleted)
+        
         $totalResidents = Residents::withTrashed()->count();
 
-        // Get last month date
         $lastMonth = Carbon::now()->subMonth();
 
-        // Get 3-month average for smoother growth calculation
         $thisMonth = Carbon::now();
         $threeMonthsAgo = $thisMonth->copy()->subMonths(3);
         
@@ -122,28 +113,22 @@ class ResidentController extends Controller
 
         if ($threeMonthAverage > 0) {
             $growthPercentage = (($totalThisMonth - $threeMonthAverage) / $threeMonthAverage) * 100;
-            // Cap growth at ±100% for display purposes to avoid extreme percentages from small numbers
+            
             $growthPercentage = max(-100, min(100, $growthPercentage));
         }
 
-        //ACTIVE (not soft deleted)
         $activeResidents = Residents::whereNull('deleted_at')->count();
 
-        //ACTIVE PERCENTAGE
         $activePercentage = $totalResidents > 0 ? ($activeResidents / $totalResidents) * 100 : 0;
 
-        //NEW THIS MONTH
         $newResidents = Residents::whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->count();
 
-        //YESTERDAY COUNT
         $yesterdayCount = Residents::whereDate('created_at', Carbon::yesterday())->count();
 
-        //SENIOR (60+ years old)
         $seniorResidents = Residents::whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60")->count();
 
-        //SENIOR PERCENTAGE
         $seniorPercentage = $totalResidents > 0 ? ($seniorResidents / $totalResidents) * 100 : 0;
 
         $withCorrection = ResidentProfileCorrectionConcern::where('status', 'pending')->get();
@@ -153,15 +138,14 @@ class ResidentController extends Controller
     
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
-        // Normalize contact input before validation.
         $request->merge([
             'contact' => preg_replace('/\D+/', '', (string) $request->input('contact')),
         ]);
 
-        $request->validate([
+        $validated = $request->validate([
             'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'middlename' => ['nullable','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
             'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
@@ -169,9 +153,14 @@ class ResidentController extends Controller
             'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username'],
             'email'     => 'required|email|max:255|unique:residents,email',
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
+            'gender' => ['required', 'string', 'in:Male,Female,Other,Prefer not to say'],
+            'civil_status' => ['required', 'string', 'in:Single,Married,Widowed,Separated,Divorced'],
+            'place_of_birth' => ['required', 'string', 'max:255'],
             'password'  => ['required','confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
             'address'   => 'required|string|max:500',
+            'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ], [
             'firstname.regex'   => 'First name can only contain letters, spaces, and hyphens.',
             'middlename.regex'  => 'Middle name can only contain letters, spaces, and hyphens.',
@@ -183,20 +172,56 @@ class ResidentController extends Controller
             'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
             'password.regex'    => 'Password cannot contain spaces.',
             'password.*'        => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+            'valid_id.required' => 'Please upload the front side of the resident\'s valid ID.',
+            'valid_id_back.required' => 'Please upload the back side of the resident\'s valid ID.',
+            'valid_id.mimes' => 'The front valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id_back.mimes' => 'The back valid ID must be JPG, JPEG, PNG, or PDF.',
+            'valid_id.max' => 'The front valid ID must not exceed 5 MB.',
+            'valid_id_back.max' => 'The back valid ID must not exceed 5 MB.',
         ]);
 
-        $resident = Residents::create([
-            'firstname' => $request->firstname,
-            'middlename' => $request->middlename,
-            'lastname' => $request->lastname,
-            'suffix' => $request->suffix,
-            'email' => $request->email,
-            'address' => $request->address,
-            'birthdate' => $request->birthdate,
-            'contact' => $request->contact,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-        ]);
+        $uploadedPaths = [];
+
+        try {
+            $frontPath = $this->storeResidentValidIdFile($request, 'valid_id');
+            $uploadedPaths[] = $frontPath;
+
+            $backPath = $this->storeResidentValidIdFile($request, 'valid_id_back');
+            $uploadedPaths[] = $backPath;
+
+            $resident = Residents::create([
+                'firstname' => $validated['firstname'],
+                'middlename' => $validated['middlename'] ?? null,
+                'lastname' => $validated['lastname'],
+                'suffix' => $validated['suffix'] ?? null,
+                'email' => $validated['email'],
+                'address' => $validated['address'],
+                'birthdate' => $validated['birthdate'],
+                'gender' => $validated['gender'],
+                'civil_status' => $validated['civil_status'],
+                'place_of_birth' => $validated['place_of_birth'],
+                'contact' => $validated['contact'],
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['password']),
+                'valid_id' => $frontPath,
+                'valid_id_back' => $backPath,
+                'valid_id_verified' => false,
+                'valid_id_status' => 'for_verification',
+                'valid_id_verified_at' => null,
+                'valid_id_verified_by' => null,
+                'valid_id_rejection_reason' => null,
+            ]);
+        } catch (\Throwable $e) {
+            foreach ($uploadedPaths as $path) {
+                $this->deleteResidentValidIdFile($path);
+            }
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Resident could not be added because the valid ID files could not be saved. Please try again.');
+        }
 
         $this->log($resident, 'Created');
 
@@ -208,14 +233,6 @@ class ResidentController extends Controller
     {
         $resident = Residents::withTrashed()->findOrFail($id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | PROFILE CORRECTION UPDATE
-        |--------------------------------------------------------------------------
-        | Correction requests use the same resident update route.
-        | The correction form only needs correction_id, decision, and remarks.
-        |--------------------------------------------------------------------------
-        */
         if ($request->filled('correction_id')) {
             $correction = ResidentProfileCorrectionConcern::where('id', $request->input('correction_id'))
                 ->where('resident_id', $resident->id)
@@ -248,15 +265,6 @@ class ResidentController extends Controller
 
             $decision = $validated['resolution_status'];
             $remarks = trim($validated['remarks']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | APPROVE / CORRECT
-            |--------------------------------------------------------------------------
-            | Only update fields that are actually allowed to be changed through
-            | the profile correction system.
-            |--------------------------------------------------------------------------
-            */
 
             if ($decision === 'resolved') {
                 $field = strtolower(trim((string) $correction->field_name));
@@ -296,12 +304,6 @@ class ResidentController extends Controller
                 }
 
                 $correctValue = trim((string) $correction->correct_value);
-
-                /*
-                |--------------------------------------------------------------------------
-                | FIELD-SPECIFIC VALIDATION
-                |--------------------------------------------------------------------------
-                */
 
                 if (in_array($residentField, ['firstname', 'middlename', 'lastname'], true)) {
                     if ($residentField === 'middlename' && $correctValue === '') {
@@ -423,22 +425,10 @@ class ResidentController extends Controller
                     }
                 }
 
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE ACTUAL RESIDENT PROFILE
-                |--------------------------------------------------------------------------
-                */
-
                 $resident->update([
                     $residentField => $correctValue,
                 ]);
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE CORRECTION RECORD
-            |--------------------------------------------------------------------------
-            */
 
             $correction->update([
                 'status' => $decision === 'resolved' ? 'resolved' : 'rejected',
@@ -447,24 +437,12 @@ class ResidentController extends Controller
                 'remarks' => $remarks,
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | ACTIVITY LOG
-            |--------------------------------------------------------------------------
-            */
-
             $this->log(
                 $resident,
                 $decision === 'resolved'
                     ? 'Profile Correction Resolved'
                     : 'Profile Correction Rejected'
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADMIN ACTIVITY LOG
-            |--------------------------------------------------------------------------
-            */
 
             if (auth('admin')->check()) {
                 \App\Models\AdminActivityLog::create([
@@ -488,12 +466,6 @@ class ResidentController extends Controller
                     'user_agent' => $request->userAgent(),
                 ]);
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | EMAIL RESIDENT
-            |--------------------------------------------------------------------------
-            */
 
             $notificationResult = [
                 'email' => 'skipped',
@@ -593,12 +565,6 @@ class ResidentController extends Controller
                 . $emailMessage
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | NORMAL RESIDENT UPDATE
-        |--------------------------------------------------------------------------
-        */
 
         $previousValidIdStatus = (string) ($resident->valid_id_status ?? '');
         $previousValidIdRemarks = (string) ($resident->valid_id_rejection_reason ?? '');
@@ -942,7 +908,7 @@ class ResidentController extends Controller
     {
         $result = [
             'email' => 'skipped',
-            // 'sms' => 'skipped',
+            
         ];
 
         $residentName = trim((string) ($resident->full_name ?? ($resident->firstname . ' ' . $resident->lastname))) ?: 'Resident';
@@ -970,51 +936,35 @@ class ResidentController extends Controller
             }
         }
 
-        // $mobileNumber = $this->formatPhilippineMobileNumber((string) ($resident->contact ?? ''));
-        // $semaphoreApiKey = trim((string) env('SEMAPHORE_API_KEY', ''));
+        
 
-        // if ($mobileNumber && $semaphoreApiKey !== '') {
-        //     try {
-        //         $smsMessage = mb_substr($message, 0, 480);
+        
 
-        //         $payload = [
-        //             'apikey' => $semaphoreApiKey,
-        //             'number' => $mobileNumber,
-        //             'message' => $smsMessage,
-        //         ];
+        
 
-        //         $senderName = trim((string) env('SEMAPHORE_SENDER_NAME', ''));
-        //         if ($senderName !== '') {
-        //             $payload['sendername'] = $senderName;
-        //         }
+        
 
-        //         $response = Http::asForm()
-        //             ->timeout(15)
-        //             ->post('https://api.semaphore.co/api/v4/messages', $payload);
+        
 
-        //         if ($response->successful()) {
-        //             $result['sms'] = 'sent';
-        //             $this->logNotification('sms', $mobileNumber, 'sent', $smsMessage, $resident->id, null);
-        //         } else {
-        //             $result['sms'] = 'failed';
-        //             $error = 'Semaphore status ' . $response->status() . ': ' . $response->body();
-        //             Log::warning('Failed to send valid ID rejection SMS.', [
-        //                 'resident_id' => $resident->id,
-        //                 'contact' => $mobileNumber,
-        //                 'error' => $error,
-        //             ]);
-        //             $this->logNotification('sms', $mobileNumber, 'failed', $smsMessage, $resident->id, $error);
-        //         }
-        //     } catch (\Throwable $e) {
-        //         $result['sms'] = 'failed';
-        //         Log::warning('Failed to send valid ID rejection SMS.', [
-        //             'resident_id' => $resident->id,
-        //             'contact' => $mobileNumber,
-        //             'error' => $e->getMessage(),
-        //         ]);
-        //         $this->logNotification('sms', $mobileNumber, 'failed', $message, $resident->id, $e->getMessage());
-        //     }
-        // }
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
 
         return $result;
     }
@@ -1179,7 +1129,6 @@ class ResidentController extends Controller
             $this->log($resident, 'Bulk Archived');
         }
 
-        // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -1239,7 +1188,6 @@ class ResidentController extends Controller
             fclose($file);
         };
 
-        // Log audit trail
         if (auth('admin')->check()) {
             $exportCount = Residents::query()->when($request->ids, function($q) use ($request) {
                 return $q->whereIn('id', $request->ids);

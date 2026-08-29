@@ -1,9 +1,3 @@
-/*
- * BISIG Admin Modal System
- * Consistent modal UI/UX for every admin workflow.
- * Presentation only: no route, form, validation, permission, ID, or JavaScript logic changes.
- */
-
 :root {
     --admin-modal-surface: var(--admin-surface, #ffffff);
     --admin-modal-canvas: #f8fafc;
@@ -17,7 +11,6 @@
     --admin-modal-shadow: 0 24px 70px rgba(15, 23, 42, .20);
 }
 
-/* Backdrop and motion */
 .modal-backdrop.show {
     opacity: .44 !important;
     backdrop-filter: blur(1.5px);
@@ -32,7 +25,6 @@
     transform: none;
 }
 
-/* Core shell */
 .admin-page .modal:not(#globalImageZoomModal) .modal-content,
 .admin-page #globalImageZoomModal .modal-content,
 .admin-page #chartFocusModal .modal-content {
@@ -48,7 +40,6 @@
     padding-inline: .25rem;
 }
 
-/* Header: same hierarchy used by Add Application */
 .admin-page .modal-header {
     min-height: 68px;
     padding: 1rem 1.15rem !important;
@@ -136,7 +127,6 @@
     box-shadow: none !important;
 }
 
-/* Body */
 .admin-page .modal-body {
     padding: 1.1rem 1.15rem !important;
     background: var(--admin-modal-canvas) !important;
@@ -159,7 +149,6 @@
     color: var(--admin-modal-muted) !important;
 }
 
-/* Form controls: consistent density and focus */
 .admin-page .modal .form-label {
     margin-bottom: .38rem;
     color: #344054 !important;
@@ -263,7 +252,6 @@
     line-height: 1.4;
 }
 
-/* Section grouping: visually match the step cards used in Add Application */
 .admin-page .modal .form-step-card,
 .admin-page .modal .resident-picker-section,
 .admin-page .modal .modal-section,
@@ -338,7 +326,6 @@
     line-height: 1.4;
 }
 
-/* Details / summary blocks */
 .admin-page .modal .application-modal-summary {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -386,7 +373,6 @@
     font-size: .67rem !important;
 }
 
-/* Tabs inside view/edit modals */
 .admin-page .modal .nav-tabs,
 .admin-page .modal .view-tabs {
     gap: .25rem;
@@ -420,7 +406,6 @@
     box-shadow: 0 1px 2px rgba(16,24,40,.06) !important;
 }
 
-/* Resident/file helper cards */
 .admin-page .modal .selected-resident-card,
 .admin-page .modal .document-upload-card,
 .admin-page .modal .edit-file-card,
@@ -445,7 +430,6 @@
     box-shadow: 0 16px 36px rgba(15,23,42,.14) !important;
 }
 
-/* Status selectors */
 .admin-page .modal .status-grid {
     gap: .5rem !important;
 }
@@ -474,7 +458,6 @@
     color: var(--primary-dark, var(--primary)) !important;
 }
 
-/* Footer: stable action area */
 .admin-page .modal-footer {
     min-height: 62px;
     padding: .78rem 1.15rem !important;
@@ -526,7 +509,6 @@
     font-size: .69rem !important;
 }
 
-/* View modal headers that use an avatar instead of h5.modal-title */
 .admin-page .modal .view-modal-head {
     display: flex;
     align-items: center;
@@ -561,7 +543,6 @@
     font-size: .7rem !important;
 }
 
-/* Permission management cards retain their logic but use the same surfaces. */
 .admin-page .modal .module-header {
     padding: .7rem .8rem !important;
     border-bottom: 1px solid var(--admin-modal-border) !important;
@@ -592,7 +573,6 @@
     background: #f8fafc !important;
 }
 
-/* Confirmation modal: same shell, clearer destructive/important decision hierarchy. */
 .admin-page #confirmActionModal .modal-content {
     max-width: 480px;
     margin-inline: auto;
@@ -626,7 +606,6 @@
     border-top: 1px solid var(--admin-modal-border) !important;
 }
 
-/* Media preview: same chrome, dark canvas where the image itself is the task. */
 .admin-page #globalImageZoomModal .modal-body {
     min-height: 280px;
     display: flex;
@@ -644,7 +623,6 @@
     object-fit: contain;
 }
 
-/* Dashboard chart is a special full-screen modal but uses the same header chrome. */
 .admin-page #chartFocusModal .modal-content {
     border-radius: 0 !important;
 }
@@ -653,7 +631,6 @@
     background: var(--admin-modal-canvas) !important;
 }
 
-/* Empty/help states in short utility modals */
 .admin-page .modal .alert {
     border-radius: 10px !important;
     box-shadow: none !important;
@@ -664,7 +641,6 @@
     font-weight: 700;
 }
 
-/* Responsive */
 @media (max-width: 991.98px) {
     .admin-page .modal-dialog.modal-xl,
     .admin-page .modal-dialog.modal-lg {
@@ -763,7 +739,6 @@
     }
 }
 
-/* Dark mode */
 html[data-theme="dark"] {
     --admin-modal-surface: var(--card);
     --admin-modal-canvas: color-mix(in srgb, var(--card) 91%, #000 9%);

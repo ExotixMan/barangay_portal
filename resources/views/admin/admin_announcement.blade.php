@@ -6,991 +6,12 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/announcements.css') }}">
-    <style>
-        /* Announcement admin UX refresh — presentation only */
-        .announcements-page {
-            --ann-primary: #4338ca;
-            --ann-primary-soft: #eef2ff;
-            --ann-border: #e5e7eb;
-            --ann-border-strong: #d8dee8;
-            --ann-text: #172033;
-            --ann-muted: #667085;
-            --ann-soft: #f8fafc;
-            --ann-success: #15803d;
-            --ann-warning: #a16207;
-            --ann-danger: #b42318;
-        }
 
-        .announcements-page .announcements-hero,
-        .announcements-page .announcements-stats-row {
-            display: none !important;
-        }
-
-        .announcements-page .announcements-panel {
-            border: 1px solid var(--ann-border);
-            border-radius: 16px;
-            background: #fff;
-            box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
-            overflow: hidden;
-        }
-
-        .announcements-page .announcements-filter-panel {
-            margin-bottom: 18px;
-        }
-
-        .announcements-page .announcements-panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 16px 18px;
-            border-bottom: 1px solid var(--ann-border);
-            background: #fff;
-        }
-
-        .announcements-page .announcements-panel-title {
-            display: flex;
-            align-items: flex-start;
-            gap: 11px;
-            min-width: 0;
-        }
-
-        .announcements-page .announcements-panel-icon {
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            background: var(--ann-primary-soft);
-            color: var(--ann-primary);
-        }
-
-        .announcements-page .announcements-panel-title h3 {
-            margin: 0;
-            color: var(--ann-text);
-            font-size: .98rem;
-            font-weight: 800;
-            line-height: 1.3;
-        }
-
-        .announcements-page .section-kicker,
-        .announcements-page .panel-copy {
-            display: none;
-        }
-
-        .announcements-page .announcements-panel-actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .announcements-page .announcements-filter-body {
-            padding: 14px 18px 16px;
-        }
-
-        .announcements-page .announcements-filter-toolbar {
-            display: grid;
-            grid-template-columns: minmax(260px, 1.8fr) repeat(3, minmax(140px, .7fr)) auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .announcements-page .announcements-search-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 0;
-        }
-
-        .announcements-page .announcements-search-field {
-            position: relative;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .announcements-page .announcements-search-field > i {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-            color: #98a2b3;
-            pointer-events: none;
-        }
-
-        .announcements-page .announcements-search-field .form-control {
-            padding-left: 38px;
-        }
-
-        .announcements-page .form-control,
-        .announcements-page .form-select {
-            min-height: 42px;
-            border-color: var(--ann-border-strong);
-            border-radius: 10px;
-            color: var(--ann-text);
-            font-size: .86rem;
-            box-shadow: none;
-        }
-
-        .announcements-page .form-control:focus,
-        .announcements-page .form-select:focus {
-            border-color: var(--ann-primary);
-            box-shadow: 0 0 0 .2rem rgba(67, 56, 202, .09);
-        }
-
-        .announcements-page .btn {
-            min-height: 40px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: .82rem;
-        }
-
-        .announcements-page .btn i {
-            margin-right: .38rem;
-        }
-
-        .announcements-page .icon-only i,
-        .announcements-page .btn-close i {
-            margin-right: 0;
-        }
-
-        .announcements-page .announcements-bulk-row {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--ann-border);
-        }
-
-        .announcements-page .selected-count {
-            color: var(--ann-muted);
-            font-size: .78rem;
-            font-weight: 700;
-        }
-
-        .announcements-page table {
-            margin: 0;
-        }
-
-        .announcements-page .table thead th {
-            padding-top: 11px;
-            padding-bottom: 11px;
-            border-bottom: 1px solid var(--ann-border);
-            background: #f8fafc;
-            color: #475467;
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .02em;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        .announcements-page .table tbody td {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            border-color: #eef1f5;
-            color: var(--ann-text);
-            font-size: .83rem;
-            vertical-align: middle;
-        }
-
-        .announcements-page .table tbody tr:hover {
-            background: #fafbff;
-        }
-
-        .announcements-page .announcement-icon {
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            overflow: hidden;
-            border: 1px solid var(--ann-border);
-            border-radius: 10px;
-            background: var(--ann-soft);
-        }
-
-        .announcements-page .announcement-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .announcements-page .views-badge,
-        .announcements-page .date-badge,
-        .announcements-page .announcements-count-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #475467;
-            font-size: .75rem;
-            font-weight: 700;
-        }
-
-        .announcements-page .table .badge {
-            padding: .42rem .58rem;
-            border-radius: 999px;
-            font-size: .7rem;
-            font-weight: 800;
-        }
-
-        .announcements-page .action-cluster {
-            display: inline-flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 6px;
-        }
-
-        .announcements-page .action-view-btn {
-            min-height: 34px;
-            padding: .38rem .65rem;
-            border-color: #d0d5dd;
-            color: #344054;
-            background: #fff;
-        }
-
-        .announcements-page .action-more-toggle {
-            width: 34px;
-            min-height: 34px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-color: #d0d5dd;
-            color: #475467;
-            background: #fff;
-        }
-
-        .announcements-page .action-more-toggle i {
-            margin: 0;
-        }
-
-        .announcements-page .action-menu {
-            min-width: 240px;
-            padding: 7px;
-            border: 1px solid var(--ann-border);
-            border-radius: 12px;
-            box-shadow: 0 16px 38px rgba(16, 24, 40, .14);
-        }
-
-        .announcements-page .action-menu .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 40px;
-            padding: 8px 10px;
-            border-radius: 8px;
-            color: #344054;
-            font-size: .8rem;
-            font-weight: 700;
-        }
-
-        .announcements-page .action-menu .dropdown-item:hover {
-            background: #f8fafc;
-        }
-
-        .announcements-page .action-menu .dropdown-item i {
-            width: 16px;
-            color: #667085;
-            text-align: center;
-        }
-
-        .announcements-page .action-menu .dropdown-item.text-danger i {
-            color: var(--ann-danger);
-        }
-
-        .announcements-page .action-menu form {
-            margin: 0;
-        }
-
-        /* Consistent modal system */
-        .announcements-page .modal-dialog {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .announcements-page .modal-content {
-            overflow: hidden;
-            border: 1px solid rgba(15, 23, 42, .08);
-            border-radius: 18px;
-            background: #fff;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, .20);
-        }
-
-        .announcements-page .modal-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--ann-border);
-            background: #fff;
-        }
-
-        .announcements-page .modal-heading {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            min-width: 0;
-            flex: 1;
-        }
-
-        .announcements-page .modal-heading-icon {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 11px;
-            background: var(--ann-primary-soft);
-            color: var(--ann-primary);
-        }
-
-        .announcements-page .modal-heading-copy {
-            min-width: 0;
-        }
-
-        .announcements-page .modal-title {
-            margin: 0;
-            color: var(--ann-text);
-            font-size: 1rem;
-            font-weight: 850;
-            line-height: 1.35;
-        }
-
-        .announcements-page .modal-subtitle {
-            display: block;
-            margin-top: 3px;
-            color: var(--ann-muted);
-            font-size: .76rem;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        .announcements-page .modal-header .btn-close {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            margin: 0;
-            flex: 0 0 auto;
-            border-radius: 9px;
-            background-size: 12px;
-            opacity: .65;
-        }
-
-        .announcements-page .modal-header .btn-close:hover {
-            background-color: #f2f4f7;
-            opacity: 1;
-        }
-
-        .announcements-page .modal-body {
-            padding: 18px 20px;
-            background: #f8fafc;
-        }
-
-        .announcements-page .modal-form-intro {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 14px;
-            color: var(--ann-muted);
-            font-size: .76rem;
-        }
-
-        .announcements-page .form-step-card,
-        .announcements-page .detail-section-card {
-            padding: 16px;
-            margin-bottom: 14px;
-            border: 1px solid var(--ann-border);
-            border-radius: 14px;
-            background: #fff;
-        }
-
-        .announcements-page .form-step-card:last-child,
-        .announcements-page .detail-section-card:last-child {
-            margin-bottom: 0;
-        }
-
-        .announcements-page .form-section-heading {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .announcements-page .section-step {
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 50%;
-            background: var(--ann-primary-soft);
-            color: var(--ann-primary);
-            font-size: .76rem;
-            font-weight: 900;
-        }
-
-        .announcements-page .form-section-heading h6,
-        .announcements-page .detail-section-title {
-            margin: 0;
-            color: var(--ann-text);
-            font-size: .87rem;
-            font-weight: 850;
-        }
-
-        .announcements-page .form-section-heading p {
-            margin: 2px 0 0;
-            color: var(--ann-muted);
-            font-size: .72rem;
-            line-height: 1.45;
-        }
-
-        .announcements-page .modal .form-label {
-            margin-bottom: 6px;
-            color: #344054;
-            font-size: .76rem;
-            font-weight: 800;
-        }
-
-        .announcements-page .modal .form-label > i {
-            width: 15px;
-            margin-right: 5px;
-            color: #98a2b3;
-            font-size: .74rem;
-            text-align: center;
-        }
-
-        .announcements-page .modal .form-control,
-        .announcements-page .modal .form-select {
-            min-height: 44px;
-            border-radius: 10px;
-            background-color: #fff;
-        }
-
-        .announcements-page .modal textarea.form-control {
-            min-height: auto;
-            line-height: 1.55;
-            resize: vertical;
-        }
-
-        .announcements-page .field-hint,
-        .announcements-page .modal .text-muted.small,
-        .announcements-page .modal small.text-muted {
-            display: block;
-            margin-top: 5px;
-            color: var(--ann-muted) !important;
-            font-size: .7rem;
-            line-height: 1.45;
-        }
-
-        .announcements-page .publish-setting-card {
-            height: 100%;
-            padding: 12px 13px;
-            border: 1px solid var(--ann-border);
-            border-radius: 11px;
-            background: #fbfcfe;
-        }
-
-        .announcements-page .publish-setting-card .form-check {
-            margin: 0;
-            padding-left: 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-        }
-
-        .announcements-page .publish-setting-card .form-check-input {
-            width: 2.1rem;
-            height: 1.1rem;
-            margin: 2px 0 0;
-            flex: 0 0 auto;
-        }
-
-        .announcements-page .upload-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 13px;
-            border: 1px dashed #cfd6e3;
-            border-radius: 12px;
-            background: #fbfcfe;
-        }
-
-        .announcements-page .upload-card-icon {
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            background: var(--ann-primary-soft);
-            color: var(--ann-primary);
-        }
-
-        .announcements-page .image-preview,
-        .announcements-page .modal-image-hero {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid var(--ann-border);
-        }
-
-        .announcements-page .photo-view-btn {
-            padding: 0;
-            border: 0;
-            background: transparent;
-        }
-
-        .announcements-page .modal-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 14px 20px;
-            border-top: 1px solid var(--ann-border);
-            background: #fff;
-        }
-
-        .announcements-page .modal-footer .btn {
-            min-width: 112px;
-        }
-
-        .announcements-page .view-summary {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .announcements-page .view-summary-item {
-            padding: 11px 12px;
-            border: 1px solid var(--ann-border);
-            border-radius: 11px;
-            background: #fff;
-        }
-
-        .announcements-page .view-summary-label {
-            display: block;
-            margin-bottom: 3px;
-            color: var(--ann-muted);
-            font-size: .67rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-        }
-
-        .announcements-page .view-summary-value {
-            display: block;
-            color: var(--ann-text);
-            font-size: .82rem;
-            font-weight: 800;
-            line-height: 1.35;
-        }
-
-        .announcements-page .announcement-view-title {
-            margin: 0 0 8px;
-            color: var(--ann-text);
-            font-size: 1.2rem;
-            font-weight: 850;
-            line-height: 1.35;
-        }
-
-        .announcements-page .announcement-content-box {
-            padding: 14px;
-            border: 1px solid var(--ann-border);
-            border-radius: 11px;
-            background: #fff;
-            color: #344054;
-            font-size: .84rem;
-            line-height: 1.65;
-            white-space: normal;
-        }
-
-        /* Bulk notify modal */
-        .announcements-page #bulkNotifyResidentsModal .modal-form-grid > .col-12 > hr {
-            margin-top: 4px !important;
-            border-color: var(--ann-border);
-            opacity: 1;
-        }
-
-        .announcements-page #bulkNotifyResidentsModal .modal-section-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--ann-text);
-            font-size: .88rem;
-            font-weight: 850;
-        }
-
-        .announcements-page .notification-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .announcements-page .notification-summary-card {
-            padding: 10px 11px;
-            border: 1px solid var(--ann-border);
-            border-radius: 10px;
-            background: #fff;
-        }
-
-        .announcements-page .notification-summary-card span,
-        .announcements-page .sms-credit-label {
-            display: block;
-            color: var(--ann-muted);
-            font-size: .68rem;
-            font-weight: 700;
-        }
-
-        .announcements-page .notification-summary-card strong {
-            display: block;
-            margin-top: 2px;
-            color: var(--ann-text);
-            font-size: 1rem;
-            font-weight: 850;
-        }
-
-        .announcements-page .resident-picker-list {
-            max-height: 230px;
-            overflow-y: auto;
-            padding: 6px;
-            border: 1px solid var(--ann-border);
-            border-radius: 11px;
-            background: #fff;
-        }
-
-        .announcements-page .resident-picker-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            padding: 9px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .announcements-page .resident-picker-item:hover {
-            background: #f8fafc;
-        }
-
-        .announcements-page .resident-picker-item strong,
-        .announcements-page .resident-picker-item small {
-            display: block;
-        }
-
-        .announcements-page .resident-picker-item strong {
-            color: #344054;
-            font-size: .78rem;
-        }
-
-        .announcements-page .resident-picker-item small {
-            margin-top: 2px;
-            color: var(--ann-muted);
-            font-size: .68rem;
-        }
-
-        .announcements-page .notification-preview-box,
-        .announcements-page .sms-credit-box,
-        .announcements-page .notification-warning-box {
-            border: 1px solid var(--ann-border);
-            border-radius: 11px;
-            background: #fff;
-        }
-
-        .announcements-page .notification-preview-box,
-        .announcements-page .sms-credit-box {
-            padding: 13px;
-        }
-
-        .announcements-page .notification-warning-box {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            padding: 11px 12px;
-            background: #fffbeb;
-            border-color: #fde68a;
-            color: #854d0e;
-            font-size: .74rem;
-        }
-
-        .announcements-page .notification-preview-header,
-        .announcements-page .sms-credit-main,
-        .announcements-page .sms-credit-details {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .announcements-page .notification-preview-header {
-            margin-bottom: 8px;
-            color: #475467;
-            font-size: .73rem;
-            font-weight: 800;
-        }
-
-        .announcements-page .notification-preview-box p {
-            margin: 0;
-            color: #344054;
-            font-size: .82rem;
-            line-height: 1.55;
-            white-space: pre-wrap;
-        }
-
-        .announcements-page .sms-credit-main strong {
-            display: block;
-            margin-top: 2px;
-            color: var(--ann-text);
-            font-size: 1.1rem;
-        }
-
-        .announcements-page .sms-credit-main small {
-            margin-top: 2px;
-        }
-
-        .announcements-page .sms-credit-status {
-            padding: .38rem .55rem;
-            border-radius: 999px;
-            background: #f2f4f7;
-            color: #475467;
-            font-size: .68rem;
-            font-weight: 800;
-        }
-
-        .announcements-page .sms-credit-status.is-ok {
-            background: #ecfdf3;
-            color: #027a48;
-        }
-
-        .announcements-page .sms-credit-status.is-danger {
-            background: #fef3f2;
-            color: #b42318;
-        }
-
-        .announcements-page .sms-credit-details {
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            margin-top: 11px;
-            padding-top: 10px;
-            border-top: 1px solid var(--ann-border);
-            color: #475467;
-            font-size: .7rem;
-        }
-
-        .announcements-page .resident-picker-search > i {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-            color: #98a2b3;
-            pointer-events: none;
-        }
-
-        .announcements-page .resident-picker-search .form-control {
-            padding-left: 38px;
-        }
-
-        .announcements-page .announcement-icon .photo-view-btn {
-            width: 100%;
-            height: 100%;
-        }
-
-        .announcements-page .photo-view-btn {
-            position: relative;
-            display: block;
-        }
-
-        .announcements-page .zoom-hint {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 6px;
-            color: var(--ann-muted);
-            font-size: .69rem;
-            font-weight: 700;
-        }
-
-        .announcements-page .image-zoom-modal .modal-body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 360px;
-            padding: 16px;
-            background: #101828;
-        }
-
-        .announcements-page .zoomed-image {
-            display: block;
-            max-width: 100%;
-            max-height: 72vh;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        @media (max-width: 1199.98px) {
-            .announcements-page .announcements-filter-toolbar {
-                grid-template-columns: minmax(240px, 1.5fr) repeat(2, minmax(140px, .7fr));
-            }
-
-            .announcements-page .filter-submit-btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 767.98px) {
-            .announcements-page .announcements-panel-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .announcements-page .announcements-panel-actions,
-            .announcements-page .announcements-panel-actions .btn,
-            .announcements-page .announcements-panel-actions a.btn {
-                width: 100%;
-            }
-
-            .announcements-page .announcements-panel-actions {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .announcements-page .announcements-panel-actions .btn-primary:first-child {
-                grid-column: 1 / -1;
-            }
-
-            .announcements-page .announcements-filter-toolbar {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .announcements-page .announcements-search-group {
-                grid-column: 1 / -1;
-            }
-
-            .announcements-page .filter-submit-btn {
-                grid-column: 1 / -1;
-            }
-
-            .announcements-page .modal-dialog {
-                margin: .6rem;
-            }
-
-            .announcements-page .modal-header,
-            .announcements-page .modal-body,
-            .announcements-page .modal-footer {
-                padding-left: 14px;
-                padding-right: 14px;
-            }
-
-            .announcements-page .view-summary,
-            .announcements-page .notification-summary-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .announcements-page .modal-footer {
-                flex-direction: column-reverse;
-            }
-
-            .announcements-page .modal-footer .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .announcements-page .announcements-filter-toolbar {
-                grid-template-columns: 1fr;
-            }
-
-            .announcements-page .announcements-search-group {
-                display: grid;
-                grid-template-columns: 1fr auto;
-            }
-
-            .announcements-page .announcements-panel-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .announcements-page .announcements-panel-actions .btn-primary:first-child {
-                grid-column: auto;
-            }
-
-            .announcements-page .view-summary,
-            .announcements-page .notification-summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .announcements-page .upload-card {
-                flex-direction: column;
-            }
-        }
-
-        [data-theme="dark"] .announcements-page,
-        body.dark-mode .announcements-page {
-            --ann-border: #2b3445;
-            --ann-border-strong: #3a4558;
-            --ann-text: #f2f4f7;
-            --ann-muted: #98a2b3;
-            --ann-soft: #182230;
-        }
-
-        [data-theme="dark"] .announcements-page .announcements-panel,
-        [data-theme="dark"] .announcements-page .announcements-panel-header,
-        [data-theme="dark"] .announcements-page .modal-content,
-        [data-theme="dark"] .announcements-page .modal-header,
-        [data-theme="dark"] .announcements-page .modal-footer,
-        [data-theme="dark"] .announcements-page .form-step-card,
-        [data-theme="dark"] .announcements-page .detail-section-card,
-        [data-theme="dark"] .announcements-page .view-summary-item,
-        [data-theme="dark"] .announcements-page .notification-summary-card,
-        [data-theme="dark"] .announcements-page .resident-picker-list,
-        [data-theme="dark"] .announcements-page .notification-preview-box,
-        [data-theme="dark"] .announcements-page .sms-credit-box,
-        body.dark-mode .announcements-page .announcements-panel,
-        body.dark-mode .announcements-page .announcements-panel-header,
-        body.dark-mode .announcements-page .modal-content,
-        body.dark-mode .announcements-page .modal-header,
-        body.dark-mode .announcements-page .modal-footer,
-        body.dark-mode .announcements-page .form-step-card,
-        body.dark-mode .announcements-page .detail-section-card,
-        body.dark-mode .announcements-page .view-summary-item,
-        body.dark-mode .announcements-page .notification-summary-card,
-        body.dark-mode .announcements-page .resident-picker-list,
-        body.dark-mode .announcements-page .notification-preview-box,
-        body.dark-mode .announcements-page .sms-credit-box {
-            background: #111827;
-        }
-
-        [data-theme="dark"] .announcements-page .modal-body,
-        body.dark-mode .announcements-page .modal-body {
-            background: #0f172a;
-        }
-
-        [data-theme="dark"] .announcements-page .form-control,
-        [data-theme="dark"] .announcements-page .form-select,
-        [data-theme="dark"] .announcements-page .publish-setting-card,
-        [data-theme="dark"] .announcements-page .upload-card,
-        body.dark-mode .announcements-page .form-control,
-        body.dark-mode .announcements-page .form-select,
-        body.dark-mode .announcements-page .publish-setting-card,
-        body.dark-mode .announcements-page .upload-card {
-            background-color: #182230;
-            border-color: #3a4558;
-            color: #f2f4f7;
-        }
-    </style>
 @endpush
 
 @section('content')
             <div class="announcements-page">
 
-            <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show announcements-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
@@ -1019,9 +40,6 @@
                 </div>
             @endif
 
-
-
-            <!-- Filters - UX Improved -->
             <div class="announcements-panel announcements-filter-panel">
                 <form method="GET" action="{{ route('admin.announcements.index') }}" id="searchForm">
                     <div class="announcements-panel-header">
@@ -1103,7 +121,7 @@
                             <div class="selected-count" id="selectedAnnouncementsCount">
                                 <i class="fas fa-square-check me-1"></i>No announcements selected
                             </div>
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger" title="Bulk Archive">
+                            <button type="button" data-click-call="bulkDelete" class="btn btn-outline-danger" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>Archive Selected
                             </button>
                         </div>
@@ -1119,7 +137,6 @@
             </form>
             @endif
 
-            <!-- Announcements Table - UX Improved -->
             <div class="announcements-panel">
                 <div class="announcements-panel-header">
                     <div class="announcements-panel-title">
@@ -1140,7 +157,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input type="checkbox" id="selectAll" data-click-call="toggleSelectAll">
                                     </th>
                                     <th class="ps-0">
                                         <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('sort') === 'title' && request('direction') === 'asc' ? 'desc' : 'asc', 'page' => 1]) }}"
@@ -1222,7 +239,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="announcement-icon me-2">
                                                 @if($ann->image)
-                                                    <button type="button" class="photo-view-btn" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View announcement photo">
+                                                    <button type="button" class="photo-view-btn" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View announcement photo">
                                                         <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="zoomable-image">
                                                     </button>
                                                 @else
@@ -1299,7 +316,7 @@
                                                     @if(!$ann->deleted_at && $ann->status == 'published' && auth('admin')->user()->hasPermission('feature_announcements'))
                                                     <form method="POST" action="{{ route('admin.announcements.toggle-feature', $ann->id) }}">
                                                         @csrf
-                                                        <button type="submit" class="dropdown-item" onclick="return confirm('{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}')">
+                                                        <button type="submit" class="dropdown-item" data-confirm="{{ $ann->is_featured ? 'Remove featured status?' : 'Mark as featured?' }}">
                                                             <i class="fas fa-star"></i>
                                                             <span>{{ $ann->is_featured ? 'Remove featured' : 'Mark as featured' }}</span>
                                                         </button>
@@ -1308,14 +325,14 @@
 
                                                     @admin_can('delete_announcements')
                                                     @if($ann->deleted_at)
-                                                    <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" onsubmit="return confirmDelete(event, 'Restore this announcement from the deleted bin?')">
+                                                    <form method="POST" action="{{ route('admin.announcements.restore', $ann->id) }}" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Restore this announcement from the deleted bin?']) }}">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
                                                             <i class="fas fa-rotate-left"></i><span>Restore announcement</span>
                                                         </button>
                                                     </form>
                                                     @elseif($ann->status == 'archived')
-                                                    <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" onsubmit="return confirmDelete(event, 'Publish this archived announcement again?')">
+                                                    <form method="POST" action="{{ route('admin.announcements.update', $ann->id) }}" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Publish this archived announcement again?']) }}">
                                                         @csrf
                                                         @method('PUT')
                                                         <input type="hidden" name="title" value="{{ $ann->title }}">
@@ -1331,7 +348,7 @@
                                                         </button>
                                                     </form>
                                                     @else
-                                                    <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" onsubmit="return confirmDelete(event, 'Archive this announcement?')">
+                                                    <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Archive this announcement?']) }}">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="dropdown-item text-danger">
@@ -1367,7 +384,6 @@
                         </table>
                     </div>
 
-                    <!-- Pagination - Mobile Responsive -->
                     @if(isset($announcements) && $announcements->total() > 0)
                     <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <small class="text-muted order-2 order-md-1">
@@ -1383,7 +399,6 @@
                 </div>
             </div>
 
-            <!-- Add Announcement Modal with Validation - Only if user has create_announcements permission -->
             @admin_can('create_announcements')
             <div class="modal fade announcement-form-modal" id="addAnnouncementModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1522,7 +537,7 @@
                                         <div class="flex-grow-1 min-w-0">
                                             <label class="form-label">Featured Image</label>
                                             <input type="file" class="form-control @if(session('form_type') == 'add') @error('image') is-invalid @enderror @endif"
-                                                   name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                                                   name="image" accept="image/*" data-change-call="previewImage" data-change-pass="self,args" data-change-args="{{ json_encode(['addImagePreview']) }}">
                                             <small class="field-hint">JPG, PNG, or GIF. Maximum file size: 5MB.</small>
                                             @if(session('form_type') == 'add')
                                                 @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -1546,7 +561,6 @@
             </div>
             @endadmin_can
 
-            <!-- Edit Announcement Modals with Validation - Only if user has update_announcements permission -->
             @if(auth('admin')->user()->hasPermission('update_announcements'))
                 @foreach($announcements as $ann)
                 <div class="modal fade announcement-form-modal" id="editAnnouncementModal{{ $ann->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1678,14 +692,14 @@
                                             <div class="flex-grow-1 min-w-0">
                                                 <label class="form-label">Featured Image</label>
                                                 <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ann->id) @error('image') is-invalid @enderror @endif"
-                                                       name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview{{ $ann->id }}')">
+                                                       name="image" accept="image/*" data-change-call="previewImage" data-change-pass="self,args" data-change-args="{{ json_encode(['editImagePreview' . $ann->id]) }}">
                                                 <small class="field-hint">JPG, PNG, or GIF. Maximum file size: 5MB.</small>
                                                 @if(session('form_type') == 'edit_' . $ann->id)
                                                     @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                                 @endif
                                                 <div id="editImagePreview{{ $ann->id }}" class="mt-2">
                                                     @if($ann->image)
-                                                    <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View current photo">
+                                                    <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View current photo">
                                                         <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview zoomable-image">
                                                         <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View current image</span>
                                                     </button>
@@ -1710,7 +724,6 @@
                 @endforeach
             @endif
 
-            <!-- View Modals (always visible since they just show data) -->
             @foreach($announcements as $ann)
             <div class="modal fade announcement-view-modal" id="viewModal{{ $ann->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1754,7 +767,7 @@
                                 <div class="row g-3 align-items-start">
                                     @if($ann->image)
                                     <div class="col-12 col-lg-4">
-                                        <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('{{ asset($ann->image) }}')" title="View full announcement photo">
+                                        <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View full announcement photo">
                                             <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
                                             <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View larger image</span>
                                         </button>
@@ -1813,7 +826,7 @@
                         <form method="POST"
                               action="{{ route('admin.announcements.bulkNotifyResidents') }}"
                               id="bulkNotifyResidentsForm"
-                              onsubmit="return confirmBulkResidentNotification(event)">
+                              data-submit-call="confirmBulkResidentNotification" data-submit-pass="event">
                             @csrf
                             <input type="hidden" name="form_type" value="bulk_notify">
 
@@ -2076,7 +1089,6 @@
             </div>
             @endadmin_can
 
-            <!-- Global Image Zoom Modal -->
             <div class="modal fade image-zoom-modal announcement-view-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-xl">
                     <div class="modal-content">
@@ -2098,582 +1110,44 @@
             </div>
 
             @if ($errors->any() && session('form_type') == 'add')
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var addModal = new bootstrap.Modal(document.getElementById('addAnnouncementModal'));
-                    addModal.show();
-                });
-            </script>
+            <script src="{{ asset('js/pages/admin/admin_announcement-part1.js') }}"></script>
             @endif
 
             @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
                 @php
                     $editId = str_replace('edit_', '', session('form_type'));
                 @endphp
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var editModal = new bootstrap.Modal(document.getElementById('editAnnouncementModal{{ $editId }}'));
-                        editModal.show();
-                    });
-                </script>
+                @include('shared.js-config', [
+    'id' => 'js-config-admin-admin-announcement-1',
+    'data' => [
+        'v1' => e($editId),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_announcement-dynamic1.js') }}"></script>
             @endif
             </div>
 @endsection
 
 @push('scripts')
-<script>
-        // Bulk Archive function
-        function bulkDelete() {
-            const checkboxes = document.querySelectorAll('.announcement-checkbox:checked');
-            const bulkForm = document.getElementById('bulkForm');
-            const idsContainer = document.getElementById('bulkIdsContainer');
+<script src="{{ asset('js/pages/admin/admin_announcement-part2.js') }}"></script>
 
-            if (!bulkForm || !idsContainer) {
-                alert('Bulk Archive form is unavailable. Please refresh the page.');
-                return;
-            }
+    <script src="{{ asset('js/pages/admin/admin_announcement-part3.js') }}"></script>
 
-            if (checkboxes.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'No Selection',
-                        text: 'Please select at least one announcement to archive.',
-                        confirmButtonColor: '#d33'
-                    });
-                } else {
-                    alert('Please select at least one announcement to archive.');
-                }
-                return;
-            }
-
-            // Clear old ids so repeated operations do not duplicate inputs.
-            idsContainer.innerHTML = '';
-            checkboxes.forEach(cb => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'ids[]';
-                input.value = cb.value;
-                idsContainer.appendChild(input);
-            });
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Confirm Bulk Archive',
-                    text: `Are you sure you want to archive ${checkboxes.length} selected announcement(s)?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Archive'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bulkForm.submit();
-                    }
-                });
-            } else {
-                if (confirm(`Are you sure you want to archive ${checkboxes.length} announcement(s)?`)) {
-                    bulkForm.submit();
-                }
-            }
-        }
-
-        // Select all checkboxes
-        function toggleSelectAll() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.announcement-checkbox');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-
-            if (typeof refreshAnnouncementSelection === 'function') {
-                refreshAnnouncementSelection();
-            }
-        }
-
-        // Confirm delete with SweetAlert
-        function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: message || 'You won\'t be able to revert this!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, proceed!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(message || 'Are you sure?')) {
-                    form.submit();
-                }
-            }
-            
-            return false;
-        }
-
-        // Preview image before upload
-        function previewImage(input, previewId) {
-            const preview = document.getElementById(previewId);
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `
-                        <button type="button" class="photo-view-btn w-100" onclick="openZoomModal('${e.target.result}')" title="View selected photo">
-                            <img src="${e.target.result}" class="announcement-image-preview zoomable-image" alt="Selected photo preview">
-                            <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View photo</span>
-                        </button>`;
-                }
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                preview.innerHTML = '';
-            }
-        }
-
-        // Update select all checkbox when individual checkboxes change
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.announcement-checkbox');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            
-            if (checkboxes.length > 0 && selectAllCheckbox) {
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        
-                        selectAllCheckbox.checked = allChecked;
-                        selectAllCheckbox.indeterminate = !allChecked && anyChecked;
-                    });
-                });
-            }
-
-            // Add loading animation to filter form
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
-
-        // Auto-submit search after typing (optional)
-        let searchTimeout;
-        document.getElementById('globalSearch')?.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('searchForm').submit();
-            }, 500);
-        });
-
-        function openZoomModal(imageUrl) {
-            const zoomImage = document.getElementById('zoomedImage');
-            const zoomModalEl = document.getElementById('globalImageZoomModal');
-
-            if (!zoomImage || !zoomModalEl || !imageUrl) {
-                return;
-            }
-
-            zoomImage.src = imageUrl;
-            const zoomModal = bootstrap.Modal.getOrCreateInstance(zoomModalEl);
-            zoomModal.show();
-        }
-    </script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function sf(el, msg) {
-            if (!el) return;
-            el.classList.add('is-invalid');
-            let fb = el.parentElement.querySelector('.invalid-feedback');
-            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
-            fb.textContent = msg;
-            fb.style.display = 'block';
-        }
-        function cf(el) {
-            if (!el) return;
-            el.classList.remove('is-invalid');
-            const fb = el.parentElement.querySelector('.invalid-feedback');
-            if (fb) {
-                fb.textContent = '';
-                fb.style.display = 'none';
-            }
-        }
-
-        function attachAnnouncementValidation(form) {
-            if (!form) return;
-            const title    = form.querySelector('[name="title"]');
-            const content  = form.querySelector('[name="content"]');
-            const category = form.querySelector('[name="category"]');
-            const status   = form.querySelector('[name="status"]');
-            const image    = form.querySelector('[name="image"]');
-
-            if (title) {
-                title.addEventListener('input', function() { cf(this); }, {once: true});
-                title.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Title is required.');
-                    else if (this.value.trim().length < 3) sf(this, 'Title must be at least 3 characters.');
-                    else cf(this);
-                });
-            }
-            if (content) {
-                content.addEventListener('input', function() { cf(this); }, {once: true});
-                content.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Content is required.');
-                    else if (this.value.trim().length < 10) sf(this, 'Content must be at least 10 characters.');
-                    else cf(this);
-                });
-            }
-            if (category) category.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Please select a category.'); else cf(this);
-            });
-            if (status) status.addEventListener('change', function() {
-                if (!this.value) sf(this, 'Please select a status.'); else cf(this);
-            });
-            if (image) image.addEventListener('change', function() {
-                if (this.files && this.files[0] && this.files[0].size / 1024 / 1024 > 5) {
-                    sf(this, 'Image must be less than 5MB.'); this.value = '';
-                } else cf(this);
-            });
-
-            form.addEventListener('submit', function(e) {
-                let valid = true;
-                if (title) {
-                    if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
-                    else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
-                }
-                if (content) {
-                    if (!content.value.trim()) { sf(content, 'Content is required.'); valid = false; }
-                    else if (content.value.trim().length < 10) { sf(content, 'Content must be at least 10 characters.'); valid = false; }
-                }
-                if (category && !category.value) { sf(category, 'Please select a category.'); valid = false; }
-                if (status && !status.value) { sf(status, 'Please select a status.'); valid = false; }
-                if (image && image.files && image.files[0] && image.files[0].size / 1024 / 1024 > 5) {
-                    sf(image, 'Image must be less than 5MB.'); valid = false;
-                }
-                if (!valid) e.preventDefault();
-            });
-        }
-
-        attachAnnouncementValidation(document.getElementById('addAnnouncementForm'));
-        document.querySelectorAll('[id^="editAnnouncementForm"]').forEach(attachAnnouncementValidation);
-    });
-    </script>
-
-    <!-- SweetAlert2 for better alerts (optional) -->
-<script>
-        function refreshAnnouncementSelection() {
-            const checkboxes = Array.from(document.querySelectorAll('.announcement-checkbox'));
-            const checked = checkboxes.filter(cb => cb.checked);
-            const selectAll = document.getElementById('selectAll');
-            const selectedCount = document.getElementById('selectedAnnouncementsCount');
-
-            if (selectAll) {
-                selectAll.checked = checked.length > 0 && checked.length === checkboxes.length;
-                selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
-            }
-
-            if (selectedCount) {
-                selectedCount.innerHTML = checked.length > 0
-                    ? `<i class="fas fa-square-check me-1"></i>${checked.length} announcement${checked.length === 1 ? '' : 's'} selected`
-                    : '<i class="fas fa-square-check me-1"></i>No announcements selected';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.announcement-checkbox').forEach(function (checkbox) {
-                checkbox.addEventListener('change', refreshAnnouncementSelection);
-            });
-            refreshAnnouncementSelection();
-        });
-    </script>
+<script src="{{ asset('js/pages/admin/admin_announcement-part4.js') }}"></script>
     @if ($errors->any() && session('form_type') === 'bulk_notify')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const bulkNotifyModal = new bootstrap.Modal(document.getElementById('bulkNotifyResidentsModal'));
-        bulkNotifyModal.show();
-    });
-</script>
+<script src="{{ asset('js/pages/admin/admin_announcement-part5.js') }}"></script>
 @endif
 
 @if ($errors->any() && session('form_type') === 'bulk_notify')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modalEl = document.getElementById('bulkNotifyResidentsModal');
-    if (modalEl) {
-        bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    }
-});
-</script>
+<script src="{{ asset('js/pages/admin/admin_announcement-part6.js') }}"></script>
 @endif
 
-<script>
-window.smsAudienceCounts = @json($smsAudienceCounts ?? []);
-window.semaphoreCreditBalance = Number(@json($semaphoreAccount['credit_balance'] ?? 0));
-
-document.addEventListener('DOMContentLoaded', function () {
-    const templateSelect = document.getElementById('notifyTemplate');
-    const subjectInput = document.getElementById('notifySubject');
-    const messageInput = document.getElementById('notifyMessage');
-    const channelSelect = document.getElementById('notifyChannel');
-    const audienceSelect = document.getElementById('notifyAudience');
-    const counter = document.getElementById('notifyCharCounter');
-    const previewText = document.getElementById('notifyPreviewText');
-    const previewChannel = document.getElementById('notifyPreviewChannel');
-    const selectedResidentsBox = document.getElementById('selectedResidentsBox');
-    const residentPickerSearch = document.getElementById('residentPickerSearch');
-    const selectedResidentCounter = document.getElementById('selectedResidentCounter');
-
-    const smsEstimatedRecipients = document.getElementById('smsEstimatedRecipients');
-    const smsEstimatedSegments = document.getElementById('smsEstimatedSegments');
-    const smsEstimatedCredits = document.getElementById('smsEstimatedCredits');
-    const smsRemainingCredits = document.getElementById('smsRemainingCredits');
-    const smsCreditStatusBadge = document.getElementById('smsCreditStatusBadge');
-    const estimatedSmsCreditsInput = document.getElementById('estimatedSmsCreditsInput');
-
-    const templates = {
-        ayuda: {
-            subject: 'Ayuda Distribution Notice',
-            message: 'Magandang araw, {name}. May ayuda distribution po ang Barangay Hulong Duhat sa [DATE], [TIME], sa [VENUE]. Magdala po ng valid ID at requirements. Salamat po.'
-        },
-        emergency: {
-            subject: 'Emergency Barangay Advisory',
-            message: 'Magandang araw, {name}. Paalala mula sa Barangay Hulong Duhat: [WRITE EMERGENCY DETAILS HERE]. Para sa agarang tulong, makipag-ugnayan sa barangay office. Ingat po.'
-        },
-        documents: {
-            subject: 'Barangay Document Release Reminder',
-            message: 'Magandang araw, {name}. Ang inyong barangay document/request ay maaari nang i-follow up o kunin sa barangay office. Magdala po ng valid ID at reference number kung meron. Salamat po.'
-        },
-        event: {
-            subject: 'Barangay Event Announcement',
-            message: 'Magandang araw, {name}. Inaanyayahan po kayo sa barangay event: [EVENT NAME] sa [DATE], [TIME], sa [VENUE]. Kita-kits po.'
-        }
-    };
-
-    function smsLength(message) {
-        return Array.from(message || '').length;
-    }
-
-    function smsSegments(message) {
-        const length = smsLength(message);
-        return Math.max(1, Math.ceil(length / 160));
-    }
-
-    function selectedResidentCount() {
-        return document.querySelectorAll('input[name="resident_ids[]"]:checked').length;
-    }
-
-    function estimatedSmsRecipients() {
-        const channel = channelSelect?.value || 'sms';
-
-        if (channel === 'email') {
-            return 0;
-        }
-
-        const audience = audienceSelect?.value || 'all';
-
-        if (audience === 'selected') {
-            return selectedResidentCount();
-        }
-
-        return Number(window.smsAudienceCounts?.[audience] || 0);
-    }
-
-    function refreshSelectedResidentBox() {
-        if (!audienceSelect || !selectedResidentsBox) return;
-
-        selectedResidentsBox.style.display = audienceSelect.value === 'selected' ? 'block' : 'none';
-        refreshSelectedResidentCounter();
-        refreshSmsCreditEstimate();
-    }
-
-    function refreshSelectedResidentCounter() {
-        if (!selectedResidentCounter) return;
-
-        const selected = selectedResidentCount();
-        selectedResidentCounter.textContent = `${selected} resident${selected === 1 ? '' : 's'} selected`;
-    }
-
-    function refreshSmsCreditEstimate() {
-        const message = messageInput?.value || '';
-        const channel = channelSelect?.value || 'sms';
-        const recipients = estimatedSmsRecipients();
-        const segments = channel === 'email' ? 0 : smsSegments(message);
-        const neededCredits = channel === 'email' ? 0 : recipients * segments * 2;
-        const availableCredits = Number(window.semaphoreCreditBalance || 0);
-        const remainingCredits = availableCredits - neededCredits;
-
-        if (smsEstimatedRecipients) smsEstimatedRecipients.textContent = recipients.toLocaleString();
-        if (smsEstimatedSegments) smsEstimatedSegments.textContent = segments.toLocaleString();
-        if (smsEstimatedCredits) smsEstimatedCredits.textContent = neededCredits.toLocaleString();
-        if (smsRemainingCredits) smsRemainingCredits.textContent = remainingCredits.toLocaleString();
-        if (estimatedSmsCreditsInput) estimatedSmsCreditsInput.value = neededCredits;
-
-        if (smsCreditStatusBadge) {
-            smsCreditStatusBadge.classList.remove('is-ok', 'is-danger');
-
-            if (channel === 'email') {
-                smsCreditStatusBadge.textContent = 'Email only';
-                smsCreditStatusBadge.classList.add('is-ok');
-            } else if (recipients > 1000) {
-                smsCreditStatusBadge.textContent = 'Over 1,000 SMS limit';
-                smsCreditStatusBadge.classList.add('is-danger');
-            } else if (neededCredits <= availableCredits) {
-                smsCreditStatusBadge.textContent = 'Enough credits';
-                smsCreditStatusBadge.classList.add('is-ok');
-            } else {
-                smsCreditStatusBadge.textContent = 'Insufficient credits';
-                smsCreditStatusBadge.classList.add('is-danger');
-            }
-        }
-    }
-
-    function updatePreview() {
-        if (!messageInput || !previewText) return;
-
-        const message = messageInput.value.trim();
-        const channel = channelSelect?.value || 'sms';
-
-        if (counter) {
-            const length = smsLength(messageInput.value);
-            const segments = smsSegments(messageInput.value);
-            counter.textContent = `${length} / 1000 characters · ${segments} SMS segment${segments === 1 ? '' : 's'}`;
-        }
-
-        if (previewChannel) {
-            previewChannel.textContent = channel === 'both'
-                ? 'SMS + Email'
-                : channel.toUpperCase();
-        }
-
-        previewText.textContent = message
-            ? message
-                .replaceAll('{name}', 'Juan Dela Cruz')
-                .replaceAll('{firstname}', 'Juan')
-                .replaceAll('{lastname}', 'Dela Cruz')
-                .replaceAll('{barangay}', 'Hulong Duhat')
-            : 'Your message preview will appear here.';
-
-        refreshSmsCreditEstimate();
-    }
-
-    templateSelect?.addEventListener('change', function () {
-        const selected = templates[this.value];
-
-        if (!selected) return;
-
-        if (subjectInput) subjectInput.value = selected.subject;
-        if (messageInput) messageInput.value = selected.message;
-
-        updatePreview();
-    });
-
-    residentPickerSearch?.addEventListener('input', function () {
-        const keyword = this.value.toLowerCase().trim();
-
-        document.querySelectorAll('.resident-picker-item').forEach(function (item) {
-            const haystack = item.dataset.search || '';
-            item.style.display = haystack.includes(keyword) ? 'flex' : 'none';
-        });
-    });
-
-    document.querySelectorAll('input[name="resident_ids[]"]').forEach(function (checkbox) {
-        checkbox.addEventListener('change', function () {
-            refreshSelectedResidentCounter();
-            refreshSmsCreditEstimate();
-        });
-    });
-
-    messageInput?.addEventListener('input', updatePreview);
-    channelSelect?.addEventListener('change', updatePreview);
-    audienceSelect?.addEventListener('change', refreshSelectedResidentBox);
-
-    refreshSelectedResidentBox();
-    updatePreview();
-});
-
-function confirmBulkResidentNotification(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const channel = document.getElementById('notifyChannel')?.value || 'sms';
-    const audienceSelect = document.getElementById('notifyAudience');
-    const audience = audienceSelect?.selectedOptions[0]?.textContent || 'selected audience';
-    const audienceValue = audienceSelect?.value || 'all';
-    const message = document.getElementById('notifyMessage')?.value.trim() || '';
-    const selectedResidents = document.querySelectorAll('input[name="resident_ids[]"]:checked').length;
-    const neededCredits = Number(document.getElementById('estimatedSmsCreditsInput')?.value || 0);
-    const availableCredits = Number(window.semaphoreCreditBalance || 0);
-    const estimatedRecipients = Number(document.getElementById('smsEstimatedRecipients')?.textContent.replaceAll(',', '') || 0);
-
-    if (!message) {
-        alert('Please write a message before sending.');
-        return false;
-    }
-
-    if (audienceValue === 'selected' && selectedResidents === 0) {
-        alert('Please select at least one resident.');
-        return false;
-    }
-
-    if ((channel === 'sms' || channel === 'both') && estimatedRecipients > 1000) {
-        alert('SMS bulk notification is limited to 1,000 mobile numbers only.');
-        return false;
-    }
-
-    if ((channel === 'sms' || channel === 'both') && neededCredits > availableCredits) {
-        alert(`Not enough SMS credits. Needed: ${neededCredits}, Available: ${availableCredits}`);
-        return false;
-    }
-
-    const extraText = audienceValue === 'selected'
-        ? `${selectedResidents} selected resident${selectedResidents === 1 ? '' : 's'}`
-        : audience;
-
-    const confirmText = `Send this ${channel.toUpperCase()} notification to ${extraText}? Estimated SMS credits: ${neededCredits}.`;
-
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Send bulk notification?',
-            text: confirmText,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d32f2f',
-            cancelButtonColor: '#667085',
-            confirmButtonText: 'Yes, send now'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
-
-        return false;
-    }
-
-    if (confirm(confirmText)) {
-        form.submit();
-    }
-
-    return false;
-}
-</script>
+@include('shared.js-config', [
+    'id' => 'js-config-admin-admin-announcement-2',
+    'data' => [
+        'v1' => $smsAudienceCounts ?? [],
+        'v2' => $semaphoreAccount['credit_balance'] ?? 0,
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_announcement-dynamic2.js') }}"></script>
 @endpush

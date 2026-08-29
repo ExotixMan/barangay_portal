@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('current_value')->nullable();
             $table->text('correct_value');
             $table->text('message')->nullable();
-            $table->string('status')->default('pending'); // pending, reviewed, corrected, rejected
+            $table->string('status')->default('pending'); 
             $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();

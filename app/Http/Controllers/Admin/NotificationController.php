@@ -249,7 +249,6 @@ class NotificationController extends Controller
             'mail.from.name' => $emailSettings['from_name'] ?? config('mail.from.name'),
         ]);
 
-        // Check throttle limits before sending email
         if (!$this->canSendNotification('email', $validated['email'], 'email_channel')) {
             return back()->with('error', 'Too many emails sent. Please try again in a few moments.');
         }
@@ -260,12 +259,10 @@ class NotificationController extends Controller
                 $validated['message']
             ));
 
-        // Record the notification for throttling tracking
         $this->recordNotification('email', $validated['email'], 'email_channel');
         $this->storeStatusRemarkHistory($validated, 'email', $validated['email']);
         $this->settings->incrementUsage('email');
 
-        // Log notification
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -311,7 +308,6 @@ class NotificationController extends Controller
             $validated['message'] .= "\nRemarks: " . $validated['remarks'];
         }
 
-        // Normalize to Philippine format expected by Semaphore (63XXXXXXXXXX)
         $recipient = preg_replace('/\D/', '', $validated['phone']);
 
         if (substr($recipient, 0, 1) === '0') {
@@ -322,7 +318,6 @@ class NotificationController extends Controller
             $recipient = '63' . $recipient;
         }
 
-        // Check throttle limits before sending SMS
         if (!$this->canSendNotification('sms', $recipient, 'sms_channel')) {
             return back()->with('error', 'Too many SMS messages sent. Please try again in a few moments.');
         }
@@ -338,7 +333,6 @@ class NotificationController extends Controller
             $senderName = (string) ($smsSettings['sender_name'] ?? 'HULONGDUHAT');
             $endpoint = (string) ($smsSettings['api_base_url'] ?? 'https://api.semaphore.co/api/v4/messages');
 
-            // Match Semaphore payload format used in debug route
             $payload = [
                 'apikey' => $apiKey,
                 'number' => $recipient,
@@ -349,12 +343,11 @@ class NotificationController extends Controller
             $response = Http::asForm()->post($endpoint, $payload);
 
             if ($response->successful()) {
-                // Record the notification for throttling tracking
+                
                 $this->recordNotification('sms', $recipient, 'sms_channel');
                 $this->storeStatusRemarkHistory($validated, 'sms', $recipient);
                 $this->settings->incrementUsage('sms');
 
-                // Log notification
                 if (auth('admin')->check()) {
                     \App\Models\AdminActivityLog::create([
                         'user_id' => auth('admin')->id(),

@@ -10,20 +10,14 @@ use App\Models\AdminUser;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        //
+        
     ];
 
-    /**
-     * Register services.
-     */
     public function register(): void
     {
-        //
+        
     }
 
-    /**
-     * Bootstrap services.
-     */
     public function boot(): void
     {
         $this->registerPermissions();
@@ -32,30 +26,26 @@ class AuthServiceProvider extends ServiceProvider
     private function registerPermissions()
     {
         try {
-            // Get all permissions from database
-            $permissions = AdminPermission::all();
             
-            // Define a gate for each permission
+            $permissions = AdminPermission::all();
+
             foreach ($permissions as $permission) {
                 Gate::define($permission->name, function ($user) use ($permission) {
-                    // Check if user is logged in and is an admin
+                    
                     if (!$user || !($user instanceof AdminUser)) {
                         return false;
                     }
-                    
-                    // Super admin has all permissions
+
                     if ($user->role && $user->role->name === 'super_admin') {
                         return true;
                     }
-                    
-                    // Check if user's role has this permission
+
                     return $user->role && $user->role->permissions()
                         ->where('permission_id', $permission->id)
                         ->exists();
                 });
             }
 
-            // Define role-based gates
             Gate::define('is-super-admin', function ($user) {
                 return $user && $user instanceof AdminUser && $user->role && $user->role->name === 'super_admin';
             });
@@ -96,7 +86,6 @@ class AuthServiceProvider extends ServiceProvider
                 return $user && $user instanceof AdminUser && $user->role && $user->role->name === 'viewer';
             });
 
-            // Define module access gates
             Gate::define('access-residents-module', function ($user) {
                 if (!$user || !($user instanceof AdminUser)) return false;
                 return $user->hasAnyPermission([
@@ -138,7 +127,7 @@ class AuthServiceProvider extends ServiceProvider
             });
 
         } catch (\Exception $e) {
-            // Tables might not exist yet (during fresh installation)
+            
             return;
         }
     }

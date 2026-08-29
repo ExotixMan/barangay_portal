@@ -13,22 +13,18 @@ class AnnouncementController extends Controller
     {
         App::setLocale(Session::get('locale', config('app.locale')));
 
-        // Featured
             $featured = Announcement::whereRaw('is_featured IS TRUE')
             ->where('status', 'published')
             ->latest()
             ->get();
 
-        // Main query
         $query = Announcement::where('status', 'published');
 
-        // Search
         if ($request->search) {
             $query->where('title', 'like', '%'.$request->search.'%')
                 ->orWhere('content', 'like', '%'.$request->search.'%');
         }
 
-        // Sort
         switch ($request->sort) {
             case 'oldest':
                 $query->orderBy('published_at', 'asc');
@@ -61,7 +57,6 @@ class AnnouncementController extends Controller
     {
         $announcement = Announcement::where('slug',$slug)->firstOrFail();
 
-        // Increase views
         $announcement->increment('views');
 
         return view('announcement-show', compact('announcement'));

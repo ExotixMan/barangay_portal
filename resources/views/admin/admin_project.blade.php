@@ -7,898 +7,11 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/projects.css') }}">
 
-    <style>
-        /* Project admin UX refresh — presentation only */
-        .projects-page {
-            --prj-primary: #4338ca;
-            --prj-primary-soft: #eef2ff;
-            --prj-border: #e5e7eb;
-            --prj-border-strong: #d8dee8;
-            --prj-text: #172033;
-            --prj-muted: #667085;
-            --prj-soft: #f8fafc;
-            --prj-success: #15803d;
-            --prj-warning: #a16207;
-            --prj-danger: #b42318;
-        }
-
-        /* CRUD pages should prioritize work, not dashboard decoration */
-        .projects-page .projects-hero,
-        .projects-page .projects-stats-row {
-            display: none !important;
-        }
-
-        .projects-page .projects-panel {
-            overflow: visible;
-            border: 1px solid var(--prj-border);
-            border-radius: 16px;
-            background: #fff;
-            box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
-        }
-
-        .projects-page .projects-filter-panel {
-            overflow: visible;
-            margin-bottom: 18px;
-        }
-
-        .projects-page .projects-panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 16px 18px;
-            border-bottom: 1px solid var(--prj-border);
-            background: #fff;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .projects-page .projects-panel-title {
-            display: flex;
-            align-items: flex-start;
-            gap: 11px;
-            min-width: 0;
-        }
-
-        .projects-page .projects-panel-icon {
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            background: var(--prj-primary-soft);
-            color: var(--prj-primary);
-        }
-
-        .projects-page .projects-panel-title h3 {
-            margin: 0;
-            color: var(--prj-text);
-            font-size: .98rem;
-            font-weight: 800;
-            line-height: 1.3;
-        }
-
-        .projects-page .section-kicker,
-        .projects-page .panel-copy { display: none; }
-
-        .projects-page .projects-panel-actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .projects-page .projects-filter-body { padding: 14px 18px 16px; }
-
-        .projects-page .projects-filter-toolbar {
-            display: grid;
-            grid-template-columns: minmax(300px, 1.8fr) minmax(150px, .65fr) minmax(150px, .65fr) auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .projects-page .projects-search-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 0;
-        }
-
-        .projects-page .projects-search-field {
-            position: relative;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .projects-page .projects-search-field > i {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            z-index: 2;
-            transform: translateY(-50%);
-            color: #98a2b3;
-            pointer-events: none;
-        }
-
-        .projects-page .projects-search-field .form-control { padding-left: 38px; }
-
-        .projects-page .form-control,
-        .projects-page .form-select {
-            min-height: 42px;
-            border-color: var(--prj-border-strong);
-            border-radius: 10px;
-            color: var(--prj-text);
-            font-size: .86rem;
-            box-shadow: none;
-        }
-
-        .projects-page .form-control:focus,
-        .projects-page .form-select:focus {
-            border-color: var(--prj-primary);
-            box-shadow: 0 0 0 .2rem rgba(67, 56, 202, .09);
-        }
-
-        .projects-page .btn {
-            min-height: 40px;
-            border-radius: 10px;
-            font-size: .82rem;
-            font-weight: 700;
-        }
-
-        .projects-page .btn i { margin-right: .38rem; }
-        .projects-page .icon-only i { margin-right: 0; }
-
-        .projects-page .projects-bulk-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--prj-border);
-        }
-
-        .projects-page .selected-count {
-            color: var(--prj-muted);
-            font-size: .78rem;
-            font-weight: 700;
-        }
-
-        .projects-page table { margin: 0; }
-
-        .projects-page .table thead th {
-            padding-top: 11px;
-            padding-bottom: 11px;
-            border-bottom: 1px solid var(--prj-border);
-            background: #f8fafc;
-            color: #475467;
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .02em;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        .projects-page .table tbody td {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            border-color: #eef1f5;
-            color: var(--prj-text);
-            font-size: .83rem;
-            vertical-align: middle;
-        }
-
-        .projects-page .table tbody tr:hover { background: #fafbff; }
-
-        .projects-page .project-icon {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border: 1px solid var(--prj-border);
-            border-radius: 10px;
-            background: var(--prj-soft);
-        }
-
-        .projects-page .project-title-text {
-            max-width: 330px;
-            overflow: hidden;
-            color: var(--prj-text);
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 750;
-        }
-
-        .projects-page .project-mobile-meta {
-            display: none;
-            margin-top: 4px;
-            color: var(--prj-muted);
-            font-size: .7rem;
-            line-height: 1.45;
-        }
-
-        .projects-page .project-mobile-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin-right: 8px;
-        }
-
-        .projects-page .project-progress-wrap {
-            min-width: 150px;
-        }
-
-        .projects-page .project-progress-track {
-            height: 7px;
-            overflow: hidden;
-            border-radius: 999px;
-            background: #eef2f6;
-        }
-
-        .projects-page .project-progress-track .progress-bar {
-            min-width: 0;
-            border-radius: 999px;
-            font-size: 0;
-        }
-
-        .projects-page .project-progress-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-top: 5px;
-            color: var(--prj-muted);
-            font-size: .7rem;
-            font-weight: 700;
-        }
-
-        .projects-page .row-actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 6px;
-        }
-
-        .projects-page .action-view-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            min-height: 34px;
-            padding: 0 10px;
-        }
-
-        .projects-page .action-more-btn {
-            width: 34px;
-            min-height: 34px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .projects-page .action-dropdown .dropdown-menu {
-            width: 250px;
-            padding: 7px;
-            border: 1px solid var(--prj-border);
-            border-radius: 12px;
-            box-shadow: 0 14px 34px rgba(15, 23, 42, .14);
-            z-index: 1090;
-        }
-
-        .projects-page .action-dropdown .dropdown-item,
-        .projects-page .action-dropdown form .dropdown-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            width: 100%;
-            padding: 9px 10px;
-            border: 0;
-            border-radius: 9px;
-            background: transparent;
-            color: #344054;
-            text-align: left;
-            white-space: normal;
-        }
-
-        .projects-page .action-dropdown .dropdown-item:hover { background: #f8fafc; }
-
-        .projects-page .action-menu-icon {
-            width: 30px;
-            height: 30px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 8px;
-            background: #f2f4f7;
-        }
-
-        .projects-page .action-menu-copy strong {
-            display: block;
-            color: inherit;
-            font-size: .77rem;
-            line-height: 1.25;
-        }
-
-        .projects-page .action-menu-copy small {
-            display: block;
-            margin-top: 2px;
-            color: #667085;
-            font-size: .67rem;
-            line-height: 1.35;
-        }
-
-        .projects-page .action-edit { color: #1d4ed8 !important; }
-        .projects-page .action-edit .action-menu-icon { background: #eff6ff; color: #2563eb; }
-        .projects-page .action-restore { color: #166534 !important; background: #f0fdf4 !important; }
-        .projects-page .action-restore .action-menu-icon { background: #dcfce7; color: #15803d; }
-        .projects-page .action-archive { color: #b42318 !important; }
-        .projects-page .action-archive .action-menu-icon { background: #fff1f2; color: #e11d48; }
-
-        /* Modal system */
-        .projects-page .modal { --bs-modal-zindex: 1060; }
-        .projects-page .modal-dialog { max-width: 900px; }
-        .projects-page .modal-dialog.modal-xl { max-width: 980px; }
-
-        .projects-page .modal-content {
-            overflow: hidden;
-            border: 1px solid rgba(208, 213, 221, .85);
-            border-radius: 16px;
-            background: #fff;
-            box-shadow: 0 22px 60px rgba(15, 23, 42, .18);
-        }
-
-        .projects-page .modal-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--prj-border);
-            background: #fff;
-        }
-
-        .projects-page .modal-heading {
-            display: flex;
-            align-items: flex-start;
-            gap: 11px;
-            min-width: 0;
-        }
-
-        .projects-page .modal-heading-icon {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 11px;
-            background: var(--prj-primary-soft);
-            color: var(--prj-primary);
-        }
-
-        .projects-page .modal-heading-copy { min-width: 0; }
-
-        .projects-page .modal-title {
-            margin: 0;
-            color: var(--prj-text);
-            font-size: 1rem;
-            font-weight: 850;
-            line-height: 1.35;
-        }
-
-        .projects-page .modal-subtitle {
-            display: block;
-            margin-top: 3px;
-            color: var(--prj-muted);
-            font-size: .76rem;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        .projects-page .modal-header .btn-close {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            margin: 0;
-            flex: 0 0 auto;
-            border-radius: 9px;
-            background-size: 12px;
-            opacity: .65;
-        }
-
-        .projects-page .modal-header .btn-close:hover {
-            background-color: #f2f4f7;
-            opacity: 1;
-        }
-
-        .projects-page .modal-body {
-            padding: 18px 20px;
-            background: #f8fafc;
-        }
-
-        .projects-page .modal-form-intro {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 14px;
-            color: var(--prj-muted);
-            font-size: .76rem;
-        }
-
-        .projects-page .form-step-card,
-        .projects-page .detail-section-card {
-            padding: 16px;
-            margin-bottom: 14px;
-            border: 1px solid var(--prj-border);
-            border-radius: 14px;
-            background: #fff;
-        }
-
-        .projects-page .form-step-card:last-child,
-        .projects-page .detail-section-card:last-child { margin-bottom: 0; }
-
-        .projects-page .form-section-heading {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .projects-page .section-step {
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 50%;
-            background: var(--prj-primary-soft);
-            color: var(--prj-primary);
-            font-size: .76rem;
-            font-weight: 900;
-        }
-
-        .projects-page .form-section-heading h6,
-        .projects-page .detail-section-title {
-            margin: 0;
-            color: var(--prj-text);
-            font-size: .87rem;
-            font-weight: 850;
-        }
-
-        .projects-page .form-section-heading p {
-            margin: 2px 0 0;
-            color: var(--prj-muted);
-            font-size: .72rem;
-            line-height: 1.45;
-        }
-
-        .projects-page .modal .form-label {
-            margin-bottom: 6px;
-            color: #344054;
-            font-size: .76rem;
-            font-weight: 800;
-        }
-
-        .projects-page .modal .form-label > i {
-            width: 15px;
-            margin-right: 5px;
-            color: #98a2b3;
-            font-size: .74rem;
-            text-align: center;
-        }
-
-        .projects-page .modal .form-control,
-        .projects-page .modal .form-select {
-            min-height: 44px;
-            border-radius: 10px;
-            background-color: #fff;
-        }
-
-        .projects-page .modal textarea.form-control {
-            min-height: auto;
-            line-height: 1.55;
-            resize: vertical;
-        }
-
-        .projects-page .field-hint,
-        .projects-page .modal small.text-muted {
-            display: block;
-            margin-top: 5px;
-            color: var(--prj-muted) !important;
-            font-size: .7rem;
-            line-height: 1.45;
-        }
-
-        .projects-page .timeline-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .projects-page .status-progress-grid {
-            display: grid;
-            grid-template-columns: minmax(220px, .75fr) minmax(320px, 1.25fr);
-            gap: 14px;
-            align-items: stretch;
-        }
-
-        .projects-page .progress-control-card {
-            height: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--prj-border);
-            border-radius: 12px;
-            background: #fbfcfe;
-        }
-
-        .projects-page .progress-control-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .projects-page .progress-value-pill {
-            min-width: 48px;
-            padding: 5px 9px;
-            border-radius: 999px;
-            background: var(--prj-primary-soft);
-            color: var(--prj-primary);
-            font-size: .73rem;
-            font-weight: 850;
-            text-align: center;
-        }
-
-        .projects-page .form-range { margin: 6px 0 0; }
-
-        .projects-page .progress-scale {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            color: var(--prj-muted);
-            font-size: .65rem;
-            font-weight: 700;
-        }
-
-        .projects-page .modal-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 14px 20px;
-            border-top: 1px solid var(--prj-border);
-            background: #fff;
-        }
-
-        .projects-page .modal-footer .btn { min-width: 112px; }
-
-        /* View project */
-        .projects-page .project-view-hero {
-            padding: 16px;
-            margin-bottom: 14px;
-            border: 1px solid var(--prj-border);
-            border-radius: 14px;
-            background: #fff;
-        }
-
-        .projects-page .project-view-title {
-            margin: 0;
-            overflow-wrap: anywhere;
-            color: var(--prj-text);
-            font-size: 1.12rem;
-            font-weight: 850;
-            line-height: 1.35;
-        }
-
-        .projects-page .project-view-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
-        .projects-page .view-summary {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .projects-page .view-summary-item {
-            padding: 11px 12px;
-            border: 1px solid var(--prj-border);
-            border-radius: 11px;
-            background: #fff;
-        }
-
-        .projects-page .view-summary-label {
-            display: block;
-            margin-bottom: 3px;
-            color: var(--prj-muted);
-            font-size: .67rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-        }
-
-        .projects-page .view-summary-value {
-            display: block;
-            overflow-wrap: anywhere;
-            color: var(--prj-text);
-            font-size: .82rem;
-            font-weight: 800;
-            line-height: 1.35;
-        }
-
-        .projects-page .view-progress-card {
-            padding: 13px;
-            margin-bottom: 14px;
-            border: 1px solid var(--prj-border);
-            border-radius: 12px;
-            background: #fff;
-        }
-
-        .projects-page .view-progress-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 8px;
-            color: #344054;
-            font-size: .76rem;
-            font-weight: 800;
-        }
-
-        .projects-page .view-progress-card .progress {
-            height: 8px !important;
-            border-radius: 999px;
-            background: #eef2f6;
-        }
-
-        .projects-page .view-progress-card .progress-bar {
-            border-radius: 999px;
-            font-size: 0;
-        }
-
-        .projects-page .project-description-box {
-            padding: 14px;
-            border: 1px solid var(--prj-border);
-            border-radius: 11px;
-            background: #fff;
-            color: #344054;
-            font-size: .84rem;
-            line-height: 1.65;
-            overflow-wrap: anywhere;
-        }
-
-        /* Semantic action colors */
-        .projects-page .btn-success {
-            border-color: #15803d;
-            background: #15803d;
-        }
-        .projects-page .btn-success:hover {
-            border-color: #166534;
-            background: #166534;
-        }
-        .projects-page .btn-outline-success {
-            border-color: #86efac;
-            background: #f0fdf4;
-            color: #166534;
-        }
-        .projects-page .btn-outline-success:hover {
-            border-color: #16a34a;
-            background: #dcfce7;
-            color: #14532d;
-        }
-        .projects-page .btn-outline-danger {
-            border-color: #fda4af;
-            background: #fff;
-            color: #b42318;
-        }
-        .projects-page .btn-outline-danger:hover {
-            border-color: #e11d48;
-            background: #fff1f2;
-            color: #9f1239;
-        }
-
-        @media (max-width: 1199.98px) {
-            .projects-page .projects-filter-toolbar {
-                grid-template-columns: minmax(250px, 1.4fr) repeat(2, minmax(135px, .7fr));
-            }
-            .projects-page .projects-filter-toolbar .filter-submit-btn { grid-column: 3; }
-            .projects-page .view-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-
-        @media (max-width: 767.98px) {
-            .projects-page { padding-bottom: 14px; }
-
-            .projects-page .projects-panel { border-radius: 13px; }
-            .projects-page .projects-panel-header {
-                align-items: flex-start;
-                padding: 13px 14px;
-            }
-            .projects-page .projects-panel-icon { display: none; }
-            .projects-page .projects-panel-title h3 { font-size: .9rem; }
-            .projects-page .projects-count-pill { font-size: .7rem; }
-
-            .projects-page .projects-filter-body { padding: 12px 14px 14px; }
-            .projects-page .projects-filter-toolbar {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 9px;
-            }
-            .projects-page .projects-search-group { width: 100%; }
-            .projects-page .search-submit-btn { flex: 0 0 auto; }
-            .projects-page .projects-filter-toolbar > .form-select,
-            .projects-page .projects-filter-toolbar > .btn { width: 100%; }
-
-            .projects-page .projects-bulk-row {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-            .projects-page .projects-bulk-row .btn { width: 100%; }
-
-            /* Compact mobile project table: selection + project summary + actions */
-            .projects-page #projectsTable th:nth-child(3),
-            .projects-page #projectsTable td:nth-child(3),
-            .projects-page #projectsTable th:nth-child(4),
-            .projects-page #projectsTable td:nth-child(4),
-            .projects-page #projectsTable th:nth-child(5),
-            .projects-page #projectsTable td:nth-child(5),
-            .projects-page #projectsTable th:nth-child(6),
-            .projects-page #projectsTable td:nth-child(6),
-            .projects-page #projectsTable th:nth-child(7),
-            .projects-page #projectsTable td:nth-child(7) {
-                display: none !important;
-            }
-
-            .projects-page #projectsTable th:first-child,
-            .projects-page #projectsTable td:first-child {
-                width: 38px;
-                padding-left: 12px !important;
-            }
-            .projects-page #projectsTable th:nth-child(2),
-            .projects-page #projectsTable td:nth-child(2) { padding-left: 0 !important; }
-            .projects-page #projectsTable th:last-child,
-            .projects-page #projectsTable td:last-child {
-                width: 76px;
-                padding-right: 12px !important;
-            }
-
-            .projects-page .project-title-text { max-width: min(53vw, 280px); }
-            .projects-page .project-mobile-meta { display: block; }
-            .projects-page .action-view-btn .action-label { display: none; }
-            .projects-page .action-view-btn { width: 34px; padding: 0; }
-            .projects-page .action-view-btn i { margin: 0; }
-
-            .projects-page .modal-dialog {
-                width: calc(100% - 16px);
-                max-width: none;
-                margin: 8px auto;
-                min-height: calc(100% - 16px);
-            }
-
-            .projects-page .modal-content {
-                max-height: calc(100vh - 16px);
-                border-radius: 14px;
-            }
-
-            .projects-page .modal-header { padding: 14px; gap: 10px; }
-            .projects-page .modal-heading-icon { width: 36px; height: 36px; border-radius: 10px; }
-            .projects-page .modal-title { font-size: .93rem; }
-            .projects-page .modal-subtitle { font-size: .69rem; }
-            .projects-page .modal-body { padding: 12px; }
-            .projects-page .form-step-card,
-            .projects-page .detail-section-card { padding: 13px; margin-bottom: 10px; border-radius: 12px; }
-            .projects-page .form-section-heading { margin-bottom: 11px; }
-            .projects-page .section-step { width: 29px; height: 29px; }
-
-            .projects-page .timeline-grid,
-            .projects-page .status-progress-grid { grid-template-columns: 1fr; }
-            .projects-page .progress-control-card { height: auto; }
-            .projects-page .view-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
-
-            .projects-page .modal-footer {
-                padding: 11px 12px;
-                gap: 7px;
-            }
-            .projects-page .modal-footer .btn {
-                min-width: 0;
-                flex: 1;
-            }
-
-            .projects-page .action-dropdown .dropdown-menu {
-                width: min(250px, calc(100vw - 24px));
-            }
-        }
-
-        @media (max-width: 420px) {
-            .projects-page .projects-panel-header { gap: 8px; }
-            .projects-page .projects-panel-actions { width: auto; }
-            .projects-page .projects-panel-actions .btn {
-                min-height: 36px;
-                padding: .4rem .55rem;
-            }
-            .projects-page .projects-search-group { flex-direction: column; }
-            .projects-page .projects-search-group .btn { width: 100%; }
-            .projects-page .project-icon { width: 34px; height: 34px; }
-            .projects-page .project-title-text { max-width: 49vw; font-size: .78rem; }
-            .projects-page .project-mobile-meta { font-size: .65rem; }
-            .projects-page .view-summary { grid-template-columns: 1fr; }
-            .projects-page .modal-heading-icon { display: none; }
-            .projects-page .modal-footer { flex-direction: column-reverse; }
-            .projects-page .modal-footer .btn { width: 100%; flex: none; }
-        }
-
-        html[data-theme="dark"] .projects-page,
-        body.dark-mode .projects-page {
-            --prj-border: #2b3443;
-            --prj-border-strong: #3a4658;
-            --prj-text: #e5e7eb;
-            --prj-muted: #9ca3af;
-            --prj-soft: #111827;
-        }
-
-        html[data-theme="dark"] .projects-page .projects-panel,
-        html[data-theme="dark"] .projects-page .projects-panel-header,
-        html[data-theme="dark"] .projects-page .modal-content,
-        html[data-theme="dark"] .projects-page .modal-header,
-        html[data-theme="dark"] .projects-page .modal-footer,
-        html[data-theme="dark"] .projects-page .form-step-card,
-        html[data-theme="dark"] .projects-page .detail-section-card,
-        html[data-theme="dark"] .projects-page .project-view-hero,
-        html[data-theme="dark"] .projects-page .view-summary-item,
-        html[data-theme="dark"] .projects-page .view-progress-card,
-        html[data-theme="dark"] .projects-page .project-description-box,
-        body.dark-mode .projects-page .projects-panel,
-        body.dark-mode .projects-page .projects-panel-header,
-        body.dark-mode .projects-page .modal-content,
-        body.dark-mode .projects-page .modal-header,
-        body.dark-mode .projects-page .modal-footer,
-        body.dark-mode .projects-page .form-step-card,
-        body.dark-mode .projects-page .detail-section-card,
-        body.dark-mode .projects-page .project-view-hero,
-        body.dark-mode .projects-page .view-summary-item,
-        body.dark-mode .projects-page .view-progress-card,
-        body.dark-mode .projects-page .project-description-box {
-            background: #111827;
-        }
-
-        html[data-theme="dark"] .projects-page .modal-body,
-        body.dark-mode .projects-page .modal-body { background: #0b1220; }
-
-        html[data-theme="dark"] .projects-page .form-control,
-        html[data-theme="dark"] .projects-page .form-select,
-        html[data-theme="dark"] .projects-page .progress-control-card,
-        body.dark-mode .projects-page .form-control,
-        body.dark-mode .projects-page .form-select,
-        body.dark-mode .projects-page .progress-control-card {
-            border-color: var(--prj-border-strong);
-            background: #0f172a;
-            color: var(--prj-text);
-        }
-
-        html[data-theme="dark"] .projects-page .table thead th,
-        body.dark-mode .projects-page .table thead th { background: #0f172a; color: #aab4c3; }
-
-        html[data-theme="dark"] .projects-page .table tbody td,
-        body.dark-mode .projects-page .table tbody td { color: var(--prj-text); }
-    </style>
 @endpush
 
 @section('content')
             <div class="projects-page">
 
-            <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show projects-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
@@ -927,7 +40,6 @@
                 </div>
             @endif
 
-
             <section class="projects-hero">
                 <div class="projects-hero-content">
                     <div class="min-w-0">
@@ -949,7 +61,6 @@
                 </div>
             </section>
 
-            <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4 projects-stats-row">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
@@ -1009,7 +120,6 @@
                 </div>
             </div>
 
-            <!-- Filters - UX Improved -->
             <div class="projects-panel projects-filter-panel">
                 <form method="GET" action="{{ route('admin.projects.index') }}" id="searchForm">
                     <div class="projects-panel-header">
@@ -1078,7 +188,7 @@
                             <div class="selected-count" id="selectedProjectsCount">
                                 <i class="fas fa-square-check me-1"></i>No projects selected
                             </div>
-                            <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger" title="Bulk Archive">
+                            <button type="button" data-click-call="bulkDelete" class="btn btn-outline-danger" title="Bulk Archive">
                                 <i class="fas fa-trash-alt"></i>Archive Selected
                             </button>
                         </div>
@@ -1094,7 +204,6 @@
             </form>
             @endif
 
-            <!-- Projects Table - UX Improved -->
             <div class="projects-panel">
                 <div class="projects-panel-header">
                     <div class="projects-panel-title">
@@ -1115,7 +224,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="50" class="ps-4">
-                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                        <input type="checkbox" id="selectAll" data-click-call="toggleSelectAll">
                                     </th>
                                     <th class="ps-0">
                                         <a href="{{ request()->fullUrlWithQuery(['sort' => 'title', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}"
@@ -1223,14 +332,14 @@
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
-                                            {{ $project->start_date 
+                                            {{ $project->start_date
                                                 ? \Carbon\Carbon::parse($project->start_date)->format('M d, Y')
                                                 : '-' }}
                                         </span>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <span class="date-badge">
-                                            {{ $project->expected_completion 
+                                            {{ $project->expected_completion
                                                 ? \Carbon\Carbon::parse($project->expected_completion)->format('M d, Y')
                                                 : '-' }}
                                         </span>
@@ -1300,7 +409,7 @@
 
                                                     @admin_can('delete_projects')
                                                         @if($project->deleted_at)
-                                                        <form method="POST" action="{{ route('admin.projects.restore', $project->id) }}" onsubmit="return confirmDelete(event, 'Restore this project?')">
+                                                        <form method="POST" action="{{ route('admin.projects.restore', $project->id) }}" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Restore this project?']) }}">
                                                             @csrf
                                                             <button type="submit" class="dropdown-item action-restore">
                                                                 <span class="action-menu-icon"><i class="fas fa-rotate-left"></i></span>
@@ -1311,7 +420,7 @@
                                                             </button>
                                                         </form>
                                                         @else
-                                                        <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" onsubmit="return confirmDelete(event, 'Archive this project?')">
+                                                        <form method="POST" action="{{ route('admin.projects.destroy', $project->id) }}" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Archive this project?']) }}">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item action-archive">
@@ -1351,7 +460,6 @@
                         </table>
                     </div>
 
-                    <!-- Pagination - Mobile Responsive -->
                     @if(isset($projects) && $projects->total() > 0)
                     <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <small class="text-muted order-2 order-md-1">
@@ -1367,7 +475,6 @@
                 </div>
             </div>
 
-            <!-- Add Project Modal -->
             @admin_can('create_projects')
             <div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1507,7 +614,6 @@
             </div>
             @endadmin_can
 
-            <!-- Edit Project Modals -->
             @if(auth('admin')->user()->hasPermission('update_projects'))
                 @foreach($projects as $project)
                 <div class="modal fade" id="editProjectModal{{ $project->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1644,7 +750,6 @@
                 @endforeach
             @endif
 
-            <!-- View Project Modals -->
             @foreach($projects as $project)
             <div class="modal fade" id="viewModal{{ $project->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1740,394 +845,34 @@
             @endforeach
 
             @if ($errors->any() && session('form_type') == 'add')
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var addModal = new bootstrap.Modal(document.getElementById('addProjectModal'));
-                    addModal.show();
-                });
-            </script>
+            <script src="{{ asset('js/pages/admin/admin_project-part1.js') }}"></script>
             @endif
 
             @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
                 @php
                     $editId = str_replace('edit_', '', session('form_type'));
                 @endphp
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var editModal = new bootstrap.Modal(document.getElementById('editProjectModal{{ $editId }}'));
-                        editModal.show();
-                    });
-                </script>
+                @include('shared.js-config', [
+    'id' => 'js-config-admin-admin-project-1',
+    'data' => [
+        'v1' => e($editId),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_project-dynamic1.js') }}"></script>
             @endif
             </div>
 @endsection
 
 @push('scripts')
-<script>
-        // Bulk Archive function
-        function bulkDelete() {
-            const checkboxes = document.querySelectorAll('.project-checkbox:checked');
-            const bulkForm = document.getElementById('bulkForm');
-            const idsContainer = document.getElementById('bulkIdsContainer');
+@include('shared.js-config', [
+    'id' => 'js-config-admin-projects',
+    'data' => [
+        'canUpdate' => auth('admin')->user()->hasPermission('update_projects'),
+        'projectIds' => $projects->pluck('id')->values(),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_project-main.js') }}"></script>
 
-            if (!bulkForm || !idsContainer) {
-                alert('Bulk Archive form is unavailable. Please refresh the page.');
-                return;
-            }
-
-            if (checkboxes.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'No Selection',
-                        text: 'Please select at least one project to archive.',
-                        confirmButtonColor: '#d33'
-                    });
-                } else {
-                    alert('Please select at least one project to archive.');
-                }
-                return;
-            }
-
-            // Clear previous ids to avoid duplicate submissions.
-            idsContainer.innerHTML = '';
-            checkboxes.forEach(cb => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'ids[]';
-                input.value = cb.value;
-                idsContainer.appendChild(input);
-            });
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Confirm Bulk Archive',
-                    text: `Are you sure you want to archive ${checkboxes.length} selected project(s)?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Archive'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bulkForm.submit();
-                    }
-                });
-            } else {
-                if (confirm(`Are you sure you want to archive ${checkboxes.length} project(s)?`)) {
-                    bulkForm.submit();
-                }
-            }
-        }
-
-        // Select all checkboxes
-        function toggleSelectAll() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.project-checkbox');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-
-            if (typeof updateSelectedProjectsCount === 'function') {
-                updateSelectedProjectsCount();
-            }
-        }
-
-        // Confirm delete with SweetAlert
-        function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: message || 'You won\'t be able to revert this!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, proceed!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(message || 'Are you sure?')) {
-                    form.submit();
-                }
-            }
-            
-            return false;
-        }
-
-        // Update progress range display for add modal
-        document.getElementById('addProgressRange')?.addEventListener('input', function() {
-            document.getElementById('addProgressValue').textContent = this.value + '%';
-            document.getElementById('addProgressHidden').value = this.value;
-            
-            // Auto-select status based on progress
-            const statusSelect = document.querySelector('select[name="status"]');
-            if (this.value == 100) {
-                statusSelect.value = 'completed';
-            } else {
-                statusSelect.value = 'ongoing';
-            }
-        });
-
-        // Update select all checkbox when individual checkboxes change
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.project-checkbox');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            
-            if (checkboxes.length > 0 && selectAllCheckbox) {
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        
-                        selectAllCheckbox.checked = allChecked;
-                        selectAllCheckbox.indeterminate = !allChecked && anyChecked;
-                    });
-                });
-            }
-
-            // Add loading animation to filter form
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-
-            // Initialize progress bars with gradient
-            const progressBars = document.querySelectorAll('.progress-bar');
-            progressBars.forEach(bar => {
-                if (!bar.classList.contains('bg-success')) {
-                    bar.style.background = 'var(--primary-gradient)';
-                }
-            });
-
-            // Setup edit modal progress listeners
-            @if(auth('admin')->user()->hasPermission('update_projects'))
-                @foreach($projects as $project)
-                (function(projectId) {
-                    const range = document.getElementById('editProgressRange' + projectId);
-                    const value = document.getElementById('editProgressValue' + projectId);
-                    const hidden = document.getElementById('editProgressHidden' + projectId);
-                    const statusSelect = document.getElementById('edit_status_' + projectId);
-                    
-                    if (range && value && hidden && statusSelect) {
-                        range.addEventListener('input', function() {
-                            value.textContent = this.value + '%';
-                            hidden.value = this.value;
-                            
-                            // Auto-select status based on progress
-                            if (this.value == 100) {
-                                statusSelect.value = 'completed';
-                            } else {
-                                statusSelect.value = 'ongoing';
-                            }
-                        });
-                    }
-                })('{{ $project->id }}');
-                @endforeach
-            @endif
-        });
-    </script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function sf(el, msg) {
-            if (!el) return;
-            el.classList.add('is-invalid');
-            let fb = el.parentElement.querySelector('.invalid-feedback');
-            if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.insertAdjacentElement('afterend', fb); }
-            fb.textContent = msg;
-            fb.style.display = 'block';
-        }
-        function cf(el) {
-            if (!el) return;
-            el.classList.remove('is-invalid');
-            const fb = el.parentElement.querySelector('.invalid-feedback');
-            if (fb) {
-                fb.textContent = '';
-                fb.style.display = 'none';
-            }
-        }
-
-        function attachProjectValidation(form) {
-            if (!form) return;
-            const title              = form.querySelector('[name="title"]');
-            const description        = form.querySelector('[name="description"]');
-            const status             = form.querySelector('[name="status"]');
-            const startDate          = form.querySelector('[name="start_date"]');
-            const expectedCompletion = form.querySelector('[name="expected_completion"]');
-            const progressHidden     = form.querySelector('input[type="hidden"][name="progress"]');
-
-            function hasFourDigitYear(dateValue) {
-                return /^\d{4}-\d{2}-\d{2}$/.test(dateValue);
-            }
-
-            function getProgressValue() {
-                const raw = progressHidden ? progressHidden.value : '0';
-                const parsed = parseInt(raw, 10);
-                return Number.isNaN(parsed) ? 0 : parsed;
-            }
-
-            function validateStatusVsProgress() {
-                if (!status) return true;
-                const progress = getProgressValue();
-                if (status.value === 'completed' && progress !== 100) {
-                    sf(status, 'Status can only be Completed when progress is 100%.');
-                    return false;
-                }
-                if (status.value) {
-                    cf(status);
-                }
-                return true;
-            }
-
-            function checkDateFieldFormat(field) {
-                if (!field || !field.value) return true;
-                if (!hasFourDigitYear(field.value)) {
-                    sf(field, 'Date must use a 4-digit year (YYYY-MM-DD).');
-                    return false;
-                }
-                return true;
-            }
-
-            if (title) {
-                title.addEventListener('input', function() { cf(this); }, {once: true});
-                title.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Title is required.');
-                    else if (this.value.trim().length < 3) sf(this, 'Title must be at least 3 characters.');
-                    else cf(this);
-                });
-            }
-            if (description) {
-                description.addEventListener('input', function() { cf(this); }, {once: true});
-                description.addEventListener('input', function() {
-                    if (!this.value.trim()) sf(this, 'Description is required.');
-                    else if (this.value.trim().length < 10) sf(this, 'Description must be at least 10 characters.');
-                    else cf(this);
-                });
-            }
-            if (status) status.addEventListener('change', function() {
-                if (!this.value) {
-                    sf(this, 'Please select a status.');
-                } else {
-                    validateStatusVsProgress();
-                }
-            });
-
-            if (progressHidden) {
-                progressHidden.addEventListener('input', validateStatusVsProgress);
-                progressHidden.addEventListener('change', validateStatusVsProgress);
-            }
-
-            if (startDate) {
-                startDate.addEventListener('change', function() {
-                    if (checkDateFieldFormat(this)) cf(this);
-                });
-            }
-
-            if (expectedCompletion) {
-                expectedCompletion.addEventListener('change', function() {
-                    if (checkDateFieldFormat(this)) cf(this);
-                });
-            }
-
-            if (expectedCompletion && startDate) {
-                const checkDates = function() {
-                    if (!checkDateFieldFormat(startDate) || !checkDateFieldFormat(expectedCompletion)) {
-                        return;
-                    }
-                    if (expectedCompletion.value && startDate.value && expectedCompletion.value < startDate.value) {
-                        sf(expectedCompletion, 'Completion date must not be before the start date.');
-                    } else cf(expectedCompletion);
-                };
-                expectedCompletion.addEventListener('change', checkDates);
-                startDate.addEventListener('change', checkDates);
-            }
-
-            form.addEventListener('submit', function(e) {
-                let valid = true;
-                if (title) {
-                    if (!title.value.trim()) { sf(title, 'Title is required.'); valid = false; }
-                    else if (title.value.trim().length < 3) { sf(title, 'Title must be at least 3 characters.'); valid = false; }
-                    else { cf(title); }
-                }
-                if (description) {
-                    if (!description.value.trim()) { sf(description, 'Description is required.'); valid = false; }
-                    else if (description.value.trim().length < 10) { sf(description, 'Description must be at least 10 characters.'); valid = false; }
-                    else { cf(description); }
-                }
-                if (status && !status.value) { sf(status, 'Please select a status.'); valid = false; }
-                else if (status && !validateStatusVsProgress()) { valid = false; }
-                else if (status) { cf(status); }
-
-                if (startDate && !checkDateFieldFormat(startDate)) {
-                    valid = false;
-                }
-                if (expectedCompletion && !checkDateFieldFormat(expectedCompletion)) {
-                    valid = false;
-                }
-
-                if (startDate && expectedCompletion && startDate.value && expectedCompletion.value && expectedCompletion.value < startDate.value) {
-                    sf(expectedCompletion, 'Completion date must not be before the start date.'); valid = false;
-                }
-                else if (expectedCompletion) {
-                    cf(expectedCompletion);
-                }
-                if (!valid) e.preventDefault();
-            });
-        }
-
-        attachProjectValidation(document.getElementById('addProjectForm'));
-        document.querySelectorAll('[id^="editProjectForm"]').forEach(attachProjectValidation);
-    });
-
-// UX helper: keep the selected counter updated for bulk actions.
-        function updateSelectedProjectsCount() {
-            const selected = document.querySelectorAll('.project-checkbox:checked').length;
-            const counter = document.getElementById('selectedProjectsCount');
-            if (!counter) return;
-            counter.innerHTML = selected > 0
-                ? `<i class="fas fa-square-check me-1"></i>${selected} project${selected === 1 ? '' : 's'} selected`
-                : '<i class="fas fa-square-check me-1"></i>No projects selected';
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.project-checkbox, #selectAll').forEach((checkbox) => {
-                checkbox.addEventListener('change', updateSelectedProjectsCount);
-            });
-            updateSelectedProjectsCount();
-
-            document.querySelectorAll('.modal-body .row.g-3').forEach((row) => {
-                if (!row.closest('.modal-body')) return;
-                row.classList.add('modal-form-grid');
-            });
-
-            document.querySelectorAll('.modal-body textarea[name="description"]').forEach((textarea) => {
-                if (!textarea.nextElementSibling || !textarea.nextElementSibling.classList?.contains('field-hint')) {
-                    textarea.insertAdjacentHTML('afterend', '<span class="field-hint">Use short, resident-friendly wording. Include scope, location, and expected outcome when possible.</span>');
-                }
-            });
-        });
-    </script>
+    <script src="{{ asset('js/pages/admin/admin_project-part2.js') }}"></script>
 
 @endpush

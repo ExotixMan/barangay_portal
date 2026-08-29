@@ -20,7 +20,6 @@ class AdminRole extends Model
         'is_system_role' => 'boolean',
     ];
 
-    // Relationships
     public function users()
     {
         return $this->hasMany(AdminUser::class, 'role_id');
@@ -30,13 +29,12 @@ class AdminRole extends Model
     {
         return $this->belongsToMany(
             AdminPermission::class,
-            'admin_role_permissions',  // pivot table name
-            'role_id',                 // foreign key for this model in pivot table
-            'permission_id'            // foreign key for the related model in pivot table
-        )->withTimestamps();           // since pivot table has created_at/updated_at
+            'admin_role_permissions',  
+            'role_id',                 
+            'permission_id'            
+        )->withTimestamps();           
     }
 
-    // Accessors
     public function getUsersCountAttribute()
     {
         return $this->users()->count();
@@ -47,7 +45,6 @@ class AdminRole extends Model
         return $value ?? ucfirst($this->name);
     }
 
-    // Scopes
     public function scopeSystem(Builder $query): Builder
     {
         return $query->where('is_system_role', true);

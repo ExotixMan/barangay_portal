@@ -62,14 +62,10 @@ class TrackRequestController extends Controller
             ], 404);
         }
 
-        // Keep the original response shape so existing JavaScript that reads
-        // response.reference, response.status, etc. will still work.
+        
         return response()->json($trackedRequest);
     }
 
-    /**
-     * Print request details.
-     */
     public function print(string $reference): View|RedirectResponse
     {
         $trackedRequest = $this->searchRequest($this->normalizeReference($reference));

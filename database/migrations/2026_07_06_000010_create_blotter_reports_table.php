@@ -6,16 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
         Schema::create('blotter_reports', function (Blueprint $table) {
             $table->id();
             $table->string('reference_number')->unique();
 
-            // incident
             $table->string('report_type');
             $table->date('incident_date');
             $table->time('incident_time');
@@ -23,23 +20,19 @@ return new class extends Migration
             $table->text('description');
             $table->text('immediate_action')->nullable();
 
-            // complainant
             $table->string('complainant_name');
             $table->string('complainant_contact');
             $table->string('complainant_address');
             $table->string('complainant_email')->nullable();
 
-            // respondent
             $table->string('respondent_name')->nullable();
             $table->string('respondent_contact')->nullable();
             $table->string('respondent_address')->nullable();
             $table->text('respondent_description')->nullable();
 
-            // preferences
             $table->enum('confidentiality', ['low','medium','high']);
             $table->text('additional_info')->nullable();
 
-            //status
             $table->string('status')->default('processing');
 
             $table->softDeletes();
@@ -48,9 +41,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('blotter_reports');

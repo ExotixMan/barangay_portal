@@ -16,18 +16,12 @@ class Notification extends Mailable
     public string $name;
     public string $messageText;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct(string $name, string $messageText)
     {
         $this->name = $name;
         $this->messageText = $messageText;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -35,9 +29,6 @@ class Notification extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
@@ -49,11 +40,6 @@ class Notification extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];

@@ -10,62 +10,7 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
-    <style>
-
-    body{
-        background:url('/Images/bgnew(3).png') center/cover no-repeat;
-        min-height:100vh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-family:'Segoe UI', sans-serif;
-    }
-
-    .verify-card{
-        max-width:500px;
-        width:100%;
-        background:white;
-        border-radius:18px;
-        padding:40px;
-        text-align:center;
-        box-shadow:0 15px 35px rgba(0,0,0,0.2);
-    }
-
-    .logo{
-        width:80px;
-        margin-bottom:15px;
-    }
-
-    .verify-title{
-        font-weight:700;
-        color:#c4161c;
-    }
-
-    .verify-text{
-        color:#555;
-    }
-
-    .resend-btn{
-        background:#c4161c;
-        border:none;
-        padding:12px 25px;
-        border-radius:8px;
-        color:white;
-        font-weight:600;
-    }
-
-    .resend-btn:hover{
-        background:#a10f14;
-    }
-
-    .back-login{
-        margin-top:20px;
-        display:block;
-        color:#c4161c;
-        text-decoration:none;
-    }
-
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/verify_email.css') }}">
 
 </head>
 @include('chatbot.embed')
@@ -103,69 +48,17 @@
 
     </div>
     @if (session('success'))
-        <script>
-        localStorage.setItem("verify_timer", 60);
-        </script>
+        <script src="{{ asset('js/pages/barangay_system/verify_email.js') }}"></script>
     @endif
 
-    <script>
-        const btn = document.getElementById('resendBtn');
-        const form = document.getElementById('resendForm');
-        
-        // Check if there's an active timer in localStorage
-        let endTime = localStorage.getItem('verify_end_time');
-        
-        if (endTime) {
-            let remainingSeconds = Math.floor((endTime - Date.now()) / 1000);
-            
-            if (remainingSeconds > 0) {
-                startTimer(remainingSeconds);
-            } else {
-                localStorage.removeItem('verify_end_time');
-                btn.disabled = false;
-                btn.innerText = @json(__('messages.blade_verify_email_blade_send_verification_email'));
-            }
-        }
-        
-        form.addEventListener('submit', function(e) {
-            if (btn.disabled) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Set end time (60 seconds from now)
-            let endTime = Date.now() + 60000;
-            localStorage.setItem('verify_end_time', endTime);
-            
-            startTimer(60);
-            
-            // Allow form to submit
-            return true;
-        });
-        
-        function startTimer(seconds) {
-            btn.disabled = true;
-            
-            const timer = setInterval(() => {
-                let endTime = localStorage.getItem('verify_end_time');
-                if (!endTime) {
-                    clearInterval(timer);
-                    return;
-                }
-                
-                let remainingSeconds = Math.floor((endTime - Date.now()) / 1000);
-                
-                if (remainingSeconds <= 0) {
-                    clearInterval(timer);
-                    btn.disabled = false;
-                    btn.innerText = @json(__('messages.blade_verify_email_blade_send_verification_email'));
-                    localStorage.removeItem('verify_end_time');
-                } else {
-                    btn.innerText = @json(__('messages.blade_verify_email_blade_resend_email')) + remainingSeconds + "s)";
-                }
-            }, 1000);
-        }
-    </script>
+    @include('shared.js-config', [
+    'id' => 'js-config-barangay-system-verify-email-1',
+    'data' => [
+        'v1' => __('messages.blade_verify_email_blade_send_verification_email'),
+        'v2' => __('messages.blade_verify_email_blade_resend_email'),
+    ],
+])
+<script src="{{ asset('js/pages/barangay_system/verify_email-dynamic1.js') }}"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
 
 </body>

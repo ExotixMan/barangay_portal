@@ -19,9 +19,6 @@ class NewAdminSubmissionNotification extends Notification
     ) {
     }
 
-    /**
-     * Store every alert in the notifications table and push it through Reverb.
-     */
     public function via(object $notifiable): array
     {
         return ['database', 'broadcast'];

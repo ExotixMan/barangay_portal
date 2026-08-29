@@ -20,6 +20,8 @@ class IndigencyApplication extends Model
         'suffix',
         'birthdate',
         'gender',
+        'civil_status',
+        'birth_place',
         'address',
         'contact_number',
         'email',
@@ -29,6 +31,7 @@ class IndigencyApplication extends Model
         'purpose_other',
         'primary_proof',
         'valid_id_path',
+        'valid_id_back_path',
         'status',
     ];
 

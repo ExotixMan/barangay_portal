@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    /**
-     * Build current dashboard stats snapshot.
-     */
+    
     private function getDashboardStats(): array
     {
         $pendingStatuses = ['pending', 'under_review', 'processing'];
@@ -34,9 +32,6 @@ class DashboardController extends Controller
         ];
     }
 
-    /**
-     * Display the admin dashboard with initial stats
-     */
     public function index()
     {
         $forecastPath = public_path('analytics/forecast.json');
@@ -50,9 +45,6 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact('stats', 'forecastLastUpdated'));
     }
 
-    /**
-     * Return live dashboard stats for realtime card updates.
-     */
     public function liveStats()
     {
         $forecastPath = public_path('analytics/forecast.json');
@@ -67,13 +59,10 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * Fetch forecast data from cached JSON file
-     */
     public function forecastRequests()
     {
         try {
-            // Read pre-generated forecast JSON file (fast path)
+            
             $forecastPath = public_path('analytics/forecast.json');
 
             if (!file_exists($forecastPath)) {
@@ -111,9 +100,6 @@ class DashboardController extends Controller
         }
     }
 
-    /**
-     * Trigger forecast regeneration from dashboard action.
-     */
     public function refreshForecast()
     {
         try {

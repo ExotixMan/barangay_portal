@@ -32,10 +32,6 @@ class ChatbotKnowledge extends Model
         $this->increment('usage_count');
     }
 
-    /**
-     * Safe keyword search for MySQL/PostgreSQL.
-     * Uses LOWER(COALESCE(...)) to avoid null errors and keeps ordering predictable.
-     */
     public static function search(string $query, int $limit = 10): EloquentCollection
     {
         $query = mb_strtolower(trim($query));

@@ -1,0 +1,52 @@
+body{
+        background:url("/Images/bgnew(3).png") center/cover no-repeat;
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-family:"Segoe UI", sans-serif;
+    }
+
+    .verify-card{
+        max-width:500px;
+        width:100%;
+        background:white;
+        border-radius:18px;
+        padding:40px;
+        text-align:center;
+        box-shadow:0 15px 35px rgba(0,0,0,0.2);
+    }
+
+    .logo{
+        width:80px;
+        margin-bottom:15px;
+    }
+
+    .verify-title{
+        font-weight:700;
+        color:#c4161c;
+    }
+
+    .verify-text{
+        color:#555;
+    }
+
+    .resend-btn{
+        background:#c4161c;
+        border:none;
+        padding:12px 25px;
+        border-radius:8px;
+        color:white;
+        font-weight:600;
+    }
+
+    .resend-btn:hover{
+        background:#a10f14;
+    }
+
+    .back-login{
+        margin-top:20px;
+        display:block;
+        color:#c4161c;
+        text-decoration:none;
+    }

@@ -252,7 +252,6 @@
                 });
         }
 
-        // Independent fallback refresh even when Reverb is unavailable.
         window.setInterval(function () {
             refreshNotifications(false);
         }, 30000);

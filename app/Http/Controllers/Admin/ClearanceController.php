@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BarangayClearance;
+use App\Models\Residents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -26,9 +27,8 @@ class ClearanceController extends Controller
     {
         $query = BarangayClearance::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
-        // Search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
@@ -38,7 +38,6 @@ class ClearanceController extends Controller
             });
         }
 
-        // Status filter
         if ($request->status) {
             if ($request->status === 'deleted') {
                 $query->onlyTrashed();
@@ -46,17 +45,16 @@ class ClearanceController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        // Filter by Purpose
+        
         if ($request->purpose && in_array($request->purpose, ['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])) {
             $query->where('purpose', $request->purpose);
         }
 
-        $total_count = BarangayClearance::withTrashed()->count(); // Includes archived records
+        $total_count = BarangayClearance::withTrashed()->count(); 
         $processing_count = BarangayClearance::where('status', 'processing')->count();
         $approved_count   = BarangayClearance::where('status', 'approved')->count();
         $rejected_count   = BarangayClearance::where('status', 'rejected')->count();
 
-        // SORTING
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['first_name', 'created_at'];
@@ -68,36 +66,97 @@ class ClearanceController extends Controller
         $query->orderByRaw("CASE WHEN status = 'rejected' THEN 1 ELSE 0 END ASC");
 
         $clearances = $query->orderByDesc('id')->paginate(20)->withQueryString();
+
+        $residents = Residents::query()
+            ->whereNull('deleted_at')
+            ->orderBy('firstname')
+            ->orderBy('lastname')
+            ->get([
+                'id', 'firstname', 'middlename', 'lastname', 'suffix', 'birthdate',
+                'gender', 'civil_status', 'place_of_birth', 'address', 'contact', 'email',
+                'valid_id', 'valid_id_back', 'valid_id_status', 'valid_id_verified',
+            ]);
         
-        return view('admin.admin_clearance', compact('clearances', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
+        return view('admin.admin_clearance', compact('clearances', 'residents', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }
 
     public function store(Request $request)
     {
-        // Normalize phone input before validation.
+        
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
+        $selectedResident = null;
+        if ($request->filled('resident_id')) {
+            $selectedResident = Residents::whereKey($request->input('resident_id'))
+                ->whereNull('deleted_at')
+                ->firstOrFail();
+
+            $request->merge([
+                'first_name' => $selectedResident->firstname,
+                'middle_name' => $selectedResident->middlename,
+                'last_name' => $selectedResident->lastname,
+                'suffix' => $selectedResident->suffix,
+                'birthdate' => optional($selectedResident->birthdate)->format('Y-m-d'),
+                'gender' => strtolower((string) $selectedResident->gender),
+                'civil_status' => strtolower((string) $selectedResident->civil_status),
+                'birth_place' => $selectedResident->place_of_birth,
+                'address' => $selectedResident->address,
+                'contact_number' => $selectedResident->contact,
+                'email' => $selectedResident->email,
+            ]);
+        }
+
         $data = $request->validate([
+            'resident_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('residents', 'id')->whereNull('deleted_at'),
+            ],
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'birthdate' => 'required|date',
-            'gender' => 'required',
+            'gender' => 'required|in:male,female,other,prefer not to say',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'birth_place' => 'required|string|max:255',
             'address' => 'required',
             'contact_number' => ['required','regex:/^09\d{9}$/'],
             'email' => 'required|email',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'valid_id_path' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);
 
+        if ($selectedResident) {
+            $data['user_id'] = $selectedResident->id;
+            if (! $request->hasFile('valid_id_path') && filled($selectedResident->valid_id)) {
+                $data['valid_id_path'] = $selectedResident->valid_id;
+            }
+            if (! $request->hasFile('valid_id_back_path') && filled($selectedResident->valid_id_back)) {
+                $data['valid_id_back_path'] = $selectedResident->valid_id_back;
+            }
+        }
+        unset($data['resident_id']);
+
+        $documentErrors = [];
+        if (! filled($data['valid_id_path'] ?? null)) {
+            $documentErrors['valid_id_path'] = 'Select a resident with a saved front Valid ID or upload the front side.';
+        }
+        if (! filled($data['valid_id_back_path'] ?? null)) {
+            $documentErrors['valid_id_back_path'] = 'Select a resident with a saved back Valid ID or upload the back side.';
+        }
+        if ($documentErrors) {
+            return back()->withInput()->withErrors($documentErrors);
+        }
+
         try {
-            // Proof of residency
+            
             if ($request->hasFile('primary_proof')) {
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
@@ -106,16 +165,22 @@ class ClearanceController extends Controller
                 $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
             }
 
-            //Valid ID
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
-                $vip_name = time() . '.' . $vip_ext;
+                $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
                 $vip->move(public_path('uploads/valid_id/clearance'), $vip_name);
                 $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vip_name;
             }
 
-            // Generate Reference Number
+            if ($request->hasFile('valid_id_back_path')){
+                $vipBack = $request->file('valid_id_back_path');
+                $vipBackExt = $vipBack->getClientOriginalExtension();
+                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBack->move(public_path('uploads/valid_id/clearance'), $vipBackName);
+                $data['valid_id_back_path'] = 'uploads/valid_id/clearance/' . $vipBackName;
+            }
+
             $data['reference_number'] = 'BC-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
 
             if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
@@ -124,12 +189,11 @@ class ClearanceController extends Controller
                 $data['fee'] = null;
             }
 
-            // Default status
             $data['status'] = 'processing';
 
             BarangayClearance::create($data);
 
-            return redirect()->route('admin.clearance.index') // FIXED: added redirect with proper route
+            return redirect()->route('admin.clearance.index') 
                 ->with('success', 'Clearance added successfully.');
 
         } catch (\Exception $e) {
@@ -144,7 +208,6 @@ class ClearanceController extends Controller
 
         session()->flash('form_type', 'edit_' . $application->id);
 
-        // Normalize phone input before validation.
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
@@ -155,12 +218,15 @@ class ClearanceController extends Controller
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'birthdate' => 'required|date|before_or_equal:today',
-            'gender' => 'required',
+            'gender' => 'required|in:male,female,other,prefer not to say',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'birth_place' => 'required|string|max:255',
             'address' => 'required|string',
             'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email',
             'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'purpose' => 'required',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
@@ -186,9 +252,21 @@ class ClearanceController extends Controller
 
                 $vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
-                $vipName = time() . '_' . Str::random(5) . '.' . $vipExt;
+                $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
                 $vip->move(public_path('uploads/valid_id/clearance'), $vipName);
                 $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vipName;
+            }
+
+            if ($request->hasFile('valid_id_back_path')) {
+                if ($application->valid_id_back_path && File::exists(public_path($application->valid_id_back_path))) {
+                    File::delete(public_path($application->valid_id_back_path));
+                }
+
+                $vipBack = $request->file('valid_id_back_path');
+                $vipBackExt = $vipBack->getClientOriginalExtension();
+                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBack->move(public_path('uploads/valid_id/clearance'), $vipBackName);
+                $data['valid_id_back_path'] = 'uploads/valid_id/clearance/' . $vipBackName;
             }
 
             if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
@@ -210,8 +288,7 @@ class ClearanceController extends Controller
     public function updateStatus(Request $request, int $id)
     {
         $application = BarangayClearance::findOrFail($id);
-        
-        // Validate status
+
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
@@ -225,10 +302,8 @@ class ClearanceController extends Controller
         $remarks = trim((string) $request->input('remarks', ''));
         $feeValue = $request->filled('fee') ? (float) $request->input('fee') : null;
 
-        // Optional: Add business logic rules for status transitions
-        // For example, prevent certain transitions if needed
         
-        // Update status and timestamp
+
         $application->status = $newStatus;
         $application->fee = $feeValue;
         $application->status_updated_at = now();
@@ -247,7 +322,6 @@ class ClearanceController extends Controller
 
         $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
-        // Log approval/status update
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -265,7 +339,6 @@ class ClearanceController extends Controller
             ]);
         }
 
-        // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
         $feeText = is_null($application->fee)
@@ -403,7 +476,7 @@ class ClearanceController extends Controller
                 ->get();
 
             foreach ($clearances as $clearance) {
-                // Soft delete when BarangayClearance uses SoftDeletes.
+                
                 $clearance->delete();
             }
 
@@ -447,7 +520,7 @@ class ClearanceController extends Controller
 
         $applications = $query->get();
 
-        $filename = 'barangay_clearances_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
+        $filename = 'barangay_clearances_' . now()->format('Y-m-d_His') . '.csv'; 
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -459,7 +532,6 @@ class ClearanceController extends Controller
 
             fwrite($file, "\xEF\xBB\xBF");
 
-            // CSV Header Row
             fputcsv($file, [
                 'ID',
                 'Reference Number',
@@ -515,7 +587,6 @@ class ClearanceController extends Controller
             fclose($file);
         };
 
-        // Log audit trail
         if (auth('admin')->check()) {
             $exportCount = BarangayClearance::query()->when($request->ids, function($q) use ($request) {
                 return $q->whereIn('id', $request->ids);
@@ -546,7 +617,7 @@ class ClearanceController extends Controller
         $reference = $application->reference_number;
 
         DB::transaction(function () use ($application, $reference) {
-            // This is a soft delete when Residency uses SoftDeletes.
+            
             $application->delete();
 
             if (auth('admin')->check()) {
@@ -664,16 +735,15 @@ class ClearanceController extends Controller
         $templateProcessor->setValue('MONTH', $month);
         $templateProcessor->setValue('YEAR', $year);
         $templateProcessor->setValue('STAFF_NAME', $staffName);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); 
 
-        $fileName = 'barangay_clearance_' . $record->reference_number . '.docx'; // FIXED: added underscore
+        $fileName = 'barangay_clearance_' . $record->reference_number . '.docx'; 
         $outputDir = storage_path('app/generated');
         if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 
         $docxPath = $outputDir . '/' . $fileName;
         $templateProcessor->saveAs($docxPath);
 
-        // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),

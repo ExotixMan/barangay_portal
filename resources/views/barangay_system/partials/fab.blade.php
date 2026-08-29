@@ -1,4 +1,3 @@
-<!-- Floating Action Button with Speed Dial -->
 <div class="fab-container">
     <div class="speed-dial" id="speedDial">
         <button class="fab-action" id="translateBtn" title="{{ __('messages.translate_text') }}">
@@ -20,7 +19,6 @@
     </button>
 </div>
 
-<!-- Back to Top Button -->
 <button class="back-to-top" id="backToTop" aria-label="{{ __('messages.back_to_top') }}">
     <i class="fas fa-chevron-up"></i>
 </button>

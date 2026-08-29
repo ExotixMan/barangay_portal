@@ -48,14 +48,6 @@ class IndigencyApplicationController extends Controller
                 ->withErrors(['auth' => 'Please log in before submitting an indigency request.']);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Same logic as Clearance:
-        | Do not accept name, birthdate, gender, address, contact, or email from
-        | the form. These come from the logged-in resident profile only.
-        |--------------------------------------------------------------------------
-        */
-
         $missingProfileFields = $this->getMissingProfileFields($resident);
 
         if (! empty($missingProfileFields)) {
@@ -70,11 +62,11 @@ class IndigencyApplicationController extends Controller
         $hasVerifiedResidency = $this->isTruthy($resident->residency_verified ?? false);
 
         $residentValidIdPath = $this->getResidentValidIdPath($resident);
+        $residentValidIdBackPath = $this->getResidentValidIdBackPath($resident);
 
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            // Request-specific data only
             'monthly_income' => ['required', 'string', 'max:255'],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
             'purpose' => ['required', 'string', 'max:255'],
@@ -91,10 +83,12 @@ class IndigencyApplicationController extends Controller
             $rules['primary_proof'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
-        if (! $hasVerifiedValidId || blank($residentValidIdPath)) {
+        if (! $hasVerifiedValidId || blank($residentValidIdPath) || blank($residentValidIdBackPath)) {
             $rules['valid_id_path'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['valid_id_back_path'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         } else {
             $rules['valid_id_path'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['valid_id_back_path'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
         $validated = $request->validate($rules);
@@ -104,6 +98,7 @@ class IndigencyApplicationController extends Controller
 
             $primaryProofPath = null;
             $validIdPath = $residentValidIdPath;
+            $validIdBackPath = $residentValidIdBackPath;
 
             if ($request->hasFile('primary_proof')) {
                 $primaryProofPath = $this->uploadFile(
@@ -117,7 +112,15 @@ class IndigencyApplicationController extends Controller
                 $validIdPath = $this->uploadFile(
                     $request->file('valid_id_path'),
                     'uploads/valid_id/indigency',
-                    'valid_id'
+                    'valid_id_front'
+                );
+            }
+
+            if ($request->hasFile('valid_id_back_path')) {
+                $validIdBackPath = $this->uploadFile(
+                    $request->file('valid_id_back_path'),
+                    'uploads/valid_id/indigency',
+                    'valid_id_back'
                 );
             }
 
@@ -126,7 +129,6 @@ class IndigencyApplicationController extends Controller
             $indigencyData = [
                 'user_id' => $resident->id,
 
-                // Snapshot from verified resident profile
                 'first_name' => $resident->firstname,
                 'middle_name' => $resident->middlename,
                 'last_name' => $resident->lastname,
@@ -139,13 +141,13 @@ class IndigencyApplicationController extends Controller
                 'contact_number' => $resident->contact,
                 'email' => $resident->email,
 
-                // Request-specific data
                 'monthly_income' => $validated['monthly_income'],
                 'household_members' => $validated['household_members'],
                 'purpose' => $validated['purpose'],
                 'purpose_other' => $validated['purpose_other'] ?? null,
                 'primary_proof' => $primaryProofPath,
                 'valid_id_path' => $validIdPath,
+                'valid_id_back_path' => $validIdBackPath,
 
                 'reference_number' => $referenceNumber,
                 'status' => 'processing',
@@ -399,6 +401,13 @@ class IndigencyApplicationController extends Controller
         return $resident->valid_id_path
             ?? $resident->valid_id
             ?? $resident->valid_id_front
+            ?? null;
+    }
+
+    private function getResidentValidIdBackPath(object $resident): ?string
+    {
+        return $resident->valid_id_back_path
+            ?? $resident->valid_id_back
             ?? null;
     }
 

@@ -163,7 +163,6 @@ class DocumentController extends Controller
             abort(404, 'Indigency Word template not found');
         }
 
-        // Build full name properly - only include non-empty parts
         $nameParts = array_filter([
             $record->first_name,
             $record->middle_name,
@@ -174,23 +173,19 @@ class DocumentController extends Controller
         
         $createdDate = Carbon::parse($record->created_at);
 
-        // Get staff/admin name from the admin guard model fields.
         $adminUser = auth('admin')->user();
         $resolvedStaffName = $adminUser?->full_name
             ?? trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''))
             ?? $adminUser?->username
             ?? 'BARANGAY STAFF';
         $staffName = strtoupper(trim($resolvedStaffName));
-        
-        // Extract day, month, year for the certificate format (all uppercase)
-        $day = strtoupper($createdDate->format('jS')); // e.g., "23RD"
-        $month = strtoupper($createdDate->format('F'));  // e.g., "MARCH"
-        $year = strtoupper($createdDate->format('Y'));   // e.g., "2026"
-        
-        // Prepare full address (uppercase)
+
+        $day = strtoupper($createdDate->format('jS')); 
+        $month = strtoupper($createdDate->format('F'));  
+        $year = strtoupper($createdDate->format('Y'));   
+
         $address = strtoupper($record->address ?? 'N/A');
-        
-        // Prepare purpose (uppercase)
+
         $purpose = $record->purpose == 'other' ? strtoupper($record->purpose_other ?? 'N/A') : strtoupper(str_replace('_', ' ', $record->purpose ?? 'N/A'));
 
         $templateProcessor = new TemplateProcessor($templatePath);
@@ -215,24 +210,19 @@ class DocumentController extends Controller
             $pdfFileName = 'indigency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            // Create a writable LibreOffice user profile directory
             $tempUserDir = $outputDir . '/libreoffice_profile';
             if (!is_dir($tempUserDir)) {
                 mkdir($tempUserDir, 0775, true);
             }
 
-            // Make sure permissions are okay
             @chmod($tempUserDir, 0775);
 
-            // IMPORTANT: build the full file:// URL first, then escape the whole value
             $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
 
-            // Set HOME too for better compatibility on VPS
             $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
                 . 'soffice --headless '
                 . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
@@ -320,24 +310,19 @@ class DocumentController extends Controller
             $pdfFileName = 'clearance_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            // Create a writable LibreOffice user profile directory
             $tempUserDir = $outputDir . '/libreoffice_profile';
             if (!is_dir($tempUserDir)) {
                 mkdir($tempUserDir, 0775, true);
             }
 
-            // Make sure permissions are okay
             @chmod($tempUserDir, 0775);
 
-            // IMPORTANT: build the full file:// URL first, then escape the whole value
             $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
 
-            // Set HOME too for better compatibility on VPS
             $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
                 . 'soffice --headless '
                 . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '
@@ -425,24 +410,19 @@ class DocumentController extends Controller
             $pdfFileName = 'residency_' . $record->reference_number . '.pdf';
             $pdfPath = $outputDir . '/' . $pdfFileName;
 
-            // Delete old PDF if exists
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
             }
 
-            // Create a writable LibreOffice user profile directory
             $tempUserDir = $outputDir . '/libreoffice_profile';
             if (!is_dir($tempUserDir)) {
                 mkdir($tempUserDir, 0775, true);
             }
 
-            // Make sure permissions are okay
             @chmod($tempUserDir, 0775);
 
-            // IMPORTANT: build the full file:// URL first, then escape the whole value
             $userInstallation = 'file://' . str_replace('\\', '/', $tempUserDir);
 
-            // Set HOME too for better compatibility on VPS
             $cmd = 'HOME=' . escapeshellarg($tempUserDir) . ' '
                 . 'soffice --headless '
                 . '-env:UserInstallation=' . escapeshellarg($userInstallation) . ' '

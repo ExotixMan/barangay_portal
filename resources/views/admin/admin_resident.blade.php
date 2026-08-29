@@ -7,93 +7,8 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/residency-applications.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/residents.css') }}">
-    <style>
-        .resident-correction-list { display: grid; gap: 10px; }
-        .resident-correction-item { overflow: hidden; border: 1px solid var(--line, #dee2e6); border-radius: 14px; background: var(--surface, #fff); }
-        .resident-correction-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; }
-        .resident-correction-summary-main { min-width: 0; }
-        .resident-correction-id { color: var(--ink, #172033); font-size: .82rem; font-weight: 800; }
-        .resident-correction-field { color: var(--muted, #6c757d); font-size: .76rem; margin-top: 2px; }
-        .resident-correction-meta { color: var(--muted, #6c757d); font-size: .7rem; margin-top: 4px; }
-        .resident-correction-summary-side { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
-        .resident-correction-toggle { border: 0; background: transparent; color: var(--brand, #b8322a); font-size: .74rem; font-weight: 800; padding: 4px 0; }
-        .resident-correction-toggle i { transition: transform .18s ease; }
-        .resident-correction-toggle[aria-expanded="true"] i { transform: rotate(180deg); }
-        .resident-correction-details { display: none; padding: 0 14px 12px; }
-        .resident-correction-details.is-open { display: block; }
-        .resident-correction-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; border-radius: 10px; background: var(--surface-soft, #f8f9fa); }
-        .resident-correction-detail { min-width: 0; }
-        .resident-correction-detail.is-wide { grid-column: 1 / -1; }
-        .resident-correction-detail-label { color: var(--muted, #6c757d); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-        .resident-correction-detail-value { color: var(--ink-soft, #343a40); font-size: .78rem; overflow-wrap: anywhere; margin-top: 2px; }
-        .resident-correction-decision { margin: 12px 14px 14px; padding-top: 12px; border-top: 1px solid var(--line, #dee2e6); }
-        @media (max-width: 575px) {
-            .resident-correction-summary { grid-template-columns: 1fr; gap: 8px; }
-            .resident-correction-summary-side { justify-content: space-between; }
-            .resident-correction-detail-grid { grid-template-columns: 1fr; }
-            .resident-correction-detail.is-wide { grid-column: auto; }
-        }
 
-        /* Keep the resident view modal on the same compact system as the edit modal. */
-        .modal[id^="viewResidentModal"] .modal-body { background: #fbfdff; }
-        .modal[id^="viewResidentModal"] .view-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .4rem;
-            padding: .35rem;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: #f8fafc;
-        }
-        .modal[id^="viewResidentModal"] .view-tabs .nav-link {
-            border: 1px solid transparent;
-            border-radius: 10px;
-            color: var(--muted);
-            font-size: .78rem;
-            font-weight: 800;
-            padding: .5rem .75rem;
-        }
-        .modal[id^="viewResidentModal"] .view-tabs .nav-link:hover,
-        .modal[id^="viewResidentModal"] .view-tabs .nav-link.active {
-            color: var(--primary-dark);
-            background: #fff;
-            border-color: var(--line);
-            box-shadow: var(--shadow-xs);
-        }
-        .modal[id^="viewResidentModal"] .application-modal-summary { gap: .6rem; margin-bottom: .8rem; }
-        .modal[id^="viewResidentModal"] .modal-summary-card,
-        .modal[id^="viewResidentModal"] .detail-section-card,
-        .modal[id^="viewResidentModal"] .edit-section-card {
-            border-radius: 15px;
-            box-shadow: var(--shadow-xs);
-        }
-        .modal[id^="viewResidentModal"] .modal-summary-card { padding: .72rem; }
-        .modal[id^="viewResidentModal"] .summary-status-value { font-weight: 900; }
-        .modal[id^="viewResidentModal"] .summary-status-value.is-success { color: #198754; }
-        .modal[id^="viewResidentModal"] .summary-status-value.is-danger { color: #dc3545; }
-        .modal[id^="viewResidentModal"] .summary-status-value.is-warning { color: #b26a00; }
-        .modal[id^="viewResidentModal"] .summary-status-value.is-neutral { color: var(--muted); }
-        .modal[id^="viewResidentModal"] .detail-section-card { padding: 0; margin-bottom: .65rem; }
-        .modal[id^="viewResidentModal"] .detail-section-head { padding: .7rem .8rem; }
-        .modal[id^="viewResidentModal"] .detail-section-body { padding: .75rem; }
-        .modal[id^="viewResidentModal"] .detail-grid { gap: .55rem; }
-        .modal[id^="viewResidentModal"] .detail-item { padding: .6rem; border-radius: 11px; }
-        .modal[id^="viewResidentModal"] .detail-section-title { color: var(--text); }
-        .modal[id^="viewResidentModal"] .detail-section-title > i { color: var(--primary); }
-        .modal[id^="viewResidentModal"] .edit-info-banner { margin-bottom: .7rem; padding: .72rem; border-radius: 15px; }
-        .modal[id^="viewResidentModal"] .modern-edit-form { padding: .75rem; gap: .65rem; border-radius: 16px; }
-        .modal[id^="viewResidentModal"] .edit-section-head,
-        .modal[id^="viewResidentModal"] .edit-section-body { padding: .72rem .8rem; }
-        .modal[id^="viewResidentModal"] .document-preview-grid { gap: .6rem; }
-
-        @media (max-width: 575px) {
-            .modal[id^="viewResidentModal"] .view-tabs { display: grid; grid-template-columns: 1fr 1fr; }
-            .modal[id^="viewResidentModal"] .view-tabs .nav-link { width: 100%; }
-        }
-    </style>
 @endpush
-
-
 
 @section('content')
     @include('admin.layouts.alerts')
@@ -129,7 +44,6 @@
         </div>
     </section>
 
-    <!-- Statistics -->
     <div class="row g-3 g-lg-4 mb-4 residency-stats">
         <div class="col-6 col-md-3">
             <div class="stat-card d-flex align-items-center justify-content-between">
@@ -181,7 +95,6 @@
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="card border-0 mb-4 residency-filter-card">
         <div class="card-body">
             <form method="GET" action="{{ route('admin.residents.index') }}" id="searchForm">
@@ -247,7 +160,7 @@
                 @if(auth('admin')->user()->hasAnyPermission(['delete_residents', 'bulk_delete_residents']))
                 <form id="bulkForm" method="POST" action="{{ route('admin.residents.bulkDelete') }}" style="display: inline;">
                     @csrf
-                    <button type="button" onclick="bulkDelete()" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Deactivate">
+                    <button type="button" data-click-call="bulkDelete" class="btn btn-outline-danger d-flex align-items-center gap-2" title="Bulk Deactivate">
                         <i class="fas fa-trash-alt"></i>
                         <span class="d-none d-sm-inline">Bulk Deactivate</span>
                     </button>
@@ -256,7 +169,7 @@
                 @admin_can('export_residents')
                 <form id="exportForm" method="POST" action="{{ route('admin.residents.export') }}" style="display: inline;">
                     @csrf
-                    <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
+                    <button type="button" data-click-call="exportCSV" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
                         <i class="fas fa-file-csv"></i>
                         <span class="d-none d-sm-inline">Export</span>
                     </button>
@@ -267,7 +180,6 @@
         </div>
     </div>
 
-    <!-- Residents Table -->
     <div class="card border-0 residency-table-card">
         <div class="card-body p-0">
             <div class="residency-table-head">
@@ -287,7 +199,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="50" class="ps-4">
-                                <input type="checkbox" id="selectAll" class="form-check-input table-checkbox" onclick="toggleSelectAll()" aria-label="Select all residents">
+                                <input type="checkbox" id="selectAll" class="form-check-input table-checkbox" data-click-call="toggleSelectAll" aria-label="Select all residents">
                             </th>
                             <th>
                                 <a href="{{ request()->fullUrlWithQuery(['sort' => 'firstname', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
@@ -318,7 +230,7 @@
                                 <div class="application-primary">
                                     <div class="application-avatar">
                                         @if($resident->profile_photo)
-                                            <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" onerror="this.remove();">
+                                            <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" data-error-action="remove">
                                         @else
                                             <span>{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</span>
                                         @endif
@@ -441,7 +353,7 @@
                                             @if(!$resident->deleted_at && auth('admin')->user()->hasPermission('delete_residents'))
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" class="m-0" onsubmit="return confirmDelete(event, 'Deactivate this resident account? Their record and transactions will remain archived.')">
+                                                    <form method="POST" action="{{ route('admin.residents.destroy', $resident) }}" class="m-0" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Deactivate this resident account? Their record and transactions will remain archived.']) }}">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="dropdown-item resident-action-danger">
@@ -458,7 +370,7 @@
                                             @if($resident->deleted_at && auth('admin')->user()->hasPermission('restore_residents'))
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" class="m-0" onsubmit="return confirmDelete(event, 'Restore this resident?')">
+                                                    <form method="POST" action="{{ route('admin.residents.restore', $resident->id) }}" class="m-0" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Restore this resident?']) }}">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item resident-action-restore">
                                                             <span class="dropdown-item-icon is-success"><i class="fas fa-rotate-left" aria-hidden="true"></i></span>
@@ -507,7 +419,6 @@
         </div>
     </div>
 
-    <!-- Add Resident Modal -->
     @admin_can('create_residents')
     <div class="modal fade" id="addResidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -528,7 +439,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm" class="modern-edit-form">
+                    <form method="POST" action="{{ route('admin.residents.store') }}" id="addResidentForm" class="modern-edit-form" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="form_type" value="add">
 
@@ -638,6 +549,42 @@
 
                         <div class="edit-section-card">
                             <div class="edit-section-head">
+                                <span class="edit-section-icon"><i class="fas fa-id-card-clip"></i></span>
+                                <div>
+                                    <div class="edit-section-title">Valid ID</div>
+                                    <p class="edit-section-help">Upload clear front and back copies. The new resident's ID will be marked for verification after the account is created.</p>
+                                </div>
+                            </div>
+                            <div class="edit-section-body">
+                                <div class="edit-form-grid">
+                                    <div class="edit-col-6">
+                                        <label for="add_valid_id" class="form-label">Valid ID Front <span class="text-danger">*</span></label>
+                                        <input type="file"
+                                               class="form-control @if(session('form_type') == 'add') @error('valid_id') is-invalid @enderror @endif"
+                                               name="valid_id"
+                                               id="add_valid_id"
+                                               accept="image/jpeg,image/png,application/pdf"
+                                               required>
+                                        <small class="text-muted">JPG, JPEG, PNG, or PDF. Maximum 5 MB.</small>
+                                        @if(session('form_type') == 'add') @error('valid_id') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                    </div>
+                                    <div class="edit-col-6">
+                                        <label for="add_valid_id_back" class="form-label">Valid ID Back <span class="text-danger">*</span></label>
+                                        <input type="file"
+                                               class="form-control @if(session('form_type') == 'add') @error('valid_id_back') is-invalid @enderror @endif"
+                                               name="valid_id_back"
+                                               id="add_valid_id_back"
+                                               accept="image/jpeg,image/png,application/pdf"
+                                               required>
+                                        <small class="text-muted">JPG, JPEG, PNG, or PDF. Maximum 5 MB.</small>
+                                        @if(session('form_type') == 'add') @error('valid_id_back') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="edit-section-card">
+                            <div class="edit-section-head">
                                 <span class="edit-section-icon"><i class="fas fa-lock"></i></span>
                                 <div>
                                     <div class="edit-section-title">Account Credentials</div>
@@ -653,13 +600,13 @@
                                     </div>
                                     <div class="edit-col-6">
                                         <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" name="password" id="add_password" required minlength="8" onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
+                                        <input type="password" class="form-control @if(session('form_type') == 'add') @error('password') is-invalid @enderror @endif" name="password" id="add_password" required minlength="8" data-no-spaces>
                                         <small class="text-muted">Minimum 8 characters. No spaces allowed.</small>
                                         @if(session('form_type') == 'add') @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
                                     </div>
                                     <div class="edit-col-6">
                                         <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="password_confirmation" class="form-control" id="add_password_confirmation" required onkeypress="if(event.key === ' ') { event.preventDefault(); return false; }">
+                                        <input type="password" name="password_confirmation" class="form-control" id="add_password_confirmation" required data-no-spaces>
                                         <div class="invalid-feedback" id="add_pwc_feedback"></div>
                                     </div>
                                     <div class="edit-col-12">
@@ -686,7 +633,6 @@
     </div>
     @endadmin_can
 
-    <!-- The view modal now owns the single resident edit workflow. -->
     @if(false)
         @foreach($residents as $resident)
         <div class="modal fade" id="editResidentModal{{ $resident->id }}" tabindex="-1" data-bs-backdrop="static">
@@ -864,8 +810,8 @@
                                                 <div class="document-preview-body">
                                                     @if($path)
                                                         @if($isImage)
-                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" onclick="document.getElementById('editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
-                                                            <div id="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                            <div id="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
                                                                 <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                             </div>
                                                         @else
@@ -923,7 +869,6 @@
         @endforeach
     @endif
 
-    <!-- View Resident Modals - Residency-style tabbed (Details / Edit info / Corrections / History) -->
     @foreach($residents as $resident)
         @php
             $profileCorrectionConcerns = $resident->profileCorrectionConcerns->sortByDesc('created_at')->values();
@@ -950,7 +895,7 @@
                         <div class="view-modal-head w-100">
                             <div class="view-modal-avatar">
                                 @if($resident->profile_photo)
-                                    <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.remove();">
+                                    <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" data-error-action="remove">
                                 @else
                                     {{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}
                                 @endif
@@ -997,7 +942,7 @@
                         </ul>
 
                         <div class="tab-content">
-                            <!-- DETAILS TAB -->
+
                             <div class="tab-pane fade show active" id="r-details-panel-{{ $resident->id }}" role="tabpanel">
                                 <div class="application-modal-summary">
                                     <div class="modal-summary-card is-primary">
@@ -1065,8 +1010,8 @@
                                                                 <div class="document-preview-body">
                                                                     @if($path)
                                                                         @if($isImage)
-                                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" onclick="document.getElementById('residentDocFull{{ $resident->id }}_{{ $doc['field'] }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
-                                                                            <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                                            <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
                                                                                 <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                                             </div>
                                                                         @else
@@ -1095,10 +1040,10 @@
                                                     </div>
                                                     @elseif($viewIdStatus === 'for_verification')
                                                         <div class="valid-id-actions mt-3">
-                                                            {{-- Approve ID --}}
+
                                                             <form method="POST" action="{{ route('admin.residents.verifyId', $resident->id) }}"
                                                                 id="approveIdForm{{ $resident->id }}"
-                                                                onsubmit="return confirmApproveId(event, '{{ addslashes($resident->full_name) }}')">
+                                                                data-submit-call="confirmApproveId" data-submit-pass="event,args" data-submit-args="{{ json_encode([$resident->full_name]) }}">
                                                                 @csrf
                                                                 <input type="hidden" name="notify_email" value="{{ $resident->email ? '1' : '0' }}">
                                                                 <button type="submit" class="btn btn-success w-100">
@@ -1106,13 +1051,12 @@
                                                                 </button>
                                                             </form>
 
-                                                            {{-- Reject ID --}}
                                                             <form
                                                                 method="POST"
                                                                 action="{{ route('admin.residents.rejectId', $resident->id) }}"
                                                                 class="mt-3"
                                                                 id="rejectIdForm{{ $resident->id }}"
-                                                                onsubmit="return confirmRejectId(event, '{{ addslashes($resident->full_name) }}')"
+                                                                data-submit-call="confirmRejectId" data-submit-pass="event,args" data-submit-args="{{ json_encode([$resident->full_name]) }}"
                                                             >
                                                                 @csrf
                                                                 <input
@@ -1216,8 +1160,8 @@
                                                         <div class="document-preview-body">
                                                             @if($path)
                                                                 @if($isImage)
-                                                                    <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" onclick="document.getElementById('residentDocFull{{ $resident->id }}_{{ $doc['field'] }}').style.display='flex'" onerror="this.outerHTML='<div class=\'document-empty\'>Image unavailable</div>'">
-                                                                    <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+                                                                    <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                                    <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
                                                                         <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                                     </div>
                                                                 @else
@@ -1235,7 +1179,6 @@
                                 @endif
                             </div>
 
-                            <!-- EDIT INFO TAB -->
                             @if(auth('admin')->user()->hasPermission('update_residents'))
                             <div class="tab-pane fade edit-info-pane" id="r-edit-panel-{{ $resident->id }}" role="tabpanel">
                                 <div class="edit-info-banner">
@@ -1246,10 +1189,21 @@
                                     </div>
                                 </div>
 
-                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="quickEditResidentForm{{ $resident->id }}" class="quick-edit-form modern-edit-form">
+                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" id="quickEditResidentForm{{ $resident->id }}" class="quick-edit-form modern-edit-form" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
-                                    <input type="hidden" name="form_type" value="quick_edit_{{ $resident->id }}">
+                                    <input type="hidden" name="form_type" value="edit_{{ $resident->id }}">
+
+                                    @if(session('form_type') === 'edit_' . $resident->id && $errors->any())
+                                        <div class="alert alert-danger mb-3" role="alert">
+                                            <strong><i class="fas fa-triangle-exclamation me-1"></i>Please fix the following errors:</strong>
+                                            <ul class="mb-0 mt-2">
+                                                @foreach($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
 
                                     <div class="edit-section-card">
                                         <div class="edit-section-head">
@@ -1345,26 +1299,55 @@
                                             <div class="edit-form-grid">
                                                 <div class="edit-field edit-col-6">
                                                     <label class="form-label">Replace front ID</label>
-                                                    <input type="file" name="valid_id" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf">
+                                                    <input type="file" name="valid_id" class="form-control @if(session('form_type') === 'edit_' . $resident->id) @error('valid_id') is-invalid @enderror @endif" accept="image/jpeg,image/png,application/pdf">
                                                     <small class="text-muted">Leave empty to keep the current front.</small>
+                                                    @if(session('form_type') === 'edit_' . $resident->id)
+                                                        @error('valid_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    @endif
                                                 </div>
                                                 <div class="edit-field edit-col-6">
                                                     <label class="form-label">Replace back ID</label>
-                                                    <input type="file" name="valid_id_back" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf">
+                                                    <input type="file" name="valid_id_back" class="form-control @if(session('form_type') === 'edit_' . $resident->id) @error('valid_id_back') is-invalid @enderror @endif" accept="image/jpeg,image/png,application/pdf">
                                                     <small class="text-muted">Leave empty to keep the current back.</small>
+                                                    @if(session('form_type') === 'edit_' . $resident->id)
+                                                        @error('valid_id_back') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    @endif
                                                 </div>
                                                 <div class="edit-field edit-col-6">
-                                                    <label class="form-label">Verification status</label>
-                                                    <select name="valid_id_status" class="form-select">
-                                                        <option value="">Keep current status</option>
-                                                        <option value="for_verification">For verification</option>
-                                                        <option value="verified">Approved / Verified</option>
-                                                        <option value="rejected">Rejected</option>
+                                                    <label class="form-label" for="quick_edit_valid_id_status_{{ $resident->id }}">Verification status</label>
+                                                    @php
+                                                        $quickEditStatus = session('form_type') === 'edit_' . $resident->id
+                                                            ? old('valid_id_status', '')
+                                                            : '';
+                                                    @endphp
+                                                    <select name="valid_id_status"
+                                                            id="quick_edit_valid_id_status_{{ $resident->id }}"
+                                                            class="form-select @if(session('form_type') === 'edit_' . $resident->id) @error('valid_id_status') is-invalid @enderror @endif">
+                                                        <option value="" {{ $quickEditStatus === '' ? 'selected' : '' }}>Keep current status</option>
+                                                        <option value="for_verification" {{ $quickEditStatus === 'for_verification' ? 'selected' : '' }}>For verification</option>
+                                                        <option value="verified" {{ $quickEditStatus === 'verified' ? 'selected' : '' }}>Approved / Verified</option>
+                                                        <option value="rejected" {{ $quickEditStatus === 'rejected' ? 'selected' : '' }}>Rejected</option>
                                                     </select>
+                                                    @if(session('form_type') === 'edit_' . $resident->id)
+                                                        @error('valid_id_status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    @endif
                                                 </div>
                                                 <div class="edit-field edit-col-6">
-                                                    <label class="form-label">Rejection remarks</label>
-                                                    <textarea name="valid_id_rejection_reason" class="form-control" rows="2" maxlength="500" placeholder="Required only when rejecting."></textarea>
+                                                    <label class="form-label" for="quick_edit_valid_id_remarks_{{ $resident->id }}">
+                                                        Rejection remarks <span class="text-danger d-none" data-valid-id-remarks-required>*</span>
+                                                    </label>
+                                                    <textarea name="valid_id_rejection_reason"
+                                                              id="quick_edit_valid_id_remarks_{{ $resident->id }}"
+                                                              class="form-control @if(session('form_type') === 'edit_' . $resident->id) @error('valid_id_rejection_reason') is-invalid @enderror @endif"
+                                                              rows="2"
+                                                              maxlength="500"
+                                                              placeholder="Required only when rejecting.">{{ session('form_type') === 'edit_' . $resident->id ? old('valid_id_rejection_reason', '') : '' }}</textarea>
+                                                    <div class="invalid-feedback" data-valid-id-remarks-feedback>
+                                                        @if(session('form_type') === 'edit_' . $resident->id)
+                                                            @error('valid_id_rejection_reason'){{ $message }}@enderror
+                                                        @endif
+                                                    </div>
+                                                    <small class="text-muted">Remarks are mandatory when the status is Rejected.</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -1373,7 +1356,6 @@
                             </div>
                             @endif
 
-                            <!-- CORRECTIONS TAB -->
                             <div class="tab-pane fade" id="r-corrections-panel-{{ $resident->id }}" role="tabpanel">
                                 <div class="edit-info-banner">
                                     <div class="application-avatar">{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</div>
@@ -1428,7 +1410,7 @@
                                             </div>
 
                                             @if(auth('admin')->user()->hasPermission('update_residents') && $isConcernOpen)
-                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" onsubmit="return confirmDelete(event, 'Save this decision and notify the resident by email?')">
+                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Save this decision and notify the resident by email?']) }}">
                                                     @csrf
                                                     @method('PUT')
                                                     <input type="hidden" name="correction_id" value="{{ $concern->id }}">
@@ -1465,7 +1447,6 @@
                                 </div>
                             </div>
 
-                            <!-- HISTORY TAB -->
                             <div class="tab-pane fade" id="r-history-panel-{{ $resident->id }}" role="tabpanel">
                                 <div class="detail-section-card mb-0">
                                     <div class="detail-section-title">
@@ -1524,500 +1505,13 @@
 @endsection
 
 @push('scripts')
-<script>
-        // Bulk Deactivate
-        function bulkDelete() {
-            const checkboxes = document.querySelectorAll('.resident-checkbox:checked:not(:disabled)');
-            const bulkForm = document.getElementById('bulkForm');
-            if (checkboxes.length === 0) {
-                Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select at least one resident to deactivate.', confirmButtonColor: '#d33' });
-                return;
-            }
-            Swal.fire({
-                title: 'Confirm Bulk Deactivate',
-                text: `Are you sure you want to deactivate ${checkboxes.length} selected resident(s)?`,
-                icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Yes, Deactivate'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden'; input.name = 'ids[]'; input.value = cb.value;
-                        bulkForm.appendChild(input);
-                    });
-                    bulkForm.submit();
-                }
-            });
-        }
-
-        // Export CSV
-        function exportCSV() {
-            const checkboxes = document.querySelectorAll('.resident-checkbox:checked');
-            const exportForm = document.getElementById('exportForm');
-            if (checkboxes.length === 0) {
-                Swal.fire({
-                    icon: 'question', title: 'Export All?', text: 'No residents selected. Export all records?',
-                    showCancelButton: true, confirmButtonColor: '#28a745', cancelButtonColor: '#6c757d', confirmButtonText: 'Yes, Export All'
-                }).then((result) => { if (result.isConfirmed) exportForm.submit(); });
-                return;
-            }
-            Swal.fire({
-                title: 'Export Selected?', text: `Export ${checkboxes.length} selected resident(s)?`, icon: 'question',
-                showCancelButton: true, confirmButtonColor: '#28a745', cancelButtonColor: '#6c757d', confirmButtonText: 'Yes, Export'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden'; input.name = 'ids[]'; input.value = cb.value;
-                        exportForm.appendChild(input);
-                    });
-                    exportForm.submit();
-                }
-            });
-        }
-
-        function toggleSelectAll() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.resident-checkbox:not(:disabled)');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-                checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
-            });
-            selectAllCheckbox.indeterminate = false;
-        }
-
-        function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            if (typeof Swal === 'undefined') {
-                const ok = confirm(message || 'Are you sure?');
-                if (ok) form.submit();
-                return false;
-            }
-            Swal.fire({
-                title: 'Are you sure?', text: message || 'You won\'t be able to revert this!', icon: 'warning',
-                showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Yes, proceed!'
-            }).then((result) => { if (result.isConfirmed) form.submit(); });
-            return false;
-        }
-
-        function confirmApproveId(event, residentName) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            if (typeof Swal === 'undefined') {
-                if (confirm('Approve and verify the valid ID for ' + residentName + '?')) form.submit();
-                return false;
-            }
-            Swal.fire({
-                title: 'Approve this ID?',
-                text: `Verify the valid ID for ${residentName}? This can't be undone.`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Approve'
-            }).then((result) => {
-                if (result.isConfirmed) form.submit();
-            });
-            return false;
-        }
-
-        // Reject Valid ID (collects required remarks before submitting)
-        function confirmRejectId(event, residentName) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            const reasonInput = form.querySelector('input[name="valid_id_rejection_reason"]');
-
-            const parentModal = form.closest('.modal.show') || form.closest('.modal');
-
-            if (typeof Swal === 'undefined') {
-                const reason = prompt('Enter rejection remarks for ' + residentName + ':');
-                if (reason && reason.trim().length > 0) {
-                    reasonInput.value = reason.trim();
-                    form.submit();
-                }
-                return false;
-            }
-
-            Swal.fire({
-                title: 'Reject this ID?',
-                html: `Provide remarks for rejecting the valid ID of <strong>${residentName}</strong>:`,
-                input: 'textarea',
-                inputPlaceholder: 'Example: Back ID is blurry, photo does not match, expired ID, or details are unreadable.',
-                inputAttributes: { 'aria-label': 'Rejection remarks' },
-                target: parentModal || document.body,
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Confirm Reject',
-                inputValidator: (value) => {
-                    if (!value || !value.trim()) {
-                        return 'Rejection remarks are required.';
-                    }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    reasonInput.value = result.value.trim();
-                    form.submit();
-                }
-            });
-            return false;
-        }
-
-        // ---- View modal tab / footer switching (resident) ----
-        function switchResidentViewTab(residentId, tabName) {
-            const tabButton = document.getElementById('r-' + tabName + '-tab-' + residentId);
-            if (!tabButton) return;
-            new bootstrap.Tab(tabButton).show();
-        }
-
-        function toggleResidentViewFooter(residentId, activeTab) {
-            ['Details', 'Edit', 'Corrections', 'History'].forEach(function(name) {
-                const el = document.getElementById('r-viewFooter' + name + residentId);
-                if (el) el.classList.add('d-none');
-            });
-            const map = { details: 'Details', edit: 'Edit', corrections: 'Corrections', history: 'History' };
-            const target = document.getElementById('r-viewFooter' + (map[activeTab] || 'Details') + residentId);
-            if (target) target.classList.remove('d-none');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Swal === 'undefined') {
-                console.log('SweetAlert2 not loaded, using default confirm');
-            }
-
-            const checkboxes = document.querySelectorAll('.resident-checkbox:not(:disabled)');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            if (checkboxes.length > 0 && selectAllCheckbox) {
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        this.closest('tr')?.classList.toggle('is-selected', this.checked);
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        selectAllCheckbox.checked = allChecked;
-                        selectAllCheckbox.indeterminate = !allChecked && anyChecked;
-                    });
-                    checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
-                });
-            }
-
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-
-            @if ($errors->any() && session('form_type'))
-                @if(session('form_type') == 'add')
-                    var addModal = new bootstrap.Modal(document.getElementById('addResidentModal'));
-                    addModal.show();
-                @elseif(Str::startsWith(session('form_type'), 'edit_'))
-                    var editId = '{{ session('form_type') }}'.replace('edit_', '');
-                    var editModal = document.getElementById('viewResidentModal' + editId);
-                    if (editModal) {
-                        var editViewModal = bootstrap.Modal.getOrCreateInstance(editModal);
-                        editViewModal.show();
-                        switchResidentViewTab(editId, 'edit');
-                        toggleResidentViewFooter(editId, 'edit');
-                    }
-                @endif
-            @endif
-
-            // Wire up view-modal tab targeting (data-view-tab on triggers) and footer sync
-            document.querySelectorAll('[id^="viewResidentModal"]').forEach(function(modalEl) {
-                const residentId = modalEl.id.replace('viewResidentModal', '');
-
-                modalEl.querySelectorAll('[data-bs-toggle="pill"]').forEach(function(tabBtn) {
-                    tabBtn.addEventListener('shown.bs.tab', function() {
-                        if (tabBtn.id.indexOf('r-details-tab-') === 0) toggleResidentViewFooter(residentId, 'details');
-                        else if (tabBtn.id.indexOf('r-edit-tab-') === 0) toggleResidentViewFooter(residentId, 'edit');
-                        else if (tabBtn.id.indexOf('r-corrections-tab-') === 0) toggleResidentViewFooter(residentId, 'corrections');
-                        else toggleResidentViewFooter(residentId, 'history');
-                    });
-                });
-
-                modalEl.addEventListener('show.bs.modal', function(ev) {
-                    const trigger = ev.relatedTarget;
-                    const requestedTab = trigger ? trigger.getAttribute('data-view-tab') : null;
-                    if (requestedTab) {
-                        switchResidentViewTab(residentId, requestedTab);
-                        toggleResidentViewFooter(residentId, requestedTab);
-                    } else {
-                        switchResidentViewTab(residentId, 'details');
-                        toggleResidentViewFooter(residentId, 'details');
-                    }
-                });
-            });
-
-            document.querySelectorAll('[data-resident-switch-tab]').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const residentId = button.getAttribute('data-resident-id');
-                    const tabName = button.getAttribute('data-resident-switch-tab');
-                    switchResidentViewTab(residentId, tabName);
-                });
-            });
-
-            // Correction resolve forms: require remarks; toggle notify email disabled state if no email
-            document.querySelectorAll('.correction-resolve-form').forEach(function(form) {
-                const select = form.querySelector('select[name="resolution_status"]');
-                const remarks = form.querySelector('textarea[name="remarks"]');
-                if (select && remarks) {
-                    select.addEventListener('change', function() {
-                        remarks.placeholder = this.value === 'rejected'
-                            ? 'Explain why this correction request was not approved.'
-                            : 'Explain what was corrected on the resident profile.';
-                    });
-                }
-            });
-
-            document.querySelectorAll('[data-correction-target]').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const details = document.getElementById(button.getAttribute('data-correction-target'));
-                    if (!details) return;
-
-                    const isOpen = details.classList.toggle('is-open');
-                    button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                });
-            });
-        });
-
-        // Real-time validation for add form
-        document.addEventListener('DOMContentLoaded', function() {
-            const addForm = document.getElementById('addResidentForm');
-            if (!addForm) return;
-
-            const namePattern     = /^[a-zA-Z\s\-\.]+$/;
-            const usernamePattern = /^[a-zA-Z0-9_]+$/;
-            const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            function calculateAge(birthDateValue) {
-                if (!birthDateValue) return null;
-                const birthDate = new Date(birthDateValue);
-                const today = new Date();
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDiff = today.getMonth() - birthDate.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-                return age;
-            }
-
-            function setField(el, msg) {
-                if (msg) {
-                    el.setCustomValidity(msg);
-                    el.classList.add('is-invalid');
-                    let fb = el.parentNode.querySelector('.invalid-feedback');
-                    if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; el.parentNode.appendChild(fb); }
-                    fb.textContent = msg;
-                } else {
-                    el.setCustomValidity('');
-                    el.classList.remove('is-invalid');
-                    const fb = el.parentNode.querySelector('.invalid-feedback');
-                    if (fb) fb.textContent = '';
-                }
-            }
-
-            addForm.querySelectorAll('.is-invalid').forEach(function(el) {
-                el.addEventListener('input', function() {
-                    el.classList.remove('is-invalid');
-                    const fb = el.parentNode.querySelector('.invalid-feedback');
-                    if (fb) fb.textContent = '';
-                }, { once: true });
-            });
-
-            const fn = document.getElementById('add_firstname');
-            if (fn) fn.addEventListener('input', function() {
-                if (!this.value.trim()) return setField(this, 'First name is required.');
-                if (!namePattern.test(this.value)) return setField(this, 'First name can only contain letters, spaces, and hyphens.');
-                if (this.value.trim().length < 2) return setField(this, 'First name must be at least 2 characters.');
-                setField(this, '');
-            });
-
-            const ln = document.getElementById('add_lastname');
-            if (ln) ln.addEventListener('input', function() {
-                if (!this.value.trim()) return setField(this, 'Last name is required.');
-                if (!namePattern.test(this.value)) return setField(this, 'Last name can only contain letters, spaces, and hyphens.');
-                if (this.value.trim().length < 2) return setField(this, 'Last name must be at least 2 characters.');
-                setField(this, '');
-            });
-
-            const un = document.getElementById('add_username');
-            if (un) un.addEventListener('input', function() {
-                if (!this.value) return setField(this, 'Username is required.');
-                if (!usernamePattern.test(this.value)) return setField(this, 'Username can only contain letters, numbers, and underscores.');
-                if (this.value.length < 3) return setField(this, 'Username must be at least 3 characters.');
-                setField(this, '');
-            });
-
-            const em = document.getElementById('add_email');
-            if (em) em.addEventListener('input', function() {
-                if (!this.value) return setField(this, 'Email is required.');
-                if (!emailPattern.test(this.value)) return setField(this, 'Please enter a valid email address.');
-                setField(this, '');
-            });
-
-            const contact = document.getElementById('add_contact');
-            if (contact) contact.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-                if (!this.value) return setField(this, 'Contact number is required.');
-                if (!this.value.startsWith('09')) return setField(this, 'Contact number must start with 09.');
-                if (this.value.length !== 11) return setField(this, 'Contact number must be exactly 11 digits.');
-                setField(this, '');
-            });
-
-            const bd = document.getElementById('add_birthdate');
-            if (bd) bd.addEventListener('change', function() {
-                const sel = new Date(this.value);
-                const today = new Date(); today.setHours(0,0,0,0);
-                const minDate = new Date(); minDate.setFullYear(minDate.getFullYear() - 120);
-                const age = calculateAge(this.value);
-                if (sel >= today) return setField(this, 'Birthdate must be in the past.');
-                if (sel < minDate) return setField(this, 'Please enter a valid birthdate.');
-                if (age === null || age < 0) return setField(this, 'Please enter a valid birthdate.');
-                setField(this, '');
-            });
-
-            const pw  = document.getElementById('add_password');
-            const pwc = document.getElementById('add_password_confirmation');
-
-            function validatePw() {
-                pw.value = pw.value.replace(/\s/g, "");
-                if (!pw.value) return setField(pw, 'Password is required.');
-                if (pw.value.length < 8) return setField(pw, 'Password must be at least 8 characters.');
-                if (!/[A-Z]/.test(pw.value)) return setField(pw, 'Password must contain at least one uppercase letter.');
-                if (!/[a-z]/.test(pw.value)) return setField(pw, 'Password must contain at least one lowercase letter.');
-                if (!/[0-9]/.test(pw.value)) return setField(pw, 'Password must contain at least one number.');
-                if (!/[^A-Za-z0-9]/.test(pw.value)) return setField(pw, 'Password must contain at least one special character.');
-                setField(pw, '');
-                if (pwc.value) validatePwc();
-            }
-            function validatePwc() {
-                pwc.value = pwc.value.replace(/\s/g, "");
-                if (pwc.value !== pw.value) return setField(pwc, 'Passwords do not match.');
-                setField(pwc, '');
-            }
-            if (pw)  pw.addEventListener('input', validatePw);
-            if (pwc) pwc.addEventListener('input', validatePwc);
-
-            const toggleAddPasswords = document.getElementById('toggle_add_passwords');
-            if (toggleAddPasswords && pw && pwc) {
-                toggleAddPasswords.addEventListener('change', function() {
-                    const inputType = this.checked ? 'text' : 'password';
-                    pw.type = inputType;
-                    pwc.type = inputType;
-                });
-            }
-        });
-
-        // Real-time validation for full edit forms
-        @if(auth('admin')->user()->hasPermission('update_residents'))
-            @foreach($residents as $resident)
-            (function(id) {
-                const form = document.getElementById('editResidentForm' + id);
-                if (!form) return;
-
-                function sf(el, msg) {
-                    if (!el) return;
-                    const fb = el.parentNode.querySelector('.invalid-feedback');
-                    if (msg) {
-                        el.setCustomValidity(msg);
-                        el.classList.add('is-invalid');
-                        if (fb) fb.textContent = msg;
-                    } else {
-                        el.setCustomValidity('');
-                        el.classList.remove('is-invalid');
-                        if (fb) fb.textContent = '';
-                    }
-                }
-
-                form.querySelectorAll('.is-invalid').forEach(function(el) {
-                    el.addEventListener('input', function() {
-                        el.classList.remove('is-invalid');
-                        const fb = el.parentNode.querySelector('.invalid-feedback');
-                        if (fb) fb.textContent = '';
-                    }, { once: true });
-                });
-
-                const namePattern     = /^[a-zA-Z\s\-\.]+$/;
-                const usernamePattern = /^[a-zA-Z0-9_]+$/;
-                const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                const fn = document.getElementById('edit_firstname_' + id);
-                if (fn) fn.addEventListener('input', function() {
-                    if (!this.value.trim()) return sf(this, 'First name is required.');
-                    if (!namePattern.test(this.value)) return sf(this, 'First name can only contain letters, spaces, and hyphens.');
-                    if (this.value.trim().length < 2) return sf(this, 'First name must be at least 2 characters.');
-                    sf(this, '');
-                });
-
-                const ln = document.getElementById('edit_lastname_' + id);
-                if (ln) ln.addEventListener('input', function() {
-                    if (!this.value.trim()) return sf(this, 'Last name is required.');
-                    if (!namePattern.test(this.value)) return sf(this, 'Last name can only contain letters, spaces, and hyphens.');
-                    if (this.value.trim().length < 2) return sf(this, 'Last name must be at least 2 characters.');
-                    sf(this, '');
-                });
-
-                const un = document.getElementById('edit_username_' + id);
-                if (un) un.addEventListener('input', function() {
-                    if (!this.value) return sf(this, 'Username is required.');
-                    if (!usernamePattern.test(this.value)) return sf(this, 'Username can only contain letters, numbers, and underscores.');
-                    if (this.value.length < 3) return sf(this, 'Username must be at least 3 characters.');
-                    sf(this, '');
-                });
-
-                const em = document.getElementById('edit_email_' + id);
-                if (em) em.addEventListener('input', function() {
-                    if (!this.value) return sf(this, 'Email is required.');
-                    if (!emailPattern.test(this.value)) return sf(this, 'Please enter a valid email address.');
-                    sf(this, '');
-                });
-
-                const ct = document.getElementById('edit_contact_' + id);
-                if (ct) ct.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-                    if (!this.value) return sf(this, 'Contact number is required.');
-                    if (!this.value.startsWith('09')) return sf(this, 'Contact number must start with 09.');
-                    if (this.value.length !== 11) return sf(this, 'Contact number must be exactly 11 digits.');
-                    sf(this, '');
-                });
-
-                const bd = document.getElementById('edit_birthdate_' + id);
-                if (bd) bd.addEventListener('change', function() {
-                    const sel = new Date(this.value);
-                    const today = new Date(); today.setHours(0,0,0,0);
-                    const minDate = new Date(); minDate.setFullYear(minDate.getFullYear() - 120);
-                    if (sel >= today) return sf(this, 'Birthdate must be in the past.');
-                    if (sel < minDate) return sf(this, 'Please enter a valid birthdate.');
-                    sf(this, '');
-                });
-
-                const idStatus = document.getElementById('edit_valid_id_status_' + id);
-                const idRemarks = document.getElementById('edit_valid_id_remarks_' + id);
-                function syncValidIdRemarks() {
-                    if (!idStatus || !idRemarks) return;
-                    const isRejected = idStatus.value === 'rejected';
-                    idRemarks.required = isRejected;
-                    idRemarks.placeholder = isRejected
-                        ? 'Required: explain why the valid ID is rejected.'
-                        : 'Optional remarks for this valid ID review.';
-                    if (!isRejected) sf(idRemarks, '');
-                }
-                if (idStatus) {
-                    idStatus.addEventListener('change', syncValidIdRemarks);
-                    syncValidIdRemarks();
-                }
-            })('{{ $resident->id }}');
-            @endforeach
-        @endif
-</script>
+@include('shared.js-config', [
+    'id' => 'js-config-admin-residents-main',
+    'data' => [
+        'errorFormType' => $errors->any() ? session('form_type') : null,
+        'canUpdate' => auth('admin')->user()->hasPermission('update_residents'),
+        'residentIds' => $residents->pluck('id')->values(),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_resident-main.js') }}"></script>
 @endpush

@@ -13,11 +13,7 @@ class AdminSettingsService
     private string $envPath;
 
     private array $envMap = [
-        /*
-        |--------------------------------------------------------------------------
-        | General
-        |--------------------------------------------------------------------------
-        */
+        
         'general.portal_name' => 'BISIG_PORTAL_NAME',
         'general.barangay_name' => 'BISIG_BARANGAY_NAME',
         'general.contact_email' => 'BISIG_CONTACT_EMAIL',
@@ -26,19 +22,11 @@ class AdminSettingsService
         'general.primary_color' => 'BISIG_PRIMARY_COLOR',
         'general.secondary_color' => 'BISIG_SECONDARY_COLOR',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Document
-        |--------------------------------------------------------------------------
-        */
+        
         'document.request_title' => 'BISIG_DOCUMENT_REQUEST_TITLE',
         'document.request_footer' => 'BISIG_DOCUMENT_REQUEST_FOOTER',
 
-        /*
-        |--------------------------------------------------------------------------
-        | SMS
-        |--------------------------------------------------------------------------
-        */
+        
         'sms.provider' => 'SMS_PROVIDER',
         'sms.api_base_url' => 'SMS_API_BASE_URL',
         'sms.api_key' => 'SMS_API_KEY',
@@ -50,11 +38,7 @@ class AdminSettingsService
         'sms.account_name' => 'SMS_ACCOUNT_NAME',
         'sms.last_synced_at' => 'SMS_LAST_SYNCED_AT',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Email
-        |--------------------------------------------------------------------------
-        */
+        
         'email.mailer' => 'MAIL_MAILER',
         'email.host' => 'MAIL_HOST',
         'email.port' => 'MAIL_PORT',
@@ -64,11 +48,7 @@ class AdminSettingsService
         'email.from_address' => 'MAIL_FROM_ADDRESS',
         'email.from_name' => 'MAIL_FROM_NAME',
 
-        /*
-        |--------------------------------------------------------------------------
-        | AI
-        |--------------------------------------------------------------------------
-        */
+        
         'ai.provider' => 'AI_PROVIDER',
         'ai.fallback_providers' => 'AI_FALLBACK_PROVIDERS',
         'ai.cloudflare_account_id' => 'CLOUDFLARE_ACCOUNT_ID',
@@ -76,11 +56,7 @@ class AdminSettingsService
         'ai.keys.groq' => 'GROQ_API_KEY',
         'ai.keys.cloudflare' => 'CLOUDFLARE_API_TOKEN',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Security
-        |--------------------------------------------------------------------------
-        */
+        
         'security.captcha_enabled' => 'RECAPTCHA_ENABLED',
         'security.recaptcha_site_key' => 'RECAPTCHA_SITE_KEY',
         'security.recaptcha_secret_key' => 'RECAPTCHA_SECRET_KEY',
@@ -88,17 +64,12 @@ class AdminSettingsService
         'security.session_timeout' => 'AUTH_PASSWORD_TIMEOUT',
     ];
 
-    /**
-     * Multi-line textarea values should not be saved directly as normal .env text.
-     * We store the document template as base64 so line breaks do not break .env.
-     */
+    
     private array $base64EnvMap = [
         'document.request_template' => 'BISIG_DOCUMENT_REQUEST_TEMPLATE_B64',
     ];
 
-    /**
-     * If admin leaves these blank, keep the old .env value.
-     */
+    
     private array $secretKeys = [
         'sms.api_key',
         'email.password',
@@ -210,14 +181,7 @@ class AdminSettingsService
 
     public function incrementUsage(string $channel, int $count = 1): array
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Settings are .env-only now.
-        |--------------------------------------------------------------------------
-        |
-        | Usage should be counted from notification_logs, not written to .env.
-        | Keep this method so old code does not break.
-        */
+        
         return $this->all();
     }
 

@@ -5,19 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-/**
- * BISIG — Barangay Hulo Portal
- * Knowledge base seeder for InfoBot
- *
- * Run: php artisan db:seed --class=ChatbotKnowledgeSeeder
- */
+
 class ChatbotKnowledgeSeeder extends Seeder
 {
     public function run(): void
     {
         $now   = now();
 
-        // Remove legacy and unsupported entries so BISIG-only scope is preserved.
+        
         DB::table('chatbot_knowledge')
             ->whereIn('question', [
                 'How do I get a business permit?',
@@ -35,9 +30,7 @@ class ChatbotKnowledgeSeeder extends Seeder
 
         $items = [
 
-            /* ═══════════════════════════════════════════════════
-               BARANGAY INDIGENCY
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I request a Barangay Indigency Certificate?',
                 'answer'   => "Steps to request a Barangay Indigency Certificate:\n\n1) Log in to the Barangay Hulo Portal.\n2) Go to Services, then select Barangay Indigency.\n3) Fill out the form carefully.\n4) Upload required documents if any.\n5) Click Submit.\n6) Check updates under Request Status using your Reference ID.\n\nThe certificate is free of charge. Processing is done by barangay staff after submission.",
@@ -45,9 +38,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'indigency',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               BARANGAY CLEARANCE
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I request a Barangay Clearance?',
                 'answer'   => "Steps to request a Barangay Clearance:\n\n1) Log in to your account on the Barangay Hulo Portal.\n2) Select Services, then Barangay Clearance.\n3) Complete the request form with your personal information.\n4) Follow payment instructions if applicable.\n5) Submit the request.\n6) Track your status under Request Status using your Reference ID.\n\nApproved clearances can be downloaded from the portal or claimed at the Barangay Hall.",
@@ -55,9 +46,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'clearance',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               INCIDENT REPORT / BLOTTER
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I submit an Incident Report or Blotter?',
                 'answer'   => "Steps to submit an Incident Report:\n\n1) Log in to the Barangay Hulo Portal.\n2) Click on Incident Report in the services menu.\n3) Describe the incident — include the date, place, and details of what happened.\n4) Upload evidence such as photos or documents (optional but recommended).\n5) Click Submit.\n6) Barangay officials will review your report and respond.\n\nYou can track the status of your report under Request Status.",
@@ -65,9 +54,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'blotter',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               TRACKING REQUESTS
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I track the status of my request?',
                 'answer'   => "Steps to track your request status:\n\n1) Log in to the Barangay Hulo Portal.\n2) Go to Request Status in your account dashboard.\n3) Find your request using your Reference ID.\n4) View the current status:\n   - Pending — received, waiting for review\n   - Under Review — being evaluated by staff\n   - Processing — being prepared\n   - Approved — approved by barangay\n   - Ready for Pickup — available to claim at the hall\n   - Claimed — successfully claimed\n   - Rejected — not approved (check reason)\n\nYou also receive email and SMS notifications for every status update.",
@@ -75,9 +62,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'tracking',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               PORTAL LOGIN / REGISTER
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I log in or register on the Barangay Hulo Portal?',
                 'answer'   => "To register on the Barangay Hulo Portal:\n\n1) Visit the Barangay Hulo Portal website.\n2) Click Register or Create Account.\n3) Fill in your personal information: name, address, contact number, and email.\n4) Upload a valid government ID for verification.\n5) Submit and wait for account verification.\n6) Once verified, log in using your email and password.\n\nIf you forgot your password, click Forgot Password on the login page to reset it via email.",
@@ -85,9 +70,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'portal',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               NOTIFICATIONS
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How will I know if my request is approved or updated?',
                 'answer'   => "The Barangay Hulo Portal sends automatic notifications:\n\n- Email notification — sent to your registered email address\n- SMS notification — sent to your registered mobile number\n\nNotifications are sent when:\n- Your request is received (with your Reference ID)\n- Your request is under review\n- Your request is approved or rejected\n- Your document is ready for pickup\n\nYou can also log in anytime and check Request Status for real-time updates.",
@@ -95,9 +78,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'portal',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               PORTAL SUPPORT
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I contact support for the Barangay Hulo Portal?',
                 'answer'   => "For technical support or concerns with the Barangay Hulo Portal:\n\n- Email: support@barangayhulo.portal\n- Visit the Barangay Hall in person for urgent concerns\n\nOffice Hours: Monday to Friday, 8:00 AM - 5:00 PM\nClosed on weekends and official holidays.\n\nFor portal issues like login problems, missing documents, or incorrect status — email support with your Reference ID and a description of the issue.",
@@ -105,9 +86,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'support',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               APPEAL / CANCEL
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'Can I cancel or appeal a rejected request?',
                 'answer'   => "Yes, you can appeal a rejected request or cancel a pending one:\n\nTo CANCEL a pending request:\n1) Log in to the portal.\n2) Go to Request Status.\n3) Find your request and click Cancel Request.\n(Only available while status is Pending)\n\nTo APPEAL a rejected request:\n1) Log in and go to Request Status.\n2) Open the rejected request.\n3) Click Appeal and explain the reason.\n4) Upload additional documents if needed.\n5) Submit — barangay staff will re-evaluate.\n\nFor further help, contact: support@barangayhulo.portal",
@@ -115,9 +94,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'portal',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               ABOUT THE PORTAL
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'What is the Barangay Hulo Portal?',
                 'answer'   => "The Barangay Hulo Portal (BISIG) is the official online system of Barangay Hulong Duhat, Malabon City.\n\nThrough this portal, residents can:\n- Request Barangay Clearance online\n- Request Indigency Certificates online\n- Request Residency Certificates online\n- Submit Incident Reports\n- Track their request status using a Reference ID\n- Receive email and SMS notifications\n- Download approved documents\n\nThe portal is accessible via desktop and mobile browsers, 24/7 for request submission.",
@@ -125,9 +102,7 @@ class ChatbotKnowledgeSeeder extends Seeder
                 'category' => 'general',
             ],
 
-            /* ═══════════════════════════════════════════════════
-               DOWNLOAD DOCUMENT
-            ═══════════════════════════════════════════════════ */
+            
             [
                 'question' => 'How do I download my approved barangay document?',
                 'answer'   => "To download your approved document:\n\n1) Log in to the Barangay Hulo Portal.\n2) Go to Request Status.\n3) Find your approved request.\n4) Click Download to save the digital copy.\n\nIf a physical copy is needed, visit the Barangay Hall during office hours (Mon-Fri, 8AM-5PM) to claim it.\n\nEach document includes a unique Reference ID as proof of authenticity.",

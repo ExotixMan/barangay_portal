@@ -1,5 +1,5 @@
 <?php
-// database/seeders/RoleSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -10,7 +10,7 @@ class AdminRoleSeeder extends Seeder
 {
     public function run()
     {
-        // Create roles
+        
         $roles = [
             [
                 'name' => 'super_admin',
@@ -44,7 +44,6 @@ class AdminRoleSeeder extends Seeder
                 $roleData
             );
 
-            // Assign permissions based on role
             $this->assignPermissionsToRole($role);
         }
     }

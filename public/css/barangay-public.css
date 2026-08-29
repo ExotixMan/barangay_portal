@@ -7,7 +7,7 @@
     --muted: #71717a;
     --line: #e6e1d8;
     --line-strong: #d3cabd;
-    /* Values are supplied by resources/views/partials/theme-colors.blade.php. */
+
     --theme-primary: var(--saved-theme-primary, #d32f2f);
     --theme-secondary: var(--saved-theme-secondary, #b71c1c);
     --brand: var(--theme-primary);
@@ -56,7 +56,7 @@ body {
         radial-gradient(circle at top left, color-mix(in srgb, var(--brand) 8%, transparent), transparent 340px),
         var(--page);
     color: var(--ink);
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
@@ -114,7 +114,6 @@ button, input, select, textarea { font: inherit; }
 .bhd-btn-line { background: transparent; color: var(--ink-soft); border-color: var(--line-strong); }
 .bhd-btn-line:hover { color: var(--brand); border-color: var(--brand); }
 
-/* Minimal navigation */
 .bhd-nav {
     position: sticky;
     top: 0;
@@ -259,10 +258,6 @@ button, input, select, textarea { font: inherit; }
     color: var(--brand);
     background: var(--brand-soft);
 }
-
-/* .bhd-drop-menu a.active i {
-    color: white;
-} */
 
 .bhd-drop-menu a:hover {
     background: var(--brand-soft);
@@ -417,7 +412,6 @@ button, input, select, textarea { font: inherit; }
     color: var(--brand);
 }
 
-/* Hero */
 .bhd-hero { padding: 58px 0 28px; }
 .bhd-hero-grid {
     display: grid;
@@ -427,7 +421,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-title {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-family: "Space Grotesk", "Inter", sans-serif;
     font-size: clamp(2.35rem, 5vw, 4rem);
     line-height: 0.98;
     letter-spacing: -0.055em;
@@ -466,7 +460,7 @@ button, input, select, textarea { font: inherit; }
 
 .bhd-mini-stat strong {
     display: block;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-size: 1.15rem;
     letter-spacing: -0.02em;
 }
@@ -490,7 +484,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-pass::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 14px;
     border: 1px dashed var(--line-strong);
@@ -525,7 +519,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-pass-number {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-weight: 700;
     font-size: 1.8rem;
     color: var(--brand);
@@ -587,7 +581,6 @@ button, input, select, textarea { font: inherit; }
     font-weight: 700;
 }
 
-/* Sections */
 .bhd-section { padding: 48px 0; }
 .bhd-section-muted { background: var(--surface-soft); }
 
@@ -601,7 +594,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-section-head h2 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-size: clamp(1.45rem, 2.6vw, 2.1rem);
     letter-spacing: -0.04em;
     line-height: 1.05;
@@ -796,7 +789,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-event-date strong {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-size: 1.35rem;
     line-height: 1;
 }
@@ -961,7 +954,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .bhd-report-band h2 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-size: clamp(1.4rem, 2.6vw, 2rem);
     letter-spacing: -0.04em;
     margin: 0 0 8px;
@@ -991,7 +984,6 @@ button, input, select, textarea { font: inherit; }
     font-weight: 900;
 }
 
-/* Minimal footer */
 .bhd-footer {
     background: var(--surface);
     border-top: 1px solid var(--line);

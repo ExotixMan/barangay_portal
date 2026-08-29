@@ -55,7 +55,6 @@ class AdminPermissionController extends Controller
         $role = AdminRole::findOrFail($roleId);
         $adminId = Auth::guard('admin')->id();
 
-        // Prevent modifying super admin permissions
         if ($role->name === 'super_admin') {
             return redirect()->back()
                 ->with('error', 'Super Admin permissions cannot be modified.');
@@ -75,10 +74,9 @@ class AdminPermissionController extends Controller
         DB::beginTransaction();
 
         try {
-            // Sync permissions using the pivot table
+            
             $role->permissions()->sync($request->permissions ?? []);
 
-            // Log activity
             if ($adminId) {
                 AdminActivityLog::create([
                     'user_id' => $adminId,
@@ -122,8 +120,7 @@ class AdminPermissionController extends Controller
                     ->all();
             };
 
-            // Define default permissions for each role based on your CSV data.
-            // Permissions are read once and mapped in memory to avoid repeated table scans.
+            
             $defaultPermissions = [
                 'super_admin' => $permissionsByName->values()->all(),
                 'barangay_captain' => $permissionIdsFor([
@@ -229,7 +226,6 @@ class AdminPermissionController extends Controller
                 }
             }
 
-            // Log activity
             if ($adminId) {
                 AdminActivityLog::create([
                     'user_id' => $adminId,
@@ -261,7 +257,7 @@ class AdminPermissionController extends Controller
     
     private function seedDefaultPermissions()
     {
-        // Define default permissions for each role.
+        
         $permissionsByName = AdminPermission::pluck('id', 'name');
         $permissionIdsFor = function (array $names) use ($permissionsByName) {
             return collect($names)

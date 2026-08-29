@@ -11,41 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" id="adminThemeColor" content="#f8fafc">
-
-    <script>
-        (function () {
-            try {
-                var savedTheme = localStorage.getItem('bisig-admin-theme');
-                var systemDark = window.matchMedia
-                    && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                var theme = savedTheme === 'dark' || savedTheme === 'light'
-                    ? savedTheme
-                    : (systemDark ? 'dark' : 'light');
-
-                document.documentElement.dataset.theme = theme;
-                document.documentElement.classList.toggle('dark-mode', theme === 'dark');
-                document.documentElement.style.colorScheme = theme;
-
-                var allowedFontSizes = [
-                    'small',
-                    'normal',
-                    'large',
-                    'x-large'
-                ];
-
-                var savedFontSize = localStorage.getItem('bisig-admin-font-size');
-
-                document.documentElement.dataset.fontSize =
-                    allowedFontSizes.includes(savedFontSize)
-                        ? savedFontSize
-                        : 'normal';
-            } catch (error) {
-                document.documentElement.dataset.theme = 'light';
-                document.documentElement.dataset.fontSize = 'normal';
-            }
-        })();
-    </script>
+    @include('shared.theme-meta')
+    <script src="{{ asset('js/theme-vars.js') }}"></script>
+    <script src="{{ asset('js/admin/admin-theme-init.js') }}"></script>
 
     <title>@yield('title', 'Admin') - {{ $portalName }}</title>
 
@@ -61,7 +29,6 @@
 
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/dark-mode.css') }}">
-    @include('admin.layouts.theme-colors')
     <link rel="stylesheet" href="{{ asset('css/admin/admin-ux-refresh.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-modal-system.css') }}">
 </head>
@@ -83,6 +50,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/admin/nav.js') }}"></script>
+    <script src="{{ asset('js/action-bindings.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>
 

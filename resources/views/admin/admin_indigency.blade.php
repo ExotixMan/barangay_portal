@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.admin')
+@extends('admin.layouts.admin')
 
 @section('title', 'Indigency Applications')
 @section('page_title', 'Indigency Applications')
@@ -6,377 +6,12 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/indigency-applications.css') }}">
-    <style>
-        /* Resident picker / auto-fill UX */
-        .resident-picker-section {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            background: #f8fafc;
-        }
 
-        .form-step-card {
-            padding: 1rem 1.1rem 1.2rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            background: #fff;
-        }
-
-        .form-step-card:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .form-step-card .form-label i {
-            width: 16px;
-            color: #94a3b8;
-            margin-right: .35rem;
-            font-size: .78rem;
-        }
-
-        .form-section-heading {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            margin-bottom: .8rem;
-        }
-
-        .section-step {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            background: #fff1f2;
-            color: #dc2626;
-            font-size: .8rem;
-            font-weight: 800;
-        }
-
-        .form-section-heading h6 {
-            margin: 0;
-            font-size: .92rem;
-            font-weight: 800;
-            color: var(--text);
-        }
-
-        .form-section-heading p {
-            margin: .15rem 0 0;
-            font-size: .75rem;
-            color: var(--muted);
-        }
-
-        .resident-search-wrapper {
-            position: relative;
-            z-index: 30;
-        }
-
-        .resident-search-box {
-            position: relative;
-        }
-
-        .resident-search-box .form-control {
-            height: 48px;
-            padding-left: 2.8rem;
-            padding-right: 2.8rem;
-            border-radius: 12px;
-            border: 1px solid #d8dee6;
-            background: #fff;
-        }
-
-        .resident-search-box .form-control:focus {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 .2rem rgba(220,38,38,.08);
-        }
-
-        .resident-search-icon,
-        .resident-search-clear {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-        }
-
-        .resident-search-icon {
-            left: 1rem;
-            color: #94a3b8;
-            pointer-events: none;
-        }
-
-        .resident-search-clear {
-            right: .5rem;
-            width: 32px;
-            height: 32px;
-            border: 0;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #f1f5f9;
-            color: #64748b;
-        }
-
-        .resident-search-clear:hover {
-            background: #e2e8f0;
-        }
-
-        .resident-search-results {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: calc(100% + 6px);
-            z-index: 1080;
-            max-height: 280px;
-            overflow-y: auto;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 16px 38px rgba(15,23,42,.14);
-        }
-
-        .resident-result-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            padding: .8rem .9rem;
-            border: 0;
-            border-bottom: 1px solid #f1f5f9;
-            background: #fff;
-            text-align: left;
-            transition: background .15s ease;
-        }
-
-        .resident-result-item:last-child {
-            border-bottom: 0;
-        }
-
-        .resident-result-item:hover,
-        .resident-result-item:focus {
-            background: #fff7f7;
-            outline: none;
-        }
-
-        .resident-result-avatar,
-        .selected-resident-avatar {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 50%;
-        }
-
-        .resident-result-avatar {
-            width: 40px;
-            height: 40px;
-            background: #fff1f2;
-            color: #dc2626;
-        }
-
-        .resident-result-content {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .resident-result-name {
-            color: #111827;
-            font-size: .84rem;
-            font-weight: 800;
-        }
-
-        .resident-result-meta {
-            margin-top: .15rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #64748b;
-            font-size: .72rem;
-        }
-
-        .resident-result-arrow {
-            flex: 0 0 auto;
-            color: #94a3b8;
-        }
-
-        .resident-no-results {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            padding: 1rem;
-            color: #64748b;
-        }
-
-        .no-results-icon {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            background: #f1f5f9;
-            color: #94a3b8;
-        }
-
-        .resident-no-results strong {
-            display: block;
-            color: #334155;
-            font-size: .8rem;
-        }
-
-        .resident-no-results small {
-            display: block;
-            margin-top: .15rem;
-            font-size: .72rem;
-        }
-
-        .selected-resident-card {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            padding: .85rem;
-            margin-top: .75rem;
-            border: 1px solid #dbe3ea;
-            border-radius: 14px;
-            background: #fff;
-        }
-
-        .selected-resident-avatar {
-            width: 44px;
-            height: 44px;
-            background: #dc2626;
-            color: #fff;
-        }
-
-        .selected-resident-content {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .selected-resident-name {
-            color: #111827;
-            font-size: .86rem;
-            font-weight: 800;
-        }
-
-        .selected-resident-meta {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: .25rem;
-            margin-top: .1rem;
-            color: #64748b;
-            font-size: .71rem;
-        }
-
-        .resident-active-status {
-            color: #15803d;
-        }
-
-        .resident-active-status i {
-            font-size: .4rem;
-            vertical-align: middle;
-        }
-
-        .selected-resident-address {
-            margin-top: .15rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #64748b;
-            font-size: .71rem;
-        }
-
-        .resident-change-btn {
-            flex: 0 0 auto;
-        }
-
-        .resident-autofill-status {
-            display: flex;
-            align-items: center;
-            gap: .45rem;
-            margin-top: .55rem;
-            color: var(--muted);
-            font-size: .74rem;
-        }
-
-        .resident-autofill-status.is-ready {
-            color: #198754;
-        }
-
-        .resident-autofill-status.is-warning {
-            color: #a15c00;
-        }
-
-        .resident-autofilled {
-            background-color: #f4fbf6 !important;
-            border-color: rgba(25, 135, 84, .28) !important;
-        }
-
-        .document-upload-card {
-            display: flex;
-            align-items: flex-start;
-            gap: .8rem;
-            padding: .85rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            background: #fafafa;
-        }
-
-        .document-upload-icon {
-            width: 42px;
-            height: 42px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            background: #fff1f2;
-            color: #dc2626;
-        }
-
-        .resident-document-status {
-            margin-top: .45rem;
-            font-size: .74rem;
-            line-height: 1.45;
-        }
-
-        .resident-document-status.is-ready {
-            color: #198754;
-        }
-
-        .resident-document-status.is-warning {
-            color: #a15c00;
-        }
-
-        @media (max-width: 576px) {
-            .selected-resident-card {
-                align-items: flex-start;
-                flex-wrap: wrap;
-            }
-
-            .resident-change-btn {
-                width: 100%;
-            }
-
-            .selected-resident-address {
-                white-space: normal;
-            }
-
-            .document-upload-card {
-                flex-direction: column;
-            }
-        }
-    </style>
 @endpush
 
 @section('content')
 <div class="indigency-page">
 
-            <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show indigency-alert" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
@@ -404,7 +39,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-
 
             <section class="indigency-hero">
                 <div class="indigency-hero-content">
@@ -436,7 +70,6 @@
                 </div>
             </section>
 
-            <!-- Stats Cards - Mobile Responsive -->
             <div class="row g-3 g-lg-4 mb-4 indigency-stats">
                 <div class="col-6 col-md-3">
                     <div class="stat-card d-flex align-items-center justify-content-between">
@@ -496,7 +129,6 @@
                 </div>
             </div>
 
-            <!-- Filters - Mobile Responsive -->
             <div class="card border-0 mb-4 indigency-filter-card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.indigency.index') }}" id="searchForm">
@@ -520,15 +152,14 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Search and Filter Row -->
+
                         <div class="row g-3">
                             <div class="col-12 col-md-5">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="fas fa-search text-muted"></i>
                                     </span>
-                                    <input type="text" name="search" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-@.]/g,'')" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name, reference, email..." value="{{ request('search') }}">
+                                    <input type="text" name="search" data-input-sanitize="admin-search" id="globalSearch" class="form-control border-start-0 ps-0" placeholder="Search by name, reference, email..." value="{{ request('search') }}">
                                     <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-search d-sm-none"></i>
                                         <span class="d-none d-sm-inline">Search</span>
@@ -569,7 +200,6 @@
                         </div>
                     </form>
 
-                    <!-- Bulk Actions - Archive normally; restore when the Archived status filter is active -->
                     @php
                         $isArchivedView = request('status') === 'deleted';
                     @endphp
@@ -586,7 +216,7 @@
                             @csrf
                             <button
                                 type="button"
-                                onclick="bulkDelete()"
+                                data-click-call="bulkDelete"
                                 class="btn {{ $isArchivedView ? 'btn-outline-success' : 'btn-outline-danger' }} d-flex align-items-center gap-2"
                                 title="{{ $isArchivedView ? 'Bulk Restore' : 'Bulk Archive' }}"
                             >
@@ -597,11 +227,11 @@
                             </button>
                         </form>
                         @endadmin_can
-                        
+
                         @admin_can('export_indigency')
                         <form id="exportForm" method="POST" action="{{ route('admin.indigency.export') }}" style="display: inline;">
                             @csrf
-                            <button type="button" onclick="exportCSV()" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
+                            <button type="button" data-click-call="exportCSV" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
                                 <i class="fas fa-file-csv"></i>
                                 <span class="d-none d-sm-inline">Export</span>
                             </button>
@@ -612,7 +242,6 @@
                 </div>
             </div>
 
-            <!-- Indigency Table - Simplified Management View -->
             <div class="card border-0 indigency-table-card">
                 <div class="card-body p-0">
                     <div class="indigency-table-head">
@@ -644,7 +273,7 @@
                                             type="checkbox"
                                             id="selectAll"
                                             class="form-check-input application-checkbox"
-                                            onclick="toggleSelectAll()"
+                                            data-click-call="toggleSelectAll"
                                             aria-label="Select all indigency applications"
                                         >
                                     </th>
@@ -875,7 +504,7 @@
                                                                 method="POST"
                                                                 action="{{ route('admin.indigency.restore', $ind->id) }}"
                                                                 class="action-menu-form"
-                                                                onsubmit="return confirmDelete(event, 'Restore this application?')"
+                                                                data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Restore this application?']) }}"
                                                             >
                                                                 @csrf
                                                                 <button type="submit" class="dropdown-item action-menu-item">
@@ -893,7 +522,7 @@
                                                                 method="POST"
                                                                 action="{{ route('admin.indigency.destroy', $ind->id) }}"
                                                                 class="action-menu-form"
-                                                                onsubmit="return confirmDelete(event, 'Archive this application?')"
+                                                                data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Archive this application?']) }}"
                                                             >
                                                                 @csrf
                                                                 @method('DELETE')
@@ -949,7 +578,6 @@
                         </table>
                     </div>
 
-                    <!-- Pagination - Mobile Responsive -->
                     @if(isset($indigency) && $indigency->total() > 0)
                     <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <small class="text-muted order-2 order-md-1">
@@ -965,7 +593,6 @@
                 </div>
             </div>
 
-            <!-- Add Application Modal with Validation - Only if user has create_indigency permission -->
             @admin_can('create_indigency')
             <div class="modal fade" id="addApplicationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -984,7 +611,7 @@
                             <form method="POST" action="{{ route('admin.indigency.store') }}" enctype="multipart/form-data" id="addApplicationForm">
                             @csrf
                             <input type="hidden" name="form_type" value="add">
-                                <!-- Step 1: Resident Selection -->
+
                                 <div class="resident-picker-section mb-4">
                                     <div class="form-section-heading">
                                         <div class="section-step">1</div>
@@ -1064,7 +691,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 2: Personal Information -->
                                 <div class="form-step-card">
                                     <div class="form-section-heading">
                                         <div class="section-step">2</div>
@@ -1076,7 +702,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-user"></i>First Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('first_name') is-invalid @enderror @endif"
                                                    name="first_name" id="add_first_name" value="{{ session('form_type') == 'add' ? old('first_name') : '' }}" required>
                                             @if(session('form_type') == 'add')
                                                 @error('first_name')
@@ -1086,7 +712,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-user"></i>Middle Name</label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('middle_name') is-invalid @enderror @endif"
                                                    name="middle_name" id="add_middle_name" value="{{ session('form_type') == 'add' ? old('middle_name') : '' }}">
                                             @if(session('form_type') == 'add')
                                                 @error('middle_name')
@@ -1096,7 +722,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-user"></i>Last Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('last_name') is-invalid @enderror @endif"
                                                    name="last_name" id="add_last_name" value="{{ session('form_type') == 'add' ? old('last_name') : '' }}" required>
                                             @if(session('form_type') == 'add')
                                                 @error('last_name')
@@ -1106,7 +732,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-signature"></i>Suffix</label>
-                                            <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'add') @error('suffix') is-invalid @enderror @endif"
                                                        name="suffix" id="add_suffix">
                                                 <option value="">None</option>
                                                 <option value="Jr." {{ (session('form_type') == 'add' && old('suffix') == 'Jr.') ? 'selected' : '' }}>Jr.</option>
@@ -1124,7 +750,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-calendar"></i>Birthdate <span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif" 
+                                            <input type="date" class="form-control @if(session('form_type') == 'add') @error('birthdate') is-invalid @enderror @endif"
                                                    name="birthdate" id="add_birthdate" value="{{ session('form_type') == 'add' ? old('birthdate') : '' }}" required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'add')
                                                 @error('birthdate')
@@ -1134,12 +760,13 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label"><i class="fas fa-venus-mars"></i>Gender <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'add') @error('gender') is-invalid @enderror @endif"
                                                        name="gender" id="add_gender" required>
                                                 <option value="">Select gender</option>
                                                 <option value="male" {{ (session('form_type') == 'add' && old('gender') == 'male') ? 'selected' : '' }}>Male</option>
                                                 <option value="female" {{ (session('form_type') == 'add' && old('gender') == 'female') ? 'selected' : '' }}>Female</option>
                                                 <option value="other" {{ (session('form_type') == 'add' && old('gender') == 'other') ? 'selected' : '' }}>Other</option>
+                                                <option value="prefer not to say" {{ (session('form_type') == 'add' && old('gender') == 'prefer not to say') ? 'selected' : '' }}>Prefer not to say</option>
                                             </select>
                                             @if(session('form_type') == 'add')
                                                 @error('gender')
@@ -1147,10 +774,36 @@
                                                 @enderror
                                             @endif
                                         </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-ring"></i>Civil Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'add') @error('civil_status') is-invalid @enderror @endif"
+                                                    name="civil_status" id="add_civil_status" required>
+                                                <option value="">Select status</option>
+                                                <option value="single" {{ (session('form_type') == 'add' && old('civil_status') == 'single') ? 'selected' : '' }}>Single</option>
+                                                <option value="married" {{ (session('form_type') == 'add' && old('civil_status') == 'married') ? 'selected' : '' }}>Married</option>
+                                                <option value="widowed" {{ (session('form_type') == 'add' && old('civil_status') == 'widowed') ? 'selected' : '' }}>Widowed</option>
+                                                <option value="separated" {{ (session('form_type') == 'add' && old('civil_status') == 'separated') ? 'selected' : '' }}>Separated</option>
+                                                <option value="divorced" {{ (session('form_type') == 'add' && old('civil_status') == 'divorced') ? 'selected' : '' }}>Divorced</option>
+                                            </select>
+                                            @if(session('form_type') == 'add')
+                                                @error('civil_status')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label"><i class="fas fa-map-pin"></i>Place of Birth <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('birth_place') is-invalid @enderror @endif"
+                                                   name="birth_place" id="add_birth_place" value="{{ session('form_type') == 'add' ? old('birth_place') : '' }}" required>
+                                            @if(session('form_type') == 'add')
+                                                @error('birth_place')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Step 3: Contact Information -->
                                 <div class="form-step-card">
                                     <div class="form-section-heading">
                                         <div class="section-step">3</div>
@@ -1162,7 +815,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label"><i class="fas fa-envelope"></i>Email <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif" 
+                                            <input type="email" class="form-control @if(session('form_type') == 'add') @error('email') is-invalid @enderror @endif"
                                                    name="email" id="add_email" value="{{ session('form_type') == 'add' ? old('email') : '' }}" placeholder="email@example.com" required>
                                             @if(session('form_type') == 'add')
                                                 @error('email')
@@ -1172,7 +825,7 @@
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label"><i class="fas fa-phone"></i>Contact Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('contact_number') is-invalid @enderror @endif"
                                                    name="contact_number" id="add_contact_number" value="{{ session('form_type') == 'add' ? old('contact_number') : '' }}" placeholder="09XXXXXXXXX" maxlength="11" required>
                                             <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
                                             @if(session('form_type') == 'add')
@@ -1183,7 +836,7 @@
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label"><i class="fas fa-map-marker-alt"></i>Address <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" 
+                                            <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif"
                                                       name="address" id="add_address" rows="2" placeholder="Complete address" required>{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
                                             @if(session('form_type') == 'add')
                                                 @error('address')
@@ -1194,7 +847,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 4: Indigency Details -->
                                 <div class="form-step-card">
                                     <div class="form-section-heading">
                                         <div class="section-step">4</div>
@@ -1206,7 +858,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label"><i class="fas fa-wallet"></i>Monthly Income <span class="text-danger">*</span></label>
-                                            <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif" 
+                                            <select class="form-control @if(session('form_type') == 'add') @error('monthly_income') is-invalid @enderror @endif"
                                                    name="monthly_income" value="{{ session('form_type') == 'add' ? old('monthly_income') : '' }}" required>
                                                    <option value="">Select income bracket</option>
                                                     <option value="below 5k" {{ (session('form_type') == 'add' && old('monthly_income') == 'below 5k') ? 'selected' : '' }}>Below &#8369;5,000</option>
@@ -1223,7 +875,7 @@
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label"><i class="fas fa-users"></i>Household Members <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control @if(session('form_type') == 'add') @error('household_members') is-invalid @enderror @endif" 
+                                            <input type="number" class="form-control @if(session('form_type') == 'add') @error('household_members') is-invalid @enderror @endif"
                                                    name="household_members" value="{{ session('form_type') == 'add' ? old('household_members') : '' }}" min="1" max="20" placeholder="e.g., 4" required>
                                             @if(session('form_type') == 'add')
                                                 @error('household_members')
@@ -1233,7 +885,7 @@
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label"><i class="fas fa-bullseye"></i>Purpose <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'add') @error('purpose') is-invalid @enderror @endif"
                                                     name="purpose" id="purpose" required>
                                                 <option value="">Select purpose</option>
                                                 <option value="medical" {{ (session('form_type') == 'add' && old('purpose') == 'medical') ? 'selected' : '' }}>Medical / Hospital assistance</option>
@@ -1252,7 +904,7 @@
                                         </div>
                                         <div class="col-12" id="otherPurposeField" style="{{ (session('form_type') == 'add' && old('purpose') == 'other') ? 'display:block;' : 'display:none;' }}">
                                             <label class="form-label"><i class="fas fa-pen-line"></i>Specify Other Purpose <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'add') @error('purpose_other') is-invalid @enderror @endif"
                                                    name="purpose_other" value="{{ session('form_type') == 'add' ? old('purpose_other') : '' }}" placeholder="Please specify">
                                             @if(session('form_type') == 'add')
                                                 @error('purpose_other')
@@ -1263,7 +915,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 5: Required Documents -->
                                 <div class="form-step-card">
                                     <div class="form-section-heading">
                                         <div class="section-step">5</div>
@@ -1280,7 +931,7 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <label class="form-label mb-1">Proof of Residency <span class="text-danger">*</span></label>
-                                                    <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif" 
+                                                    <input type="file" class="form-control @if(session('form_type') == 'add') @error('primary_proof') is-invalid @enderror @endif"
                                                            name="primary_proof" accept="image/*,.pdf" required>
                                                     <small class="text-muted">Upload image or PDF (Max: 5MB)</small>
                                                     @if(session('form_type') == 'add')
@@ -1291,41 +942,36 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12">
-                                            <div class="document-upload-card">
-                                                <div class="document-upload-icon" aria-hidden="true">
-                                                    <i class="fas fa-id-card"></i>
-                                                </div>
-
+                                        <div class="col-12 col-md-6">
+                                            <div class="document-upload-card h-100">
+                                                <div class="document-upload-icon" aria-hidden="true"><i class="fas fa-id-card"></i></div>
                                                 <div class="flex-grow-1">
-                                                    <label class="form-label mb-1">
-                                                        Valid ID
-                                                    </label>
-
-                                                    <input
-                                                        type="file"
-                                                        class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif"
-                                                        name="valid_id_path"
-                                                        id="add_valid_id_path"
-                                                        accept="image/*,.pdf"
-                                                    >
-
-                                                    <small class="text-muted">
-                                                        JPG, JPEG, PNG or PDF • Maximum 5MB
-                                                    </small>
-
-                                                    <div
-                                                        id="addResidentIdStatus"
-                                                        class="resident-document-status d-none"
-                                                    ></div>
-
+                                                    <label class="form-label mb-1">Valid ID - Front</label>
+                                                    <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_path') is-invalid @enderror @endif"
+                                                           name="valid_id_path" id="add_valid_id_path" accept="image/*,.pdf">
+                                                    <small class="text-muted">JPG, JPEG, PNG or PDF • Maximum 5MB</small>
                                                     @if(session('form_type') == 'add')
-                                                        @error('valid_id_path')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
+                                                        @error('valid_id_path')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                                     @endif
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="document-upload-card h-100">
+                                                <div class="document-upload-icon" aria-hidden="true"><i class="fas fa-id-card"></i></div>
+                                                <div class="flex-grow-1">
+                                                    <label class="form-label mb-1">Valid ID - Back</label>
+                                                    <input type="file" class="form-control @if(session('form_type') == 'add') @error('valid_id_back_path') is-invalid @enderror @endif"
+                                                           name="valid_id_back_path" id="add_valid_id_back_path" accept="image/*,.pdf">
+                                                    <small class="text-muted">JPG, JPEG, PNG or PDF • Maximum 5MB</small>
+                                                    @if(session('form_type') == 'add')
+                                                        @error('valid_id_back_path')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div id="addResidentIdStatus" class="resident-document-status d-none"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1344,7 +990,6 @@
             </div>
             @endadmin_can
 
-            <!-- Edit Application Modals with Validation - Only if user has update_indigency permission -->
             @if(auth('admin')->user()->hasPermission('update_indigency'))
                 @foreach($indigency as $ind)
                 <div class="modal fade" id="editIndigencyModal{{ $ind->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -1364,15 +1009,15 @@
                                 <input type="hidden" name="form_type" value="edit_{{ $ind->id }}">
 
                                     <div class="row g-3">
-                                        <!-- Personal Information -->
+
                                         <div class="col-12">
                                             <h6 class="fw-semibold text-primary">Personal Information</h6>
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('first_name') is-invalid @enderror @endif" 
-                                                name="first_name" id="edit_first_name_{{ $ind->id }}" 
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('first_name', $ind->first_name) : $ind->first_name }}" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('first_name') is-invalid @enderror @endif"
+                                                name="first_name" id="edit_first_name_{{ $ind->id }}"
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('first_name', $ind->first_name) : $ind->first_name }}"
                                                 required>
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('first_name')
@@ -1382,7 +1027,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">Middle Name</label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('middle_name') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('middle_name') is-invalid @enderror @endif"
                                                 name="middle_name" id="edit_middle_name_{{ $ind->id }}"
                                                 value="{{ session('form_type') == 'edit_' . $ind->id ? old('middle_name', $ind->middle_name) : $ind->middle_name }}">
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1393,9 +1038,9 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('last_name') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('last_name') is-invalid @enderror @endif"
                                                 name="last_name" id="edit_last_name_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('last_name', $ind->last_name) : $ind->last_name }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('last_name', $ind->last_name) : $ind->last_name }}"
                                                 required>
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('last_name')
@@ -1405,7 +1050,7 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">Suffix</label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('suffix') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('suffix') is-invalid @enderror @endif"
                                                     name="suffix" id="edit_suffix_{{ $ind->id }}">
                                                 <option value="">None</option>
                                                 <option value="Jr." {{ (session('form_type') == 'edit_' . $ind->id ? old('suffix', $ind->suffix) : $ind->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
@@ -1423,11 +1068,11 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birthdate') is-invalid @enderror @endif" 
+                                            <input type="date" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birthdate') is-invalid @enderror @endif"
                                                 name="birthdate" id="edit_birthdate_{{ $ind->id }}"
                                                 value="{{ session('form_type') == 'edit_' . $ind->id
                                                     ? old('birthdate', $ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '')
-                                                    : ($ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '') }}" 
+                                                    : ($ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '') }}"
                                                 required max="{{ date('Y-m-d') }}">
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('birthdate')
@@ -1437,12 +1082,13 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('gender') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('gender') is-invalid @enderror @endif"
                                                     name="gender" id="edit_gender_{{ $ind->id }}" required>
                                                 <option value="">Select gender</option>
                                                 <option value="male" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'male' ? 'selected' : '' }}>Male</option>
                                                 <option value="female" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'female' ? 'selected' : '' }}>Female</option>
                                                 <option value="other" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'other' ? 'selected' : '' }}>Other</option>
+                                                <option value="prefer not to say" {{ (session('form_type') == 'edit_' . $ind->id ? old('gender', $ind->gender) : $ind->gender) == 'prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                                             </select>
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('gender')
@@ -1450,16 +1096,39 @@
                                                 @enderror
                                             @endif
                                         </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('civil_status') is-invalid @enderror @endif"
+                                                    name="civil_status" id="edit_civil_status_{{ $ind->id }}" required>
+                                                <option value="">Select status</option>
+                                                <option value="single" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                                <option value="married" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                                <option value="widowed" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                                <option value="separated" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                                <option value="divorced" {{ (session('form_type') == 'edit_' . $ind->id ? old('civil_status', $ind->civil_status) : $ind->civil_status) == 'divorced' ? 'selected' : '' }}>Divorced</option>
+                                            </select>
+                                            @if(session('form_type') == 'edit_' . $ind->id)
+                                                @error('civil_status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Place of Birth <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('birth_place') is-invalid @enderror @endif"
+                                                   name="birth_place" id="edit_birth_place_{{ $ind->id }}"
+                                                   value="{{ session('form_type') == 'edit_' . $ind->id ? old('birth_place', $ind->birth_place) : $ind->birth_place }}" required>
+                                            @if(session('form_type') == 'edit_' . $ind->id)
+                                                @error('birth_place')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            @endif
+                                        </div>
 
-                                        <!-- Contact Information -->
                                         <div class="col-12 mt-3">
                                             <h6 class="fw-semibold text-primary">Contact Information</h6>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Email <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('email') is-invalid @enderror @endif" 
+                                            <input type="email" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('email') is-invalid @enderror @endif"
                                                 name="email" id="edit_email_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('email', $ind->email) : $ind->email }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('email', $ind->email) : $ind->email }}"
                                                 placeholder="email@example.com" required>
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('email')
@@ -1469,9 +1138,9 @@
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('contact_number') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('contact_number') is-invalid @enderror @endif"
                                                 name="contact_number" id="edit_contact_number_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('contact_number', $ind->contact_number) : $ind->contact_number }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('contact_number', $ind->contact_number) : $ind->contact_number }}"
                                                 placeholder="09XXXXXXXXX" maxlength="11" required>
                                             <small class="text-muted">Format: 09XXXXXXXXX (11 digits)</small>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1482,7 +1151,7 @@
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Address <span class="text-danger">*</span></label>
-                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('address') is-invalid @enderror @endif" 
+                                            <textarea class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('address') is-invalid @enderror @endif"
                                                     name="address" id="edit_address_{{ $ind->id }}"
                                                     rows="2" placeholder="Complete address" required>{{ session('form_type') == 'edit_' . $ind->id ? old('address', $ind->address) : $ind->address }}</textarea>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1492,13 +1161,12 @@
                                             @endif
                                         </div>
 
-                                        <!-- Indigency Details -->
                                         <div class="col-12 mt-3">
                                             <h6 class="fw-semibold text-primary">Indigency Details</h6>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Monthly Income <span class="text-danger">*</span></label>
-                                            <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif" 
+                                            <select class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('monthly_income') is-invalid @enderror @endif"
                                                 name="monthly_income" id="edit_monthly_income_{{ $ind->id }}" required>
                                                 <option value="">Select income bracket</option>
                                                 <option value="below 5k" {{ (session('form_type') == 'edit_' . $ind->id ? old('monthly_income', $ind->monthly_income) : $ind->monthly_income) == 'below 5k' ? 'selected' : '' }}>Below &#8369;5,000</option>
@@ -1515,9 +1183,9 @@
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">Household Members <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('household_members') is-invalid @enderror @endif" 
+                                            <input type="number" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('household_members') is-invalid @enderror @endif"
                                                 name="household_members" id="edit_household_members_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('household_members', $ind->household_members) : $ind->household_members }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('household_members', $ind->household_members) : $ind->household_members }}"
                                                 min="1" max="20" required>
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('household_members')
@@ -1526,10 +1194,9 @@
                                             @endif
                                         </div>
 
-                                        <!-- Purpose -->
                                         <div class="col-12">
                                             <label class="form-label">Purpose <span class="text-danger">*</span></label>
-                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('purpose') is-invalid @enderror @endif" 
+                                            <select class="form-select @if(session('form_type') == 'edit_' . $ind->id) @error('purpose') is-invalid @enderror @endif"
                                                     name="purpose" id="edit_purpose_{{ $ind->id }}" required>
                                                 <option value="">Select purpose</option>
                                                 <option value="medical" {{ (session('form_type') == 'edit_' . $ind->id ? old('purpose', $ind->purpose) : $ind->purpose) == 'medical' ? 'selected' : '' }}>Medical / Hospital assistance</option>
@@ -1548,9 +1215,9 @@
                                         </div>
                                         <div class="col-12" id="edit_otherPurposeField_{{ $ind->id }}" style="{{ (session('form_type') == 'edit_' . $ind->id && old('purpose', $ind->purpose) == 'other') ? 'display:block;' : 'display:none;' }}">
                                             <label class="form-label">Specify Other Purpose <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('purpose_other') is-invalid @enderror @endif" 
+                                            <input type="text" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('purpose_other') is-invalid @enderror @endif"
                                                 name="purpose_other" id="edit_purpose_other_{{ $ind->id }}"
-                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('purpose_other', $ind->purpose_other) : $ind->purpose_other }}" 
+                                                value="{{ session('form_type') == 'edit_' . $ind->id ? old('purpose_other', $ind->purpose_other) : $ind->purpose_other }}"
                                                 placeholder="Please specify">
                                             @if(session('form_type') == 'edit_' . $ind->id)
                                                 @error('purpose_other')
@@ -1559,13 +1226,12 @@
                                             @endif
                                         </div>
 
-                                        <!-- Documents -->
                                         <div class="col-12 mt-3">
                                             <h6 class="fw-semibold text-primary">Documents (Leave empty to keep current file)</h6>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Proof of Residency</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('primary_proof') is-invalid @enderror @endif" 
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('primary_proof') is-invalid @enderror @endif"
                                                 name="primary_proof" id="edit_primary_proof_{{ $ind->id }}" accept="image/*,.pdf">
                                             <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1575,8 +1241,8 @@
                                             @endif
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label">Valid ID</label>
-                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('valid_id_path') is-invalid @enderror @endif" 
+                                            <label class="form-label">Valid ID - Front</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('valid_id_path') is-invalid @enderror @endif"
                                                 name="valid_id_path" id="edit_valid_id_path_{{ $ind->id }}" accept="image/*,.pdf">
                                             <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
                                             @if(session('form_type') == 'edit_' . $ind->id)
@@ -1585,7 +1251,18 @@
                                                 @enderror
                                             @endif
                                         </div>
-                                        
+                                        <div class="col-12">
+                                            <label class="form-label">Valid ID - Back</label>
+                                            <input type="file" class="form-control @if(session('form_type') == 'edit_' . $ind->id) @error('valid_id_back_path') is-invalid @enderror @endif"
+                                                name="valid_id_back_path" id="edit_valid_id_back_path_{{ $ind->id }}" accept="image/*,.pdf">
+                                            <small class="text-muted">Upload image or PDF (Max: 5MB) - Leave empty to keep current file</small>
+                                            @if(session('form_type') == 'edit_' . $ind->id)
+                                                @error('valid_id_back_path')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            @endif
+                                        </div>
+
                                         @if($ind->primary_proof)
                                         <div class="col-12">
                                             <small class="text-info">
@@ -1600,6 +1277,10 @@
                                                 <i class="fas fa-info-circle me-1"></i>Current file: {{ basename($ind->valid_id_path) }}
                                             </small>
                                         </div>
+                                        @endif
+
+                                        @if($ind->valid_id_back_path)
+                                        <div class="col-12"><small class="text-info"><i class="fas fa-info-circle me-1"></i>Current Valid ID back: {{ basename($ind->valid_id_back_path) }}</small></div>
                                         @endif
                                     </div>
                                     </form>
@@ -1618,7 +1299,6 @@
                 @endforeach
             @endif
 
-            <!-- View/Docs/Update Modals -->
             @foreach($indigency as $ind)
             <div class="modal fade" id="viewModal{{ $ind->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1711,19 +1391,29 @@
                                                 <div class="doc-head"><span><i class="fas fa-house me-1"></i>Proof of Residency</span></div>
                                                 <div class="doc-body">
                                                     @if($ind->primary_proof)
-                                                        <img src="{{ asset($ind->primary_proof) }}" alt="Proof of residency" onclick="openZoomModal('{{ asset($ind->primary_proof) }}')">
+                                                        <img src="{{ asset($ind->primary_proof) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ind->primary_proof)]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No proof uploaded</span></div>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="document-preview-card">
-                                                <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID</span></div>
+                                                <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Front</span></div>
                                                 <div class="doc-body">
                                                     @if($ind->valid_id_path)
-                                                        <img src="{{ asset($ind->valid_id_path) }}" alt="Valid ID" onclick="openZoomModal('{{ asset($ind->valid_id_path) }}')">
+                                                        <img src="{{ asset($ind->valid_id_path) }}" alt="Valid ID front" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ind->valid_id_path)]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No valid ID uploaded</span></div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="document-preview-card">
+                                                <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Back</span></div>
+                                                <div class="doc-body">
+                                                    @if($ind->valid_id_back_path)
+                                                        <img src="{{ asset($ind->valid_id_back_path) }}" alt="Valid ID back" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ind->valid_id_back_path)]) }}">
+                                                    @else
+                                                        <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No back ID uploaded</span></div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1752,7 +1442,9 @@
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-user"></i>Last Name</label><input type="text" name="last_name" class="form-control" value="{{ $ind->last_name }}" required></div>
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-signature"></i>Suffix</label><select class="form-select" name="suffix"><option value="">None</option><option value="Jr." {{ $ind->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option><option value="Sr." {{ $ind->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option><option value="II" {{ $ind->suffix == 'II' ? 'selected' : '' }}>II</option><option value="III" {{ $ind->suffix == 'III' ? 'selected' : '' }}>III</option><option value="IV" {{ $ind->suffix == 'IV' ? 'selected' : '' }}>IV</option><option value="V" {{ $ind->suffix == 'V' ? 'selected' : '' }}>V</option></select></div>
                                                 <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-calendar"></i>Birthdate</label><input type="date" name="birthdate" class="form-control" value="{{ $ind->birthdate ? \Carbon\Carbon::parse($ind->birthdate)->format('Y-m-d') : '' }}" required max="{{ date('Y-m-d') }}"></div>
-                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-venus-mars"></i>Gender</label><select class="form-select" name="gender" required><option value="male" {{ $ind->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $ind->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $ind->gender == 'other' ? 'selected' : '' }}>Other</option></select></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-venus-mars"></i>Gender</label><select class="form-select" name="gender" required><option value="male" {{ $ind->gender == 'male' ? 'selected' : '' }}>Male</option><option value="female" {{ $ind->gender == 'female' ? 'selected' : '' }}>Female</option><option value="other" {{ $ind->gender == 'other' ? 'selected' : '' }}>Other</option><option value="prefer not to say" {{ $ind->gender == 'prefer not to say' ? 'selected' : '' }}>Prefer not to say</option></select></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-ring"></i>Civil Status</label><select class="form-select" name="civil_status" required><option value="single" {{ $ind->civil_status == 'single' ? 'selected' : '' }}>Single</option><option value="married" {{ $ind->civil_status == 'married' ? 'selected' : '' }}>Married</option><option value="widowed" {{ $ind->civil_status == 'widowed' ? 'selected' : '' }}>Widowed</option><option value="separated" {{ $ind->civil_status == 'separated' ? 'selected' : '' }}>Separated</option><option value="divorced" {{ $ind->civil_status == 'divorced' ? 'selected' : '' }}>Divorced</option></select></div>
+                                                <div class="edit-field edit-col-4"><label class="form-label"><i class="fas fa-location-dot"></i>Place of Birth</label><input type="text" name="birth_place" class="form-control" value="{{ $ind->birth_place }}" required></div>
                                             </div></div>
                                         </div>
 
@@ -1779,7 +1471,8 @@
                                             <div class="edit-section-head"><span class="edit-section-icon"><i class="fas fa-folder-open"></i></span><div><div class="edit-section-title">Documents</div><p class="edit-section-help">Leave uploads empty to keep the current submitted files.</p></div></div>
                                             <div class="edit-section-body"><div class="edit-form-grid">
                                                 <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-file-image"></i>Proof of Residency</label><input type="file" name="primary_proof" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->primary_proof)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->primary_proof) }}</span>@endif</div></div>
-                                                <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-id-card"></i>Valid ID</label><input type="file" name="valid_id_path" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->valid_id_path)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->valid_id_path) }}</span>@endif</div></div>
+                                                <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-id-card"></i>Valid ID - Front</label><input type="file" name="valid_id_path" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->valid_id_path)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->valid_id_path) }}</span>@endif</div></div>
+                                                <div class="edit-field edit-col-6"><div class="edit-file-card"><label class="form-label"><i class="fas fa-id-card"></i>Valid ID - Back</label><input type="file" name="valid_id_back_path" class="form-control" accept="image/*,.pdf"><small>Upload image or PDF. Leave empty to keep current file.</small>@if($ind->valid_id_back_path)<span class="edit-current-file"><i class="fas fa-circle-info"></i>Current: {{ basename($ind->valid_id_back_path) }}</span>@endif</div></div>
                                                 <div class="edit-field edit-col-12"><span class="edit-required-note"><i class="fas fa-circle-info"></i> Only replace documents when the applicant submitted corrected files.</span></div>
                                             </div></div>
                                         </div>
@@ -1835,7 +1528,7 @@
                             <h5 class="modal-title"><i class="fas fa-pen-to-square me-2"></i>Update application status</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" onsubmit="return handleUpdateStatusSubmit(event, this)">
+                        <form method="POST" action="{{ route('admin.indigency.status', $ind->id) }}" data-submit-call="handleUpdateStatusSubmit" data-submit-pass="event,self">
                             @csrf
                             <div class="modal-body">
                                 <div class="status-flow-card">
@@ -1879,7 +1572,6 @@
             </div>
             @endforeach
 
-            <!-- Global Image Zoom Modal -->
             <div class="modal fade image-zoom-modal" id="globalImageZoomModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
@@ -1901,352 +1593,26 @@
             </div>
 
             @if ($errors->any() && session('form_type') == 'add')
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
-                    addModal.show();
-                });
-            </script>
+            <script src="{{ asset('js/pages/admin/admin_indigency.js') }}"></script>
             @endif
 
             @if ($errors->any() && session('form_type') && Str::startsWith(session('form_type'), 'edit_'))
                 @php
                     $editId = str_replace('edit_', '', session('form_type'));
                 @endphp
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var editModal = new bootstrap.Modal(document.getElementById('editIndigencyModal{{ $editId }}'));
-                        editModal.show();
-                    });
-                </script>
+                @include('shared.js-config', [
+    'id' => 'js-config-admin-admin-indigency-1',
+    'data' => [
+        'v1' => e($editId),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_indigency-dynamic1.js') }}"></script>
             @endif
                     </div>
 @endsection
 
 @push('scripts')
-<script>
-        // Archives records normally, but restores them when the Archived filter is active.
-        function bulkDelete() {
-            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
-            const bulkForm = document.getElementById('bulkForm');
-
-            if (!bulkForm) {
-                return;
-            }
-
-            const action = bulkForm.dataset.bulkAction === 'restore' ? 'restore' : 'archive';
-            const isRestore = action === 'restore';
-            const actionLabel = isRestore ? 'restore' : 'archive';
-            const actionTitle = isRestore ? 'Bulk Restore' : 'Bulk Archive';
-
-            if (checkboxes.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Selection',
-                    text: `Please select at least one application to ${actionLabel}.`,
-                    confirmButtonColor: isRestore ? '#198754' : '#d33'
-                });
-                return;
-            }
-
-            Swal.fire({
-                title: `Confirm ${actionTitle}`,
-                text: `Are you sure you want to ${actionLabel} ${checkboxes.length} selected application(s)?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: isRestore ? '#198754' : '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: isRestore ? 'Yes, Restore' : 'Yes, Archive'
-            }).then((result) => {
-                if (!result.isConfirmed) {
-                    return;
-                }
-
-                // Prevent duplicate IDs when the action is triggered more than once.
-                bulkForm.querySelectorAll('input[name="ids[]"]').forEach(input => input.remove());
-
-                checkboxes.forEach((checkbox) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'ids[]';
-                    input.value = checkbox.value;
-                    bulkForm.appendChild(input);
-                });
-
-                bulkForm.submit();
-            });
-        }
-
-        // Export CSV function
-        function exportCSV() {
-
-            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
-            const exportForm = document.getElementById('exportForm');
-
-            // If nothing selected → Ask to export all
-            if (checkboxes.length === 0) {
-
-                Swal.fire({
-                    icon: 'question',
-                    title: 'Export All?',
-                    text: 'No applications selected. Export all records?',
-                    showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, Export All'
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-                        exportForm.submit();
-                    }
-
-                });
-
-                return;
-            }
-
-            // If selected → Confirm export selected
-            Swal.fire({
-                title: 'Export Selected?',
-                text: `Export ${checkboxes.length} selected application(s)?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Export'
-            }).then((result) => {
-
-                if (result.isConfirmed) {
-
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'ids[]';
-                        input.value = cb.value;
-                        exportForm.appendChild(input);
-                    });
-
-                    exportForm.submit();
-                }
-
-            });
-        }
-
-        // Select all checkboxes
-        function toggleSelectAll() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.application-checkbox');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-            });
-        }
-
-        // Confirm delete with SweetAlert
-        function confirmDelete(event, message) {
-            event.preventDefault();
-            const form = event.target.closest('form');
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: message || 'You won\'t be able to revert this!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, proceed!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-            
-            return false;
-        }
-
-        // Show/hide other purpose field
-        document.getElementById('purpose')?.addEventListener('change', function() {
-            const otherField = document.getElementById('otherPurposeField');
-            if (this.value === 'other') {
-                otherField.style.display = 'block';
-            } else {
-                otherField.style.display = 'none';
-            }
-        });
-
-        // Update select all checkbox when individual checkboxes change
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Swal if not loaded
-            if (typeof Swal === 'undefined') {
-                console.log('SweetAlert2 not loaded, using default confirm');
-                window.confirmDelete = function(event, message) {
-                    return confirm(message || 'Are you sure?');
-                };
-            }
-
-            const checkboxes = document.querySelectorAll('.application-checkbox');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            
-            if (checkboxes.length > 0 && selectAllCheckbox) {
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-                        
-                        selectAllCheckbox.checked = allChecked;
-                        selectAllCheckbox.indeterminate = !allChecked && anyChecked;
-                    });
-                });
-            }
-
-            // Add loading animation to filter form
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-
-            // Show modal if there are validation errors
-            @if ($errors->any() && session('form_type') == 'add')
-                var addModal = new bootstrap.Modal(document.getElementById('addApplicationModal'));
-                addModal.show();
-            @endif
-
-            // Real-time validation for add form
-            const addForm = document.getElementById('addApplicationForm');
-            if (addForm) {
-                // Contact number validation
-                const contact = document.querySelector('input[name="contact_number"]');
-                if (contact) {
-                    contact.addEventListener('input', function() {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length > 11) {
-                            this.value = this.value.slice(0, 11);
-                        }
-                        if (this.value.length > 0 && !this.value.startsWith('09')) {
-                            this.setCustomValidity('Contact number must start with 09');
-                            this.classList.add('is-invalid');
-                        }
-                        else if (this.value.length > 0 && this.value.length !== 11) {
-                            this.setCustomValidity('Contact number must be exactly 11 digits');
-                            this.classList.add('is-invalid');
-                        }
-                        else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Birthdate validation
-                const birthdate = document.querySelector('input[name="birthdate"]');
-                if (birthdate) {
-                    birthdate.addEventListener('change', function() {
-                        const selectedDate = new Date(this.value);
-                        const today = new Date();
-                        if (selectedDate > today) {
-                            this.setCustomValidity('Birthdate cannot be in the future');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Monthly income is a controlled select; no numeric parsing is needed.
-                const income = document.querySelector('[name="monthly_income"]');
-                if (income) {
-                    income.addEventListener('change', function() {
-                        this.setCustomValidity('');
-                        this.classList.remove('is-invalid');
-                    });
-                }
-
-                // Household members validation
-                const household = document.querySelector('input[name="household_members"]');
-                if (household) {
-                    household.addEventListener('input', function() {
-                        this.value = this.value.replace(/\D/g, '');
-                        const raw = this.value;
-                        if (!/^(?:[1-9]|1\d|20)$/.test(raw)) {
-                            this.setCustomValidity('Household members must be between 1 and 20');
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.setCustomValidity('');
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // File size validation
-                const fileInputs = addForm.querySelectorAll('input[type="file"]');
-                fileInputs.forEach(input => {
-                    input.addEventListener('change', function() {
-                        if (this.files && this.files[0]) {
-                            const fileSize = this.files[0].size / 1024 / 1024; // in MB
-                            if (fileSize > 5) {
-                                this.setCustomValidity('File size must not exceed 5MB');
-                                this.classList.add('is-invalid');
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        }
-                    });
-                });
-            }
-        });
-
-        // Auto-submit search after typing (optional)
-        let searchTimeout;
-        document.getElementById('globalSearch')?.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('searchForm').submit();
-            }, 500);
-        });
-
-        function openZoomModal(imageUrl) {
-            const zoomImage = document.getElementById('zoomedImage');
-            zoomImage.src = imageUrl;
-
-            const zoomModal = new bootstrap.Modal(document.getElementById('globalImageZoomModal'));
-            zoomModal.show();
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const residentSearchInput = document.getElementById('residentSearchInput');
-            const residentSearchResults = document.getElementById('residentSearchResults');
-            const clearResidentSearch = document.getElementById('clearResidentSearch');
-            const residentSelect = document.getElementById('addResidentSelect');
-            const selectedResidentCard = document.getElementById('selectedResidentCard');
-            const selectedResidentName = document.getElementById('selectedResidentName');
-            const selectedResidentId = document.getElementById('selectedResidentId');
-            const selectedResidentAddress = document.getElementById('selectedResidentAddress');
-            const changeResidentButton = document.getElementById('changeResidentBtn');
-            const residentStatus = document.getElementById('addResidentStatus');
-            const residentIdStatus = document.getElementById('addResidentIdStatus');
-            const addForm = document.getElementById('addApplicationForm');
-
-            if (!residentSearchInput || !residentSearchResults || !residentSelect || !addForm) {
-                return;
-            }
-
-            @php
+@php
                 $residentsForJs = $residents->map(function ($resident) {
                     return [
                         'id' => $resident->id,
@@ -2256,964 +1622,35 @@
                         'suffix' => $resident->suffix,
                         'birthdate' => optional($resident->birthdate)->format('Y-m-d'),
                         'gender' => strtolower((string) $resident->gender),
+                        'civil_status' => strtolower((string) $resident->civil_status),
+                        'birth_place' => $resident->place_of_birth,
                         'address' => $resident->address,
                         'contact' => $resident->contact,
                         'email' => $resident->email,
                         'valid_id' => $resident->valid_id,
+                        'valid_id_back' => $resident->valid_id_back,
+                        'valid_id_status' => $resident->valid_id_status,
+                        'valid_id_verified' => (bool) $resident->valid_id_verified,
                         'full_name' => $resident->full_name,
                     ];
                 })->values();
-            @endphp
-            const residents = @json($residentsForJs);
-
-            const fields = {
-                first_name: addForm.querySelector('[name="first_name"]'),
-                middle_name: addForm.querySelector('[name="middle_name"]'),
-                last_name: addForm.querySelector('[name="last_name"]'),
-                suffix: addForm.querySelector('[name="suffix"]'),
-                birthdate: addForm.querySelector('[name="birthdate"]'),
-                gender: addForm.querySelector('[name="gender"]'),
-                address: addForm.querySelector('[name="address"]'),
-                contact_number: addForm.querySelector('[name="contact_number"]'),
-                email: addForm.querySelector('[name="email"]')
-            };
-
-            const manualEntryNotice = document.createElement('div');
-            manualEntryNotice.className = 'resident-autofill-status';
-            manualEntryNotice.innerHTML = '<i class="fas fa-pen-to-square"></i><span>No resident selected. You may enter applicant details manually.</span>';
-            manualEntryNotice.id = 'manualEntryNotice';
-
-            const searchWrapper = residentSearchInput.closest('.resident-search-wrapper');
-            if (searchWrapper) {
-                searchWrapper.insertAdjacentElement('afterend', manualEntryNotice);
-            }
-
-            function normalize(value) {
-                return String(value ?? '')
-                    .toLowerCase()
-                    .replace(/^#/, '')
-                    .trim();
-            }
-
-            function escapeHtml(value) {
-                return String(value ?? '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;');
-            }
-
-            function formatResidentAddress(value) {
-                return value ? escapeHtml(value) : 'Address not recorded';
-            }
-
-            function updateSearchState(open) {
-                residentSearchInput.setAttribute('aria-expanded', open ? 'true' : 'false');
-                if (open) {
-                    residentSearchResults.classList.remove('d-none');
-                } else {
-                    residentSearchResults.classList.add('d-none');
-                }
-            }
-
-            function renderResults(query) {
-                const search = normalize(query);
-                residentSearchResults.innerHTML = '';
-
-                if (!search) {
-                    updateSearchState(false);
-                    return;
-                }
-
-                const matches = residents
-                    .filter(function (resident) {
-                        const name = normalize(resident.full_name);
-                        const id = normalize(resident.id);
-                        return name.includes(search) || id.includes(search);
-                    })
-                    .slice(0, 8);
-
-                if (!matches.length) {
-                    residentSearchResults.innerHTML = `
-                        <div class="resident-no-results">
-                            <div class="no-results-icon" aria-hidden="true">
-                                <i class="fas fa-user-slash"></i>
-                            </div>
-                            <div>
-                                <strong>No resident found</strong>
-                                <small>Try the resident's name or Resident ID.</small>
-                            </div>
-                        </div>
-                    `;
-                    updateSearchState(true);
-                    return;
-                }
-
-                matches.forEach(function (resident) {
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.className = 'resident-result-item';
-                    button.setAttribute('role', 'option');
-
-                    button.innerHTML = `
-                        <div class="resident-result-avatar" aria-hidden="true">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="resident-result-content">
-                            <div class="resident-result-name">
-                                ${escapeHtml(resident.full_name)}
-                            </div>
-                            <div class="resident-result-meta">
-                                Resident ID #${escapeHtml(resident.id)}
-                                <span>•</span>
-                                ${formatResidentAddress(resident.address)}
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right resident-result-arrow" aria-hidden="true"></i>
-                    `;
-
-                    button.addEventListener('click', function () {
-                        selectResident(resident);
-                    });
-
-                    residentSearchResults.appendChild(button);
-                });
-
-                updateSearchState(true);
-            }
-
-            function setField(field, value) {
-                if (!field) return;
-
-                field.value = value ?? '';
-                field.classList.add('resident-autofilled');
-            }
-
-            function clearField(field) {
-                if (!field) return;
-
-                field.value = '';
-                field.classList.remove('resident-autofilled');
-            }
-
-            function setResidentStatus(message, type = '') {
-                if (!residentStatus) return;
-
-                residentStatus.className = 'resident-autofill-status' + (type ? ` ${type}` : '');
-                residentStatus.innerHTML = message;
-            }
-
-            function updateValidIdStatus(resident) {
-                if (!residentIdStatus) return;
-
-                if (resident?.valid_id) {
-                    residentIdStatus.className = 'resident-document-status is-ready';
-                    residentIdStatus.innerHTML = `
-                        <i class="fas fa-circle-check me-1"></i>
-                        <strong>Valid ID already on file.</strong>
-                        No new upload is required unless you want to replace it.
-                    `;
-                } else {
-                    residentIdStatus.className = 'resident-document-status is-warning';
-                    residentIdStatus.innerHTML = `
-                        <i class="fas fa-triangle-exclamation me-1"></i>
-                        <strong>No Valid ID on file.</strong>
-                        Upload a valid ID before submitting this application.
-                    `;
-                }
-            }
-
-            function selectResident(resident) {
-                residentSelect.value = resident.id;
-
-                residentSearchInput.value = resident.full_name || '';
-                clearResidentSearch.classList.remove('d-none');
-
-                selectedResidentName.textContent = resident.full_name || 'Unnamed resident';
-                selectedResidentId.textContent = `Resident ID #${resident.id}`;
-                selectedResidentAddress.textContent = resident.address || 'Address not recorded';
-
-                selectedResidentCard.classList.remove('d-none');
-                updateSearchState(false);
-
-                setField(fields.first_name, resident.first_name);
-                setField(fields.middle_name, resident.middle_name);
-                setField(fields.last_name, resident.last_name);
-                setField(fields.suffix, resident.suffix);
-                setField(fields.birthdate, resident.birthdate);
-                setField(fields.gender, resident.gender);
-                setField(fields.address, resident.address);
-                setField(fields.contact_number, resident.contact);
-                setField(fields.email, resident.email);
-
-                setResidentStatus(
-                    '<i class="fas fa-circle-check"></i><span>Resident information loaded from the registered profile. Review the application details before submitting.</span>',
-                    'is-ready'
-                );
-
-                manualEntryNotice.classList.add('d-none');
-                updateValidIdStatus(resident);
-            }
-
-            function clearResidentSelection({ clearFields = true } = {}) {
-                residentSelect.value = '';
-                residentSearchInput.value = '';
-                clearResidentSearch.classList.add('d-none');
-
-                selectedResidentCard.classList.add('d-none');
-                updateSearchState(false);
-
-                if (clearFields) {
-                    Object.values(fields).forEach(clearField);
-                }
-
-                setResidentStatus(
-                    '<i class="fas fa-circle-info"></i><span>Select a registered resident to automatically fill identity and contact details.</span>'
-                );
-
-                manualEntryNotice.classList.remove('d-none');
-
-                if (residentIdStatus) {
-                    residentIdStatus.className = 'resident-document-status d-none';
-                    residentIdStatus.innerHTML = '';
-                }
-            }
-
-            function initializeOldResident() {
-                const oldResidentId = residentSelect.value;
-
-                if (!oldResidentId) {
-                    manualEntryNotice.classList.remove('d-none');
-                    return;
-                }
-
-                const resident = residents.find(function (item) {
-                    return String(item.id) === String(oldResidentId);
-                });
-
-                if (resident) {
-                    selectResident(resident);
-                } else {
-                    residentSelect.value = '';
-                }
-            }
-
-            residentSearchInput.addEventListener('input', function () {
-                const value = this.value.trim();
-
-                clearResidentSearch.classList.toggle('d-none', !value);
-
-                if (residentSelect.value) {
-                    residentSelect.value = '';
-                    selectedResidentCard.classList.add('d-none');
-
-                    Object.values(fields).forEach(function (field) {
-                        if (field) {
-                            field.classList.remove('resident-autofilled');
-                        }
-                    });
-
-                    residentIdStatus?.classList.add('d-none');
-                    manualEntryNotice.classList.remove('d-none');
-                }
-
-                renderResults(value);
-            });
-
-            residentSearchInput.addEventListener('focus', function () {
-                if (this.value.trim()) {
-                    renderResults(this.value);
-                }
-            });
-
-            clearResidentSearch.addEventListener('click', function () {
-                clearResidentSelection();
-                residentSearchInput.focus();
-            });
-
-            changeResidentButton.addEventListener('click', function () {
-                clearResidentSelection();
-                residentSearchInput.focus();
-            });
-
-            document.addEventListener('click', function (event) {
-                if (!event.target.closest('.resident-search-wrapper')) {
-                    updateSearchState(false);
-                }
-            });
-
-            residentSearchInput.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    updateSearchState(false);
-                }
-            });
-
-            addForm.addEventListener('submit', function (event) {
-                const savedIdResident = residentSelect.value
-                    ? residents.find(function (resident) {
-                        return String(resident.id) === String(residentSelect.value);
-                    })
-                    : null;
-
-                const uploadedId = addForm.querySelector('[name="valid_id_path"]');
-                const hasUploadedId = !!uploadedId?.files?.length;
-                const hasSavedId = !!savedIdResident?.valid_id;
-
-                if (!hasSavedId && !hasUploadedId) {
-                    event.preventDefault();
-
-                    if (residentIdStatus) {
-                        residentIdStatus.className = 'resident-document-status is-warning';
-                        residentIdStatus.innerHTML = `
-                            <i class="fas fa-triangle-exclamation me-1"></i>
-                            <strong>Valid ID required.</strong>
-                            Select a resident with a saved Valid ID or upload one below.
-                        `;
-                    }
-
-                    uploadedId?.focus();
-                    return;
-                }
-
-                const submitButton = document.getElementById('submitAddForm');
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving...';
-                }
-            });
-
-            const uploadedIdInput = document.getElementById('add_valid_id_path');
-
-            uploadedIdInput?.addEventListener('change', function () {
-                if (!this.files?.length || !residentIdStatus) {
-                    return;
-                }
-
-                residentIdStatus.className = 'resident-document-status is-ready';
-                residentIdStatus.innerHTML = `
-                    <i class="fas fa-circle-check me-1"></i>
-                    <strong>Valid ID selected.</strong>
-                    The uploaded file will be used for this application.
-                `;
-            });
-
-            initializeOldResident();
-        });
-
-        // Real-time validation for edit forms
-        @if(auth('admin')->user()->hasPermission('update_indigency'))
-            @foreach($indigency as $ind)
-            (function(editId) {
-                const editForm = document.getElementById('editIndigencyForm' + editId);
-                if (editForm) {
-                    // Purpose other field toggle
-                    const purposeSelect = document.getElementById('edit_purpose_' + editId);
-                    const otherField = document.getElementById('edit_otherPurposeField_' + editId);
-                    if (purposeSelect && otherField) {
-                        purposeSelect.addEventListener('change', function() {
-                            if (this.value === 'other') {
-                                otherField.style.display = 'block';
-                            } else {
-                                otherField.style.display = 'none';
-                            }
-                        });
-                    }
-
-                    // Contact number validation
-                    const contact = document.getElementById('edit_contact_number_' + editId);
-                    if (contact) {
-                        contact.addEventListener('input', function() {
-                            this.value = this.value.replace(/[^0-9]/g, '');
-                            if (this.value.length > 11) {
-                                this.value = this.value.slice(0, 11);
-                            }
-                            if (this.value.length > 0 && !this.value.startsWith('09')) {
-                                this.setCustomValidity('Contact number must start with 09');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Contact number must start with 09';
-                            }
-                            else if (this.value.length > 0 && this.value.length !== 11) {
-                                this.setCustomValidity('Contact number must be exactly 11 digits');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Contact number must be exactly 11 digits';
-                            }
-                            else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Birthdate validation
-                    const birthdate = document.getElementById('edit_birthdate_' + editId);
-                    if (birthdate) {
-                        birthdate.addEventListener('change', function() {
-                            const selectedDate = new Date(this.value);
-                            const today = new Date();
-                            if (selectedDate > today) {
-                                this.setCustomValidity('Birthdate cannot be in the future');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Birthdate cannot be in the future';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Email validation
-                    const email = document.getElementById('edit_email_' + editId);
-                    if (email) {
-                        email.addEventListener('input', function() {
-                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            if (!emailPattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Please enter a valid email address');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Please enter a valid email address';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Monthly income validation
-                    const income = document.getElementById('edit_monthly_income_' + editId);
-                    if (income) {
-                        income.addEventListener('input', function() {
-                            const val = parseFloat(this.value);
-                            if (val < 0) {
-                                this.setCustomValidity('Monthly income cannot be negative');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Monthly income cannot be negative';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // Household members validation
-                    const household = document.getElementById('edit_household_members_' + editId);
-                    if (household) {
-                        household.addEventListener('input', function() {
-                            this.value = this.value.replace(/\D/g, '');
-                            const raw = this.value;
-                            if (!/^(?:[1-9]|1\d|20)$/.test(raw)) {
-                                this.setCustomValidity('Household members must be between 1 and 20');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Household members must be between 1 and 20';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    // File size validation
-                    const validId = document.getElementById('edit_valid_id_path_' + editId);
-                    if (validId) {
-                        validId.addEventListener('change', function() {
-                            if (this.files && this.files[0]) {
-                                const fileSize = this.files[0].size / 1024 / 1024; // in MB
-                                if (fileSize > 5) {
-                                    this.setCustomValidity('File size must not exceed 5MB');
-                                    this.classList.add('is-invalid');
-                                    
-                                    let feedback = this.nextElementSibling;
-                                    if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                        feedback = document.createElement('div');
-                                        feedback.className = 'invalid-feedback';
-                                        this.parentNode.appendChild(feedback);
-                                    }
-                                    feedback.textContent = 'File size must not exceed 5MB';
-                                } else {
-                                    this.setCustomValidity('');
-                                    this.classList.remove('is-invalid');
-                                }
-                            }
-                        });
-                    }
-
-                    // Name validation (letters, spaces, hyphens only)
-                    const firstName = document.getElementById('edit_first_name_' + editId);
-                    if (firstName) {
-                        firstName.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
-                            if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('First name can only contain letters, spaces, and hyphens');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'First name can only contain letters, spaces, and hyphens';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-
-                    const lastName = document.getElementById('edit_last_name_' + editId);
-                    if (lastName) {
-                        lastName.addEventListener('input', function() {
-                            const namePattern = /^[a-zA-Z\s\-]+$/;
-                            if (!namePattern.test(this.value) && this.value.length > 0) {
-                                this.setCustomValidity('Last name can only contain letters, spaces, and hyphens');
-                                this.classList.add('is-invalid');
-                                
-                                let feedback = this.nextElementSibling;
-                                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
-                                    feedback = document.createElement('div');
-                                    feedback.className = 'invalid-feedback';
-                                    this.parentNode.appendChild(feedback);
-                                }
-                                feedback.textContent = 'Last name can only contain letters, spaces, and hyphens';
-                            } else {
-                                this.setCustomValidity('');
-                                this.classList.remove('is-invalid');
-                            }
-                        });
-                    }
-                }
-            })('{{ $ind->id }}');
-            @endforeach
-        @endif
-    </script>
-
-<script>
-        async function loadApplicationHistory(appId) {
-            const list = document.getElementById('historyList' + appId);
-            if (!list) return;
-            list.innerHTML = 'Loading history...';
-            try {
-                const params = new URLSearchParams({ request_type: 'indigency', request_id: String(appId) });
-                const response = await fetch("{{ route('admin.notifications.remarksHistory') }}?" + params.toString(), {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                if (!response.ok) throw new Error('Failed to load history.');
-                const payload = await response.json();
-                const timeline = Array.isArray(payload.timeline) ? payload.timeline : [];
-                if (timeline.length === 0) {
-                    list.innerHTML = '<div class="text-muted">No activity found for this application yet.</div>';
-                    return;
-                }
-                list.innerHTML = timeline.map(function(item) {
-                    const details = item.details ? '<div class="text-muted mt-1">' + escapeHtmlHistory(item.details) + '</div>' : '';
-                    const actor = item.actor
-                        ? '<div class="small text-muted">' + escapeHtmlHistory(item.actor) + ' &middot; ' + escapeHtmlHistory(item.created_at || '') + '</div>'
-                        : '<div class="small text-muted">' + escapeHtmlHistory(item.created_at || '') + '</div>';
-                    return '<div class="activity-item py-2 border-bottom"><div class="fw-semibold">' + escapeHtmlHistory(item.title || 'Activity') + '</div>' + actor + details + '</div>';
-                }).join('');
-            } catch (error) {
-                list.innerHTML = '<div class="text-danger">Unable to load history right now.</div>';
-            }
-        }
-
-        function escapeHtmlHistory(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        function switchViewTab(appId, tabName) {
-            const tabButton = document.getElementById(tabName + '-tab-' + appId);
-            if (!tabButton) return;
-            const tab = new bootstrap.Tab(tabButton);
-            tab.show();
-        }
-
-        function toggleViewFooter(appId, activeTab) {
-            const detailsFooter = document.getElementById('viewFooterDetails' + appId);
-            const editFooter = document.getElementById('viewFooterEdit' + appId);
-            const historyFooter = document.getElementById('viewFooterHistory' + appId);
-            if (!detailsFooter || !editFooter || !historyFooter) return;
-            detailsFooter.classList.add('d-none');
-            editFooter.classList.add('d-none');
-            historyFooter.classList.add('d-none');
-            if (activeTab === 'details') detailsFooter.classList.remove('d-none');
-            else if (activeTab === 'edit') editFooter.classList.remove('d-none');
-            else historyFooter.classList.remove('d-none');
-        }
-
-        function toggleNotifyOptions(form, status) {
-            const notifyWrap = form.querySelector('[data-notify-wrap]');
-            if (!notifyWrap) return;
-
-            const emailToggle = form.querySelector('input[name="notify_email"]');
-            const smsToggle = form.querySelector('input[name="notify_sms"]');
-            const hasEmail = notifyWrap.getAttribute('data-has-email') === '1';
-            const hasSms = notifyWrap.getAttribute('data-has-sms') === '1';
-            const allowNotify = ['approved', 'ready_pickup', 'rejected'].includes(String(status || '').toLowerCase());
-
-            notifyWrap.classList.toggle('d-none', !allowNotify);
-
-            if (emailToggle) {
-                emailToggle.disabled = !allowNotify || !hasEmail;
-                emailToggle.checked = allowNotify && hasEmail;
-            }
-            if (smsToggle) {
-                smsToggle.disabled = !allowNotify || !hasSms;
-                smsToggle.checked = allowNotify && hasSms;
-            }
-        }
-
-        function handleUpdateStatusSubmit(event, form) {
-            const statusInput = form.querySelector('.selected-status-input');
-            const remarksInput = form.querySelector('textarea[name="remarks"]');
-            const status = String(statusInput?.value || '').toLowerCase();
-            const remarks = String(remarksInput?.value || '').trim();
-            if (remarks.length > 40) {
-                event.preventDefault();
-                alert('Remarks must not exceed 40 characters.');
-                return false;
-            }
-            if (status === 'rejected' && remarks === '') {
-                event.preventDefault();
-                alert('Remarks are required when status is Rejected.');
-                return false;
-            }
-            return confirmDelete(event, 'Confirm status update?');
-        }
-
-        function prepareRemarksAndConfirm(event, form, confirmMessage) {
-            const statusInput = form.querySelector('input[name="status"]');
-            const remarksInput = form.querySelector('input[name="remarks"]');
-            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
-
-            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
-                const remarks = prompt('Please enter remarks before sending this notification:');
-                if (remarks === null) {
-                    event.preventDefault();
-                    return false;
-                }
-                const trimmedRemarks = remarks.trim();
-                if (trimmedRemarks === '') {
-                    event.preventDefault();
-                    alert('Remarks are required for rejected or dropped notifications.');
-                    return false;
-                }
-                if (trimmedRemarks.length > 40) {
-                    event.preventDefault();
-                    alert('Remarks must not exceed 40 characters.');
-                    return false;
-                }
-                remarksInput.value = trimmedRemarks;
-            }
-
-            if (!confirm(confirmMessage)) {
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.status-grid').forEach(function(grid) {
-                const input = grid.closest('form')?.querySelector('.selected-status-input');
-                const form = grid.closest('form');
-                const current = grid.getAttribute('data-current-status') || '';
-                function activateStatus(status) {
-                    grid.querySelectorAll('.status-option').forEach(function(btn) {
-                        btn.classList.toggle('active', btn.getAttribute('data-status') === status);
-                    });
-                    if (input) input.value = status;
-                    if (form) toggleNotifyOptions(form, status);
-                }
-                grid.querySelectorAll('.status-option').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        activateStatus(button.getAttribute('data-status'));
-                    });
-                });
-                activateStatus(current);
-            });
-
-            document.querySelectorAll('[id^="viewModal"]').forEach(function(modalEl) {
-                const appId = modalEl.id.replace('viewModal', '');
-                modalEl.querySelectorAll('[data-bs-toggle="pill"]').forEach(function(tabBtn) {
-                    tabBtn.addEventListener('shown.bs.tab', function() {
-                        if (tabBtn.id.indexOf('details-tab-') === 0) toggleViewFooter(appId, 'details');
-                        else if (tabBtn.id.indexOf('edit-tab-') === 0) toggleViewFooter(appId, 'edit');
-                        else {
-                            toggleViewFooter(appId, 'history');
-                            loadApplicationHistory(appId);
-                        }
-                    });
-                });
-                modalEl.addEventListener('shown.bs.modal', function() {
-                    toggleViewFooter(appId, 'details');
-                });
-            });
-
-            document.querySelectorAll('[data-switch-tab]').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const appId = button.getAttribute('data-app-id');
-                    const tabName = button.getAttribute('data-switch-tab');
-                    switchViewTab(appId, tabName);
-                });
-            });
-
-            function setFieldValidity(field, message) {
-                if (!field) return;
-                let feedback = field.parentNode.querySelector('.invalid-feedback.dynamic-feedback');
-                if (!feedback) {
-                    feedback = document.createElement('div');
-                    feedback.className = 'invalid-feedback dynamic-feedback';
-                    field.parentNode.appendChild(feedback);
-                }
-
-                field.setCustomValidity(message || '');
-                if (message) {
-                    field.classList.add('is-invalid');
-                    feedback.textContent = message;
-                } else {
-                    field.classList.remove('is-invalid');
-                    feedback.textContent = '';
-                }
-            }
-
-            function attachQuickEditValidation(form) {
-                const firstName = form.querySelector('input[name="first_name"]');
-                const middleName = form.querySelector('input[name="middle_name"]');
-                const lastName = form.querySelector('input[name="last_name"]');
-                const birthdate = form.querySelector('input[name="birthdate"]');
-                const email = form.querySelector('input[name="email"]');
-                const contact = form.querySelector('input[name="contact_number"]');
-                const address = form.querySelector('textarea[name="address"]');
-                const household = form.querySelector('input[name="household_members"]');
-                const purpose = form.querySelector('select[name="purpose"]');
-                const purposeOther = form.querySelector('input[name="purpose_other"]');
-                const fileInputs = form.querySelectorAll('input[type="file"]');
-
-                const namePattern = /^[A-Za-z][A-Za-z .'-]*$/;
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const allowedMime = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                const allowedExt = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-                function validateName(field, label, required) {
-                    if (!field) return true;
-                    const val = field.value.trim();
-                    if (!val && required) {
-                        setFieldValidity(field, label + ' is required.');
-                        return false;
-                    }
-                    if (!val && !required) {
-                        setFieldValidity(field, '');
-                        return true;
-                    }
-                    if (val.length < 2 || val.length > 50 || !namePattern.test(val)) {
-                        setFieldValidity(field, label + ' must be 2-50 characters and contain letters only.');
-                        return false;
-                    }
-                    setFieldValidity(field, '');
-                    return true;
-                }
-
-                function validateBirthdate() {
-                    if (!birthdate) return true;
-                    if (!birthdate.value) {
-                        setFieldValidity(birthdate, 'Birthdate is required.');
-                        return false;
-                    }
-                    const selected = new Date(birthdate.value + 'T00:00:00');
-                    const today = new Date();
-                    if (selected > today) {
-                        setFieldValidity(birthdate, 'Birthdate cannot be in the future.');
-                        return false;
-                    }
-                    setFieldValidity(birthdate, '');
-                    return true;
-                }
-
-                function validateEmail() {
-                    if (!email) return true;
-                    const val = email.value.trim();
-                    if (!val) {
-                        setFieldValidity(email, 'Email is required.');
-                        return false;
-                    }
-                    if (!emailPattern.test(val)) {
-                        setFieldValidity(email, 'Please enter a valid email address.');
-                        return false;
-                    }
-                    setFieldValidity(email, '');
-                    return true;
-                }
-
-                function validateContact() {
-                    if (!contact) return true;
-                    contact.value = contact.value.replace(/\D/g, '').slice(0, 11);
-                    if (!contact.value) {
-                        setFieldValidity(contact, 'Contact number is required.');
-                        return false;
-                    }
-                    if (!/^09\d{9}$/.test(contact.value)) {
-                        setFieldValidity(contact, 'Use format 09XXXXXXXXX.');
-                        return false;
-                    }
-                    setFieldValidity(contact, '');
-                    return true;
-                }
-
-                function validateAddress() {
-                    if (!address) return true;
-                    if (address.value.trim().length < 8) {
-                        setFieldValidity(address, 'Address must be at least 8 characters.');
-                        return false;
-                    }
-                    setFieldValidity(address, '');
-                    return true;
-                }
-
-                function validateHousehold() {
-                    if (!household) return true;
-                    household.value = household.value.replace(/\D/g, '');
-                    const raw = household.value;
-                    const val = Number(raw);
-                    if (!/^(?:[1-9]|1\d|20)$/.test(raw) || Number.isNaN(val)) {
-                        setFieldValidity(household, 'Household members must be between 1 and 20.');
-                        return false;
-                    }
-                    setFieldValidity(household, '');
-                    return true;
-                }
-
-                function validatePurposeOther() {
-                    if (!purpose || !purposeOther) return true;
-                    if (purpose.value === 'other' && purposeOther.value.trim().length < 3) {
-                        setFieldValidity(purposeOther, 'Specify at least 3 characters for other purpose.');
-                        return false;
-                    }
-                    setFieldValidity(purposeOther, '');
-                    return true;
-                }
-
-                function validateFileInput(fileInput) {
-                    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-                        setFieldValidity(fileInput, '');
-                        return true;
-                    }
-                    const file = fileInput.files[0];
-                    const fileSizeMb = file.size / (1024 * 1024);
-                    const extension = (file.name.split('.').pop() || '').toLowerCase();
-                    const mimeOk = file.type ? allowedMime.includes(file.type) : true;
-                    const extOk = allowedExt.includes(extension);
-
-                    if (!mimeOk || !extOk) {
-                        setFieldValidity(fileInput, 'Only PDF, JPG, PNG, GIF, or WEBP files are allowed.');
-                        return false;
-                    }
-                    if (fileSizeMb > 5) {
-                        setFieldValidity(fileInput, 'File size must not exceed 5MB.');
-                        return false;
-                    }
-                    setFieldValidity(fileInput, '');
-                    return true;
-                }
-
-                firstName?.addEventListener('input', function() { validateName(firstName, 'First name', true); });
-                middleName?.addEventListener('input', function() { validateName(middleName, 'Middle name', false); });
-                lastName?.addEventListener('input', function() { validateName(lastName, 'Last name', true); });
-                birthdate?.addEventListener('change', validateBirthdate);
-                email?.addEventListener('input', validateEmail);
-                contact?.addEventListener('input', validateContact);
-                address?.addEventListener('input', validateAddress);
-                household?.addEventListener('input', validateHousehold);
-                purpose?.addEventListener('change', validatePurposeOther);
-                purposeOther?.addEventListener('input', validatePurposeOther);
-                fileInputs.forEach(function(fileInput) {
-                    fileInput.addEventListener('change', function() {
-                        validateFileInput(fileInput);
-                    });
-                });
-
-                form.addEventListener('submit', function(event) {
-                    const isValid = [
-                        validateName(firstName, 'First name', true),
-                        validateName(middleName, 'Middle name', false),
-                        validateName(lastName, 'Last name', true),
-                        validateBirthdate(),
-                        validateEmail(),
-                        validateContact(),
-                        validateAddress(),
-                        validateHousehold(),
-                        validatePurposeOther(),
-                        ...Array.from(fileInputs).map(validateFileInput)
-                    ].every(Boolean);
-
-                    if (!isValid) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                });
-            }
-
-            document.querySelectorAll('form[id^="quickEditForm"]').forEach(function(form) {
-                attachQuickEditValidation(form);
-            });
-
-            var tableResponsive = document.querySelector('.table-responsive');
-            if (!tableResponsive) return;
-
-            tableResponsive.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(toggle) {
-                new bootstrap.Dropdown(toggle, {
-                    popperConfig: function(defaultConfig) {
-                        defaultConfig.strategy = 'fixed';
-                        return defaultConfig;
-                    }
-                });
-            });
-        });
-    </script>
+@endphp
+@include('shared.js-config', [
+    'id' => 'js-config-admin-indigency-main',
+    'data' => [
+        'residents' => $residentsForJs,
+        'showAddModal' => $errors->any() && session('form_type') === 'add',
+        'canUpdate' => auth('admin')->user()->hasPermission('update_indigency'),
+        'applicationIds' => $indigency->pluck('id')->values(),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_indigency-main.js') }}"></script>
+
+@include('shared.js-config', [
+    'id' => 'js-config-admin-admin-indigency-2',
+    'data' => [
+        'v1' => e(route('admin.notifications.remarksHistory')),
+    ],
+])
+<script src="{{ asset('js/pages/admin/admin_indigency-dynamic2.js') }}"></script>
 @endpush

@@ -26,9 +26,8 @@ class IndigencyController extends Controller
     {
         $query = IndigencyApplication::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); // FIXED: added null coalescing
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
-        // Search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
@@ -38,7 +37,6 @@ class IndigencyController extends Controller
             });
         }
 
-        // Status filter
         if ($request->status) {
             if ($request->status === 'deleted') {
                 $query->onlyTrashed();
@@ -46,17 +44,16 @@ class IndigencyController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        // Filter by Income
+        
         if ($request->monthly_income && in_array($request->monthly_income, ['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])) {
             $query->where('monthly_income', $request->monthly_income);
         }
 
-        $total_count = IndigencyApplication::withTrashed()->count(); // Includes archived records
+        $total_count = IndigencyApplication::withTrashed()->count(); 
         $processing_count = IndigencyApplication::where('status', 'processing')->count();
         $approved_count   = IndigencyApplication::where('status', 'approved')->count();
         $rejected_count   = IndigencyApplication::where('status', 'rejected')->count();
 
-        // SORTING
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['first_name', 'monthly_income', 'household_members','created_at'];
@@ -89,7 +86,8 @@ class IndigencyController extends Controller
             ->orderBy('lastname')
             ->get([
                 'id', 'firstname', 'middlename', 'lastname', 'suffix', 'birthdate',
-                'gender', 'address', 'contact', 'email', 'valid_id',
+                'gender', 'civil_status', 'place_of_birth', 'address', 'contact', 'email',
+                'valid_id', 'valid_id_back', 'valid_id_status', 'valid_id_verified',
             ]);
 
         return view('admin.admin_indigency', compact('indigency', 'residents', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
@@ -97,10 +95,9 @@ class IndigencyController extends Controller
 
     public function store(Request $request)
     {
-        // Store form type in session
+        
         session()->flash('form_type', 'add');
 
-        // Normalize phone input before validation.
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
@@ -117,7 +114,9 @@ class IndigencyController extends Controller
                 'last_name' => $selectedResident->lastname,
                 'suffix' => $selectedResident->suffix,
                 'birthdate' => optional($selectedResident->birthdate)->format('Y-m-d'),
-                'gender' => $selectedResident->gender,
+                'gender' => strtolower((string) $selectedResident->gender),
+                'civil_status' => strtolower((string) $selectedResident->civil_status),
+                'birth_place' => $selectedResident->place_of_birth,
                 'address' => $selectedResident->address,
                 'contact_number' => $selectedResident->contact,
                 'email' => $selectedResident->email,
@@ -137,7 +136,9 @@ class IndigencyController extends Controller
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'birthdate' => 'required|date',
-            'gender' => 'required',
+            'gender' => 'required|in:male,female,other,prefer not to say',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'birth_place' => 'required|string|max:255',
             'address' => 'required',
             'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email',
@@ -174,22 +175,40 @@ class IndigencyController extends Controller
                 'mimes:jpg,jpeg,png,pdf',
                 'max:5120'
             ],
+
+            'valid_id_back_path' => [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,pdf',
+                'max:5120'
+            ],
         ]);
 
-        if ($selectedResident && !$request->hasFile('valid_id_path') && filled($selectedResident->valid_id)) {
-            $data['valid_id_path'] = $selectedResident->valid_id;
+        if ($selectedResident) {
+            $data['user_id'] = $selectedResident->id;
+            if (! $request->hasFile('valid_id_path') && filled($selectedResident->valid_id)) {
+                $data['valid_id_path'] = $selectedResident->valid_id;
+            }
+            if (! $request->hasFile('valid_id_back_path') && filled($selectedResident->valid_id_back)) {
+                $data['valid_id_back_path'] = $selectedResident->valid_id_back;
+            }
         }
 
         unset($data['resident_id']);
 
-        if (!filled($data['valid_id_path'] ?? null)) {
-            return back()->withInput()->withErrors([
-                'valid_id_path' => 'Select a resident with a saved valid ID or upload a valid ID file.',
-            ]);
+        $documentErrors = [];
+        if (! filled($data['valid_id_path'] ?? null)) {
+            $documentErrors['valid_id_path'] = 'Select a resident with a saved front Valid ID or upload the front side.';
+        }
+        if (! filled($data['valid_id_back_path'] ?? null)) {
+            $documentErrors['valid_id_back_path'] = 'Select a resident with a saved back Valid ID or upload the back side.';
+        }
+        if ($documentErrors) {
+            return back()->withInput()->withErrors($documentErrors);
         }
 
         try {
-            // Proof of residency
+            
             if ($request->hasFile('primary_proof')) {
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
@@ -198,23 +217,29 @@ class IndigencyController extends Controller
                 $data['primary_proof'] = 'uploads/proof_of_residency/indigency/' . $proofName;
             }
 
-            //Valid ID
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
-                $vip_name = time() . '.' . $vip_ext;
+                $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
                 $vip->move(public_path('uploads/valid_id/indigency'), $vip_name);
                 $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vip_name;
             }
 
-            // Generate reference number
+            if ($request->hasFile('valid_id_back_path')){
+                $vipBack = $request->file('valid_id_back_path');
+                $vipBackExt = $vipBack->getClientOriginalExtension();
+                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBack->move(public_path('uploads/valid_id/indigency'), $vipBackName);
+                $data['valid_id_back_path'] = 'uploads/valid_id/indigency/' . $vipBackName;
+            }
+
             $data['reference_number'] = 'IND-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
 
             $data['status'] = 'processing';
 
             IndigencyApplication::create($data);
 
-            return redirect()->route('admin.indigency.index') // FIXED: added redirect with proper route
+            return redirect()->route('admin.indigency.index') 
                 ->with('success', 'Indigency added successfully.');
 
         } catch (\Exception $e) {
@@ -227,10 +252,8 @@ class IndigencyController extends Controller
     {
         $application = IndigencyApplication::findOrFail($id);
 
-        // Store form type in session with application ID
         session()->flash('form_type', 'edit_' . $application->id);
 
-        // Normalize phone input before validation.
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
@@ -241,7 +264,9 @@ class IndigencyController extends Controller
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'birthdate' => 'required|date|before:today',
-            'gender' => 'required|in:male,female,other',
+            'gender' => 'required|in:male,female,other,prefer not to say',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'birth_place' => 'required|string|max:255',
             'address' => 'required|string',
             'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email|max:255',
@@ -251,6 +276,7 @@ class IndigencyController extends Controller
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         try {
@@ -273,9 +299,21 @@ class IndigencyController extends Controller
 
                 $vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
-                $vipName = time() . '_id_' . Str::random(5) . '.' . $vipExt;
+                $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
                 $vip->move(public_path('uploads/valid_id/indigency'), $vipName);
                 $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vipName;
+            }
+
+            if ($request->hasFile('valid_id_back_path')) {
+                if ($application->valid_id_back_path && file_exists(public_path($application->valid_id_back_path))) {
+                    unlink(public_path($application->valid_id_back_path));
+                }
+
+                $vipBack = $request->file('valid_id_back_path');
+                $vipBackExt = $vipBack->getClientOriginalExtension();
+                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBack->move(public_path('uploads/valid_id/indigency'), $vipBackName);
+                $data['valid_id_back_path'] = 'uploads/valid_id/indigency/' . $vipBackName;
             }
 
             $application->update($data);
@@ -290,8 +328,7 @@ class IndigencyController extends Controller
     public function updateStatus(Request $request, int $id)
     {
         $application = IndigencyApplication::findOrFail($id);
-        
-        // Validate status
+
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
         
         $request->validate([
@@ -303,10 +340,8 @@ class IndigencyController extends Controller
         $oldStatus = $application->status;
         $remarks = trim((string) $request->input('remarks', ''));
 
-        // Optional: Add business logic rules for status transitions
-        // For example, prevent certain transitions if needed
         
-        // Update status and timestamp
+
         $application->status = $newStatus;
         $application->status_updated_at = now();
         $application->save();
@@ -324,7 +359,6 @@ class IndigencyController extends Controller
 
         $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
-        // Log approval/status update
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
@@ -342,7 +376,6 @@ class IndigencyController extends Controller
             ]);
         }
 
-        // Format status name for display
         $statusDisplay = ucfirst(str_replace('_', ' ', $newStatus));
 
         $deliverySummary = $this->formatDeliverySummary($deliveryResults);
@@ -475,7 +508,7 @@ class IndigencyController extends Controller
                 ->get();
 
             foreach ($applications as $application) {
-                // Soft delete when Residency uses SoftDeletes.
+                
                 $application->delete();
             }
 
@@ -519,7 +552,7 @@ class IndigencyController extends Controller
 
         $applications = $query->get();
 
-        $filename = 'indigency_applications_' . now()->format('Y-m-d_His') . '.csv'; // FIXED: added timestamp
+        $filename = 'indigency_applications_' . now()->format('Y-m-d_His') . '.csv'; 
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -531,7 +564,6 @@ class IndigencyController extends Controller
 
             fwrite($file, "\xEF\xBB\xBF");
 
-            // CSV Header Row
             fputcsv($file, [
                 'ID',
                 'Reference Number',
@@ -598,7 +630,6 @@ class IndigencyController extends Controller
             fclose($file);
         };
 
-        // Log audit trail
         if (auth('admin')->check()) {
             $exportCount = IndigencyApplication::query()->when($request->ids, function($q) use ($request) {
                 return $q->whereIn('id', $request->ids);
@@ -630,7 +661,6 @@ class IndigencyController extends Controller
 
         DB::transaction(function () use ($application, $reference) {
 
-            // This is a soft delete when Residency uses SoftDeletes.
             $application->delete();
 
             if (auth('admin')->check()) {
@@ -716,7 +746,7 @@ class IndigencyController extends Controller
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certification of Indigency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); // FIXED: changed created_ad to created_at
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); 
 
         $fileName = 'certification_of_indigency_' . $record->reference_number . '.docx';
         $outputDir = storage_path('app/generated');
@@ -725,7 +755,6 @@ class IndigencyController extends Controller
         $docxPath = $outputDir . '/' . $fileName;
         $templateProcessor->saveAs($docxPath);
 
-        // Log audit trail
         if (auth('admin')->check()) {
             \App\Models\AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),

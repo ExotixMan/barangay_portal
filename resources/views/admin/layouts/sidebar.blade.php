@@ -36,9 +36,9 @@
     ]) ?? false;
 @endphp
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<aside class="sidebar" id="sidebar" onclick="handleSidebarClick(event)">
+<aside class="sidebar" id="sidebar">
     <div class="brand">
         <div class="brand-left">
             <img src="{{ asset('Images/logo.jpg') }}" alt="Barangay Logo" class="logo">
@@ -49,14 +49,12 @@
         </div>
         <i class="fas fa-chevron-left toggle-btn"
            id="collapseBtn"
-           title="Close sidebar"
-           onclick="handleToggleButtonClick(event)"></i>
+           title="Close sidebar"></i>
     </div>
 
     @admin_can('view_dashboard')
         <a href="{{ route('admin.dashboard.index') }}"
-           class="{{ request()->routeIs('admin.dashboard.*') ? 'active' : '' }}"
-           onclick="handleLinkClick(event, this)">
+           class="{{ request()->routeIs('admin.dashboard.*') ? 'active' : '' }}">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
         </a>
@@ -65,8 +63,7 @@
     <div class="menu-section">Administrative</div>
 
     @if($hasRegistryAccess)
-        <div class="dropdown-btn {{ $registryOpen ? 'active' : '' }}"
-             onclick="handleDropdownClick(event, this)">
+        <div class="dropdown-btn {{ $registryOpen ? 'active' : '' }}">
             <i class="fas fa-users"></i>
             <span>Registry</span>
             <i class="fas fa-chevron-down"></i>
@@ -75,8 +72,7 @@
         <div class="submenu {{ $registryOpen ? 'show' : '' }}" id="registrySubmenu">
             @admin_can('view_residents')
                 <a href="{{ route('admin.residents.index') }}"
-                   class="{{ request()->routeIs('admin.residents.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.residents.*') ? 'active' : '' }}">
                     <i class="fas fa-user"></i>
                     <span>Residents</span>
                 </a>
@@ -84,8 +80,7 @@
 
             @admin_can('view_residency')
                 <a href="{{ route('admin.residency.index') }}"
-                   class="{{ request()->routeIs('admin.residency.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.residency.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
                     <span>Residency Applications</span>
                 </a>
@@ -93,8 +88,7 @@
 
             @admin_can('view_indigency')
                 <a href="{{ route('admin.indigency.index') }}"
-                   class="{{ request()->routeIs('admin.indigency.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.indigency.*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice"></i>
                     <span>Indigency</span>
                 </a>
@@ -105,8 +99,7 @@
     <div class="menu-section">Legal</div>
 
     @if($hasRecordsAccess)
-        <div class="dropdown-btn {{ $recordsOpen ? 'active' : '' }}"
-             onclick="handleDropdownClick(event, this)">
+        <div class="dropdown-btn {{ $recordsOpen ? 'active' : '' }}">
             <i class="fas fa-scale-balanced"></i>
             <span>Records</span>
             <i class="fas fa-chevron-down"></i>
@@ -115,8 +108,7 @@
         <div class="submenu {{ $recordsOpen ? 'show' : '' }}" id="recordsSubmenu">
             @admin_can('view_clearance')
                 <a href="{{ route('admin.clearance.index') }}"
-                   class="{{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.clearance.*') ? 'active' : '' }}">
                     <i class="fas fa-file-contract"></i>
                     <span>Clearances</span>
                 </a>
@@ -124,8 +116,7 @@
 
             @admin_can('view_blotter')
                 <a href="{{ route('admin.blotter.index') }}"
-                   class="{{ request()->routeIs('admin.blotter.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.blotter.*') ? 'active' : '' }}">
                     <i class="fas fa-book"></i>
                     <span>Incident Reports</span>
                 </a>
@@ -136,8 +127,7 @@
     <div class="menu-section">Community</div>
 
     @if($hasCommunityAccess)
-        <div class="dropdown-btn {{ $communityOpen ? 'active' : '' }}"
-             onclick="handleDropdownClick(event, this)">
+        <div class="dropdown-btn {{ $communityOpen ? 'active' : '' }}">
             <i class="fas fa-bullhorn"></i>
             <span>Community</span>
             <i class="fas fa-chevron-down"></i>
@@ -146,8 +136,7 @@
         <div class="submenu {{ $communityOpen ? 'show' : '' }}" id="communitySubmenu">
             @admin_can('view_announcements')
                 <a href="{{ route('admin.announcements.index') }}"
-                   class="{{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
@@ -155,8 +144,7 @@
 
             @admin_can('view_events')
                 <a href="{{ route('admin.events.index') }}"
-                   class="{{ request()->routeIs('admin.events.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar"></i>
                     <span>Events</span>
                 </a>
@@ -164,8 +152,7 @@
 
             @admin_can('view_projects')
                 <a href="{{ route('admin.projects.index') }}"
-                   class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}"
-                   onclick="handleSubmenuClick(event)">
+                   class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
                     <i class="fas fa-project-diagram"></i>
                     <span>Projects</span>
                 </a>
@@ -177,8 +164,7 @@
 
     @admin_can('view_users')
         <a href="{{ route('admin.users.index') }}"
-           class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-           onclick="handleLinkClick(event, this)">
+           class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
             <i class="fas fa-user-shield"></i>
             <span>Users & Roles</span>
         </a>
@@ -186,8 +172,7 @@
 
     @admin_can('manage_chatbot')
         <a href="{{ route('admin.chatbot.index') }}"
-           class="{{ request()->routeIs('admin.chatbot.*') ? 'active' : '' }}"
-           onclick="handleLinkClick(event, this)">
+           class="{{ request()->routeIs('admin.chatbot.*') ? 'active' : '' }}">
             <i class="fas fa-robot"></i>
             <span>Chatbot</span>
         </a>
@@ -195,17 +180,15 @@
 
     @admin_can('view_backup')
         <a href="{{ route('admin.backup.index') }}"
-           class="{{ request()->routeIs('admin.backup.*') ? 'active' : '' }}"
-           onclick="handleLinkClick(event, this)">
+           class="{{ request()->routeIs('admin.backup.*') ? 'active' : '' }}">
             <i class="fas fa-database"></i>
             <span>Backup Settings</span>
         </a>
     @endadmin_can
 
     @admin_can('view_settings')
-        <a href="{{ route('admin.settings.index') }}" 
-            class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}"
-            onclick="handleLinkClick(event, this)">
+        <a href="{{ route('admin.settings.index') }}"
+            class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
             <i class="fas fa-cog"></i>
             <span>System Settings</span>
         </a>

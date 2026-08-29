@@ -1,10 +1,3 @@
-/*
- * BISIG Admin UX Refresh
- * Purpose: turn the admin area into a focused working interface.
- * The existing page-specific styles remain intact for functionality; this file
- * deliberately removes decorative/duplicated presentation and normalizes the UI.
- */
-
 :root {
     --sidebar-width: 252px;
     --sidebar-collapsed-width: 72px;
@@ -32,10 +25,6 @@ body {
     padding-top: 1.25rem !important;
 }
 
-/* ---------------------------------------------------------
-   SINGLE PAGE HEADER
-   The sticky header is the page identity. Large in-page heroes duplicate it.
-   --------------------------------------------------------- */
 .header {
     min-height: 64px;
     padding: .7rem 1.25rem;
@@ -76,7 +65,6 @@ body {
     box-shadow: none !important;
 }
 
-/* Remove redundant marketing-style page headers. */
 .dashboard-hero,
 .residency-hero,
 .indigency-hero,
@@ -90,7 +78,6 @@ body {
     display: none !important;
 }
 
-/* CRUD pages do not need four summary cards before every table. */
 .residency-stats,
 .indigency-stats,
 .announcements-stats-row,
@@ -103,9 +90,6 @@ body {
     display: none !important;
 }
 
-/* ---------------------------------------------------------
-   NAVIGATION
-   --------------------------------------------------------- */
 .sidebar {
     background: var(--admin-surface);
     border-right: 1px solid var(--admin-border);
@@ -211,9 +195,6 @@ body {
     font-size: .8rem;
 }
 
-/* ---------------------------------------------------------
-   PANELS: less card-within-card, more workspace
-   --------------------------------------------------------- */
 .card,
 .admin-filter-card,
 .admin-table-card,
@@ -248,7 +229,6 @@ body {
     box-shadow: var(--admin-shadow) !important;
 }
 
-/* Common list/filter containers should sit close together. */
 .residency-filter-card,
 .announcements-filter-panel,
 .events-filter-panel,
@@ -259,7 +239,6 @@ body {
     margin-bottom: .85rem !important;
 }
 
-/* Remove decorative gradients and oversized icon blocks in working panels. */
 .residency-table-head,
 .announcements-panel-header,
 .events-panel-header,
@@ -302,7 +281,6 @@ body {
     letter-spacing: .08em !important;
 }
 
-/* Explanatory copy is helpful, but should not dominate admin workflows. */
 .panel-copy,
 .residency-table-head p,
 .announcements-panel-header p,
@@ -316,9 +294,6 @@ body {
     line-height: 1.45 !important;
 }
 
-/* ---------------------------------------------------------
-   FILTERS / TOOLBARS
-   --------------------------------------------------------- */
 .residency-filter-card .card-body,
 .announcements-filter-body,
 .events-filter-body,
@@ -373,9 +348,6 @@ body {
     font-size: .75rem;
 }
 
-/* ---------------------------------------------------------
-   TABLES: scan first, decorate second
-   --------------------------------------------------------- */
 .table-responsive {
     border-radius: 0 0 var(--admin-radius) var(--admin-radius);
 }
@@ -421,10 +393,6 @@ body {
     font-weight: 700;
 }
 
-/* ---------------------------------------------------------
-   DASHBOARD
-   Keep useful KPIs, but remove decorative card effects.
-   --------------------------------------------------------- */
 .dashboard-metrics-grid {
     gap: .75rem !important;
     margin-bottom: 1rem !important;
@@ -473,9 +441,6 @@ body {
     color: var(--admin-muted) !important;
 }
 
-/* ---------------------------------------------------------
-   SETTINGS / BACKUPS / CHATBOT
-   --------------------------------------------------------- */
 .settings-workspace {
     gap: .9rem !important;
 }
@@ -505,7 +470,6 @@ body {
     box-shadow: none !important;
 }
 
-/* Field cards are grouping aids, not standalone feature cards. */
 .field-card-v2 {
     padding: .8rem !important;
     border: 1px solid #eaecf0 !important;
@@ -537,9 +501,6 @@ body {
     border-radius: 10px !important;
 }
 
-/* ---------------------------------------------------------
-   MODALS
-   --------------------------------------------------------- */
 .modal-content {
     border: 1px solid var(--admin-border);
     border-radius: 14px !important;
@@ -573,9 +534,6 @@ body {
     box-shadow: none !important;
 }
 
-/* ---------------------------------------------------------
-   ACCESSIBILITY / RESPONSIVE
-   --------------------------------------------------------- */
 :focus-visible {
     outline: 3px solid color-mix(in srgb, var(--primary) 20%, transparent);
     outline-offset: 2px;
@@ -668,7 +626,6 @@ body {
     }
 }
 
-/* Dark mode: preserve the same information hierarchy without forcing white surfaces. */
 html[data-theme="dark"] {
     --admin-canvas: var(--page-bg);
     --admin-surface: var(--card);

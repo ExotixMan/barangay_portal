@@ -1,11 +1,3 @@
-/*
- |--------------------------------------------------------------------------
- | BISIG Admin Theme System
- |--------------------------------------------------------------------------
- | Loaded after every page-specific stylesheet so one dark theme applies to
- | the shared layout and all converted admin pages.
- */
-
 .theme-toggle-button {
     display: inline-flex;
     align-items: center;
@@ -80,8 +72,7 @@
     }
 }
 
-html[data-theme="dark"] {
-    color-scheme: dark;
+html[data-theme="dark"] {color-scheme: dark;
 
     --primary: #ef5350;
     --primary-dark: #ff8a80;
@@ -105,15 +96,15 @@ html[data-theme="dark"] {
 
     --page-bg: #080d18;
     --gray-bg: #080d18;
-    --card: #111827;
-    --surface: #111827;
-    --surface-2: #151f32;
-    --surface-3: #1a263a;
-    --text: #f3f6fb;
-    --muted: #a8b3c7;
-    --muted-2: #7f8ba3;
-    --line: #263247;
-    --line-strong: #35435b;
+    
+    
+    
+    
+    
+    
+    
+    
+    
     --border-color: #263247;
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, .28);
     --shadow-sm: 0 12px 28px rgba(0, 0, 0, .28);
@@ -121,7 +112,6 @@ html[data-theme="dark"] {
     --card-shadow: 0 12px 28px rgba(0, 0, 0, .28);
     --hover-shadow: 0 16px 36px rgba(0, 0, 0, .34);
 
-    /* Aliases used by the settings page. */
     --settings-primary: var(--primary);
     --settings-primary-dark: var(--primary-dark);
     --settings-primary-light: var(--primary-soft);
@@ -144,8 +134,7 @@ html[data-theme="dark"] {
     --settings-red-shadow: var(--shadow-sm);
     --settings-action-shadow: 0 12px 28px rgba(239, 83, 80, .18);
     --settings-gradient: linear-gradient(135deg, #ef5350 0%, #a91f1f 100%);
-    --settings-action-gradient: linear-gradient(135deg, #ef5350 0%, #a91f1f 100%);
-}
+    --settings-action-gradient: linear-gradient(135deg, #ef5350 0%, #a91f1f 100%);}
 
 html[data-theme="dark"],
 html[data-theme="dark"] body,
@@ -163,7 +152,6 @@ html[data-theme="dark"] body {
     background-attachment: fixed !important;
 }
 
-/* Shared header */
 html[data-theme="dark"] .header {
     color: var(--text) !important;
     background: rgba(17, 24, 39, .94) !important;
@@ -200,7 +188,6 @@ html[data-theme="dark"] .theme-toggle-icon {
     border-color: rgba(255, 209, 102, .18) !important;
 }
 
-/* Sidebar and navigation. These selectors intentionally override nav.css. */
 html[data-theme="dark"] .sidebar {
     color: #dbe4f1 !important;
     background: #0d1422 !important;
@@ -271,7 +258,6 @@ html[data-theme="dark"] .sidebar-overlay {
     background: rgba(0, 0, 0, .68) !important;
 }
 
-/* Main cards, panels and page surfaces. */
 html[data-theme="dark"] :where(
     .card,
     .stat-card,
@@ -374,7 +360,6 @@ html[data-theme="dark"] :where(
     box-shadow: var(--shadow-sm) !important;
 }
 
-/* Secondary sections and subtle backgrounds. */
 html[data-theme="dark"] :where(
     .card-header,
     .card-footer,
@@ -428,7 +413,6 @@ html[data-theme="dark"] :where(
     border-color: var(--line) !important;
 }
 
-/* Text and utility colors. */
 html[data-theme="dark"] :where(
     h1, h2, h3, h4, h5, h6,
     strong,
@@ -521,7 +505,6 @@ html[data-theme="dark"] .bg-body-tertiary {
     background-color: var(--surface-2) !important;
 }
 
-/* Forms */
 html[data-theme="dark"] :where(
     .form-control,
     .form-select,
@@ -587,7 +570,6 @@ html[data-theme="dark"] .invalid-feedback {
     color: #fda4af !important;
 }
 
-/* Tables */
 html[data-theme="dark"] .table {
     --bs-table-color: var(--text);
     --bs-table-bg: transparent;
@@ -630,7 +612,6 @@ html[data-theme="dark"] .table-responsive {
     scrollbar-color: #3b4961 #101827;
 }
 
-/* Buttons */
 html[data-theme="dark"] :where(.btn-light, .btn-light-soft, .btn-secondary, .btn-outline-secondary) {
     color: var(--text) !important;
     background: var(--surface-2) !important;
@@ -674,7 +655,6 @@ html[data-theme="dark"] .btn-outline-info {
     border-color: rgba(56, 189, 248, .3) !important;
 }
 
-/* Badges and pills */
 html[data-theme="dark"] :where(.badge.bg-light, .badge.bg-secondary-subtle, .ref-pill, .table-count-pill, .residency-hero-meta span, .dashboard-hero-meta span, .admin-hero-meta span, .selected-count, .sidebar-user-role, .archive-row, .role-header) {
     color: #cbd5e1 !important;
     background: var(--surface-2) !important;
@@ -711,7 +691,6 @@ html[data-theme="dark"] .badge.bg-primary-subtle {
     border-color: rgba(239, 83, 80, .22) !important;
 }
 
-/* Modals, dropdowns, tabs and pagination */
 html[data-theme="dark"] .modal-backdrop.show {
     opacity: .72 !important;
 }
@@ -818,7 +797,6 @@ html[data-theme="dark"] .page-item.disabled .page-link {
     border-color: var(--line) !important;
 }
 
-/* List groups, accordions, offcanvas and common Bootstrap surfaces. */
 html[data-theme="dark"] :where(.list-group-item, .accordion-item, .accordion-button, .offcanvas, .toast) {
     color: var(--text) !important;
     background: var(--card) !important;
@@ -835,7 +813,6 @@ html[data-theme="dark"] .accordion-button::after {
     filter: invert(1) grayscale(1) brightness(1.6);
 }
 
-/* Page-specific controls */
 html[data-theme="dark"] :where(
     .status-option,
     .notify-row,
@@ -906,7 +883,6 @@ html[data-theme="dark"] .swal2-select {
     border-color: var(--line-strong) !important;
 }
 
-/* Native scrollbars */
 html[data-theme="dark"] * {
     scrollbar-color: #3a4961 #0d1422;
 }
@@ -936,14 +912,7 @@ html[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
     }
 }
 
-/* ========================================================================== 
-   DARK MODE CONTRAST HARDENING
-   Loaded last. These rules intentionally use higher specificity so they win
-   against page-level light styles and older !important declarations.
-   ========================================================================== */
-
-html[data-theme="dark"] {
-    --text: #f7f9fc;
+html[data-theme="dark"] {--text: #f7f9fc;
     --text-soft: #dce4ef;
     --muted: #c2ccdc;
     --muted-2: #9eacc2;
@@ -955,10 +924,8 @@ html[data-theme="dark"] {
     --surface-3: #1d2a40;
     --table-bg: #111a2a;
     --table-alt: #141f31;
-    --table-hover: #1c2a40;
-}
+    --table-hover: #1c2a40;}
 
-/* Keep every page surface dark even when a page stylesheet forces white. */
 html[data-theme="dark"] body .admin-page .card,
 html[data-theme="dark"] body .admin-page [class$="-card"],
 html[data-theme="dark"] body .admin-page [class*="-card "],
@@ -1009,7 +976,6 @@ html[data-theme="dark"] body .admin-page [class*="-head "] {
     border-color: var(--line) !important;
 }
 
-/* Stronger readable text. */
 html[data-theme="dark"] body .admin-page h1,
 html[data-theme="dark"] body .admin-page h2,
 html[data-theme="dark"] body .admin-page h3,
@@ -1058,14 +1024,12 @@ html[data-theme="dark"] body .admin-page [class*="-meta "] {
     opacity: 1 !important;
 }
 
-/* Restore semantic utility colors after the broad readability rules. */
 html[data-theme="dark"] body .admin-page .text-success { color: #86efac !important; }
 html[data-theme="dark"] body .admin-page .text-danger  { color: #fda4af !important; }
 html[data-theme="dark"] body .admin-page .text-warning { color: #fde68a !important; }
 html[data-theme="dark"] body .admin-page .text-info    { color: #7dd3fc !important; }
 html[data-theme="dark"] body .admin-page .text-primary { color: #ff9b97 !important; }
 
-/* Form contrast, including locked/read-only profile values. */
 html[data-theme="dark"] body .admin-page .form-control,
 html[data-theme="dark"] body .admin-page .form-select,
 html[data-theme="dark"] body .admin-page .input-group-text,
@@ -1095,11 +1059,6 @@ html[data-theme="dark"] body .admin-page textarea[readonly] {
     opacity: 1 !important;
 }
 
-/* --------------------------------------------------------------------------
-   TABLES
-   Bootstrap paints table cells with inset box-shadows, while several pages
-   force white row hovers using table IDs. Both are explicitly neutralized.
-   -------------------------------------------------------------------------- */
 html[data-theme="dark"] body .admin-page .table {
     --bs-table-color: var(--text) !important;
     --bs-table-bg: var(--table-bg) !important;
@@ -1159,7 +1118,6 @@ html[data-theme="dark"] body .admin-page .table tbody tr:hover > * {
     box-shadow: none !important;
 }
 
-/* Beat page rules such as #announcementsTable tbody tr:hover { background:#fff!important; }. */
 html[data-theme="dark"] body #announcementsTable tbody tr,
 html[data-theme="dark"] body #blotterTable tbody tr,
 html[data-theme="dark"] body #clearanceTable tbody tr,
@@ -1216,10 +1174,6 @@ html[data-theme="dark"] body .admin-page .table-success > * {
     box-shadow: none !important;
 }
 
-/* --------------------------------------------------------------------------
-   BADGES AND PILLS
-   Give every badge a readable fallback, then restore semantic colors.
-   -------------------------------------------------------------------------- */
 html[data-theme="dark"] body .admin-page .badge,
 html[data-theme="dark"] body .admin-page .role-badge,
 html[data-theme="dark"] body .admin-page .ref-pill,
@@ -1319,7 +1273,6 @@ html[data-theme="dark"] body .admin-page .incident-type-pill {
     border-color: rgba(255, 138, 128, .34) !important;
 }
 
-/* Role badges remain distinct while staying readable. */
 html[data-theme="dark"] body .admin-page .role-badge.super_admin {
     color: #e9ddff !important;
     background-color: rgba(139, 92, 246, .20) !important;
@@ -1350,7 +1303,6 @@ html[data-theme="dark"] body .admin-page .role-badge.custom {
     border-color: rgba(148, 163, 184, .34) !important;
 }
 
-/* Dropdowns, tabs, pagination, alerts and list hover states must never flash white. */
 html[data-theme="dark"] body .dropdown-menu,
 html[data-theme="dark"] body .swal2-popup,
 html[data-theme="dark"] body .popover,
@@ -1379,7 +1331,6 @@ html[data-theme="dark"] body .admin-page .alert-light {
     border-color: var(--line) !important;
 }
 
-/* Common empty states and preview areas that were still white on some pages. */
 html[data-theme="dark"] body .admin-page .empty-state,
 html[data-theme="dark"] body .admin-page .empty-state-box,
 html[data-theme="dark"] body .admin-page .document-empty,
@@ -1399,11 +1350,6 @@ html[data-theme="dark"] body .admin-page .perm-item {
     border-color: var(--line) !important;
 }
 
-/* --------------------------------------------------------------------------
-   SYSTEM SETTINGS: DOCUMENT TEMPLATE METADATA
-   Page CSS gives these inner blocks a fixed light background. Keep the
-   metadata cards dark and readable when the shared admin theme is active.
-   -------------------------------------------------------------------------- */
 html[data-theme="dark"] body .admin-page .doc-template-meta {
     color: var(--text) !important;
     background: transparent !important;

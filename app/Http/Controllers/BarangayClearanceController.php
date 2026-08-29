@@ -61,11 +61,11 @@ class BarangayClearanceController extends Controller
         $hasVerifiedValidId = $this->isTruthy($resident->valid_id_verified ?? false);
         $hasVerifiedResidency = $this->isTruthy($resident->residency_verified ?? false);
         $residentValidIdPath = $this->getResidentValidIdPath($resident);
+        $residentValidIdBackPath = $this->getResidentValidIdBackPath($resident);
 
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            // Clearance-specific fields only
             'purpose' => ['required', 'string', 'max:255'],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
@@ -80,10 +80,12 @@ class BarangayClearanceController extends Controller
             $rules['primary_proof'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
-        if (! $hasVerifiedValidId || blank($residentValidIdPath)) {
+        if (! $hasVerifiedValidId || blank($residentValidIdPath) || blank($residentValidIdBackPath)) {
             $rules['valid_id_path'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['valid_id_back_path'] = ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         } else {
             $rules['valid_id_path'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
+            $rules['valid_id_back_path'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
         $validated = $request->validate($rules);
@@ -93,6 +95,7 @@ class BarangayClearanceController extends Controller
 
             $primaryProofPath = null;
             $validIdPath = $residentValidIdPath;
+            $validIdBackPath = $residentValidIdBackPath;
 
             if ($request->hasFile('primary_proof')) {
                 $primaryProofPath = $this->uploadFile(
@@ -106,7 +109,15 @@ class BarangayClearanceController extends Controller
                 $validIdPath = $this->uploadFile(
                     $request->file('valid_id_path'),
                     'uploads/valid_id/clearance',
-                    'valid_id'
+                    'valid_id_front'
+                );
+            }
+
+            if ($request->hasFile('valid_id_back_path')) {
+                $validIdBackPath = $this->uploadFile(
+                    $request->file('valid_id_back_path'),
+                    'uploads/valid_id/clearance',
+                    'valid_id_back'
                 );
             }
 
@@ -116,20 +127,21 @@ class BarangayClearanceController extends Controller
             $clearanceData = [
                 'user_id' => $resident->id,
 
-                // Snapshot from resident profile
                 'first_name' => $resident->firstname,
                 'middle_name' => $resident->middlename,
                 'last_name' => $resident->lastname,
                 'suffix' => $resident->suffix,
                 'birthdate' => $resident->birthdate,
                 'gender' => $resident->gender ?? null,
+                'civil_status' => $resident->civil_status ?? null,
+                'birth_place' => $resident->place_of_birth ?? null,
                 'address' => $resident->address,
                 'contact_number' => $resident->contact,
                 'email' => $resident->email,
 
-                // Clearance-specific data
                 'primary_proof' => $primaryProofPath,
                 'valid_id_path' => $validIdPath,
+                'valid_id_back_path' => $validIdBackPath,
                 'purpose' => $validated['purpose'],
                 'purpose_other' => $validated['purpose_other'] ?? null,
                 'fee' => $fee,
@@ -358,6 +370,14 @@ class BarangayClearanceController extends Controller
             $missing[] = 'Gender';
         }
 
+        if (blank($resident->civil_status ?? null)) {
+            $missing[] = 'Civil status';
+        }
+
+        if (blank($resident->place_of_birth ?? null)) {
+            $missing[] = 'Place of birth';
+        }
+
         if (blank($resident->address)) {
             $missing[] = 'Complete address';
         }
@@ -378,6 +398,13 @@ class BarangayClearanceController extends Controller
         return $resident->valid_id_path
             ?? $resident->valid_id
             ?? $resident->valid_id_front
+            ?? null;
+    }
+
+    private function getResidentValidIdBackPath(object $resident): ?string
+    {
+        return $resident->valid_id_back_path
+            ?? $resident->valid_id_back
             ?? null;
     }
 

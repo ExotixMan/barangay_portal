@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         }
         
         DB::listen(function (QueryExecuted $query) {
-            if ($query->time > 1000) { // more than 1 second
+            if ($query->time > 1000) { 
                 Log::warning('Slow query', [
                     'sql' => $query->toRawSql(),
                     'time_ms' => $query->time,
@@ -130,7 +130,7 @@ class AppServiceProvider extends ServiceProvider
     private function registerBladeDirectives(): void
     {
         Blade::if('admin_can', function ($permission) {
-            /** @var \App\Models\AdminUser|null $user */
+            
             $user = Auth::guard('admin')->user();
 
             if (!$user) {
@@ -145,7 +145,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::if('admin_canModule', function ($module) {
-            /** @var \App\Models\AdminUser|null $user */
+            
             $user = Auth::guard('admin')->user();
 
             if (!$user) {
@@ -160,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::if('admin_role', function ($role) {
-            /** @var \App\Models\AdminUser|null $user */
+            
             $user = Auth::guard('admin')->user();
 
             if (!$user || !$user->role) {
@@ -175,7 +175,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::if('superadmin', function () {
-            /** @var \App\Models\AdminUser|null $user */
+            
             $user = Auth::guard('admin')->user();
 
             return $user && $user->isSuperAdmin();

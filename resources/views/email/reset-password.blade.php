@@ -12,7 +12,6 @@
 
       <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
 
-        {{-- Header --}}
         <tr>
           <td align="center" bgcolor="#c62828" style="background:#c62828;padding:32px 40px;border-radius:12px 12px 0 0;">
             <p style="margin:0 0 4px;font-size:22px;font-weight:bold;color:#ffffff;letter-spacing:0.5px;">Barangay Hulong Duhat</p>
@@ -20,7 +19,6 @@
           </td>
         </tr>
 
-        {{-- Body --}}
         <tr>
           <td bgcolor="#ffffff" style="background:#ffffff;padding:36px 40px;">
             <p style="margin:0 0 12px;font-size:16px;font-weight:bold;color:#1c2630;">Hello, {{ $name }}!</p>
@@ -53,7 +51,6 @@
           </td>
         </tr>
 
-        {{-- Footer --}}
         <tr>
           <td align="center" bgcolor="#f8f9fa" style="background:#f8f9fa;padding:20px 40px;border-radius:0 0 12px 12px;">
             <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.7;">
