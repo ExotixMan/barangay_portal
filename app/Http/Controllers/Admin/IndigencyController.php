@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
 use App\Models\IndigencyApplication;
 use App\Models\Residents;
 use Illuminate\Http\Request;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class IndigencyController extends Controller
 {
+    use HandlesPrivateUploads;
     public function index(Request $request)
     {
         $query = IndigencyApplication::query();
@@ -209,24 +212,21 @@ class IndigencyController extends Controller
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
                 $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
-                $proof->move(public_path('uploads/proof_of_residency/indigency'), $proofName);
-                $data['primary_proof'] = 'uploads/proof_of_residency/indigency/' . $proofName;
+                $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/indigency', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
                 $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
-                $vip->move(public_path('uploads/valid_id/indigency'), $vip_name);
-                $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vip_name;
+                $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/indigency', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')){
                 $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
                 $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
-                $vipBack->move(public_path('uploads/valid_id/indigency'), $vipBackName);
-                $data['valid_id_back_path'] = 'uploads/valid_id/indigency/' . $vipBackName;
+                $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/indigency', 'id_back');
             }
 
             $data['reference_number'] = 'IND-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
@@ -240,7 +240,7 @@ class IndigencyController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to submit application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to submit application. Please try again.');
         }
     }
 
@@ -275,49 +275,46 @@ class IndigencyController extends Controller
             'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
+        $oldSensitiveFiles = [
+            'primary_proof' => $application->primary_proof,
+            'valid_id_path' => $application->valid_id_path,
+            'valid_id_back_path' => $application->valid_id_back_path,
+        ];
+
         try {
             if ($request->hasFile('primary_proof')) {
-                if ($application->primary_proof && file_exists(public_path($application->primary_proof))) {
-                    unlink(public_path($application->primary_proof));
-                }
-
-                $proof = $request->file('primary_proof');
+$proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
                 $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
-                $proof->move(public_path('uploads/proof_of_residency/indigency'), $proofName);
-                $data['primary_proof'] = 'uploads/proof_of_residency/indigency/' . $proofName;
+                $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/indigency', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')) {
-                if ($application->valid_id_path && file_exists(public_path($application->valid_id_path))) {
-                    unlink(public_path($application->valid_id_path));
-                }
-
-                $vip = $request->file('valid_id_path');
+$vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
                 $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
-                $vip->move(public_path('uploads/valid_id/indigency'), $vipName);
-                $data['valid_id_path'] = 'uploads/valid_id/indigency/' . $vipName;
+                $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/indigency', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')) {
-                if ($application->valid_id_back_path && file_exists(public_path($application->valid_id_back_path))) {
-                    unlink(public_path($application->valid_id_back_path));
-                }
-
-                $vipBack = $request->file('valid_id_back_path');
+$vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
                 $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
-                $vipBack->move(public_path('uploads/valid_id/indigency'), $vipBackName);
-                $data['valid_id_back_path'] = 'uploads/valid_id/indigency/' . $vipBackName;
+                $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/indigency', 'id_back');
             }
 
             $application->update($data);
 
+            foreach ($oldSensitiveFiles as $field => $oldPath) {
+                if ($request->hasFile($field) && $oldPath && $oldPath !== ($application->{$field} ?? null)) {
+                    $this->deleteStoredUpload($oldPath);
+                }
+            }
+
             return back()->with('success', 'Indigency application updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update application. Please try again.');
         }
     }
 
@@ -731,7 +728,7 @@ class IndigencyController extends Controller
 
         $record = IndigencyApplication::findOrFail($id);
 
-        $templatePath = public_path('document_template/Doc2.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Doc2.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Word template not found');
@@ -781,7 +778,7 @@ class IndigencyController extends Controller
                     'error' => $e->getMessage(),
                 ]);
 
-                return back()->with('error', 'The Word document was created, but PDF printing failed. ' . $e->getMessage());
+                return back()->with('error', 'The Word document was created, but PDF printing failed. Please check the document service logs.');
             }
 
             @unlink($docxPath);

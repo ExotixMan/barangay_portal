@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminActivityLog;
 use Illuminate\Validation\Rule;
+use App\Services\SupabaseStorageService;
 
 class IncidentReportController extends Controller
 {
@@ -141,7 +142,7 @@ class IncidentReportController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return back()->withInput()
-                ->with('error', 'Failed to submit application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to submit application. Please try again.');
         }
     }
 
@@ -200,57 +201,36 @@ class IncidentReportController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return back()->withInput()
-                ->with('error', 'Failed to update report. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update report. Please try again.');
         }
     }
 
     private function uploadFiles(Request $request, object $report)
     {
-        
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
+        $groups = [
+            'photos' => ['type' => 'photo', 'folder' => 'private/evidences/photos'],
+            'videos' => ['type' => 'video', 'folder' => 'private/evidences/videos'],
+            'documents' => ['type' => 'document', 'folder' => 'private/evidences/documents'],
+        ];
 
-                $ext = $photo->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_photo.' . $ext;
-
-                $photo->move(public_path('uploads/evidences/photos'), $name);
-
-                ReportFile::create([
-                    'blotter_report_id' => $report->id,
-                    'file_type' => 'photo',
-                    'file_path' => 'uploads/evidences/photos/' . $name,
-                ]);
+        foreach ($groups as $field => $config) {
+            if (!$request->hasFile($field)) {
+                continue;
             }
-        }
 
-        if ($request->hasFile('videos')) {
-            foreach ($request->file('videos') as $video) {
-
-                $ext = $video->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_video.' . $ext;
-
-                $video->move(public_path('uploads/evidences/videos'), $name);
-
-                ReportFile::create([
-                    'blotter_report_id' => $report->id,
-                    'file_type' => 'video',
-                    'file_path' => 'uploads/evidences/videos/' . $name,
-                ]);
-            }
-        }
-
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $doc) {
-
-                $ext = $doc->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_document.' . $ext;
-
-                $doc->move(public_path('uploads/evidences/documents'), $name);
+            foreach ($request->file($field) as $file) {
+                $extension = strtolower((string) $file->getClientOriginalExtension());
+                $name = $config['type'] . '_' . \Illuminate\Support\Str::uuid() . '.' . $extension;
+                $storedPath = app(SupabaseStorageService::class)->storePrivateFileWithName(
+                    $file,
+                    str_replace('private/', '', $config['folder']),
+                    $name
+                );
 
                 ReportFile::create([
                     'blotter_report_id' => $report->id,
-                    'file_type' => 'document',
-                    'file_path' => 'uploads/evidences/documents/' . $name,
+                    'file_type' => $config['type'],
+                    'file_path' => $storedPath,
                 ]);
             }
         }
@@ -644,11 +624,8 @@ class IncidentReportController extends Controller
         $report = BlotterReport::withTrashed()->findOrFail($id);
 
         foreach ($report->files as $file) {
-            $filePath = public_path($file->file_path);
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-            $file->forceDelete(); 
+            app(SupabaseStorageService::class)->delete($file->file_path);
+            $file->forceDelete();
         }
 
         $report->witnesses()->forceDelete();
@@ -736,10 +713,7 @@ class IncidentReportController extends Controller
         foreach ($reports as $report) {
             
             foreach ($report->files as $file) {
-                $filePath = public_path($file->file_path);
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
+                app(SupabaseStorageService::class)->delete($file->file_path);
                 $file->forceDelete();
             }
 

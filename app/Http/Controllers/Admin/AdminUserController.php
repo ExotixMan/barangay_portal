@@ -336,7 +336,7 @@ class AdminUserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Failed to create user. ' . $e->getMessage())
+                ->with('error', 'Failed to create user.')
                 ->withInput();
         }
     }
@@ -470,7 +470,7 @@ class AdminUserController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'new_password' => ['sometimes', 'required', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'new_password' => ['required', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'new_password.regex' => 'New password cannot contain spaces.',
             'new_password.*' => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
@@ -486,7 +486,7 @@ class AdminUserController extends Controller
         DB::beginTransaction();
 
         try {
-            $newPassword = $request->new_password ?? 'password123';
+            $newPassword = (string) $request->new_password;
 
             $user->update([
                 'password' => Hash::make($newPassword)
@@ -505,7 +505,7 @@ class AdminUserController extends Controller
             $this->clearUserRoleLookupCache();
 
             return redirect()->route('admin.users.index')
-                ->with('success', 'Password reset successfully. New password: ' . $newPassword);
+                ->with('success', 'Password reset successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -576,7 +576,7 @@ class AdminUserController extends Controller
             DB::rollBack();
             return redirect()->route('admin.users.index', ['tab' => 'users'])
                 ->with('form_type', 'user_permissions_' . $id)
-                ->with('error', 'Failed to update permissions. ' . $e->getMessage());
+                ->with('error', 'Failed to update permissions.');
         }
     }
 

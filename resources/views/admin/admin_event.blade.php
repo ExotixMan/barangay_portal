@@ -311,7 +311,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="event-thumb me-2">
                                                 @if($event->image)
-                                                    <img src="{{ asset($event->image) }}" alt="{{ $event->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                                                    <img src="{{ $event->image_url }}" alt="{{ $event->title }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
                                                 @else
                                                     <i class="fas fa-calendar-alt text-primary"></i>
                                                 @endif
@@ -783,8 +783,8 @@
                                                 @endif
                                                 <div id="editImagePreview{{ $event->id }}">
                                                     @if($event->image)
-                                                        <button type="button" class="image-preview-button" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($event->image)]) }}" title="View current event image">
-                                                            <img src="{{ asset($event->image) }}" alt="Current image" class="image-preview">
+                                                        <button type="button" class="image-preview-button" data-click-call="openZoomModal" data-click-args="{{ json_encode([$event->image_url]) }}" title="View current event image">
+                                                            <img src="{{ $event->image_url }}" alt="Current image" class="image-preview">
                                                         </button>
                                                         <small class="field-hint">Current image — click to preview.</small>
                                                     @endif
@@ -825,8 +825,8 @@
                         <div class="modal-body event-view-body">
                             <div class="event-view-hero">
                                 @if($event->image)
-                                    <button type="button" class="image-preview-button" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($event->image)]) }}" title="View event image">
-                                        <img src="{{ asset($event->image) }}" alt="{{ $event->title }}">
+                                    <button type="button" class="image-preview-button" data-click-call="openZoomModal" data-click-args="{{ json_encode([$event->image_url]) }}" title="View event image">
+                                        <img src="{{ $event->image_url }}" alt="{{ $event->title }}">
                                     </button>
                                 @endif
                                 <div class="event-view-title-block">

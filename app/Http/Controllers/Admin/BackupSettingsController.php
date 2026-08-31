@@ -5,115 +5,90 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Services\BackupArchiveService;
+use App\Services\PersistentBackupService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class BackupSettingsController extends Controller
 {
-    public function index()
+    public function index(PersistentBackupService $backups)
     {
-        $backupDirectory = $this->backupDirectory();
-
-        if (!is_dir($backupDirectory)) {
-            mkdir($backupDirectory, 0755, true);
-        }
-
-        $backups = collect(File::files($backupDirectory))
-            ->filter(function ($file) {
-                return strtolower($file->getExtension()) === 'zip';
-            })
-            ->map(function ($file) {
-                $modifiedTimestamp = $file->getMTime();
-                $displayTimezone = 'Asia/Manila';
-                $modifiedAt = \Carbon\Carbon::createFromTimestampUTC($modifiedTimestamp)->setTimezone($displayTimezone);
-
-                return [
-                    'name' => $file->getFilename(),
-                    'size' => $file->getSize(),
-                    'modified_at' => $modifiedAt->format('M d, Y h:i A'),
-                    'modified_relative' => $modifiedAt->diffForHumans(),
-                    'modified_timestamp' => $modifiedTimestamp,
-                ];
-            })
-            ->sortByDesc('modified_timestamp')
-            ->values();
-
         return view('admin.admin_backup_settings', [
-            'backups' => $backups,
+            'backups' => collect($backups->listBackups()),
             'displayTimezone' => 'Asia/Manila',
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, PersistentBackupService $backups)
     {
-        $backupService = app(BackupArchiveService::class);
-
         try {
-            $fileName = $backupService->createBackup();
+            $backup = $backups->createBackup();
 
             $this->logAdminActivity($request, 'CREATE', 'Backup', [
-                'file' => $fileName,
-                'action' => 'Created backup archive',
+                'file' => $backup['name'] ?? null,
+                'action' => 'Created persistent backup archive',
             ]);
 
             return redirect()->route('admin.backup.index')
-                ->with('success', 'Backup created successfully.');
+                ->with('success', 'Backup created and saved successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Backup creation failed.', ['message' => $e->getMessage()]);
+            return redirect()->route('admin.backup.index')
+                ->with('error', 'Backup failed. Please check the server logs.');
+        }
+    }
+
+    public function download(Request $request, string $file, PersistentBackupService $backups)
+    {
+        try {
+            $safeFile = basename($file);
+            if ($safeFile !== $file) {
+                abort(404);
+            }
+
+            $path = $backups->materialize($safeFile);
+
+            $this->logAdminActivity($request, 'EXPORT', 'Backup', [
+                'file' => $safeFile,
+                'action' => 'Downloaded backup archive',
+            ]);
+
+            $response = response()->download($path, $safeFile, [
+                'Content-Type' => 'application/zip',
+            ]);
+
+            if (str_contains(str_replace('\\', '/', $path), '/storage/app/runtime/backups/')) {
+                $response->deleteFileAfterSend(true);
+            }
+
+            return $response;
+        } catch (\Throwable $e) {
+            Log::warning('Backup download failed.', ['file' => $file, 'message' => $e->getMessage()]);
+            abort(404);
+        }
+    }
+
+    public function destroy(Request $request, string $file, PersistentBackupService $backups)
+    {
+        try {
+            $backups->deleteBackup($file);
+
+            $this->logAdminActivity($request, 'DELETE', 'Backup', [
+                'file' => $file,
+                'action' => 'Deleted backup archive',
+            ]);
+
+            return redirect()->route('admin.backup.index')
+                ->with('success', 'Backup deleted successfully.');
         } catch (\Throwable $e) {
             return redirect()->route('admin.backup.index')
-                ->with('error', 'Backup failed: ' . $e->getMessage());
+                ->with('error', 'Backup file could not be deleted.');
         }
     }
 
-    public function download(Request $request, string $file)
-    {
-        $safeFile = basename($file);
-        if ($safeFile !== $file) {
-            abort(404);
-        }
-
-        $filePath = $this->backupDirectory() . DIRECTORY_SEPARATOR . $safeFile;
-        if (!file_exists($filePath)) {
-            abort(404);
-        }
-
-        $this->logAdminActivity($request, 'EXPORT', 'Backup', [
-            'file' => $safeFile,
-            'action' => 'Downloaded backup archive',
-        ]);
-
-        return response()->download($filePath, $safeFile, [
-            'Content-Type' => 'application/zip',
-        ]);
-    }
-
-    public function destroy(Request $request, string $file)
-    {
-        $safeFile = basename($file);
-        if ($safeFile !== $file) {
-            abort(404);
-        }
-
-        $filePath = $this->backupDirectory() . DIRECTORY_SEPARATOR . $safeFile;
-        if (!file_exists($filePath)) {
-            return redirect()->route('admin.backup.index')
-                ->with('error', 'Backup file not found.');
-        }
-
-        @unlink($filePath);
-
-        $this->logAdminActivity($request, 'DELETE', 'Backup', [
-            'file' => $safeFile,
-            'action' => 'Deleted backup archive',
-        ]);
-
-        return redirect()->route('admin.backup.index')
-            ->with('success', 'Backup deleted successfully.');
-    }
-
-    public function restore(Request $request)
+    public function restore(Request $request, PersistentBackupService $backups, BackupArchiveService $archiveService)
     {
         $validator = Validator::make($request->all(), [
             'file' => ['nullable', 'string', 'required_without:backup_archive'],
@@ -131,81 +106,57 @@ class BackupSettingsController extends Controller
                 ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
         }
 
-        $backupService = app(BackupArchiveService::class);
         $uploadedPath = null;
+        $materializedPath = null;
 
         try {
-            $archivePath = null;
-            $restoreSource = null;
-
             if ($request->hasFile('backup_archive')) {
                 $uploadedPath = $request->file('backup_archive')->store('backups/uploaded_restore', 'local');
                 $archivePath = Storage::disk('local')->path($uploadedPath);
-                $restoreSource = 'uploaded_archive';
-            } elseif ($request->filled('file')) {
+                $restoreSource = 'uploaded archive';
+            } else {
                 $safeFile = basename((string) $request->input('file'));
                 if ($safeFile !== (string) $request->input('file')) {
-                    return redirect()->route('admin.backup.index')
-                        ->with('error', 'Invalid backup file.');
+                    throw new \RuntimeException('Invalid backup file.');
                 }
-
-                $archivePath = $this->backupDirectory() . DIRECTORY_SEPARATOR . $safeFile;
-                if (!file_exists($archivePath)) {
-                    return redirect()->route('admin.backup.index')
-                        ->with('error', 'Backup file not found.');
-                }
-
+                $materializedPath = $backups->materialize($safeFile);
+                $archivePath = $materializedPath;
                 $restoreSource = $safeFile;
             }
 
-            if ($archivePath === null) {
-                return redirect()->route('admin.backup.index')
-                    ->with('error', 'Select a backup file to restore.');
-            }
-
-            $backupService->restoreBackup($archivePath);
+            $archiveService->restoreBackup($archivePath);
 
             $this->logAdminActivity($request, 'RESTORE', 'Backup', [
                 'source' => $restoreSource,
                 'action' => 'Restored system from backup archive',
             ]);
 
-            $sourceLabel = $request->hasFile('backup_archive')
-                ? 'uploaded archive'
-                : (string) $restoreSource;
-
+            $message = 'Restore completed successfully from ' . $restoreSource . '.';
             return redirect()->route('admin.backup.index')
-                ->with('success', 'Restore completed successfully from ' . $sourceLabel . '.')
+                ->with('success', $message)
                 ->with('restore_status', 'success')
-                ->with('restore_message', 'Restore completed successfully from ' . $sourceLabel . '.')
+                ->with('restore_message', $message)
                 ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
         } catch (\Throwable $e) {
             Log::error('Backup restore failed', [
                 'message' => $e->getMessage(),
                 'exception' => get_class($e),
-                'trace' => $e->getTraceAsString(),
                 'admin_id' => auth('admin')->id(),
             ]);
 
-            $errorMessage = trim((string) $e->getMessage()) !== ''
-                ? $e->getMessage()
-                : 'An unexpected error occurred while restoring the backup.';
-
             return redirect()->route('admin.backup.index')
-                ->with('error', 'Restore failed: ' . $errorMessage)
+                ->with('error', 'Restore failed. Please check the server logs.')
                 ->with('restore_status', 'error')
-                ->with('restore_message', 'Restore failed: ' . $errorMessage)
+                ->with('restore_message', 'Restore failed. Please check the server logs.')
                 ->with('restore_time', now('Asia/Manila')->format('M d, Y h:i:s A'));
         } finally {
             if ($uploadedPath !== null) {
                 Storage::disk('local')->delete($uploadedPath);
             }
+            if ($materializedPath && str_contains(str_replace('\\', '/', $materializedPath), '/storage/app/runtime/backups/')) {
+                @unlink($materializedPath);
+            }
         }
-    }
-
-    private function backupDirectory(): string
-    {
-        return storage_path('app/backups');
     }
 
     private function logAdminActivity(Request $request, string $action, string $module, array $details): void
@@ -219,8 +170,7 @@ class BackupSettingsController extends Controller
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
-        } catch (\Throwable $e) {
-            
+        } catch (\Throwable) {
         }
     }
 }

@@ -6,6 +6,7 @@ use App\Models\IndigencyApplication;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
 use App\Support\NotifiesAdmins;
+use App\Support\HandlesPrivateUploads;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ use Throwable;
 
 class IndigencyApplicationController extends Controller
 {
-    use NotifiesAdmins;
+    use NotifiesAdmins, HandlesPrivateUploads;
 
     public function index()
     {
@@ -409,14 +410,7 @@ class IndigencyApplicationController extends Controller
 
     private function uploadFile(UploadedFile $file, string $folder, string $prefix): string
     {
-        File::ensureDirectoryExists(public_path($folder));
-
-        $extension = strtolower($file->getClientOriginalExtension());
-        $filename = $prefix . '_' . now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $extension;
-
-        $file->move(public_path($folder), $filename);
-
-        return $folder . '/' . $filename;
+        return $this->storePrivateUpload($file, $folder, $prefix);
     }
 
     private function generateReferenceNumber(): string

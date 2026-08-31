@@ -108,7 +108,7 @@ class ProjectController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to create project. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to create project. Please try again.');
         }
     }
 
@@ -139,7 +139,7 @@ class ProjectController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to update project. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update project. Please try again.');
         }
     }
 
@@ -206,6 +206,12 @@ class ProjectController extends Controller
         if ($status === 'completed' && $progress !== 100) {
             throw ValidationException::withMessages([
                 'status' => 'Status can only be set to Completed when progress is exactly 100%.',
+            ]);
+        }
+
+        if ($status === 'ongoing' && $progress === 100) {
+            throw ValidationException::withMessages([
+                'status' => 'A project at 100% progress must be marked Completed.',
             ]);
         }
     }

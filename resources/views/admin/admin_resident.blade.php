@@ -230,7 +230,7 @@
                                 <div class="application-primary">
                                     <div class="application-avatar">
                                         @if($resident->profile_photo)
-                                            <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" data-error-action="remove">
+                                            <img src="{{ str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" data-error-action="remove">
                                         @else
                                             <span>{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</span>
                                         @endif
@@ -895,7 +895,7 @@
                         <div class="view-modal-head w-100">
                             <div class="view-modal-avatar">
                                 @if($resident->profile_photo)
-                                    <img src="{{ asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" data-error-action="remove">
+                                    <img src="{{ str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" data-error-action="remove">
                                 @else
                                     {{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}
                                 @endif

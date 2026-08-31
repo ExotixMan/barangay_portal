@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Models\BlotterReport;
 use App\Models\Witness;
 use App\Models\ReportFile;
 use App\Support\NotifiesAdmins;
+use App\Services\SupabaseStorageService;
 
 class BlotterController extends Controller
 {
@@ -28,34 +31,51 @@ class BlotterController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'complainantContact' => preg_replace('/\D+/', '', (string) $request->input('complainantContact')),
+            'respondentContact' => preg_replace('/\D+/', '', (string) $request->input('respondentContact')),
+        ]);
+
         $request->validate([
-            'reportType' => 'required|string',
-            'incidentDate' => 'required|date',
-            'incidentTime' => 'required',
-            'incidentLocation' => 'required|string|max:255',
-            'incidentDescription' => 'required|string',
-            'complainantName' => 'required|string|max:255',
-            'complainantContact' => 'required|string|max:11',
-            'complainantAddress' => 'required|string|max:255',
-            'complainantEmail' => 'required|email',
-
-            'respondentName' => 'nullable|string|max:255',
-            'respondentContact' => 'nullable|string|max:11',
-            'respondentAddress' => 'nullable|string|max:255',
-            'respondentDescription' => 'nullable|string',
-
-            'confidentiality' => 'required|string',
-
+            'reportType' => 'required|in:dispute,security,public,other',
+            'incidentDate' => 'required|date|before_or_equal:today',
+            'incidentTime' => 'required|date_format:H:i',
+            'incidentLocation' => 'required|string|min:3|max:255',
+            'incidentDescription' => 'required|string|min:10|max:2000',
+            'immediateAction' => 'nullable|string|max:1000',
+            'complainantName' => ['required','string','min:2','max:255',"regex:/^[A-Za-z\s\-\.',]+$/"],
+            'complainantContact' => ['required','regex:/^09\d{9}$/'],
+            'complainantAddress' => 'required|string|min:5|max:255',
+            'complainantEmail' => 'required|email:rfc',
+            'respondentName' => ['nullable','string','min:2','max:255',"regex:/^[A-Za-z\s\-\.',]+$/"],
+            'respondentContact' => ['nullable','regex:/^09\d{9}$/'],
+            'respondentAddress' => 'nullable|string|min:5|max:255',
+            'respondentDescription' => 'nullable|string|max:1000',
+            'confidentiality' => 'required|in:low,medium,high',
+            'additionalInfo' => 'nullable|string|max:1000',
+            'witnesses' => 'nullable|array|max:10',
+            'witnesses.*.name' => ['nullable','string','min:2','max:255',"regex:/^[A-Za-z\s\-\.',]+$/"],
+            'witnesses.*.contact' => ['nullable','regex:/^09\d{9}$/'],
+            'witnesses.*.statement' => 'nullable|string|max:1000',
+            'photos' => 'nullable|array|max:10',
             'photos.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-            'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200',
+            'videos' => 'nullable|array|max:5',
+            'videos.*' => 'nullable|mimetypes:video/mp4,video/x-msvideo,video/quicktime|max:51200',
+            'documents' => 'nullable|array|max:10',
             'documents.*' => 'nullable|mimes:pdf,doc,docx|max:5120',
+        ], [
+            'incidentDate.before_or_equal' => 'Incident date cannot be in the future.',
+            'complainantContact.regex' => 'Complainant contact must be a valid 11-digit number starting with 09.',
+            'respondentContact.regex' => 'Respondent contact must be a valid 11-digit number starting with 09.',
+            'witnesses.*.contact.regex' => 'Witness contact must be a valid 11-digit number starting with 09.',
+            'confidentiality.in' => 'Please select a valid confidentiality level.',
         ]);
 
         DB::beginTransaction();
 
         try {
 
-            $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
+            $reference = 'BL-' . date('Y') . '-' . Str::upper(Str::random(20));
 
             $report = BlotterReport::create([
                 'user_id' => $request->user()?->id,
@@ -122,57 +142,37 @@ class BlotterController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors($e->getMessage());
+            Log::error('Incident report submission failed', ['exception' => $e]);
+            return back()->withInput()->withErrors(['submission' => 'Something went wrong while submitting your report. Please try again.']);
         }
     }
 
     private function uploadFiles(Request $request, BlotterReport $report)
     {
-        
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
+        $groups = [
+            'photos' => ['type' => 'photo', 'folder' => 'private/evidences/photos'],
+            'videos' => ['type' => 'video', 'folder' => 'private/evidences/videos'],
+            'documents' => ['type' => 'document', 'folder' => 'private/evidences/documents'],
+        ];
 
-                $ext = $photo->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_photo.' . $ext;
-
-                $photo->move(public_path('uploads/evidences/photos'), $name);
-
-                ReportFile::create([
-                    'blotter_report_id' => $report->id,
-                    'file_type' => 'photo',
-                    'file_path' => 'uploads/evidences/photos/' . $name,
-                ]);
+        foreach ($groups as $field => $config) {
+            if (!$request->hasFile($field)) {
+                continue;
             }
-        }
 
-        if ($request->hasFile('videos')) {
-            foreach ($request->file('videos') as $video) {
-
-                $ext = $video->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_video.' . $ext;
-
-                $video->move(public_path('uploads/evidences/videos'), $name);
-
-                ReportFile::create([
-                    'blotter_report_id' => $report->id,
-                    'file_type' => 'video',
-                    'file_path' => 'uploads/evidences/videos/' . $name,
-                ]);
-            }
-        }
-
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $doc) {
-
-                $ext = $doc->getClientOriginalExtension();
-                $name = time() . '_' . uniqid() . '_document.' . $ext;
-
-                $doc->move(public_path('uploads/evidences/documents'), $name);
+            foreach ($request->file($field) as $file) {
+                $extension = strtolower((string) $file->getClientOriginalExtension());
+                $name = $config['type'] . '_' . Str::uuid() . '.' . $extension;
+                $storedPath = app(SupabaseStorageService::class)->storePrivateFileWithName(
+                    $file,
+                    str_replace('private/', '', $config['folder']),
+                    $name
+                );
 
                 ReportFile::create([
                     'blotter_report_id' => $report->id,
-                    'file_type' => 'document',
-                    'file_path' => 'uploads/evidences/documents/' . $name,
+                    'file_type' => $config['type'],
+                    'file_path' => $storedPath,
                 ]);
             }
         }

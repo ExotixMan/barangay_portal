@@ -26,7 +26,7 @@ class TrackRequestController extends Controller
         );
 
         if ($reference !== '') {
-            $trackedRequest = $this->searchRequest($reference);
+            $trackedRequest = $this->protectTrackedRequest($this->searchRequest($reference));
 
             if (! $trackedRequest) {
                 $message = $request->isMethod('post')
@@ -51,9 +51,9 @@ class TrackRequestController extends Controller
             'reference_number.required' => 'Please enter your reference number.',
         ]);
 
-        $trackedRequest = $this->searchRequest(
+        $trackedRequest = $this->protectTrackedRequest($this->searchRequest(
             $this->normalizeReference($validated['reference_number'])
-        );
+        ));
 
         if (! $trackedRequest) {
             return response()->json([
@@ -68,7 +68,7 @@ class TrackRequestController extends Controller
 
     public function print(string $reference): View|RedirectResponse
     {
-        $trackedRequest = $this->searchRequest($this->normalizeReference($reference));
+        $trackedRequest = $this->protectTrackedRequest($this->searchRequest($this->normalizeReference($reference)));
 
         if (! $trackedRequest) {
             return redirect()
@@ -493,4 +493,39 @@ class TrackRequestController extends Controller
 
         return str_repeat('*', max(0, strlen($digits) - 4)) . substr($digits, -4);
     }
+    private function protectTrackedRequest(?array $trackedRequest): ?array
+    {
+        if (!$trackedRequest) {
+            return null;
+        }
+
+        $user = Auth::user();
+        $ownerId = $trackedRequest['user_id'] ?? null;
+
+        if ($user && $ownerId && (int) $ownerId === (int) $user->id) {
+            return $trackedRequest;
+        }
+
+        // Public tracking intentionally exposes status only. Personal details, remarks,
+        // contact information and incident narratives require the owning account.
+        return [
+            'reference' => $trackedRequest['reference'],
+            'type' => $trackedRequest['type'],
+            'type_code' => $trackedRequest['type_code'],
+            'date' => $trackedRequest['date'],
+            'last_updated' => $trackedRequest['last_updated'],
+            'status' => $trackedRequest['status'],
+            'status_label' => $trackedRequest['status_label'],
+            'status_lower' => $trackedRequest['status_lower'],
+            'status_tone' => $trackedRequest['status_tone'],
+            'expected_completion' => $trackedRequest['expected_completion'] ?? null,
+            'progress_percent' => $trackedRequest['progress_percent'],
+            'next_action' => $trackedRequest['next_action'],
+            'fee_label' => $trackedRequest['fee_label'] ?? null,
+            'amount' => $trackedRequest['amount'] ?? 0,
+            'steps' => $trackedRequest['steps'],
+            'public_tracking' => true,
+        ];
+    }
+
 }

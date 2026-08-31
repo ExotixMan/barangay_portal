@@ -239,8 +239,8 @@
                                         <div class="d-flex align-items-center">
                                             <div class="announcement-icon me-2">
                                                 @if($ann->image)
-                                                    <button type="button" class="photo-view-btn" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View announcement photo">
-                                                        <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="zoomable-image">
+                                                    <button type="button" class="photo-view-btn" data-click-call="openZoomModal" data-click-args="{{ json_encode([$ann->image_url]) }}" title="View announcement photo">
+                                                        <img src="{{ $ann->image_url }}" alt="{{ $ann->title }}" class="zoomable-image">
                                                     </button>
                                                 @else
                                                     <i class="fas fa-bullhorn text-primary"></i>
@@ -699,8 +699,8 @@
                                                 @endif
                                                 <div id="editImagePreview{{ $ann->id }}" class="mt-2">
                                                     @if($ann->image)
-                                                    <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View current photo">
-                                                        <img src="{{ asset($ann->image) }}" alt="Current image" class="image-preview zoomable-image">
+                                                    <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([$ann->image_url]) }}" title="View current photo">
+                                                        <img src="{{ $ann->image_url }}" alt="Current image" class="image-preview zoomable-image">
                                                         <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View current image</span>
                                                     </button>
                                                     @endif
@@ -767,8 +767,8 @@
                                 <div class="row g-3 align-items-start">
                                     @if($ann->image)
                                     <div class="col-12 col-lg-4">
-                                        <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($ann->image)]) }}" title="View full announcement photo">
-                                            <img src="{{ asset($ann->image) }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
+                                        <button type="button" class="photo-view-btn w-100" data-click-call="openZoomModal" data-click-args="{{ json_encode([$ann->image_url]) }}" title="View full announcement photo">
+                                            <img src="{{ $ann->image_url }}" alt="{{ $ann->title }}" class="modal-image-hero zoomable-image">
                                             <span class="zoom-hint"><i class="fas fa-magnifying-glass-plus"></i>View larger image</span>
                                         </button>
                                     </div>

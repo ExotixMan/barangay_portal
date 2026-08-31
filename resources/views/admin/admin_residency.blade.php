@@ -142,7 +142,7 @@
                                 <div class="d-flex gap-2 justify-content-md-end">
                                     @admin_can('create_residency')
                                     <a href="#" class="btn btn-danger flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#addApplicationModal">
-                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">Add Residency Application</span>
+                                        <i class="fas fa-plus me-2"></i><span class="d-none d-sm-inline">New Application</span>
                                     </a>
                                     @endadmin_can
                                     <a href="{{ route('admin.residency.index') }}" class="btn btn-outline-primary flex-fill flex-md-grow-0">
@@ -1467,7 +1467,7 @@
                                                 <div class="doc-head"><span><i class="fas fa-house me-1"></i>Proof of Residency</span></div>
                                                 <div class="doc-body">
                                                     @if($app->primary_proof)
-                                                        <img src="{{ asset($app->primary_proof) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->primary_proof)]) }}">
+                                                        <img src="{{ route('admin.secure.file', ['path' => $app->primary_proof]) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->primary_proof])]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No proof uploaded</span></div>
                                                     @endif

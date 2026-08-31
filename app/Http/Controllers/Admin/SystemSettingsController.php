@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\AdminSettingsService;
+use App\Services\DocumentTemplateStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -262,9 +263,9 @@ class SystemSettingsController extends Controller
     {
         $template = $this->resolveDocumentTemplate($type);
 
-        $path = public_path('document_template/' . $template['filename']);
+        $path = app(DocumentTemplateStorageService::class)->path($template['filename']);
 
-        if (! File::exists($path)) {
+        if (! $path || ! File::exists($path)) {
             return back()->withErrors([
                 'template_file' => $template['label'] . ' file is missing.',
             ]);
@@ -292,28 +293,14 @@ class SystemSettingsController extends Controller
             'template_file.max' => 'The template must not be larger than 10MB.',
         ]);
 
-        $directory = public_path('document_template');
-        File::ensureDirectoryExists($directory);
-
-        $targetPath = $directory . DIRECTORY_SEPARATOR . $template['filename'];
-
-        if (File::exists($targetPath)) {
-            $backupDirectory = $directory . DIRECTORY_SEPARATOR . 'backups';
-            File::ensureDirectoryExists($backupDirectory);
-
-            $backupName = pathinfo($template['filename'], PATHINFO_FILENAME)
-                . '_backup_'
-                . now()->format('Ymd_His')
-                . '.docx';
-
-            File::copy($targetPath, $backupDirectory . DIRECTORY_SEPARATOR . $backupName);
-        }
-
-        $request->file('template_file')->move($directory, $template['filename']);
+        app(DocumentTemplateStorageService::class)->store(
+            $request->file('template_file'),
+            $template['filename']
+        );
 
         return back()->with(
             'success',
-            $template['label'] . ' template uploaded successfully. The old file was backed up.'
+            $template['label'] . ' template uploaded successfully to persistent storage. The previous template was backed up.'
         );
     }
 

@@ -10,11 +10,11 @@ class EventProjectController extends Controller
 {
     public function index()
     {
-        $upcomingEvents = Event::where('type', 'upcoming')
+        $upcomingEvents = Event::whereDate('event_date', '>=', today())
             ->orderBy('event_date', 'asc')
             ->get();
 
-        $pastEvents = Event::where('type', 'past')
+        $pastEvents = Event::whereDate('event_date', '<', today())
             ->orderBy('event_date', 'desc')
             ->take(5)
             ->get();

@@ -22,4 +22,16 @@ yarn-error.log
 /.vscode
 /.zed
 /venv/
-/pulic/uploads
+/public/uploads
+
+/storage/app/backups/
+/storage/logs/*.log
+/storage/app/admin-settings.json
+/storage/app/private/*
+!/storage/app/private/.gitignore
+/public/uploads/valid_id/*
+!/public/uploads/valid_id/.htaccess
+/public/uploads/evidences/*
+!/public/uploads/evidences/.htaccess
+/public/uploads/proof_of_residency/*
+!/public/uploads/proof_of_residency/.htaccess

@@ -305,8 +305,8 @@
         <div class="bhd-profile-layout">
             <aside class="bhd-profile-sidebar">
                 <div class="bhd-avatar-wrap">
-                    @if($resident->profile_photo && file_exists(public_path($resident->profile_photo)))
-                        <img src="{{ asset($resident->profile_photo) }}" alt="{{ __('messages.blade_profile_blade_profile_photo') }}" class="bhd-avatar-img" loading="lazy">
+                    @if($resident->profile_photo)
+                        <img src="{{ str_starts_with($resident->profile_photo, 'private/') ? route('secure.profile-photo') : asset($resident->profile_photo) }}" alt="{{ __('messages.blade_profile_blade_profile_photo') }}" class="bhd-avatar-img" loading="lazy">
                     @else
                         <div class="bhd-avatar-initials">
                             {{ strtoupper(substr($resident->firstname,0,1)) }}{{ strtoupper(substr($resident->lastname,0,1)) }}
@@ -341,9 +341,9 @@
                     <div class="bhd-profile-stat"><span>{{ __('messages.profile_stat_total_requests') }}</span><strong>{{ $totalRequests }}</strong></div>
                 </div>
 
-                <a href="{{ route('logout.res') }}" class="bhd-btn bhd-btn-line w-100 mt-3">
+                <form method="POST" action="{{ route('logout.res') }}" style="display:inline">@csrf<button type="submit" class="bhd-btn bhd-btn-line w-100 mt-3" style="background:none;border:0;padding:0;cursor:pointer">
                     <i class="fas fa-right-from-bracket"></i> {{ __('messages.profile_signout_btn') }}
-                </a>
+                </button></form>
             </aside>
 
             <div class="bhd-form-card bhd-profile-content">
@@ -460,10 +460,10 @@
                             </div>
                         @endif
 
-                        @if(!blank($resident->birth_place ?? null))
+                        @if(!blank($resident->place_of_birth ?? null))
                             <div class="bhd-locked-box">
                                 <span>{{ __('messages.blade_indigency_form_blade_place_of_birth') }}</span>
-                                <strong>{{ $resident->birth_place }}</strong>
+                                <strong>{{ $resident->place_of_birth }}</strong>
                                 <i class="fas fa-lock"></i>
                             </div>
                         @endif
@@ -771,7 +771,7 @@
                             <div class="bhd-current-id-preview"
                                 @if($resident->valid_id && in_array(strtolower(pathinfo($resident->valid_id, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp']))
                                     data-id-viewer
-                                    data-img-src="{{ asset($resident->valid_id) }}"
+                                    data-img-src="{{ route('secure.resident-id', ['side' => 'front']) }}"
                                     data-img-label="{{ __('messages.blade_profile_blade_front') }} — {{ __('messages.blade_profile_blade_current_front') }}"
                                     role="button"
                                     tabindex="0"
@@ -780,7 +780,7 @@
                                 @if($resident->valid_id)
                                     @php $frontExt = pathinfo($resident->valid_id, PATHINFO_EXTENSION); @endphp
                                     @if(in_array(strtolower($frontExt), ['jpg','jpeg','png','webp']))
-                                        <img src="{{ asset($resident->valid_id) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_front') }}" loading="lazy">
+                                        <img src="{{ route('secure.resident-id', ['side' => 'front']) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_front') }}" loading="lazy">
                                         <span class="bhd-id-view-hint"><i class="fas fa-magnifying-glass-plus"></i></span>
                                     @else
                                         <div class="bhd-id-empty">
@@ -806,7 +806,7 @@
                             <div class="bhd-current-id-preview"
                                 @if(!empty($resident->valid_id_back) && in_array(strtolower(pathinfo($resident->valid_id_back, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp']))
                                     data-id-viewer
-                                    data-img-src="{{ asset($resident->valid_id_back) }}"
+                                    data-img-src="{{ route('secure.resident-id', ['side' => 'back']) }}"
                                     data-img-label="{{ __('messages.blade_profile_blade_back') }} — {{ __('messages.blade_profile_blade_current_back') }}"
                                     role="button"
                                     tabindex="0"
@@ -815,7 +815,7 @@
                                 @if(!empty($resident->valid_id_back))
                                     @php $backExt = pathinfo($resident->valid_id_back, PATHINFO_EXTENSION); @endphp
                                     @if(in_array(strtolower($backExt), ['jpg','jpeg','png','webp']))
-                                        <img src="{{ asset($resident->valid_id_back) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_back') }}" loading="lazy">
+                                        <img src="{{ route('secure.resident-id', ['side' => 'back']) }}" alt="{{ __('messages.blade_profile_blade_current_valid_id_back') }}" loading="lazy">
                                         <span class="bhd-id-view-hint"><i class="fas fa-magnifying-glass-plus"></i></span>
                                     @else
                                         <div class="bhd-id-empty">
@@ -1105,7 +1105,7 @@
         ['value' => 'address', 'label' => 'Address', 'current' => $resident->address ?? ''],
         ['value' => 'gender', 'label' => 'Gender', 'current' => $resident->gender ?? ''],
         ['value' => 'civil_status', 'label' => 'Civil Status', 'current' => $resident->civil_status ?? ''],
-        ['value' => 'birth_place', 'label' => 'Place of Birth', 'current' => $resident->birth_place ?? ''],
+        ['value' => 'place_of_birth', 'label' => 'Place of Birth', 'current' => $resident->place_of_birth ?? ''],
     ];
 @endphp
 

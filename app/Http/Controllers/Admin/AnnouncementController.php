@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\SupabaseStorageService;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -141,13 +142,18 @@ class AnnouncementController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
+        $newImagePath = null;
+
         try {
             
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('announcement_pic'), $imageName);
-                $data['image'] = 'announcement_pic/' . $imageName;
+                $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
+                    $request->file('image'),
+                    'announcements',
+                    'announcement',
+                    'announcement_pic'
+                );
+                $newImagePath = $data['image'];
             }
 
             $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
@@ -169,8 +175,12 @@ class AnnouncementController extends Controller
                 ->with('success', 'Announcement created successfully.');
 
         } catch (\Exception $e) {
+            if ($newImagePath) {
+                app(SupabaseStorageService::class)->delete($newImagePath);
+            }
+
             return back()->withInput()
-                ->with('error', 'Failed to create announcement. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to create announcement. Please try again.');
         }
     }
 
@@ -191,18 +201,19 @@ class AnnouncementController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
+        $newImagePath = null;
+
         try {
             
+            $oldImage = $announcement->image;
             if ($request->hasFile('image')) {
-                
-                if ($announcement->image && file_exists(public_path($announcement->image))) {
-                    unlink(public_path($announcement->image));
-                }
-
-                $image = $request->file('image');
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('announcement_pic'), $imageName);
-                $data['image'] = 'announcement_pic/' . $imageName;
+                $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
+                    $request->file('image'),
+                    'announcements',
+                    'announcement',
+                    'announcement_pic'
+                );
+                $newImagePath = $data['image'];
             }
 
             if ($announcement->title != $request->title) {
@@ -222,12 +233,20 @@ class AnnouncementController extends Controller
                     'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
                 ]);
 
+            if ($request->hasFile('image') && $oldImage && $oldImage !== $announcement->image) {
+                app(SupabaseStorageService::class)->delete($oldImage);
+            }
+
             return redirect()->route('admin.announcements.index') 
                 ->with('success', 'Announcement updated successfully.');
 
         } catch (\Exception $e) {
+            if ($newImagePath) {
+                app(SupabaseStorageService::class)->delete($newImagePath);
+            }
+
             return back()->withInput()
-                ->with('error', 'Failed to update announcement. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update announcement. Please try again.');
         }
     }
 

@@ -50,16 +50,28 @@ class EmailDeliveryService
         }
 
         try {
-            match ($provider) {
-                'resend' => $this->sendResend($email, $to, $subject, $html, $fromAddress, $fromName, $text),
-                'postmark' => $this->sendPostmark($email, $to, $subject, $html, $fromAddress, $fromName, $text),
-                'mailgun' => $this->sendMailgun($email, $to, $subject, $html, $fromAddress, $fromName, $text),
-                'sendgrid' => $this->sendSendGrid($email, $to, $subject, $html, $fromAddress, $fromName, $text),
-                'smtp', 'mail', 'failover' => $this->sendSmtp($email, $to, $subject, $html, $fromAddress, $fromName),
-                'log' => Log::info('Email delivery (log provider)', compact('to', 'subject', 'fromAddress')),
-                default => throw new RuntimeException("Unsupported email provider: {$provider}."),
-            };
+            $this->deliver($provider, $email, $to, $subject, $html, $fromAddress, $fromName, $text);
         } catch (Throwable $e) {
+            $fallback = strtolower(trim((string) env('MAIL_FALLBACK_PROVIDER', '')));
+
+            if ($fallback !== '' && $fallback !== $provider) {
+                try {
+                    Log::warning('Primary email provider failed; trying fallback.', [
+                        'provider' => $provider,
+                        'fallback' => $fallback,
+                        'to' => $to,
+                    ]);
+                    $this->deliver($fallback, $email, $to, $subject, $html, $fromAddress, $fromName, $text);
+                    return;
+                } catch (Throwable $fallbackError) {
+                    Log::error('Email fallback provider failed.', [
+                        'provider' => $fallback,
+                        'to' => $to,
+                        'message' => $fallbackError->getMessage(),
+                    ]);
+                }
+            }
+
             Log::error('Email delivery failed', [
                 'provider' => $provider,
                 'to' => $to,
@@ -67,6 +79,19 @@ class EmailDeliveryService
             ]);
             throw $e instanceof RuntimeException ? $e : new RuntimeException('Email could not be sent: ' . $e->getMessage(), 0, $e);
         }
+    }
+
+    private function deliver(string $provider, array $email, string $to, string $subject, string $html, string $fromAddress, string $fromName, ?string $text): void
+    {
+        match ($provider) {
+            'resend' => $this->sendResend($email, $to, $subject, $html, $fromAddress, $fromName, $text),
+            'postmark' => $this->sendPostmark($email, $to, $subject, $html, $fromAddress, $fromName, $text),
+            'mailgun' => $this->sendMailgun($email, $to, $subject, $html, $fromAddress, $fromName, $text),
+            'sendgrid' => $this->sendSendGrid($email, $to, $subject, $html, $fromAddress, $fromName, $text),
+            'smtp', 'mail', 'failover' => $this->sendSmtp($email, $to, $subject, $html, $fromAddress, $fromName),
+            'log' => Log::info('Email delivery (log provider)', compact('to', 'subject', 'fromAddress')),
+            default => throw new RuntimeException("Unsupported email provider: {$provider}."),
+        };
     }
 
     private function sendSmtp(array $email, string $to, string $subject, string $html, string $fromAddress, string $fromName): void

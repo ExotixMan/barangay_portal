@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\DocumentTemplateStorageService;
 use Illuminate\Http\Request;
 use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
@@ -41,7 +42,7 @@ class DocumentController extends Controller
             return $this->generateCustomRequestDocument($record, $templateText, $action);
         }
 
-        $templatePath = public_path('document_template/Doc2.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Doc2.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Word template not found');
@@ -138,7 +139,7 @@ class DocumentController extends Controller
 
         $record = IndigencyApplication::findOrFail($id);
 
-        $templatePath = public_path('document_template/Indigency_Template.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Indigency_Template.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Indigency Word template not found');
@@ -205,7 +206,7 @@ class DocumentController extends Controller
 
         $record = BarangayClearance::findOrFail($id);
 
-        $templatePath = public_path('document_template/Clearance_Template.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Clearance_Template.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Clearance Word template not found');
@@ -273,7 +274,7 @@ class DocumentController extends Controller
 
         $record = ResidencyApplication::findOrFail($id);
 
-        $templatePath = public_path('document_template/Residency_Template.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Residency_Template.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Residency Word template not found');

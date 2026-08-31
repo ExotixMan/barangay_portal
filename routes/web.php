@@ -29,6 +29,9 @@ use App\Http\Controllers\IndigencyApplicationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestsController;
+use App\Http\Controllers\Admin\RequestHubController;
+use App\Http\Controllers\SecureFileController;
+use App\Http\Controllers\Internal\MaintenanceController;
 use App\Http\Controllers\ResidencyApplicationController;
 use App\Http\Controllers\ResidentsController;
 use App\Http\Controllers\TrackRequestController;
@@ -42,6 +45,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+
+
+Route::post('/internal/maintenance/run', [MaintenanceController::class, 'run'])
+    ->middleware('throttle:6,1')
+    ->name('internal.maintenance.run');
 
 Route::prefix('chatbot')->name('chatbot.')->group(function () {
     Route::get('/',          [ChatbotController::class, 'index'])->name('index');
@@ -142,7 +150,7 @@ Route::get('/track-request/print/{reference}', [TrackRequestController::class, '
 
 Route::get('/login', [ResidentsController::class, 'showLogin'])->name('login');
 
-Route::post('/login', [ResidentsController::class, 'login_res'])->name('login.res');
+Route::post('/login', [ResidentsController::class, 'login_res'])->middleware('throttle:8,1')->name('login.res');
 Route::get('/valid-id/resubmit', [ResidentsController::class, 'showValidIdResubmission'])->name('valid-id.resubmit.form');
 Route::post('/valid-id/resubmit', [ResidentsController::class, 'resubmitValidId'])->middleware('throttle:5,1')->name('valid-id.resubmit');
 
@@ -151,12 +159,12 @@ Route::get('/register', function () {
     return view('barangay_system.register');
 })->name('register');
 
-Route::post('/register', [ResidentsController::class, 'register_res'])->name('register.res');
+Route::post('/register', [ResidentsController::class, 'register_res'])->middleware('throttle:5,10')->name('register.res');
 Route::get('/register/check-username', [ResidentsController::class, 'checkUsernameAvailability'])->name('register.check-username');
 Route::get('/register/check-availability', [ResidentsController::class, 'checkAccountAvailability'])->name('register.check-availability');
 
 Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('resident.password.request');
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('resident.password.email');
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->middleware('throttle:5,1')->name('resident.password.email');
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('resident.password.reset');
 Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('resident.password.update');
 
@@ -226,9 +234,9 @@ Route::get('/verify-otp', function (Request $request) {
     ]);
 })->name('otp.form');
 
-Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])->name('otp.verify');
+Route::post('/verify-otp', [ResidentsController::class, 'verifyOtp'])->middleware('throttle:8,1')->name('otp.verify');
 
-Route::post('/resend-otp', [ResidentsController::class, 'resendOtp'])->name('otp.resend');
+Route::post('/resend-otp', [ResidentsController::class, 'resendOtp'])->middleware('throttle:3,5')->name('otp.resend');
 
 Route::get('/email/verify', function (Request $request) {
     if ($request->user() && $request->user()->hasVerifiedEmail()) {
@@ -249,7 +257,10 @@ Route::post('/email/verification-notification', function (Request $request) {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');
+    Route::post('/logout', [ResidentsController::class, 'destroy'])->name('logout.res')->middleware('throttle:5,1');
+
+    Route::get('/secure/resident-id/{side}', [SecureFileController::class, 'residentId'])->whereIn('side', ['front', 'back', 'selfie'])->name('secure.resident-id');
+    Route::get('/secure/profile-photo', [SecureFileController::class, 'residentProfilePhoto'])->name('secure.profile-photo');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info');
@@ -376,6 +387,10 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
 
         Route::post( '/{notification}/read', [AdminNotificationController::class, 'markAsRead'] )->name('read');
     });
+
+    Route::get('/secure-file', [SecureFileController::class, 'admin'])->name('secure.file');
+
+    Route::get('/requests', [RequestHubController::class, 'index'])->middleware('permission:view_requests')->name('request.index');
 
     Route::get('/dashboard', [DashboardController::class, 'index']) ->middleware('permission:view_dashboard|view_forecast') ->name('dashboard.index');
 
@@ -539,20 +554,20 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/reset-defaults', [AdminPermissionController::class, 'resetToDefault'])->middleware('permission:reset_permission_defaults')->name('reset-defaults');
     });
 
-    Route::prefix('settings/backup')->name('backup.')->middleware('permission:view_users')->group(function () {
-        Route::get('/', [BackupSettingsController::class, 'index'])->name('index');
-        Route::post('/create', [BackupSettingsController::class, 'store'])->name('store');
-        Route::post('/restore', [BackupSettingsController::class, 'restore'])->name('restore');
-        Route::get('/download/{file}', [BackupSettingsController::class, 'download']) ->where('file', '[A-Za-z0-9._-]+') ->name('download');
-        Route::delete('/{file}', [BackupSettingsController::class, 'destroy']) ->where('file', '[A-Za-z0-9._-]+') ->name('destroy');
+    Route::prefix('settings/backup')->name('backup.')->group(function () {
+        Route::get('/', [BackupSettingsController::class, 'index'])->middleware('permission:view_backup|manage_backup|backup_system')->name('index');
+        Route::post('/create', [BackupSettingsController::class, 'store'])->middleware('permission:manage_backup|backup_system')->name('store');
+        Route::post('/restore', [BackupSettingsController::class, 'restore'])->middleware('permission:manage_backup|backup_system')->name('restore');
+        Route::get('/download/{file}', [BackupSettingsController::class, 'download'])->middleware('permission:view_backup|manage_backup|backup_system')->where('file', '[A-Za-z0-9._-]+')->name('download');
+        Route::delete('/{file}', [BackupSettingsController::class, 'destroy'])->middleware('permission:manage_backup|backup_system')->where('file', '[A-Za-z0-9._-]+')->name('destroy');
     });
 
-    Route::get('/settings', [SystemSettingsController::class, 'index'])->middleware('permission:view_users')->name('settings.index');
-    Route::put('/settings', [SystemSettingsController::class, 'update'])->middleware('permission:view_users')->name('settings.update');
-    Route::prefix('settings/document-templates') ->name('settings.templates.') ->group(function () {
+    Route::get('/settings', [SystemSettingsController::class, 'index'])->middleware('permission:system_settings')->name('settings.index');
+    Route::put('/settings', [SystemSettingsController::class, 'update'])->middleware('permission:system_settings')->name('settings.update');
+    Route::prefix('settings/document-templates')->name('settings.templates.')->middleware('permission:system_settings')->group(function () {
         Route::get('/{type}/download', [SystemSettingsController::class, 'downloadDocumentTemplate']) ->name('download');
 
         Route::post('/{type}/upload', [SystemSettingsController::class, 'uploadDocumentTemplate']) ->name('upload');
     });
-    Route::post('/settings/semaphore/refresh', [SystemSettingsController::class, 'refreshSemaphoreStats']) ->name('settings.semaphore.refresh');
+    Route::post('/settings/semaphore/refresh', [SystemSettingsController::class, 'refreshSemaphoreStats'])->middleware('permission:system_settings')->name('settings.semaphore.refresh');
 });

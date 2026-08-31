@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +18,7 @@ use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
 use App\Models\ResidentProfileCorrectionConcern;
+use App\Services\SupabaseStorageService;
 
 class ProfileController extends Controller
 {
@@ -152,7 +155,7 @@ class ProfileController extends Controller
                         'address',
                         'gender',
                         'civil_status',
-                        'birth_place',
+                        'place_of_birth',
                     ]),
                 ],
                 'current_value' => ['nullable', 'string', 'max:2000'],
@@ -176,7 +179,7 @@ class ProfileController extends Controller
                 'address' => $resident->address,
                 'gender' => $resident->gender ?? null,
                 'civil_status' => $resident->civil_status ?? null,
-                'birth_place' => $resident->birth_place ?? null,
+                'place_of_birth' => $resident->place_of_birth ?? null,
             ];
 
             $fieldName = $validated['field_name'];
@@ -263,10 +266,11 @@ class ProfileController extends Controller
 
         $request->validate([
             'current_password' => ['required', 'string'],
-            'new_password'     => ['required', 'string', 'min:8', 'confirmed'],
+            'new_password'     => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'new_password.confirmed' => 'The new password confirmation does not match.',
-            'new_password.min'       => 'New password must be at least 8 characters.',
+            'new_password.regex'     => 'New password cannot contain spaces.',
+            'new_password.*'         => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
         if (!Hash::check($request->current_password, $resident->password)) {
@@ -297,22 +301,18 @@ class ProfileController extends Controller
 
         $resident = Auth::user();
 
-        if ($resident->profile_photo && file_exists(public_path($resident->profile_photo))) {
-            unlink(public_path($resident->profile_photo));
-        }
+        $oldProfilePhoto = $resident->profile_photo;
 
         try {
-            $uploadDir = public_path('uploads/profile_photos');
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
+            $file = $request->file('profile_photo');
+            $newProfilePhoto = app(SupabaseStorageService::class)->storePrivateUpload(
+                $file,
+                'profile_photos',
+                'profile_' . $resident->id
+            );
 
-            $file      = $request->file('profile_photo');
-            $extension = strtolower($file->getClientOriginalExtension());
-            $filename  = 'profile_' . $resident->id . '_' . time() . '.' . $extension;
-            $file->move($uploadDir, $filename);
-
-            $resident->update(['profile_photo' => 'uploads/profile_photos/' . $filename]);
+            $resident->update(['profile_photo' => $newProfilePhoto]);
+            $this->deletePublicFile($oldProfilePhoto);
         } catch (\Throwable $e) {
             return redirect()->route('profile')
                 ->withErrors(['profile_photo' => 'Photo upload failed. Please try again.'])
@@ -327,11 +327,9 @@ class ProfileController extends Controller
         
         $resident = Auth::user();
 
-        if ($resident->profile_photo && file_exists(public_path($resident->profile_photo))) {
-            unlink(public_path($resident->profile_photo));
-        }
-
+        $oldProfilePhoto = $resident->profile_photo;
         $resident->update(['profile_photo' => null]);
+        $this->deletePublicFile($oldProfilePhoto);
 
         return redirect()->route('profile')->with('success_photo', 'Profile photo removed.');
     }
@@ -368,11 +366,10 @@ class ProfileController extends Controller
         }
 
         try {
+            $oldFrontPath = $resident->valid_id;
+            $oldBackPath = $resident->valid_id_back ?? null;
             $frontPath = $this->storeResidentValidIdFile($frontFile, $resident, 'front');
             $backPath = $this->storeResidentValidIdFile($backFile, $resident, 'back');
-
-            $this->deletePublicFile($resident->valid_id);
-            $this->deletePublicFile($resident->valid_id_back ?? null);
 
             $resident->forceFill([
                 'valid_id' => $frontPath,
@@ -383,6 +380,9 @@ class ProfileController extends Controller
                 'valid_id_verified_by' => null,
                 'valid_id_rejection_reason' => null,
             ])->save();
+
+            $this->deletePublicFile($oldFrontPath);
+            $this->deletePublicFile($oldBackPath);
         } catch (\Throwable $e) {
             report($e);
 
@@ -398,18 +398,16 @@ class ProfileController extends Controller
 
     private function storeResidentValidIdFile(UploadedFile $file, Residents $resident, string $side): string
     {
-        $uploadDir = public_path('uploads/valid_id/residents');
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
+        $uploadDir = 'private/valid_id/residents';
 
         $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
         $filename = 'valid_id_' . $side . '_' . now()->format('Ymd_His') . '_' . $resident->id . '_' . Str::random(10) . '.' . $extension;
 
-        $file->move($uploadDir, $filename);
-
-        return 'uploads/valid_id/residents/' . $filename;
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'valid_id/residents',
+            $filename
+        );
     }
 
     private function deletePublicFile(?string $path): void
@@ -418,12 +416,11 @@ class ProfileController extends Controller
             return;
         }
 
-        $cleanPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
-        $fullPath = public_path($cleanPath);
-
-        if (is_file($fullPath)) {
-            @unlink($fullPath);
+        if (str_contains($path, '..')) {
+            return;
         }
+
+        app(SupabaseStorageService::class)->delete($path);
     }
 
     private function uploadedFilesAreIdentical(UploadedFile $frontFile, UploadedFile $backFile): bool

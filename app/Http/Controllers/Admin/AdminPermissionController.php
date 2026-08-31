@@ -101,7 +101,7 @@ class AdminPermissionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Failed to update permissions: ' . $e->getMessage());
+                ->with('error', 'Failed to update permissions.');
         }
     }
 
@@ -251,7 +251,7 @@ class AdminPermissionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Failed to reset permissions: ' . $e->getMessage());
+                ->with('error', 'Failed to reset permissions.');
         }
     }
     

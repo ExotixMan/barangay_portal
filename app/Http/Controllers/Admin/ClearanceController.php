@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
 use App\Models\BarangayClearance;
 use App\Models\Residents;
 use Illuminate\Http\Request;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 
 class ClearanceController extends Controller
 {
+    use HandlesPrivateUploads;
     public function index(Request $request)
     {
         $query = BarangayClearance::query();
@@ -157,24 +160,21 @@ class ClearanceController extends Controller
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
                 $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
-                $proof->move(public_path('uploads/proof_of_residency/clearance'), $proofName);
-                $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
+                $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/clearance', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')){
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
                 $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
-                $vip->move(public_path('uploads/valid_id/clearance'), $vip_name);
-                $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vip_name;
+                $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/clearance', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')){
                 $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
                 $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
-                $vipBack->move(public_path('uploads/valid_id/clearance'), $vipBackName);
-                $data['valid_id_back_path'] = 'uploads/valid_id/clearance/' . $vipBackName;
+                $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/clearance', 'id_back');
             }
 
             $data['reference_number'] = 'BC-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
@@ -194,7 +194,7 @@ class ClearanceController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to submit application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to submit application. Please try again.');
         }
     }
 
@@ -228,41 +228,32 @@ class ClearanceController extends Controller
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);
 
+        $oldSensitiveFiles = [
+            'primary_proof' => $application->primary_proof,
+            'valid_id_path' => $application->valid_id_path,
+            'valid_id_back_path' => $application->valid_id_back_path,
+        ];
+
         try {
             if ($request->hasFile('primary_proof')) {
-                if ($application->primary_proof && File::exists(public_path($application->primary_proof))) {
-                    File::delete(public_path($application->primary_proof));
-                }
-
-                $proof = $request->file('primary_proof');
+$proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
                 $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
-                $proof->move(public_path('uploads/proof_of_residency/clearance'), $proofName);
-                $data['primary_proof'] = 'uploads/proof_of_residency/clearance/' . $proofName;
+                $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/clearance', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')) {
-                if ($application->valid_id_path && File::exists(public_path($application->valid_id_path))) {
-                    File::delete(public_path($application->valid_id_path));
-                }
-
-                $vip = $request->file('valid_id_path');
+$vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
                 $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
-                $vip->move(public_path('uploads/valid_id/clearance'), $vipName);
-                $data['valid_id_path'] = 'uploads/valid_id/clearance/' . $vipName;
+                $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/clearance', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')) {
-                if ($application->valid_id_back_path && File::exists(public_path($application->valid_id_back_path))) {
-                    File::delete(public_path($application->valid_id_back_path));
-                }
-
-                $vipBack = $request->file('valid_id_back_path');
+$vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
                 $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
-                $vipBack->move(public_path('uploads/valid_id/clearance'), $vipBackName);
-                $data['valid_id_back_path'] = 'uploads/valid_id/clearance/' . $vipBackName;
+                $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/clearance', 'id_back');
             }
 
             if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
@@ -273,11 +264,17 @@ class ClearanceController extends Controller
 
             $application->update($data);
 
+            foreach ($oldSensitiveFiles as $field => $oldPath) {
+                if ($request->hasFile($field) && $oldPath && $oldPath !== ($application->{$field} ?? null)) {
+                    $this->deleteStoredUpload($oldPath);
+                }
+            }
+
             return redirect()->route('admin.clearance.index')
                 ->with('success', 'Application #' . $application->reference_number . ' updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update application. Please try again.');
         }
     }
 
@@ -688,10 +685,9 @@ class ClearanceController extends Controller
 
         $record = BarangayClearance::findOrFail($id);
 
-        $clearanceTemplatePath = public_path('document_template/Clearance_Template.docx');
-        $templatePath = file_exists($clearanceTemplatePath)
-            ? $clearanceTemplatePath
-            : public_path('document_template/Doc2.docx');
+        $templates = app(DocumentTemplateStorageService::class);
+        $templatePath = $templates->path('Clearance_Template.docx')
+            ?? $templates->path('Doc2.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Word template not found');
@@ -773,7 +769,7 @@ class ClearanceController extends Controller
                     'error' => $e->getMessage(),
                 ]);
 
-                return back()->with('error', 'The Word document was created, but PDF printing failed. ' . $e->getMessage());
+                return back()->with('error', 'The Word document was created, but PDF printing failed. Please check the document service logs.');
             }
 
             @unlink($docxPath);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\SupabaseStorageService;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -26,8 +27,10 @@ class EventController extends Controller
         if ($request->type && in_array($request->type, ['upcoming', 'past', 'deleted'], true)) {
             if ($request->type === 'deleted') {
                 $query->onlyTrashed();
+            } elseif ($request->type === 'upcoming') {
+                $query->whereDate('event_date', '>=', today());
             } else {
-                $query->where('type', $request->type);
+                $query->whereDate('event_date', '<', today());
             }
         }
 
@@ -40,8 +43,8 @@ class EventController extends Controller
         }
 
         $total_count = Event::withTrashed()->count();
-        $upcoming_count = Event::where('type', 'upcoming')->count();
-        $past_count = Event::where('type', 'past')->count();
+        $upcoming_count = Event::whereDate('event_date', '>=', today())->count();
+        $past_count = Event::whereDate('event_date', '<', today())->count();
         $total_attendees = Event::sum('attendees');
 
         $sort = $request->get('sort', 'event_date');
@@ -74,35 +77,45 @@ class EventController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'event_date' => 'required|date',
-            'start_time' => 'nullable',
-            'end_time' => 'nullable',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
             'location' => 'required|string|max:255',
             'attendees' => 'nullable|integer|min:0',
-            'type' => 'required|in:upcoming,past',
+            'type' => 'nullable|in:upcoming,past',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        $newImagePath = null;
 
         try {
             
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/events'), $imageName);
-                $data['image'] = 'uploads/events/' . $imageName;
+                $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
+                    $request->file('image'),
+                    'events',
+                    'event',
+                    'uploads/events'
+                );
+                $newImagePath = $data['image'];
             }
 
             if (!isset($data['attendees'])) {
                 $data['attendees'] = 0;
             }
 
+            $data['type'] = Carbon::parse($data['event_date'])->startOfDay()->gte(today()) ? 'upcoming' : 'past';
             Event::create($data);
 
             return redirect()->route('admin.events.index')
                 ->with('success', 'Event created successfully.');
 
         } catch (\Exception $e) {
+            if ($newImagePath) {
+                app(SupabaseStorageService::class)->delete($newImagePath);
+            }
+
             return back()->withInput()
-                ->with('error', 'Failed to create event. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to create event. Please try again.');
         }
     }
 
@@ -117,36 +130,46 @@ class EventController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'event_date' => 'required|date',
-            'start_time' => 'nullable',
-            'end_time' => 'nullable',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
             'location' => 'required|string|max:255',
             'attendees' => 'nullable|integer|min:0',
-            'type' => 'required|in:upcoming,past',
+            'type' => 'nullable|in:upcoming,past',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
+        $newImagePath = null;
+
         try {
             
+            $oldImage = $event->image;
             if ($request->hasFile('image')) {
-                
-                if ($event->image && file_exists(public_path($event->image))) {
-                    unlink(public_path($event->image));
-                }
-
-                $image = $request->file('image');
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/events'), $imageName);
-                $data['image'] = 'uploads/events/' . $imageName;
+                $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
+                    $request->file('image'),
+                    'events',
+                    'event',
+                    'uploads/events'
+                );
+                $newImagePath = $data['image'];
             }
 
+            $data['type'] = Carbon::parse($data['event_date'])->startOfDay()->gte(today()) ? 'upcoming' : 'past';
             $event->update($data);
+
+            if ($request->hasFile('image') && $oldImage && $oldImage !== $event->image) {
+                app(SupabaseStorageService::class)->delete($oldImage);
+            }
 
             return redirect()->route('admin.events.index') 
                 ->with('success', 'Event updated successfully.');
 
         } catch (\Exception $e) {
+            if ($newImagePath) {
+                app(SupabaseStorageService::class)->delete($newImagePath);
+            }
+
             return back()->withInput()
-                ->with('error', 'Failed to update event. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update event. Please try again.');
         }
     }
 

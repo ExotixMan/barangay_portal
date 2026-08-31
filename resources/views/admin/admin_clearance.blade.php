@@ -1348,7 +1348,7 @@
                                                 <div class="doc-head"><span><i class="fas fa-house me-1"></i>Proof of Residency</span></div>
                                                 <div class="doc-body">
                                                     @if($app->primary_proof)
-                                                        <img src="{{ asset($app->primary_proof) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->primary_proof)]) }}">
+                                                        <img src="{{ route('admin.secure.file', ['path' => $app->primary_proof]) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->primary_proof])]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No proof uploaded</span></div>
                                                     @endif
@@ -1358,7 +1358,7 @@
                                                 <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Front</span></div>
                                                 <div class="doc-body">
                                                     @if($app->valid_id_path)
-                                                        <img src="{{ asset($app->valid_id_path) }}" alt="Valid ID front" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->valid_id_path)]) }}">
+                                                        <img src="{{ route('admin.secure.file', ['path' => $app->valid_id_path]) }}" alt="Valid ID front" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->valid_id_path])]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No valid ID uploaded</span></div>
                                                     @endif
@@ -1368,7 +1368,7 @@
                                                 <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Back</span></div>
                                                 <div class="doc-body">
                                                     @if($app->valid_id_back_path)
-                                                        <img src="{{ asset($app->valid_id_back_path) }}" alt="Valid ID back" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->valid_id_back_path)]) }}">
+                                                        <img src="{{ route('admin.secure.file', ['path' => $app->valid_id_back_path]) }}" alt="Valid ID back" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->valid_id_back_path])]) }}">
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No back ID uploaded</span></div>
                                                     @endif

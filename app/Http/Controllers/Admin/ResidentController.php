@@ -10,11 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 use App\Services\AdminSettingsService;
+use App\Services\SupabaseStorageService;
 
 class ResidentController extends Controller
 {
@@ -146,18 +148,18 @@ class ResidentController extends Controller
         ]);
 
         $validated = $request->validate([
-            'firstname' => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
-            'middlename' => ['nullable','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
-            'lastname'  => ['required','string','min:2','max:255','regex:/^[a-zA-Z\s\-\.]+$/'],
-            'suffix' => ['nullable','string','max:50','regex:/^[a-zA-Z\s\.,]+$/'],
-            'username'  => ['required','string','min:3','max:255','regex:/^[a-zA-Z0-9_]+$/','unique:residents,username'],
+            'firstname' => ['required','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
+            'middlename' => ['nullable','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
+            'lastname'  => ['required','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
+            'suffix' => ['nullable','string','max:10','in:Jr.,Sr.,II,III,IV,V'],
+            'username'  => ['required','string','min:4','max:50','regex:/^[a-zA-Z0-9_.-]+$/','unique:residents,username'],
             'email'     => 'required|email|max:255|unique:residents,email',
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
-            'gender' => ['required', 'string', 'in:Male,Female,Other,Prefer not to say'],
-            'civil_status' => ['required', 'string', 'in:Single,Married,Widowed,Separated,Divorced'],
-            'place_of_birth' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'string', 'in:Male,Female,Prefer not to say'],
+            'civil_status' => ['required', 'string', 'in:Single,Married,Widowed,Separated'],
+            'place_of_birth' => ['required','string','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
             'password'  => ['required','confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
-            'contact'   => ['required','string','regex:/^09[0-9]{9}$/'],
+            'contact'   => ['required','string','regex:/^09[0-9]{9}$/','unique:residents,contact'],
             'address'   => 'required|string|max:500',
             'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
@@ -167,7 +169,7 @@ class ResidentController extends Controller
             'lastname.regex'    => 'Last name can only contain letters, spaces, and hyphens.',
             'suffix.regex'      => 'Suffix can only contain letters, spaces, and periods.',
             'username.regex'    => 'Username can only contain letters, numbers, and underscores.',
-            'username.min'      => 'Username must be at least 3 characters.',
+            'username.min'      => 'Username must be at least 4 characters.',
             'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
             'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
             'password.regex'    => 'Password cannot contain spaces.',
@@ -292,6 +294,13 @@ class ResidentController extends Controller
                     'contact number' => 'contact',
 
                     'address' => 'address',
+                    'gender' => 'gender',
+                    'civil status' => 'civil_status',
+                    'civil_status' => 'civil_status',
+                    'place of birth' => 'place_of_birth',
+                    'place_of_birth' => 'place_of_birth',
+                    'birth place' => 'place_of_birth',
+                    'birth_place' => 'place_of_birth',
                 ];
 
                 $residentField = $fieldAliases[$field] ?? null;
@@ -422,6 +431,26 @@ class ResidentController extends Controller
                             'error',
                             'The requested address is invalid.'
                         );
+                    }
+                }
+
+                if ($residentField === 'gender') {
+                    $allowedGenders = ['Male', 'Female', 'Prefer not to say'];
+                    if (!in_array($correctValue, $allowedGenders, true)) {
+                        return back()->with('error', 'The requested gender is invalid.');
+                    }
+                }
+
+                if ($residentField === 'civil_status') {
+                    $allowedStatuses = ['Single', 'Married', 'Widowed', 'Separated'];
+                    if (!in_array($correctValue, $allowedStatuses, true)) {
+                        return back()->with('error', 'The requested civil status is invalid.');
+                    }
+                }
+
+                if ($residentField === 'place_of_birth') {
+                    if ($correctValue === '' || strlen($correctValue) > 255 || !preg_match('/^[\pL\s\'\.,-]+$/u', $correctValue)) {
+                        return back()->with('error', 'The requested place of birth is invalid.');
                     }
                 }
 
@@ -1079,18 +1108,16 @@ class ResidentController extends Controller
             throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
         }
 
-        $uploadDirectory = public_path('uploads/valid_id/residents');
-
-        if (!is_dir($uploadDirectory)) {
-            mkdir($uploadDirectory, 0755, true);
-        }
+        $uploadDirectory = 'private/valid_id/residents';
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
 
-        $file->move($uploadDirectory, $filename);
-
-        return 'uploads/valid_id/residents/' . $filename;
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'valid_id/residents',
+            $filename
+        );
     }
 
     private function deleteResidentValidIdFile(?string $path): void
@@ -1099,11 +1126,7 @@ class ResidentController extends Controller
             return;
         }
 
-        $fullPath = public_path($path);
-
-        if (is_file($fullPath)) {
-            @unlink($fullPath);
-        }
+        app(SupabaseStorageService::class)->delete($path);
     }
 
     public function bulkDelete(Request $request)

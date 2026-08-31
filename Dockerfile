@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libzip-dev \
     libpq-dev \
+    postgresql-client \
     libreoffice-writer \
     libreoffice-core \
     libreoffice-common \

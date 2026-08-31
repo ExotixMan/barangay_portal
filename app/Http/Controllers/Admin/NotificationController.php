@@ -254,7 +254,7 @@ class NotificationController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Email was not sent: ' . $e->getMessage());
+            return back()->with('error', 'Email was not sent. Please check the mail settings or server logs.');
         }
 
         $this->recordNotification('email', $validated['email'], 'email_channel');
@@ -368,7 +368,7 @@ class NotificationController extends Controller
             return back()->with('error', 'Failed to send SMS (HTTP ' . $response->status() . '): ' . $response->body());
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+            return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 

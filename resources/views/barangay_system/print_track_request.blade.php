@@ -53,7 +53,7 @@
         </div>
         <div class="detail-row">
             <div class="detail-label">{{ __('messages.print_applicant_label') }}</div>
-            <div class="detail-value">{{ $trackedRequest['name'] }}</div>
+            <div class="detail-value">{{ $trackedRequest['name'] ?? 'Resident' }}</div>
         </div>
         <div class="detail-row">
             <div class="detail-label">{{ __('messages.print_date_label') }}</div>
@@ -155,7 +155,7 @@
     'id' => 'js-config-barangay-system-print-track-request-1',
     'data' => [
         'v1' => e($trackedRequest['reference']),
-        'v2' => e($trackedRequest['name']),
+        'v2' => e($trackedRequest['name'] ?? 'Resident'),
         'v3' => e($trackedRequest['date']),
         'v4' => __('messages.blade_print_qr_ref_name_date'),
         'v5' => __('messages.blade_jsdyn_qr_code_for_reference'),

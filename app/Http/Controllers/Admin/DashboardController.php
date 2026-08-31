@@ -9,12 +9,11 @@ use App\Models\ResidencyApplication;
 use App\Models\IndigencyApplication;
 use App\Models\BlotterReport;
 use App\Models\Event;
-use Illuminate\Support\Facades\Artisan;
+use App\Services\ForecastService;
 use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    
     private function getDashboardStats(): array
     {
         $pendingStatuses = ['pending', 'under_review', 'processing'];
@@ -28,121 +27,77 @@ class DashboardController extends Controller
             'totalResidents' => Residents::count(),
             'pendingRequests' => $pendingRequests,
             'openReports' => BlotterReport::where('status', 'processing')->count(),
-            'upcomingEvents' => Event::where('event_date', '>=', now())->count(),
+            'upcomingEvents' => Event::whereDate('event_date', '>=', now('Asia/Manila')->toDateString())->count(),
         ];
     }
 
-    public function index()
+    public function index(ForecastService $forecast)
     {
-        $forecastPath = public_path('analytics/forecast.json');
-
-        $forecastLastUpdated = file_exists($forecastPath)
-            ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath), 'Asia/Manila')->format('M d, Y h:i A') . ' PHT'
-            : null;
-
+        $data = $forecast->data(true);
+        $updatedAt = $forecast->updatedAt($data);
+        $forecastLastUpdated = $updatedAt?->format('M d, Y h:i A') . ($updatedAt ? ' PHT' : '');
         $stats = $this->getDashboardStats();
 
         return view('admin.dashboard', compact('stats', 'forecastLastUpdated'));
     }
 
-    public function liveStats()
+    public function liveStats(ForecastService $forecast)
     {
-        $forecastPath = public_path('analytics/forecast.json');
-        $forecastLastUpdated = file_exists($forecastPath)
-            ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath), 'Asia/Manila')->format('M d, Y h:i A') . ' PHT'
-            : null;
+        $data = $forecast->data(false);
+        $updatedAt = $forecast->updatedAt($data);
 
         return response()->json([
             'stats' => $this->getDashboardStats(),
-            'forecastLastUpdated' => $forecastLastUpdated,
+            'forecastLastUpdated' => $updatedAt ? $updatedAt->format('M d, Y h:i A') . ' PHT' : null,
             'serverTime' => now()->toIso8601String(),
         ]);
     }
 
-    public function forecastRequests()
+    public function forecastRequests(ForecastService $forecast)
     {
         try {
-            
-            $forecastPath = public_path('analytics/forecast.json');
+            $data = $forecast->data(true);
 
-            if (!file_exists($forecastPath)) {
-                Log::warning('Forecast file not found at: ' . $forecastPath);
+            if ($data === null) {
                 return response()->json([
-                    'error' => 'Forecast file not generated yet',
+                    'error' => 'Forecast has not been generated yet.',
                     'applications' => [],
                     'blotter_reports' => [],
-                    'announcements' => []
-                ], 404);
+                    'announcements' => [],
+                ], 503);
             }
 
-            $forecast = json_decode(file_get_contents($forecastPath), true);
+            return response()->json($data)
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        } catch (\Throwable $e) {
+            Log::error('Forecast endpoint failed.', ['message' => $e->getMessage()]);
 
-            if (!$forecast) {
-                Log::error('Failed to decode forecast JSON');
-                return response()->json([
-                    'error' => 'Invalid forecast data',
-                    'applications' => [],
-                    'blotter_reports' => [],
-                    'announcements' => []
-                ], 500);
-            }
-
-            return response()->json($forecast);
-
-        } catch (\Exception $e) {
-            Log::error('Forecast error: ' . $e->getMessage());
             return response()->json([
-                'error' => $e->getMessage(),
+                'error' => 'Forecast data is temporarily unavailable.',
                 'applications' => [],
                 'blotter_reports' => [],
-                'announcements' => []
+                'announcements' => [],
             ], 500);
         }
     }
 
-    public function refreshForecast()
+    public function refreshForecast(ForecastService $forecast)
     {
         try {
-            $exitCode = Artisan::call('analytics:refresh-forecast');
-            $commandOutput = Artisan::output();
-
-            if ($exitCode !== 0) {
-                Log::error('Forecast command failed.', [
-                    'exit_code' => $exitCode,
-                    'output' => $commandOutput,
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Forecast command failed.',
-                    'error' => $commandOutput ?: 'No command output.',
-                ], 500);
-            }
-
-            $forecastPath = public_path('analytics/forecast.json');
-
-            clearstatcache(true, $forecastPath);
-
-            $forecastLastUpdated = file_exists($forecastPath)
-                ? \Carbon\Carbon::createFromTimestamp(filemtime($forecastPath))
-                    ->timezone('Asia/Manila')
-                    ->format('M d, Y h:i A') . ' PHT'
-                : null;
+            $data = $forecast->refresh();
+            $updatedAt = $forecast->updatedAt($data);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Forecast refreshed successfully.',
-                'forecastLastUpdated' => $forecastLastUpdated,
-                'output' => $commandOutput,
+                'forecastLastUpdated' => $updatedAt ? $updatedAt->format('M d, Y h:i A') . ' PHT' : null,
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-
         } catch (\Throwable $e) {
-            Log::error('Forecast refresh command failed: ' . $e->getMessage());
+            Log::error('Forecast refresh failed.', ['message' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to refresh forecast.',
-                'error' => $e->getMessage(),
+                'message' => 'Failed to refresh forecast. Please check the server logs.',
             ], 500);
         }
     }

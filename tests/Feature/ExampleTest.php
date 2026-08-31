@@ -2,17 +2,17 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_returns_a_successful_response(): void
+    public function test_public_login_page_is_available(): void
     {
-        $response = $this->get('/');
+        $this->get('/login')->assertSuccessful();
+    }
 
-        $response->assertStatus(200);
+    public function test_public_registration_page_is_available(): void
+    {
+        $this->get('/register')->assertSuccessful();
     }
 }

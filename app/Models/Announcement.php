@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Services\SupabaseStorageService;
 
 class Announcement extends Model
 {
@@ -47,15 +48,11 @@ class Announcement extends Model
 
         $normalized = str_replace('\\', '/', $image);
 
-        if (Str::startsWith($normalized, ['http://', 'https://', '//'])) {
-            return $normalized;
-        }
-
         if (Str::startsWith($normalized, 'public/')) {
             $normalized = Str::after($normalized, 'public/');
         }
 
-        return asset(ltrim($normalized, '/'));
+        return app(SupabaseStorageService::class)->publicUrl($normalized) ?? asset('Images/logo.png');
     }
 
 }

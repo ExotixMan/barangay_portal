@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class BackupArchiveService
@@ -14,24 +15,25 @@ class BackupArchiveService
         'uploads',
         'announcement_pic',
         'generated_documents',
+        'private_uploads',
     ];
 
     public function createBackup(): string
     {
-        if (!class_exists(ZipArchive::class)) {
+        if (! class_exists(ZipArchive::class)) {
             throw new \RuntimeException('Zip extension is not enabled on this server.');
         }
 
         set_time_limit(0);
 
         $backupDirectory = $this->backupDirectory();
-        if (!is_dir($backupDirectory)) {
-            mkdir($backupDirectory, 0755, true);
-        }
+        File::ensureDirectoryExists($backupDirectory);
+        File::ensureDirectoryExists(storage_path('app/runtime/backups'));
 
         $timestamp = now('Asia/Manila')->format('Ymd_His');
         $fileName = "barangay_backup_{$timestamp}.zip";
         $zipPath = $backupDirectory . DIRECTORY_SEPARATOR . $fileName;
+        $databaseSqlPath = storage_path('app/runtime/backups/database_' . $timestamp . '_' . uniqid() . '.sql');
 
         $zip = new ZipArchive();
         $openResult = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -41,35 +43,101 @@ class BackupArchiveService
         }
 
         try {
-            $databaseSql = $this->buildDatabaseSqlDump();
-            $zip->addFromString('database.sql', $databaseSql);
+            $dumpMethod = $this->writeDatabaseDump($databaseSqlPath);
+            $zip->addFile($databaseSqlPath, 'database.sql');
 
             $zip->addFromString('manifest.json', json_encode([
-                'generated_at' => now('Asia/Manila')->toDateTimeString(),
+                'generated_at' => now('Asia/Manila')->toIso8601String(),
                 'app_name' => config('app.name'),
                 'app_url' => config('app.url'),
                 'environment' => config('app.env'),
                 'php_version' => PHP_VERSION,
                 'database_connection' => config('database.default'),
+                'database_dump_method' => $dumpMethod,
                 'backup_type' => 'automatic_or_manual',
-            ], JSON_PRETTY_PRINT));
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+            $zip->addFromString('supabase_storage_manifest.json', json_encode([
+                'generated_at' => now('Asia/Manila')->toIso8601String(),
+                'private_bucket' => config('supabase_storage.private_bucket'),
+                'public_bucket' => config('supabase_storage.public_bucket'),
+                'objects_embedded_in_zip' => false,
+                'note' => 'Supabase Storage objects remain in their persistent buckets. Database records keep their stored object paths.',
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
             $this->addDirectoryToZip(public_path('uploads'), $zip, 'uploads');
             $this->addDirectoryToZip(public_path('announcement_pic'), $zip, 'announcement_pic');
             $this->addDirectoryToZip(storage_path('app/generated'), $zip, 'generated_documents');
+            $this->addDirectoryToZip(storage_path('app/private'), $zip, 'private_uploads');
 
             $zip->close();
         } catch (\Throwable $e) {
             $zip->close();
-
-            if (file_exists($zipPath)) {
+            if (is_file($zipPath)) {
                 @unlink($zipPath);
             }
-
             throw $e;
+        } finally {
+            if (is_file($databaseSqlPath)) {
+                @unlink($databaseSqlPath);
+            }
         }
 
         return $fileName;
+    }
+
+    private function writeDatabaseDump(string $destination): string
+    {
+        $connection = DB::connection();
+        if ($connection->getDriverName() !== 'pgsql') {
+            File::put($destination, $this->buildDatabaseSqlDump());
+            return 'laravel_sql_export';
+        }
+
+        try {
+            $db = config('database.connections.' . config('database.default'), []);
+            $host = (string) (config('maintenance.backup_db_host') ?: ($db['host'] ?? ''));
+            $port = (string) (config('maintenance.backup_db_port') ?: ($db['port'] ?? '5432'));
+            $database = (string) ($db['database'] ?? '');
+            $username = (string) ($db['username'] ?? '');
+            $password = (string) ($db['password'] ?? '');
+
+            // Supabase's transaction pooler commonly uses 6543. pg_dump/psql are
+            // more reliable through the session pooler on 5432.
+            if (str_contains($host, '.pooler.supabase.com') && $port === '6543') {
+                $port = '5432';
+            }
+
+            $process = new Process([
+                'pg_dump',
+                '--host=' . $host,
+                '--port=' . $port,
+                '--username=' . $username,
+                '--dbname=' . $database,
+                '--format=plain',
+                '--clean',
+                '--if-exists',
+                '--no-owner',
+                '--no-privileges',
+                '--schema=public',
+                '--file=' . $destination,
+            ], base_path(), [
+                'PGPASSWORD' => $password,
+                'PGSSLMODE' => (string) ($db['sslmode'] ?? 'require'),
+                'PATH' => (string) getenv('PATH'),
+            ]);
+            $process->setTimeout(900);
+            $process->run();
+
+            if ($process->isSuccessful() && is_file($destination) && filesize($destination) > 0) {
+                return 'pg_dump';
+            }
+        } catch (\Throwable) {
+            // Fall through to the application-level SQL exporter below.
+        }
+
+        File::put($destination, $this->buildDatabaseSqlDump());
+        return 'laravel_sql_export_fallback';
     }
 
     public function backupDirectory(): string
@@ -107,6 +175,10 @@ class BackupArchiveService
             $this->syncDirectory(
                 $tempDirectory . DIRECTORY_SEPARATOR . 'generated_documents',
                 storage_path('app/generated')
+            );
+            $this->syncDirectory(
+                $tempDirectory . DIRECTORY_SEPARATOR . 'private_uploads',
+                storage_path('app/private')
             );
         } finally {
             File::deleteDirectory($tempDirectory);
@@ -618,6 +690,11 @@ class BackupArchiveService
         $driver = $connection->getDriverName();
 
         if ($driver === 'pgsql') {
+            if (str_contains($sql, 'PostgreSQL database dump') && $this->restorePostgresWithPsql($databaseSqlPath)) {
+                $this->syncPostgresSequences($connection);
+                return;
+            }
+
             $this->restorePostgresSql($connection, $sql);
             $this->syncPostgresSequences($connection);
             return;
@@ -636,6 +713,50 @@ class BackupArchiveService
         }
 
         $connection->unprepared($sql);
+    }
+
+    private function restorePostgresWithPsql(string $databaseSqlPath): bool
+    {
+        try {
+            $db = config('database.connections.' . config('database.default'), []);
+            $host = (string) (config('maintenance.backup_db_host') ?: ($db['host'] ?? ''));
+            $port = (string) (config('maintenance.backup_db_port') ?: ($db['port'] ?? '5432'));
+            $database = (string) ($db['database'] ?? '');
+            $username = (string) ($db['username'] ?? '');
+            $password = (string) ($db['password'] ?? '');
+
+            if (str_contains($host, '.pooler.supabase.com') && $port === '6543') {
+                $port = '5432';
+            }
+
+            $process = new Process([
+                'psql',
+                '--host=' . $host,
+                '--port=' . $port,
+                '--username=' . $username,
+                '--dbname=' . $database,
+                '--set=ON_ERROR_STOP=on',
+                '--single-transaction',
+                '--file=' . $databaseSqlPath,
+            ], base_path(), [
+                'PGPASSWORD' => $password,
+                'PGSSLMODE' => (string) ($db['sslmode'] ?? 'require'),
+                'PATH' => (string) getenv('PATH'),
+            ]);
+            $process->setTimeout(900);
+            $process->run();
+
+            if (! $process->isSuccessful()) {
+                throw new \RuntimeException(trim($process->getErrorOutput()) ?: 'PostgreSQL restore failed.');
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            if (str_contains(File::get($databaseSqlPath), '\\restrict')) {
+                throw $e;
+            }
+            return false;
+        }
     }
 
     private function restorePostgresSql($connection, string $sql): void

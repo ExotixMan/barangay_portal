@@ -28,19 +28,30 @@ LAGS = (1, 7, 14, 28)
 ROLLING_WINDOWS = (7, 14, 30)
 MIN_MODEL_ROWS = 30
 
-username = "postgres.pxzxgegygwggabbtxfyj"
-raw_password = os.getenv("DB_PASSWORD")
-if not raw_password:
-    raise RuntimeError("DB_PASSWORD environment variable is not set.")
+username = os.getenv("DB_USERNAME", "").strip()
+raw_password = os.getenv("DB_PASSWORD", "")
+host = os.getenv("DB_HOST", "").strip()
+port = os.getenv("DB_PORT", "5432").strip() or "5432"
+database = os.getenv("DB_DATABASE", "postgres").strip() or "postgres"
+sslmode = os.getenv("DB_SSLMODE", "require").strip() or "require"
+
+missing = [
+    name
+    for name, value in {
+        "DB_HOST": host,
+        "DB_USERNAME": username,
+        "DB_PASSWORD": raw_password,
+    }.items()
+    if not value
+]
+if missing:
+    raise RuntimeError("Missing database environment values: " + ", ".join(missing))
 
 password = quote_plus(raw_password)
-host = "aws-1-ap-southeast-1.pooler.supabase.com"
-port = "6543"
-database = "postgres"
-
+encoded_username = quote_plus(username)
 DATABASE_URL = (
-    f"postgresql+psycopg2://{username}:{password}"
-    f"@{host}:{port}/{database}?sslmode=require"
+    f"postgresql+psycopg2://{encoded_username}:{password}"
+    f"@{host}:{port}/{database}?sslmode={sslmode}"
 )
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
@@ -408,9 +419,16 @@ blotter_analytics = {
 events = pd.read_sql("SELECT * FROM events", engine)
 events["event_date"] = normalize_datetime_column(events["event_date"])
 
+event_today = local_today()
+events["computed_type"] = np.where(
+    events["event_date"].notna() & (events["event_date"].dt.normalize() >= event_today),
+    "upcoming",
+    "past",
+)
+
 events_analytics = {
     "total_events": len(events),
-    "upcoming_vs_past": events["type"].value_counts().to_dict(),
+    "upcoming_vs_past": events["computed_type"].value_counts().to_dict(),
     "by_location": events["location"].value_counts().to_dict(),
 }
 
@@ -460,6 +478,7 @@ output = {
         "training_end_date": (forecast_start - pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
         "current_day_actuals_excluded": True,
         "primary_model": FORECAST_MODEL,
+        "generated_at": pd.Timestamp.now(tz=APP_TIMEZONE).isoformat(),
     },
     "request_forecast": request_forecast,
     "announcements": {
@@ -510,7 +529,10 @@ def clean_json_values(data):
 clean_output = clean_json_values(output)
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-output_path = os.path.join(base_dir, "public", "analytics", "forecast.json")
+output_path = os.getenv(
+    "FORECAST_OUTPUT_PATH",
+    os.path.join(base_dir, "storage", "app", "runtime", "analytics", "forecast.json"),
+)
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 with open(output_path, "w", encoding="utf-8") as file:

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
@@ -408,7 +409,20 @@ class AdminSettingsService
         }
 
         try {
-            return DB::table('system_settings')->pluck('setting_value', 'setting_key')->all();
+            $values = DB::table('system_settings')->pluck('setting_value', 'setting_key')->all();
+
+            foreach ($this->secretKeys as $secretKey) {
+                if (!isset($values[$secretKey]) || !str_starts_with((string) $values[$secretKey], 'enc:')) {
+                    continue;
+                }
+                try {
+                    $values[$secretKey] = Crypt::decryptString(substr((string) $values[$secretKey], 4));
+                } catch (Throwable) {
+                    $values[$secretKey] = '';
+                }
+            }
+
+            return $values;
         } catch (Throwable) {
             return [];
         }
@@ -432,7 +446,9 @@ class AdminSettingsService
             DB::table('system_settings')->updateOrInsert(
                 ['setting_key' => $settingKey],
                 [
-                    'setting_value' => is_bool($value) ? ($value ? '1' : '0') : (string) ($value ?? ''),
+                    'setting_value' => in_array($settingKey, $this->secretKeys, true)
+                        ? 'enc:' . Crypt::encryptString((string) $value)
+                        : (is_bool($value) ? ($value ? '1' : '0') : (string) ($value ?? '') ),
                     // PostgreSQL has a native boolean type and rejects integer 0/1
                     // bindings for boolean columns. Use SQL boolean literals explicitly.
                     'is_secret' => DB::raw(in_array($settingKey, $this->secretKeys, true) ? 'TRUE' : 'FALSE'),

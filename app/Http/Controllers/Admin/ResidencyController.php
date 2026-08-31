@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
 use Illuminate\Http\Request;
 use App\Models\Residency;
 use App\Models\Residents;
@@ -19,6 +21,7 @@ use Illuminate\Validation\Rule;
 
 class ResidencyController extends Controller
 {
+    use HandlesPrivateUploads;
     public function index(Request $request)
     {
         $query = Residency::query();
@@ -194,24 +197,21 @@ class ResidencyController extends Controller
                 $prip = $request->file('primary_proof');
                 $prip_ext = $prip->getClientOriginalExtension();
                 $prip_name = time() . '_proof_' . Str::random(5) . '.' . $prip_ext;
-                $prip->move(public_path('uploads/proof_of_residency'), $prip_name);
-                $data['primary_proof'] = 'uploads/proof_of_residency/' . $prip_name;
+                $data['primary_proof'] = $this->storePrivateUpload($prip, 'proof_of_residency/residency', 'proof');
             }
 
             if ($request->hasFile('government_id')) {
                 $gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
                 $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
-                $gip->move(public_path('uploads/valid_id/residency'), $gip_name);
-                $data['government_id'] = 'uploads/valid_id/residency/' . $gip_name;
+                $data['government_id'] = $this->storePrivateUpload($gip, 'valid_id/residency', 'id_front');
             }
 
             if ($request->hasFile('government_id_back')) {
                 $gipBack = $request->file('government_id_back');
                 $gipBackExt = $gipBack->getClientOriginalExtension();
                 $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
-                $gipBack->move(public_path('uploads/valid_id/residency'), $gipBackName);
-                $data['government_id_back'] = 'uploads/valid_id/residency/' . $gipBackName;
+                $data['government_id_back'] = $this->storePrivateUpload($gipBack, 'valid_id/residency', 'id_back');
             }
 
             $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
@@ -225,7 +225,7 @@ class ResidencyController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to submit application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to submit application. Please try again.');
         }
     }
 
@@ -436,6 +436,12 @@ class ResidencyController extends Controller
 
         try {
             
+            $oldSensitiveFiles = [
+                'primary_proof' => $application->primary_proof,
+                'government_id' => $application->government_id,
+                'government_id_back' => $application->government_id_back,
+            ];
+
             $application->first_name = $request->first_name;
             $application->middle_name = $request->middle_name;
             $application->last_name = $request->last_name;
@@ -454,41 +460,24 @@ class ResidencyController extends Controller
             $application->purpose_other = $request->purpose_other;
 
             if ($request->hasFile('primary_proof')) {
-                
-                if ($application->primary_proof && File::exists(public_path($application->primary_proof))) {
-                    File::delete(public_path($application->primary_proof));
-                }
-
-                $prip = $request->file('primary_proof');
+$prip = $request->file('primary_proof');
                 $prip_ext = $prip->getClientOriginalExtension();
                 $prip_name = time() . '_proof_' . Str::random(5) . '.' . $prip_ext;
-                $prip->move(public_path('uploads/proof_of_residency'), $prip_name);
-                $application->primary_proof = 'uploads/proof_of_residency/' . $prip_name;
+                $application->primary_proof = $this->storePrivateUpload($prip, 'proof_of_residency/residency', 'proof');
             }
 
             if ($request->hasFile('government_id')) {
-                
-                if ($application->government_id && File::exists(public_path($application->government_id))) {
-                    File::delete(public_path($application->government_id));
-                }
-
-                $gip = $request->file('government_id');
+$gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
                 $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
-                $gip->move(public_path('uploads/valid_id/residency'), $gip_name);
-                $application->government_id = 'uploads/valid_id/residency/' . $gip_name;
+                $application->government_id = $this->storePrivateUpload($gip, 'valid_id/residency', 'id_front');
             }
 
             if ($request->hasFile('government_id_back')) {
-                if ($application->government_id_back && File::exists(public_path($application->government_id_back))) {
-                    File::delete(public_path($application->government_id_back));
-                }
-
-                $gipBack = $request->file('government_id_back');
+$gipBack = $request->file('government_id_back');
                 $gipBackExt = $gipBack->getClientOriginalExtension();
                 $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
-                $gipBack->move(public_path('uploads/valid_id/residency'), $gipBackName);
-                $application->government_id_back = 'uploads/valid_id/residency/' . $gipBackName;
+                $application->government_id_back = $this->storePrivateUpload($gipBack, 'valid_id/residency', 'id_back');
             }
 
             $updatedValues = $application->only([
@@ -498,6 +487,13 @@ class ResidencyController extends Controller
             ]);
 
             $application->save();
+
+            foreach ($oldSensitiveFiles as $field => $oldPath) {
+                $inputName = $field === 'government_id' ? 'government_id' : ($field === 'government_id_back' ? 'government_id_back' : 'primary_proof');
+                if ($request->hasFile($inputName) && $oldPath && $oldPath !== ($application->{$field} ?? null)) {
+                    $this->deleteStoredUpload($oldPath);
+                }
+            }
 
             $changedFields = [];
             foreach ($updatedValues as $field => $value) {
@@ -527,7 +523,7 @@ class ResidencyController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()
-                ->with('error', 'Failed to update application. Please try again. ' . $e->getMessage());
+                ->with('error', 'Failed to update application. Please try again.');
         }
     }
 
@@ -749,7 +745,7 @@ class ResidencyController extends Controller
 
         $record = Residency::findOrFail($id);
 
-        $templatePath = public_path('document_template/Doc2.docx');
+        $templatePath = app(DocumentTemplateStorageService::class)->path('Doc2.docx');
 
         if (!file_exists($templatePath)) {
             abort(404, 'Word template not found');
@@ -799,7 +795,7 @@ class ResidencyController extends Controller
                     'error' => $e->getMessage(),
                 ]);
 
-                return back()->with('error', 'The Word document was created, but PDF printing failed. ' . $e->getMessage());
+                return back()->with('error', 'The Word document was created, but PDF printing failed. Please check the document service logs.');
             }
 
             @unlink($docxPath);

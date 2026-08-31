@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Services\SupabaseStorageService;
 
 class Event extends Model
 {
@@ -27,4 +28,18 @@ class Event extends Model
     ];
 
     protected $dates = ['event_date'];
+    public function getTypeAttribute($value): string
+    {
+        if (!$this->event_date) {
+            return $value ?: 'upcoming';
+        }
+
+        return $this->event_date->copy()->startOfDay()->gte(today()) ? 'upcoming' : 'past';
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return app(SupabaseStorageService::class)->publicUrl($this->image);
+    }
+
 }

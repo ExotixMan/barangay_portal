@@ -1139,7 +1139,7 @@
                                                         <div class="border rounded p-2 position-relative">
                                                             @php
                                                                 $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
-                                                                $fileUrl = asset($file->file_path);
+                                                                $fileUrl = route('admin.secure.file', ['path' => $file->file_path]);
                                                             @endphp
 
                                                             @if(in_array($extension, ['jpg', 'jpeg', 'png', 'gif']))
@@ -1395,7 +1395,7 @@
                                                         <div class="incident-file-name">{{ basename($file->file_path) }}</div>
                                                         <div class="incident-file-type">{{ ucfirst($file->file_type) }}</div>
                                                     </div>
-                                                    <a href="{{ asset($file->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ route('admin.secure.file', ['path' => $file->file_path]) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                         <i class="fas fa-eye me-1"></i>Open
                                                     </a>
                                                 </div>

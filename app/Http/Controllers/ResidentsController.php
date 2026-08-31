@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password as PasswordRules;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Residents;
 use App\Models\Announcement;
 use App\Services\OtpSmsService;
+use App\Services\SupabaseStorageService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +24,7 @@ use Illuminate\Support\Facades\Mail;
 class ResidentsController extends Controller
 {
     private const REGISTER_OTP_MAX_ATTEMPTS = 3;
+    private const LOGIN_OTP_MAX_ATTEMPTS = 5;
 
     public function __construct(
         private OtpSmsService $otpSmsService,
@@ -72,7 +76,7 @@ class ResidentsController extends Controller
             'valid_id_selfie' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
 
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
-            'password' => 'required|string|confirmed|min:8|regex:/^\S+$/',
+            'password' => ['required','string','confirmed','regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'terms' => 'accepted',
         ];
 
@@ -94,8 +98,8 @@ class ResidentsController extends Controller
             'civil_status.in' => 'Please select a valid civil status.',
             'place_of_birth.required' => 'Place of birth is required.',
             'place_of_birth.regex' => 'Place of birth may only contain letters, spaces, dots, commas, apostrophes, and hyphens.',
-            'password.min' => 'Password must be at least 8 characters long',
             'password.regex' => 'Password cannot contain spaces',
+            'password.*' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
             'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens (no spaces)',
             'username.min' => 'Username must be at least 4 characters long',
             'valid_id.required' => 'Please scan or upload the front side of your valid ID.',
@@ -174,7 +178,7 @@ class ResidentsController extends Controller
             }
 
             return back()
-                ->with('fail', 'Registration failed. Please try again. ' . $exception->getMessage())
+                ->with('fail', 'Registration failed. Please try again.')
                 ->withInput();
         }
     }
@@ -635,8 +639,22 @@ class ResidentsController extends Controller
             $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp'));
 
             if (!Hash::check($otpInput, $otpHash)) {
-                return back()->with('fail', 'Invalid OTP.');
+                $attemptKey = 'admin_otp_attempts_' . $adminId;
+                $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
+                $request->session()->put($attemptKey, $attempts);
+
+                if ($attempts >= self::LOGIN_OTP_MAX_ATTEMPTS) {
+                    $request->session()->forget([
+                        'otp_account_type', 'admin_otp_user_id', 'admin_otp_hash',
+                        'admin_otp_expires_at', $attemptKey,
+                    ]);
+                    return redirect()->route('login')->with('fail', 'Too many invalid OTP attempts. Please login again.');
+                }
+
+                return back()->with('fail', 'Invalid OTP. ' . (self::LOGIN_OTP_MAX_ATTEMPTS - $attempts) . ' attempt(s) remaining.');
             }
+
+            $request->session()->forget('admin_otp_attempts_' . $adminId);
 
             $admin = AdminUser::find($adminId);
 
@@ -722,8 +740,20 @@ class ResidentsController extends Controller
                 return back()->with('fail', 'Invalid OTP. ' . $remaining . ' attempt(s) remaining.');
             }
 
-            return back()->with('fail', 'Invalid OTP.');
+            $attemptKey = 'login_otp_attempts_' . $resident->id;
+            $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
+            $request->session()->put($attemptKey, $attempts);
+
+            if ($attempts >= self::LOGIN_OTP_MAX_ATTEMPTS) {
+                $resident->update(['phone_otp' => null, 'phone_otp_expires_at' => null]);
+                $request->session()->forget($attemptKey);
+                return redirect()->route('login')->with('fail', 'Too many invalid OTP attempts. Please login again.');
+            }
+
+            return back()->with('fail', 'Invalid OTP. ' . (self::LOGIN_OTP_MAX_ATTEMPTS - $attempts) . ' attempt(s) remaining.');
         }
+
+        $request->session()->forget('login_otp_attempts_' . $resident->id);
 
         $resident->update([
             'phone_verified' => DB::raw('TRUE'),
@@ -872,18 +902,16 @@ class ResidentsController extends Controller
             throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
         }
 
-        $uploadDirectory = public_path('uploads/valid_id/residents');
-
-        if (!is_dir($uploadDirectory)) {
-            mkdir($uploadDirectory, 0755, true);
-        }
+        $uploadDirectory = 'private/valid_id/residents';
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
 
-        $file->move($uploadDirectory, $filename);
-
-        return 'uploads/valid_id/residents/' . $filename;
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'valid_id/residents',
+            $filename
+        );
     }
 
     private function deleteResidentValidIdFiles(Residents $resident): void
@@ -899,11 +927,7 @@ class ResidentsController extends Controller
             return;
         }
 
-        $fullPath = public_path($path);
-
-        if (is_file($fullPath)) {
-            @unlink($fullPath);
-        }
+        app(SupabaseStorageService::class)->delete($path);
     }
 
     private function redirectAdminBasedOnRole(AdminUser $user)

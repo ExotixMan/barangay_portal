@@ -6,6 +6,7 @@ use App\Http\Middleware\PreventBackHistory;
 use App\Http\Middleware\RedirectAdminToDashboard;
 use App\Http\Middleware\NoPendingProfileCorrection;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\MaintenanceCatchUp;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
@@ -30,6 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $middleware->append(SecurityHeaders::class);
+        $middleware->append(MaintenanceCatchUp::class);
+
+        $middleware->validateCsrfTokens(except: ['internal/maintenance/run']);
 
         $middleware->web(append:[
             SetLocale::class,

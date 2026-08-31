@@ -37,6 +37,7 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
         'valid_id',
         'valid_id_back',
+        'valid_id_selfie',
 
         'valid_id_verified',
         'valid_id_status',
@@ -155,4 +156,13 @@ class Residents extends Authenticatable implements MustVerifyEmail
             'id'
         )->latest();
     }
+    /**
+     * Backward-compatible residency verification flag.
+     * The current workflow verifies residency through the resident's Valid ID.
+     */
+    public function getResidencyVerifiedAttribute(): bool
+    {
+        return (bool) ($this->attributes['residency_verified'] ?? $this->valid_id_verified ?? false);
+    }
+
 }
