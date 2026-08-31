@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->enum('type', ['upcoming', 'past']);
             $table->integer('attendees')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

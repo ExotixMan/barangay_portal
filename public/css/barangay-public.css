@@ -1146,3 +1146,97 @@ button, input, select, textarea { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
     * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* ========================================================================== 
+   Account menu consistency
+   ========================================================================== */
+.bhd-menu-logout-form {
+    width: 100%;
+    margin: 0;
+}
+
+.bhd-menu-logout-btn,
+.bhd-mobile-logout-btn {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font: inherit;
+}
+
+.bhd-user-menu .bhd-menu-logout-btn {
+    min-height: 42px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    font-weight: 750;
+    text-align: left;
+}
+
+.bhd-user-menu .bhd-menu-logout-btn:hover,
+.bhd-user-menu .bhd-menu-logout-btn.active {
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.bhd-user-menu .bhd-menu-logout-btn i,
+.bhd-mobile-logout-btn i {
+    width: 20px;
+    flex: 0 0 20px;
+    text-align: center;
+    color: currentColor;
+}
+
+.bhd-mobile-logout-btn {
+    min-height: 42px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    font-weight: 850;
+    text-align: left;
+}
+
+.bhd-mobile-logout-btn:hover {
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+/* ========================================================================== 
+   Theme-aware scrollbars — public portal
+   ========================================================================== */
+html,
+body,
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand) color-mix(in srgb, var(--brand) 7%, var(--surface));
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+    min-height: 36px;
+    border: 2px solid color-mix(in srgb, var(--brand) 6%, var(--surface));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--brand) 82%, #ffffff 18%);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--brand);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}

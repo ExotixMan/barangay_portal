@@ -269,6 +269,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
     Route::delete('/profile/photo', [ProfileController::class, 'removePhoto'])->name('profile.photo.remove');
     Route::post('/profile/id', [ProfileController::class, 'updateId'])->name('profile.id');
+    Route::post('/profile/classification', [ProfileController::class, 'updateClassification'])->middleware('throttle:5,10')->name('profile.classification');
     Route::post('/profile/report-incorrect-profile', [ProfileController::class, 'reportIncorrectProfile'])->middleware(['auth', 'verified', 'throttle:3,60'])->name('profile.reportIncorrectProfile');
 
     Route::middleware(['verified', 'prevent-back-history'])->group(function () {
@@ -419,6 +420,11 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/{id}/restore', [ResidentController::class, 'restore'])->middleware('permission:restore_residents')->name('restore');
         Route::post('/{id}/verify-id', [ResidentController::class, 'verifyValidId'])->middleware('permission:update_residents')->name('verifyId');
         Route::post('/{id}/reject-id', [ResidentController::class, 'rejectValidId'])->middleware('permission:update_residents')->name('rejectId');
+        Route::post('/{id}/classification/{type}/{decision}', [ResidentController::class, 'updateClassificationStatus'])
+            ->whereIn('type', ['pwd', 'student'])
+            ->whereIn('decision', ['verified', 'rejected'])
+            ->middleware('permission:update_residents')
+            ->name('classification.update');
     });
 
     Route::prefix('residency')->name('residency.')->group(function () {
@@ -485,9 +491,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
 
     Route::prefix('announcements')->name('announcements.')->group(function () {
         Route::get('/', [AdminAnnouncement::class, 'index'])->middleware('permission:view_announcements')->name('index');
-        Route::get('/create', [AdminAnnouncement::class, 'create'])->middleware('permission:create_announcements')->name('create');
         Route::post('/store', [AdminAnnouncement::class, 'store'])->middleware('permission:create_announcements')->name('store');
-        Route::get('/{id}/edit', [AdminAnnouncement::class, 'edit'])->middleware('permission:update_announcements')->name('edit');
         Route::put('/{id}', [AdminAnnouncement::class, 'update'])->middleware('permission:update_announcements')->name('update');
         Route::delete('/{id}', [AdminAnnouncement::class, 'destroy'])->middleware('permission:delete_announcements')->name('destroy');
         Route::post('/bulk-delete', [AdminAnnouncement::class, 'bulkDelete'])->middleware('permission:delete_announcements')->name('bulkDelete');

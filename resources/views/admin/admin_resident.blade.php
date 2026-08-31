@@ -32,7 +32,7 @@
                 @endadmin_can
                 <a href="{{ route('admin.residents.index') }}" class="btn btn-light-soft">
                     <i class="fas fa-rotate"></i>
-                    Reset View
+                    Reset
                 </a>
             </div>
         </div>
@@ -120,7 +120,7 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-5">
+                    <div class="col-12 col-lg-4">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0">
                                 <i class="fas fa-search text-muted"></i>
@@ -132,14 +132,14 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-lg-2">
                         <select name="status" class="form-select">
                             <option value="">All Status</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deactivated</option>
                         </select>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-lg-2">
                         <select name="age_range" class="form-select">
                             <option value="">All Ages</option>
                             <option value="minor" {{ request('age_range') == 'minor' ? 'selected' : '' }}>Minor (&lt;18)</option>
@@ -147,7 +147,17 @@
                             <option value="senior" {{ request('age_range') == 'senior' ? 'selected' : '' }}>Senior (60+)</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-8 col-lg-2">
+                        <select name="classification" class="form-select">
+                            <option value="">All classifications</option>
+                            <option value="student" {{ request('classification') === 'student' ? 'selected' : '' }}>Student · Verified</option>
+                            <option value="student_pending" {{ request('classification') === 'student_pending' ? 'selected' : '' }}>Student · Pending</option>
+                            <option value="pwd" {{ request('classification') === 'pwd' ? 'selected' : '' }}>PWD · Verified</option>
+                            <option value="pwd_pending" {{ request('classification') === 'pwd_pending' ? 'selected' : '' }}>PWD · Pending</option>
+                            <option value="senior" {{ request('classification') === 'senior' ? 'selected' : '' }}>Senior Citizen</option>
+                        </select>
+                    </div>
+                    <div class="col-4 col-lg-2">
                         <button type="submit" class="btn btn-outline-secondary w-100">
                             <i class="fas fa-filter me-2"></i>Apply
                         </button>
@@ -230,7 +240,16 @@
                                 <div class="application-primary">
                                     <div class="application-avatar">
                                         @if($resident->profile_photo)
-                                            <img src="{{ str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" data-error-action="remove">
+                                            @php $residentProfilePhotoUrl = str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo); @endphp
+                                            <img src="{{ $residentProfilePhotoUrl }}"
+                                                 alt="{{ $resident->full_name }}"
+                                                 class="resident-photo-trigger"
+                                                 role="button"
+                                                 tabindex="0"
+                                                 title="View {{ $resident->full_name }} profile photo"
+                                                 data-secure-image-viewer="{{ $residentProfilePhotoUrl }}"
+                                                 data-secure-image-title="{{ $resident->full_name }} · Profile Photo"
+                                                 data-error-action="remove">
                                         @else
                                             <span>{{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}</span>
                                         @endif
@@ -278,6 +297,19 @@
                                         <span class="badge bg-danger-subtle text-danger"><i class="fas fa-id-card me-1"></i>ID Rejected</span>
                                     @else
                                         <span class="badge resident-status-badge is-warning"><i class="fas fa-id-card me-1"></i>ID Pending Review</span>
+                                    @endif
+                                    @if((int) $resident->age >= 60)
+                                        <span class="badge resident-classification-badge is-senior"><i class="fas fa-person-cane me-1"></i>Senior</span>
+                                    @endif
+                                    @if($resident->is_student)
+                                        <span class="badge resident-classification-badge is-student"><i class="fas fa-graduation-cap me-1"></i>Student Verified</span>
+                                    @elseif(($resident->student_status ?? 'not_declared') === 'pending')
+                                        <span class="badge resident-classification-badge is-pending"><i class="fas fa-graduation-cap me-1"></i>Student Pending</span>
+                                    @endif
+                                    @if($resident->is_pwd)
+                                        <span class="badge resident-classification-badge is-pwd"><i class="fas fa-wheelchair me-1"></i>PWD Verified</span>
+                                    @elseif(($resident->pwd_status ?? 'not_declared') === 'pending')
+                                        <span class="badge resident-classification-badge is-pending"><i class="fas fa-wheelchair me-1"></i>PWD Pending</span>
                                     @endif
                                     @if($residentHasCorrection)
                                         <span class="badge bg-danger-subtle text-danger"><i class="fas fa-user-pen me-1"></i>Correction Pending</span>
@@ -542,6 +574,92 @@
                                         <label for="add_address" class="form-label">Complete Address <span class="text-danger">*</span></label>
                                         <textarea class="form-control @if(session('form_type') == 'add') @error('address') is-invalid @enderror @endif" name="address" id="add_address" rows="2" required placeholder="House/Block/Lot No., Street, Subdivision, Barangay">{{ session('form_type') == 'add' ? old('address') : '' }}</textarea>
                                         @if(session('form_type') == 'add') @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="edit-section-card">
+                            <div class="edit-section-head">
+                                <span class="edit-section-icon"><i class="fas fa-user-tag"></i></span>
+                                <div>
+                                    <div class="edit-section-title">Resident Classification</div>
+                                    <p class="edit-section-help">Student and PWD claims stay pending until evidence is reviewed. Senior Citizen status is automatic from birthdate at age 60+.</p>
+                                </div>
+                            </div>
+                            <div class="edit-section-body">
+                                <div class="classification-admin-choice-grid">
+                                    <div class="classification-admin-choice">
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="declare_student"
+                                                   value="1"
+                                                   id="add_declare_student"
+                                                   {{ session('form_type') == 'add' && old('declare_student') ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="add_declare_student">
+                                                <strong><i class="fas fa-graduation-cap me-1"></i>Student</strong>
+                                                <span>Resident claims they are currently enrolled.</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="classification-admin-proof {{ session('form_type') == 'add' && old('declare_student') ? '' : 'd-none' }}" id="addStudentProofPanel">
+                                            <label for="add_student_proof" class="form-label">Student Proof <span class="text-danger">*</span></label>
+                                            <input type="file"
+                                                   class="form-control @if(session('form_type') == 'add') @error('student_proof') is-invalid @enderror @endif"
+                                                   name="student_proof"
+                                                   id="add_student_proof"
+                                                   accept="image/jpeg,image/png,application/pdf">
+                                            <small class="text-muted">Current school ID, registration form, or certificate of enrollment · max 5 MB.</small>
+                                            @if(session('form_type') == 'add') @error('student_proof') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="classification-admin-choice">
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="declare_pwd"
+                                                   value="1"
+                                                   id="add_declare_pwd"
+                                                   {{ session('form_type') == 'add' && old('declare_pwd') ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="add_declare_pwd">
+                                                <strong><i class="fas fa-wheelchair me-1"></i>Person with Disability (PWD)</strong>
+                                                <span>Official PWD ID card is required for verification.</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="classification-admin-proof {{ session('form_type') == 'add' && old('declare_pwd') ? '' : 'd-none' }}" id="addPwdProofPanel">
+                                            <div class="edit-form-grid">
+                                                <div class="edit-col-6">
+                                                    <label for="add_pwd_id_front" class="form-label">PWD ID Front <span class="text-danger">*</span></label>
+                                                    <input type="file"
+                                                           class="form-control @if(session('form_type') == 'add') @error('pwd_id_front') is-invalid @enderror @endif"
+                                                           name="pwd_id_front"
+                                                           id="add_pwd_id_front"
+                                                           accept="image/jpeg,image/png,application/pdf">
+                                                    @if(session('form_type') == 'add') @error('pwd_id_front') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                                <div class="edit-col-6">
+                                                    <label for="add_pwd_id_back" class="form-label">PWD ID Back <span class="text-danger">*</span></label>
+                                                    <input type="file"
+                                                           class="form-control @if(session('form_type') == 'add') @error('pwd_id_back') is-invalid @enderror @endif"
+                                                           name="pwd_id_back"
+                                                           id="add_pwd_id_back"
+                                                           accept="image/jpeg,image/png,application/pdf">
+                                                    @if(session('form_type') == 'add') @error('pwd_id_back') <div class="invalid-feedback">{{ $message }}</div> @enderror @endif
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">Both sides are required · max 5 MB each · front and back cannot be the same picture.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="classification-senior-note">
+                                    <i class="fas fa-person-cane"></i>
+                                    <div>
+                                        <strong>Senior Citizen is automatic</strong>
+                                        <span>Do not manually flag Senior status. The system uses the resident's birthdate and recognizes age 60+ automatically.</span>
                                     </div>
                                 </div>
                             </div>
@@ -895,7 +1013,16 @@
                         <div class="view-modal-head w-100">
                             <div class="view-modal-avatar">
                                 @if($resident->profile_photo)
-                                    <img src="{{ str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo) }}" alt="{{ $resident->full_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" data-error-action="remove">
+                                    @php $residentProfilePhotoUrl = str_starts_with($resident->profile_photo, 'private/') ? route('admin.secure.file', ['path' => $resident->profile_photo]) : asset($resident->profile_photo); @endphp
+                                    <img src="{{ $residentProfilePhotoUrl }}"
+                                         alt="{{ $resident->full_name }}"
+                                         class="resident-photo-trigger"
+                                         role="button"
+                                         tabindex="0"
+                                         title="View full profile photo"
+                                         data-secure-image-viewer="{{ $residentProfilePhotoUrl }}"
+                                         data-secure-image-title="{{ $resident->full_name }} · Profile Photo"
+                                         data-error-action="remove">
                                 @else
                                     {{ strtoupper(substr($resident->firstname ?? 'R', 0, 1)) }}{{ strtoupper(substr($resident->lastname ?? '', 0, 1)) }}
                                 @endif
@@ -1120,6 +1247,267 @@
                                             <div class="detail-item"><div class="detail-label"><i class="fas fa-envelope"></i>Email</div><div class="detail-value">{{ $resident->email ?? 'N/A' }}</div></div>
                                             <div class="detail-item"><div class="detail-label"><i class="fas fa-phone"></i>Contact Number</div><div class="detail-value">{{ $resident->contact ?? 'N/A' }}</div></div>
                                             <div class="detail-item is-wide"><div class="detail-label"><i class="fas fa-map-marker-alt"></i>Complete Address</div><div class="detail-value">{{ $resident->address ?? 'N/A' }}</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @php
+                                    $adminPwdStatus = strtolower((string) ($resident->pwd_status ?? 'not_declared'));
+                                    $adminStudentStatus = strtolower((string) ($resident->student_status ?? 'not_declared'));
+                                    $adminClassificationLabel = function (string $status): string {
+                                        return match ($status) {
+                                            'verified' => 'Verified',
+                                            'pending' => 'For verification',
+                                            'rejected' => 'Rejected',
+                                            default => 'Not declared',
+                                        };
+                                    };
+                                    $adminClassificationBadge = function (string $status): string {
+                                        return match ($status) {
+                                            'verified' => 'bg-success-subtle text-success',
+                                            'pending' => 'bg-warning-subtle text-warning',
+                                            'rejected' => 'bg-danger-subtle text-danger',
+                                            default => 'bg-secondary-subtle text-secondary',
+                                        };
+                                    };
+                                @endphp
+
+                                <div class="detail-section-card resident-classification-review-card">
+                                    <div class="detail-section-title classification-review-title">
+                                        <div>
+                                            <i class="fas fa-user-tag"></i>
+                                            Resident Classification
+                                        </div>
+                                        <span class="classification-review-caption">Evidence-based verification</span>
+                                    </div>
+                                    <div class="detail-section-body">
+                                        <div class="classification-status-strip">
+                                            <div class="classification-status-item">
+                                                <span class="classification-status-icon"><i class="fas fa-person-cane"></i></span>
+                                                <div class="classification-status-copy">
+                                                    <strong>Senior Citizen</strong>
+                                                    <span>Automatic from birthdate · Age {{ $resident->age }}</span>
+                                                </div>
+                                                <span class="badge {{ (int) $resident->age >= 60 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">
+                                                    {{ (int) $resident->age >= 60 ? 'Qualified' : 'Not qualified' }}
+                                                </span>
+                                            </div>
+
+                                            <div class="classification-status-item">
+                                                <span class="classification-status-icon"><i class="fas fa-graduation-cap"></i></span>
+                                                <div class="classification-status-copy">
+                                                    <strong>Student</strong>
+                                                    <span>School evidence</span>
+                                                </div>
+                                                <span class="badge {{ $adminClassificationBadge($adminStudentStatus) }}">{{ $adminClassificationLabel($adminStudentStatus) }}</span>
+                                            </div>
+
+                                            <div class="classification-status-item">
+                                                <span class="classification-status-icon"><i class="fas fa-wheelchair"></i></span>
+                                                <div class="classification-status-copy">
+                                                    <strong>PWD</strong>
+                                                    <span>Official PWD ID</span>
+                                                </div>
+                                                <span class="badge {{ $adminClassificationBadge($adminPwdStatus) }}">{{ $adminClassificationLabel($adminPwdStatus) }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="classification-review-list">
+                                            @if($resident->student_proof || $adminStudentStatus !== 'not_declared')
+                                            <section class="classification-review-panel">
+                                                <div class="classification-review-panel-head">
+                                                    <div class="classification-review-panel-title">
+                                                        <span class="classification-review-panel-icon"><i class="fas fa-graduation-cap"></i></span>
+                                                        <div>
+                                                            <strong>Student Verification</strong>
+                                                            <span>Review the submitted school proof before making a decision.</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge {{ $adminClassificationBadge($adminStudentStatus) }}">{{ $adminClassificationLabel($adminStudentStatus) }}</span>
+                                                </div>
+
+                                                <div class="classification-review-panel-body">
+                                                    @if($resident->student_proof)
+                                                        @php
+                                                            $studentExt = strtolower(pathinfo((string) $resident->student_proof, PATHINFO_EXTENSION));
+                                                            $studentIsImage = in_array($studentExt, ['jpg','jpeg','png','webp']);
+                                                            $studentProofUrl = route('admin.secure.file', ['path' => $resident->student_proof]);
+                                                        @endphp
+                                                        <div class="classification-review-evidence single">
+                                                            <div class="classification-review-document">
+                                                                <div class="classification-review-document-head">
+                                                                    <strong><i class="fas fa-file-shield me-1"></i>Student Proof</strong>
+                                                                    <span>{{ strtoupper($studentExt ?: 'FILE') }}</span>
+                                                                </div>
+                                                                @if($studentIsImage)
+                                                                    <button type="button"
+                                                                            class="classification-evidence-viewer classification-review-image"
+                                                                            data-secure-image-viewer="{{ $studentProofUrl }}"
+                                                                            data-secure-image-title="{{ $resident->full_name }} · Student Proof">
+                                                                        <img src="{{ $studentProofUrl }}" alt="Student proof for {{ $resident->full_name }}">
+                                                                        <span><i class="fas fa-magnifying-glass-plus"></i>Open full proof</span>
+                                                                    </button>
+                                                                @else
+                                                                    <div class="classification-review-file">
+                                                                        <i class="fas fa-file-pdf"></i>
+                                                                        <div><strong>Student proof document</strong><span>Open the submitted document in a new tab.</span></div>
+                                                                        <a href="{{ $studentProofUrl }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-up-right-from-square me-1"></i>View file</a>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="classification-review-empty">
+                                                            <i class="fas fa-file-circle-xmark"></i>
+                                                            <div><strong>No Student proof submitted</strong><span>There is no evidence to review for this classification.</span></div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if($adminStudentStatus === 'rejected' && $resident->student_rejection_reason)
+                                                        <div class="classification-review-remarks">
+                                                            <i class="fas fa-message"></i>
+                                                            <div><strong>Rejection remarks</strong><span>{{ $resident->student_rejection_reason }}</span></div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if(auth('admin')->user()->hasPermission('update_residents'))
+                                                        @if($resident->student_proof && $adminStudentStatus === 'pending')
+                                                            <div class="classification-review-actions valid-id-actions">
+                                                                <form method="POST"
+                                                                      action="{{ route('admin.residents.classification.update', [$resident->id, 'student', 'verified']) }}"
+                                                                      data-submit-call="confirmApproveClassification"
+                                                                      data-submit-pass="event,args"
+                                                                      data-submit-args="{{ json_encode([$resident->full_name, 'Student']) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-1"></i>Approve Student</button>
+                                                                </form>
+                                                                <form method="POST"
+                                                                      action="{{ route('admin.residents.classification.update', [$resident->id, 'student', 'rejected']) }}"
+                                                                      data-submit-call="confirmRejectClassification"
+                                                                      data-submit-pass="event,args"
+                                                                      data-submit-args="{{ json_encode([$resident->full_name, 'Student']) }}">
+                                                                    @csrf
+                                                                    <input type="hidden" name="remarks" class="classification-rejection-input">
+                                                                    <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-xmark me-1"></i>Reject Student</button>
+                                                                </form>
+                                                            </div>
+                                                        @elseif($adminStudentStatus === 'verified')
+                                                            <div class="classification-review-state success"><i class="fas fa-circle-check"></i><span>Student classification has been verified. No action is needed.</span></div>
+                                                        @elseif($adminStudentStatus === 'rejected')
+                                                            <div class="classification-review-state neutral"><i class="fas fa-circle-info"></i><span>This Student claim was rejected. Wait for the resident to submit new evidence.</span></div>
+                                                        @elseif(!$resident->student_proof)
+                                                            <div class="classification-review-state neutral"><i class="fas fa-circle-info"></i><span>Approval is unavailable until the resident submits Student evidence.</span></div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </section>
+                                            @endif
+
+                                            @if($resident->pwd_id_front || $resident->pwd_id_back || $adminPwdStatus !== 'not_declared')
+                                            <section class="classification-review-panel">
+                                                <div class="classification-review-panel-head">
+                                                    <div class="classification-review-panel-title">
+                                                        <span class="classification-review-panel-icon"><i class="fas fa-wheelchair"></i></span>
+                                                        <div>
+                                                            <strong>PWD Verification</strong>
+                                                            <span>Review both sides of the official PWD ID before making a decision.</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge {{ $adminClassificationBadge($adminPwdStatus) }}">{{ $adminClassificationLabel($adminPwdStatus) }}</span>
+                                                </div>
+
+                                                <div class="classification-review-panel-body">
+                                                    @if($resident->pwd_id_front || $resident->pwd_id_back)
+                                                        <div class="classification-review-evidence">
+                                                            @foreach([
+                                                                ['path' => $resident->pwd_id_front, 'label' => 'PWD ID Front', 'icon' => 'fa-id-card'],
+                                                                ['path' => $resident->pwd_id_back, 'label' => 'PWD ID Back', 'icon' => 'fa-id-card-clip'],
+                                                            ] as $pwdDoc)
+                                                                @php
+                                                                    $pwdPath = $pwdDoc['path'];
+                                                                    $pwdExt = strtolower(pathinfo((string) $pwdPath, PATHINFO_EXTENSION));
+                                                                    $pwdIsImage = in_array($pwdExt, ['jpg','jpeg','png','webp']);
+                                                                    $pwdUrl = $pwdPath ? route('admin.secure.file', ['path' => $pwdPath]) : null;
+                                                                @endphp
+                                                                <div class="classification-review-document">
+                                                                    <div class="classification-review-document-head">
+                                                                        <strong><i class="fas {{ $pwdDoc['icon'] }} me-1"></i>{{ $pwdDoc['label'] }}</strong>
+                                                                        <span>{{ $pwdPath ? strtoupper($pwdExt ?: 'FILE') : 'Missing' }}</span>
+                                                                    </div>
+                                                                    @if($pwdPath)
+                                                                        @if($pwdIsImage)
+                                                                            <button type="button"
+                                                                                    class="classification-evidence-viewer classification-review-image"
+                                                                                    data-secure-image-viewer="{{ $pwdUrl }}"
+                                                                                    data-secure-image-title="{{ $resident->full_name }} · {{ $pwdDoc['label'] }}">
+                                                                                <img src="{{ $pwdUrl }}" alt="{{ $pwdDoc['label'] }} for {{ $resident->full_name }}">
+                                                                                <span><i class="fas fa-magnifying-glass-plus"></i>Open full image</span>
+                                                                            </button>
+                                                                        @else
+                                                                            <div class="classification-review-file compact">
+                                                                                <i class="fas fa-file-pdf"></i>
+                                                                                <a href="{{ $pwdUrl }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">View file</a>
+                                                                            </div>
+                                                                        @endif
+                                                                    @else
+                                                                        <div class="classification-review-document-missing"><i class="fas fa-circle-info"></i><span>Not uploaded</span></div>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="classification-review-empty">
+                                                            <i class="fas fa-id-card"></i>
+                                                            <div><strong>No PWD ID submitted</strong><span>The resident has not provided PWD evidence.</span></div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if($adminPwdStatus === 'rejected' && $resident->pwd_rejection_reason)
+                                                        <div class="classification-review-remarks">
+                                                            <i class="fas fa-message"></i>
+                                                            <div><strong>Rejection remarks</strong><span>{{ $resident->pwd_rejection_reason }}</span></div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if(auth('admin')->user()->hasPermission('update_residents'))
+                                                        @if($resident->pwd_id_front && $resident->pwd_id_back && $adminPwdStatus === 'pending')
+                                                            <div class="classification-review-actions valid-id-actions">
+                                                                <form method="POST"
+                                                                      action="{{ route('admin.residents.classification.update', [$resident->id, 'pwd', 'verified']) }}"
+                                                                      data-submit-call="confirmApproveClassification"
+                                                                      data-submit-pass="event,args"
+                                                                      data-submit-args="{{ json_encode([$resident->full_name, 'PWD']) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-1"></i>Approve PWD</button>
+                                                                </form>
+                                                                <form method="POST"
+                                                                      action="{{ route('admin.residents.classification.update', [$resident->id, 'pwd', 'rejected']) }}"
+                                                                      data-submit-call="confirmRejectClassification"
+                                                                      data-submit-pass="event,args"
+                                                                      data-submit-args="{{ json_encode([$resident->full_name, 'PWD']) }}">
+                                                                    @csrf
+                                                                    <input type="hidden" name="remarks" class="classification-rejection-input">
+                                                                    <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-xmark me-1"></i>Reject PWD</button>
+                                                                </form>
+                                                            </div>
+                                                        @elseif($adminPwdStatus === 'verified')
+                                                            <div class="classification-review-state success"><i class="fas fa-circle-check"></i><span>PWD classification has been verified. No action is needed.</span></div>
+                                                        @elseif($adminPwdStatus === 'rejected')
+                                                            <div class="classification-review-state neutral"><i class="fas fa-circle-info"></i><span>This PWD claim was rejected. Wait for the resident to submit new evidence.</span></div>
+                                                        @elseif(!$resident->pwd_id_front || !$resident->pwd_id_back)
+                                                            <div class="classification-review-state neutral"><i class="fas fa-circle-info"></i><span>Approval is unavailable until both sides of the PWD ID are submitted.</span></div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </section>
+                                            @endif
+
+                                            @if(!$resident->student_proof && !$resident->pwd_id_front && !$resident->pwd_id_back && $adminStudentStatus === 'not_declared' && $adminPwdStatus === 'not_declared')
+                                                <div class="classification-review-empty classification-review-empty-wide">
+                                                    <i class="fas fa-shield-halved"></i>
+                                                    <div><strong>No classification evidence to review</strong><span>This resident has not declared Student or PWD status. Senior Citizen qualification remains automatic from birthdate.</span></div>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -1501,6 +1889,27 @@
             </div>
         </div>
     @endforeach
+
+    <div class="modal fade resident-photo-viewer-modal" id="residentSecureImageViewerModal" tabindex="-1" aria-labelledby="residentSecureImageViewerTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="modal-kicker"><i class="fas fa-expand me-1"></i> Secure Image Viewer</div>
+                        <h5 class="modal-title" id="residentSecureImageViewerTitle">Resident Image</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body resident-secure-image-stage">
+                    <img id="residentSecureImageViewerImg" src="" alt="Resident document preview">
+                </div>
+                <div class="modal-footer">
+                    <small class="text-muted me-auto"><i class="fas fa-shield-halved me-1"></i>Visible only to authenticated administrators with access to this page.</small>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 @endsection
 

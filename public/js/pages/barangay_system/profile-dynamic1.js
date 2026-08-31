@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', function () {
         signatures: {},
         quality: {},
         completed: false,
+        readyToCapture: false,
+        frameTick: 0,
     };
 
     function setScannerStatus(message, state = 'waiting') {
@@ -40,6 +42,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         scannerStatus.classList.toggle('is-ready', state === 'ready');
         scannerStatus.classList.toggle('is-error', state === 'error');
+    }
+
+    function setCaptureReady(ready) {
+        scannerState.readyToCapture = !!ready;
+
+        if (scannerManualCaptureBtn) {
+            scannerManualCaptureBtn.disabled = !scannerState.readyToCapture;
+            scannerManualCaptureBtn.setAttribute('aria-disabled', scannerState.readyToCapture ? 'false' : 'true');
+        }
     }
 
     function updateScanStatus() {
@@ -107,8 +118,90 @@ document.addEventListener('DOMContentLoaded', function () {
         reader.readAsDataURL(file);
     }
 
+
+    async function fileVisualFingerprint(file) {
+        if (!file || !file.type?.startsWith('image/')) return null;
+
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = 16;
+        canvas.height = 16;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(bitmap, 0, 0, 16, 16);
+        bitmap.close?.();
+
+        const data = ctx.getImageData(0, 0, 16, 16).data;
+        const values = [];
+
+        for (let i = 0; i < data.length; i += 4) {
+            values.push((data[i] * .299) + (data[i + 1] * .587) + (data[i + 2] * .114));
+        }
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return values.map(value => value >= average ? 1 : 0);
+    }
+
+    function fingerprintDistance(a, b) {
+        if (!a || !b || a.length !== b.length) return 1;
+
+        let different = 0;
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) different++;
+        }
+
+        return different / a.length;
+    }
+
+    async function uploadedFilesLookTheSame(frontFile, backFile) {
+        if (!frontFile || !backFile) return false;
+
+        // Fast exact-file clue. Server-side SHA/perceptual validation is still authoritative.
+        if (
+            frontFile.name === backFile.name &&
+            frontFile.size === backFile.size &&
+            frontFile.type === backFile.type
+        ) {
+            return true;
+        }
+
+        if (!frontFile.type.startsWith('image/') || !backFile.type.startsWith('image/')) {
+            return false;
+        }
+
+        try {
+            const [frontHash, backHash] = await Promise.all([
+                fileVisualFingerprint(frontFile),
+                fileVisualFingerprint(backFile),
+            ]);
+
+            return fingerprintDistance(frontHash, backHash) <= 0.05;
+        } catch (error) {
+            console.warn('Could not compare selected ID images in the browser:', error);
+            return false;
+        }
+    }
+
+    async function rejectDuplicatePair(frontInput, backInput, message) {
+        const frontFile = frontInput?.files?.[0] || null;
+        const backFile = backInput?.files?.[0] || null;
+
+        if (!frontFile || !backFile) return false;
+        if (!await uploadedFilesLookTheSame(frontFile, backFile)) return false;
+
+        backInput.value = '';
+
+        if (backInput.id === 'valid_id_back') {
+            updateSelectedFilePreview(backInput, null);
+            document.querySelector(`[data-remove-file="${backInput.id}"]`)?.classList.remove('is-visible');
+            updateScanStatus();
+        }
+
+        alert(message);
+        return true;
+    }
+
     document.querySelectorAll('#idUploadForm input[type="file"]').forEach(function (input) {
-        input.addEventListener('change', function () {
+        input.addEventListener('change', async function () {
             const file = input.files?.[0] || null;
 
             if (file && file.size > 5 * 1024 * 1024) {
@@ -133,6 +226,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const removeBtn = document.querySelector(`[data-remove-file="${input.id}"]`);
             removeBtn?.classList.toggle('is-visible', !!file);
             updateScanStatus();
+
+            const frontInput = document.getElementById('valid_id');
+            const backInput = document.getElementById('valid_id_back');
+            await rejectDuplicatePair(
+                frontInput,
+                backInput,
+                'The back of the valid ID appears to be the same picture as the front. Please provide the actual back side.'
+            );
         });
     });
 
@@ -161,6 +262,70 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(__cfg_barangay_system_profile_1.v17);
                 return;
             }
+
+            const frontFile = front.files[0];
+            const backFile = back.files[0];
+            if (
+                frontFile.name === backFile.name &&
+                frontFile.size === backFile.size &&
+                frontFile.type === backFile.type
+            ) {
+                event.preventDefault();
+                alert('The valid ID front and back cannot be the same picture.');
+            }
+        });
+    }
+
+
+    const profilePwdForm = document.getElementById('profilePwdClassificationForm');
+    const profilePwdFront = document.getElementById('profile_pwd_id_front');
+    const profilePwdBack = document.getElementById('profile_pwd_id_back');
+
+    [profilePwdFront, profilePwdBack].forEach(function (input) {
+        input?.addEventListener('change', async function () {
+            const file = input.files?.[0] || null;
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('PWD ID images must not exceed 5 MB each.');
+                input.value = '';
+                return;
+            }
+
+            const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+            if (!allowed.includes(file.type)) {
+                alert('PWD ID proof must be JPG, JPEG, PNG, or PDF.');
+                input.value = '';
+                return;
+            }
+
+            await rejectDuplicatePair(
+                profilePwdFront,
+                profilePwdBack,
+                'The PWD ID back appears to be the same picture as the front. Please provide the actual back side.'
+            );
+        });
+    });
+
+    if (profilePwdForm) {
+        profilePwdForm.addEventListener('submit', function (event) {
+            const frontFile = profilePwdFront?.files?.[0] || null;
+            const backFile = profilePwdBack?.files?.[0] || null;
+
+            if (!frontFile || !backFile) {
+                event.preventDefault();
+                alert('Please attach both the front and back of your PWD ID card.');
+                return;
+            }
+
+            if (
+                frontFile.name === backFile.name &&
+                frontFile.size === backFile.size &&
+                frontFile.type === backFile.type
+            ) {
+                event.preventDefault();
+                alert('The PWD ID front and back cannot be the same picture.');
+            }
         });
     }
 
@@ -168,6 +333,8 @@ document.addEventListener('DOMContentLoaded', function () {
         scannerState.detectedPoints = null;
         scannerState.lastPoints = null;
         scannerState.stableFrames = 0;
+        scannerState.frameTick = 0;
+        setCaptureReady(false);
 
         if (scannerOverlay) {
             const ctx = scannerOverlay.getContext('2d');
@@ -539,7 +706,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (inputId === 'valid_id') {
                 scannerState.waitingForFlip = true;
-                setScannerStatus(__cfg_barangay_system_profile_1.v28, 'ready');
+                setCaptureReady(false);
+                setScannerStatus('Front side captured. Flip the ID to the back side.', 'ready');
 
                 window.setTimeout(function () {
                     scannerState.sideIndex = 1;
@@ -548,9 +716,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     resetScannerDetection();
 
                     if (scannerTargetText) scannerTargetText.textContent = __cfg_barangay_system_profile_1.v2;
-                    setScannerStatus(__cfg_barangay_system_profile_1.v29, 'waiting');
+                    setScannerStatus('Align the back side inside the guide. Capture will unlock when the image is ready.', 'waiting');
                     scannerLoop();
-                }, 3000);
+                }, 1600);
 
                 return;
             }
@@ -567,11 +735,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 'image/jpeg', 0.94);
     }
 
-    function captureScannerFrame(force = false) {
+    function captureScannerFrame() {
         if (scannerState.isCapturing || scannerState.waitingForFlip) return;
 
         const side = scannerSides[scannerState.sideIndex] || scannerSides[0];
+
+        if (!scannerState.readyToCapture) {
+            setScannerStatus(`Not ready yet. Keep the ${side.display.toLowerCase()} steady inside the guide.`, 'error');
+            return;
+        }
+
         scannerState.isCapturing = true;
+        setCaptureReady(false);
 
         const canvas = cropDetectedCard(scannerState.detectedPoints);
         const quality = validateCapture(canvas, scannerState.detectedPoints, side.inputId);
@@ -598,6 +773,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (scannerVideo.readyState < 2) return;
 
+        scannerState.frameTick++;
         const side = scannerSides[scannerState.sideIndex] || scannerSides[0];
         const points = getCardPoints();
 
@@ -609,20 +785,50 @@ document.addEventListener('DOMContentLoaded', function () {
             scannerState.lastPoints = points;
             scannerState.detectedPoints = points;
 
-            setScannerStatus(__cfg_barangay_system_profile_1.v34.replace(':side', side.display).replace(':progress', Math.min(scannerState.stableFrames, 9)), 'ready');
-
-            if (scannerState.stableFrames >= 9) {
-                captureScannerFrame();
+            if (scannerState.stableFrames < 4) {
+                setCaptureReady(false);
+                setScannerStatus(`Hold the ${side.display.toLowerCase()} steady inside the guide…`, 'waiting');
+                return;
             }
-        } else {
-            scannerState.stableFrames = 0;
-            scannerState.lastPoints = null;
-            scannerState.detectedPoints = null;
 
-            if (!window.cvReady || typeof cv === 'undefined') {
-                setScannerStatus(__cfg_barangay_system_profile_1.v35, 'waiting');
+            // Quality is checked before enabling the button. Nothing is captured here.
+            if (scannerState.frameTick % 3 === 0) {
+                const candidate = cropDetectedCard(points);
+                const quality = validateCapture(candidate, points, side.inputId);
+
+                if (quality.passed) {
+                    setCaptureReady(true);
+                    setScannerStatus(`Ready to capture ${side.display.toLowerCase()}. Hold steady and press Capture.`, 'ready');
+                } else {
+                    setCaptureReady(false);
+                    setScannerStatus(quality.message, 'waiting');
+                }
+            }
+
+            return;
+        }
+
+        scannerState.stableFrames = 0;
+        scannerState.lastPoints = null;
+        scannerState.detectedPoints = null;
+
+        // Detector misses can happen on some IDs/cameras. Use the fixed guide area as a
+        // conservative quality fallback, but still require the user to press Capture.
+        if (scannerState.frameTick % 6 === 0) {
+            const candidate = cropGuideFallback();
+            const quality = validateCapture(candidate, null, side.inputId);
+
+            if (quality.passed) {
+                setCaptureReady(true);
+                setScannerStatus(`Ready to capture ${side.display.toLowerCase()}. Keep the ID inside the guide and press Capture.`, 'ready');
             } else {
-                setScannerStatus(__cfg_barangay_system_profile_1.v36.replace(':side', side.display), 'waiting');
+                setCaptureReady(false);
+
+                if (!window.cvReady || typeof cv === 'undefined') {
+                    setScannerStatus(`Align the ${side.display.toLowerCase()} inside the guide. ${quality.message}`, 'waiting');
+                } else {
+                    setScannerStatus(`Keep all four corners of the ${side.display.toLowerCase()} inside the guide. ${quality.message}`, 'waiting');
+                }
             }
         }
     }
@@ -643,6 +849,7 @@ document.addEventListener('DOMContentLoaded', function () {
         resetScannerDetection();
         scannerState.isCapturing = false;
         scannerState.waitingForFlip = false;
+        setCaptureReady(false);
     }
 
     async function startScannerCamera() {
@@ -656,6 +863,9 @@ document.addEventListener('DOMContentLoaded', function () {
         scannerState.sideIndex = 0;
         scannerState.quality = {};
         scannerState.signatures = {};
+        scannerState.readyToCapture = false;
+        scannerState.frameTick = 0;
+        setCaptureReady(false);
 
         if (scannerTargetText) scannerTargetText.textContent = __cfg_barangay_system_profile_1.v1;
 
@@ -675,7 +885,7 @@ document.addEventListener('DOMContentLoaded', function () {
             scannerVideo.srcObject = stream;
             await scannerVideo.play();
             syncScannerCanvases();
-            setScannerStatus(__cfg_barangay_system_profile_1.v39, 'waiting');
+            setScannerStatus('Align the front side inside the guide. Capture will unlock when the image is ready.', 'waiting');
             scannerLoop();
         } catch (error) {
             console.warn('Camera access failed:', error);
@@ -710,14 +920,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (scannerManualCaptureBtn) {
+        setCaptureReady(false);
         scannerManualCaptureBtn.addEventListener('click', function () {
-            captureScannerFrame(true);
+            captureScannerFrame();
         });
     }
 
     document.addEventListener('opencv-ready', function () {
         if (scannerState.stream && !scannerState.isCapturing) {
-            setScannerStatus(__cfg_barangay_system_profile_1.v41, 'waiting');
+            setCaptureReady(false);
+            setScannerStatus('Scanner engine ready. Align the ID inside the guide and hold it steady.', 'waiting');
         }
     });
 

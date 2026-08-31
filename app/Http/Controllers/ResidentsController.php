@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Services\AdminSettingsService;
 use App\Models\AdminUser;
 use Illuminate\Support\Facades\Mail;
+use App\Support\UploadedImageComparator;
 
 class ResidentsController extends Controller
 {
@@ -75,6 +76,12 @@ class ResidentsController extends Controller
             'valid_id_back' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_selfie' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
 
+            'declare_pwd' => ['nullable', 'boolean'],
+            'pwd_id_front' => ['required_if:declare_pwd,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'pwd_id_back' => ['required_if:declare_pwd,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'declare_student' => ['nullable', 'boolean'],
+            'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
             'password' => ['required','string','confirmed','regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'terms' => 'accepted',
@@ -110,6 +117,15 @@ class ResidentsController extends Controller
             'valid_id.max' => 'The front valid ID must not be larger than 5MB.',
             'valid_id_back.max' => 'The back valid ID must not be larger than 5MB.',
             'valid_id_selfie.max' => 'The selfie holding ID must not be larger than 5MB.',
+            'pwd_id_front.required_if' => 'Please upload the front side of your PWD ID card.',
+            'pwd_id_back.required_if' => 'Please upload the back side of your PWD ID card.',
+            'pwd_id_front.mimes' => 'PWD ID front must be JPG, JPEG, PNG, or PDF.',
+            'pwd_id_back.mimes' => 'PWD ID back must be JPG, JPEG, PNG, or PDF.',
+            'pwd_id_front.max' => 'PWD ID front must not exceed 5MB.',
+            'pwd_id_back.max' => 'PWD ID back must not exceed 5MB.',
+            'student_proof.required_if' => 'Please upload a current school ID, registration form, or certificate of enrollment.',
+            'student_proof.mimes' => 'Student proof must be JPG, JPEG, PNG, or PDF.',
+            'student_proof.max' => 'Student proof must not exceed 5MB.',
             'terms.accepted' => 'You must agree to the Terms and Conditions and Privacy Policy',
             'g-recaptcha-response.required' => 'Please complete the CAPTCHA verification',
         ];
@@ -125,7 +141,37 @@ class ResidentsController extends Controller
                 ->withInput();
         }
 
-        unset($data['terms'], $data['g-recaptcha-response'], $data['password_confirmation']);
+        if (UploadedImageComparator::areSameOrNearDuplicate(
+            $request->file('valid_id'),
+            $request->file('valid_id_back')
+        )) {
+            return back()
+                ->withErrors(['valid_id_back' => 'The back ID appears to be the same picture as the front. Please capture or upload the real back side.'])
+                ->withInput();
+        }
+
+        if ($request->boolean('declare_pwd') && UploadedImageComparator::areSameOrNearDuplicate(
+            $request->file('pwd_id_front'),
+            $request->file('pwd_id_back')
+        )) {
+            return back()
+                ->withErrors(['pwd_id_back' => 'The PWD ID back appears to be the same picture as the front. Please upload the actual back side.'])
+                ->withInput();
+        }
+
+        $declaredPwd = $request->boolean('declare_pwd');
+        $declaredStudent = $request->boolean('declare_student');
+
+        unset(
+            $data['terms'],
+            $data['g-recaptcha-response'],
+            $data['password_confirmation'],
+            $data['declare_pwd'],
+            $data['declare_student'],
+            $data['pwd_id_front'],
+            $data['pwd_id_back'],
+            $data['student_proof']
+        );
 
         $uploadedPaths = [];
 
@@ -135,6 +181,18 @@ class ResidentsController extends Controller
                     $data[$field] = $this->storeResidentValidIdFile($request, $field);
                     $uploadedPaths[] = $data[$field];
                 }
+            }
+
+            if ($declaredPwd) {
+                foreach (['pwd_id_front', 'pwd_id_back'] as $field) {
+                    $data[$field] = $this->storeResidentClassificationFile($request, $field, 'pwd');
+                    $uploadedPaths[] = $data[$field];
+                }
+            }
+
+            if ($declaredStudent) {
+                $data['student_proof'] = $this->storeResidentClassificationFile($request, 'student_proof', 'student');
+                $uploadedPaths[] = $data['student_proof'];
             }
 
             if (isset($data['suffix']) && $data['suffix'] === 'None') {
@@ -154,6 +212,21 @@ class ResidentsController extends Controller
             $data['valid_id_verified_at'] = null;
             $data['valid_id_verified_by'] = null;
             $data['valid_id_rejection_reason'] = null;
+
+            // Student/PWD declarations are not trusted until barangay staff
+            // checks the submitted evidence. Existing audience flags only
+            // become true after admin verification.
+            $data['is_pwd'] = 'false';
+            $data['pwd_status'] = $declaredPwd ? 'pending' : 'not_declared';
+            $data['pwd_verified_at'] = null;
+            $data['pwd_verified_by'] = null;
+            $data['pwd_rejection_reason'] = null;
+
+            $data['is_student'] = 'false';
+            $data['student_status'] = $declaredStudent ? 'pending' : 'not_declared';
+            $data['student_verified_at'] = null;
+            $data['student_verified_by'] = null;
+            $data['student_rejection_reason'] = null;
 
             $resident = Residents::create($data);
 
@@ -494,9 +567,9 @@ class ResidentsController extends Controller
             return back()->withErrors(['valid_id' => 'Please upload valid front and back ID files.']);
         }
 
-        if ($this->uploadedFilesAreIdentical($frontFile, $backFile)) {
+        if (UploadedImageComparator::areSameOrNearDuplicate($frontFile, $backFile)) {
             return back()->withErrors([
-                'valid_id_back' => 'The back ID appears to be the same file as the front. Please upload the back side.',
+                'valid_id_back' => 'The back ID appears to be the same picture as the front. Please upload the actual back side.',
             ]);
         }
 
@@ -882,17 +955,6 @@ class ResidentsController extends Controller
             : 'Your valid ID was rejected. Please submit a clearer front and back copy.';
     }
 
-    private function uploadedFilesAreIdentical($frontFile, $backFile): bool
-    {
-        $frontPath = $frontFile->getRealPath();
-        $backPath = $backFile->getRealPath();
-
-        if (!$frontPath || !$backPath || !is_file($frontPath) || !is_file($backPath)) {
-            return false;
-        }
-
-        return hash_file('sha256', $frontPath) === hash_file('sha256', $backPath);
-    }
 
     private function storeResidentValidIdFile(Request $request, string $field): string
     {
@@ -914,9 +976,30 @@ class ResidentsController extends Controller
         );
     }
 
+    private function storeResidentClassificationFile(Request $request, string $field, string $classification): string
+    {
+        $file = $request->file($field);
+
+        if (!$file || !$file->isValid()) {
+            throw new \RuntimeException('The uploaded classification proof for ' . $field . ' is invalid.');
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $filename = $classification . '_' . $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'evidences/resident_classifications',
+            $filename
+        );
+    }
+
     private function deleteResidentValidIdFiles(Residents $resident): void
     {
-        foreach (['valid_id', 'valid_id_back', 'valid_id_selfie'] as $field) {
+        foreach ([
+            'valid_id', 'valid_id_back', 'valid_id_selfie',
+            'pwd_id_front', 'pwd_id_back', 'student_proof',
+        ] as $field) {
             $this->deleteResidentValidIdFile((string) $resident->{$field});
         }
     }

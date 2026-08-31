@@ -22,8 +22,11 @@ class AnnouncementController extends Controller
         $query = Announcement::where('status', 'published');
 
         if ($request->search) {
-            $query->where('title', 'like', '%'.$request->search.'%')
-                ->orWhere('content', 'like', '%'.$request->search.'%');
+            $search = trim((string) $request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('content', 'like', '%' . $search . '%');
+            });
         }
 
         switch ($request->sort) {
@@ -54,13 +57,15 @@ class AnnouncementController extends Controller
         )->with('fragment', 'announcements');
     }
 
-    public function show(int $slug)
+    public function show(string $slug)
     {
-        $announcement = Announcement::where('slug',$slug)->firstOrFail();
+        $announcement = Announcement::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
 
         $announcement->increment('views');
 
-        return view('announcement-show', compact('announcement'));
+        return view('barangay_system.announcement_show', compact('announcement'));
     }
 
     public function store(Request $request)

@@ -341,9 +341,11 @@
                     <div class="bhd-profile-stat"><span>{{ __('messages.profile_stat_total_requests') }}</span><strong>{{ $totalRequests }}</strong></div>
                 </div>
 
-                <form method="POST" action="{{ route('logout.res') }}" style="display:inline">@csrf<button type="submit" class="bhd-btn bhd-btn-line w-100 mt-3" style="background:none;border:0;padding:0;cursor:pointer">
-                    <i class="fas fa-right-from-bracket"></i> {{ __('messages.profile_signout_btn') }}
-                </button></form>
+                <form method="POST" action="{{ route('logout.res') }}" class="bhd-profile-signout-form">@csrf
+                    <button type="submit" class="bhd-btn bhd-btn-line w-100 mt-3 bhd-profile-signout-btn">
+                        <i class="fas fa-right-from-bracket"></i> {{ __('messages.profile_signout_btn') }}
+                    </button>
+                </form>
             </aside>
 
             <div class="bhd-form-card bhd-profile-content">
@@ -352,6 +354,7 @@
                     <button class="bhd-profile-tab active" id="profile-tab-info" type="button" role="tab" aria-selected="true" aria-controls="tab-info" tabindex="0" data-tab="info"><i class="fas fa-user"></i> {{ __('messages.form_step_personal_info') }}</button>
                     <button class="bhd-profile-tab" id="profile-tab-account" type="button" role="tab" aria-selected="false" aria-controls="tab-account" tabindex="-1" data-tab="account"><i class="fas fa-cog"></i> {{ __('messages.blade_public_nav_blade_account') }}</button>
                     <button class="bhd-profile-tab" id="profile-tab-requests" type="button" role="tab" aria-selected="false" aria-controls="tab-requests" tabindex="-1" data-tab="requests"><i class="fas fa-file-alt"></i> {{ __('messages.blade_profile_blade_requests') }}</button>
+                    <button class="bhd-profile-tab" id="profile-tab-classification" type="button" role="tab" aria-selected="false" aria-controls="tab-classification" tabindex="-1" data-tab="classification"><i class="fas fa-user-tag"></i> Classification</button>
                     <button class="bhd-profile-tab" id="profile-tab-valid-id" type="button" role="tab" aria-selected="false" aria-controls="tab-valid-id" tabindex="-1" data-tab="valid-id"><i class="fas fa-id-card"></i> {{ __('messages.blade_certificate_indigency_blade_valid_id') }}</button>
                 </nav>
 
@@ -748,6 +751,188 @@
                     @endif
                 </div>
 
+                <div class="bhd-profile-panel" id="tab-classification" role="tabpanel" aria-labelledby="profile-tab-classification">
+                    @php
+                        $pwdStatus = strtolower((string) ($resident->pwd_status ?? 'not_declared'));
+                        $studentStatus = strtolower((string) ($resident->student_status ?? 'not_declared'));
+                        $isSenior = (int) ($resident->age ?? 0) >= 60;
+
+                        $classificationLabel = function (string $status): string {
+                            return match ($status) {
+                                'verified' => 'Verified',
+                                'pending' => 'Pending verification',
+                                'rejected' => 'Rejected',
+                                default => 'Not declared',
+                            };
+                        };
+
+                        $classificationClass = function (string $status): string {
+                            return match ($status) {
+                                'verified' => 'is-verified',
+                                'pending' => 'is-pending',
+                                'rejected' => 'is-rejected',
+                                default => 'is-neutral',
+                            };
+                        };
+                    @endphp
+
+                    <div class="bhd-panel-head">
+                        <div>
+                            <h2><i class="fas fa-user-tag me-2"></i>Resident Classification</h2>
+                            <p>Student and PWD classifications require evidence and barangay verification. Senior Citizen status is determined automatically from your birthdate.</p>
+                        </div>
+                    </div>
+
+                    @if($errors->hasAny(['student_proof', 'pwd_id_front', 'pwd_id_back', 'classification']))
+                        <div class="bhd-alert danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                @foreach(['classification', 'student_proof', 'pwd_id_front', 'pwd_id_back'] as $field)
+                                    @foreach($errors->get($field) as $error)
+                                        <div>{{ $error }}</div>
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="classification-summary-grid">
+                        <article class="classification-card">
+                            <div class="classification-card-head">
+                                <span class="classification-icon senior"><i class="fas fa-person-cane"></i></span>
+                                <div>
+                                    <strong>Senior Citizen</strong>
+                                    <span>Based on verified profile birthdate</span>
+                                </div>
+                            </div>
+                            <span class="classification-status {{ $isSenior ? 'is-verified' : 'is-neutral' }}">
+                                <i class="fas {{ $isSenior ? 'fa-circle-check' : 'fa-circle-minus' }}"></i>
+                                {{ $isSenior ? 'Qualified automatically' : 'Not qualified by age' }}
+                            </span>
+                            <p>{{ $isSenior ? 'Your profile age is 60 or above, so the system recognizes you as a Senior Citizen.' : 'This becomes active automatically when your age reaches 60.' }}</p>
+                        </article>
+
+                        <article class="classification-card">
+                            <div class="classification-card-head">
+                                <span class="classification-icon student"><i class="fas fa-graduation-cap"></i></span>
+                                <div>
+                                    <strong>Student</strong>
+                                    <span>School proof required</span>
+                                </div>
+                            </div>
+                            <span class="classification-status {{ $classificationClass($studentStatus) }}">
+                                <i class="fas {{ $studentStatus === 'verified' ? 'fa-circle-check' : ($studentStatus === 'pending' ? 'fa-clock' : ($studentStatus === 'rejected' ? 'fa-circle-xmark' : 'fa-circle-minus')) }}"></i>
+                                {{ $classificationLabel($studentStatus) }}
+                            </span>
+                            <p>Accepted proof: current school ID, registration form, or certificate of enrollment.</p>
+                            @if($studentStatus === 'rejected' && $resident->student_rejection_reason)
+                                <div class="classification-rejection"><strong>Reason:</strong> {{ $resident->student_rejection_reason }}</div>
+                            @endif
+                        </article>
+
+                        <article class="classification-card">
+                            <div class="classification-card-head">
+                                <span class="classification-icon pwd"><i class="fas fa-wheelchair"></i></span>
+                                <div>
+                                    <strong>Person with Disability (PWD)</strong>
+                                    <span>Official PWD ID card required</span>
+                                </div>
+                            </div>
+                            <span class="classification-status {{ $classificationClass($pwdStatus) }}">
+                                <i class="fas {{ $pwdStatus === 'verified' ? 'fa-circle-check' : ($pwdStatus === 'pending' ? 'fa-clock' : ($pwdStatus === 'rejected' ? 'fa-circle-xmark' : 'fa-circle-minus')) }}"></i>
+                                {{ $classificationLabel($pwdStatus) }}
+                            </span>
+                            <p>Submit clear front and back images of your official PWD ID card for barangay review.</p>
+                            @if($pwdStatus === 'rejected' && $resident->pwd_rejection_reason)
+                                <div class="classification-rejection"><strong>Reason:</strong> {{ $resident->pwd_rejection_reason }}</div>
+                            @endif
+                        </article>
+                    </div>
+
+                    <div class="bhd-section-label"><i class="fas fa-file-shield"></i> Verification evidence</div>
+
+                    <div class="classification-proof-grid">
+                        <section class="classification-proof-card">
+                            <div class="classification-proof-head">
+                                <div>
+                                    <strong><i class="fas fa-graduation-cap me-2"></i>Student verification</strong>
+                                    <span>Your proof is reviewed by authorized barangay staff.</span>
+                                </div>
+                                <span class="classification-status {{ $classificationClass($studentStatus) }}">{{ $classificationLabel($studentStatus) }}</span>
+                            </div>
+
+                            @if($studentStatus === 'verified')
+                                <div class="classification-message success"><i class="fas fa-shield-check"></i><span>Your Student classification is verified. No new proof is needed.</span></div>
+                            @elseif($studentStatus === 'pending')
+                                <div class="classification-message pending"><i class="fas fa-clock"></i><span>Your Student proof is waiting for barangay verification.</span></div>
+                            @else
+                                <form method="POST" action="{{ route('profile.classification') }}" enctype="multipart/form-data" class="classification-form">
+                                    @csrf
+                                    <input type="hidden" name="classification" value="student">
+                                    <div class="bhd-form-group">
+                                        <label for="profile_student_proof">Student proof <span class="text-danger">*</span></label>
+                                        <input type="file"
+                                               id="profile_student_proof"
+                                               name="student_proof"
+                                               class="bhd-profile-control @error('student_proof') is-invalid @enderror"
+                                               accept="image/jpeg,image/png,application/pdf"
+                                               required>
+                                        <small>JPG, JPEG, PNG, or PDF · maximum 5 MB.</small>
+                                    </div>
+                                    <button type="submit" class="bhd-btn bhd-btn-primary">
+                                        <i class="fas fa-paper-plane"></i>{{ $studentStatus === 'rejected' ? 'Resubmit Student Proof' : 'Submit Student Proof' }}
+                                    </button>
+                                </form>
+                            @endif
+                        </section>
+
+                        <section class="classification-proof-card">
+                            <div class="classification-proof-head">
+                                <div>
+                                    <strong><i class="fas fa-wheelchair me-2"></i>PWD verification</strong>
+                                    <span>Both sides must be different images of the same PWD card.</span>
+                                </div>
+                                <span class="classification-status {{ $classificationClass($pwdStatus) }}">{{ $classificationLabel($pwdStatus) }}</span>
+                            </div>
+
+                            @if($pwdStatus === 'verified')
+                                <div class="classification-message success"><i class="fas fa-shield-check"></i><span>Your PWD classification is verified. No new proof is needed.</span></div>
+                            @elseif($pwdStatus === 'pending')
+                                <div class="classification-message pending"><i class="fas fa-clock"></i><span>Your PWD ID card is waiting for barangay verification.</span></div>
+                            @else
+                                <form method="POST" action="{{ route('profile.classification') }}" enctype="multipart/form-data" class="classification-form" id="profilePwdClassificationForm">
+                                    @csrf
+                                    <input type="hidden" name="classification" value="pwd">
+                                    <div class="classification-pwd-files">
+                                        <div class="bhd-form-group">
+                                            <label for="profile_pwd_id_front">PWD ID front <span class="text-danger">*</span></label>
+                                            <input type="file"
+                                                   id="profile_pwd_id_front"
+                                                   name="pwd_id_front"
+                                                   class="bhd-profile-control @error('pwd_id_front') is-invalid @enderror"
+                                                   accept="image/jpeg,image/png,application/pdf"
+                                                   required>
+                                        </div>
+                                        <div class="bhd-form-group">
+                                            <label for="profile_pwd_id_back">PWD ID back <span class="text-danger">*</span></label>
+                                            <input type="file"
+                                                   id="profile_pwd_id_back"
+                                                   name="pwd_id_back"
+                                                   class="bhd-profile-control @error('pwd_id_back') is-invalid @enderror"
+                                                   accept="image/jpeg,image/png,application/pdf"
+                                                   required>
+                                        </div>
+                                    </div>
+                                    <small class="classification-file-help">JPG, JPEG, PNG, or PDF · maximum 5 MB each. The front and back cannot be the same picture.</small>
+                                    <button type="submit" class="bhd-btn bhd-btn-primary">
+                                        <i class="fas fa-paper-plane"></i>{{ $pwdStatus === 'rejected' ? 'Resubmit PWD Card' : 'Submit PWD Card' }}
+                                    </button>
+                                </form>
+                            @endif
+                        </section>
+                    </div>
+                </div>
+
                 <div class="bhd-profile-panel" id="tab-valid-id" role="tabpanel" aria-labelledby="profile-tab-valid-id">
                     <div class="bhd-panel-head">
                         <div>
@@ -917,20 +1102,20 @@
 
                                 <div class="bhd-scan-panel">
                                     <div>
-                                        <strong><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('messages.blade_profile_blade_automatic_front_and_back_id_scan') }}</strong>
-                                        <span>{{ __('messages.blade_profile_blade_click_once_the_scanner_captures_the_front_side_first_th') }}</span>
+                                        <strong><i class="fas fa-wand-magic-sparkles me-1"></i>Guided front and back ID capture</strong>
+                                        <span>Open the camera, align the front side, wait for Ready to capture, then press Capture. Repeat for the back side.</span>
                                     </div>
                                     <button type="button" class="bhd-btn bhd-btn-primary" id="scanBothSidesBtn">
                                         <i class="fas fa-camera-retro"></i>
-                                        {{ __('messages.blade_profile_blade_start_id_scan') }}
+                                        Open guided camera
                                     </button>
                                 </div>
 
                                 <div class="bhd-scan-status" id="idAutoScanStatus">
                                     <i class="fas fa-id-card-clip"></i>
                                     <div>
-                                        <strong id="idAutoScanStatusTitle">{{ __('messages.blade_profile_blade_no_new_id_scan_yet') }}</strong>
-                                        <span id="idAutoScanStatusText">{{ __('messages.blade_profile_blade_use_the_scanner_or_manually_choose_both_front_and_back_') }}</span>
+                                        <strong id="idAutoScanStatusTitle">No new ID captured yet</strong>
+                                        <span id="idAutoScanStatusText">Use the guided camera or choose both front and back images manually.</span>
                                         <span class="d-none" id="validIdFrontText">{{ __('messages.blade_profile_blade_no_front_file_selected') }}</span>
                                         <span class="d-none" id="validIdBackText">{{ __('messages.blade_profile_blade_no_back_file_selected') }}</span>
                                     </div>
@@ -1023,14 +1208,14 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content bhd-modal-card">
             <div class="modal-header">
-                <h5 class="modal-title" id="idScannerModalLabel">{{ __('messages.blade_profile_blade_automatic_valid_id_scanner') }}</h5>
+                <h5 class="modal-title" id="idScannerModalLabel">Guided Valid ID Camera</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
             </div>
 
             <div class="modal-body">
                 <div class="scanner-help">
                     <i class="fas fa-lightbulb"></i>
-                    <span>{{ __('messages.blade_profile_blade_place_the_id_inside_the_guide_the_scanner_captures_the_') }}</span>
+                    <span>Place the correct side fully inside the guide. Hold it steady in good lighting. The system will tell you when it is ready; you must press Capture yourself.</span>
                 </div>
 
                 <div class="scanner-stage">
@@ -1058,7 +1243,7 @@
 
                     <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn">
                         <i class="fas fa-camera"></i>
-                        {{ __('messages.blade_profile_blade_capture_now') }}
+                        Capture when ready
                     </button>
 
                     <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
@@ -1203,9 +1388,11 @@
             ? 'account'
             : ($errors->hasAny(['contact','field_name','correct_value','message'])
                 ? 'info'
-                : (($errors->has('valid_id') || $errors->has('valid_id_back'))
-                    ? 'valid-id'
-                    : session('open_tab'))),
+                : ($errors->hasAny(['classification','student_proof','pwd_id_front','pwd_id_back'])
+                    ? 'classification'
+                    : (($errors->has('valid_id') || $errors->has('valid_id_back'))
+                        ? 'valid-id'
+                        : session('open_tab')))), 
         'showCorrectionModal' => $errors->hasAny(['field_name','correct_value','message']),
         'notAvailable' => __('messages.blade_announcement_blade_n_a'),
         'v1' => __('messages.blade_profile_blade_profile_photo_must_not_exceed_5mb'),

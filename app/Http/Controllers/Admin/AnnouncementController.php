@@ -135,7 +135,7 @@ class AnnouncementController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'category' => 'required|in:important,events,health,services,other',
+            'category' => 'required|in:important,events,health,services,infrastructure,other',
             'is_featured' => 'nullable|boolean',
             'status' => 'required|in:published,draft,archived',
             'published_at' => 'nullable|date',
@@ -155,8 +155,6 @@ class AnnouncementController extends Controller
                 );
                 $newImagePath = $data['image'];
             }
-
-            $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
 
             if ($request->status == 'published' && !$request->published_at) {
                 $data['published_at'] = now();
@@ -194,7 +192,7 @@ class AnnouncementController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'category' => 'required|in:important,events,health,services,other',
+            'category' => 'required|in:important,events,health,services,infrastructure,other',
             'is_featured' => 'nullable|boolean',
             'status' => 'required|in:published,draft,archived',
             'published_at' => 'nullable|date',
@@ -214,10 +212,6 @@ class AnnouncementController extends Controller
                     'announcement_pic'
                 );
                 $newImagePath = $data['image'];
-            }
-
-            if ($announcement->title != $request->title) {
-                $data['slug'] = Str::slug($request->title) . '-' . Str::random(6);
             }
 
             if ($request->status == 'published' && !$request->published_at && $announcement->status != 'published') {
@@ -313,9 +307,11 @@ class AnnouncementController extends Controller
     {
         $announcement = Announcement::where('slug', $slug)->firstOrFail();
 
-        $announcement->increment('views');
+        if (request()->wantsJson()) {
+            return response()->json($announcement);
+        }
 
-        return view('announcements.show', compact('announcement'));
+        return redirect()->route('admin.announcements.index');
     }
 
     public function bulkNotifyResidents(Request $request)

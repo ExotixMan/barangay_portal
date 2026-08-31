@@ -345,16 +345,6 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-0">
-                            <label for="nearest_landmark"><i class="fas fa-landmark"></i> {{ __('messages.blade_register_blade_nearest_landmark') }}</label>
-                            <input type="text" id="nearest_landmark" name="nearest_landmark" value="{{ old('nearest_landmark') }}" required
-                                placeholder="{{ __('messages.blade_register_blade_example_near_chapel_school_or_covered_court') }}"
-                                class="form-control js-address-field @error('nearest_landmark') is-invalid @enderror">
-                            <div class="form-hint">{{ __('messages.blade_register_blade_use_a_place_staff_can_recognize_during_verification') }}</div>
-                            @error('nearest_landmark')
-                                <div class="error-message">{{ $message }}</div>
-                            @enderror
-                        </div>
 
                         <div class="address-preview">
                             <i class="fas fa-eye"></i>
@@ -364,6 +354,65 @@
                         @error('address')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="form-section-card classification-card">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-kicker"><i class="fas fa-user-tag"></i> Resident Classification</span>
+                                <h4>Student or PWD verification</h4>
+                                <p class="mb-0 text-muted small">Only declare a classification that applies to you. Student and PWD status remain pending until barangay staff verifies the submitted proof.</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-6">
+                                <div class="border rounded-4 p-3 h-100">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="declare_student" value="1" id="declare_student" {{ old('declare_student') ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold" for="declare_student">
+                                            <i class="fas fa-graduation-cap me-1 text-primary"></i> I am currently a student
+                                        </label>
+                                    </div>
+                                    <p class="small text-muted mb-2">Accepted proof: current school ID, registration form, or certificate of enrollment.</p>
+                                    <div id="studentProofFields" class="{{ old('declare_student') ? '' : 'd-none' }}">
+                                        <label for="student_proof" class="form-label">Student Proof <span class="text-danger">*</span></label>
+                                        <input type="file" id="student_proof" name="student_proof" class="form-control @error('student_proof') is-invalid @enderror" accept="image/jpeg,image/png,application/pdf">
+                                        @error('student_proof')<div class="error-message">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6">
+                                <div class="border rounded-4 p-3 h-100">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="declare_pwd" value="1" id="declare_pwd" {{ old('declare_pwd') ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold" for="declare_pwd">
+                                            <i class="fas fa-wheelchair me-1 text-primary"></i> I am a registered PWD
+                                        </label>
+                                    </div>
+                                    <p class="small text-muted mb-2">Upload the official PWD ID card. Front and back must be different sides of the card.</p>
+                                    <div id="pwdProofFields" class="{{ old('declare_pwd') ? '' : 'd-none' }}">
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <label for="pwd_id_front" class="form-label">PWD ID Front <span class="text-danger">*</span></label>
+                                                <input type="file" id="pwd_id_front" name="pwd_id_front" class="form-control @error('pwd_id_front') is-invalid @enderror" accept="image/jpeg,image/png,application/pdf">
+                                                @error('pwd_id_front')<div class="error-message">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label for="pwd_id_back" class="form-label">PWD ID Back <span class="text-danger">*</span></label>
+                                                <input type="file" id="pwd_id_back" name="pwd_id_back" class="form-control @error('pwd_id_back') is-invalid @enderror" accept="image/jpeg,image/png,application/pdf">
+                                                @error('pwd_id_back')<div class="error-message">{{ $message }}</div>@enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border mt-3 mb-0 small">
+                            <i class="fas fa-person-cane me-1"></i> Senior Citizen status is automatic from your verified birthdate when you are 60 years old or above.
+                        </div>
                     </div>
 
                     <div class="form-section-card verification-card">
@@ -376,11 +425,11 @@
 
                         <div class="scan-both-panel scan-both-panel-single">
                             <div>
-                                <strong>{{ __('messages.blade_register_blade_automatic_id_scan') }}</strong>
-                                <span>{{ __('messages.blade_register_blade_click_once_only_the_scanner_captures_the_front_side_tel') }}</span>
+                                <strong>Guided ID camera</strong>
+                                <span>Align the FRONT side inside the guide. When the camera says Ready to capture, press Capture. Then flip the card and repeat for the BACK side.</span>
                             </div>
                             <button type="button" class="btn-scan-both" id="scanBothSidesBtn">
-                                <i class="fas fa-camera-retro"></i> {{ __('messages.blade_profile_blade_start_id_scan') }}
+                                <i class="fas fa-camera-retro"></i> Open guided camera
                             </button>
                         </div>
 
@@ -421,7 +470,7 @@
                                 <i class="fas fa-id-card-clip"></i>
                                 <div>
                                     <strong id="idAutoScanStatusTitle">{{ __('messages.blade_register_blade_no_id_scan_yet') }}</strong>
-                                    <span id="idAutoScanStatusText">{{ __('messages.blade_register_blade_press_start_id_scan_the_system_will_save_both_sides_onl') }}</span>
+                                    <span id="idAutoScanStatusText">Use the guided camera or upload both sides manually. The camera never captures automatically.</span>
                                     <span class="d-none" id="validIdFrontText">{{ __('messages.blade_profile_blade_no_front_file_selected') }}</span>
                                     <span class="d-none" id="validIdBackText">{{ __('messages.blade_profile_blade_no_back_file_selected') }}</span>
                                 </div>
@@ -699,13 +748,13 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="idScannerModalLabel">{{ __('messages.blade_profile_blade_automatic_valid_id_scanner') }}</h5>
+                    <h5 class="modal-title" id="idScannerModalLabel">Guided Valid ID Camera</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.modal_close_btn') }}"></button>
                 </div>
                 <div class="modal-body">
                     <div class="scanner-help">
                         <i class="fas fa-lightbulb"></i>
-                        <span>{{ __('messages.blade_register_blade_place_the_id_inside_the_guide_the_scanner_automatically') }}</span>
+                        <span><strong>Nothing is captured automatically.</strong> Keep all four corners inside the guide, avoid glare, hold the card steady, and wait for the green Ready to capture message before pressing Capture.</span>
                     </div>
 
                     <div class="scanner-stage">
@@ -723,7 +772,7 @@
                             <div class="scanner-transition-card">
                                 <i class="fas fa-rotate"></i>
                                 <strong id="idScannerTransitionTitle">Front captured</strong>
-                                <span id="idScannerTransitionText">Flip the ID now. The scanner will capture the BACK side next.</span>
+                                <span id="idScannerTransitionText">Flip the ID now. Align the BACK side and press Capture only when it is ready.</span>
                                 <span class="scanner-transition-countdown" id="idScannerTransitionCountdown">3</span>
                             </div>
                         </div>
@@ -745,17 +794,12 @@
                             <i class="fas fa-rotate-right"></i> {{ __('messages.blade_profile_blade_restart_camera') }}
                         </button>
                         <button type="button" class="btn-scanner-primary" id="idScannerManualCaptureBtn" disabled>
-                            <i class="fas fa-camera"></i> Capture inside guide
+                            <i class="fas fa-camera"></i> Capture when ready
                         </button>
                         <button type="button" class="btn-scanner-danger" data-bs-dismiss="modal">
                             <i class="fas fa-xmark"></i> {{ __('messages.register_cancel_btn') }}
                         </button>
                     </div>
-
-                    <label class="scanner-auto-option" for="idScannerAutoCapture">
-                        <input type="checkbox" id="idScannerAutoCapture" checked>
-                        {{ __('messages.blade_register_blade_auto_capture_when_the_id_is_detected_and_steady') }}
-                    </label>
                 </div>
             </div>
         </div>
@@ -819,21 +863,21 @@
         'v48' => __('messages.blade_profile_blade_no_back_file_selected'),
         'v49' => __('messages.blade_profile_blade_no_front_file_selected'),
         'v50' => __('messages.blade_profile_blade_front_side'),
-        'v51' => __('messages.blade_profile_blade_automatic_valid_id_scanner'),
+        'v51' => 'Guided Valid ID Camera',
         'v52' => __('messages.blade_profile_blade_back_side'),
         'v53' => __('messages.blade_runtime_id_side'),
         'v54' => __('messages.blade_runtime_scanning_front_movement'),
         'v55' => __('messages.blade_runtime_scanning_id'),
         'v56' => __('messages.blade_runtime_rescan_id'),
-        'v57' => __('messages.blade_profile_blade_start_id_scan'),
+        'v57' => 'Open guided camera',
         'v58' => __('messages.blade_register_blade_id_scan_complete'),
         'v59' => __('messages.blade_register_blade_front_side_captured_back_side_captured_both_passed_qual'),
         'v60' => __('messages.blade_register_blade_front_side_captured'),
         'v61' => __('messages.blade_register_blade_front_side_is_saved_flip_the_id_now_the_scanner_will_ca'),
         'v62' => __('messages.blade_register_blade_back_side_captured'),
         'v63' => __('messages.blade_register_blade_back_side_is_saved_but_the_front_side_is_still_missing_'),
-        'v64' => __('messages.blade_register_blade_no_id_scan_yet'),
-        'v65' => __('messages.blade_register_blade_press_start_id_scan_the_scanner_will_capture_the_front_'),
+        'v64' => 'No new ID captured yet',
+        'v65' => 'Open the guided camera or upload both sides manually. You press Capture only when the status says Ready.',
         'v66' => __('messages.blade_runtime_id_not_complete'),
         'v67' => __('messages.blade_runtime_id_too_far'),
         'v68' => __('messages.blade_runtime_id_too_close'),
@@ -852,8 +896,8 @@
         'v81' => __('messages.blade_register_scanner_place_the_front_side_inside_the_guide_and_hold_it_steady'),
         'v82' => __('messages.blade_profile_scanner_side_failed_message'),
         'v83' => __('messages.blade_js_capture_failed_please_try_again'),
-        'v84' => __('messages.blade_runtime_scanner_front_saved_flip'),
-        'v85' => __('messages.blade_runtime_scanner_back_movement'),
+        'v84' => 'Front side saved. Flip the ID and align the back side inside the guide.',
+        'v85' => 'Align the back side and wait for Ready to capture, then press Capture.',
         'v86' => __('messages.blade_register_scanner_side_captured_but_the_full_front_back_scan_is_not_complete'),
         'v87' => __('messages.blade_register_scanner_front_and_back_sides_passed_id_scan_complete'),
         'v88' => __('messages.blade_register_scanner_side_captured_successfully'),

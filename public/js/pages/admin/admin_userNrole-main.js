@@ -17,16 +17,32 @@ const __cfg_admin_users_roles = JSON.parse(document.getElementById('js-config-ad
         }
 
         function switchTab(tabName, event) {
+            const panel = document.getElementById(tabName + 'Tab');
+            const clicked = event?.currentTarget || Array.from(document.querySelectorAll('.tab-link')).find(function (link) {
+                const args = link.getAttribute('data-click-args') || '';
+                return args.includes('"' + tabName + '"');
+            });
 
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+            if (!panel || !clicked) return;
 
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(function (el) {
+                el.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-link').forEach(function (el) {
+                el.classList.remove('active');
+                el.setAttribute('aria-selected', 'false');
+                el.setAttribute('tabindex', '-1');
+            });
+
+            panel.classList.add('active');
+            clicked.classList.add('active');
+            clicked.setAttribute('aria-selected', 'true');
+            clicked.setAttribute('tabindex', '0');
 
             const url = new URL(window.location);
             url.searchParams.set('tab', tabName);
-            window.history.pushState({}, '', url);
+            window.history.replaceState({}, '', url);
         }
 
         function confirmDelete(event, message) {
@@ -226,16 +242,23 @@ const __cfg_admin_users_roles = JSON.parse(document.getElementById('js-config-ad
 
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const tab = urlParams.get('tab');
+            const requested = (urlParams.get('tab') || 'users').toLowerCase();
+            const allowed = ['users', 'roles', 'permissions', 'audit'];
+            const tab = allowed.includes(requested) ? requested : 'users';
 
-            if (tab && tab !== 'users') {
+            const tabLinks = Array.from(document.querySelectorAll('.tab-link'));
+            const target = tabLinks.find(function (link) {
+                const args = link.getAttribute('data-click-args') || '';
+                return args.includes('"' + tab + '"');
+            });
 
-                const tabLinks = document.querySelectorAll('.tab-link');
-                tabLinks.forEach(link => {
-                    if (link.textContent.toLowerCase().includes(tab)) {
-                        link.click();
-                    }
+            if (target) {
+                target.click();
+            } else {
+                const users = tabLinks.find(function (link) {
+                    return (link.getAttribute('data-click-args') || '').includes('"users"');
                 });
+                users?.click();
             }
         });
 

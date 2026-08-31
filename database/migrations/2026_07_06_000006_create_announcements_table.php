@@ -22,7 +22,8 @@ return new class extends Migration
                 'events',
                 'health',
                 'services',
-                'infrastructure'
+                'infrastructure',
+                'other'
             ]);
 
             $table->string('image')->nullable();
@@ -31,7 +32,7 @@ return new class extends Migration
 
             $table->integer('views')->default(0);
 
-            $table->date('published_at')->nullable();
+            $table->timestamp('published_at')->nullable();
 
             $table->enum('status', ['draft','published','archived'])
                 ->default('published');

@@ -27,7 +27,7 @@ class DocumentController extends Controller
 
     public function document()
     {
-        return view('admin.adocumentdoc');
+        return redirect()->route('admin.request.index');
     }
 
     public function generate(Request $request)

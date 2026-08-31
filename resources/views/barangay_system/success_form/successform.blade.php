@@ -20,6 +20,9 @@
 @php
     $submittedDateText = $date_submitted ?? now()->format('M d, Y');
     $feeLabelText = session('fee_label', '');
+    $backRoute = is_string($route ?? null) && \Illuminate\Support\Facades\Route::has($route)
+        ? $route
+        : 'services';
 @endphp
 
 <main class="main-layout" id="mainContent">
@@ -74,7 +77,7 @@
                 <button type="button" class="action-btn action-secondary" id="printReceipt">
                     <i class="fas fa-print"></i> {{ __('messages.blade_successform_blade_print_receipt') }}
                 </button>
-                <a href="{{ route($route) }}" class="action-btn action-secondary">
+                <a href="{{ route($backRoute) }}" class="action-btn action-secondary">
                     <i class="fas fa-arrow-left"></i> {{ __('messages.blade_success_back_to_service_page', ['service' => $service]) }}
                 </a>
             </div>

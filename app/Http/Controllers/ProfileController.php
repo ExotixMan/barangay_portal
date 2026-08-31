@@ -19,13 +19,14 @@ use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Services\SupabaseStorageService;
+use App\Support\UploadedImageComparator;
 
 class ProfileController extends Controller
 {
     public function show()
     {
         
-        $resident = Auth::user();
+        $resident = $this->currentResident();
         $userId = $resident->id;
 
         $residencyCount = ResidencyApplication::where('user_id', $userId)->count();
@@ -68,7 +69,7 @@ class ProfileController extends Controller
     public function updateInfo(Request $request)
     {
 
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $validated = $request->validate([
             'contact' => ['required', 'string', 'regex:/^(09\d{9}|9\d{9})$/'],
@@ -95,7 +96,7 @@ class ProfileController extends Controller
     public function reportIncorrectProfile(Request $request)
     {
         
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         return DB::transaction(function () use ($request, $resident) {
             
@@ -216,7 +217,7 @@ class ProfileController extends Controller
     public function updateAccount(Request $request)
     {
         
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $validated = $request->validate([
             'username' => [
@@ -236,7 +237,9 @@ class ProfileController extends Controller
         ]);
 
         $emailChanged = $validated['email'] !== $resident->email;
-        $resident->fill($validated);
+
+        $resident->username = $validated['username'];
+        $resident->email = $validated['email'];
 
         if ($emailChanged) {
             $resident->email_verified_at = null;
@@ -262,7 +265,7 @@ class ProfileController extends Controller
     public function updatePassword(Request $request)
     {
         
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $request->validate([
             'current_password' => ['required', 'string'],
@@ -299,7 +302,7 @@ class ProfileController extends Controller
             'profile_photo.max'   => 'Photo must not exceed 5MB.',
         ]);
 
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $oldProfilePhoto = $resident->profile_photo;
 
@@ -325,7 +328,7 @@ class ProfileController extends Controller
     public function removePhoto()
     {
         
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $oldProfilePhoto = $resident->profile_photo;
         $resident->update(['profile_photo' => null]);
@@ -348,7 +351,7 @@ class ProfileController extends Controller
             'valid_id_back.max' => 'Back ID must not exceed 5MB.',
         ]);
 
-        $resident = Auth::user();
+        $resident = $this->currentResident();
 
         $frontFile = $request->file('valid_id');
         $backFile = $request->file('valid_id_back');
@@ -359,9 +362,9 @@ class ProfileController extends Controller
                 ->with('open_tab', 'valid-id');
         }
 
-        if ($this->uploadedFilesAreIdentical($frontFile, $backFile)) {
+        if (UploadedImageComparator::areSameOrNearDuplicate($frontFile, $backFile)) {
             return redirect()->route('profile')
-                ->withErrors(['valid_id_back' => 'The back ID image appears to be the same as the front. Please flip the ID and scan the back side.'])
+                ->withErrors(['valid_id_back' => 'The back ID appears to be the same picture as the front. Please flip the ID and capture the real back side.'])
                 ->with('open_tab', 'valid-id');
         }
 
@@ -371,15 +374,33 @@ class ProfileController extends Controller
             $frontPath = $this->storeResidentValidIdFile($frontFile, $resident, 'front');
             $backPath = $this->storeResidentValidIdFile($backFile, $resident, 'back');
 
-            $resident->forceFill([
-                'valid_id' => $frontPath,
-                'valid_id_back' => $backPath,
-                'valid_id_verified' => DB::raw('FALSE'),
-                'valid_id_status' => 'for_verification',
-                'valid_id_verified_at' => null,
-                'valid_id_verified_by' => null,
-                'valid_id_rejection_reason' => null,
-            ])->save();
+            DB::statement(
+                'UPDATE residents
+                 SET valid_id = ?,
+                     valid_id_back = ?,
+                     valid_id_verified = FALSE,
+                     valid_id_status = ?,
+                     valid_id_verified_at = NULL,
+                     valid_id_verified_by = NULL,
+                     valid_id_rejection_reason = NULL,
+                     updated_at = ?
+                 WHERE id = ?',
+                [
+                    $frontPath,
+                    $backPath,
+                    'for_verification',
+                    now('Asia/Manila'),
+                    $resident->id,
+                ]
+            );
+
+            $resident->valid_id = $frontPath;
+            $resident->valid_id_back = $backPath;
+            $resident->valid_id_verified = false;
+            $resident->valid_id_status = 'for_verification';
+            $resident->valid_id_verified_at = null;
+            $resident->valid_id_verified_by = null;
+            $resident->valid_id_rejection_reason = null;
 
             $this->deletePublicFile($oldFrontPath);
             $this->deletePublicFile($oldBackPath);
@@ -394,6 +415,182 @@ class ProfileController extends Controller
         return redirect()->route('profile')
             ->with('open_tab', 'valid-id')
             ->with('success_photo', 'Valid ID front and back uploaded successfully. It will be reviewed by barangay staff.');
+    }
+
+    public function updateClassification(Request $request)
+    {
+        $resident = $this->currentResident();
+
+        $validated = $request->validate([
+            'classification' => ['required', Rule::in(['pwd', 'student'])],
+            'pwd_id_front' => ['required_if:classification,pwd', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'pwd_id_back' => ['required_if:classification,pwd', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'student_proof' => ['required_if:classification,student', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ], [
+            'pwd_id_front.required_if' => 'Please upload the front side of your PWD ID card.',
+            'pwd_id_back.required_if' => 'Please upload the back side of your PWD ID card.',
+            'student_proof.required_if' => 'Please upload a current school ID, registration form, or certificate of enrollment.',
+        ]);
+
+        $classification = $validated['classification'];
+
+        if ($classification === 'pwd' && in_array((string) $resident->pwd_status, ['pending', 'verified'], true)) {
+            return redirect()->route('profile')
+                ->with('open_tab', 'classification')
+                ->with('warning', $resident->pwd_status === 'verified'
+                    ? 'Your PWD classification is already verified.'
+                    : 'Your PWD evidence is already pending review.');
+        }
+
+        if ($classification === 'student' && in_array((string) $resident->student_status, ['pending', 'verified'], true)) {
+            return redirect()->route('profile')
+                ->with('open_tab', 'classification')
+                ->with('warning', $resident->student_status === 'verified'
+                    ? 'Your Student classification is already verified.'
+                    : 'Your Student evidence is already pending review.');
+        }
+
+        if ($classification === 'pwd') {
+            $front = $request->file('pwd_id_front');
+            $back = $request->file('pwd_id_back');
+
+            if (UploadedImageComparator::areSameOrNearDuplicate($front, $back)) {
+                return redirect()->route('profile')
+                    ->withErrors(['pwd_id_back' => 'The PWD ID back appears to be the same picture as the front. Please upload the actual back side.'])
+                    ->with('open_tab', 'classification');
+            }
+
+            $newPaths = [];
+
+            try {
+                $frontPath = $this->storeResidentClassificationFile($front, $resident, 'pwd_front');
+                $newPaths[] = $frontPath;
+                $backPath = $this->storeResidentClassificationFile($back, $resident, 'pwd_back');
+                $newPaths[] = $backPath;
+
+                $oldFront = $resident->pwd_id_front;
+                $oldBack = $resident->pwd_id_back;
+
+                DB::statement(
+                    'UPDATE residents
+                     SET pwd_id_front = ?,
+                         pwd_id_back = ?,
+                         pwd_status = ?,
+                         is_pwd = FALSE,
+                         pwd_verified_at = NULL,
+                         pwd_verified_by = NULL,
+                         pwd_rejection_reason = NULL,
+                         updated_at = ?
+                     WHERE id = ?',
+                    [
+                        $frontPath,
+                        $backPath,
+                        'pending',
+                        now('Asia/Manila'),
+                        $resident->id,
+                    ]
+                );
+
+                $resident->pwd_id_front = $frontPath;
+                $resident->pwd_id_back = $backPath;
+                $resident->pwd_status = 'pending';
+                $resident->is_pwd = false;
+                $resident->pwd_verified_at = null;
+                $resident->pwd_verified_by = null;
+                $resident->pwd_rejection_reason = null;
+
+                $this->deletePublicFile($oldFront);
+                $this->deletePublicFile($oldBack);
+            } catch (\Throwable $e) {
+                foreach ($newPaths as $path) {
+                    $this->deletePublicFile($path);
+                }
+                report($e);
+
+                return redirect()->route('profile')
+                    ->withErrors(['pwd_id_front' => 'PWD ID upload failed. Please try again.'])
+                    ->with('open_tab', 'classification');
+            }
+
+            return redirect()->route('profile')
+                ->with('open_tab', 'classification')
+                ->with('success', 'PWD ID submitted. Your PWD classification is pending barangay verification.');
+        }
+
+        $proof = $request->file('student_proof');
+        $newPath = null;
+
+        try {
+            $newPath = $this->storeResidentClassificationFile($proof, $resident, 'student');
+            $oldProof = $resident->student_proof;
+
+            DB::statement(
+                'UPDATE residents
+                 SET student_proof = ?,
+                     student_status = ?,
+                     is_student = FALSE,
+                     student_verified_at = NULL,
+                     student_verified_by = NULL,
+                     student_rejection_reason = NULL,
+                     updated_at = ?
+                 WHERE id = ?',
+                [
+                    $newPath,
+                    'pending',
+                    now('Asia/Manila'),
+                    $resident->id,
+                ]
+            );
+
+            $resident->student_proof = $newPath;
+            $resident->student_status = 'pending';
+            $resident->is_student = false;
+            $resident->student_verified_at = null;
+            $resident->student_verified_by = null;
+            $resident->student_rejection_reason = null;
+
+            $this->deletePublicFile($oldProof);
+        } catch (\Throwable $e) {
+            if ($newPath) {
+                $this->deletePublicFile($newPath);
+            }
+            report($e);
+
+            return redirect()->route('profile')
+                ->withErrors(['student_proof' => 'Student proof upload failed. Please try again.'])
+                ->with('open_tab', 'classification');
+        }
+
+        return redirect()->route('profile')
+            ->with('open_tab', 'classification')
+            ->with('success', 'Student proof submitted. Your Student classification is pending barangay verification.');
+    }
+
+    private function currentResident(): Residents
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof Residents) {
+            abort(401, 'Resident authentication is required.');
+        }
+
+        return $user;
+    }
+
+    private function storeResidentClassificationFile(?UploadedFile $file, Residents $resident, string $type): string
+    {
+        if (! $file || ! $file->isValid()) {
+            throw new \RuntimeException('The uploaded classification proof is invalid.');
+        }
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
+        $filename = $type . '_' . now()->format('Ymd_His') . '_' . $resident->id . '_' . Str::random(10) . '.' . $extension;
+
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'evidences/resident_classifications',
+            $filename
+        );
     }
 
     private function storeResidentValidIdFile(UploadedFile $file, Residents $resident, string $side): string
@@ -423,15 +620,4 @@ class ProfileController extends Controller
         app(SupabaseStorageService::class)->delete($path);
     }
 
-    private function uploadedFilesAreIdentical(UploadedFile $frontFile, UploadedFile $backFile): bool
-    {
-        $frontRealPath = $frontFile->getRealPath();
-        $backRealPath = $backFile->getRealPath();
-
-        if (!$frontRealPath || !$backRealPath || !is_file($frontRealPath) || !is_file($backRealPath)) {
-            return false;
-        }
-
-        return hash_file('sha256', $frontRealPath) === hash_file('sha256', $backRealPath);
-    }
 }

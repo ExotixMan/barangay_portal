@@ -50,7 +50,7 @@
                         @endadmin_can
                         <a href="{{ route('admin.blotter.index') }}" class="btn btn-light-soft">
                             <i class="fas fa-rotate"></i>
-                            Reset View
+                            Reset
                         </a>
                     </div>
                 </div>

@@ -1132,3 +1132,981 @@ opacity: .38 !important;
         min-width: 0;
     }
 }
+/* ==========================================================================
+   RESIDENTS — CLEAN CLASSIFICATION / VIEWER UX
+   Single final pass. Correct wrapper: .residency-page
+   ========================================================================== */
+
+.residency-page {
+    --resident-primary: var(--primary, #d32f2f);
+    --resident-primary-dark: var(--primary-dark, #b71c1c);
+    --resident-primary-soft: var(--primary-soft, #fff2f2);
+    --resident-text: var(--text, #172033);
+    --resident-muted: var(--muted, #667085);
+    --resident-line: var(--line, #e3e8ef);
+    --resident-card: var(--card, #ffffff);
+    --resident-soft: var(--soft, #f8fafc);
+}
+
+/* Theme scrollbars */
+.residency-page,
+.residency-page .modal-body,
+.residency-page .table-responsive,
+.residency-page .dropdown-menu,
+.residency-page .view-tabs,
+.resident-photo-viewer-modal .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--resident-primary) transparent;
+}
+
+.residency-page::-webkit-scrollbar,
+.residency-page .modal-body::-webkit-scrollbar,
+.residency-page .table-responsive::-webkit-scrollbar,
+.residency-page .dropdown-menu::-webkit-scrollbar,
+.residency-page .view-tabs::-webkit-scrollbar,
+.resident-photo-viewer-modal .modal-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.residency-page::-webkit-scrollbar-track,
+.residency-page .modal-body::-webkit-scrollbar-track,
+.residency-page .table-responsive::-webkit-scrollbar-track,
+.residency-page .dropdown-menu::-webkit-scrollbar-track,
+.residency-page .view-tabs::-webkit-scrollbar-track,
+.resident-photo-viewer-modal .modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.residency-page::-webkit-scrollbar-thumb,
+.residency-page .modal-body::-webkit-scrollbar-thumb,
+.residency-page .table-responsive::-webkit-scrollbar-thumb,
+.residency-page .dropdown-menu::-webkit-scrollbar-thumb,
+.residency-page .view-tabs::-webkit-scrollbar-thumb,
+.resident-photo-viewer-modal .modal-body::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: var(--resident-primary);
+    background-clip: padding-box;
+}
+
+/* --------------------------------------------------------------------------
+   Resident table classification badges
+   -------------------------------------------------------------------------- */
+
+.residency-page .resident-classification-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 25px;
+    padding: .34rem .56rem !important;
+    border: 1px solid color-mix(in srgb, var(--resident-primary) 18%, var(--resident-line)) !important;
+    border-radius: 999px !important;
+    background: color-mix(in srgb, var(--resident-primary-soft) 62%, #fff) !important;
+    color: var(--resident-primary-dark) !important;
+    font-size: .7rem !important;
+    font-weight: 800 !important;
+    line-height: 1;
+}
+
+.residency-page .resident-classification-badge.is-pending {
+    border-color: #f4d77a !important;
+    background: #fff8df !important;
+    color: #8a4b08 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Add Resident classification
+   -------------------------------------------------------------------------- */
+
+.residency-page .classification-admin-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.residency-page .classification-admin-choice {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--resident-line) !important;
+    border-radius: 13px !important;
+    background: var(--resident-card) !important;
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.residency-page .classification-admin-choice:hover {
+    border-color: color-mix(in srgb, var(--resident-primary) 30%, var(--resident-line)) !important;
+}
+
+.residency-page .classification-admin-choice:has(.form-check-input:checked) {
+    border-color: color-mix(in srgb, var(--resident-primary) 48%, var(--resident-line)) !important;
+    background: color-mix(in srgb, var(--resident-primary-soft) 38%, #fff) !important;
+    box-shadow: inset 3px 0 0 var(--resident-primary);
+}
+
+/* Completely reset Bootstrap's negative checkbox positioning. */
+.residency-page .classification-admin-choice > .form-check {
+    position: relative;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.residency-page .classification-admin-choice > .form-check > .form-check-input {
+    position: absolute !important;
+    top: 50%;
+    right: 13px;
+    left: auto !important;
+    float: none !important;
+    width: 19px !important;
+    height: 19px !important;
+    margin: 0 !important;
+    transform: translateY(-50%);
+    border: 1.5px solid color-mix(in srgb, var(--resident-primary) 34%, #cbd5e1) !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.residency-page .classification-admin-choice > .form-check > .form-check-input:checked {
+    border-color: var(--resident-primary) !important;
+    background-color: var(--resident-primary) !important;
+}
+
+.residency-page .classification-admin-choice > .form-check > .form-check-input:focus {
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--resident-primary) 16%, transparent) !important;
+}
+
+.residency-page .classification-admin-choice > .form-check > .form-check-label {
+    width: 100%;
+    min-height: 76px;
+    margin: 0 !important;
+    padding: 12px 44px 12px 13px !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.residency-page .classification-admin-choice .form-check-label strong {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    color: var(--resident-text) !important;
+    font-size: .75rem !important;
+    font-weight: 850 !important;
+    line-height: 1.3;
+}
+
+.residency-page .classification-admin-choice .form-check-label strong i {
+    width: 16px;
+    color: var(--resident-primary) !important;
+    text-align: center;
+}
+
+.residency-page .classification-admin-choice .form-check-label span {
+    display: block;
+    margin-top: 3px !important;
+    color: var(--resident-muted) !important;
+    font-size: .63rem !important;
+    line-height: 1.4;
+}
+
+.residency-page .classification-admin-proof {
+    margin: 0 !important;
+    padding: 12px 13px 13px !important;
+    border-top: 1px solid var(--resident-line);
+    background: var(--resident-soft);
+}
+
+.residency-page .classification-admin-proof .edit-form-grid {
+    gap: 10px !important;
+}
+
+.residency-page .classification-admin-proof .form-label {
+    margin-bottom: 5px;
+    color: #344054;
+    font-size: .67rem;
+    font-weight: 760;
+}
+
+.residency-page .classification-admin-proof .form-control {
+    min-height: 40px;
+    border-color: #d6dde6;
+    border-radius: 9px;
+    background: #fff;
+    font-size: .69rem;
+}
+
+.residency-page .classification-admin-proof > small {
+    display: block;
+    margin-top: 6px;
+    color: var(--resident-muted) !important;
+    font-size: .61rem;
+    line-height: 1.4;
+}
+
+.residency-page .classification-senior-note {
+    margin-top: 12px !important;
+    padding: 10px 12px !important;
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px !important;
+    border: 1px solid color-mix(in srgb, var(--resident-primary) 18%, var(--resident-line)) !important;
+    border-radius: 11px !important;
+    background: color-mix(in srgb, var(--resident-primary-soft) 32%, #fff) !important;
+    color: var(--resident-text) !important;
+}
+
+.residency-page .classification-senior-note > i {
+    width: 34px !important;
+    height: 34px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px !important;
+    background: var(--resident-primary-soft) !important;
+    color: var(--resident-primary) !important;
+}
+
+.residency-page .classification-senior-note strong,
+.residency-page .classification-senior-note span {
+    display: block;
+}
+
+.residency-page .classification-senior-note strong {
+    color: var(--resident-text);
+    font-size: .71rem;
+    font-weight: 820;
+}
+
+.residency-page .classification-senior-note span {
+    margin-top: 2px;
+    color: var(--resident-muted) !important;
+    font-size: .62rem !important;
+    line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   View Resident header and clickable profile photo
+   -------------------------------------------------------------------------- */
+
+.residency-page .view-modal-head {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    align-items: center;
+    gap: 11px;
+}
+
+.residency-page .view-modal-avatar {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--resident-primary) 18%, var(--resident-line));
+    border-radius: 13px;
+    background: var(--resident-primary-soft);
+    color: var(--resident-primary-dark);
+    font-size: .95rem;
+    font-weight: 850;
+}
+
+.residency-page .view-modal-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    object-fit: cover;
+}
+
+.residency-page .application-avatar img.resident-photo-trigger,
+.residency-page .view-modal-avatar img.resident-photo-trigger {
+    cursor: zoom-in !important;
+    transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+}
+
+.residency-page .application-avatar img.resident-photo-trigger:hover,
+.residency-page .view-modal-avatar img.resident-photo-trigger:hover {
+    opacity: .92;
+    transform: scale(1.035);
+}
+
+.residency-page .resident-photo-trigger:focus-visible,
+.residency-page .classification-evidence-viewer:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--resident-primary) 26%, transparent);
+    outline-offset: 2px;
+}
+
+.residency-page .view-modal-name {
+    overflow: hidden;
+    color: var(--resident-text);
+    font-size: .9rem;
+    font-weight: 850;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.residency-page .view-modal-sub {
+    margin-top: 2px;
+    color: var(--resident-muted);
+    font-size: .68rem;
+}
+
+/* Keep Details/Edit/Corrections/History in one row. */
+.residency-page .view-tabs {
+    width: 100%;
+    margin-bottom: 12px !important;
+    padding: 4px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 4px;
+    overflow-x: auto;
+    border: 1px solid var(--resident-line);
+    border-radius: 10px;
+    background: var(--resident-soft);
+}
+
+.residency-page .view-tabs .nav-item {
+    flex: 0 0 auto;
+}
+
+.residency-page .view-tabs .nav-link {
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--resident-muted) !important;
+    font-size: .68rem;
+    font-weight: 760;
+    white-space: nowrap;
+}
+
+.residency-page .view-tabs .nav-link:hover {
+    background: #fff !important;
+    color: var(--resident-text) !important;
+}
+
+.residency-page .view-tabs .nav-link.active {
+    background: #fff !important;
+    color: var(--resident-primary) !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+}
+
+/* --------------------------------------------------------------------------
+   Classification review
+   The Blade already uses the same approve/reject hook pattern as Valid ID.
+   -------------------------------------------------------------------------- */
+
+.residency-page .resident-classification-review-card {
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.residency-page .classification-review-title {
+    min-height: 48px;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    border-bottom: 1px solid var(--resident-line);
+    background: linear-gradient(180deg, #fff, #fbfdff);
+}
+
+.residency-page .classification-review-title > div {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.residency-page .classification-review-title i {
+    color: var(--resident-primary);
+}
+
+.residency-page .classification-review-caption {
+    color: var(--resident-muted);
+    font-size: .61rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.residency-page .resident-classification-review-card > .detail-section-body {
+    padding: 11px !important;
+}
+
+.residency-page .classification-status-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.residency-page .classification-status-item {
+    min-width: 0;
+    min-height: 58px;
+    padding: 8px 9px;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--resident-line);
+    border-radius: 10px;
+    background: var(--resident-card);
+}
+
+.residency-page .classification-status-icon,
+.residency-page .classification-review-panel-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--resident-primary) 15%, var(--resident-line));
+    border-radius: 8px;
+    background: var(--resident-primary-soft);
+    color: var(--resident-primary);
+    font-size: .66rem;
+}
+
+.residency-page .classification-status-copy {
+    min-width: 0;
+}
+
+.residency-page .classification-status-copy strong,
+.residency-page .classification-status-copy span {
+    display: block;
+}
+
+.residency-page .classification-status-copy strong {
+    color: var(--resident-text);
+    font-size: .68rem;
+    font-weight: 820;
+}
+
+.residency-page .classification-status-copy span {
+    margin-top: 1px;
+    overflow: hidden;
+    color: var(--resident-muted);
+    font-size: .57rem;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.residency-page .classification-status-item > .badge,
+.residency-page .classification-review-panel-head > .badge {
+    flex: 0 0 auto;
+    min-height: 24px;
+    padding: 4px 7px !important;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px !important;
+    font-size: .56rem !important;
+    font-weight: 800 !important;
+    white-space: nowrap;
+}
+
+.residency-page .classification-review-list {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 9px;
+}
+
+.residency-page .classification-review-panel {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--resident-line);
+    border-radius: 11px;
+    background: var(--resident-card);
+}
+
+.residency-page .classification-review-panel-head {
+    min-height: 56px;
+    padding: 9px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid var(--resident-line);
+    background: color-mix(in srgb, var(--resident-primary-soft) 24%, #fff);
+}
+
+.residency-page .classification-review-panel-title {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.residency-page .classification-review-panel-title > div {
+    min-width: 0;
+}
+
+.residency-page .classification-review-panel-title strong,
+.residency-page .classification-review-panel-title span {
+    display: block;
+}
+
+.residency-page .classification-review-panel-title strong {
+    color: var(--resident-text);
+    font-size: .71rem;
+    font-weight: 830;
+}
+
+.residency-page .classification-review-panel-title span {
+    display: flex;
+    margin-top: 2px;
+    color: var(--resident-muted);
+    font-size: .6rem;
+    line-height: 1.35;
+}
+
+.residency-page .classification-review-panel-body {
+    padding: 10px;
+}
+
+.residency-page .classification-review-evidence {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.residency-page .classification-review-evidence.single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.residency-page .classification-review-evidence.single .classification-review-document {
+    max-width: 520px;
+}
+
+.residency-page .classification-review-document {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--resident-line);
+    border-radius: 10px;
+    background: var(--resident-soft);
+}
+
+.residency-page .classification-review-document-head {
+    min-height: 34px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    border-bottom: 1px solid var(--resident-line);
+    background: #fff;
+}
+
+.residency-page .classification-review-document-head strong {
+    overflow: hidden;
+    color: var(--resident-text);
+    font-size: .62rem;
+    font-weight: 820;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.residency-page .classification-review-document-head strong i {
+    color: var(--resident-primary);
+}
+
+.residency-page .classification-review-document-head > span {
+    color: var(--resident-muted);
+    font-size: .52rem;
+    font-weight: 800;
+}
+
+.residency-page .classification-review-image {
+    width: 100%;
+    padding: 0;
+    display: block;
+    overflow: hidden;
+    border: 0 !important;
+    background: #fff;
+    cursor: zoom-in;
+}
+
+.residency-page .classification-review-image img {
+    width: 100%;
+    height: 185px !important;
+    display: block;
+    object-fit: contain !important;
+    background: #f8fafc;
+}
+
+.residency-page .classification-review-image > span {
+    min-height: 34px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-top: 1px solid var(--resident-line);
+    background: #fff !important;
+    color: var(--resident-primary) !important;
+    font-size: .61rem;
+    font-weight: 800;
+}
+
+.residency-page .classification-review-file {
+    min-height: 120px;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+}
+
+.residency-page .classification-review-file.compact {
+    grid-template-columns: 1fr;
+    place-items: center;
+}
+
+.residency-page .classification-review-file > i {
+    color: var(--resident-primary);
+    font-size: 1.25rem;
+}
+
+.residency-page .classification-review-file strong,
+.residency-page .classification-review-file span {
+    display: block;
+}
+
+.residency-page .classification-review-file strong {
+    color: var(--resident-text);
+    font-size: .65rem;
+}
+
+.residency-page .classification-review-file span {
+    margin-top: 2px;
+    color: var(--resident-muted);
+    font-size: .57rem;
+}
+
+.residency-page .classification-review-file .btn,
+.residency-page .classification-review-document .btn-outline-primary {
+    border-color: color-mix(in srgb, var(--resident-primary) 36%, var(--resident-line)) !important;
+    color: var(--resident-primary) !important;
+}
+
+.residency-page .classification-review-file .btn:hover,
+.residency-page .classification-review-document .btn-outline-primary:hover {
+    border-color: var(--resident-primary) !important;
+    background: var(--resident-primary) !important;
+    color: #fff !important;
+}
+
+.residency-page .classification-review-document-missing,
+.residency-page .classification-review-empty {
+    min-height: 78px;
+    padding: 10px 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px dashed #cfd7e3;
+    border-radius: 9px;
+    background: var(--resident-soft);
+    color: var(--resident-muted);
+}
+
+.residency-page .classification-review-empty-wide {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+}
+
+.residency-page .classification-review-empty > i,
+.residency-page .classification-review-document-missing > i {
+    color: var(--resident-primary);
+}
+
+.residency-page .classification-review-empty strong,
+.residency-page .classification-review-empty span {
+    display: block;
+}
+
+.residency-page .classification-review-empty strong {
+    color: var(--resident-text);
+    font-size: .66rem;
+}
+
+.residency-page .classification-review-empty span,
+.residency-page .classification-review-document-missing span {
+    margin-top: 2px;
+    font-size: .59rem;
+    line-height: 1.4;
+}
+
+.residency-page .classification-review-remarks {
+    margin-top: 8px;
+    padding: 8px 9px;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.residency-page .classification-review-remarks strong,
+.residency-page .classification-review-remarks span {
+    display: block;
+}
+
+.residency-page .classification-review-remarks strong {
+    font-size: .61rem;
+}
+
+.residency-page .classification-review-remarks span {
+    margin-top: 2px;
+    font-size: .59rem;
+    line-height: 1.4;
+}
+
+/* Exactly the same visual action pattern as Valid ID. */
+.residency-page .classification-review-actions,
+.residency-page .valid-id-actions {
+    margin-top: 9px !important;
+    padding-top: 9px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    border-top: 1px solid var(--resident-line);
+}
+
+.residency-page .classification-review-actions form,
+.residency-page .valid-id-actions form {
+    margin: 0 !important;
+}
+
+.residency-page .classification-review-actions .btn,
+.residency-page .valid-id-actions .btn {
+    min-height: 37px;
+    border-radius: 8px;
+    font-size: .64rem;
+    font-weight: 760;
+}
+
+.residency-page .classification-review-state {
+    margin-top: 8px;
+    padding: 8px 9px;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    border: 1px solid var(--resident-line);
+    border-radius: 8px;
+    background: var(--resident-soft);
+    color: var(--resident-muted);
+    font-size: .61rem;
+    line-height: 1.4;
+}
+
+.residency-page .classification-review-state.success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+/* --------------------------------------------------------------------------
+   Secure photo/evidence viewer
+   -------------------------------------------------------------------------- */
+
+.resident-photo-viewer-modal .modal-dialog {
+    width: min(1040px, calc(100vw - 24px));
+    max-width: 1040px !important;
+}
+
+.resident-photo-viewer-modal .modal-content {
+    overflow: hidden;
+    border: 0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .28) !important;
+}
+
+.resident-photo-viewer-modal .modal-header {
+    padding: 12px 14px !important;
+    border-bottom: 1px solid var(--line, #e3e8ef) !important;
+    background: #fff !important;
+}
+
+.resident-photo-viewer-modal .modal-kicker {
+    margin-bottom: 2px;
+    color: var(--primary);
+    font-size: .61rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.resident-photo-viewer-modal .modal-title {
+    color: var(--text, #172033) !important;
+    font-size: .84rem !important;
+}
+
+.resident-secure-image-stage {
+    min-height: min(72vh, 620px);
+    padding: 14px !important;
+    display: grid;
+    place-items: center;
+    background: #111827 !important;
+}
+
+.resident-secure-image-stage img {
+    max-width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.34);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .residency-page .classification-admin-choice-grid,
+    .residency-page .classification-status-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .residency-page .classification-review-evidence {
+        grid-template-columns: 1fr;
+    }
+
+    .residency-page .classification-review-evidence.single .classification-review-document {
+        max-width: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .residency-page .classification-admin-choice > .form-check > .form-check-label {
+        min-height: 70px;
+        padding: 10px 42px 10px 11px !important;
+    }
+
+    .residency-page .classification-admin-proof .edit-col-6 {
+        grid-column: span 12 !important;
+    }
+
+    .residency-page .classification-review-title,
+    .residency-page .classification-review-panel-head {
+        align-items: flex-start !important;
+        flex-direction: column;
+    }
+
+    .residency-page .classification-review-caption {
+        white-space: normal;
+    }
+
+    .residency-page .classification-status-item {
+        grid-template-columns: 30px minmax(0, 1fr);
+    }
+
+    .residency-page .classification-status-item > .badge {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .residency-page .classification-review-actions,
+    .residency-page .valid-id-actions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .residency-page .classification-review-file {
+        min-height: 0;
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .residency-page .classification-review-file .btn {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .residency-page .classification-review-image img {
+        height: 170px !important;
+    }
+
+    .residency-page .view-modal-head {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 9px;
+    }
+
+    .residency-page .view-modal-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 11px;
+    }
+
+    .residency-page .view-modal-name {
+        font-size: .82rem;
+    }
+
+    .resident-photo-viewer-modal .modal-dialog {
+        width: calc(100vw - 12px) !important;
+        margin: 6px auto !important;
+    }
+
+    .resident-secure-image-stage {
+        min-height: 58vh;
+        padding: 8px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .residency-page .classification-review-actions .btn,
+    .residency-page .valid-id-actions .btn {
+        min-height: 40px;
+    }
+}
+
+/* Dark mode */
+[data-theme="dark"] .residency-page .classification-admin-choice,
+[data-theme="dark"] .residency-page .classification-status-item,
+[data-theme="dark"] .residency-page .classification-review-panel,
+[data-theme="dark"] .residency-page .classification-review-document {
+    border-color: var(--line, #303744) !important;
+    background: var(--card, #171b24) !important;
+}
+
+[data-theme="dark"] .residency-page .classification-admin-proof,
+[data-theme="dark"] .residency-page .classification-review-empty,
+[data-theme="dark"] .residency-page .classification-review-document-missing,
+[data-theme="dark"] .residency-page .classification-review-state {
+    background: var(--soft, #202631) !important;
+}
+
+[data-theme="dark"] .residency-page .classification-review-panel-head,
+[data-theme="dark"] .residency-page .classification-review-document-head,
+[data-theme="dark"] .residency-page .classification-review-image,
+[data-theme="dark"] .residency-page .classification-review-image > span {
+    background: var(--card, #171b24) !important;
+}
+
+
+/* Classification rejection remarks dialog */
+.swal2-popup .classification-reject-remarks-input {
+    width: calc(100% - 2rem) !important;
+    min-height: 120px !important;
+    margin: .75rem 1rem 0 !important;
+    padding: .75rem .85rem !important;
+    border: 1px solid var(--line, #d0d5dd) !important;
+    border-radius: 10px !important;
+    color: var(--text, #172033) !important;
+    background: var(--card, #fff) !important;
+    font: inherit !important;
+    line-height: 1.5 !important;
+    resize: vertical !important;
+}
+
+.swal2-popup .classification-reject-remarks-input:focus {
+    border-color: var(--primary, #d32f2f) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #d32f2f) 14%, transparent) !important;
+    outline: 0 !important;
+}

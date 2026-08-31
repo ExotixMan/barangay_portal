@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 use App\Services\AdminSettingsService;
 use App\Services\SupabaseStorageService;
+use App\Support\UploadedImageComparator;
 
 class ResidentController extends Controller
 {
@@ -50,6 +51,26 @@ class ResidentController extends Controller
                     break;
                 case 'adult':
                     $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) BETWEEN 18 AND 59");
+                    break;
+                case 'senior':
+                    $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60");
+                    break;
+            }
+        }
+
+        if ($request->classification) {
+            switch ($request->classification) {
+                case 'student':
+                    $query->whereRaw('is_student IS TRUE');
+                    break;
+                case 'student_pending':
+                    $query->where('student_status', 'pending');
+                    break;
+                case 'pwd':
+                    $query->whereRaw('is_pwd IS TRUE');
+                    break;
+                case 'pwd_pending':
+                    $query->where('pwd_status', 'pending');
                     break;
                 case 'senior':
                     $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60");
@@ -163,6 +184,11 @@ class ResidentController extends Controller
             'address'   => 'required|string|max:500',
             'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'declare_pwd' => ['nullable', 'boolean'],
+            'pwd_id_front' => ['required_if:declare_pwd,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'pwd_id_back' => ['required_if:declare_pwd,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'declare_student' => ['nullable', 'boolean'],
+            'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ], [
             'firstname.regex'   => 'First name can only contain letters, spaces, and hyphens.',
             'middlename.regex'  => 'Middle name can only contain letters, spaces, and hyphens.',
@@ -180,8 +206,31 @@ class ResidentController extends Controller
             'valid_id_back.mimes' => 'The back valid ID must be JPG, JPEG, PNG, or PDF.',
             'valid_id.max' => 'The front valid ID must not exceed 5 MB.',
             'valid_id_back.max' => 'The back valid ID must not exceed 5 MB.',
+            'pwd_id_front.required_if' => "Upload the front of the resident's PWD ID card.",
+            'pwd_id_back.required_if' => "Upload the back of the resident's PWD ID card.",
+            'student_proof.required_if' => 'Upload a current school ID, registration form, or certificate of enrollment.',
         ]);
 
+        if (UploadedImageComparator::areSameOrNearDuplicate(
+            $request->file('valid_id'),
+            $request->file('valid_id_back')
+        )) {
+            return back()
+                ->withInput()
+                ->withErrors(['valid_id_back' => 'Valid ID back appears to be the same picture as the front. Upload the actual back side.']);
+        }
+
+        if ($request->boolean('declare_pwd') && UploadedImageComparator::areSameOrNearDuplicate(
+            $request->file('pwd_id_front'),
+            $request->file('pwd_id_back')
+        )) {
+            return back()
+                ->withInput()
+                ->withErrors(['pwd_id_back' => 'PWD ID back appears to be the same picture as the front. Upload the actual back side.']);
+        }
+
+        $declaredPwd = $request->boolean('declare_pwd');
+        $declaredStudent = $request->boolean('declare_student');
         $uploadedPaths = [];
 
         try {
@@ -190,6 +239,22 @@ class ResidentController extends Controller
 
             $backPath = $this->storeResidentValidIdFile($request, 'valid_id_back');
             $uploadedPaths[] = $backPath;
+
+            $pwdFrontPath = null;
+            $pwdBackPath = null;
+            $studentProofPath = null;
+
+            if ($declaredPwd) {
+                $pwdFrontPath = $this->storeResidentClassificationFile($request, 'pwd_id_front', 'pwd');
+                $uploadedPaths[] = $pwdFrontPath;
+                $pwdBackPath = $this->storeResidentClassificationFile($request, 'pwd_id_back', 'pwd');
+                $uploadedPaths[] = $pwdBackPath;
+            }
+
+            if ($declaredStudent) {
+                $studentProofPath = $this->storeResidentClassificationFile($request, 'student_proof', 'student');
+                $uploadedPaths[] = $studentProofPath;
+            }
 
             $resident = Residents::create([
                 'firstname' => $validated['firstname'],
@@ -212,6 +277,19 @@ class ResidentController extends Controller
                 'valid_id_verified_at' => null,
                 'valid_id_verified_by' => null,
                 'valid_id_rejection_reason' => null,
+                'is_pwd' => DB::raw('FALSE'),
+                'pwd_status' => $declaredPwd ? 'pending' : 'not_declared',
+                'pwd_id_front' => $pwdFrontPath,
+                'pwd_id_back' => $pwdBackPath,
+                'pwd_verified_at' => null,
+                'pwd_verified_by' => null,
+                'pwd_rejection_reason' => null,
+                'is_student' => DB::raw('FALSE'),
+                'student_status' => $declaredStudent ? 'pending' : 'not_declared',
+                'student_proof' => $studentProofPath,
+                'student_verified_at' => null,
+                'student_verified_by' => null,
+                'student_rejection_reason' => null,
             ]);
         } catch (\Throwable $e) {
             foreach ($uploadedPaths as $path) {
@@ -812,6 +890,123 @@ class ResidentController extends Controller
         );
     }
 
+    public function updateClassificationStatus(Request $request, int $id, string $type, string $decision)
+    {
+        abort_unless(in_array($type, ['pwd', 'student'], true), 404);
+        abort_unless(in_array($decision, ['verified', 'rejected'], true), 404);
+
+        $resident = Residents::withTrashed()->findOrFail($id);
+
+        $currentStatus = $type === 'pwd'
+            ? strtolower((string) ($resident->pwd_status ?? 'not_declared'))
+            : strtolower((string) ($resident->student_status ?? 'not_declared'));
+
+        if ($currentStatus !== 'pending') {
+            return back()->with(
+                'error',
+                ucfirst($type) . ' classification can only be reviewed while its status is pending.'
+            );
+        }
+
+        $validated = $request->validate([
+            'remarks' => [
+                $decision === 'rejected' ? 'required' : 'nullable',
+                'string',
+                'max:500',
+            ],
+        ], [
+            'remarks.required' => 'Please enter rejection remarks before rejecting the classification evidence.',
+            'remarks.max' => 'Rejection remarks must not exceed 500 characters.',
+        ]);
+
+        $verified = $decision === 'verified';
+        $adminId = auth('admin')->id();
+        $now = now('Asia/Manila');
+
+
+        if ($type === 'pwd') {
+            if (empty($resident->pwd_id_front) || empty($resident->pwd_id_back)) {
+                return back()->with(
+                    'error',
+                    'PWD ID front and back are required before PWD verification.'
+                );
+            }
+
+            DB::statement(
+                'UPDATE residents
+                 SET pwd_status = ?,
+                     is_pwd = ' . ($verified ? 'TRUE' : 'FALSE') . ',
+                     pwd_verified_at = ?,
+                     pwd_verified_by = ?,
+                     pwd_rejection_reason = ?,
+                     updated_at = ?
+                 WHERE id = ?',
+                [
+                    $decision,
+                    $verified ? $now : null,
+                    $verified ? $adminId : null,
+                    $verified ? null : trim((string) $validated['remarks']),
+                    $now,
+                    $resident->id,
+                ]
+            );
+
+            $this->log(
+                $resident,
+                $verified
+                    ? 'PWD Classification Verified'
+                    : 'PWD Classification Rejected'
+            );
+
+            return back()->with(
+                'success',
+                $verified
+                    ? 'PWD classification verified successfully.'
+                    : 'PWD classification rejected. The rejection remarks were saved.'
+            );
+        }
+
+        if (empty($resident->student_proof)) {
+            return back()->with(
+                'error',
+                'Student proof is required before Student verification.'
+            );
+        }
+
+        DB::statement(
+            'UPDATE residents
+             SET student_status = ?,
+                 is_student = ' . ($verified ? 'TRUE' : 'FALSE') . ',
+                 student_verified_at = ?,
+                 student_verified_by = ?,
+                 student_rejection_reason = ?,
+                 updated_at = ?
+             WHERE id = ?',
+            [
+                $decision,
+                $verified ? $now : null,
+                $verified ? $adminId : null,
+                $verified ? null : trim((string) $validated['remarks']),
+                $now,
+                $resident->id,
+            ]
+        );
+
+        $this->log(
+            $resident,
+            $verified
+                ? 'Student Classification Verified'
+                : 'Student Classification Rejected'
+        );
+
+        return back()->with(
+            'success',
+            $verified
+                ? 'Student classification verified successfully.'
+                : 'Student classification rejected. The rejection remarks were saved.'
+        );
+    }
+
     public function destroy(int $id)
     {
         $resident = Residents::findOrFail($id);
@@ -1098,6 +1293,24 @@ class ResidentController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    private function storeResidentClassificationFile(Request $request, string $field, string $classification): string
+    {
+        $file = $request->file($field);
+
+        if (!$file || !$file->isValid()) {
+            throw new \RuntimeException('The uploaded classification proof for ' . $field . ' is invalid.');
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $filename = $classification . '_' . $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+
+        return app(SupabaseStorageService::class)->storePrivateFileWithName(
+            $file,
+            'evidences/resident_classifications',
+            $filename
+        );
     }
 
     private function storeResidentValidIdFile(Request $request, string $field): string

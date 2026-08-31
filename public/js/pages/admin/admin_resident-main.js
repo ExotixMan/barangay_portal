@@ -135,6 +135,169 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             return false;
         }
 
+
+        function confirmApproveClassification(event, residentName, classificationLabel) {
+            event.preventDefault();
+
+            const form = event.target.closest('form');
+            if (!form) return false;
+
+            const label = classificationLabel || 'classification';
+            const parentModal = form.closest('.modal.show') || form.closest('.modal');
+
+            if (typeof Swal === 'undefined') {
+                const confirmed = confirm(
+                    `Approve and verify the ${label} classification for ${residentName}?`
+                );
+
+                if (confirmed) {
+                    form.submit();
+                }
+
+                return false;
+            }
+
+            Swal.fire({
+                title: `Approve ${label}?`,
+                html: `
+                    <div style="text-align:left;">
+                        <p style="margin:0 0 8px;">
+                            Verify <strong>${residentName}</strong> as
+                            <strong>${label}</strong>?
+                        </p>
+                        <p style="margin:0;color:#667085;font-size:.9rem;">
+                            Confirm only after you have reviewed the submitted evidence.
+                            This will mark the classification as verified.
+                        </p>
+                    </div>
+                `,
+                icon: 'question',
+                target: parentModal || document.body,
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Yes, Approve ${label}`,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                allowOutsideClick: false,
+                allowEscapeKey: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
+        }
+
+        function confirmRejectClassification(event, residentName, classificationLabel) {
+            event.preventDefault();
+
+            const form = event.target.closest('form');
+            if (!form) return false;
+
+            const reasonInput = form.querySelector('input[name="remarks"]');
+            const label = classificationLabel || 'classification';
+            const parentModal = form.closest('.modal.show') || form.closest('.modal');
+
+            if (!reasonInput) {
+                alert('Rejection remarks field is missing. Please refresh the page and try again.');
+                return false;
+            }
+
+            if (typeof Swal === 'undefined') {
+                const reason = prompt(
+                    `Enter rejection remarks for ${residentName}'s ${label} evidence:`
+                );
+
+                if (reason === null) {
+                    return false;
+                }
+
+                const remarks = reason.trim();
+
+                if (!remarks) {
+                    alert('Rejection remarks are required.');
+                    return false;
+                }
+
+                if (remarks.length > 500) {
+                    alert('Rejection remarks must not exceed 500 characters.');
+                    return false;
+                }
+
+                reasonInput.value = remarks;
+                form.submit();
+                return false;
+            }
+
+            Swal.fire({
+                title: `Reject ${label}?`,
+                html: `
+                    <div style="text-align:left;">
+                        <p style="margin:0 0 8px;">
+                            You are about to reject the <strong>${label}</strong>
+                            evidence of <strong>${residentName}</strong>.
+                        </p>
+                        <p style="margin:0;color:#667085;font-size:.9rem;">
+                            Enter a clear reason so the resident knows what must be corrected
+                            before submitting new evidence.
+                        </p>
+                    </div>
+                `,
+                icon: 'warning',
+                input: 'textarea',
+                inputLabel: 'Rejection remarks',
+                inputPlaceholder: label === 'PWD'
+                    ? 'Example: PWD ID is unreadable, incomplete, expired, or the front/back details do not match.'
+                    : 'Example: School ID is expired, enrollment proof is outdated, or the submitted document is unreadable.',
+                inputAttributes: {
+                    'aria-label': `${label} rejection remarks`,
+                    'maxlength': '500',
+                    'rows': '5'
+                },
+                target: parentModal || document.body,
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Confirm Reject ${label}`,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusConfirm: false,
+                allowOutsideClick: false,
+                allowEscapeKey: true,
+                inputValidator: (value) => {
+                    const remarks = String(value || '').trim();
+
+                    if (!remarks) {
+                        return 'Rejection remarks are required.';
+                    }
+
+                    if (remarks.length > 500) {
+                        return 'Rejection remarks must not exceed 500 characters.';
+                    }
+
+                    return undefined;
+                }
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                const remarks = String(result.value || '').trim();
+
+                if (!remarks) {
+                    return;
+                }
+
+                reasonInput.value = remarks;
+                form.submit();
+            });
+
+            return false;
+        }
+
         function switchResidentViewTab(residentId, tabName) {
             const tabButton = document.getElementById('r-' + tabName + '-tab-' + residentId);
             if (!tabButton) return;
@@ -361,6 +524,230 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
 
                     setField(this, '');
                 });
+            });
+
+
+            const declareStudent = document.getElementById('add_declare_student');
+            const declarePwd = document.getElementById('add_declare_pwd');
+            const studentPanel = document.getElementById('addStudentProofPanel');
+            const pwdPanel = document.getElementById('addPwdProofPanel');
+            const studentProof = document.getElementById('add_student_proof');
+            const pwdFront = document.getElementById('add_pwd_id_front');
+            const pwdBack = document.getElementById('add_pwd_id_back');
+            const validIdFront = document.getElementById('add_valid_id');
+            const validIdBack = document.getElementById('add_valid_id_back');
+
+            function syncClassificationFields() {
+                const studentOn = !!declareStudent?.checked;
+                const pwdOn = !!declarePwd?.checked;
+
+                studentPanel?.classList.toggle('d-none', !studentOn);
+                pwdPanel?.classList.toggle('d-none', !pwdOn);
+
+                if (studentProof) studentProof.required = studentOn;
+                if (pwdFront) pwdFront.required = pwdOn;
+                if (pwdBack) pwdBack.required = pwdOn;
+
+                if (!studentOn && studentProof) {
+                    studentProof.value = '';
+                    setField(studentProof, '');
+                }
+
+                if (!pwdOn) {
+                    if (pwdFront) {
+                        pwdFront.value = '';
+                        setField(pwdFront, '');
+                    }
+                    if (pwdBack) {
+                        pwdBack.value = '';
+                        setField(pwdBack, '');
+                    }
+                }
+            }
+
+            declareStudent?.addEventListener('change', syncClassificationFields);
+            declarePwd?.addEventListener('change', syncClassificationFields);
+            syncClassificationFields();
+
+            function validateClassificationFile(input, label) {
+                const file = input?.files?.[0] || null;
+
+                if (!file) {
+                    if (input?.required) setField(input, `${label} is required.`);
+                    return false;
+                }
+
+                const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+                if (!allowedTypes.includes(file.type)) {
+                    input.value = '';
+                    setField(input, `${label} must be JPG, JPEG, PNG, or PDF.`);
+                    return false;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    input.value = '';
+                    setField(input, `${label} must not exceed 5 MB.`);
+                    return false;
+                }
+
+                setField(input, '');
+                return true;
+            }
+
+            studentProof?.addEventListener('change', function() {
+                validateClassificationFile(this, 'Student proof');
+            });
+
+            pwdFront?.addEventListener('change', async function() {
+                if (validateClassificationFile(this, 'PWD ID front')) {
+                    await validateDistinctPair(pwdFront, pwdBack, 'PWD ID');
+                }
+            });
+
+            pwdBack?.addEventListener('change', async function() {
+                if (validateClassificationFile(this, 'PWD ID back')) {
+                    await validateDistinctPair(pwdFront, pwdBack, 'PWD ID');
+                }
+            });
+
+            async function imageFingerprint(file) {
+                if (!file || !file.type.startsWith('image/')) return null;
+
+                const bitmap = await createImageBitmap(file);
+                const canvas = document.createElement('canvas');
+                canvas.width = 16;
+                canvas.height = 16;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(bitmap, 0, 0, 16, 16);
+                bitmap.close?.();
+
+                const data = ctx.getImageData(0, 0, 16, 16).data;
+                const values = [];
+
+                for (let i = 0; i < data.length; i += 4) {
+                    values.push((data[i] * .299) + (data[i + 1] * .587) + (data[i + 2] * .114));
+                }
+
+                const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+                return values.map(value => value >= average ? 1 : 0);
+            }
+
+            function hashDistance(a, b) {
+                if (!a || !b || a.length !== b.length) return 1;
+                let diff = 0;
+
+                for (let i = 0; i < a.length; i++) {
+                    if (a[i] !== b[i]) diff++;
+                }
+
+                return diff / a.length;
+            }
+
+            async function filesLookSame(frontFile, backFile) {
+                if (!frontFile || !backFile) return false;
+
+                if (
+                    frontFile.name === backFile.name &&
+                    frontFile.size === backFile.size &&
+                    frontFile.type === backFile.type
+                ) {
+                    return true;
+                }
+
+                if (!frontFile.type.startsWith('image/') || !backFile.type.startsWith('image/')) {
+                    return false;
+                }
+
+                try {
+                    const [a, b] = await Promise.all([
+                        imageFingerprint(frontFile),
+                        imageFingerprint(backFile),
+                    ]);
+
+                    return hashDistance(a, b) <= 0.05;
+                } catch (error) {
+                    console.warn('Could not compare resident proof images in browser:', error);
+                    return false;
+                }
+            }
+
+            async function validateDistinctPair(frontInput, backInput, label) {
+                const frontFile = frontInput?.files?.[0] || null;
+                const backFile = backInput?.files?.[0] || null;
+
+                if (!frontFile || !backFile) return true;
+
+                if (await filesLookSame(frontFile, backFile)) {
+                    backInput.value = '';
+                    setField(backInput, `${label} front and back appear to be the same picture. Please provide the actual back side.`);
+                    backInput.focus();
+                    return false;
+                }
+
+                setField(backInput, '');
+                return true;
+            }
+
+            // The Admin Add Resident modal uses the same front/back protection as public registration/profile.
+            validIdFront?.addEventListener('change', async function() {
+                if (this.files?.length && validIdBack?.files?.length) {
+                    await validateDistinctPair(validIdFront, validIdBack, 'Valid ID');
+                }
+            });
+
+            validIdBack?.addEventListener('change', async function() {
+                if (this.files?.length && validIdFront?.files?.length) {
+                    await validateDistinctPair(validIdFront, validIdBack, 'Valid ID');
+                }
+            });
+
+            addForm.addEventListener('submit', function(event) {
+                if (declareStudent?.checked && !studentProof?.files?.length) {
+                    event.preventDefault();
+                    setField(studentProof, 'Student proof is required when Student is selected.');
+                    studentProof?.focus();
+                    return;
+                }
+
+                if (declarePwd?.checked && (!pwdFront?.files?.length || !pwdBack?.files?.length)) {
+                    event.preventDefault();
+
+                    if (!pwdFront?.files?.length) setField(pwdFront, 'PWD ID front is required.');
+                    if (!pwdBack?.files?.length) setField(pwdBack, 'PWD ID back is required.');
+
+                    (!pwdFront?.files?.length ? pwdFront : pwdBack)?.focus();
+                    return;
+                }
+
+                const frontFile = validIdFront?.files?.[0] || null;
+                const backFile = validIdBack?.files?.[0] || null;
+
+                if (
+                    frontFile && backFile &&
+                    frontFile.name === backFile.name &&
+                    frontFile.size === backFile.size &&
+                    frontFile.type === backFile.type
+                ) {
+                    event.preventDefault();
+                    setField(validIdBack, 'Valid ID front and back cannot be the same picture.');
+                    validIdBack.focus();
+                    return;
+                }
+
+                const pwdFrontFile = pwdFront?.files?.[0] || null;
+                const pwdBackFile = pwdBack?.files?.[0] || null;
+
+                if (
+                    declarePwd?.checked &&
+                    pwdFrontFile && pwdBackFile &&
+                    pwdFrontFile.name === pwdBackFile.name &&
+                    pwdFrontFile.size === pwdBackFile.size &&
+                    pwdFrontFile.type === pwdBackFile.type
+                ) {
+                    event.preventDefault();
+                    setField(pwdBack, 'PWD ID front and back cannot be the same picture.');
+                    pwdBack.focus();
+                }
             });
 
             const bd = document.getElementById('add_birthdate');

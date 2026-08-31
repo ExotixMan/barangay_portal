@@ -34,8 +34,32 @@ class Announcement extends Model
         parent::boot();
 
         static::creating(function ($announcement) {
-            $announcement->slug = Str::slug($announcement->title);
+            $announcement->slug = static::makeUniqueSlug($announcement->title);
         });
+
+        static::updating(function ($announcement) {
+            if ($announcement->isDirty('title')) {
+                $announcement->slug = static::makeUniqueSlug($announcement->title, $announcement->id);
+            }
+        });
+    }
+
+    private static function makeUniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($title);
+        $base = $base !== '' ? $base : 'announcement';
+        $slug = $base;
+        $counter = 2;
+
+        while (static::withTrashed()
+            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = $base . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     public function getImageUrlAttribute(): string

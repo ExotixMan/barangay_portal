@@ -665,3 +665,289 @@ html[data-theme="dark"] .archive-count {
     background: color-mix(in srgb, var(--card) 90%, #ffffff 10%) !important;
     color: var(--muted) !important;
 }
+
+/* ========================================================================== 
+   FINAL ADMIN CONSISTENCY PASS — configured theme, controls, tabs, logout
+   ========================================================================== */
+
+/* Application checkboxes use the configured primary color everywhere. */
+.residency-page input[type="checkbox"],
+.indigency-page input[type="checkbox"],
+.resident-page input[type="checkbox"],
+.users-page input[type="checkbox"] {
+    accent-color: var(--primary) !important;
+}
+
+.residency-page .form-check-input:checked,
+.indigency-page .form-check-input:checked,
+.resident-page .form-check-input:checked,
+.users-page .form-check-input:checked,
+.residency-page input[type="checkbox"]:checked,
+.indigency-page input[type="checkbox"]:checked {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* New/Edit application modals: remove unrelated indigo/blue decorative icons.
+   All navigational/form icons inherit the configured theme. */
+.residency-page .section-step,
+.indigency-page .section-step,
+.residency-page .document-upload-icon,
+.indigency-page .document-upload-icon,
+.residency-page .modal-heading-icon,
+.indigency-page .modal-heading-icon,
+.residency-page .edit-section-icon,
+.indigency-page .edit-section-icon {
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border-color, #e3e8ef)) !important;
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+}
+
+.residency-page .form-step-card .form-label i,
+.indigency-page .form-step-card .form-label i,
+.residency-page .edit-field > .form-label i,
+.indigency-page .edit-field > .form-label i,
+.residency-page .document-upload-card .form-label i,
+.indigency-page .document-upload-card .form-label i {
+    color: var(--primary) !important;
+}
+
+.residency-page .resident-search-box .form-control:focus,
+.indigency-page .resident-search-box .form-control:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+
+/* File controls inside application modals follow the same theme. */
+.residency-page input[type="file"].form-control::file-selector-button,
+.indigency-page input[type="file"].form-control::file-selector-button,
+.resident-page input[type="file"].form-control::file-selector-button {
+    border: 0 !important;
+    border-radius: 7px !important;
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+    font-weight: 700 !important;
+}
+
+.residency-page input[type="file"].form-control::file-selector-button:hover,
+.indigency-page input[type="file"].form-control::file-selector-button:hover,
+.resident-page input[type="file"].form-control::file-selector-button:hover {
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+/* Users & Roles: the selected tab must be obvious at a glance. */
+.users-page .tab-navigation {
+    border-color: var(--border-color, #e3e8ef) !important;
+    background: #f8fafc !important;
+}
+
+.users-page .tab-navigation .tab-link {
+    color: #667085 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+}
+
+.users-page .tab-navigation .tab-link:hover {
+    color: var(--primary) !important;
+    background: var(--primary-soft) !important;
+}
+
+.users-page .tab-navigation .tab-link.active,
+.users-page .tab-navigation .tab-link[aria-selected="true"] {
+    color: #fff !important;
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+
+.users-page .tab-navigation .tab-link.active i,
+.users-page .tab-navigation .tab-link[aria-selected="true"] i {
+    color: #fff !important;
+}
+
+/* Admin account/logout is a real action, not an unstyled line of text. */
+.sidebar-account {
+    padding: .75rem !important;
+    background: #fff !important;
+}
+
+.sidebar-user-card {
+    border-color: color-mix(in srgb, var(--primary) 12%, var(--border-color, #e3e8ef)) !important;
+    background: color-mix(in srgb, var(--primary-soft) 58%, #fff) !important;
+    border-radius: 13px !important;
+}
+
+.sidebar-logout-form {
+    margin-top: .6rem !important;
+}
+
+.sidebar-logout-btn {
+    min-height: 42px !important;
+    padding: .68rem .82rem !important;
+    border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border-color, #e3e8ef)) !important;
+    border-radius: 11px !important;
+    background: #fff !important;
+    color: var(--primary) !important;
+    font-size: .78rem !important;
+    font-weight: 800 !important;
+}
+
+.sidebar-logout-btn i {
+    width: 20px;
+    text-align: center;
+    color: currentColor !important;
+}
+
+.sidebar-logout-btn:hover,
+.sidebar-logout-btn:focus-visible {
+    border-color: var(--primary) !important;
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+/* Uniform compact Reset buttons across management pages. */
+.admin-page a.btn-light-soft:has(.fa-rotate),
+.admin-page button.btn-light-soft:has(.fa-rotate),
+.admin-page a.btn-outline-secondary:has(.fa-rotate),
+.admin-page button.btn-outline-secondary:has(.fa-rotate) {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-color: var(--border-color, #d6dde6) !important;
+    background: #fff !important;
+    color: #475467 !important;
+    font-size: .7rem;
+    font-weight: 750;
+}
+
+.admin-page a.btn-light-soft:has(.fa-rotate):hover,
+.admin-page button.btn-light-soft:has(.fa-rotate):hover,
+.admin-page a.btn-outline-secondary:has(.fa-rotate):hover,
+.admin-page button.btn-outline-secondary:has(.fa-rotate):hover {
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--border-color, #d6dde6)) !important;
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+}
+
+@media (max-width: 767.98px) {
+    .users-page .tab-navigation {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        scrollbar-width: none;
+    }
+
+    .users-page .tab-navigation::-webkit-scrollbar {
+        display: none;
+    }
+
+    .users-page .tab-navigation .tab-link {
+        flex: 0 0 auto !important;
+        min-width: max-content !important;
+    }
+}
+
+/* Dark mode support for the final consistency layer. */
+[data-theme="dark"] .users-page .tab-navigation,
+[data-theme="dark"] .sidebar-account {
+    background: #171b24 !important;
+    border-color: #303744 !important;
+}
+
+[data-theme="dark"] .users-page .tab-navigation .tab-link {
+    color: #aab2bf !important;
+}
+
+[data-theme="dark"] .users-page .tab-navigation .tab-link:hover {
+    background: color-mix(in srgb, var(--primary) 14%, #171b24) !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .sidebar-user-card,
+[data-theme="dark"] .sidebar-logout-btn {
+    border-color: #374151 !important;
+    background: #202631 !important;
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .sidebar-logout-btn:hover,
+[data-theme="dark"] .sidebar-logout-btn:focus-visible {
+    border-color: var(--primary) !important;
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .resident-page .admin-classification-card,
+[data-theme="dark"] .resident-page .classification-admin-choice,
+[data-theme="dark"] .resident-page .classification-evidence-viewer,
+[data-theme="dark"] .resident-page .classification-evidence-viewer > span,
+[data-theme="dark"] .resident-photo-viewer-modal .modal-content,
+[data-theme="dark"] .resident-photo-viewer-modal .modal-header,
+[data-theme="dark"] .resident-photo-viewer-modal .modal-footer {
+    background: #171b24 !important;
+    border-color: #303744 !important;
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .resident-page .admin-classification-card:first-child,
+[data-theme="dark"] .resident-page .classification-senior-note {
+    background: color-mix(in srgb, var(--primary) 10%, #171b24) !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="dark"] .resident-page .classification-evidence-viewer img,
+[data-theme="dark"] .resident-page .classification-evidence-empty {
+    background: #11151d !important;
+    border-color: #374151 !important;
+    color: #aab2bf !important;
+}
+
+[data-theme="dark"] .resident-page .admin-classification-head strong,
+[data-theme="dark"] .resident-photo-viewer-modal .modal-title {
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .resident-page .admin-classification-head > div > span,
+[data-theme="dark"] .resident-page .admin-classification-card > p,
+[data-theme="dark"] .resident-page .classification-senior-note span {
+    color: #9ca3af !important;
+}
+
+/* ========================================================================== 
+   Theme-aware scrollbars — admin
+   ========================================================================== */
+html,
+body,
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) color-mix(in srgb, var(--primary) 7%, var(--card, #ffffff));
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--primary) 6%, var(--card, #ffffff));
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+    min-height: 36px;
+    border: 2px solid color-mix(in srgb, var(--primary) 6%, var(--card, #ffffff));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--primary) 82%, #ffffff 18%);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}

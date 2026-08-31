@@ -166,7 +166,7 @@ class BarangayClearanceController extends Controller
                 'date_submitted' => now()->format('F d, Y'),
                 'status' => 'Submitted for Processing',
                 'amount' => $fee,
-                'fee_label' => $fee > 0 !== null && $fee > 0
+                'fee_label' => $fee !== null && $fee > 0
                     ? '₱' . number_format($fee, 2)
                     : 'To be assessed at Barangay Hall',
                 'reference_number' => $referenceNumber,

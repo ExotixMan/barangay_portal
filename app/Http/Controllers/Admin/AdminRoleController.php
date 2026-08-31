@@ -45,10 +45,7 @@ class AdminRoleController extends Controller
 
     public function index()
     {
-        $roles = $this->getRolesWithPermissions();
-        $permissions = $this->getGroupedPermissions();
-
-        return view('admin.roles.index', compact('roles', 'permissions'));
+        return redirect()->route('admin.users.index', ['tab' => 'roles']);
     }
 
     public function store(Request $request)

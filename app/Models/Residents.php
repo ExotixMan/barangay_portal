@@ -39,6 +39,20 @@ class Residents extends Authenticatable implements MustVerifyEmail
         'valid_id_back',
         'valid_id_selfie',
 
+        'is_pwd',
+        'is_student',
+        'pwd_status',
+        'pwd_id_front',
+        'pwd_id_back',
+        'pwd_verified_at',
+        'pwd_verified_by',
+        'pwd_rejection_reason',
+        'student_status',
+        'student_proof',
+        'student_verified_at',
+        'student_verified_by',
+        'student_rejection_reason',
+
         'valid_id_verified',
         'valid_id_status',
         'valid_id_verified_at',
@@ -55,10 +69,14 @@ class Residents extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'phone_verified' => 'boolean',
         'valid_id_verified' => 'boolean',
+        'is_pwd' => 'boolean',
+        'is_student' => 'boolean',
         'birthdate' => 'date',
         'phone_otp_expires_at' => 'datetime',
         'email_verified_at' => 'datetime',
         'valid_id_verified_at' => 'datetime',
+        'pwd_verified_at' => 'datetime',
+        'student_verified_at' => 'datetime',
     ];
 
     protected $hidden = [
@@ -141,6 +159,32 @@ class Residents extends Authenticatable implements MustVerifyEmail
         }
 
         return Carbon::parse($this->birthdate)->age;
+    }
+
+
+    public function getIsSeniorAttribute(): bool
+    {
+        return $this->age !== null && $this->age >= 60;
+    }
+
+    public function getPwdStatusLabelAttribute(): string
+    {
+        return match ($this->pwd_status) {
+            'verified' => 'Verified',
+            'pending' => 'Pending Verification',
+            'rejected' => 'Rejected',
+            default => 'Not Declared',
+        };
+    }
+
+    public function getStudentStatusLabelAttribute(): string
+    {
+        return match ($this->student_status) {
+            'verified' => 'Verified',
+            'pending' => 'Pending Verification',
+            'rejected' => 'Rejected',
+            default => 'Not Declared',
+        };
     }
 
     public function activities()

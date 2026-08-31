@@ -8,4 +8,5 @@ return [
     'public_bucket' => env('SUPABASE_STORAGE_PUBLIC_BUCKET', 'barangay-public'),
 
     'timeout' => (int) env('SUPABASE_STORAGE_TIMEOUT', 120),
+    'required' => (bool) env('SUPABASE_STORAGE_REQUIRED', false),
 ];

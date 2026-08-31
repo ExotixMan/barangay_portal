@@ -27,7 +27,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             const uploadInputs = document.querySelectorAll(".js-file-input");
             const addressInput = document.getElementById("address");
             const addressPreviewText = document.getElementById("addressPreviewText");
-            const addressFieldIds = ["house_no", "street", "purok", "barangay", "city", "nearest_landmark", "residency_status"];
+            const addressFieldIds = ["house_no", "street", "purok", "barangay", "city", "residency_status"];
             const recaptchaBox = document.getElementById("recaptchaBox");
             const recaptchaEnabled = String(__cfg_barangay_system_register_1.v1).toLowerCase() === 'true';
 
@@ -56,7 +56,6 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                 const purok = getFieldValue('purok');
                 const barangay = getFieldValue('barangay') || 'Hulong Duhat';
                 const city = getFieldValue('city') || 'Malabon City';
-                const landmark = getFieldValue('nearest_landmark');
                 const residencyStatus = getFieldValue('residency_status');
 
                 const addressParts = [
@@ -65,7 +64,6 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                     purok,
                     barangay,
                     city,
-                    landmark ? `Landmark: ${landmark}` : '',
                     residencyStatus ? __cfg_barangay_system_register_1.v2.replace(':status', residencyStatus) : '',
                 ].filter(Boolean);
 
@@ -762,6 +760,46 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                 });
             });
 
+            // Resident classification evidence toggles.
+            const declareStudent = document.getElementById('declare_student');
+            const studentProofFields = document.getElementById('studentProofFields');
+            const studentProof = document.getElementById('student_proof');
+            const declarePwd = document.getElementById('declare_pwd');
+            const pwdProofFields = document.getElementById('pwdProofFields');
+            const pwdFront = document.getElementById('pwd_id_front');
+            const pwdBack = document.getElementById('pwd_id_back');
+
+            function syncClassificationEvidence() {
+                const studentOn = !!declareStudent?.checked;
+                const pwdOn = !!declarePwd?.checked;
+
+                studentProofFields?.classList.toggle('d-none', !studentOn);
+                pwdProofFields?.classList.toggle('d-none', !pwdOn);
+
+                if (studentProof) studentProof.required = studentOn;
+                if (pwdFront) pwdFront.required = pwdOn;
+                if (pwdBack) pwdBack.required = pwdOn;
+
+                if (!studentOn && studentProof) {
+                    studentProof.value = '';
+                    studentProof.classList.remove('is-invalid');
+                }
+                if (!pwdOn) {
+                    if (pwdFront) {
+                        pwdFront.value = '';
+                        pwdFront.classList.remove('is-invalid');
+                    }
+                    if (pwdBack) {
+                        pwdBack.value = '';
+                        pwdBack.classList.remove('is-invalid');
+                    }
+                }
+            }
+
+            declareStudent?.addEventListener('change', syncClassificationEvidence);
+            declarePwd?.addEventListener('change', syncClassificationEvidence);
+            syncClassificationEvidence();
+
             const scannerModalElement = document.getElementById('idScannerModal');
             const scannerModal = scannerModalElement ? new bootstrap.Modal(scannerModalElement) : null;
             const scannerVideo = document.getElementById('idScannerVideo');
@@ -779,7 +817,6 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             const scannerTransitionTitle = document.getElementById('idScannerTransitionTitle');
             const scannerTransitionText = document.getElementById('idScannerTransitionText');
             const scannerTransitionCountdown = document.getElementById('idScannerTransitionCountdown');
-            const scannerAutoCapture = document.getElementById('idScannerAutoCapture');
             const scannerManualCaptureBtn = document.getElementById('idScannerManualCaptureBtn');
             const scannerRetakeBtn = document.getElementById('idScannerRetakeBtn');
             const scanBothSidesBtn = document.getElementById('scanBothSidesBtn');
@@ -821,15 +858,114 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                 detectionFrames: 0,
                 lastCandidateAt: 0,
                 lastCandidateMessage: '',
+                readyToCapture: false,
                 flipTimerId: null,
                 flipIntervalId: null,
             };
+
+            async function fileFingerprint(file) {
+                if (!file || !file.type.startsWith('image/')) return null;
+
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    const url = URL.createObjectURL(file);
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 16;
+                        canvas.height = 16;
+                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                        ctx.drawImage(img, 0, 0, 16, 16);
+                        URL.revokeObjectURL(url);
+
+                        const data = ctx.getImageData(0, 0, 16, 16).data;
+                        const gray = [];
+                        let sum = 0;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const value = (data[i] * .299 + data[i + 1] * .587 + data[i + 2] * .114) / 255;
+                            gray.push(value);
+                            sum += value;
+                        }
+                        const mean = sum / gray.length;
+                        resolve(gray.map(v => v >= mean ? 1 : 0));
+                    };
+                    img.onerror = function () {
+                        URL.revokeObjectURL(url);
+                        resolve(null);
+                    };
+                    img.src = url;
+                });
+            }
+
+            async function filesLookLikeSamePicture(frontFile, backFile) {
+                if (!frontFile || !backFile) return false;
+
+                if (frontFile.size === backFile.size && frontFile.name === backFile.name) return true;
+
+                if (!frontFile.type.startsWith('image/') || !backFile.type.startsWith('image/')) {
+                    return false;
+                }
+
+                const [a, b] = await Promise.all([fileFingerprint(frontFile), fileFingerprint(backFile)]);
+                if (!a || !b || a.length !== b.length) return false;
+
+                let hamming = 0;
+                for (let i = 0; i < a.length; i++) {
+                    if (a[i] !== b[i]) hamming++;
+                }
+                return hamming <= 12;
+            }
+
+            async function validateFrontBackPair(frontId, backId, backErrorMessage) {
+                const frontInput = document.getElementById(frontId);
+                const backInput = document.getElementById(backId);
+                const frontFile = frontInput?.files?.[0] || null;
+                const backFile = backInput?.files?.[0] || null;
+                if (!frontFile || !backFile) return true;
+
+                if (await filesLookLikeSamePicture(frontFile, backFile)) {
+                    backInput.value = '';
+                    delete backInput.dataset.uploadMode;
+                    showFieldError(backInput, backErrorMessage);
+                    updateSelectedFilePreview(backInput, null);
+                    updateAutoScanStatus();
+                    return false;
+                }
+
+                return true;
+            }
+
+            ['valid_id', 'valid_id_back'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', () => {
+                    window.setTimeout(() => validateFrontBackPair(
+                        'valid_id',
+                        'valid_id_back',
+                        'The back ID looks like the same picture as the front. Flip the ID and capture/upload the actual back side.'
+                    ), 0);
+                });
+            });
+
+            ['pwd_id_front', 'pwd_id_back'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', () => {
+                    window.setTimeout(() => validateFrontBackPair(
+                        'pwd_id_front',
+                        'pwd_id_back',
+                        'The PWD ID back looks like the same picture as the front. Please use the actual back side.'
+                    ), 0);
+                });
+            });
 
             function setScannerStatus(message, state = 'waiting') {
                 if (scannerStatusText) scannerStatusText.textContent = message;
                 if (!scannerStatus) return;
                 scannerStatus.classList.toggle('is-ready', state === 'ready');
                 scannerStatus.classList.toggle('is-error', state === 'error');
+            }
+
+            function setCaptureReady(ready) {
+                scannerState.readyToCapture = !!ready;
+                if (scannerManualCaptureBtn) {
+                    scannerManualCaptureBtn.disabled = !scannerState.readyToCapture || scannerState.isCapturing || scannerState.isWaitingForFlip;
+                }
             }
 
             function updateScannerSideUi(inputId) {
@@ -860,7 +996,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
 
                 let seconds = 3;
                 if (scannerTransitionTitle) scannerTransitionTitle.textContent = 'FRONT SIDE CAPTURED';
-                if (scannerTransitionText) scannerTransitionText.textContent = 'Flip the ID now. The scanner will capture the BACK side next.';
+                if (scannerTransitionText) scannerTransitionText.textContent = 'Flip the ID now. Align the BACK side and wait for Ready to capture, then press Capture.';
                 if (scannerTransitionCountdown) scannerTransitionCountdown.textContent = String(seconds);
                 if (scannerTransitionOverlay) scannerTransitionOverlay.classList.remove('d-none');
 
@@ -889,6 +1025,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                 scannerState.detectionFrames = 0;
                 scannerState.lastCandidateAt = 0;
                 scannerState.lastCandidateMessage = '';
+                setCaptureReady(false);
 
                 if (scannerOverlay) {
                     const context = scannerOverlay.getContext('2d');
@@ -2165,29 +2302,31 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                 }, 'image/jpeg', 0.94);
             }
 
-            function captureScannerFrame(force = false) {
+            function captureScannerFrame() {
                 if (scannerState.isCapturing) return;
+
+                if (!scannerState.readyToCapture) {
+                    setScannerStatus('Not ready yet. Keep the whole ID inside the guide, improve lighting, and hold it steady.', 'waiting');
+                    return;
+                }
 
                 if (scannerState.isWaitingForFlip) {
                     setScannerStatus(__cfg_barangay_system_register_1.v90, 'waiting');
                     return;
                 }
 
+                // If contour detection did not lock onto the card but the fixed guide area
+                // passed the readiness/quality checks, capture from that guide area.
                 if (!scannerState.detectedPoints) {
-                    if (!force) {
-                        setScannerStatus(__cfg_barangay_system_register_1.v91, 'error');
-                        return;
-                    }
-
                     scannerState.detectedPoints = getGuideFallbackPoints();
                     if (!scannerState.detectedPoints) {
                         setScannerStatus(__cfg_barangay_system_register_1.v91, 'error');
                         return;
                     }
-                    setScannerStatus('Using the guide area. Keep the entire card visible and avoid glare.', 'waiting');
                 }
 
                 scannerState.isCapturing = true;
+                setCaptureReady(false);
                 const sideLabel = scannerState.targetInput?.id === 'valid_id_back' ? __cfg_barangay_system_register_1.v52 : __cfg_barangay_system_register_1.v50;
                 const bestCandidate = getBestScannerCandidate();
 
@@ -2246,27 +2385,21 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                             Math.max(scannerState.stableFrames, scannerState.consecutiveClearFrames * 2)
                         );
 
-                        if (bestCandidate) {
-                            setScannerStatus(__cfg_barangay_system_register_1.v94.replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
+                        const ready = !!bestCandidate
+                            && scannerState.stableFrames >= 4
+                            && scannerState.consecutiveClearFrames >= 2
+                            && goodFrameCount >= 2;
+
+                        setCaptureReady(ready);
+
+                        if (ready) {
+                            setScannerStatus(`Ready to capture ${sideLabel}. Hold steady and press Capture.`, 'ready');
+                        } else if (bestCandidate) {
+                            setScannerStatus(`Almost ready for ${sideLabel}. Keep the card steady inside the guide (${progress}/${SCANNER_STABLE_FRAME_TARGET}).`, 'waiting');
                         } else if (scannerState.lastCandidateMessage) {
                             setScannerStatus(__cfg_barangay_system_register_1.v95.replace(':side', sideLabel).replace(':message', scannerState.lastCandidateMessage), 'waiting');
                         } else {
-                            setScannerStatus(__cfg_barangay_system_register_1.v96.replace(':side', sideLabel).replace(':progress', progress).replace(':target', SCANNER_STABLE_FRAME_TARGET), 'ready');
-                        }
-
-                        const stableDuration = scannerState.stableStartedAt
-                            ? performance.now() - scannerState.stableStartedAt
-                            : 0;
-
-                        const canAutoCaptureBestFrame = scannerAutoCapture?.checked
-                            && bestCandidate
-                            && scannerState.stableFrames >= SCANNER_STABLE_FRAME_TARGET
-                            && scannerState.consecutiveClearFrames >= SCANNER_MIN_GOOD_CANDIDATES
-                            && goodFrameCount >= SCANNER_MIN_GOOD_CANDIDATES
-                            && stableDuration >= SCANNER_MIN_STABLE_DURATION_MS;
-
-                        if (canAutoCaptureBestFrame) {
-                            captureScannerFrame(true);
+                            setScannerStatus(`Align the whole ${sideLabel} inside the guide and hold it steady.`, 'waiting');
                         }
                     } else {
                         scannerState.stableFrames = 0;
@@ -2275,10 +2408,23 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                         scannerState.detectedPoints = null;
                         resetMotionTracking(true);
 
-                        if (!window.cvReady || typeof cv === 'undefined') {
-                            setScannerStatus(__cfg_barangay_system_register_1.v97, 'waiting');
+                        const sideInputId = scannerState.targetInput?.id || 'valid_id';
+                        const sideLabel = sideInputId === 'valid_id_back' ? __cfg_barangay_system_register_1.v52 : __cfg_barangay_system_register_1.v50;
+                        const guidePoints = getGuideFallbackPoints();
+                        const guideCanvas = cropGuideFallback();
+                        const guideQuality = guideCanvas ? validateIdCaptureQuality(guideCanvas, guidePoints, sideInputId) : null;
+                        const readyFromGuide = !!guideQuality?.passed;
+
+                        setCaptureReady(readyFromGuide);
+
+                        if (readyFromGuide) {
+                            scannerState.detectedPoints = guidePoints;
+                            rememberScannerCandidate(guideCanvas, guidePoints, guideQuality);
+                            setScannerStatus(`Ready to capture ${sideLabel}. Keep the ID inside the guide and press Capture.`, 'ready');
+                        } else if (guideQuality?.message) {
+                            setScannerStatus(`Not ready: ${guideQuality.message}`, 'waiting');
                         } else {
-                            setScannerStatus('Place the whole ID inside the center guide. Keep all four corners visible. If no green outline appears, use “Capture inside guide”.', 'waiting');
+                            setScannerStatus(`Place the whole ${sideLabel} inside the center guide. Keep all four corners visible.`, 'waiting');
                         }
                     }
                 } finally {
@@ -2376,7 +2522,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
 
                     await new Promise(resolve => window.setTimeout(resolve, SCANNER_AUTOFOCUS_SETTLE_MS));
 
-                    if (scannerManualCaptureBtn) scannerManualCaptureBtn.disabled = false;
+                    setCaptureReady(false);
                     syncScannerCanvases();
                     setScannerStatus(__cfg_barangay_system_register_1.v100, window.cvReady ? 'waiting' : 'waiting');
                     scannerFrameLoop();
@@ -2415,7 +2561,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             }
 
             if (scannerManualCaptureBtn) {
-                scannerManualCaptureBtn.addEventListener('click', () => captureScannerFrame(true));
+                scannerManualCaptureBtn.addEventListener('click', () => captureScannerFrame());
             }
 
             if (scannerRetakeBtn) {
@@ -2424,7 +2570,8 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
 
             document.addEventListener('opencv-ready', () => {
                 if (scannerState.stream && !scannerState.isCapturing) {
-                    setScannerStatus(__cfg_barangay_system_register_1.v102, 'waiting');
+                    setCaptureReady(false);
+                    setScannerStatus('Camera ready. Align the ID inside the guide and wait for Ready to capture.', 'waiting');
                 }
             });
 

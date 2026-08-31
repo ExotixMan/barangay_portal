@@ -3088,3 +3088,712 @@
             transition: none !important;
         }
     }
+/* ==========================================================================
+   Resident classification verification + guided capture refinements
+   ========================================================================== */
+
+.bhd-profile-tabs {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.classification-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.classification-card,
+.classification-proof-card {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+.classification-card {
+    padding: 15px;
+}
+
+.classification-card-head,
+.classification-proof-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.classification-card-head {
+    justify-content: flex-start;
+}
+
+.classification-card-head > div,
+.classification-proof-head > div {
+    min-width: 0;
+}
+
+.classification-card-head strong,
+.classification-proof-head strong {
+    display: block;
+    color: var(--ink);
+    font-size: .88rem;
+    font-weight: 950;
+    line-height: 1.3;
+}
+
+.classification-card-head span:not(.classification-icon),
+.classification-proof-head > div > span {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.4;
+}
+
+.classification-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-size: .82rem;
+}
+
+.classification-icon.senior {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.classification-icon.student {
+    background: color-mix(in srgb, #2563eb 10%, var(--surface));
+    color: #2563eb;
+}
+
+.classification-icon.pwd {
+    background: color-mix(in srgb, #7c3aed 10%, var(--surface));
+    color: #7c3aed;
+}
+
+.classification-card > .classification-status {
+    margin-top: 13px;
+}
+
+.classification-card > p {
+    margin: 9px 0 0;
+    color: var(--muted);
+    font-size: .75rem;
+    line-height: 1.48;
+}
+
+.classification-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    min-height: 29px;
+    padding: 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface-soft);
+    color: var(--ink-soft);
+    font-size: .68rem;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+.classification-status.is-verified {
+    border-color: color-mix(in srgb, var(--success) 28%, var(--line));
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.classification-status.is-pending {
+    border-color: color-mix(in srgb, var(--warning) 30%, var(--line));
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.classification-status.is-rejected {
+    border-color: color-mix(in srgb, #dc2626 28%, var(--line));
+    background: color-mix(in srgb, #dc2626 8%, var(--surface));
+    color: #b91c1c;
+}
+
+.classification-rejection {
+    margin-top: 9px;
+    padding: 8px 9px;
+    border-radius: 9px;
+    background: color-mix(in srgb, #dc2626 7%, var(--surface));
+    color: #991b1b;
+    font-size: .7rem;
+    line-height: 1.45;
+}
+
+.classification-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.classification-proof-card {
+    padding: 15px;
+}
+
+.classification-proof-head {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.classification-form {
+    display: grid;
+    gap: 10px;
+}
+
+.classification-form .bhd-btn {
+    width: fit-content;
+    min-height: 40px;
+    padding: 8px 13px;
+    border-radius: 10px;
+    font-size: .76rem;
+}
+
+.classification-pwd-files {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.classification-form small,
+.classification-file-help {
+    color: var(--muted);
+    font-size: .68rem;
+    line-height: 1.4;
+}
+
+.classification-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 11px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: .73rem;
+    font-weight: 800;
+    line-height: 1.45;
+}
+
+.classification-message.success {
+    border-color: color-mix(in srgb, var(--success) 26%, var(--line));
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.classification-message.pending {
+    border-color: color-mix(in srgb, var(--warning) 28%, var(--line));
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+/* Guided scanner: the camera only enables Capture after a usable frame is ready. */
+.id-scanner-modal #idScannerManualCaptureBtn:disabled {
+    cursor: not-allowed;
+    opacity: .45;
+    filter: grayscale(.15);
+    transform: none;
+}
+
+.id-scanner-modal .scanner-status.is-ready {
+    border-color: rgba(34, 197, 94, .45);
+    background: rgba(22, 101, 52, .84);
+    color: #fff;
+}
+
+.id-scanner-modal .scanner-status.is-ready .status-dot {
+    background: #4ade80;
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, .2);
+}
+
+@media (max-width: 1024px) {
+    .classification-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .classification-summary-grid .classification-card:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 800px) {
+    .bhd-profile-tabs {
+        display: flex;
+        grid-template-columns: none;
+        overflow-x: auto;
+        scrollbar-width: none;
+        overscroll-behavior-inline: contain;
+    }
+
+    .bhd-profile-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .bhd-profile-tab {
+        flex: 0 0 auto;
+        min-width: max-content;
+    }
+
+    .classification-summary-grid,
+    .classification-proof-grid,
+    .classification-pwd-files {
+        grid-template-columns: 1fr;
+    }
+
+    .classification-summary-grid .classification-card:first-child {
+        grid-column: auto;
+    }
+
+    .classification-proof-head {
+        flex-direction: column;
+    }
+
+    .classification-form .bhd-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========================================================================== 
+   FINAL PROFILE CONSISTENCY PASS — theme-aware, one-row tabs, cleaner evidence
+   ========================================================================== */
+
+/* Keep all profile tabs in a single visual row. Desktop uses five equal tabs;
+   smaller screens scroll horizontally instead of wrapping into a second row. */
+.bhd-profile-content .bhd-profile-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 10px 12px !important;
+    overflow: visible !important;
+}
+
+.bhd-profile-content .bhd-profile-tab {
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding: 9px 10px !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    color: var(--muted) !important;
+    background: transparent !important;
+    font-size: .82rem !important;
+    font-weight: 900 !important;
+    white-space: nowrap;
+}
+
+.bhd-profile-content .bhd-profile-tab:hover {
+    color: var(--brand) !important;
+    background: color-mix(in srgb, var(--brand-soft) 56%, var(--surface)) !important;
+}
+
+.bhd-profile-content .bhd-profile-tab.active {
+    color: var(--brand) !important;
+    background: var(--surface) !important;
+    border-color: color-mix(in srgb, var(--brand) 28%, var(--line)) !important;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, .06) !important;
+}
+
+.bhd-profile-content .bhd-profile-tab i,
+.bhd-profile-content .bhd-profile-tab.active i {
+    width: 29px !important;
+    height: 29px !important;
+    flex: 0 0 29px !important;
+    border-radius: 9px !important;
+    color: var(--brand) !important;
+    background: var(--brand-soft) !important;
+}
+
+/* Slightly reduce empty hero space without making the page look tiny. */
+.bhd-page-hero {
+    padding-top: 28px !important;
+    padding-bottom: 18px !important;
+}
+
+.bhd-page-hero-card {
+    min-height: 0 !important;
+    padding-block: clamp(24px, 3vw, 34px) !important;
+}
+
+/* Profile sign out now behaves like a real secondary/destructive action. */
+.bhd-profile-signout-form {
+    width: 100%;
+    margin: 0;
+}
+
+.bhd-profile-signout-btn {
+    min-height: 44px !important;
+    padding: 10px 13px !important;
+    border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--line)) !important;
+    border-radius: 12px !important;
+    background: color-mix(in srgb, var(--brand-soft) 58%, var(--surface)) !important;
+    color: var(--brand) !important;
+    font-size: .8rem !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+}
+
+.bhd-profile-signout-btn:hover {
+    border-color: var(--brand) !important;
+    background: var(--brand) !important;
+    color: #fff !important;
+}
+
+/* Classification overview: all category icons use the configured brand color.
+   Status chips keep semantic colors because status must remain easy to scan. */
+.classification-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    margin-bottom: 20px !important;
+}
+
+.classification-card {
+    padding: 16px !important;
+    border-radius: 15px !important;
+    border-color: var(--line) !important;
+    background: color-mix(in srgb, var(--surface) 92%, var(--surface-soft)) !important;
+    box-shadow: 0 5px 15px rgba(15, 23, 42, .035);
+}
+
+.classification-card-head {
+    min-height: 44px;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.classification-icon,
+.classification-icon.senior,
+.classification-icon.student,
+.classification-icon.pwd {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+    border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line)) !important;
+    border-radius: 11px !important;
+    background: var(--brand-soft) !important;
+    color: var(--brand) !important;
+}
+
+.classification-card-head strong {
+    font-size: .88rem !important;
+    letter-spacing: -.01em;
+}
+
+.classification-card-head span:not(.classification-icon) {
+    margin-top: 2px !important;
+    font-size: .69rem !important;
+}
+
+.classification-card > .classification-status {
+    margin-top: 12px !important;
+}
+
+.classification-card > p {
+    margin-top: 9px !important;
+    font-size: .72rem !important;
+    line-height: 1.48 !important;
+}
+
+.classification-status {
+    min-height: 28px !important;
+    padding: 5px 8px !important;
+    font-size: .65rem !important;
+}
+
+/* Verification evidence has more breathing room and stronger hierarchy. */
+.bhd-profile-content .bhd-section-label {
+    margin-top: 22px !important;
+    margin-bottom: 12px !important;
+    color: var(--brand) !important;
+}
+
+.classification-proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+}
+
+.classification-proof-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 15px !important;
+    border-color: var(--line) !important;
+    background: var(--surface) !important;
+    box-shadow: 0 5px 15px rgba(15, 23, 42, .035);
+}
+
+.classification-proof-head {
+    min-height: 68px;
+    margin: 0 !important;
+    padding: 13px 14px !important;
+    align-items: center !important;
+    border-bottom: 1px solid var(--line) !important;
+    background: color-mix(in srgb, var(--brand-soft) 30%, var(--surface)) !important;
+}
+
+.classification-proof-head strong {
+    color: var(--ink) !important;
+    font-size: .84rem !important;
+}
+
+.classification-proof-head strong i {
+    width: 29px;
+    height: 29px;
+    display: inline-grid;
+    place-items: center;
+    margin-right: 7px !important;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.classification-proof-head > div > span {
+    margin-top: 3px !important;
+    padding-left: 38px;
+    font-size: .68rem !important;
+}
+
+.classification-form,
+.classification-message {
+    margin: 14px !important;
+}
+
+.classification-form {
+    gap: 12px !important;
+}
+
+.classification-form .bhd-form-group {
+    gap: 6px !important;
+}
+
+.classification-form .bhd-form-group > label {
+    color: var(--ink) !important;
+    font-size: .74rem !important;
+    font-weight: 900 !important;
+}
+
+/* Make native file controls look intentional and theme-aware. */
+.classification-form input[type="file"].bhd-profile-control {
+    min-height: 46px !important;
+    padding: 5px !important;
+    border: 1px dashed color-mix(in srgb, var(--brand) 24%, var(--line)) !important;
+    border-radius: 11px !important;
+    background: var(--surface-soft) !important;
+    color: var(--muted) !important;
+    cursor: pointer;
+}
+
+.classification-form input[type="file"]::file-selector-button {
+    min-height: 34px;
+    margin-right: 9px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font: inherit;
+    font-size: .7rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.classification-form input[type="file"]::file-selector-button:hover {
+    background: var(--brand);
+    color: #fff;
+}
+
+.classification-pwd-files {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+}
+
+.classification-form small,
+.classification-file-help {
+    font-size: .66rem !important;
+    line-height: 1.45 !important;
+}
+
+.classification-form .bhd-btn {
+    min-height: 39px !important;
+    padding: 7px 12px !important;
+    border-radius: 10px !important;
+    font-size: .72rem !important;
+}
+
+.classification-message {
+    min-height: 58px;
+    align-items: center !important;
+    padding: 11px 12px !important;
+    border-radius: 11px !important;
+    font-size: .71rem !important;
+}
+
+.classification-message > i {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+/* Tablet and mobile: never wrap the tab bar into two rows. */
+@media (max-width: 1100px) {
+    .bhd-profile-content .bhd-profile-tabs {
+        display: flex !important;
+        grid-template-columns: none !important;
+        gap: 7px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: thin;
+        scroll-snap-type: x proximity;
+    }
+
+    .bhd-profile-content .bhd-profile-tab {
+        flex: 0 0 auto !important;
+        min-width: 142px !important;
+        scroll-snap-align: start;
+    }
+
+    .classification-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .classification-summary-grid .classification-card:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .bhd-profile-content .bhd-profile-tabs {
+        padding: 8px 9px !important;
+    }
+
+    .bhd-profile-content .bhd-profile-tab {
+        min-width: 136px !important;
+        min-height: 46px !important;
+        justify-content: flex-start !important;
+        font-size: .76rem !important;
+    }
+
+    .classification-summary-grid,
+    .classification-proof-grid,
+    .classification-pwd-files {
+        grid-template-columns: 1fr !important;
+    }
+
+    .classification-summary-grid .classification-card:first-child {
+        grid-column: auto;
+    }
+
+    .classification-proof-head {
+        align-items: flex-start !important;
+        flex-direction: column !important;
+    }
+
+    .classification-proof-head > div > span {
+        padding-left: 0;
+    }
+
+    .classification-form .bhd-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* ========================================================================== 
+   FINAL PROFILE CLASSIFICATION UX — one-row tabs + calmer evidence controls
+   ========================================================================== */
+.bhd-profile-content .bhd-profile-tabs {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+}
+
+.bhd-profile-content .bhd-profile-tab {
+    flex: 1 0 138px !important;
+    min-width: 138px !important;
+    scroll-snap-align: start;
+}
+
+.classification-proof-card {
+    position: relative;
+}
+
+.classification-proof-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--brand);
+    z-index: 2;
+}
+
+.classification-proof-head {
+    padding-top: 16px !important;
+}
+
+.classification-form input[type="file"].bhd-profile-control {
+    width: 100%;
+    min-height: 50px !important;
+    padding: 5px !important;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--line)) !important;
+    border-radius: 11px !important;
+    background: var(--surface) !important;
+    color: var(--muted) !important;
+}
+
+.classification-form input[type="file"]::file-selector-button {
+    min-height: 38px !important;
+    margin: -1px 10px -1px -1px !important;
+    padding: 7px 11px !important;
+    border: 0 !important;
+    border-right: 1px solid color-mix(in srgb, var(--brand) 16%, var(--line)) !important;
+    border-radius: 8px !important;
+    background: var(--brand-soft) !important;
+    color: var(--brand) !important;
+    font-weight: 900 !important;
+}
+
+.classification-form input[type="file"]::file-selector-button:hover {
+    background: var(--brand) !important;
+    color: #fff !important;
+}
+
+.classification-message.pending {
+    border-color: color-mix(in srgb, var(--warning) 26%, var(--line)) !important;
+    background: var(--warning-soft) !important;
+}
+
+.classification-message.success {
+    border-color: color-mix(in srgb, var(--success) 26%, var(--line)) !important;
+    background: var(--success-soft) !important;
+}
+
+.classification-card:hover,
+.classification-proof-card:hover {
+    border-color: color-mix(in srgb, var(--brand) 24%, var(--line)) !important;
+    box-shadow: 0 9px 22px color-mix(in srgb, var(--brand) 7%, transparent) !important;
+}
+
+@media (max-width: 767.98px) {
+    .bhd-profile-content .bhd-profile-tab {
+        flex: 0 0 auto !important;
+        min-width: 132px !important;
+    }
+}

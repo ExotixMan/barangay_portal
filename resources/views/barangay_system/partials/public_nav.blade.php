@@ -90,9 +90,11 @@
                         <a href="{{ route('profile') }}" class="{{ $activePage === 'profile' ? 'active' : '' }}">
                             <i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}
                         </a>
-                        <form method="POST" action="{{ route('logout.res') }}" style="display:inline">@csrf<button type="submit" class="{{ $activePage === 'logout' ? 'active' : '' }}" style="background:none;border:0;padding:0;cursor:pointer">
-                            <i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}
-                        </button></form>
+                        <form method="POST" action="{{ route('logout.res') }}" class="bhd-menu-logout-form">@csrf
+                            <button type="submit" class="bhd-menu-logout-btn {{ $activePage === 'logout' ? 'active' : '' }}">
+                                <i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}
+                            </button>
+                        </form>
                     </div>
                 </div>
             @else
@@ -170,7 +172,9 @@
                 <div class="bhd-mobile-submenu">
                     @auth
                         <a href="{{ route('profile') }}"><i class="fas fa-id-card"></i> {{ __('messages.nav_my_profile') }}</a>
-                        <form method="POST" action="{{ route('logout.res') }}" style="display:inline">@csrf<button type="submit" style="background:none;border:0;padding:0;cursor:pointer"><i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}</button></form>
+                        <form method="POST" action="{{ route('logout.res') }}" class="bhd-menu-logout-form">@csrf
+                            <button type="submit" class="bhd-mobile-logout-btn"><i class="fas fa-right-from-bracket"></i> {{ __('messages.nav_logout') }}</button>
+                        </form>
                     @else
                         <a href="{{ route('login.res') }}"><i class="fas fa-right-to-bracket"></i> {{ __('messages.nav_login') }}</a>
                     @endauth

@@ -182,7 +182,7 @@ class ProjectController extends Controller
             return response()->json($project);
         }
         
-        return view('admin.projects.show', compact('project'));
+        return redirect()->route('admin.projects.index', ['highlight' => $project->id]);
     }
 
     public function updateProgress(Request $request, int $id)

@@ -55,7 +55,7 @@
                         </button>
                         @endadmin_can
                         <a href="{{ route('admin.projects.index') }}" class="btn btn-light-soft">
-                            <i class="fas fa-rotate"></i>Reset View
+                            <i class="fas fa-rotate"></i>Reset
                         </a>
                     </div>
                 </div>

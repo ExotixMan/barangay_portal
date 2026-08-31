@@ -16,6 +16,7 @@ class SupabaseStorageService
     private string $privateBucket;
     private string $publicBucket;
     private int $timeout;
+    private bool $required;
 
     public function __construct()
     {
@@ -24,6 +25,7 @@ class SupabaseStorageService
         $this->privateBucket = trim((string) config('supabase_storage.private_bucket', 'barangay-private'));
         $this->publicBucket = trim((string) config('supabase_storage.public_bucket', 'barangay-public'));
         $this->timeout = max(10, (int) config('supabase_storage.timeout', 120));
+        $this->required = (bool) config('supabase_storage.required', false);
     }
 
     public function configured(): bool
@@ -31,8 +33,17 @@ class SupabaseStorageService
         return $this->url !== '' && $this->key !== '' && $this->privateBucket !== '' && $this->publicBucket !== '';
     }
 
+    private function requireConfiguredStorage(): void
+    {
+        if ($this->required && ! $this->configured()) {
+            throw new RuntimeException('Supabase Storage is required but is not fully configured. Set SUPABASE_URL, SUPABASE_SECRET_KEY, and the storage bucket names.');
+        }
+    }
+
     public function storePrivateUpload(UploadedFile $file, string $folder, string $prefix): string
     {
+        $this->requireConfiguredStorage();
+
         $folder = $this->normalizeObjectPath($folder);
         $folder = preg_replace('#^(?:private|uploads)/#', '', $folder) ?: $folder;
 
@@ -46,12 +57,15 @@ class SupabaseStorageService
             return 'private/' . $object;
         }
 
-        Storage::disk('local')->putFileAs(dirname($object), $file, basename($object));
+        $localDirectory = dirname($object) === '.' ? 'private' : 'private/' . dirname($object);
+        Storage::disk('local')->putFileAs($localDirectory, $file, basename($object));
         return 'private/' . $object;
     }
 
     public function storePrivateFileWithName(UploadedFile $file, string $folder, string $filename, bool $upsert = false): string
     {
+        $this->requireConfiguredStorage();
+
         $folder = $this->normalizeObjectPath($folder);
         $folder = preg_replace('#^(?:private|uploads)/#', '', $folder) ?: $folder;
         $object = trim($folder . '/' . basename($filename), '/');
@@ -62,12 +76,15 @@ class SupabaseStorageService
             return 'private/' . $object;
         }
 
-        Storage::disk('local')->putFileAs(dirname($object), $file, basename($object));
+        $localDirectory = dirname($object) === '.' ? 'private' : 'private/' . dirname($object);
+        Storage::disk('local')->putFileAs($localDirectory, $file, basename($object));
         return 'private/' . $object;
     }
 
     public function storePrivateBytes(string $objectPath, string $contents, string $contentType = 'application/octet-stream', bool $upsert = true): string
     {
+        $this->requireConfiguredStorage();
+
         $object = $this->normalizeObjectPath($objectPath);
         $object = preg_replace('#^(?:private|uploads)/#', '', $object) ?: $object;
 
@@ -112,6 +129,8 @@ class SupabaseStorageService
 
     public function storePublicUpload(UploadedFile $file, string $folder, string $prefix, string $legacyPublicFolder): string
     {
+        $this->requireConfiguredStorage();
+
         $folder = $this->normalizeObjectPath($folder);
         $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin');
         $filename = $prefix . '_' . now()->format('Ymd_His') . '_' . Str::random(12) . '.' . $extension;
@@ -149,7 +168,7 @@ class SupabaseStorageService
 
         if (str_starts_with($path, 'private/')) {
             $localObject = Str::after($path, 'private/');
-            Storage::disk('local')->delete($localObject);
+            Storage::disk('local')->delete('private/' . $localObject);
             return;
         }
 

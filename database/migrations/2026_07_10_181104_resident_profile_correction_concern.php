@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('status')->default('pending'); 
             $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->timestamp('reviewed_at')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
 
             $table->index(['resident_id', 'status']);

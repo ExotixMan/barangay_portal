@@ -58,7 +58,7 @@
                         @endadmin_can
                         <a href="{{ route('admin.indigency.index') }}" class="btn btn-light-soft">
                             <i class="fas fa-rotate"></i>
-                            Reset View
+                            Reset
                         </a>
                     </div>
                 </div>
@@ -147,7 +147,7 @@
                                     </a>
                                     @endadmin_can
                                     <a href="{{ route('admin.indigency.index') }}" class="btn btn-light-soft flex-fill flex-md-grow-0">
-                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset View</span>
+                                        <i class="fas fa-rotate"></i><span class="d-none d-sm-inline ms-2">Reset</span>
                                     </a>
                                 </div>
                             </div>
