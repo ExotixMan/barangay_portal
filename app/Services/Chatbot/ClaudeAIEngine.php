@@ -31,7 +31,7 @@ class ClaudeAIEngine
         ],
         'cloudflare' => [
             'url'   => '',
-            'model' => '@cf/meta/llama-3.1-8b-instruct',
+            'model' => '@cf/google/gemma-4-26b-a4b-it',
             'env'   => 'CLOUDFLARE_API_TOKEN',
         ],
     ];
