@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="{{ asset('css/admin/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-ux-refresh.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-modal-system.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
+    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
 </head>
 <body>
     @include('admin.layouts.sidebar')
@@ -50,7 +52,7 @@
     <script src="{{ asset('js/admin/nav.js') }}?v={{ filemtime(public_path('js/admin/nav.js')) }}"></script>
     <script src="{{ asset('js/admin/admin-dropdowns.js') }}?v={{ filemtime(public_path('js/admin/admin-dropdowns.js')) }}"></script>
     <script src="{{ asset('js/action-bindings.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>
 
     @stack('scripts')

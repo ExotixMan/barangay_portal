@@ -84,4 +84,26 @@ class ResidencySubmissionTest extends TestCase
         $this->post('/residency/store', $this->payload())->assertRedirect(route('login'));
         $this->assertDatabaseCount('residency_applications', 0);
     }
+
+    public function test_invalid_residency_choices_return_clear_inline_validation_messages(): void
+    {
+        $resident = Residents::factory()->create();
+        $data = array_merge($this->payload(), ['years_residing' => 'invalid', 'residency_type' => 'invalid']);
+        $this->actingAs($resident)->from('/residency/form')->post('/residency/store', $data)
+            ->assertSessionHasErrors(['years_residing' => 'Choose one of the listed lengths of residency.',
+                'residency_type' => 'Choose one of the listed residency statuses.']);
+        $this->assertDatabaseCount('residency_applications', 0);
+    }
+
+    public function test_tracking_labels_match_the_admin_status_codes(): void
+    {
+        $resident = Residents::factory()->create();
+        $this->actingAs($resident)->post('/residency/store', $this->payload())->assertSessionHasNoErrors();
+        $application = \App\Models\ResidencyApplication::firstOrFail();
+        foreach (['under_review' => 'Under Review', 'ready_pickup' => 'Ready for Pickup'] as $status => $label) {
+            $application->update(['status' => $status]);
+            $this->postJson('/track-request/search', ['reference_number' => $application->reference_number])
+                ->assertOk()->assertJsonPath('status_label', $label);
+        }
+    }
 }

@@ -7,7 +7,7 @@ COPY vite.config.js postcss.config.js tailwind.config.js ./
 COPY resources resources
 RUN npm run build
 
-FROM php:8.2-apache
+FROM php:8.4-apache-trixie
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -75,6 +75,7 @@ RUN composer dump-autoload \
         --no-scripts \
     && php artisan package:discover --ansi \
     && python3 -m venv /opt/venv \
+    && /opt/venv/bin/python -c "import sys; assert sys.version_info >= (3, 12), 'Forecasting requires Python 3.12 or newer'" \
     && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
     && if [ -f requirements.txt ]; then \
         /opt/venv/bin/pip install --no-cache-dir -r requirements.txt; \

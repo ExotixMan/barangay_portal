@@ -66,8 +66,8 @@ class ResidencyApplicationController extends Controller
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            'years_residing' => ['required', 'string', 'max:255'],
-            'residency_type' => ['required', 'string', 'max:255'],
+            'years_residing' => ['required', Rule::in(['less1', '1-3', '3-5', '5-10', '10-20', '20+'])],
+            'residency_type' => ['required', Rule::in(['owner', 'renter', 'family', 'relative', 'boarder'])],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
             'purpose' => ['required', 'string', 'max:255'],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
@@ -91,7 +91,25 @@ class ResidencyApplicationController extends Controller
             $rules['government_id_back'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, [
+            'profile_confirmed.accepted' => 'Confirm that your saved profile is correct before submitting.',
+            'years_residing.required' => 'Choose how long you have lived in the barangay.',
+            'years_residing.in' => 'Choose one of the listed lengths of residency.',
+            'residency_type.required' => 'Choose your current residency status.',
+            'residency_type.in' => 'Choose one of the listed residency statuses.',
+            'household_members.required' => 'Enter the number of people in your household.',
+            'household_members.integer' => 'Household size must be a whole number.',
+            'household_members.min' => 'Household size must include at least one person.',
+            'household_members.max' => 'For households larger than 20, please contact the barangay office.',
+            'purpose.required' => 'Select the reason you need this certificate.',
+            'purpose_other.required_if' => 'Describe your purpose when you choose Other.',
+            'primary_proof.required' => 'Upload proof of residency because your profile has not yet been verified.',
+            'government_id.required' => 'Upload the front of your valid ID.',
+            'government_id_back.required' => 'Upload the back of your valid ID.',
+            'terms.accepted' => 'Accept the application terms to continue.',
+            'privacy.accepted' => 'Confirm the privacy notice to continue.',
+            'pickup.accepted' => 'Confirm that you understand the pickup instructions.',
+        ]);
 
         $uploadedPaths = [];
         try {

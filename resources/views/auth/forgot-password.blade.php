@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" href="{{ asset('css/pages/auth/forgot-password.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-common.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
+    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
 </head>
 <body>
     <div class="forgot-card">

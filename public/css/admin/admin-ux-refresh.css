@@ -951,3 +951,14 @@ body,
 *::-webkit-scrollbar-corner {
     background: transparent;
 }
+
+/* Prediction feedback remains visible without blocking dialogs or layout jumps. */
+.dashboard-feedback { padding: 14px 18px; margin: 16px 0; border-radius: 14px; border: 1px solid #e7c982; background: #fff8e6; color: #694b0b; line-height: 1.6; }
+.dashboard-feedback[data-tone="error"] { border-color: #edb3b3; background: #fff1f1; color: #8c2424; }
+.forecast-detail { overflow-wrap: anywhere; }
+.dashboard-app-grid .card-head h4 { overflow-wrap: anywhere; }
+@media (max-width: 575px) { .dashboard-actions-inline { width: 100%; flex-wrap: wrap; } .dashboard-actions-inline > button { flex: 1 1 140px; } }
+
+.dashboard-shell .card-head h4 { font-size: 1rem !important; }
+.dashboard-shell .card-head p, .dashboard-shell .dashboard-summary-line { font-size: .85rem !important; line-height: 1.55; }
+.dashboard-shell .section-heading h3 { font-size: 1.3rem; }

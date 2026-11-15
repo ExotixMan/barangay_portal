@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/verify_otp.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
+    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
 </head>
 @include('chatbot.embed')
 <body>

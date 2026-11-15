@@ -27,6 +27,8 @@
     <script src="{{ asset('js/theme-vars.js') }}"></script>
 
     @stack('styles')
+    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
+    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
 </head>
 <body>
 

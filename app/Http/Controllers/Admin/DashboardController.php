@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BarangayClearance;
-use App\Models\Residents;
-use App\Models\ResidencyApplication;
-use App\Models\IndigencyApplication;
 use App\Models\BlotterReport;
 use App\Models\Event;
+use App\Models\IndigencyApplication;
+use App\Models\ResidencyApplication;
+use App\Models\Residents;
 use App\Services\ForecastService;
 use Illuminate\Support\Facades\Log;
 
@@ -31,24 +31,21 @@ class DashboardController extends Controller
         ];
     }
 
-    public function index(ForecastService $forecast)
+    public function index()
     {
-        $data = $forecast->data(true);
-        $updatedAt = $forecast->updatedAt($data);
-        $forecastLastUpdated = $updatedAt?->format('M d, Y h:i A') . ($updatedAt ? ' PHT' : '');
+        // The page and live counters do not wait for remote forecast storage or Python.
+        // Forecast metadata is loaded by the separate forecast endpoint.
+        $forecastLastUpdated = null;
         $stats = $this->getDashboardStats();
 
         return view('admin.dashboard', compact('stats', 'forecastLastUpdated'));
     }
 
-    public function liveStats(ForecastService $forecast)
+    public function liveStats()
     {
-        $data = $forecast->data(false);
-        $updatedAt = $forecast->updatedAt($data);
-
         return response()->json([
             'stats' => $this->getDashboardStats(),
-            'forecastLastUpdated' => $updatedAt ? $updatedAt->format('M d, Y h:i A') . ' PHT' : null,
+            'forecastLastUpdated' => null,
             'serverTime' => now()->toIso8601String(),
         ]);
     }
@@ -65,6 +62,16 @@ class DashboardController extends Controller
                     'blotter_reports' => [],
                     'announcements' => [],
                 ], 503);
+            }
+
+            $data['forecast_metadata']['stale'] = $forecast->isStale($data);
+            $permissions = ['applications' => 'view_forecast', 'blotter_reports' => 'view_blotter',
+                'announcements' => 'view_announcements', 'events' => 'view_events',
+                'projects' => 'view_projects', 'residents' => 'view_residents'];
+            foreach ($permissions as $section => $permission) {
+                if (! auth('admin')->user()->hasPermission($permission)) {
+                    unset($data[$section]);
+                }
             }
 
             return response()->json($data)
@@ -90,15 +97,17 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Forecast refreshed successfully.',
-                'forecastLastUpdated' => $updatedAt ? $updatedAt->format('M d, Y h:i A') . ' PHT' : null,
+                'forecastLastUpdated' => $updatedAt ? $updatedAt->format('M d, Y h:i A').' PHT' : null,
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         } catch (\Throwable $e) {
             Log::error('Forecast refresh failed.', ['message' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to refresh forecast. Please check the server logs.',
-            ], 500);
+                'message' => $e->getCode() === 409
+                    ? 'A forecast refresh is already running. Wait for it to finish, then refresh this page.'
+                    : 'We could not update the prediction. The previous forecast has been kept. Check the Python setup and database connection, then retry.',
+            ], $e->getCode() === 409 ? 409 : 503);
         }
     }
 }

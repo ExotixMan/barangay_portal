@@ -12,6 +12,8 @@
 
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/valid-id-resubmit.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
+    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
 </head>
 
 <body>

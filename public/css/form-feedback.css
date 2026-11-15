@@ -1,0 +1,3 @@
+.portal-field-feedback { color: #a51f29; font-size: .875rem; font-weight: 500; line-height: 1.5; margin: .4rem 0 0; }
+[aria-invalid="true"] { border-color: #bb2532 !important; }
+[data-theme="dark"] .portal-field-feedback { color: #ffb4bd; }

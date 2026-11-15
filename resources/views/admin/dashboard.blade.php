@@ -80,6 +80,8 @@
                     </div>
                 </section>
 
+                <div id="dashboardFeedback" class="dashboard-feedback" role="status" aria-live="polite" hidden></div>
+                <p id="forecastDetailText" class="forecast-detail text-muted small"></p>
                 <section class="dashboard-kpi-grid" aria-label="Dashboard key metrics">
                     <article class="metric-card metric-residents">
                         <div class="metric-icon"><i class="fas fa-users"></i></div>
@@ -234,6 +236,7 @@
                         <div>
                             <span class="section-kicker"><i class="fas fa-wand-magic-sparkles"></i> Predictive planning</span>
                             <h3>Applications Forecast</h3>
+                            <p class="text-muted mb-0">Planning estimates, not guaranteed counts. Limited history uses a weekday average; no history is shown explicitly.</p>
                         </div>
                         <span class="summary-badge"><i class="fas fa-calendar-days"></i> 7D / 30D / 90D</span>
                     </div>
@@ -336,9 +339,10 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="{{ asset('vendor/charts/chart.umd.js') }}"></script>
+    <script src="{{ asset('vendor/charts/hammer.min.js') }}"></script>
+    <script src="{{ asset('vendor/charts/zoom.min.js') }}"></script>
+    <script src="{{ asset('vendor/charts/datalabels.min.js') }}"></script>
 @include('shared.js-config', [
     'id' => 'js-config-admin-dashboard',
     'data' => [

@@ -62,7 +62,6 @@ class TrackRequestController extends Controller
             ], 404);
         }
 
-        
         return response()->json($trackedRequest);
     }
 
@@ -97,7 +96,7 @@ class TrackRequestController extends Controller
                 is_null($clearance->fee) ? 0 : (float) $clearance->fee,
                 is_null($clearance->fee)
                     ? 'Depending on purpose'
-                    : 'PHP ' . number_format((float) $clearance->fee, 2)
+                    : 'PHP '.number_format((float) $clearance->fee, 2)
             );
         }
 
@@ -241,6 +240,7 @@ class TrackRequestController extends Controller
 
         return array_map(function ($request) {
             unset($request['sort_time']);
+
             return $request;
         }, $requests);
     }
@@ -322,12 +322,14 @@ class TrackRequestController extends Controller
         if (in_array($status, ['rejected', 'denied', 'cancelled'], true)) {
             return array_map(function ($step, $index) {
                 $step['status'] = $index === 0 ? 'completed' : 'pending';
+
                 return $step;
             }, $steps, array_keys($steps));
         }
 
         return array_map(function ($step, $index) use ($activeIndex) {
             $step['status'] = $index < $activeIndex ? 'completed' : ($index === $activeIndex ? 'active' : 'pending');
+
             return $step;
         }, $steps, array_keys($steps));
     }
@@ -343,7 +345,8 @@ class TrackRequestController extends Controller
 
         return match ($status) {
             '', 'new' => 'processing',
-            'for pickup' => 'ready for pickup',
+            'for pickup', 'ready_pickup' => 'ready for pickup',
+            'under_review' => 'under review',
             'release' => 'released',
             default => $status,
         };
@@ -480,7 +483,7 @@ class TrackRequestController extends Controller
         $visible = mb_substr($name, 0, $visibleLength);
         $hiddenLength = max(2, mb_strlen($name) - $visibleLength);
 
-        return $visible . str_repeat('*', $hiddenLength) . '@' . $domain;
+        return $visible.str_repeat('*', $hiddenLength).'@'.$domain;
     }
 
     private function maskPhone(?string $phone): string
@@ -491,11 +494,12 @@ class TrackRequestController extends Controller
             return $phone ?: '';
         }
 
-        return str_repeat('*', max(0, strlen($digits) - 4)) . substr($digits, -4);
+        return str_repeat('*', max(0, strlen($digits) - 4)).substr($digits, -4);
     }
+
     private function protectTrackedRequest(?array $trackedRequest): ?array
     {
-        if (!$trackedRequest) {
+        if (! $trackedRequest) {
             return null;
         }
 
@@ -527,5 +531,4 @@ class TrackRequestController extends Controller
             'public_tracking' => true,
         ];
     }
-
 }

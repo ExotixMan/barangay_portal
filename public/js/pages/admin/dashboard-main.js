@@ -12,7 +12,7 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
         let isRefreshingStats = false;
         let isManualRefreshInProgress = false;
         let isRefreshingForecastCommand = false;
-        let autoRefreshEnabled = true;
+        let autoRefreshEnabled = false;
 
         let latestLiveStats = {
             totalResidents: 0,
@@ -20,6 +20,19 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
             openReports: 0,
             upcomingEvents: 0
         };
+
+        function showDashboardFeedback(message = '', tone = 'warning') {
+            const notice = document.getElementById('dashboardFeedback');
+            if (!notice) return;
+            notice.hidden = !message;
+            notice.dataset.tone = tone;
+            notice.textContent = message;
+        }
+
+        function hasForecastHistory(source, entries) {
+            const count = source?.daily_forecast?.historical_count ?? source?.historical_count;
+            return count === undefined ? hasMeaningfulData(entries.map(item => item.value)) : Number(count) > 0;
+        }
 
         function parseForecastDate(dateStr) {
 
@@ -111,14 +124,18 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
 
         function updateForecastMetadata(data = {}) {
             const metadata = data?.forecast_metadata || {};
-            const lastUpdatedEl = document.getElementById('forecastLastUpdatedText');
+            const lastUpdatedEl = document.getElementById('forecastDetailText');
 
             if (!lastUpdatedEl) {
                 return;
             }
 
+            const generatedAt = formatPhtDateTime(metadata.generated_at);
+            const timestamp = document.getElementById('forecastLastUpdatedText');
+            if (timestamp && generatedAt) timestamp.textContent = generatedAt;
+            showDashboardFeedback(metadata.stale ? 'This forecast is out of date. You can still view it while a new prediction is prepared.' : '');
             const trainingEnd = metadata.training_end_date || data?.request_forecast?.daily_forecast?.training_end_date;
-            const model = metadata.primary_model || data?.request_forecast?.daily_forecast?.model;
+            const model = data?.request_forecast?.daily_forecast?.model || metadata.primary_model;
             const details = [];
 
             if (trainingEnd) {
@@ -129,7 +146,8 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
             }
 
             if (model) {
-                details.push(String(model).replace(/_/g, ' ').toUpperCase());
+                const methods = { sum_of_service_forecasts: 'Combined service estimates', rolling_weekday_average: 'Weekday average · limited history', xgboost: 'Historical trend model', hist_gradient_boosting: 'Historical trend model' };
+                details.push(methods[model] || 'Historical estimate');
             }
 
             if (details.length) {
@@ -149,7 +167,8 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Forecast endpoint returned HTTP ${response.status}`);
+                    const problem = await response.json().catch(() => ({}));
+                    throw new Error(problem.error || 'Predictions could not be loaded. Try Refresh Forecast, or check the Python setup if this continues.');
                 }
 
                 const payload = await response.json();
@@ -158,6 +177,7 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
                 if (!data || data.error) {
                     console.error('Forecast error:', data?.error || 'Invalid JSON response');
                     setChartLoadingState(false, 'Forecast unavailable');
+                    showDashboardFeedback('No prediction is available yet. Choose Refresh Forecast to generate one from the recorded history.');
                     return;
                 }
 
@@ -198,7 +218,8 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
 
             } catch (error) {
                 console.error("Error loading forecast:", error);
-                setChartLoadingState(false, 'Failed to load');
+                setChartLoadingState(false, 'Not available');
+                showDashboardFeedback(error.message + (forecastData ? ' The last loaded charts are still displayed.' : ''));
             }
         }
 
@@ -332,7 +353,7 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
 
             } catch (error) {
                 console.error('Forecast refresh failed:', error);
-                alert(error?.message || 'Failed to refresh forecast.');
+                showDashboardFeedback(error?.message || 'We could not update the prediction. Please try again.', 'error');
             } finally {
                 if (btnText) {
                     btnText.textContent = 'Refresh Forecast';
@@ -558,6 +579,8 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
                 return;
             }
             overlay.classList.toggle('show', Boolean(isEmpty));
+            const canvas = document.getElementById(chartId);
+            if (canvas) canvas.style.visibility = isEmpty ? 'hidden' : 'visible';
             const titleEl = overlay.querySelector('strong');
             const msgEl = overlay.querySelector('span');
             if (titleEl) titleEl.textContent = title;
@@ -725,7 +748,7 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
             }
 
             let entries = limitedForecastEntries(mergedByDate, selectedDays);
-            const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
+            const isEmpty = !entries.length || !hasForecastHistory(data?.request_forecast, entries);
 
             if (!entries.length) {
                 entries = nextDateLabels(selectedDays).map((label) => ({ label, value: 0 }));
@@ -805,16 +828,16 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
 
             entriesSource.forEach(([key, value]) => {
                 let entries = limitedForecastEntries(value, window.dashboardRangeDays || 7);
-                const isEmpty = !entries.length || !hasMeaningfulData(entries.map((item) => item.value));
+                const isEmpty = !entries.length || !hasForecastHistory(value, entries);
                 if (!entries.length) {
                     entries = nextDateLabels(window.dashboardRangeDays || 7).map((label) => ({ label, value: 0 }));
                 }
 
                 const values = entries.map((item) => item.value);
                 const rangeSummary = getForecastRangeSummary(value, window.dashboardRangeDays || 7);
-                const totalForecast = rangeSummary ? numberOrZero(rangeSummary.total).toFixed(1) : values.reduce((a, b) => a + b, 0).toFixed(1);
-                const avgForecast = rangeSummary ? numberOrZero(rangeSummary.daily_average).toFixed(1) : (values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : '0.0');
-                const maxForecast = rangeSummary ? numberOrZero(rangeSummary.peak).toFixed(1) : (values.length ? Math.max(...values).toFixed(1) : '0.0');
+                const totalForecast = isEmpty ? '—' : rangeSummary ? numberOrZero(rangeSummary.total).toFixed(1) : values.reduce((a, b) => a + b, 0).toFixed(1);
+                const avgForecast = isEmpty ? '—' : rangeSummary ? numberOrZero(rangeSummary.daily_average).toFixed(1) : (values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : '0.0');
+                const maxForecast = isEmpty ? '—' : rangeSummary ? numberOrZero(rangeSummary.peak).toFixed(1) : (values.length ? Math.max(...values).toFixed(1) : '0.0');
                 const trend = values.length > 1 && values[values.length - 1] > values[0] ? 'up' : 'stable';
                 const chartId = `chart-${key}`;
 
@@ -824,7 +847,7 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
                     <div class="card-head">
                         <div>
                             <h4><i class="fas fa-file-lines"></i>${formatModuleName(key)}</h4>
-                            <p>${isEmpty ? 'Waiting for historical records.' : `${getRangeLabel()} forecast from historical records.`}</p>
+                            <p>${isEmpty ? 'No historical records yet.' : `${getRangeLabel()} estimate · ${value?.daily_forecast?.models?.[`${window.dashboardRangeDays || 7}_days`] === 'rolling_weekday_average' ? 'Limited history: weekday average' : 'Historical trend'}`}</p>
                         </div>
                         <button type="button" class="icon-action" data-chart-expand="${chartId}" data-chart-title="${formatModuleName(key)} Forecast"><i class="fas fa-up-right-and-down-left-from-center"></i></button>
                     </div>
@@ -834,11 +857,11 @@ const DASHBOARD_URLS = __cfg_dashboard.urls;
                         <div><span class="text-muted d-block">Peak</span><strong>${maxForecast}</strong></div>
                     </div>
                     <div class="chart-container small-chart"><canvas id="${chartId}"></canvas></div>
-                    <div class="dashboard-summary-line"><i class="fas fa-database me-1"></i>${numberOrZero(value?.historical_count || Object.values(value?.status_distribution || {}).reduce((sum, count) => sum + numberOrZero(count), 0))} historical records</div>
+                    <div class="dashboard-summary-line"><i class="fas fa-database me-1"></i>${numberOrZero(value?.daily_forecast?.historical_count ?? value?.historical_count ?? Object.values(value?.status_distribution || {}).reduce((sum, count) => sum + numberOrZero(count), 0))} historical records</div>
                 `;
                 container.appendChild(col);
                 setTimeout(() => {
-                    setChartEmptyState(chartId, isEmpty, 'No forecast yet', 'Add historical records to generate a reliable prediction.');
+                    setChartEmptyState(chartId, isEmpty, 'No forecast yet', 'Requests submitted today enter the forecast after Manila midnight.');
                     renderChart(chartId, {
                         type: 'line',
                         data: {

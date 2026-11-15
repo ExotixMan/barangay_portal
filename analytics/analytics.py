@@ -1,7 +1,7 @@
 import json
 import os
-import warnings
-from urllib.parse import quote_plus
+import tempfile
+from sqlalchemy.engine import URL
 
 import numpy as np
 import pandas as pd
@@ -16,8 +16,6 @@ except ImportError:
 
     FORECAST_MODEL = "hist_gradient_boosting"
 
-warnings.filterwarnings("ignore")
-
 APP_TIMEZONE = "Asia/Manila"
 FORECAST_HORIZONS = {
     "7_days": {"periods": 7, "lookback_days": 90},
@@ -28,33 +26,24 @@ LAGS = (1, 7, 14, 28)
 ROLLING_WINDOWS = (7, 14, 30)
 MIN_MODEL_ROWS = 30
 
-username = os.getenv("DB_USERNAME", "").strip()
-raw_password = os.getenv("DB_PASSWORD", "")
-host = os.getenv("DB_HOST", "").strip()
-port = os.getenv("DB_PORT", "5432").strip() or "5432"
-database = os.getenv("DB_DATABASE", "postgres").strip() or "postgres"
-sslmode = os.getenv("DB_SSLMODE", "require").strip() or "require"
-
-missing = [
-    name
-    for name, value in {
-        "DB_HOST": host,
-        "DB_USERNAME": username,
-        "DB_PASSWORD": raw_password,
-    }.items()
-    if not value
-]
-if missing:
-    raise RuntimeError("Missing database environment values: " + ", ".join(missing))
-
-password = quote_plus(raw_password)
-encoded_username = quote_plus(username)
-DATABASE_URL = (
-    f"postgresql+psycopg2://{encoded_username}:{password}"
-    f"@{host}:{port}/{database}?sslmode={sslmode}"
-)
-
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+def database_engine():
+    connection = os.getenv("DB_CONNECTION", "pgsql")
+    database = os.getenv("DB_DATABASE", "").strip()
+    if connection == "sqlite":
+        if not database or database == ":memory:":
+            raise RuntimeError("Forecasting needs a persistent SQLite database file.")
+        return create_engine(URL.create("sqlite", database=database))
+    if connection != "pgsql":
+        raise RuntimeError("Forecasting supports PostgreSQL and SQLite connections.")
+    missing = [name for name in ("DB_HOST", "DB_USERNAME", "DB_PASSWORD", "DB_DATABASE") if not os.getenv(name)]
+    if missing:
+        raise RuntimeError("Missing database environment values: " + ", ".join(missing))
+    return create_engine(URL.create(
+        "postgresql+psycopg2", username=os.environ["DB_USERNAME"],
+        password=os.environ["DB_PASSWORD"], host=os.environ["DB_HOST"],
+        port=int(os.getenv("DB_PORT", "5432") or "5432"), database=database,
+        query={"sslmode": os.getenv("DB_SSLMODE", "require")},
+    ), pool_pre_ping=True)
 
 
 def local_today():
@@ -161,10 +150,10 @@ def build_training_frame(ts_df, lookback_days):
     shifted = data["y"].shift(1)
     for window in ROLLING_WINDOWS:
         data[f"ma_{window}"] = shifted.rolling(window=window).mean()
-        data[f"std_{window}"] = shifted.rolling(window=window).std().fillna(0.0)
+        data[f"std_{window}"] = shifted.rolling(window=window).std(ddof=0).fillna(0.0)
 
     data = add_calendar_features(data)
-    data["trend_index"] = np.arange(len(data), dtype=float)
+    data["trend_index"] = (data["ds"] - ts_df["ds"].min()).dt.days.astype(float)
 
     requested_start = latest_date - pd.Timedelta(days=lookback_days - 1)
     data = data[data["ds"] >= requested_start]
@@ -191,6 +180,11 @@ def feature_columns():
         "day_of_year",
         "trend_index",
     ]
+
+
+def model_ready(frame):
+    return (len(frame) >= MIN_MODEL_ROWS and frame["y"].sum() >= MIN_MODEL_ROWS
+            and (frame["y"] > 0).sum() >= 7)
 
 
 def fit_forecast_model(training_frame):
@@ -274,6 +268,10 @@ def forecast_with_features(ts_df, periods, lookback_days, forecast_start=None):
     if ts_df.empty:
         return pd.DataFrame({"ds": future_dates, "y_hat": np.zeros(periods)})
 
+    ts_df = ts_df[ts_df["ds"] < forecast_start].copy()
+    if ts_df.empty:
+        return pd.DataFrame({"ds": future_dates, "y_hat": np.zeros(periods)})
+
     series = (
         ts_df.sort_values("ds")
         .drop_duplicates(subset=["ds"], keep="last")
@@ -282,12 +280,12 @@ def forecast_with_features(ts_df, periods, lookback_days, forecast_start=None):
     )
 
     training_frame = build_training_frame(ts_df, lookback_days)
-    use_model = len(training_frame) >= MIN_MODEL_ROWS
+    use_model = model_ready(training_frame)
     model = fit_forecast_model(training_frame) if use_model else None
 
     history = series.copy()
     predictions = []
-    base_trend_index = len(training_frame)
+    base_trend_index = (forecast_start - series.index.min()).days
 
     for offset, forecast_date in enumerate(future_dates):
         if model is None:
@@ -327,6 +325,7 @@ def create_forecast_windows(ts_df, forecast_start=None):
 
     forecasts = {}
     averages = {}
+    models = {}
     today_prediction = 0.0
 
     for name, config in FORECAST_HORIZONS.items():
@@ -336,6 +335,7 @@ def create_forecast_windows(ts_df, forecast_start=None):
             lookback_days=config["lookback_days"],
             forecast_start=forecast_start,
         )
+        models[name] = FORECAST_MODEL if model_ready(build_training_frame(ts_df, config["lookback_days"])) else "rolling_weekday_average"
         forecasts[name] = format_forecast(result)
         averages[name] = round(float(result["y_hat"].mean()), 1)
 
@@ -348,153 +348,180 @@ def create_forecast_windows(ts_df, forecast_start=None):
         **forecasts,
         "today": max(0.0, today_prediction),
         "average": averages,
-        "model": FORECAST_MODEL if len(build_training_frame(ts_df, 90)) >= MIN_MODEL_ROWS else "rolling_weekday_average",
+        "model": models["7_days"],
+        "models": models,
+        "historical_count": int(ts_df["y"].sum()) if not ts_df.empty else 0,
+        "history_days": len(ts_df),
+        "history_status": "no_history" if ts_df.empty else ("trained" if model_ready(build_training_frame(ts_df, 90)) else "limited_history"),
         "forecast_start_date": forecast_start.strftime("%Y-%m-%d"),
         "training_end_date": training_end.strftime("%Y-%m-%d"),
     }
 
 
-forecast_start = local_today()
+def sum_service_forecasts(applications, forecast_start):
+    combined = {"average": {}, "models": {}, "model": "sum_of_service_forecasts"}
+    for name in FORECAST_HORIZONS:
+        totals = {}
+        for service in applications.values():
+            for date, value in service["daily_forecast"][name].items():
+                totals[date] = round(totals.get(date, 0.0) + value, 1)
+        combined[name] = totals
+        combined["average"][name] = round(float(np.mean(list(totals.values()))), 1) if totals else 0.0
+        combined["models"][name] = "sum_of_service_forecasts"
+    combined["today"] = round(sum(service["daily_forecast"]["today"] for service in applications.values()), 1)
+    combined["historical_count"] = sum(service["daily_forecast"]["historical_count"] for service in applications.values())
+    combined["history_status"] = "no_history" if not combined["historical_count"] else "service_estimates"
+    combined["forecast_start_date"] = forecast_start.strftime("%Y-%m-%d")
+    combined["training_end_date"] = (forecast_start - pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    return combined
 
-ann = pd.read_sql("SELECT * FROM announcements", engine)
-ann["published_at"] = normalize_datetime_column(ann["published_at"])
-ann_daily = make_daily_series(ann, "published_at", forecast_start)
-ann_forecasts = create_forecast_windows(ann_daily, forecast_start)
 
-announcements_analytics = {
-    "by_category": ann["category"].value_counts().to_dict(),
-    "by_status": ann["status"].value_counts().to_dict(),
-    "featured_count": int(ann["is_featured"].fillna(False).sum()),
-    "total_views": int(ann["views"].fillna(0).sum()),
-}
+def generate_analytics(engine, forecast_start=None):
+    forecast_start = pd.Timestamp(forecast_start).normalize() if forecast_start is not None else local_today()
 
-applications_tables = {
-    "barangay_clearances": "created_at",
-    "indigency_applications": "created_at",
-    "residency_applications": "created_at",
-}
+    ann = pd.read_sql("SELECT id, published_at, category, status, is_featured, views FROM announcements WHERE deleted_at IS NULL", engine)
+    ann["published_at"] = normalize_datetime_column(ann["published_at"])
+    ann_daily = make_daily_series(ann[ann["status"] == "published"], "published_at", forecast_start)
+    ann_forecasts = create_forecast_windows(ann_daily, forecast_start)
 
-applications_output = {}
-application_daily_series = []
-combined_statuses = []
-
-for table, date_field in applications_tables.items():
-    df = pd.read_sql(f"SELECT * FROM {table}", engine)
-    df[date_field] = normalize_datetime_column(df[date_field])
-
-    daily = make_daily_series(df, date_field, forecast_start)
-    application_daily_series.append(daily)
-
-    if "status" in df.columns:
-        combined_statuses.append(df["status"].dropna())
-
-    applications_output[table] = {
-        "daily_forecast": create_forecast_windows(daily, forecast_start),
-        "status_distribution": df["status"].value_counts().to_dict(),
+    announcements_analytics = {
+        "by_category": ann["category"].value_counts().to_dict(),
+        "by_status": ann["status"].value_counts().to_dict(),
+        "featured_count": int(ann["is_featured"].fillna(False).sum()),
+        "total_views": int(ann["views"].fillna(0).sum()),
     }
 
-all_requests_daily = combine_daily_series(application_daily_series, forecast_start)
-all_request_statuses = (
-    pd.concat(combined_statuses, ignore_index=True)
-    if combined_statuses
-    else pd.Series(dtype="object")
-)
+    applications_tables = {
+        "barangay_clearances": "created_at",
+        "indigency_applications": "created_at",
+        "residency_applications": "created_at",
+    }
 
-request_forecast = {
-    "daily_forecast": create_forecast_windows(all_requests_daily, forecast_start),
-    "status_distribution": all_request_statuses.value_counts().to_dict(),
-}
+    applications_output = {}
+    application_daily_series = []
+    combined_statuses = []
 
-blotter = pd.read_sql("SELECT * FROM blotter_reports", engine)
-blotter["incident_date"] = normalize_datetime_column(blotter["incident_date"])
-blotter_daily = make_daily_series(blotter, "incident_date", forecast_start)
-blotter_forecasts = create_forecast_windows(blotter_daily, forecast_start)
+    for table, date_field in applications_tables.items():
+        df = pd.read_sql(f"SELECT id, {date_field}, status FROM {table} WHERE deleted_at IS NULL", engine)
+        df[date_field] = normalize_datetime_column(df[date_field])
 
-blotter_analytics = {
-    "by_report_type": blotter["report_type"].value_counts().to_dict(),
-    "by_status": blotter["status"].value_counts().to_dict(),
-    "by_location": blotter["location"].value_counts().to_dict(),
-}
+        daily = make_daily_series(df, date_field, forecast_start)
+        application_daily_series.append(daily)
 
-events = pd.read_sql("SELECT * FROM events", engine)
-events["event_date"] = normalize_datetime_column(events["event_date"])
+        if "status" in df.columns:
+            combined_statuses.append(df["status"].dropna())
 
-event_today = local_today()
-events["computed_type"] = np.where(
-    events["event_date"].notna() & (events["event_date"].dt.normalize() >= event_today),
-    "upcoming",
-    "past",
-)
+        applications_output[table] = {
+            "daily_forecast": create_forecast_windows(daily, forecast_start),
+            "status_distribution": df["status"].value_counts().to_dict(),
+        }
 
-events_analytics = {
-    "total_events": len(events),
-    "upcoming_vs_past": events["computed_type"].value_counts().to_dict(),
-    "by_location": events["location"].value_counts().to_dict(),
-}
-
-projects = pd.read_sql("SELECT * FROM projects", engine)
-projects_analytics = {
-    "status_distribution": projects["status"].value_counts().to_dict(),
-    "average_progress": (
-        round(float(projects["progress"].mean()), 1)
-        if not projects.empty
-        else 0
-    ),
-}
-
-residents = pd.read_sql("SELECT * FROM residents", engine)
-residents["birthdate"] = normalize_datetime_column(residents["birthdate"])
-today = local_today()
-
-residents["age"] = residents["birthdate"].apply(
-    lambda birthdate: (
-        today.year
-        - birthdate.year
-        - ((today.month, today.day) < (birthdate.month, birthdate.day))
+    all_requests_daily = combine_daily_series(application_daily_series, forecast_start)
+    all_request_statuses = (
+        pd.concat(combined_statuses, ignore_index=True)
+        if combined_statuses
+        else pd.Series(dtype="object")
     )
-    if pd.notna(birthdate)
-    else None
-)
 
-age_distribution = (
-    residents["age"]
-    .dropna()
-    .astype(int)
-    .value_counts()
-    .sort_index()
-    .to_dict()
-)
+    request_forecast = {
+        "daily_forecast": sum_service_forecasts(applications_output, forecast_start),
+        "status_distribution": all_request_statuses.value_counts().to_dict(),
+    }
 
-residents_analytics = {
-    "total_residents": len(residents),
-    "age_distribution": age_distribution,
-    "verified_phones": int(residents["phone_verified"].fillna(False).sum()),
-}
+    blotter = pd.read_sql("SELECT id, incident_date, report_type, status, location FROM blotter_reports WHERE deleted_at IS NULL", engine)
+    blotter["incident_date"] = normalize_datetime_column(blotter["incident_date"])
+    blotter_daily = make_daily_series(blotter, "incident_date", forecast_start)
+    blotter_forecasts = create_forecast_windows(blotter_daily, forecast_start)
 
-output = {
-    "forecast_metadata": {
-        "timezone": APP_TIMEZONE,
-        "forecast_start_date": forecast_start.strftime("%Y-%m-%d"),
-        "training_end_date": (forecast_start - pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
-        "current_day_actuals_excluded": True,
-        "primary_model": FORECAST_MODEL,
-        "generated_at": pd.Timestamp.now(tz=APP_TIMEZONE).isoformat(),
-    },
-    "request_forecast": request_forecast,
-    "announcements": {
-        "daily_forecast": ann_forecasts,
-        "analytics": announcements_analytics,
-    },
-    "applications": applications_output,
-    "blotter_reports": {
-        "daily_forecast": blotter_forecasts,
-        "analytics": blotter_analytics,
-    },
-    "events": events_analytics,
-    "projects": projects_analytics,
-    "residents": residents_analytics,
-}
+    blotter_analytics = {
+        "by_report_type": blotter["report_type"].value_counts().to_dict(),
+        "by_status": blotter["status"].value_counts().to_dict(),
+        "by_location": blotter["location"].value_counts().to_dict(),
+    }
 
+    events = pd.read_sql("SELECT id, event_date, location FROM events WHERE deleted_at IS NULL", engine)
+    events["event_date"] = normalize_datetime_column(events["event_date"])
+
+    event_today = forecast_start
+    events["computed_type"] = np.where(
+        events["event_date"].notna() & (events["event_date"].dt.normalize() >= event_today),
+        "upcoming",
+        "past",
+    )
+
+    events_analytics = {
+        "total_events": len(events),
+        "upcoming_vs_past": events["computed_type"].value_counts().to_dict(),
+        "by_location": events["location"].value_counts().to_dict(),
+    }
+
+    projects = pd.read_sql("SELECT id, status, progress FROM projects WHERE deleted_at IS NULL", engine)
+    projects_analytics = {
+        "status_distribution": projects["status"].value_counts().to_dict(),
+        "average_progress": (
+            round(float(projects["progress"].mean()), 1)
+            if not projects.empty
+            else 0
+        ),
+    }
+
+    residents = pd.read_sql("SELECT id, birthdate, phone_verified FROM residents WHERE deleted_at IS NULL", engine)
+    residents["birthdate"] = normalize_datetime_column(residents["birthdate"])
+    today = forecast_start
+
+    residents["age"] = residents["birthdate"].apply(
+        lambda birthdate: (
+            today.year
+            - birthdate.year
+            - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        )
+        if pd.notna(birthdate)
+        else None
+    )
+
+    age_distribution = (
+        residents["age"]
+        .dropna()
+        .astype(int)
+        .value_counts()
+        .sort_index()
+        .to_dict()
+    )
+
+    residents_analytics = {
+        "total_residents": len(residents),
+        "age_distribution": age_distribution,
+        "verified_phones": int(residents["phone_verified"].fillna(False).sum()),
+    }
+
+    output = {
+        "forecast_metadata": {
+            "timezone": APP_TIMEZONE,
+            "forecast_start_date": forecast_start.strftime("%Y-%m-%d"),
+            "training_end_date": (forecast_start - pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
+            "current_day_actuals_excluded": True,
+            "primary_model": request_forecast["daily_forecast"]["model"],
+            "schema_version": 2,
+            "history_scope": "non_archived_records",
+            "generated_at": pd.Timestamp.now(tz=APP_TIMEZONE).isoformat(),
+        },
+        "request_forecast": request_forecast,
+        "announcements": {
+            "daily_forecast": ann_forecasts,
+            "analytics": announcements_analytics,
+        },
+        "applications": applications_output,
+        "blotter_reports": {
+            "daily_forecast": blotter_forecasts,
+            "analytics": blotter_analytics,
+        },
+        "events": events_analytics,
+        "projects": projects_analytics,
+        "residents": residents_analytics,
+    }
+
+
+    return clean_json_values(output)
 
 def clean_json_values(data):
     if isinstance(data, dict):
@@ -526,17 +553,28 @@ def clean_json_values(data):
     return data
 
 
-clean_output = clean_json_values(output)
+def main():
+    engine = database_engine()
+    try:
+        output = generate_analytics(engine)
+    finally:
+        engine.dispose()
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    output_path = os.path.abspath(os.getenv("FORECAST_OUTPUT_PATH", os.path.join(
+        base_dir, "storage", "app", "runtime", "analytics", "forecast.json")))
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # A failed write never replaces a usable previous forecast with partial JSON.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=os.path.dirname(output_path), delete=False) as file:
+            temporary = file.name
+            json.dump(output, file, indent=4, ensure_ascii=False, allow_nan=False)
+        os.replace(temporary, output_path)
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
+    print("Forecast saved successfully.")
 
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-output_path = os.getenv(
-    "FORECAST_OUTPUT_PATH",
-    os.path.join(base_dir, "storage", "app", "runtime", "analytics", "forecast.json"),
-)
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-with open(output_path, "w", encoding="utf-8") as file:
-    json.dump(clean_output, file, indent=4, ensure_ascii=False)
-
-engine.dispose()
-print("Forecast saved successfully to:", output_path)
+if __name__ == "__main__":
+    main()
