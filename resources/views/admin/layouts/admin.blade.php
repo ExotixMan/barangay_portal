@@ -56,6 +56,8 @@
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>
 
     <script src="{{ asset('js/admin/admin-feedback.js') }}"></script>
+    <script src="{{ asset('js/admin/lazy-dialogs.js') }}"></script>
+    <script src="{{ asset('js/admin/admin-export.js') }}"></script>
     @stack('scripts')
 
     <script src="{{ asset('js/admin/admin-accessibility.js') }}" defer></script>

@@ -3,37 +3,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\DocumentTemplateStorageService;
-use App\Support\HandlesPrivateUploads;
+use App\Models\AdminActivityLog;
 use App\Models\BarangayClearance;
 use App\Models\Residents;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use PhpOffice\PhpWord\TemplateProcessor;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
 use App\Models\StatusRemarkHistory;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\AdminActivityLog;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB; 
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class ClearanceController extends Controller
 {
     use HandlesPrivateUploads;
+
     public function index(Request $request)
     {
         $query = BarangayClearance::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? '');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -44,21 +44,21 @@ class ClearanceController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        
+
         if ($request->purpose && in_array($request->purpose, ['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])) {
             $query->where('purpose', $request->purpose);
         }
 
-        $total_count = BarangayClearance::withTrashed()->count(); 
+        $total_count = BarangayClearance::withTrashed()->count();
         $processing_count = BarangayClearance::where('status', 'processing')->count();
-        $approved_count   = BarangayClearance::where('status', 'approved')->count();
-        $rejected_count   = BarangayClearance::where('status', 'rejected')->count();
+        $approved_count = BarangayClearance::where('status', 'approved')->count();
+        $rejected_count = BarangayClearance::where('status', 'rejected')->count();
 
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['first_name', 'created_at'];
 
-        if (!in_array($sort, $allowedSorts)) {
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
@@ -75,13 +75,13 @@ class ClearanceController extends Controller
                 'gender', 'civil_status', 'place_of_birth', 'address', 'contact', 'email',
                 'valid_id', 'valid_id_back', 'valid_id_status', 'valid_id_verified',
             ]);
-        
+
         return view('admin.admin_clearance', compact('clearances', 'residents', 'total_count', 'processing_count', 'approved_count', 'rejected_count'));
     }
 
     public function store(Request $request)
     {
-        
+
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
@@ -122,7 +122,7 @@ class ClearanceController extends Controller
             'civil_status' => 'required|in:single,married,widowed,separated,divorced',
             'birth_place' => 'required|string|max:255',
             'address' => 'required',
-            'contact_number' => ['required','regex:/^09\d{9}$/'],
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email',
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
@@ -155,29 +155,29 @@ class ClearanceController extends Controller
         }
 
         try {
-            
+
             if ($request->hasFile('primary_proof')) {
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
-                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proofName = time().'_proof_'.Str::random(5).'.'.$proofExt;
                 $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/clearance', 'proof');
             }
 
-            if ($request->hasFile('valid_id_path')){
+            if ($request->hasFile('valid_id_path')) {
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
-                $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
+                $vip_name = time().'_id_front_'.Str::random(5).'.'.$vip_ext;
                 $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/clearance', 'id_front');
             }
 
-            if ($request->hasFile('valid_id_back_path')){
+            if ($request->hasFile('valid_id_back_path')) {
                 $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
-                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBackName = time().'_id_back_'.Str::random(5).'.'.$vipBackExt;
                 $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/clearance', 'id_back');
             }
 
-            $data['reference_number'] = 'BC-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
+            $data['reference_number'] = 'BC-'.now()->format('YmdHis').'-'.strtoupper(Str::random(4));
 
             if (array_key_exists('fee', $data) && $data['fee'] !== null && $data['fee'] !== '') {
                 $data['fee'] = round((float) $data['fee'], 2);
@@ -189,7 +189,7 @@ class ClearanceController extends Controller
 
             BarangayClearance::create($data);
 
-            return redirect()->route('admin.clearance.index') 
+            return redirect()->route('admin.clearance.index')
                 ->with('success', 'Clearance added successfully.');
 
         } catch (\Exception $e) {
@@ -202,7 +202,7 @@ class ClearanceController extends Controller
     {
         $application = BarangayClearance::findOrFail($id);
 
-        session()->flash('form_type', 'edit_' . $application->id);
+        session()->flash('form_type', 'edit_'.$application->id);
 
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
@@ -236,23 +236,23 @@ class ClearanceController extends Controller
 
         try {
             if ($request->hasFile('primary_proof')) {
-$proof = $request->file('primary_proof');
+                $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
-                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proofName = time().'_proof_'.Str::random(5).'.'.$proofExt;
                 $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/clearance', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')) {
-$vip = $request->file('valid_id_path');
+                $vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
-                $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
+                $vipName = time().'_id_front_'.Str::random(5).'.'.$vipExt;
                 $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/clearance', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')) {
-$vipBack = $request->file('valid_id_back_path');
+                $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
-                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBackName = time().'_id_back_'.Str::random(5).'.'.$vipBackExt;
                 $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/clearance', 'id_back');
             }
 
@@ -271,7 +271,7 @@ $vipBack = $request->file('valid_id_back_path');
             }
 
             return redirect()->route('admin.clearance.index')
-                ->with('success', 'Application #' . $application->reference_number . ' updated successfully.');
+                ->with('success', 'Application #'.$application->reference_number.' updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Failed to update application. Please try again.');
@@ -283,9 +283,9 @@ $vipBack = $request->file('valid_id_back_path');
         $application = BarangayClearance::findOrFail($id);
 
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
-        
+
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'status' => 'required|in:'.implode(',', $allowedStatuses),
             'remarks' => 'nullable|required_if:status,rejected|string|max:40',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,5})(?:\.\d{1,2})?$/'],
         ], [
@@ -300,8 +300,6 @@ $vipBack = $request->file('valid_id_back_path');
         $oldStatus = $application->status;
         $remarks = trim((string) $request->input('remarks', ''));
         $feeValue = $request->filled('fee') ? (float) $request->input('fee') : null;
-
-        
 
         $application->status = $newStatus;
         $application->fee = $feeValue;
@@ -334,7 +332,7 @@ $vipBack = $request->file('valid_id_back_path');
                     'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
@@ -342,48 +340,48 @@ $vipBack = $request->file('valid_id_back_path');
 
         $feeText = is_null($application->fee)
             ? 'Depending on purpose'
-            : 'PHP ' . number_format((float) $application->fee, 2);
+            : 'PHP '.number_format((float) $application->fee, 2);
 
         $deliverySummary = $this->formatDeliverySummary($deliveryResults);
 
-        return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Current fee: {$feeText}. Notifications: {$deliverySummary}.");
+        return back()->with('success', "Application #{$application->reference_number} status updated from ".
+            ucfirst(str_replace('_', ' ', $oldStatus))." to {$statusDisplay}. Current fee: {$feeText}. Notifications: {$deliverySummary}.");
     }
 
     private function sendStatusNotifications(Request $request, BarangayClearance $application, string $status, string $remarks): array
     {
         $results = ['email' => 'not selected', 'sms' => 'not selected'];
         $allowed = ['approved', 'ready_pickup', 'rejected'];
-        if (!in_array($status, $allowed, true)) {
+        if (! in_array($status, $allowed, true)) {
             return ['email' => 'not available for status', 'sms' => 'not available for status'];
         }
 
         $statusLabel = ucfirst(str_replace('_', ' ', $status));
-        $feeText = is_null($application->fee) ? 'Depending on purpose' : 'PHP ' . number_format((float) $application->fee, 2);
+        $feeText = is_null($application->fee) ? 'Depending on purpose' : 'PHP '.number_format((float) $application->fee, 2);
         $remarksText = ($status === 'rejected' && $remarks !== '') ? " Remarks: {$remarks}" : '';
 
         if ($request->boolean('notify_email')) {
             if (empty($application->email)) {
                 $results['email'] = 'failed (missing email)';
             } else {
-            try {
-                $message = "Your barangay clearance application (Ref: {$application->reference_number}) status is now {$statusLabel}. Fee: {$feeText}.{$remarksText}";
-                app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name . ' ' . $application->last_name), $message);
+                try {
+                    $message = "Your barangay clearance application (Ref: {$application->reference_number}) status is now {$statusLabel}. Fee: {$feeText}.{$remarksText}";
+                    app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name.' '.$application->last_name), $message);
 
-                $this->storeNotificationHistory(
-                    'clearance',
-                    (int) $application->id,
-                    (string) $application->reference_number,
-                    $status,
-                    $remarks !== '' ? $remarks : 'Email status update sent.',
-                    'email',
-                    $application->email
-                );
-                $results['email'] = 'sent';
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending clearance status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['email'] = 'failed';
-            }
+                    $this->storeNotificationHistory(
+                        'clearance',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'Email status update sent.',
+                        'email',
+                        $application->email
+                    );
+                    $results['email'] = 'sent';
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending clearance status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                    $results['email'] = 'failed';
+                }
             }
         }
 
@@ -391,40 +389,40 @@ $vipBack = $request->file('valid_id_back_path');
             if (empty($application->contact_number)) {
                 $results['sms'] = 'failed (missing mobile number)';
             } else {
-            try {
-                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
-                if (substr($recipient, 0, 1) === '0') {
-                    $recipient = '63' . substr($recipient, 1);
-                } elseif (substr($recipient, 0, 1) === '9') {
-                    $recipient = '63' . $recipient;
-                }
+                try {
+                    $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                    if (substr($recipient, 0, 1) === '0') {
+                        $recipient = '63'.substr($recipient, 1);
+                    } elseif (substr($recipient, 0, 1) === '9') {
+                        $recipient = '63'.$recipient;
+                    }
 
-                $smsMessage = "Clearance {$application->reference_number}: status {$statusLabel}. Fee {$feeText}.{$remarksText}";
-                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
-                    'apikey' => env('SMS_API_KEY'),
-                    'number' => $recipient,
-                    'message' => $smsMessage,
-                    'sendername' => env('SMS_SENDER_NAME'),
-                ]);
+                    $smsMessage = "Clearance {$application->reference_number}: status {$statusLabel}. Fee {$feeText}.{$remarksText}";
+                    $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                        'apikey' => env('SMS_API_KEY'),
+                        'number' => $recipient,
+                        'message' => $smsMessage,
+                        'sendername' => env('SMS_SENDER_NAME'),
+                    ]);
 
-                if ($response->successful()) {
-                    $this->storeNotificationHistory(
-                        'clearance',
-                        (int) $application->id,
-                        (string) $application->reference_number,
-                        $status,
-                        $remarks !== '' ? $remarks : 'SMS status update sent.',
-                        'sms',
-                        $recipient
-                    );
-                    $results['sms'] = 'sent';
-                } else {
+                    if ($response->successful()) {
+                        $this->storeNotificationHistory(
+                            'clearance',
+                            (int) $application->id,
+                            (string) $application->reference_number,
+                            $status,
+                            $remarks !== '' ? $remarks : 'SMS status update sent.',
+                            'sms',
+                            $recipient
+                        );
+                        $results['sms'] = 'sent';
+                    } else {
+                        $results['sms'] = 'failed';
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending clearance status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
                     $results['sms'] = 'failed';
                 }
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending clearance status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['sms'] = 'failed';
-            }
             }
         }
 
@@ -433,7 +431,7 @@ $vipBack = $request->file('valid_id_back_path');
 
     private function formatDeliverySummary(array $results): string
     {
-        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+        return 'Email '.($results['email'] ?? 'not selected').', SMS '.($results['sms'] ?? 'not selected');
     }
 
     private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
@@ -475,7 +473,7 @@ $vipBack = $request->file('valid_id_back_path');
                 ->get();
 
             foreach ($clearances as $clearance) {
-                
+
                 $clearance->delete();
             }
 
@@ -500,113 +498,13 @@ $vipBack = $request->file('valid_id_back_path');
 
         return back()->with(
             'success',
-            $archivedCount . ' selected application(s) archived successfully.'
+            $archivedCount.' selected application(s) archived successfully.'
         );
     }
 
     public function export(Request $request)
     {
-        $request->validate([
-            'ids' => 'nullable|array',
-            'ids.*' => 'exists:barangay_clearances,id'
-        ]);
-
-        $query = BarangayClearance::query();
-
-        if ($request->ids) {
-            $query->whereIn('id', $request->ids);
-        }
-
-        $applications = $query->get();
-
-        $filename = 'barangay_clearances_' . now()->format('Y-m-d_His') . '.csv'; 
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=$filename",
-        ];
-
-        $callback = function () use ($applications) {
-            $file = fopen('php://output', 'w');
-
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'ID',
-                'Reference Number',
-                'Full Name',
-                'First Name',
-                'Middle Name',
-                'Last Name',
-                'Suffix',
-                'Birthdate',
-                'Gender',
-                'Address',
-                'Contact Number',
-                'Email',
-                'Purpose',
-                'Purpose Other',
-                'Fee',
-                'Status',
-                'Created At',
-                'Updated At'
-            ]);
-
-            foreach ($applications as $app) {
-
-                $full_name = trim(
-                    $app->first_name . ' ' .
-                    $app->middle_name . ' ' .
-                    $app->last_name . ' ' .
-                    $app->suffix
-                );
-
-                fputcsv($file, [
-                    $app->id,
-                    $app->reference_number,
-                    $full_name,
-                    $app->first_name,
-                    $app->middle_name,
-                    $app->last_name,
-                    $app->suffix,
-                    $app->birthdate,
-                    $app->gender,
-                    $app->address,
-                    $app->contact_number,
-                    $app->email,
-                    $app->purpose,
-                    $app->purpose_other,
-                    is_null($app->fee) ? 'Depending on purpose' : number_format((float) $app->fee, 2, '.', ''),
-                    $app->status,
-                    $app->created_at,
-                    $app->updated_at,
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        if (auth('admin')->check()) {
-            $exportCount = BarangayClearance::query()->when($request->ids, function($q) use ($request) {
-                return $q->whereIn('id', $request->ids);
-            })->count();
-            
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'EXPORT',
-                'module' => 'Clearance',
-                'details' => [
-                    'ids' => $request->ids ?: 'all',
-                    'count' => $exportCount,
-                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                    'file_format' => 'CSV'
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
-
-        return response()->stream($callback, 200, $headers);
+        return app(\App\Services\AdminRecordExport::class)->download($request, 'clearance');
     }
 
     public function destroy(int $id)
@@ -616,7 +514,7 @@ $vipBack = $request->file('valid_id_back_path');
         $reference = $application->reference_number;
 
         DB::transaction(function () use ($application, $reference) {
-            
+
             $application->delete();
 
             if (auth('admin')->check()) {
@@ -641,7 +539,7 @@ $vipBack = $request->file('valid_id_back_path');
 
         return back()->with(
             'success',
-            'Application #' . $reference . ' archived successfully.'
+            'Application #'.$reference.' archived successfully.'
         );
     }
 
@@ -667,14 +565,14 @@ $vipBack = $request->file('valid_id_back_path');
             ]);
         }
 
-        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
+        return back()->with('success', 'Application #'.$reference.' restored successfully.');
     }
 
     public function bulkRestore(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:barangay_clearances,id'
+            'ids.*' => 'exists:barangay_clearances,id',
         ]);
 
         BarangayClearance::withTrashed()
@@ -695,7 +593,7 @@ $vipBack = $request->file('valid_id_back_path');
         $templatePath = $templates->path('Clearance_Template.docx')
             ?? $templates->path('Doc2.docx');
 
-        if (!file_exists($templatePath)) {
+        if (! file_exists($templatePath)) {
             abort(404, 'Word template not found');
         }
 
@@ -720,7 +618,7 @@ $vipBack = $request->file('valid_id_back_path');
         $adminUser = auth('admin')->user();
         $resolvedStaffName = trim((string) ($adminUser?->full_name ?? ''));
         if ($resolvedStaffName === '') {
-            $resolvedStaffName = trim(($adminUser?->first_name ?? '') . ' ' . ($adminUser?->last_name ?? ''));
+            $resolvedStaffName = trim(($adminUser?->first_name ?? '').' '.($adminUser?->last_name ?? ''));
         }
         if ($resolvedStaffName === '') {
             $resolvedStaffName = trim((string) ($adminUser?->username ?? ''));
@@ -736,13 +634,15 @@ $vipBack = $request->file('valid_id_back_path');
         $templateProcessor->setValue('MONTH', $month);
         $templateProcessor->setValue('YEAR', $year);
         $templateProcessor->setValue('STAFF_NAME', $staffName);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); 
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y'));
 
-        $fileName = 'barangay_clearance_' . $record->reference_number . '.docx'; 
+        $fileName = 'barangay_clearance_'.$record->reference_number.'.docx';
         $outputDir = storage_path('app/generated');
-        if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
+        if (! is_dir($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
 
-        $docxPath = $outputDir . '/' . $fileName;
+        $docxPath = $outputDir.'/'.$fileName;
         $templateProcessor->saveAs($docxPath);
 
         if (auth('admin')->check()) {
@@ -759,13 +659,13 @@ $vipBack = $request->file('valid_id_back_path');
                     'downloaded_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
         if ($action === 'print') {
-            $pdfFileName = 'clearance_' . ($record->reference_number ?? $record->id) . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
+            $pdfFileName = 'clearance_'.($record->reference_number ?? $record->id).'.pdf';
+            $pdfPath = $outputDir.'/'.$pdfFileName;
             try {
                 app(\App\Services\DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
             } catch (\Throwable $e) {

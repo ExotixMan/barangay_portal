@@ -61,3 +61,5 @@ Daily forecasts become stale at Manila midnight. A failed or overlapping refresh
 The production Docker image pins PHP 8.4 on Debian Trixie so its Python version meets the pinned forecasting packages' minimum (3.12). CI also runs the analytics tests on Python 3.12 and 3.13.
 
 Admin fixes and verification are described in [docs/admin-review.md](docs/admin-review.md). After pulling these changes, run `php artisan optimize:clear` and rebuild local assets with `npm ci` followed by `npm run build` (use `npm.cmd` in Windows PowerShell if script execution is disabled). Run `php artisan test` against your isolated test database before checking account management, request validation, document previews, and prediction in the browser.
+
+The [Users & Roles and export update](docs/users-roles-and-exports.md) removes repeated permission queries and loads permission editors on demand. Record exports now share a layout and offer Excel (default) plus CSV. Run `composer install` after pulling this update to install the Excel writer. Excel preserves phone numbers as text in `09XXXXXXXXX` format; CSV import into Excel needs phone columns set to Text.

@@ -231,8 +231,8 @@
                         @admin_can('export_indigency')
                         <form id="exportForm" method="POST" action="{{ route('admin.indigency.export') }}" style="display: inline;">
                             @csrf
-                            <button type="button" data-click-call="exportCSV" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export CSV">
-                                <i class="fas fa-file-csv"></i>
+                            <button type="button" data-click-call="exportCSV" class="btn btn-outline-success d-flex align-items-center gap-2" title="Export Excel or CSV">
+                                <i class="fas fa-file-export"></i>
                                 <span class="d-none d-sm-inline">Export</span>
                             </button>
                         </form>

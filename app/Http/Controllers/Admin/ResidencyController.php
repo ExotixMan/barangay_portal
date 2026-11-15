@@ -3,37 +3,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\DocumentTemplateStorageService;
-use App\Support\HandlesPrivateUploads;
-use Illuminate\Http\Request;
+use App\Models\AdminActivityLog;
 use App\Models\Residency;
 use App\Models\Residents;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-use PhpOffice\PhpWord\TemplateProcessor;
-use Carbon\Carbon;
 use App\Models\StatusRemarkHistory;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\AdminActivityLog;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class ResidencyController extends Controller
 {
     use HandlesPrivateUploads;
+
     public function index(Request $request)
     {
         $query = Residency::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? '');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -62,8 +62,8 @@ class ResidencyController extends Controller
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['first_name', 'years_residing', 'created_at'];
-        
-        if (!in_array($sort, $allowedSorts)) {
+
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
@@ -102,7 +102,7 @@ class ResidencyController extends Controller
             'total_count',
             'pending_count',
             'under_review_count',
-            'processing_count', 
+            'processing_count',
             'approved_count',
             'ready_pickup_count',
             'claimed_count',
@@ -112,7 +112,7 @@ class ResidencyController extends Controller
 
     public function store(Request $request)
     {
-        
+
         session()->flash('form_type', 'add');
 
         $request->merge([
@@ -159,7 +159,7 @@ class ResidencyController extends Controller
             'address' => 'required',
             'years_residing' => 'required|in:less1,1-3,3-5,5-10,10-20,20+',
             'residency_type' => 'required',
-            'contact_number' => ['required','regex:/^09\d{9}$/'],
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'email' => 'required|email',
             'household_members' => ['required', 'regex:/^(?:[1-9]|1\\d|20)$/'],
             'purpose' => 'required',
@@ -192,29 +192,29 @@ class ResidencyController extends Controller
         }
 
         try {
-            
+
             if ($request->hasFile('primary_proof')) {
                 $prip = $request->file('primary_proof');
                 $prip_ext = $prip->getClientOriginalExtension();
-                $prip_name = time() . '_proof_' . Str::random(5) . '.' . $prip_ext;
+                $prip_name = time().'_proof_'.Str::random(5).'.'.$prip_ext;
                 $data['primary_proof'] = $this->storePrivateUpload($prip, 'proof_of_residency/residency', 'proof');
             }
 
             if ($request->hasFile('government_id')) {
                 $gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
-                $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
+                $gip_name = time().'_id_front_'.Str::random(5).'.'.$gip_ext;
                 $data['government_id'] = $this->storePrivateUpload($gip, 'valid_id/residency', 'id_front');
             }
 
             if ($request->hasFile('government_id_back')) {
                 $gipBack = $request->file('government_id_back');
                 $gipBackExt = $gipBack->getClientOriginalExtension();
-                $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
+                $gipBackName = time().'_id_back_'.Str::random(5).'.'.$gipBackExt;
                 $data['government_id_back'] = $this->storePrivateUpload($gipBack, 'valid_id/residency', 'id_back');
             }
 
-            $data['reference_number'] = 'RES-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
+            $data['reference_number'] = 'RES-'.now()->format('YmdHis').'-'.strtoupper(Str::random(4));
 
             $data['status'] = 'pending';
 
@@ -234,9 +234,9 @@ class ResidencyController extends Controller
         $application = Residency::findOrFail($id);
 
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
-        
+
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'status' => 'required|in:'.implode(',', $allowedStatuses),
             'remarks' => 'nullable|required_if:status,rejected|string|max:40',
         ], [
             'status.required' => 'Choose the new request status before saving.',
@@ -248,8 +248,6 @@ class ResidencyController extends Controller
         $newStatus = $request->status;
         $oldStatus = $application->status;
         $remarks = trim((string) $request->input('remarks', ''));
-
-        
 
         $application->status = $newStatus;
         $application->status_updated_at = now();
@@ -281,7 +279,7 @@ class ResidencyController extends Controller
                     'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
@@ -289,15 +287,15 @@ class ResidencyController extends Controller
 
         $deliverySummary = $this->formatDeliverySummary($deliveryResults);
 
-        return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Notifications: {$deliverySummary}.");
+        return back()->with('success', "Application #{$application->reference_number} status updated from ".
+            ucfirst(str_replace('_', ' ', $oldStatus))." to {$statusDisplay}. Notifications: {$deliverySummary}.");
     }
 
     private function sendStatusNotifications(Request $request, Residency $application, string $status, string $remarks): array
     {
         $results = ['email' => 'not selected', 'sms' => 'not selected'];
         $allowed = ['approved', 'ready_pickup', 'rejected'];
-        if (!in_array($status, $allowed, true)) {
+        if (! in_array($status, $allowed, true)) {
             return ['email' => 'not available for status', 'sms' => 'not available for status'];
         }
 
@@ -308,24 +306,24 @@ class ResidencyController extends Controller
             if (empty($application->email)) {
                 $results['email'] = 'failed (missing email)';
             } else {
-            try {
-                $message = "Your barangay residency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
-                app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name . ' ' . $application->last_name), $message);
+                try {
+                    $message = "Your barangay residency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
+                    app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name.' '.$application->last_name), $message);
 
-                $this->storeNotificationHistory(
-                    'residency',
-                    (int) $application->id,
-                    (string) $application->reference_number,
-                    $status,
-                    $remarks !== '' ? $remarks : 'Email status update sent.',
-                    'email',
-                    $application->email
-                );
-                $results['email'] = 'sent';
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending residency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['email'] = 'failed';
-            }
+                    $this->storeNotificationHistory(
+                        'residency',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'Email status update sent.',
+                        'email',
+                        $application->email
+                    );
+                    $results['email'] = 'sent';
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending residency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                    $results['email'] = 'failed';
+                }
             }
         }
 
@@ -333,41 +331,41 @@ class ResidencyController extends Controller
             if (empty($application->contact_number)) {
                 $results['sms'] = 'failed (missing mobile number)';
             } else {
-            try {
-                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
-                if (substr($recipient, 0, 1) === '0') {
-                    $recipient = '63' . substr($recipient, 1);
-                } elseif (substr($recipient, 0, 1) === '9') {
-                    $recipient = '63' . $recipient;
-                }
+                try {
+                    $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                    if (substr($recipient, 0, 1) === '0') {
+                        $recipient = '63'.substr($recipient, 1);
+                    } elseif (substr($recipient, 0, 1) === '9') {
+                        $recipient = '63'.$recipient;
+                    }
 
-                $smsMessage = "Residency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
-                $smsConfig = config('services.sms', []);
-                $response = Http::asForm()->post((string) ($smsConfig['api_base_url'] ?? 'https://semaphore.co/api/v4/messages'), [
-                    'apikey' => (string) ($smsConfig['api_key'] ?? ''),
-                    'number' => $recipient,
-                    'message' => $smsMessage,
-                    'sendername' => (string) ($smsConfig['sender_name'] ?? 'HULONGDUHAT'),
-                ]);
+                    $smsMessage = "Residency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
+                    $smsConfig = config('services.sms', []);
+                    $response = Http::asForm()->post((string) ($smsConfig['api_base_url'] ?? 'https://semaphore.co/api/v4/messages'), [
+                        'apikey' => (string) ($smsConfig['api_key'] ?? ''),
+                        'number' => $recipient,
+                        'message' => $smsMessage,
+                        'sendername' => (string) ($smsConfig['sender_name'] ?? 'HULONGDUHAT'),
+                    ]);
 
-                if ($response->successful()) {
-                    $this->storeNotificationHistory(
-                        'residency',
-                        (int) $application->id,
-                        (string) $application->reference_number,
-                        $status,
-                        $remarks !== '' ? $remarks : 'SMS status update sent.',
-                        'sms',
-                        $recipient
-                    );
-                    $results['sms'] = 'sent';
-                } else {
+                    if ($response->successful()) {
+                        $this->storeNotificationHistory(
+                            'residency',
+                            (int) $application->id,
+                            (string) $application->reference_number,
+                            $status,
+                            $remarks !== '' ? $remarks : 'SMS status update sent.',
+                            'sms',
+                            $recipient
+                        );
+                        $results['sms'] = 'sent';
+                    } else {
+                        $results['sms'] = 'failed';
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending residency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
                     $results['sms'] = 'failed';
                 }
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending residency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['sms'] = 'failed';
-            }
             }
         }
 
@@ -376,7 +374,7 @@ class ResidencyController extends Controller
 
     private function formatDeliverySummary(array $results): string
     {
-        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+        return 'Email '.($results['email'] ?? 'not selected').', SMS '.($results['sms'] ?? 'not selected');
     }
 
     private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
@@ -403,17 +401,17 @@ class ResidencyController extends Controller
         $originalValues = $application->only([
             'first_name', 'middle_name', 'last_name', 'suffix', 'birthdate', 'birth_place', 'gender',
             'civil_status', 'email', 'contact_number', 'address', 'years_residing', 'residency_type',
-            'household_members', 'purpose', 'purpose_other'
+            'household_members', 'purpose', 'purpose_other',
         ]);
 
-        session()->flash('form_type', 'edit_' . $application->id);
+        session()->flash('form_type', 'edit_'.$application->id);
 
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
         $data = $request->validate([
-            
+
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -440,7 +438,7 @@ class ResidencyController extends Controller
         ]);
 
         try {
-            
+
             $oldSensitiveFiles = [
                 'primary_proof' => $application->primary_proof,
                 'government_id' => $application->government_id,
@@ -465,30 +463,30 @@ class ResidencyController extends Controller
             $application->purpose_other = $request->purpose_other;
 
             if ($request->hasFile('primary_proof')) {
-$prip = $request->file('primary_proof');
+                $prip = $request->file('primary_proof');
                 $prip_ext = $prip->getClientOriginalExtension();
-                $prip_name = time() . '_proof_' . Str::random(5) . '.' . $prip_ext;
+                $prip_name = time().'_proof_'.Str::random(5).'.'.$prip_ext;
                 $application->primary_proof = $this->storePrivateUpload($prip, 'proof_of_residency/residency', 'proof');
             }
 
             if ($request->hasFile('government_id')) {
-$gip = $request->file('government_id');
+                $gip = $request->file('government_id');
                 $gip_ext = $gip->getClientOriginalExtension();
-                $gip_name = time() . '_id_front_' . Str::random(5) . '.' . $gip_ext;
+                $gip_name = time().'_id_front_'.Str::random(5).'.'.$gip_ext;
                 $application->government_id = $this->storePrivateUpload($gip, 'valid_id/residency', 'id_front');
             }
 
             if ($request->hasFile('government_id_back')) {
-$gipBack = $request->file('government_id_back');
+                $gipBack = $request->file('government_id_back');
                 $gipBackExt = $gipBack->getClientOriginalExtension();
-                $gipBackName = time() . '_id_back_' . Str::random(5) . '.' . $gipBackExt;
+                $gipBackName = time().'_id_back_'.Str::random(5).'.'.$gipBackExt;
                 $application->government_id_back = $this->storePrivateUpload($gipBack, 'valid_id/residency', 'id_back');
             }
 
             $updatedValues = $application->only([
                 'first_name', 'middle_name', 'last_name', 'suffix', 'birthdate', 'birth_place', 'gender',
                 'civil_status', 'email', 'contact_number', 'address', 'years_residing', 'residency_type',
-                'household_members', 'purpose', 'purpose_other'
+                'household_members', 'purpose', 'purpose_other',
             ]);
 
             $application->save();
@@ -507,7 +505,7 @@ $gipBack = $request->file('government_id_back');
                 }
             }
 
-            if (!empty($changedFields) && auth('admin')->check()) {
+            if (! empty($changedFields) && auth('admin')->check()) {
                 \App\Models\AdminActivityLog::create([
                     'user_id' => auth('admin')->id(),
                     'action' => 'APPLICATION_UPDATE',
@@ -524,7 +522,7 @@ $gipBack = $request->file('government_id_back');
             }
 
             return redirect()->route('admin.residency.index')
-                ->with('success', 'Residency application #' . $application->reference_number . ' updated successfully.');
+                ->with('success', 'Residency application #'.$application->reference_number.' updated successfully.');
 
         } catch (\Exception $e) {
             return back()->withInput()
@@ -553,7 +551,7 @@ $gipBack = $request->file('government_id_back');
                 ->get();
 
             foreach ($applications as $application) {
-                
+
                 $application->delete();
             }
 
@@ -578,94 +576,13 @@ $gipBack = $request->file('government_id_back');
 
         return back()->with(
             'success',
-            $archivedCount . ' selected application(s) archived successfully.'
+            $archivedCount.' selected application(s) archived successfully.'
         );
     }
 
     public function export(Request $request)
     {
-        $request->validate([
-            'ids' => 'nullable|array',
-            'ids.*' => 'exists:residency_applications,id'
-        ]);
-
-        $query = Residency::query();
-
-        if ($request->ids) {
-            $query->whereIn('id', $request->ids);
-        } else {
-            $query->whereIn('id', Residency::pluck('id'));
-        }
-
-        $applications = $query->get();
-
-        $filename = 'residency_applications_' . now()->format('Y-m-d_His') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=$filename",
-        ];
-
-        $callback = function () use ($applications) {
-            $file = fopen('php://output', 'w');
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'ID','Reference Number','Full Name','First Name','Middle Name','Last Name','Suffix',
-                'Birthdate','Gender','Civil Status','Birth Place','Address','Years Residing',
-                'Residency Type','Contact Number','Email','Household Members','Purpose','Purpose Other',
-                'Status','Created At','Updated At'
-            ]);
-
-            foreach ($applications as $app) {
-                $full_name = trim($app->first_name . ' ' . $app->middle_name . ' ' . $app->last_name . ' ' . $app->suffix);
-
-                $yearsDisplay = '';
-                switch ($app->years_residing) {
-                    case 'less1': $yearsDisplay = 'Less than 1 year'; break;
-                    case '1-3': $yearsDisplay = '1-3 years'; break;
-                    case '3-5': $yearsDisplay = '3-5 years'; break;
-                    case '5-10': $yearsDisplay = '5-10 years'; break;
-                    case '10-20': $yearsDisplay = '10-20 years'; break;
-                    case '20+': $yearsDisplay = '20+ years'; break;
-                    default: $yearsDisplay = $app->years_residing;
-                }
-
-                $statusDisplay = ucfirst(str_replace('_', ' ', $app->status));
-                
-                fputcsv($file, [
-                    $app->id, $app->reference_number, $full_name, $app->first_name, $app->middle_name,
-                    $app->last_name, $app->suffix, $app->birthdate, $app->gender, $app->civil_status,
-                    $app->birth_place, $app->address, $yearsDisplay, $app->residency_type,
-                    $app->contact_number, $app->email, $app->household_members, $app->purpose,
-                    $app->purpose_other, $statusDisplay, $app->created_at, $app->updated_at
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        if (auth('admin')->check()) {
-            $exportCount = Residency::query()->when($request->ids, function($q) use ($request) {
-                return $q->whereIn('id', $request->ids);
-            })->count();
-            
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'EXPORT',
-                'module' => 'Residency',
-                'details' => [
-                    'ids' => $request->ids ?: 'all',
-                    'count' => $exportCount,
-                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                    'file_format' => 'CSV'
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
-
-        return response()->stream($callback, 200, $headers);
+        return app(\App\Services\AdminRecordExport::class)->download($request, 'residency');
     }
 
     public function destroy(int $id)
@@ -675,7 +592,7 @@ $gipBack = $request->file('government_id_back');
         $reference = $application->reference_number;
 
         DB::transaction(function () use ($application, $reference) {
-            
+
             $application->delete();
 
             if (auth('admin')->check()) {
@@ -700,7 +617,7 @@ $gipBack = $request->file('government_id_back');
 
         return back()->with(
             'success',
-            'Application #' . $reference . ' archived successfully.'
+            'Application #'.$reference.' archived successfully.'
         );
     }
 
@@ -726,14 +643,14 @@ $gipBack = $request->file('government_id_back');
             ]);
         }
 
-        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
+        return back()->with('success', 'Application #'.$reference.' restored successfully.');
     }
 
     public function bulkRestore(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:residency_applications,id'
+            'ids.*' => 'exists:residency_applications,id',
         ]);
 
         Residency::withTrashed()
@@ -752,22 +669,24 @@ $gipBack = $request->file('government_id_back');
 
         $templatePath = app(DocumentTemplateStorageService::class)->path('Doc2.docx');
 
-        if (!file_exists($templatePath)) {
+        if (! file_exists($templatePath)) {
             abort(404, 'Word template not found');
         }
 
-        $full_name = trim($record->first_name . ' ' . $record->middle_name . ' ' . $record->last_name . ' ' . $record->suffix);
+        $full_name = trim($record->first_name.' '.$record->middle_name.' '.$record->last_name.' '.$record->suffix);
 
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certificate of Residency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
         $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y'));
 
-        $fileName = 'certificate_' . $record->reference_number . '.docx';
+        $fileName = 'certificate_'.$record->reference_number.'.docx';
         $outputDir = storage_path('app/generated');
-        if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
+        if (! is_dir($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
 
-        $docxPath = $outputDir . '/' . $fileName;
+        $docxPath = $outputDir.'/'.$fileName;
         $templateProcessor->saveAs($docxPath);
 
         if (auth('admin')->check()) {
@@ -784,13 +703,13 @@ $gipBack = $request->file('government_id_back');
                     'downloaded_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
         if ($action === 'print') {
-            $pdfFileName = 'residency_' . ($record->reference_number ?? $record->id) . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
+            $pdfFileName = 'residency_'.($record->reference_number ?? $record->id).'.pdf';
+            $pdfPath = $outputDir.'/'.$pdfFileName;
             try {
                 app(\App\Services\DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
             } catch (\Throwable $e) {

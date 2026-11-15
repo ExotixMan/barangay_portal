@@ -52,55 +52,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
         }
 
         function exportCSV() {
-
-            const checkboxes = document.querySelectorAll('.application-checkbox:checked');
-            const exportForm = document.getElementById('exportForm');
-
-            if (checkboxes.length === 0) {
-
-                Swal.fire({
-                    icon: 'question',
-                    title: 'Export All?',
-                    text: 'No incident reports selected. Export all records?',
-                    showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, Export All'
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-                        exportForm.submit();
-                    }
-
-                });
-
-                return;
-            }
-
-            Swal.fire({
-                title: 'Export Selected?',
-                text: `Export ${checkboxes.length} selected incident report(s)?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Export'
-            }).then((result) => {
-
-                if (result.isConfirmed) {
-
-                    checkboxes.forEach(cb => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'ids[]';
-                        input.value = cb.value;
-                        exportForm.appendChild(input);
-                    });
-
-                    exportForm.submit();
-                }
-
-            });
+            return AdminExport.open();
         }
 
         function toggleSelectAll() {
@@ -315,7 +267,6 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
             function normalizePhoneValue(value) {
                 let cleaned = (value || '').replace(/[^0-9]/g, '').slice(0, 12);
                 if (cleaned.startsWith('63') && cleaned.length === 12) {
@@ -347,6 +298,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
                 });
             }
 
+        document.addEventListener('DOMContentLoaded', function() {
             if (typeof Swal === 'undefined') {
                 console.log('SweetAlert2 not loaded, using default confirm');
                 window.confirmDelete = function(event, message) {

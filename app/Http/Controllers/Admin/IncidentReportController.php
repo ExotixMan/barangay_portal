@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\BlotterReport;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; 
-use App\Models\Witness;
 use App\Models\ReportFile;
-use Carbon\Carbon;
 use App\Models\StatusRemarkHistory;
+use App\Models\Witness;
+use App\Services\SupabaseStorageService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\AdminActivityLog;
 use Illuminate\Validation\Rule;
-use App\Services\SupabaseStorageService;
 
 class IncidentReportController extends Controller
 {
@@ -22,13 +21,13 @@ class IncidentReportController extends Controller
     {
         $query = BlotterReport::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? '');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
-                  ->orWhere('complainant_name', 'like', "%{$search}%")
-                  ->orWhere('respondent_name', 'like', "%{$search}%");
+                    ->orWhere('complainant_name', 'like', "%{$search}%")
+                    ->orWhere('respondent_name', 'like', "%{$search}%");
             });
         }
 
@@ -40,7 +39,7 @@ class IncidentReportController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        
+
         if ($request->report_type && in_array($request->report_type, ['dispute', 'security', 'public', 'other'])) {
             $query->where('report_type', $request->report_type);
         }
@@ -59,11 +58,10 @@ class IncidentReportController extends Controller
             'status',
         ];
 
-        if (!in_array($sort, $allowedSorts, true)) {
+        if (! in_array($sort, $allowedSorts, true)) {
             $sort = 'created_at';
         }
 
-        
         $query->orderByRaw("CASE WHEN status = 'dropped' THEN 1 ELSE 0 END ASC");
 
         if ($sort === 'status') {
@@ -95,8 +93,8 @@ class IncidentReportController extends Controller
         DB::beginTransaction();
 
         try {
-            
-            $reference = 'BL-' . date('Y') . '-' . strtoupper(uniqid());
+
+            $reference = 'BL-'.date('Y').'-'.strtoupper(uniqid());
 
             $report = BlotterReport::create([
                 'reference_number' => $reference,
@@ -121,7 +119,7 @@ class IncidentReportController extends Controller
 
             if ($request->witnesses) {
                 foreach ($request->witnesses as $w) {
-                    if (!empty($w['name']) || !empty($w['statement'])) {
+                    if (! empty($w['name']) || ! empty($w['statement'])) {
                         Witness::create([
                             'blotter_report_id' => $report->id,
                             'name' => $w['name'] ?? null,
@@ -136,11 +134,12 @@ class IncidentReportController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.blotter.index') 
+            return redirect()->route('admin.blotter.index')
                 ->with('success', 'Incident Report added successfully.');
 
         } catch (\Exception $e) {
             DB::rollback();
+
             return back()->withInput()
                 ->with('error', 'Failed to submit application. Please try again.');
         }
@@ -177,11 +176,11 @@ class IncidentReportController extends Controller
             ]);
 
             if ($request->witnesses) {
-                
+
                 Witness::where('blotter_report_id', $report->id)->delete();
 
                 foreach ($request->witnesses as $w) {
-                    if (!empty($w['name']) || !empty($w['statement'])) {
+                    if (! empty($w['name']) || ! empty($w['statement'])) {
                         Witness::create([
                             'blotter_report_id' => $report->id,
                             'name' => $w['name'] ?? null,
@@ -200,6 +199,7 @@ class IncidentReportController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
+
             return back()->withInput()
                 ->with('error', 'Failed to update report. Please try again.');
         }
@@ -214,13 +214,13 @@ class IncidentReportController extends Controller
         ];
 
         foreach ($groups as $field => $config) {
-            if (!$request->hasFile($field)) {
+            if (! $request->hasFile($field)) {
                 continue;
             }
 
             foreach ($request->file($field) as $file) {
                 $extension = strtolower((string) $file->getClientOriginalExtension());
-                $name = $config['type'] . '_' . \Illuminate\Support\Str::uuid() . '.' . $extension;
+                $name = $config['type'].'_'.\Illuminate\Support\Str::uuid().'.'.$extension;
                 $storedPath = app(SupabaseStorageService::class)->storePrivateFileWithName(
                     $file,
                     str_replace('private/', '', $config['folder']),
@@ -337,7 +337,7 @@ class IncidentReportController extends Controller
         }
 
         if (str_starts_with($digits, '63') && strlen($digits) === 12) {
-            $digits = '0' . substr($digits, 2);
+            $digits = '0'.substr($digits, 2);
         }
 
         return $digits;
@@ -381,12 +381,13 @@ class IncidentReportController extends Controller
                     'reporter' => $blotter->created_by,
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
         $deliverySummary = $this->formatIncidentDeliverySummary($deliveryResults);
-        return back()->with('success', 'Incident report resolved. Notifications: ' . $deliverySummary . '.');
+
+        return back()->with('success', 'Incident report resolved. Notifications: '.$deliverySummary.'.');
     }
 
     public function markProcessing(Request $request, int $id)
@@ -469,19 +470,20 @@ class IncidentReportController extends Controller
                     'reporter' => $blotter->created_by,
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
         $deliverySummary = $this->formatIncidentDeliverySummary($deliveryResults);
-        return back()->with('success', 'Incident report dropped. Notifications: ' . $deliverySummary . '.');
+
+        return back()->with('success', 'Incident report dropped. Notifications: '.$deliverySummary.'.');
     }
 
     private function sendIncidentStatusNotifications(Request $request, BlotterReport $blotter, string $status, string $remarks): array
     {
         $results = ['email' => 'not selected', 'sms' => 'not selected'];
         $statusLabel = ucfirst($status);
-        $remarksText = $remarks !== '' ? ' Remarks: ' . $remarks : '';
+        $remarksText = $remarks !== '' ? ' Remarks: '.$remarks : '';
 
         if ($request->boolean('notify_email')) {
             if (empty($blotter->complainant_email)) {
@@ -507,9 +509,9 @@ class IncidentReportController extends Controller
                 try {
                     $recipient = preg_replace('/\D/', '', (string) $blotter->complainant_contact);
                     if (substr($recipient, 0, 1) === '0') {
-                        $recipient = '63' . substr($recipient, 1);
+                        $recipient = '63'.substr($recipient, 1);
                     } elseif (substr($recipient, 0, 1) === '9') {
-                        $recipient = '63' . $recipient;
+                        $recipient = '63'.$recipient;
                     }
 
                     $smsMessage = "Incident {$blotter->reference_number}: status {$statusLabel}.{$remarksText}";
@@ -556,10 +558,10 @@ class IncidentReportController extends Controller
 
     private function formatIncidentDeliverySummary(array $results): string
     {
-        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+        return 'Email '.($results['email'] ?? 'not selected').', SMS '.($results['sms'] ?? 'not selected');
     }
 
-    public function destroy(int$id)
+    public function destroy(int $id)
     {
         $report = BlotterReport::findOrFail($id);
         $reference = $report->reference_number;
@@ -590,7 +592,7 @@ class IncidentReportController extends Controller
 
         return back()->with(
             'success',
-            'Incident report #' . $reference . ' archived successfully.'
+            'Incident report #'.$reference.' archived successfully.'
         );
     }
 
@@ -615,7 +617,7 @@ class IncidentReportController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
         }
-        
+
         return back()->with('success', 'Incident report restored successfully.');
     }
 
@@ -631,7 +633,7 @@ class IncidentReportController extends Controller
         $report->witnesses()->forceDelete();
 
         $report->forceDelete();
-        
+
         return back()->with('success', 'Incident report permanently deleted.');
     }
 
@@ -681,7 +683,7 @@ class IncidentReportController extends Controller
 
         return back()->with(
             'success',
-            $archivedCount . ' selected report(s) archived successfully.'
+            $archivedCount.' selected report(s) archived successfully.'
         );
     }
 
@@ -689,7 +691,7 @@ class IncidentReportController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:blotter_reports,id'
+            'ids.*' => 'exists:blotter_reports,id',
         ]);
 
         BlotterReport::withTrashed()
@@ -703,15 +705,15 @@ class IncidentReportController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:blotter_reports,id'
+            'ids.*' => 'exists:blotter_reports,id',
         ]);
 
         $reports = BlotterReport::withTrashed()
             ->whereIn('id', $request->ids)
             ->get();
-        
+
         foreach ($reports as $report) {
-            
+
             foreach ($report->files as $file) {
                 app(SupabaseStorageService::class)->delete($file->file_path);
                 $file->forceDelete();
@@ -729,113 +731,6 @@ class IncidentReportController extends Controller
 
     public function export(Request $request)
     {
-        $request->validate([
-            'ids' => 'nullable|array',
-            'ids.*' => 'exists:blotter_reports,id'
-        ]);
-
-        $query = BlotterReport::with(['witnesses', 'files']);
-
-        if ($request->ids) {
-            $query->whereIn('id', $request->ids);
-        }
-
-        $incidents = $query->get();
-
-        $filename = 'incident_reports_' . now()->format('Y-m-d_His') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=$filename",
-        ];
-
-        $callback = function () use ($incidents) {
-            $file = fopen('php://output', 'w');
-
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'ID',
-                'Reference Number',
-                'Report Type',
-                'Incident Date',
-                'Incident Time',
-                'Location',
-                'Description',
-                'Immediate Action',
-                'Complainant Name',
-                'Complainant Contact',
-                'Complainant Address',
-                'Complainant Email',
-                'Respondent Name',
-                'Respondent Contact',
-                'Respondent Address',
-                'Respondent Description',
-                'Confidentiality',
-                'Additional Info',
-                'Status',
-                'Deleted At',
-                'Created At',
-                'Updated At',
-                'Witnesses Count',
-                'Files Count'
-            ]);
-
-            foreach ($incidents as $incident) {
-                
-                $confidentialityDisplay = match ($incident->confidentiality) {
-                    'low' => 'Public Report',
-                    'medium' => 'Confidential Report',
-                    'high' => 'Anonymous Report',
-                    default => ucfirst($incident->confidentiality),
-                };
-
-                $statusDisplay = match ($incident->status) {
-                    'processing' => 'Processing',
-                    'resolved' => 'Resolved',
-                    'dropped' => 'Dropped',
-                    default => ucfirst($incident->status),
-                };
-
-                $reportTypeDisplay = match ($incident->report_type) {
-                    'dispute' => 'Community Dispute',
-                    'security' => 'Security Concern',
-                    'public' => 'Public Safety',
-                    'other' => 'Other Concern',
-                    default => ucfirst($incident->report_type),
-                };
-
-                fputcsv($file, [
-                    $incident->id,
-                    $incident->reference_number,
-                    $reportTypeDisplay,
-                    $incident->incident_date ? Carbon::parse($incident->incident_date)->format('Y-m-d') : '',
-                    $incident->incident_time,
-                    $incident->location,
-                    $incident->description,
-                    $incident->immediate_action,
-                    $incident->complainant_name,
-                    $incident->complainant_contact,
-                    $incident->complainant_address,
-                    $incident->complainant_email,
-                    $incident->respondent_name,
-                    $incident->respondent_contact,
-                    $incident->respondent_address,
-                    $incident->respondent_description,
-                    $confidentialityDisplay,
-                    $incident->additional_info,
-                    $statusDisplay,
-                    $incident->deleted_at ? Carbon::parse($incident->deleted_at)->format('Y-m-d H:i:s') : '',
-                    $incident->created_at ? Carbon::parse($incident->created_at)->format('Y-m-d H:i:s') : '',
-                    $incident->updated_at ? Carbon::parse($incident->updated_at)->format('Y-m-d H:i:s') : '',
-                    $incident->witnesses->count(),
-                    $incident->files->count(),
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return app(\App\Services\AdminRecordExport::class)->download($request, 'blotter');
     }
 }

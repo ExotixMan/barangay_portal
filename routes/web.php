@@ -532,6 +532,8 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     });
 
     Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/dialogs/{type}/{id}', [AdminUserController::class, 'dialog'])
+            ->whereIn('type', ['user-permissions', 'role-edit'])->whereNumber('id')->name('dialog');
         Route::get('/', [AdminUserController::class, 'index'])->middleware('permission:view_users')->name('index');
         Route::post('/', [AdminUserController::class, 'store'])->middleware('permission:create_users')->name('store');
         Route::put('/{id}', [AdminUserController::class, 'update'])->middleware('permission:update_users')->name('update');

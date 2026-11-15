@@ -201,7 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function attachRoleValidation(form) {
-            if (!form) return;
+            if (!form || form.dataset.roleValidationBound === 'true') return;
+            form.dataset.roleValidationBound = 'true';
             const roleName = form.querySelector('[name="name"]');
 
             if (roleName && !roleName.readOnly) {
@@ -234,4 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         attachRoleValidation(document.getElementById('addRoleForm'));
         document.querySelectorAll('[id^="editRoleForm"]').forEach(attachRoleValidation);
+        document.addEventListener('admin:dialog-loaded', function(event) {
+            attachRoleValidation(event.detail.modal.querySelector('[id^="editRoleForm"]'));
+        });
     });

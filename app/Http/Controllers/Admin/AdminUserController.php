@@ -194,6 +194,12 @@ class AdminUserController extends Controller
             ->orderBy('last_name')
             ->get();
 
+        // The member dialogs and selectors reuse this one directory query.
+        $membersByRole = $allUsers->groupBy('role_id');
+        foreach ($roles as $role) {
+            $role->setRelation('users', $membersByRole->get($role->id, new \Illuminate\Database\Eloquent\Collection));
+        }
+
         $userStats = AdminUser::query()
             ->selectRaw('COUNT(*) as total_users')
             ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_users")
@@ -260,6 +266,24 @@ class AdminUserController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv',
         ]);
+    }
+
+    public function dialog(string $type, int $id)
+    {
+        $actor = Auth::guard('admin')->user();
+        $allPermissions = $this->getGroupedPermissions();
+        if ($type === 'user-permissions') {
+            abort_unless($actor->hasPermission('manage_user_permissions'), 403);
+            $user = AdminUser::with(['role.permissions', 'permissions'])->findOrFail($id);
+
+            return response()->view('admin.partials.user-permissions-dialog', compact('user', 'allPermissions'))
+                ->header('Cache-Control', 'private, no-store');
+        }
+        abort_unless($type === 'role-edit' && $actor->hasPermission('update_roles'), 403);
+        $role = AdminRole::with('permissions')->findOrFail($id);
+
+        return response()->view('admin.partials.role-edit-dialog', compact('role', 'allPermissions'))
+            ->header('Cache-Control', 'private, no-store');
     }
 
     public function store(Request $request)

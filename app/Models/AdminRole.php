@@ -36,9 +36,9 @@ class AdminRole extends Model
         )->withTimestamps();
     }
 
-    public function getUsersCountAttribute()
+    public function getUsersCountAttribute($value = null)
     {
-        return $this->users()->count();
+        return $value !== null ? (int) $value : $this->users()->count();
     }
 
     public function getDisplayNameAttribute(?string $value)

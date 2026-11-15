@@ -3,21 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Residents;
 use App\Models\ResidentActivity;
 use App\Models\ResidentProfileCorrectionConcern;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\Rules\Password as PasswordRules;
-use App\Services\AdminSettingsService;
+use App\Models\Residents;
 use App\Services\SupabaseStorageService;
 use App\Support\UploadedImageComparator;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class ResidentController extends Controller
 {
@@ -28,14 +24,14 @@ class ResidentController extends Controller
         $adultCutoff = $today->copy()->subYearsNoOverflow(18)->toDateString();
         $seniorCutoff = $today->copy()->subYearsNoOverflow(60)->toDateString();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? '');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('firstname','like',"%$search%")
-                ->orWhere('lastname','like',"%$search%")
-                ->orWhere('email','like',"%$search%")
-                ->orWhere('username','like',"%$search%");
+                $q->where('firstname', 'like', "%$search%")
+                    ->orWhere('lastname', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('username', 'like', "%$search%");
             });
         }
 
@@ -84,12 +80,12 @@ class ResidentController extends Controller
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['firstname', 'username', 'age', 'created_at'];
-        
-        if (!in_array($sort, $allowedSorts)) {
+
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
-        if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+        if (! in_array(strtolower($direction), ['asc', 'desc'])) {
             $direction = 'desc';
         }
 
@@ -114,20 +110,19 @@ class ResidentController extends Controller
 
         $residents = $query->paginate(20);
 
-        
         $totalResidents = Residents::withTrashed()->count();
 
         $lastMonth = Carbon::now()->subMonth();
 
         $thisMonth = Carbon::now();
         $threeMonthsAgo = $thisMonth->copy()->subMonths(3);
-        
+
         $totalLastThreeMonths = Residents::withTrashed()
             ->whereBetween('created_at', [$threeMonthsAgo->startOfMonth(), $thisMonth->copy()->subMonth()->endOfMonth()])
             ->count();
-        
+
         $threeMonthAverage = $totalLastThreeMonths / 3;
-        
+
         $totalThisMonth = Residents::withTrashed()
             ->whereMonth('created_at', $thisMonth->month)
             ->whereYear('created_at', $thisMonth->year)
@@ -137,7 +132,7 @@ class ResidentController extends Controller
 
         if ($threeMonthAverage > 0) {
             $growthPercentage = (($totalThisMonth - $threeMonthAverage) / $threeMonthAverage) * 100;
-            
+
             $growthPercentage = max(-100, min(100, $growthPercentage));
         }
 
@@ -157,12 +152,12 @@ class ResidentController extends Controller
 
         $withCorrection = ResidentProfileCorrectionConcern::where('status', 'pending')->get();
 
-        return view('admin.admin_resident', compact('residents', 'withCorrection' ,'totalResidents', 'growthPercentage', 'activeResidents', 'activePercentage', 'newResidents', 'yesterdayCount', 'seniorResidents', 'seniorPercentage'));
+        return view('admin.admin_resident', compact('residents', 'withCorrection', 'totalResidents', 'growthPercentage', 'activeResidents', 'activePercentage', 'newResidents', 'yesterdayCount', 'seniorResidents', 'seniorPercentage'));
     }
-    
+
     public function store(Request $request)
     {
-        
+
         session()->flash('form_type', 'add');
 
         $request->merge([
@@ -170,19 +165,19 @@ class ResidentController extends Controller
         ]);
 
         $validated = $request->validate([
-            'firstname' => ['required','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
-            'middlename' => ['nullable','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
-            'lastname'  => ['required','string','min:2','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
-            'suffix' => ['nullable','string','max:10','in:Jr.,Sr.,II,III,IV,V'],
-            'username'  => ['required','string','min:4','max:50','regex:/^[a-zA-Z0-9_.-]+$/','unique:residents,username'],
-            'email'     => 'required|email|max:255|unique:residents,email',
-            'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:' . now()->subYears(18)->toDateString()],
+            'firstname' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
+            'middlename' => ['nullable', 'string', 'min:2', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
+            'lastname' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
+            'suffix' => ['nullable', 'string', 'max:10', 'in:Jr.,Sr.,II,III,IV,V'],
+            'username' => ['required', 'string', 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/', 'unique:residents,username'],
+            'email' => 'required|email|max:255|unique:residents,email',
+            'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:'.now()->subYears(18)->toDateString()],
             'gender' => ['required', 'string', 'in:Male,Female,Prefer not to say'],
             'civil_status' => ['required', 'string', 'in:Single,Married,Widowed,Separated'],
-            'place_of_birth' => ['required','string','max:255',"regex:/^[\pL\s\'\.,-]+$/u"],
-            'password'  => ['required','confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
-            'contact'   => ['required','string','regex:/^09[0-9]{9}$/','unique:residents,contact'],
-            'address'   => 'required|string|max:500',
+            'place_of_birth' => ['required', 'string', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
+            'password' => ['required', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'contact' => ['required', 'string', 'regex:/^09[0-9]{9}$/', 'unique:residents,contact'],
+            'address' => 'required|string|max:500',
             'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'declare_pwd' => ['nullable', 'boolean'],
@@ -191,16 +186,16 @@ class ResidentController extends Controller
             'declare_student' => ['nullable', 'boolean'],
             'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ], [
-            'firstname.regex'   => 'First name can only contain letters, spaces, and hyphens.',
-            'middlename.regex'  => 'Middle name can only contain letters, spaces, and hyphens.',
-            'lastname.regex'    => 'Last name can only contain letters, spaces, and hyphens.',
-            'suffix.regex'      => 'Suffix can only contain letters, spaces, and periods.',
-            'username.regex'    => 'Username can only contain letters, numbers, and underscores.',
-            'username.min'      => 'Username must be at least 4 characters.',
+            'firstname.regex' => 'First name can only contain letters, spaces, and hyphens.',
+            'middlename.regex' => 'Middle name can only contain letters, spaces, and hyphens.',
+            'lastname.regex' => 'Last name can only contain letters, spaces, and hyphens.',
+            'suffix.regex' => 'Suffix can only contain letters, spaces, and periods.',
+            'username.regex' => 'Username can only contain letters, numbers, and underscores.',
+            'username.min' => 'Username must be at least 4 characters.',
             'birthdate.before_or_equal' => 'Resident must be 18 years old or above.',
-            'contact.regex'     => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
-            'password.regex'    => 'Password cannot contain spaces.',
-            'password.*'        => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+            'contact.regex' => 'Contact number must be in the format 09XXXXXXXXX (11 digits).',
+            'password.regex' => 'Password cannot contain spaces.',
+            'password.*' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
             'valid_id.required' => 'Please upload the front side of the resident\'s valid ID.',
             'valid_id_back.required' => 'Please upload the back side of the resident\'s valid ID.',
             'valid_id.mimes' => 'The front valid ID must be JPG, JPEG, PNG, or PDF.',
@@ -331,12 +326,12 @@ class ResidentController extends Controller
                 'remarks.max' => 'Remarks must not exceed 500 characters.',
             ]);
 
-            if (!in_array(strtolower((string) $correction->status), [
+            if (! in_array(strtolower((string) $correction->status), [
                 'pending',
                 'under_review',
                 'in_review',
                 'reviewing',
-                ''
+                '',
             ], true)) {
                 return back()->with(
                     'error',
@@ -384,10 +379,10 @@ class ResidentController extends Controller
 
                 $residentField = $fieldAliases[$field] ?? null;
 
-                if (!$residentField) {
+                if (! $residentField) {
                     return back()->with(
                         'error',
-                        'The requested correction field "' . $correction->field_name . '" cannot be updated automatically.'
+                        'The requested correction field "'.$correction->field_name.'" cannot be updated automatically.'
                     );
                 }
 
@@ -398,7 +393,7 @@ class ResidentController extends Controller
                         $correctValue = null;
                     } elseif (
                         $correctValue !== null &&
-                        !preg_match('/^[a-zA-Z\s\-\.]+$/', $correctValue)
+                        ! preg_match('/^[a-zA-Z\s\-\.]+$/', $correctValue)
                     ) {
                         return back()->with(
                             'error',
@@ -410,7 +405,7 @@ class ResidentController extends Controller
                 if ($residentField === 'suffix') {
                     if (
                         $correctValue !== '' &&
-                        !preg_match('/^[a-zA-Z\s\.,]+$/', $correctValue)
+                        ! preg_match('/^[a-zA-Z\s\.,]+$/', $correctValue)
                     ) {
                         return back()->with(
                             'error',
@@ -423,7 +418,7 @@ class ResidentController extends Controller
 
                 if ($residentField === 'username') {
                     if (
-                        !preg_match('/^[a-zA-Z0-9_]+$/', $correctValue) ||
+                        ! preg_match('/^[a-zA-Z0-9_]+$/', $correctValue) ||
                         strlen($correctValue) < 3
                     ) {
                         return back()->with(
@@ -446,7 +441,7 @@ class ResidentController extends Controller
                 }
 
                 if ($residentField === 'email') {
-                    if (!filter_var($correctValue, FILTER_VALIDATE_EMAIL)) {
+                    if (! filter_var($correctValue, FILTER_VALIDATE_EMAIL)) {
                         return back()->with(
                             'error',
                             'The requested email address is invalid.'
@@ -496,7 +491,7 @@ class ResidentController extends Controller
                 if ($residentField === 'contact') {
                     $correctValue = preg_replace('/\D+/', '', $correctValue);
 
-                    if (!preg_match('/^09[0-9]{9}$/', $correctValue)) {
+                    if (! preg_match('/^09[0-9]{9}$/', $correctValue)) {
                         return back()->with(
                             'error',
                             'The requested contact number must be in the format 09XXXXXXXXX.'
@@ -515,20 +510,20 @@ class ResidentController extends Controller
 
                 if ($residentField === 'gender') {
                     $allowedGenders = ['Male', 'Female', 'Prefer not to say'];
-                    if (!in_array($correctValue, $allowedGenders, true)) {
+                    if (! in_array($correctValue, $allowedGenders, true)) {
                         return back()->with('error', 'The requested gender is invalid.');
                     }
                 }
 
                 if ($residentField === 'civil_status') {
                     $allowedStatuses = ['Single', 'Married', 'Widowed', 'Separated'];
-                    if (!in_array($correctValue, $allowedStatuses, true)) {
+                    if (! in_array($correctValue, $allowedStatuses, true)) {
                         return back()->with('error', 'The requested civil status is invalid.');
                     }
                 }
 
                 if ($residentField === 'place_of_birth') {
-                    if ($correctValue === '' || strlen($correctValue) > 255 || !preg_match('/^[\pL\s\'\.,-]+$/u', $correctValue)) {
+                    if ($correctValue === '' || strlen($correctValue) > 255 || ! preg_match('/^[\pL\s\'\.,-]+$/u', $correctValue)) {
                         return back()->with('error', 'The requested place of birth is invalid.');
                     }
                 }
@@ -581,10 +576,10 @@ class ResidentController extends Controller
 
             $shouldNotify = $request->boolean('notify_email');
 
-            if ($shouldNotify && !empty($resident->email)) {
+            if ($shouldNotify && ! empty($resident->email)) {
                 $residentName = trim(
                     (string) ($resident->full_name ?? (
-                        $resident->firstname . ' ' . $resident->lastname
+                        $resident->firstname.' '.$resident->lastname
                     ))
                 ) ?: 'Resident';
 
@@ -598,23 +593,23 @@ class ResidentController extends Controller
 
                 if ($decision === 'resolved') {
                     $message =
-                        "Hello {$residentName},\n\n" .
-                        "Your profile correction request for {$fieldLabel} has been approved and corrected.\n\n" .
-                        "Previous value: {$correction->current_value}\n" .
-                        "Updated value: {$correction->correct_value}\n\n" .
-                        "Remarks from Barangay Staff:\n{$remarks}\n\n" .
-                        "Your resident profile has been updated successfully.\n\n" .
-                        "Barangay Hulong Duhat";
-                    
+                        "Hello {$residentName},\n\n".
+                        "Your profile correction request for {$fieldLabel} has been approved and corrected.\n\n".
+                        "Previous value: {$correction->current_value}\n".
+                        "Updated value: {$correction->correct_value}\n\n".
+                        "Remarks from Barangay Staff:\n{$remarks}\n\n".
+                        "Your resident profile has been updated successfully.\n\n".
+                        'Barangay Hulong Duhat';
+
                     $subject = 'Profile Correction Approved';
                 } else {
                     $message =
-                        "Hello {$residentName},\n\n" .
-                        "Your profile correction request for {$fieldLabel} was not approved.\n\n" .
-                        "Requested correction: {$correction->correct_value}\n\n" .
-                        "Remarks from Barangay Staff:\n{$remarks}\n\n" .
-                        "Please review the remarks and contact the barangay office if you need further assistance.\n\n" .
-                        "Barangay Hulong Duhat";
+                        "Hello {$residentName},\n\n".
+                        "Your profile correction request for {$fieldLabel} was not approved.\n\n".
+                        "Requested correction: {$correction->correct_value}\n\n".
+                        "Remarks from Barangay Staff:\n{$remarks}\n\n".
+                        "Please review the remarks and contact the barangay office if you need further assistance.\n\n".
+                        'Barangay Hulong Duhat';
 
                     $subject = 'Profile Correction Request Rejected';
                 }
@@ -667,14 +662,14 @@ class ResidentController extends Controller
                 ($decision === 'resolved'
                     ? 'Profile correction approved and the resident information was updated.'
                     : 'Profile correction rejected.')
-                . $emailMessage
+                .$emailMessage
             );
         }
 
         $previousValidIdStatus = (string) ($resident->valid_id_status ?? '');
         $previousValidIdRemarks = (string) ($resident->valid_id_rejection_reason ?? '');
 
-        session()->flash('form_type', 'edit_' . $resident->id);
+        session()->flash('form_type', 'edit_'.$resident->id);
 
         $request->merge([
             'contact' => preg_replace(
@@ -690,27 +685,27 @@ class ResidentController extends Controller
                 'string',
                 'min:2',
                 'max:255',
-                'regex:/^[a-zA-Z\s\-\.]+$/'
+                'regex:/^[a-zA-Z\s\-\.]+$/',
             ],
             'middlename' => [
                 'nullable',
                 'string',
                 'min:2',
                 'max:255',
-                'regex:/^[a-zA-Z\s\-\.]+$/'
+                'regex:/^[a-zA-Z\s\-\.]+$/',
             ],
             'lastname' => [
                 'required',
                 'string',
                 'min:2',
                 'max:255',
-                'regex:/^[a-zA-Z\s\-\.]+$/'
+                'regex:/^[a-zA-Z\s\-\.]+$/',
             ],
             'suffix' => [
                 'nullable',
                 'string',
                 'max:50',
-                'regex:/^[a-zA-Z\s\.,]+$/'
+                'regex:/^[a-zA-Z\s\.,]+$/',
             ],
             'username' => [
                 'required',
@@ -718,19 +713,19 @@ class ResidentController extends Controller
                 'min:3',
                 'max:255',
                 'regex:/^[a-zA-Z0-9_]+$/',
-                'unique:residents,username,' . $resident->id
+                'unique:residents,username,'.$resident->id,
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                'unique:residents,email,' . $resident->id
+                'unique:residents,email,'.$resident->id,
             ],
             'birthdate' => [
                 'required',
                 'date',
                 'before:today',
-                'before_or_equal:' . now()->subYears(18)->toDateString()
+                'before_or_equal:'.now()->subYears(18)->toDateString(),
             ],
             'gender' => ['nullable', 'string', 'max:50'],
             'civil_status' => ['nullable', 'string', 'max:50'],
@@ -738,7 +733,7 @@ class ResidentController extends Controller
             'contact' => [
                 'required',
                 'string',
-                'regex:/^09[0-9]{9}$/'
+                'regex:/^09[0-9]{9}$/',
             ],
             'address' => 'required|string|max:500',
 
@@ -746,23 +741,23 @@ class ResidentController extends Controller
                 'nullable',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:5120'
+                'max:5120',
             ],
             'valid_id_back' => [
                 'nullable',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:5120'
+                'max:5120',
             ],
             'valid_id_status' => [
                 'nullable',
-                'in:for_verification,verified,rejected'
+                'in:for_verification,verified,rejected',
             ],
             'valid_id_rejection_reason' => [
                 'nullable',
                 'string',
                 'max:500',
-                'required_if:valid_id_status,rejected'
+                'required_if:valid_id_status,rejected',
             ],
         ], [
             'firstname.regex' => 'First name can only contain letters, spaces, and hyphens.',
@@ -819,17 +814,16 @@ class ResidentController extends Controller
             if ($status === 'verified') {
                 $hasFront =
                     $request->hasFile('valid_id') ||
-                    !empty($resident->valid_id);
+                    ! empty($resident->valid_id);
 
                 $hasBack =
                     $request->hasFile('valid_id_back') ||
-                    !empty($resident->valid_id_back);
+                    ! empty($resident->valid_id_back);
 
-                if (!$hasFront || !$hasBack) {
+                if (! $hasFront || ! $hasBack) {
                     return back()
                         ->withErrors([
-                            'valid_id_status' =>
-                                'Front and back valid ID images are required before approval.'
+                            'valid_id_status' => 'Front and back valid ID images are required before approval.',
                         ])
                         ->withInput();
                 }
@@ -881,7 +875,7 @@ class ResidentController extends Controller
                 )
             );
 
-            $successMessage .= ' ' .
+            $successMessage .= ' '.
                 $this->formatValidIdNotificationSummary($notificationResult);
         }
 
@@ -905,7 +899,7 @@ class ResidentController extends Controller
         if ($currentStatus !== 'pending') {
             return back()->with(
                 'error',
-                ucfirst($type) . ' classification can only be reviewed while its status is pending.'
+                ucfirst($type).' classification can only be reviewed while its status is pending.'
             );
         }
 
@@ -924,7 +918,6 @@ class ResidentController extends Controller
         $adminId = auth('admin')->id();
         $now = now('Asia/Manila');
 
-
         if ($type === 'pwd') {
             if (empty($resident->pwd_id_front) || empty($resident->pwd_id_back)) {
                 return back()->with(
@@ -936,7 +929,7 @@ class ResidentController extends Controller
             DB::statement(
                 'UPDATE residents
                  SET pwd_status = ?,
-                     is_pwd = ' . ($verified ? 'TRUE' : 'FALSE') . ',
+                     is_pwd = '.($verified ? 'TRUE' : 'FALSE').',
                      pwd_verified_at = ?,
                      pwd_verified_by = ?,
                      pwd_rejection_reason = ?,
@@ -977,7 +970,7 @@ class ResidentController extends Controller
         DB::statement(
             'UPDATE residents
              SET student_status = ?,
-                 is_student = ' . ($verified ? 'TRUE' : 'FALSE') . ',
+                 is_student = '.($verified ? 'TRUE' : 'FALSE').',
                  student_verified_at = ?,
                  student_verified_by = ?,
                  student_rejection_reason = ?,
@@ -1014,7 +1007,7 @@ class ResidentController extends Controller
         $resident->delete();
         $this->log($resident, 'Deactivated');
         $message = 'Resident moved to archive.';
-    
+
         return redirect()->back()->with('success', $message);
     }
 
@@ -1023,7 +1016,7 @@ class ResidentController extends Controller
         $resident = Residents::withTrashed()->findOrFail($id);
         $resident->restore();
         $this->log($resident, 'Restored');
-        
+
         return redirect()->back()->with('success', 'Resident restored successfully.');
     }
 
@@ -1069,14 +1062,14 @@ class ResidentController extends Controller
 
         return redirect()->back()->with(
             'success',
-            'Valid ID for ' . $resident->full_name . ' has been approved. ' . $this->formatValidIdNotificationSummary($notificationResult)
+            'Valid ID for '.$resident->full_name.' has been approved. '.$this->formatValidIdNotificationSummary($notificationResult)
         );
     }
 
     public function rejectValidId(Request $request, int $id)
     {
         $validated = $request->validate([
-            'valid_id_rejection_reason' => ['required','string','max:500'],
+            'valid_id_rejection_reason' => ['required', 'string', 'max:500'],
         ], [
             'valid_id_rejection_reason.required' => 'Remarks are required when rejecting a valid ID.',
             'valid_id_rejection_reason.max' => 'Remarks must not exceed 500 characters.',
@@ -1122,7 +1115,7 @@ class ResidentController extends Controller
 
         return redirect()->back()->with(
             'success',
-            'Valid ID for ' . $resident->full_name . ' has been rejected. ' . $this->formatValidIdNotificationSummary($notificationResult)
+            'Valid ID for '.$resident->full_name.' has been rejected. '.$this->formatValidIdNotificationSummary($notificationResult)
         );
     }
 
@@ -1130,15 +1123,15 @@ class ResidentController extends Controller
     {
         $result = [
             'email' => 'skipped',
-            
+
         ];
 
-        $residentName = trim((string) ($resident->full_name ?? ($resident->firstname . ' ' . $resident->lastname))) ?: 'Resident';
+        $residentName = trim((string) ($resident->full_name ?? ($resident->firstname.' '.$resident->lastname))) ?: 'Resident';
         $remarks = trim($remarks) !== '' ? trim($remarks) : 'No remarks provided.';
 
         $message = "Hello {$residentName}, your valid ID verification was rejected. Remarks: {$remarks} Please log in to your account and upload a clearer front and back copy of your valid ID. - Barangay Hulong Duhat";
 
-        if (!empty($resident->email)) {
+        if (! empty($resident->email)) {
             try {
                 app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verification Rejected', $message);
 
@@ -1155,36 +1148,6 @@ class ResidentController extends Controller
             }
         }
 
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
         return $result;
     }
 
@@ -1196,7 +1159,7 @@ class ResidentController extends Controller
             return $result;
         }
 
-        $residentName = trim((string) ($resident->full_name ?? ($resident->firstname . ' ' . $resident->lastname))) ?: 'Resident';
+        $residentName = trim((string) ($resident->full_name ?? ($resident->firstname.' '.$resident->lastname))) ?: 'Resident';
 
         $message = "Hello {$residentName}, your valid ID has been verified and approved. Your resident account is now fully verified. - Barangay Hulong Duhat";
 
@@ -1239,16 +1202,16 @@ class ResidentController extends Controller
             $failed[] = 'SMS';
         }
 
-        if ($sent && !$failed) {
-            return 'Notification sent via ' . implode(' and ', $sent) . '.';
+        if ($sent && ! $failed) {
+            return 'Notification sent via '.implode(' and ', $sent).'.';
         }
 
         if ($sent && $failed) {
-            return 'Notification sent via ' . implode(' and ', $sent) . ', but ' . implode(' and ', $failed) . ' failed.';
+            return 'Notification sent via '.implode(' and ', $sent).', but '.implode(' and ', $failed).' failed.';
         }
 
         if ($failed) {
-            return 'The ID was rejected, but ' . implode(' and ', $failed) . ' notification failed. Check mail/Semaphore settings.';
+            return 'The ID was rejected, but '.implode(' and ', $failed).' notification failed. Check mail/Semaphore settings.';
         }
 
         return 'No notification was sent because the resident has no email/contact or SMS settings are missing.';
@@ -1259,7 +1222,7 @@ class ResidentController extends Controller
         $digits = preg_replace('/\D+/', '', $contact);
 
         if (preg_match('/^09\d{9}$/', $digits)) {
-            return '63' . substr($digits, 1);
+            return '63'.substr($digits, 1);
         }
 
         if (preg_match('/^639\d{9}$/', $digits)) {
@@ -1271,7 +1234,7 @@ class ResidentController extends Controller
 
     private function logNotification(string $channel, string $recipient, string $status, string $message, int $residentId, ?string $error = null): void
     {
-        if (!class_exists(\App\Models\NotificationLog::class)) {
+        if (! class_exists(\App\Models\NotificationLog::class)) {
             return;
         }
 
@@ -1300,12 +1263,12 @@ class ResidentController extends Controller
     {
         $file = $request->file($field);
 
-        if (!$file || !$file->isValid()) {
-            throw new \RuntimeException('The uploaded classification proof for ' . $field . ' is invalid.');
+        if (! $file || ! $file->isValid()) {
+            throw new \RuntimeException('The uploaded classification proof for '.$field.' is invalid.');
         }
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = $classification . '_' . $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+        $filename = $classification.'_'.$field.'_'.now('Asia/Manila')->format('Ymd_His').'_'.uniqid('', true).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -1318,14 +1281,14 @@ class ResidentController extends Controller
     {
         $file = $request->file($field);
 
-        if (!$file || !$file->isValid()) {
-            throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
+        if (! $file || ! $file->isValid()) {
+            throw new \RuntimeException('The uploaded file for '.$field.' is invalid.');
         }
 
         $uploadDirectory = 'private/valid_id/residents';
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+        $filename = $field.'_'.now('Asia/Manila')->format('Ymd_His').'_'.uniqid('', true).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -1347,7 +1310,7 @@ class ResidentController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:residents,id'
+            'ids.*' => 'exists:residents,id',
         ]);
 
         $residents = Residents::whereIn('id', $request->ids)->get();
@@ -1368,7 +1331,7 @@ class ResidentController extends Controller
                     'archived_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
@@ -1377,74 +1340,15 @@ class ResidentController extends Controller
 
     public function export(Request $request)
     {
-        $request->validate([
-            'ids' => 'nullable|array',
-            'ids.*' => 'exists:residents,id'
-        ]);
-
-        $query = Residents::query();
-
-        if ($request->ids) {
-            $query->whereIn('id', $request->ids);
-        } else {
-            $query->whereIn('id', Residents::pluck('id'));
-        }
-
-        $residents = $query->get();
-
-        $filename = 'residents_' . now()->format('Y-m-d_His') . '.csv'; 
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=$filename",
-        ];
-
-        $callback = function () use ($residents) {
-            $file = fopen('php://output', 'w');
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, ['ID', 'Name', 'Email', 'Contact', 'Address', 'Username', 'Birthdate', 'Created At']);
-
-            foreach ($residents as $r) {
-                $full_name = $r->firstname . ' ' . $r->lastname;
-                fputcsv($file, [
-                    $r->id, $full_name, $r->email, $r->contact, $r->address, 
-                    $r->username, $r->birthdate, $r->created_at
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        if (auth('admin')->check()) {
-            $exportCount = Residents::query()->when($request->ids, function($q) use ($request) {
-                return $q->whereIn('id', $request->ids);
-            })->count();
-            
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'EXPORT',
-                'module' => 'Residents',
-                'details' => [
-                    'ids' => $request->ids ?: 'all',
-                    'count' => $exportCount,
-                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                    'file_format' => 'CSV'
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
-
-        return response()->stream($callback, 200, $headers);
+        return app(\App\Services\AdminRecordExport::class)->download($request, 'residents');
     }
 
-    private function log(Residents $resident, string $action) : void
+    private function log(Residents $resident, string $action): void
     {
         ResidentActivity::create([
             'residents_id' => $resident->id,
             'action' => $action,
-            'description' => $action . " by " . (auth('admin')->user()?->full_name),
+            'description' => $action.' by '.(auth('admin')->user()?->full_name),
         ]);
     }
 }

@@ -127,4 +127,8 @@
                 addPermissionSearch();
                 keepModalFocusClean();
             });
+            document.addEventListener('admin:dialog-loaded', function () {
+                enhanceModalHeaders();
+                addPermissionSearch();
+            });
         })();

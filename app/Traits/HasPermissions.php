@@ -1,104 +1,68 @@
 <?php
 
-
 namespace App\Traits;
 
 trait HasPermissions
 {
-    
-    
-    
-    
-    
+    // Relations live on this request's model instance. Reuse eager-loaded
+    // collections instead of issuing one EXISTS query for every UI checkbox.
     public function hasPermission($permission)
     {
-        if (!$this->role && !$this->permissions()->exists()) {
-            return false;
-        }
-        
         if ($this->isSuperAdmin()) {
             return true;
         }
-        
-        $hasRolePermission = $this->role
-            ? $this->role->permissions()->where('name', $permission)->exists()
-            : false;
 
-        $hasDirectPermission = $this->permissions()->where('name', $permission)->exists();
-
-        return $hasRolePermission || $hasDirectPermission;
+        return ($this->role && $this->role->permissions->contains('name', $permission))
+            || $this->permissions->contains('name', $permission);
     }
 
     public function hasAnyPermission(array $permissions)
     {
-        if (!$this->role && !$this->permissions()->exists()) {
-            return false;
-        }
-        
         if ($this->isSuperAdmin()) {
             return true;
         }
-        
-        $hasRolePermission = $this->role
-            ? $this->role->permissions()->whereIn('name', $permissions)->exists()
-            : false;
 
-        $hasDirectPermission = $this->permissions()->whereIn('name', $permissions)->exists();
-
-        return $hasRolePermission || $hasDirectPermission;
+        return $this->getAllPermissions()->whereIn('name', $permissions)->isNotEmpty();
     }
 
     public function hasAllPermissions($permissions)
     {
-        if (!$this->role) {
+        if (! $this->role) {
             return false;
         }
-
         if ($this->isSuperAdmin()) {
             return true;
         }
-
         foreach ($permissions as $permission) {
-            if (!$this->hasPermission($permission)) {
+            if (! $this->hasPermission($permission)) {
                 return false;
             }
         }
+
         return true;
     }
 
     public function hasModuleAccess($module)
     {
-        if (!$this->role) {
+        if (! $this->role) {
             return false;
         }
-
         if ($this->isSuperAdmin()) {
             return true;
         }
 
-        return $this->role->permissions()
-            ->where('module', $module)
-            ->count();
+        return $this->role->permissions->where('module', $module)->count();
     }
 
     public function getAllPermissions()
     {
-        if (!$this->role && !$this->permissions()->exists()) {
-            return collect();
-        }
-
         $rolePermissions = $this->role ? $this->role->permissions : collect();
-        $directPermissions = $this->permissions;
 
-        return $rolePermissions->merge($directPermissions)->unique('id')->values();
+        return $rolePermissions->merge($this->permissions)->unique('id')->values();
     }
 
     public function getPermissionNames()
     {
-        if (!$this->role && !$this->permissions()->exists()) {
-            return collect();
-        }
-
         return $this->getAllPermissions()->pluck('name');
     }
 
@@ -107,7 +71,6 @@ trait HasPermissions
         return $this->role && $this->role->name === 'super_admin';
     }
 
-    
     public function isBarangayCaptain()
     {
         return $this->role && $this->role->name === 'barangay_captain';

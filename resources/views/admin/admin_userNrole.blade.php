@@ -295,7 +295,7 @@
                                                 </form>
                                                 @endadmin_can
 
-                                                @if($user->role->name != 'super_admin' && auth('admin')->user()->hasPermission('delete_users'))
+                                                @if($user->role?->name != 'super_admin' && auth('admin')->user()->hasPermission('delete_users'))
                                                 <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" style="display: inline;" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Delete this user permanently?']) }}">
                                                     @csrf
                                                     @method('DELETE')
@@ -992,9 +992,6 @@
                                     </div>
 
                                     <div class="col-12">
-                                        @php
-                                            $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
-                                        @endphp
 
                                         @foreach($allPermissions as $module => $permissions)
                                             <div class="permission-module mb-3">
@@ -1258,128 +1255,12 @@
 
             @if(auth('admin')->user()->hasPermission('manage_user_permissions'))
                 @forelse($users ?? [] as $user)
-                <div class="modal fade" id="userPermissionsModal{{ $user->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-shield-alt me-2"></i>
-                                    Manage User Permissions
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="POST" action="{{ route('admin.users.permissions', $user->id) }}" id="userPermissionsForm{{ $user->id }}">
-                                @csrf
-                                    @php
-                                        $isSuperAdminUser = $user->role && $user->role->name === 'super_admin';
-                                    @endphp
-                                    <div class="mb-4">
-                                        <div class="d-flex align-items-center gap-3 mb-3">
-                                            <div class="user-avatar">{{ substr($user->first_name ?? 'J', 0, 1) }}{{ substr($user->last_name ?? 'D', 0, 1) }}</div>
-                                            <div>
-                                                <h6 class="mb-1">{{ $user->first_name ?? 'Juan' }} {{ $user->last_name ?? 'Dela Cruz' }}</h6>
-                                                <span class="role-badge {{ $user->role->name ?? 'staff' }}">{{ $user->role->display_name ?? 'Staff' }}</span>
-                                            </div>
-                                        </div>
-                                        <p class="text-muted small mb-0">Configure additional permissions for this user beyond their role-based permissions.</p>
-                                    </div>
-
-                                    @if($isSuperAdminUser)
-                                    <div class="alert alert-info d-flex align-items-center" role="alert">
-                                        <i class="fas fa-lock me-2"></i>
-                                        <div>Super admin permissions are fixed and cannot be modified.</div>
-                                    </div>
-                                    @endif
-
-                                    <div class="permissions-grid" style="grid-template-columns: 1fr;">
-                                        @php
-                                            $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
-                                        @endphp
-
-                                        @foreach($allPermissions as $module => $permissions)
-                                        <div class="permission-module">
-                                            <div class="module-header">
-                                                <h4>
-                                                    @switch($module)
-                                                        @case('dashboard')
-                                                            <i class="fas fa-chart-line me-2 text-primary"></i>
-                                                            @break
-                                                        @case('residents')
-                                                            <i class="fas fa-users me-2 text-primary"></i>
-                                                            @break
-                                                        @case('residency')
-                                                        @case('indigency')
-                                                        @case('clearance')
-                                                            <i class="fas fa-file-alt me-2 text-primary"></i>
-                                                            @break
-                                                        @case('blotter')
-                                                            <i class="fas fa-book me-2 text-primary"></i>
-                                                            @break
-                                                        @case('announcements')
-                                                            <i class="fas fa-bullhorn me-2 text-primary"></i>
-                                                            @break
-                                                        @case('events')
-                                                            <i class="fas fa-calendar me-2 text-primary"></i>
-                                                            @break
-                                                        @case('projects')
-                                                            <i class="fas fa-project-diagram me-2 text-primary"></i>
-                                                            @break
-                                                        @case('requests')
-                                                            <i class="fas fa-inbox me-2 text-primary"></i>
-                                                            @break
-                                                        @case('notifications')
-                                                            <i class="fas fa-bell me-2 text-primary"></i>
-                                                            @break
-                                                        @case('users')
-                                                            <i class="fas fa-user-cog me-2 text-primary"></i>
-                                                            @break
-                                                        @case('roles')
-                                                            <i class="fas fa-shield-alt me-2 text-primary"></i>
-                                                            @break
-                                                        @case('permissions')
-                                                            <i class="fas fa-lock me-2 text-primary"></i>
-                                                            @break
-                                                        @default
-                                                            <i class="fas fa-cog me-2 text-primary"></i>
-                                                    @endswitch
-                                                    {{ $module }}
-                                                </h4>
-                                            </div>
-                                            <div class="module-permissions">
-                                                @foreach($permissions as $permission)
-                                                <div class="perm-item">
-                                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="user_perm_{{ $permission->id }}_{{ $user->id }}"
-                                                        {{ $user->hasPermission($permission->name) ? 'checked' : '' }}
-                                                        {{ $isSuperAdminUser ? 'disabled' : '' }}>
-                                                    <label for="user_perm_{{ $permission->id }}_{{ $user->id }}">{{ $permission->display_name }}</label>
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </div>
-
-                                    @if(session('form_type') == 'user_permissions_' . $user->id)
-                                        @error('permissions')
-                                            <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
-                                        @enderror
-                                        @error('permissions.*')
-                                            <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
-                                        @enderror
-                                    @endif
-                                </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" form="userPermissionsForm{{ $user->id }}" class="btn btn-success" {{ $isSuperAdminUser ? 'disabled' : '' }}>
-                                        <i class="fas fa-save me-2"></i>Save Permissions
-                                    </button>
-                                </div>
-                        </div>
-                    </div>
+                <div class="modal fade" id="userPermissionsModal{{ $user->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" @if(!(session('form_type') === 'user_permissions_' . $user->id)) data-lazy-modal-url="{{ route('admin.users.dialog', ['type' => 'user-permissions', 'id' => $user->id]) }}" @endif>
+                    @if(session('form_type') === 'user_permissions_' . $user->id)
+                        @include('admin.partials.user-permissions-dialog')
+                    @else
+                        @include('admin.partials.loading-dialog')
+                    @endif
                 </div>
                 @empty
                 @endforelse
@@ -1388,153 +1269,13 @@
             @if(auth('admin')->user()->hasPermission('update_roles'))
                 @if(isset($roles) && $roles->count() > 0)
                     @foreach($roles as $role)
-                    <div class="modal fade" id="editRoleModal{{ $role->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        <i class="fas fa-shield-edit me-2"></i>
-                                        Edit Role: {{ $role->display_name ?? $role->name }}
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form method="POST" action="{{ route('admin.roles.update', $role->id) }}" id="editRoleForm{{ $role->id }}">
-                                    @csrf
-                                    @method('PUT')
-                                        <div class="row g-3">
-                                            @if($role->is_system_role)
-                                            <div class="col-12">
-                                                <div class="alert alert-info d-flex align-items-center" role="alert">
-                                                    <i class="fas fa-info-circle me-2 fs-5"></i>
-                                                    <div>This is a system role with limited edit capabilities.</div>
-                                                </div>
-                                            </div>
-                                            @endif
-
-                                            <div class="col-12 col-md-6">
-                                                <label class="form-label">Role Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                    name="name" value="{{ old('name', $role->name) }}"
-                                                    {{ $role->is_system_role ? 'readonly' : '' }} required>
-                                                @error('name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                                <small class="text-muted">System name (lowercase, no spaces)</small>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <label class="form-label">Display Name</label>
-                                                <input type="text" class="form-control @error('display_name') is-invalid @enderror"
-                                                    name="display_name" value="{{ old('display_name', $role->display_name) }}">
-                                                @error('display_name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-12">
-                                                <label class="form-label">Description</label>
-                                                <textarea class="form-control @error('description') is-invalid @enderror"
-                                                        name="description" rows="2">{{ old('description', $role->description) }}</textarea>
-                                                @error('description')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            @if(!$role->is_system_role && auth('admin')->user()->hasPermission('manage_role_permissions'))
-                                            <div class="col-12 mt-3">
-                                                <h6 class="fw-semibold text-primary">Role Permissions</h6>
-                                                <p class="text-muted small">Configure which permissions this role should have</p>
-                                            </div>
-
-                                            <div class="col-12">
-                                                @php
-                                                    $allPermissions = \App\Models\AdminPermission::all()->groupBy('module');
-                                                    $rolePermissionIds = $role->permissions->pluck('id')->toArray();
-                                                @endphp
-
-                                                @foreach($allPermissions as $module => $permissions)
-                                                    <div class="permission-module mb-3">
-                                                        <div class="module-header">
-                                                            <h4 class="mb-0">
-                                                                @switch($module)
-                                                                    @case('dashboard')
-                                                                        <i class="fas fa-chart-line me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('residents')
-                                                                        <i class="fas fa-users me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('residency')
-                                                                    @case('indigency')
-                                                                    @case('clearance')
-                                                                        <i class="fas fa-file-alt me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('blotter')
-                                                                        <i class="fas fa-book me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('announcements')
-                                                                        <i class="fas fa-bullhorn me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('events')
-                                                                        <i class="fas fa-calendar me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('projects')
-                                                                        <i class="fas fa-project-diagram me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('requests')
-                                                                        <i class="fas fa-inbox me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('notifications')
-                                                                        <i class="fas fa-bell me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('users')
-                                                                        <i class="fas fa-user-cog me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('roles')
-                                                                        <i class="fas fa-shield-alt me-2 text-primary"></i>
-                                                                        @break
-                                                                    @case('permissions')
-                                                                        <i class="fas fa-lock me-2 text-primary"></i>
-                                                                        @break
-                                                                    @default
-                                                                        <i class="fas fa-cog me-2 text-primary"></i>
-                                                                @endswitch
-                                                                {{ $module }}
-                                                            </h4>
-                                                        </div>
-                                                        <div class="module-permissions">
-                                                            <div class="permission-checklist">
-                                                                @foreach($permissions as $permission)
-                                                                <div class="perm-check">
-                                                                    <label>
-                                                                        <input type="checkbox"
-                                                                            name="permissions[]"
-                                                                            value="{{ $permission->id }}"
-                                                                            {{ in_array($permission->id, $rolePermissionIds) ? 'checked' : '' }}>
-                                                                        {{ $permission->display_name }}
-                                                                    </label>
-                                                                </div>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                            @endif
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                            <i class="fas fa-times me-2"></i>Cancel
-                                        </button>
-                                        <button type="submit" form="editRoleForm{{ $role->id }}" class="btn btn-primary" {{ $role->is_system_role ? 'disabled' : '' }}>
-                                            <i class="fas fa-save me-2"></i>Update Role
-                                        </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="modal fade" id="editRoleModal{{ $role->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" @if(!(session('form_type') === 'edit_role_' . $role->id)) data-lazy-modal-url="{{ route('admin.users.dialog', ['type' => 'role-edit', 'id' => $role->id]) }}" @endif>
+                    @if(session('form_type') === 'edit_role_' . $role->id)
+                        @include('admin.partials.role-edit-dialog')
+                    @else
+                        @include('admin.partials.loading-dialog')
+                    @endif
+                </div>
                     @endforeach
                 @endif
             @endif

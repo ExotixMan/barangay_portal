@@ -3,36 +3,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\DocumentTemplateStorageService;
-use App\Support\HandlesPrivateUploads;
+use App\Models\AdminActivityLog;
 use App\Models\IndigencyApplication;
 use App\Models\Residents;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use PhpOffice\PhpWord\TemplateProcessor;
-use Carbon\Carbon;
 use App\Models\StatusRemarkHistory;
+use App\Services\DocumentTemplateStorageService;
+use App\Support\HandlesPrivateUploads;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\AdminActivityLog;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB; 
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class IndigencyController extends Controller
 {
     use HandlesPrivateUploads;
+
     public function index(Request $request)
     {
         $query = IndigencyApplication::query();
 
-        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
+        $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? '');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -43,21 +44,21 @@ class IndigencyController extends Controller
                 $query->where('status', $request->status);
             }
         }
-        
+
         if ($request->monthly_income && in_array($request->monthly_income, ['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])) {
             $query->where('monthly_income', $request->monthly_income);
         }
 
-        $total_count = IndigencyApplication::withTrashed()->count(); 
+        $total_count = IndigencyApplication::withTrashed()->count();
         $processing_count = IndigencyApplication::where('status', 'processing')->count();
-        $approved_count   = IndigencyApplication::where('status', 'approved')->count();
-        $rejected_count   = IndigencyApplication::where('status', 'rejected')->count();
+        $approved_count = IndigencyApplication::where('status', 'approved')->count();
+        $rejected_count = IndigencyApplication::where('status', 'rejected')->count();
 
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
-        $allowedSorts = ['first_name', 'monthly_income', 'household_members','created_at'];
-        
-        if (!in_array($sort, $allowedSorts)) {
+        $allowedSorts = ['first_name', 'monthly_income', 'household_members', 'created_at'];
+
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
@@ -94,7 +95,7 @@ class IndigencyController extends Controller
 
     public function store(Request $request)
     {
-        
+
         session()->flash('form_type', 'add');
 
         $request->merge([
@@ -146,40 +147,40 @@ class IndigencyController extends Controller
 
             'household_members' => [
                 'required',
-                'regex:/^(?:[1-9]|1\d|20)$/'
+                'regex:/^(?:[1-9]|1\d|20)$/',
             ],
 
             'purpose' => [
                 'required',
-                'in:medical,scholarship,government,legal,employment,burial,other'
+                'in:medical,scholarship,government,legal,employment,burial,other',
             ],
 
             'purpose_other' => [
                 'required_if:purpose,other',
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'primary_proof' => [
                 'required',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:5120'
+                'max:5120',
             ],
 
             'valid_id_path' => [
                 'nullable',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:5120'
+                'max:5120',
             ],
 
             'valid_id_back_path' => [
                 'nullable',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:5120'
+                'max:5120',
             ],
         ]);
 
@@ -207,35 +208,35 @@ class IndigencyController extends Controller
         }
 
         try {
-            
+
             if ($request->hasFile('primary_proof')) {
                 $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
-                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proofName = time().'_proof_'.Str::random(5).'.'.$proofExt;
                 $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/indigency', 'proof');
             }
 
-            if ($request->hasFile('valid_id_path')){
+            if ($request->hasFile('valid_id_path')) {
                 $vip = $request->file('valid_id_path');
                 $vip_ext = $vip->getClientOriginalExtension();
-                $vip_name = time() . '_id_front_' . Str::random(5) . '.' . $vip_ext;
+                $vip_name = time().'_id_front_'.Str::random(5).'.'.$vip_ext;
                 $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/indigency', 'id_front');
             }
 
-            if ($request->hasFile('valid_id_back_path')){
+            if ($request->hasFile('valid_id_back_path')) {
                 $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
-                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBackName = time().'_id_back_'.Str::random(5).'.'.$vipBackExt;
                 $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/indigency', 'id_back');
             }
 
-            $data['reference_number'] = 'IND-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
+            $data['reference_number'] = 'IND-'.now()->format('YmdHis').'-'.strtoupper(Str::random(4));
 
             $data['status'] = 'processing';
 
             IndigencyApplication::create($data);
 
-            return redirect()->route('admin.indigency.index') 
+            return redirect()->route('admin.indigency.index')
                 ->with('success', 'Indigency added successfully.');
 
         } catch (\Exception $e) {
@@ -248,7 +249,7 @@ class IndigencyController extends Controller
     {
         $application = IndigencyApplication::findOrFail($id);
 
-        session()->flash('form_type', 'edit_' . $application->id);
+        session()->flash('form_type', 'edit_'.$application->id);
 
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
@@ -283,23 +284,23 @@ class IndigencyController extends Controller
 
         try {
             if ($request->hasFile('primary_proof')) {
-$proof = $request->file('primary_proof');
+                $proof = $request->file('primary_proof');
                 $proofExt = $proof->getClientOriginalExtension();
-                $proofName = time() . '_proof_' . Str::random(5) . '.' . $proofExt;
+                $proofName = time().'_proof_'.Str::random(5).'.'.$proofExt;
                 $data['primary_proof'] = $this->storePrivateUpload($proof, 'proof_of_residency/indigency', 'proof');
             }
 
             if ($request->hasFile('valid_id_path')) {
-$vip = $request->file('valid_id_path');
+                $vip = $request->file('valid_id_path');
                 $vipExt = $vip->getClientOriginalExtension();
-                $vipName = time() . '_id_front_' . Str::random(5) . '.' . $vipExt;
+                $vipName = time().'_id_front_'.Str::random(5).'.'.$vipExt;
                 $data['valid_id_path'] = $this->storePrivateUpload($vip, 'valid_id/indigency', 'id_front');
             }
 
             if ($request->hasFile('valid_id_back_path')) {
-$vipBack = $request->file('valid_id_back_path');
+                $vipBack = $request->file('valid_id_back_path');
                 $vipBackExt = $vipBack->getClientOriginalExtension();
-                $vipBackName = time() . '_id_back_' . Str::random(5) . '.' . $vipBackExt;
+                $vipBackName = time().'_id_back_'.Str::random(5).'.'.$vipBackExt;
                 $data['valid_id_back_path'] = $this->storePrivateUpload($vipBack, 'valid_id/indigency', 'id_back');
             }
 
@@ -323,9 +324,9 @@ $vipBack = $request->file('valid_id_back_path');
         $application = IndigencyApplication::findOrFail($id);
 
         $allowedStatuses = ['pending', 'under_review', 'processing', 'approved', 'ready_pickup', 'claimed', 'rejected'];
-        
+
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'status' => 'required|in:'.implode(',', $allowedStatuses),
             'remarks' => 'nullable|required_if:status,rejected|string|max:40',
         ], [
             'status.required' => 'Choose the new request status before saving.',
@@ -337,8 +338,6 @@ $vipBack = $request->file('valid_id_back_path');
         $newStatus = $request->status;
         $oldStatus = $application->status;
         $remarks = trim((string) $request->input('remarks', ''));
-
-        
 
         $application->status = $newStatus;
         $application->status_updated_at = now();
@@ -370,7 +369,7 @@ $vipBack = $request->file('valid_id_back_path');
                     'approved_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
@@ -378,15 +377,15 @@ $vipBack = $request->file('valid_id_back_path');
 
         $deliverySummary = $this->formatDeliverySummary($deliveryResults);
 
-        return back()->with('success', "Application #{$application->reference_number} status updated from " . 
-            ucfirst(str_replace('_', ' ', $oldStatus)) . " to {$statusDisplay}. Notifications: {$deliverySummary}.");
+        return back()->with('success', "Application #{$application->reference_number} status updated from ".
+            ucfirst(str_replace('_', ' ', $oldStatus))." to {$statusDisplay}. Notifications: {$deliverySummary}.");
     }
 
     private function sendStatusNotifications(Request $request, IndigencyApplication $application, string $status, string $remarks): array
     {
         $results = ['email' => 'not selected', 'sms' => 'not selected'];
         $allowed = ['approved', 'ready_pickup', 'rejected'];
-        if (!in_array($status, $allowed, true)) {
+        if (! in_array($status, $allowed, true)) {
             return ['email' => 'not available for status', 'sms' => 'not available for status'];
         }
 
@@ -397,24 +396,24 @@ $vipBack = $request->file('valid_id_back_path');
             if (empty($application->email)) {
                 $results['email'] = 'failed (missing email)';
             } else {
-            try {
-                $message = "Your barangay indigency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
-                app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name . ' ' . $application->last_name), $message);
+                try {
+                    $message = "Your barangay indigency application (Ref: {$application->reference_number}) status is now {$statusLabel}.{$remarksText}";
+                    app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name.' '.$application->last_name), $message);
 
-                $this->storeNotificationHistory(
-                    'indigency',
-                    (int) $application->id,
-                    (string) $application->reference_number,
-                    $status,
-                    $remarks !== '' ? $remarks : 'Email status update sent.',
-                    'email',
-                    $application->email
-                );
-                $results['email'] = 'sent';
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending indigency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['email'] = 'failed';
-            }
+                    $this->storeNotificationHistory(
+                        'indigency',
+                        (int) $application->id,
+                        (string) $application->reference_number,
+                        $status,
+                        $remarks !== '' ? $remarks : 'Email status update sent.',
+                        'email',
+                        $application->email
+                    );
+                    $results['email'] = 'sent';
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending indigency status email.', ['error' => $e->getMessage(), 'id' => $application->id]);
+                    $results['email'] = 'failed';
+                }
             }
         }
 
@@ -422,40 +421,40 @@ $vipBack = $request->file('valid_id_back_path');
             if (empty($application->contact_number)) {
                 $results['sms'] = 'failed (missing mobile number)';
             } else {
-            try {
-                $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
-                if (substr($recipient, 0, 1) === '0') {
-                    $recipient = '63' . substr($recipient, 1);
-                } elseif (substr($recipient, 0, 1) === '9') {
-                    $recipient = '63' . $recipient;
-                }
+                try {
+                    $recipient = preg_replace('/\D/', '', (string) $application->contact_number);
+                    if (substr($recipient, 0, 1) === '0') {
+                        $recipient = '63'.substr($recipient, 1);
+                    } elseif (substr($recipient, 0, 1) === '9') {
+                        $recipient = '63'.$recipient;
+                    }
 
-                $smsMessage = "Indigency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
-                $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
-                    'apikey' => env('SMS_API_KEY'),
-                    'number' => $recipient,
-                    'message' => $smsMessage,
-                    'sendername' => env('SMS_SENDER_NAME'),
-                ]);
+                    $smsMessage = "Indigency {$application->reference_number}: status {$statusLabel}.{$remarksText}";
+                    $response = Http::asForm()->post('https://semaphore.co/api/v4/messages', [
+                        'apikey' => env('SMS_API_KEY'),
+                        'number' => $recipient,
+                        'message' => $smsMessage,
+                        'sendername' => env('SMS_SENDER_NAME'),
+                    ]);
 
-                if ($response->successful()) {
-                    $this->storeNotificationHistory(
-                        'indigency',
-                        (int) $application->id,
-                        (string) $application->reference_number,
-                        $status,
-                        $remarks !== '' ? $remarks : 'SMS status update sent.',
-                        'sms',
-                        $recipient
-                    );
-                    $results['sms'] = 'sent';
-                } else {
+                    if ($response->successful()) {
+                        $this->storeNotificationHistory(
+                            'indigency',
+                            (int) $application->id,
+                            (string) $application->reference_number,
+                            $status,
+                            $remarks !== '' ? $remarks : 'SMS status update sent.',
+                            'sms',
+                            $recipient
+                        );
+                        $results['sms'] = 'sent';
+                    } else {
+                        $results['sms'] = 'failed';
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed sending indigency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
                     $results['sms'] = 'failed';
                 }
-            } catch (\Throwable $e) {
-                Log::warning('Failed sending indigency status SMS.', ['error' => $e->getMessage(), 'id' => $application->id]);
-                $results['sms'] = 'failed';
-            }
             }
         }
 
@@ -464,7 +463,7 @@ $vipBack = $request->file('valid_id_back_path');
 
     private function formatDeliverySummary(array $results): string
     {
-        return 'Email ' . ($results['email'] ?? 'not selected') . ', SMS ' . ($results['sms'] ?? 'not selected');
+        return 'Email '.($results['email'] ?? 'not selected').', SMS '.($results['sms'] ?? 'not selected');
     }
 
     private function storeNotificationHistory(string $requestType, int $requestId, string $reference, string $status, string $remarks, string $channel, ?string $recipient): void
@@ -506,7 +505,7 @@ $vipBack = $request->file('valid_id_back_path');
                 ->get();
 
             foreach ($applications as $application) {
-                
+
                 $application->delete();
             }
 
@@ -531,124 +530,13 @@ $vipBack = $request->file('valid_id_back_path');
 
         return back()->with(
             'success',
-            $archivedCount . ' selected application(s) archived successfully.'
+            $archivedCount.' selected application(s) archived successfully.'
         );
     }
 
     public function export(Request $request)
     {
-        $request->validate([
-            'ids' => 'nullable|array',
-            'ids.*' => 'exists:indigency_applications,id'
-        ]);
-
-        $query = IndigencyApplication::query();
-
-        if ($request->ids) {
-            $query->whereIn('id', $request->ids);
-        }
-
-        $applications = $query->get();
-
-        $filename = 'indigency_applications_' . now()->format('Y-m-d_His') . '.csv'; 
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=$filename",
-        ];
-
-        $callback = function () use ($applications) {
-            $file = fopen('php://output', 'w');
-
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, [
-                'ID',
-                'Reference Number',
-                'Full Name',
-                'First Name',
-                'Middle Name',
-                'Last Name',
-                'Suffix',
-                'Birthdate',
-                'Gender',
-                'Address',
-                'Contact Number',
-                'Email',
-                'Monthly Income',
-                'Household Members',
-                'Purpose',
-                'Purpose Other',
-                'Status',
-                'Created At',
-                'Updated At'
-            ]);
-
-            foreach ($applications as $app) {
-
-                $full_name = trim(
-                    $app->first_name . ' ' .
-                    $app->middle_name . ' ' .
-                    $app->last_name . ' ' .
-                    $app->suffix
-                );
-
-                $incomeDisplay = match ($app->monthly_income) {
-                    'below 5k' => 'Below ₱5,000',
-                    '5k-8k' => '₱5,000 – ₱8,000',
-                    '8k-10k' => '₱8,001 – ₱10,000',
-                    '10k-15k' => '₱10,001 – ₱15,000',
-                    'no income' => 'No fixed income',
-                    default => $app->monthly_income,
-                };
-
-                fputcsv($file, [
-                    $app->id,
-                    $app->reference_number,
-                    $full_name,
-                    $app->first_name,
-                    $app->middle_name,
-                    $app->last_name,
-                    $app->suffix,
-                    $app->birthdate,
-                    $app->gender,
-                    $app->address,
-                    $app->contact_number,
-                    $app->email,
-                    $incomeDisplay,
-                    $app->household_members,
-                    $app->purpose,
-                    $app->purpose_other,
-                    $app->status,
-                    $app->created_at,
-                    $app->updated_at,
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        if (auth('admin')->check()) {
-            $exportCount = IndigencyApplication::query()->when($request->ids, function($q) use ($request) {
-                return $q->whereIn('id', $request->ids);
-            })->count();
-            
-            \App\Models\AdminActivityLog::create([
-                'user_id' => auth('admin')->id(),
-                'action' => 'EXPORT',
-                'module' => 'Indigency',
-                'details' => [
-                    'ids' => $request->ids ?: 'all',
-                    'count' => $exportCount,
-                    'exported_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                    'file_format' => 'CSV'
-                ],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-        }
-
-        return response()->stream($callback, 200, $headers);
+        return app(\App\Services\AdminRecordExport::class)->download($request, 'indigency');
     }
 
     public function destroy(int $id)
@@ -683,7 +571,7 @@ $vipBack = $request->file('valid_id_back_path');
 
         return back()->with(
             'success',
-            'Application #' . $reference . ' archived successfully.'
+            'Application #'.$reference.' archived successfully.'
         );
     }
 
@@ -709,14 +597,14 @@ $vipBack = $request->file('valid_id_back_path');
             ]);
         }
 
-        return back()->with('success', 'Application #' . $reference . ' restored successfully.');
+        return back()->with('success', 'Application #'.$reference.' restored successfully.');
     }
 
     public function bulkRestore(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:indigency_applications,id'
+            'ids.*' => 'exists:indigency_applications,id',
         ]);
 
         IndigencyApplication::withTrashed()
@@ -735,22 +623,24 @@ $vipBack = $request->file('valid_id_back_path');
 
         $templatePath = app(DocumentTemplateStorageService::class)->path('Doc2.docx');
 
-        if (!file_exists($templatePath)) {
+        if (! file_exists($templatePath)) {
             abort(404, 'Word template not found');
         }
 
-        $full_name = trim($record->first_name . ' ' . $record->middle_name . ' ' . $record->last_name . ' ' . $record->suffix);
+        $full_name = trim($record->first_name.' '.$record->middle_name.' '.$record->last_name.' '.$record->suffix);
 
         $templateProcessor = new TemplateProcessor($templatePath);
         $templateProcessor->setValue('SERVICE_TYPE', 'Certification of Indigency');
         $templateProcessor->setValue('FULL_NAME', $full_name);
-        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y')); 
+        $templateProcessor->setValue('DATE_ISSUED', Carbon::parse($record->created_at)->format('F d, Y'));
 
-        $fileName = 'certification_of_indigency_' . $record->reference_number . '.docx';
+        $fileName = 'certification_of_indigency_'.$record->reference_number.'.docx';
         $outputDir = storage_path('app/generated');
-        if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
+        if (! is_dir($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
 
-        $docxPath = $outputDir . '/' . $fileName;
+        $docxPath = $outputDir.'/'.$fileName;
         $templateProcessor->saveAs($docxPath);
 
         if (auth('admin')->check()) {
@@ -767,13 +657,13 @@ $vipBack = $request->file('valid_id_back_path');
                     'downloaded_by' => auth('admin')->user()?->full_name ?? 'Admin',
                 ],
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
         if ($action === 'print') {
-            $pdfFileName = 'indigency_' . ($record->reference_number ?? $record->id) . '.pdf';
-            $pdfPath = $outputDir . '/' . $pdfFileName;
+            $pdfFileName = 'indigency_'.($record->reference_number ?? $record->id).'.pdf';
+            $pdfPath = $outputDir.'/'.$pdfFileName;
             try {
                 app(\App\Services\DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
             } catch (\Throwable $e) {
