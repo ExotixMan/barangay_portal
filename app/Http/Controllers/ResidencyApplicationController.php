@@ -5,12 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ResidencyApplication;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
-use App\Support\NotifiesAdmins;
 use App\Support\HandlesPrivateUploads;
+use App\Support\NotifiesAdmins;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -18,7 +17,7 @@ use Throwable;
 
 class ResidencyApplicationController extends Controller
 {
-    use NotifiesAdmins, HandlesPrivateUploads;
+    use HandlesPrivateUploads, NotifiesAdmins;
 
     public function index()
     {
@@ -53,7 +52,7 @@ class ResidencyApplicationController extends Controller
         if (! empty($missingProfileFields)) {
             return back()
                 ->withErrors([
-                    'profile' => 'Your resident profile is incomplete: ' . implode(', ', $missingProfileFields) . '. Please contact the barangay office to correct your information.',
+                    'profile' => 'Your resident profile is incomplete: '.implode(', ', $missingProfileFields).'. Please contact the barangay office to correct your information.',
                 ])
                 ->withInput();
         }
@@ -94,6 +93,7 @@ class ResidencyApplicationController extends Controller
 
         $validated = $request->validate($rules);
 
+        $uploadedPaths = [];
         try {
             $referenceNumber = $this->generateReferenceNumber();
 
@@ -107,6 +107,7 @@ class ResidencyApplicationController extends Controller
                     'uploads/proof_of_residency/residency',
                     'proof'
                 );
+                $uploadedPaths[] = $primaryProofPath;
             }
 
             if ($request->hasFile('government_id')) {
@@ -115,6 +116,7 @@ class ResidencyApplicationController extends Controller
                     'uploads/valid_id/residency',
                     'valid_id_front'
                 );
+                $uploadedPaths[] = $governmentIdPath;
             }
 
             if ($request->hasFile('government_id_back')) {
@@ -123,6 +125,7 @@ class ResidencyApplicationController extends Controller
                     'uploads/valid_id/residency',
                     'valid_id_back'
                 );
+                $uploadedPaths[] = $governmentIdBackPath;
             }
 
             $fullName = $this->formatFullName($resident);
@@ -155,12 +158,12 @@ class ResidencyApplicationController extends Controller
                 'status' => 'processing',
             ];
 
-            $application = ResidencyApplication::create($residencyData);
+            $application = DB::transaction(fn () => ResidencyApplication::create($residencyData));
 
             $this->notifyAdminsOfSubmission(
                 category: 'request',
                 title: 'New residency request',
-                message: $fullName . ' submitted ' . $referenceNumber . '.',
+                message: $fullName.' submitted '.$referenceNumber.'.',
                 url: route('admin.residency.index', ['highlight' => $application->id]),
                 icon: 'fas fa-house-user',
             );
@@ -181,6 +184,11 @@ class ResidencyApplicationController extends Controller
                 'reference' => $referenceNumber,
             ]);
         } catch (Throwable $e) {
+            if (! isset($application)) {
+                foreach ($uploadedPaths as $path) {
+                    app(\App\Services\SupabaseStorageService::class)->delete($path);
+                }
+            }
             report($e);
 
             return back()
@@ -304,8 +312,8 @@ class ResidencyApplicationController extends Controller
         $this->notifyAdminsOfSubmission(
             category: 'profile_correction',
             title: 'New profile correction concern',
-            message: $this->formatFullName($resident) . ' requested a correction for ' .
-                $concern->field_name . '.',
+            message: $this->formatFullName($resident).' requested a correction for '.
+                $concern->field_name.'.',
             url: route('admin.residents.index', ['profile_correction' => $concern->id]),
             icon: 'fas fa-user-pen',
         );
@@ -315,24 +323,24 @@ class ResidencyApplicationController extends Controller
             env('BISIG_CONTACT_EMAIL', 'barangayhulongduhat@gmail.com')
         );
 
-        $concernReference = 'PCC-' . now()->format('Y') . '-' . str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT);
+        $concernReference = 'PCC-'.now()->format('Y').'-'.str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT);
 
-        $subject = 'Resident Profile Correction Request - ' . $this->formatFullName($resident);
+        $subject = 'Resident Profile Correction Request - '.$this->formatFullName($resident);
 
         $body = "A resident reported incorrect profile information.\n\n"
-            . "Service: Certificate of Residency\n"
-            . "Concern ID: {$concernReference}\n"
-            . "Resident ID: {$resident->id}\n"
-            . "Current Name: {$this->formatFullName($resident)}\n"
-            . "Current Email: {$resident->email}\n"
-            . "Current Contact: {$resident->contact}\n\n"
-            . "Field to Correct: {$concern->field_name}\n"
-            . "Current Value: {$concern->current_value}\n"
-            . "Requested Correct Value: {$concern->correct_value}\n\n"
-            . "Message:\n"
-            . ($concern->message ?: 'No additional message provided.')
-            . "\n\n"
-            . "Please verify this request before changing any locked identity or residency information.";
+            ."Service: Certificate of Residency\n"
+            ."Concern ID: {$concernReference}\n"
+            ."Resident ID: {$resident->id}\n"
+            ."Current Name: {$this->formatFullName($resident)}\n"
+            ."Current Email: {$resident->email}\n"
+            ."Current Contact: {$resident->contact}\n\n"
+            ."Field to Correct: {$concern->field_name}\n"
+            ."Current Value: {$concern->current_value}\n"
+            ."Requested Correct Value: {$concern->correct_value}\n\n"
+            ."Message:\n"
+            .($concern->message ?: 'No additional message provided.')
+            ."\n\n"
+            .'Please verify this request before changing any locked identity or residency information.';
 
         try {
             app(\App\Services\EmailDeliveryService::class)->sendText(
@@ -418,7 +426,7 @@ class ResidencyApplicationController extends Controller
     private function generateReferenceNumber(): string
     {
         do {
-            $referenceNumber = 'RES-' . now()->format('Y') . '-' . strtoupper(Str::random(6));
+            $referenceNumber = 'RES-'.now()->format('Y').'-'.strtoupper(Str::random(6));
         } while (ResidencyApplication::where('reference_number', $referenceNumber)->exists());
 
         return $referenceNumber;

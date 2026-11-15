@@ -1,3 +1,12 @@
+FROM node:22-bookworm-slim AS frontend
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY scripts/copy-ui-assets.mjs scripts/copy-ui-assets.mjs
+COPY vite.config.js postcss.config.js tailwind.config.js ./
+COPY resources resources
+RUN npm run build
+
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -56,6 +65,8 @@ RUN composer install \
     --optimize-autoloader
 
 COPY . .
+COPY --from=frontend /app/public/build ./public/build
+COPY --from=frontend /app/public/vendor ./public/vendor
 
 RUN composer dump-autoload \
         --no-dev \

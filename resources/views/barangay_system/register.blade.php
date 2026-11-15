@@ -15,15 +15,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.blade_register_register_portal', ['portal' => $portalName]) }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/register.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth-common.css') }}">
 </head>
 @include('chatbot.embed')
 
@@ -78,6 +76,7 @@
             <form method="POST" action="{{ route('register.res') }}" id="registerForm" enctype="multipart/form-data" novalidate>
                 @csrf
 
+                <div id="registrationErrors" data-error-step="{{ $errors->hasAny(['valid_id', 'valid_id_back', 'valid_id_selfie', 'pwd_id_front', 'pwd_id_back', 'student_proof']) ? 2 : 0 }}"></div>
                 <div class="form-progress">
                     <div class="progress-steps">
                         <div class="step active" data-step="1">
@@ -86,6 +85,10 @@
                         </div>
                         <div class="step" data-step="2">
                             <div class="step-circle">2</div>
+                            <span>{{ __('registration.documents_title') }}</span>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-circle">3</div>
                             <span>{{ __('messages.register_step2_title') }}</span>
                         </div>
                     </div>
@@ -356,6 +359,14 @@
                         @enderror
                     </div>
 
+                    <div class="form-actions">
+                        <a href="{{ route('login') }}" class="btn-prev">{{ __('messages.register_cancel_btn') }}</a>
+                        <button type="button" class="btn-next" data-next="step2">{{ __('messages.register_next_btn') }} <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                <div class="form-step" id="step2">
+                    <h3><i class="fas fa-id-card"></i> {{ __('registration.documents_title') }}</h3>
+                    <p class="text-muted">{{ __('registration.documents_hint') }}</p>
                     <div class="form-section-card classification-card">
                         <div class="section-header">
                             <div>
@@ -486,16 +497,14 @@
                     </div>
 
                     <div class="form-actions">
-                        <a href="{{ route('login') }}" class="btn-prev">
-                            <i class="fas fa-times"></i> {{ __('messages.register_cancel_btn') }}
-                        </a>
-                        <button type="button" class="btn-next" data-next="step2" id="nextToStep2">
+                        <button type="button" class="btn-prev" data-prev="step1"><i class="fas fa-arrow-left"></i> {{ __('messages.register_prev_btn') }}</button>
+                        <button type="button" class="btn-next" data-next="step3" id="nextToStep2">
                             {{ __('messages.register_next_btn') }} <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="form-step" id="step2">
+                <div class="form-step" id="step3">
                     <h3><i class="fas fa-lock"></i> {{ __('messages.register_step2_title') }}</h3>
 
                     <div class="form-group">
@@ -622,7 +631,7 @@
                     @endif
 
                     <div class="form-actions">
-                        <button type="button" class="btn-prev" data-prev="step1">
+                        <button type="button" class="btn-prev" data-prev="step2">
                             <i class="fas fa-arrow-left"></i> {{ __('messages.register_prev_btn') }}
                         </button>
                         <button type="submit" class="btn-submit" id="createAccountBtn">
@@ -805,7 +814,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/pages/barangay_system/register.js') }}"></script>
     <script src="{{ asset('js/opencv-loader.js') }}"></script>

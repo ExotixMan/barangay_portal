@@ -853,6 +853,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function startScannerCamera() {
+        window.loadOpenCv?.();
         if (!scannerVideo || !navigator.mediaDevices?.getUserMedia) {
             setScannerStatus(__cfg_barangay_system_profile_1.v37, 'error');
             return;

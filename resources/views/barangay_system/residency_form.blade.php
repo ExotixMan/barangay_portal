@@ -63,11 +63,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{{ __('messages.blade_residency_form_blade_certificate_of_residency_application_form') }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
@@ -93,6 +90,17 @@
         <div class="container form-container px-0">
             <form id="requirementForm" method="POST" action="{{ route('residency.store') }}" enctype="multipart/form-data" class="requirement-form" novalidate>
                 @csrf
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert" tabindex="-1" id="submissionErrors">
+                        <strong>{{ __('registration.submission_error') }}</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
 
                 <div class="form-progress">
                     <div class="progress-steps">
@@ -194,7 +202,7 @@
                         </div>
 
                         <label class="terms-checkbox profile-confirm-checkbox">
-                            <input type="checkbox" id="profileConfirmed" name="profile_confirmed" required>
+                            <input type="checkbox" id="profileConfirmed" name="profile_confirmed" required @checked(old('profile_confirmed'))>
                             <span class="checkmark"></span>
                             {{ __('messages.blade_clearance_form_blade_i_confirm_that_my_saved_resident_profile_information_is') }}
                         </label>
@@ -401,15 +409,15 @@
                         </label>
                         <select id="purpose" name="purpose" required class="form-control">
                             <option value="">{{ __('messages.blade_clearance_form_blade_select_purpose') }}</option>
-                            <option value="government">{{ __('messages.residency_purpose_government') }}</option>
-                            <option value="school">{{ __('messages.clearance_purpose_school') }}</option>
-                            <option value="employment">{{ __('messages.blade_clearance_form_blade_employment') }}</option>
-                            <option value="legal">{{ __('messages.residency_purpose_legal') }}</option>
-                            <option value="bank">{{ __('messages.clearance_purpose_bank') }}</option>
-                            <option value="scholarship">{{ __('messages.blade_certificate_indigency_blade_scholarship') }}</option>
-                            <option value="pwd">{{ __('messages.residency_purpose_pwd') }}</option>
-                            <option value="senior">{{ __('messages.residency_purpose_senior') }}</option>
-                            <option value="other">{{ __('messages.clearance_purpose_other') }}</option>
+                            <option value="government" @selected(old('purpose') === 'government')>{{ __('messages.residency_purpose_government') }}</option>
+                            <option value="school" @selected(old('purpose') === 'school')>{{ __('messages.clearance_purpose_school') }}</option>
+                            <option value="employment" @selected(old('purpose') === 'employment')>{{ __('messages.blade_clearance_form_blade_employment') }}</option>
+                            <option value="legal" @selected(old('purpose') === 'legal')>{{ __('messages.residency_purpose_legal') }}</option>
+                            <option value="bank" @selected(old('purpose') === 'bank')>{{ __('messages.clearance_purpose_bank') }}</option>
+                            <option value="scholarship" @selected(old('purpose') === 'scholarship')>{{ __('messages.blade_certificate_indigency_blade_scholarship') }}</option>
+                            <option value="pwd" @selected(old('purpose') === 'pwd')>{{ __('messages.residency_purpose_pwd') }}</option>
+                            <option value="senior" @selected(old('purpose') === 'senior')>{{ __('messages.residency_purpose_senior') }}</option>
+                            <option value="other" @selected(old('purpose') === 'other')>{{ __('messages.clearance_purpose_other') }}</option>
                         </select>
                         <textarea id="purposeOther" name="purpose_other"
                             placeholder="{{ __('messages.form_purpose_other_placeholder') }}" rows="2"
@@ -636,7 +644,7 @@
 
     @include('barangay_system.partials.policy_modals')
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>

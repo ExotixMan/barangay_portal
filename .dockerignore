@@ -25,3 +25,5 @@ analytics/__pycache__
 venv
 storage/app/public/*
 storage/app/runtime/*
+
+public/vendor

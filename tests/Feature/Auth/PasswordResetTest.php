@@ -2,72 +2,46 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Models\Residents;
+use App\Services\EmailDeliveryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_reset_password_link_screen_can_be_rendered(): void
+    public function test_reset_password_request_screen_can_be_rendered(): void
     {
-        $response = $this->get('/forgot-password');
-
-        $response->assertStatus(200);
+        $this->get('/forgot-password')->assertOk();
     }
 
-    public function test_reset_password_link_can_be_requested(): void
+    public function test_reset_link_is_sent_through_the_actual_email_service(): void
     {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email]);
-
-        Notification::assertSentTo($user, ResetPassword::class);
-    }
-
-    public function test_reset_password_screen_can_be_rendered(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email]);
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
-
-            $response->assertStatus(200);
-
-            return true;
+        $resident = Residents::factory()->create();
+        $this->mock(EmailDeliveryService::class, function ($mock) use ($resident) {
+            $mock->shouldReceive('sendView')->once()->with($resident->email, \Mockery::type('string'), 'email.reset-password', \Mockery::on(fn ($data) => str_contains($data['url'], '/reset-password/')));
         });
+        $this->post('/forgot-password', ['email' => $resident->email])->assertSessionHasNoErrors()->assertSessionHas('status');
     }
 
     public function test_password_can_be_reset_with_valid_token(): void
     {
-        Notification::fake();
+        $resident = Residents::factory()->create();
+        $token = Password::createToken($resident);
+        $this->get(route('resident.password.reset', ['token' => $token, 'email' => $resident->email]))->assertOk();
+        $this->post('/reset-password', ['email' => $resident->email, 'token' => $token, 'password' => 'Changed123!', 'password_confirmation' => 'Changed123!'])
+            ->assertSessionHasNoErrors()->assertRedirect(route('login'));
+        $this->assertTrue(Hash::check('Changed123!', $resident->fresh()->password));
+        $this->assertFalse(Password::tokenExists($resident, $token));
+    }
 
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email]);
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
-
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
-
-            return true;
-        });
+    public function test_invalid_token_cannot_reset_password(): void
+    {
+        $resident = Residents::factory()->create();
+        $this->post('/reset-password', ['email' => $resident->email, 'token' => 'invalid', 'password' => 'Changed123!', 'password_confirmation' => 'Changed123!'])->assertSessionHasErrors('email');
+        $this->assertTrue(Hash::check('Password123!', $resident->fresh()->password));
     }
 }

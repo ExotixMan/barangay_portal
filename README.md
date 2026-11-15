@@ -23,3 +23,14 @@ In order to ensure that the Laravel community is welcoming to all, please review
 ## License
 
 The Laravel + Livewire starter kit is open-sourced software licensed under the MIT license.
+
+## Development and production checks
+
+Use PHP 8.4 with PDO SQLite/PostgreSQL, mbstring, XML, curl, GD and zip, Composer 2, and Node 22 or newer. Run `composer install` and `npm ci`, then configure a local `.env` and run `php artisan key:generate` once. Keep production credentials out of local test configuration.
+
+- `npm run build` creates `public/build` and copies pinned Bootstrap and icon assets to `public/vendor`. These generated directories are ignored; regenerate them after restoring a fresh checkout. Templates use local assets, so public navigation, forms and modals work without third-party CDNs. OpenCV loads only when the optional guided camera is opened; manual ID upload remains available.
+- `php artisan test` runs resident/admin authentication, authorization, private uploads and residency submission regression tests. CI runs on `production`, `main` and `develop`, against both SQLite and PostgreSQL. CI PostgreSQL credentials are for its disposable local service only.
+- After deploying this release, run `php artisan migrate --force`. The new migration makes `residency_applications.primary_proof` nullable because residents with verified profiles are not required to upload it again. Uploaded proof remains mandatory for unverified profiles. Back up production data before deployment as usual; this migration does not delete or backfill existing requests.
+- The Docker build now builds frontend assets in a Node stage and includes them in the PHP image. `RUN_MIGRATIONS=true` applies migrations during startup. Admin AI diagnostics are under the configured admin prefix, require `system_settings` permission and are rate limited.
+
+For local PostgreSQL integration testing, provide `DB_CONNECTION=pgsql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` to the test process. Use a disposable database: test migrations reset it. `phpunit.xml` defaults to in-memory SQLite when no database is supplied. Production PostgreSQL continues to require SSL by default; only a loopback test service without SSL should use `DB_SSLMODE=disable`.

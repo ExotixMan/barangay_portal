@@ -52,13 +52,13 @@ class ChatbotController extends Controller
         } catch (\Throwable $e) {
             Log::error('[Chatbot] startConversation failed', [
                 'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
         }
 
         return response()->json([
-            'success'    => true,
+            'success' => true,
             'session_id' => $sessionId,
         ]);
     }
@@ -66,7 +66,7 @@ class ChatbotController extends Controller
     public function sendMessage(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'message'    => ['required', 'string', 'max:500'],
+            'message' => ['required', 'string', 'max:500'],
             'session_id' => ['nullable', 'string', 'max:120'],
         ]);
 
@@ -86,36 +86,35 @@ class ChatbotController extends Controller
             }
 
             return response()->json([
-                'success'    => true,
+                'success' => true,
                 'session_id' => $sessionId,
-                'data'       => $result,
+                'data' => $result,
             ]);
         } catch (\Throwable $e) {
             Log::error('[Chatbot] sendMessage failed', [
                 'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine(),
+                'message' => 'The chatbot is temporarily unavailable. Please try again later.',
             ], 500);
         }
     }
 
     public function aiStatus(): JsonResponse
     {
-        $ai       = app(ClaudeAIEngine::class);
+        $ai = app(ClaudeAIEngine::class);
         $settings = app(AdminSettingsService::class);
         $provider = strtolower((string) $settings->get('ai.provider', env('AI_PROVIDER', 'gemini')));
-        $keyValue = (string) $settings->get('ai.keys.' . $provider, env(strtoupper($provider) . '_API_KEY', ''));
+        $keyValue = (string) $settings->get('ai.keys.'.$provider, env(strtoupper($provider).'_API_KEY', ''));
 
         return response()->json([
-            'available'   => $ai->isAvailable(),
-            'provider'    => $provider,
-            'key_set'     => $keyValue !== '',
-            'key_preview' => $keyValue !== '' ? substr($keyValue, 0, 8) . '...' : null,
+            'available' => $ai->isAvailable(),
+            'provider' => $provider,
+            'key_set' => $keyValue !== '',
         ]);
     }
 
@@ -130,26 +129,28 @@ class ChatbotController extends Controller
         if (! $ai->isAvailable()) {
             return response()->json([
                 'success' => false,
-                'error'   => 'AI is not available. Check AI_PROVIDER and the selected provider API key.',
-                'hint'    => 'Run: php artisan chatbot:test --ai',
+                'error' => 'AI is not available. Check AI_PROVIDER and the selected provider API key.',
+                'hint' => 'Run: php artisan chatbot:test --ai',
             ], 503);
         }
 
-        $start  = microtime(true);
+        $start = microtime(true);
         $result = $ai->handle(trim((string) $data['message']), []);
-        $ms     = (int) round((microtime(true) - $start) * 1000);
+        $ms = (int) round((microtime(true) - $start) * 1000);
 
         if (! $result) {
             return response()->json([
                 'success' => false,
-                'error'   => 'AI returned no answer. Check storage/logs/laravel.log for details.',
+                'error' => 'AI returned no answer. Check storage/logs/laravel.log for details.',
             ], 500);
         }
 
+        app(AdminSettingsService::class)->incrementUsage('ai');
+
         return response()->json([
-            'success'     => true,
-            'answer'      => $result['answer'] ?? '',
-            'provider'    => $result['ai_provider'] ?? env('AI_PROVIDER'),
+            'success' => true,
+            'answer' => $result['answer'] ?? '',
+            'provider' => $result['ai_provider'] ?? env('AI_PROVIDER'),
             'response_ms' => $ms,
         ]);
     }
@@ -174,7 +175,7 @@ class ChatbotController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => ChatbotKnowledge::create($data),
+            'data' => ChatbotKnowledge::create($data),
         ]);
     }
 
@@ -189,7 +190,7 @@ class ChatbotController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => $item->fresh(),
+            'data' => $item->fresh(),
         ]);
     }
 
@@ -215,11 +216,11 @@ class ChatbotController extends Controller
     private function statsData(): array
     {
         return [
-            'knowledge_count'    => ChatbotKnowledge::count(),
+            'knowledge_count' => ChatbotKnowledge::count(),
             'conversation_count' => ChatbotConversation::count(),
-            'message_count'      => ChatbotMessage::count(),
-            'unmatched_count'    => ChatbotUnmatched::where('resolved', 'false')->count(),
-            'ai_enabled'         => app(ClaudeAIEngine::class)->isAvailable(),
+            'message_count' => ChatbotMessage::count(),
+            'unmatched_count' => ChatbotUnmatched::where('resolved', 'false')->count(),
+            'ai_enabled' => app(ClaudeAIEngine::class)->isAvailable(),
         ];
     }
 
@@ -239,9 +240,9 @@ class ChatbotController extends Controller
     {
         return [
             'question' => ['required', 'string', 'max:500'],
-            'answer'   => ['required', 'string', 'max:5000'],
+            'answer' => ['required', 'string', 'max:5000'],
             'keywords' => ['nullable', 'string', 'max:500'],
-            'category' => ['nullable', 'string', 'in:' . implode(',', self::KNOWLEDGE_CATEGORIES)],
+            'category' => ['nullable', 'string', 'in:'.implode(',', self::KNOWLEDGE_CATEGORIES)],
         ];
     }
 

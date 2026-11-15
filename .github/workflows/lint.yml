@@ -5,13 +5,15 @@ on:
     branches:
       - develop
       - main
+      - production
   pull_request:
     branches:
       - develop
       - main
+      - production
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   quality:
@@ -19,28 +21,25 @@ jobs:
     environment: Testing
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
 
-      - name: Add Flux Credentials Loaded From ENV
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
-
       - name: Install Dependencies
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          npm ci
 
-      - name: Run Pint
-        run: vendor/bin/pint
-
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
-      #     file_pattern: |
-      #       **/*
-      #       !.github/workflows/*
+      - name: Check PHP style in changed files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$BASE_SHA" ] && ! [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            git diff --name-only --diff-filter=ACM -z "$BASE_SHA" HEAD -- '*.php' | xargs -0 -r vendor/bin/pint --test
+          else
+            git diff --name-only --diff-filter=ACM -z HEAD~1 HEAD -- '*.php' | xargs -0 -r vendor/bin/pint --test
+          fi

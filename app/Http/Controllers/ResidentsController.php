@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Password as PasswordRules;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Http;
-use App\Models\Residents;
+use App\Models\AdminUser;
 use App\Models\Announcement;
+use App\Models\Residents;
+use App\Services\AdminSettingsService;
 use App\Services\OtpSmsService;
 use App\Services\SupabaseStorageService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use App\Services\AdminSettingsService;
-use App\Models\AdminUser;
-use Illuminate\Support\Facades\Mail;
 use App\Support\UploadedImageComparator;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class ResidentsController extends Controller
 {
     private const REGISTER_OTP_MAX_ATTEMPTS = 3;
+
     private const LOGIN_OTP_MAX_ATTEMPTS = 5;
 
     public function __construct(
         private OtpSmsService $otpSmsService,
         private AdminSettingsService $settings
-    ) {
-    }
+    ) {}
 
-    public function showLogin(){
+    public function showLogin()
+    {
         if (Auth::check()) {
             return redirect()->intended(route('barangay_system.index'));
         }
@@ -41,12 +41,13 @@ class ResidentsController extends Controller
         return view('barangay_system.login');
     }
 
-    public function index(){
+    public function index()
+    {
         App::setLocale(Session::get('locale', config('app.locale')));
 
-        $announcements = Announcement::latest() 
-        ->take(9)
-        ->get();
+        $announcements = Announcement::latest()
+            ->take(9)
+            ->get();
 
         return view('barangay_system.index', compact('announcements'));
     }
@@ -83,7 +84,7 @@ class ResidentsController extends Controller
             'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
 
             'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
-            'password' => ['required','string','confirmed','regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'terms' => 'accepted',
         ];
 
@@ -205,8 +206,8 @@ class ResidentsController extends Controller
             $data['phone_otp'] = Hash::make($otp);
             $data['phone_otp_expires_at'] = Carbon::now()->addMinutes(5);
 
-            $data['phone_verified'] = 'false';
-            $data['valid_id_verified'] = 'false';
+            $data['phone_verified'] = false;
+            $data['valid_id_verified'] = false;
 
             $data['valid_id_status'] = 'for_verification';
             $data['valid_id_verified_at'] = null;
@@ -216,13 +217,13 @@ class ResidentsController extends Controller
             // Student/PWD declarations are not trusted until barangay staff
             // checks the submitted evidence. Existing audience flags only
             // become true after admin verification.
-            $data['is_pwd'] = 'false';
+            $data['is_pwd'] = false;
             $data['pwd_status'] = $declaredPwd ? 'pending' : 'not_declared';
             $data['pwd_verified_at'] = null;
             $data['pwd_verified_by'] = null;
             $data['pwd_rejection_reason'] = null;
 
-            $data['is_student'] = 'false';
+            $data['is_student'] = false;
             $data['student_status'] = $declaredStudent ? 'pending' : 'not_declared';
             $data['student_verified_at'] = null;
             $data['student_verified_by'] = null;
@@ -233,7 +234,7 @@ class ResidentsController extends Controller
             try {
                 $this->sendOtpAndLog($resident, $otp, 'register');
             } catch (\Throwable $exception) {
-                
+
                 $this->deleteResidentValidIdFiles($resident);
                 $resident->forceDelete();
 
@@ -242,6 +243,8 @@ class ResidentsController extends Controller
 
             $request->session()->put('resident_id', $resident->id);
             $request->session()->put('otp_purpose', 'register');
+            $request->session()->put('resident_otp_hash', $resident->phone_otp);
+            $request->session()->put('otp_account_type', 'resident');
 
             return redirect()->route('otp.form')
                 ->with('success', 'Registration successful. Please verify your mobile number with OTP.');
@@ -276,11 +279,12 @@ class ResidentsController extends Controller
                     'remoteip' => $ip,
                 ]);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 return false;
             }
 
             $payload = $response->json();
+
             return (bool) data_get($payload, 'success', false);
         } catch (\Throwable $exception) {
             return false;
@@ -298,7 +302,7 @@ class ResidentsController extends Controller
             ], 422);
         }
 
-        if (!preg_match('/^[a-zA-Z0-9_.-]+$/', $username)) {
+        if (! preg_match('/^[a-zA-Z0-9_.-]+$/', $username)) {
             return response()->json([
                 'available' => false,
                 'message' => 'Username may only contain letters, numbers, underscores (_), dots (.), and hyphens (-)',
@@ -315,12 +319,12 @@ class ResidentsController extends Controller
         $exists = Residents::where('username', $username)->exists();
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'message' => $exists ? 'Username is already taken' : 'Username is available',
         ]);
     }
 
-   public function checkAccountAvailability(Request $request)
+    public function checkAccountAvailability(Request $request)
     {
         $field = (string) $request->query('field', 'username');
         $value = trim((string) $request->query('value', ''));
@@ -358,7 +362,7 @@ class ResidentsController extends Controller
             ],
         ];
 
-        if (!isset($rules[$field])) {
+        if (! isset($rules[$field])) {
             return response()->json([
                 'available' => false,
                 'message' => 'Unsupported field.',
@@ -382,7 +386,7 @@ class ResidentsController extends Controller
             ]);
         }
 
-        if (!preg_match($rule['pattern'], $normalized)) {
+        if (! preg_match($rule['pattern'], $normalized)) {
             return response()->json([
                 'available' => false,
                 'message' => $rule['format_message'],
@@ -392,10 +396,10 @@ class ResidentsController extends Controller
         $exists = Residents::where($rule['column'], $normalized)->exists();
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'message' => $exists
-                ? $rule['label'] . ' is already taken.'
-                : $rule['label'] . ' is available.',
+                ? $rule['label'].' is already taken.'
+                : $rule['label'].' is available.',
         ]);
     }
 
@@ -421,7 +425,7 @@ class ResidentsController extends Controller
                     ->onlyInput('login');
             }
 
-            if (!$loginOtpEnabled) {
+            if (! $loginOtpEnabled) {
                 Auth::guard('admin')->login($admin);
                 $request->session()->regenerate();
 
@@ -443,10 +447,7 @@ class ResidentsController extends Controller
                 'admin_otp_expires_at' => now('Asia/Manila')->addMinutes(5)->toDateTimeString(),
             ]);
 
-            
             $this->sendAdminOtpSms($admin, $otp);
-
-            
 
             return redirect()->route('otp.form')
                 ->with('success', 'Admin OTP has been sent to your contact number.');
@@ -459,7 +460,7 @@ class ResidentsController extends Controller
 
         if (preg_match('/^(09\d{9}|9\d{9})$/', $mobileInput)) {
             $loginType = 'contact';
-            $loginInput = str_starts_with($mobileInput, '0') ? $mobileInput : ('0' . $mobileInput);
+            $loginInput = str_starts_with($mobileInput, '0') ? $mobileInput : ('0'.$mobileInput);
         } elseif (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
             $loginType = 'email';
             $loginInput = strtolower($loginInput);
@@ -469,7 +470,7 @@ class ResidentsController extends Controller
 
         $resident = Residents::where($loginType, $loginInput)->first();
 
-        if (!$resident || !Hash::check($password, (string) $resident->password)) {
+        if (! $resident || ! Hash::check($password, (string) $resident->password)) {
             return back()
                 ->withErrors(['login' => 'Invalid username/email/mobile number or password.'])
                 ->onlyInput('login');
@@ -516,17 +517,18 @@ class ResidentsController extends Controller
         $request->session()->put('otp_account_type', 'resident');
         $request->session()->put('resident_id', $resident->id);
         $request->session()->put('otp_purpose', 'login');
+        $request->session()->put('resident_otp_hash', $resident->phone_otp);
 
         return redirect()->route('otp.form')
             ->with('success', 'Please verify your mobile number with OTP to continue.');
     }
-    
+
     public function showValidIdResubmission(Request $request)
     {
         $residentId = $request->session()->get('valid_id_resubmit_resident_id');
         $resident = $residentId ? Residents::find($residentId) : null;
 
-        if (!$resident || $resident->valid_id_status !== 'rejected') {
+        if (! $resident || $resident->valid_id_status !== 'rejected') {
             $request->session()->forget('valid_id_resubmit_resident_id');
 
             return redirect()->route('login')
@@ -541,7 +543,7 @@ class ResidentsController extends Controller
         $residentId = $request->session()->get('valid_id_resubmit_resident_id');
         $resident = $residentId ? Residents::find($residentId) : null;
 
-        if (!$resident || $resident->valid_id_status !== 'rejected') {
+        if (! $resident || $resident->valid_id_status !== 'rejected') {
             $request->session()->forget('valid_id_resubmit_resident_id');
 
             return redirect()->route('login')
@@ -563,7 +565,7 @@ class ResidentsController extends Controller
         $frontFile = $request->file('valid_id');
         $backFile = $request->file('valid_id_back');
 
-        if (!$frontFile || !$backFile || !$frontFile->isValid() || !$backFile->isValid()) {
+        if (! $frontFile || ! $backFile || ! $frontFile->isValid() || ! $backFile->isValid()) {
             return back()->withErrors(['valid_id' => 'Please upload valid front and back ID files.']);
         }
 
@@ -614,9 +616,9 @@ class ResidentsController extends Controller
     public function resendOtp(Request $request)
     {
         $residentId = $request->session()->get('resident_id');
-        $otpPurpose = $request->session()->get('otp_purpose', 'login');
+        $otpPurpose = $request->session()->get('otp_purpose');
 
-        if (!$residentId) {
+        if (! $residentId || ! in_array($otpPurpose, ['login', 'register'], true) || ! $request->session()->has('resident_otp_hash')) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'OTP session expired. Please login again.'], 422);
             }
@@ -625,7 +627,7 @@ class ResidentsController extends Controller
         }
 
         $resident = Residents::find($residentId);
-        if (!$resident) {
+        if (! $resident) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Resident not found.'], 404);
             }
@@ -633,7 +635,7 @@ class ResidentsController extends Controller
             return redirect()->route('login')->with('fail', 'Resident not found.');
         }
 
-        if (!empty($resident->phone_otp) && !empty($resident->phone_otp_expires_at) && Carbon::now()->lt($resident->phone_otp_expires_at)) {
+        if (! empty($resident->phone_otp) && ! empty($resident->phone_otp_expires_at) && Carbon::now()->lt($resident->phone_otp_expires_at)) {
             $retryAfter = Carbon::now()->diffInSeconds($resident->phone_otp_expires_at, false);
             $retryAfter = max(1, (int) $retryAfter);
 
@@ -654,9 +656,10 @@ class ResidentsController extends Controller
         ]);
 
         $this->sendOtpAndLog($resident, $otp, $otpPurpose);
+        $request->session()->put('resident_otp_hash', $resident->phone_otp);
 
         if ($otpPurpose === 'register') {
-            $request->session()->forget('register_otp_attempts_' . $resident->id);
+            $request->session()->forget('register_otp_attempts_'.$resident->id);
         }
 
         if ($request->expectsJson()) {
@@ -668,6 +671,7 @@ class ResidentsController extends Controller
 
         return back()->with('success', 'A new OTP has been sent to your mobile number.');
     }
+
     public function destroy(Request $request)
     {
         Auth::logout();
@@ -682,7 +686,6 @@ class ResidentsController extends Controller
     {
         $request->validate([
             'otp' => 'required|digits:6',
-            'resident_id' => 'nullable|exists:residents,id',
         ]);
 
         $accountType = (string) $request->session()->get('otp_account_type', 'resident');
@@ -692,7 +695,7 @@ class ResidentsController extends Controller
             $otpHash = $request->session()->get('admin_otp_hash');
             $expiresAt = $request->session()->get('admin_otp_expires_at');
 
-            if (!$adminId || !$otpHash || !$expiresAt) {
+            if (! $adminId || ! $otpHash || ! $expiresAt) {
                 return redirect()->route('login')
                     ->with('fail', 'OTP session expired. Please login again.');
             }
@@ -711,8 +714,8 @@ class ResidentsController extends Controller
 
             $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp'));
 
-            if (!Hash::check($otpInput, $otpHash)) {
-                $attemptKey = 'admin_otp_attempts_' . $adminId;
+            if (! Hash::check($otpInput, $otpHash)) {
+                $attemptKey = 'admin_otp_attempts_'.$adminId;
                 $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
                 $request->session()->put($attemptKey, $attempts);
 
@@ -721,17 +724,18 @@ class ResidentsController extends Controller
                         'otp_account_type', 'admin_otp_user_id', 'admin_otp_hash',
                         'admin_otp_expires_at', $attemptKey,
                     ]);
+
                     return redirect()->route('login')->with('fail', 'Too many invalid OTP attempts. Please login again.');
                 }
 
-                return back()->with('fail', 'Invalid OTP. ' . (self::LOGIN_OTP_MAX_ATTEMPTS - $attempts) . ' attempt(s) remaining.');
+                return back()->with('fail', 'Invalid OTP. '.(self::LOGIN_OTP_MAX_ATTEMPTS - $attempts).' attempt(s) remaining.');
             }
 
-            $request->session()->forget('admin_otp_attempts_' . $adminId);
+            $request->session()->forget('admin_otp_attempts_'.$adminId);
 
             $admin = AdminUser::find($adminId);
 
-            if (!$admin) {
+            if (! $admin) {
                 return redirect()->route('login')
                     ->with('fail', 'Admin account not found.');
             }
@@ -760,86 +764,74 @@ class ResidentsController extends Controller
             return $this->redirectAdminBasedOnRole($admin);
         }
 
-        $otpPurpose = (string) $request->session()->get('otp_purpose', 'login');
+        $otpPurpose = $request->session()->get('otp_purpose');
+        $residentId = $request->session()->get('resident_id');
+        $challengeHash = $request->session()->get('resident_otp_hash');
 
-        $residentId = $request->session()->get('resident_id', $request->input('resident_id'));
-
-        if (!$residentId) {
+        if (! $residentId || ! in_array($otpPurpose, ['login', 'register'], true) || ! is_string($challengeHash)) {
             return redirect()->route('login')
                 ->with('fail', 'OTP session expired. Please login again.');
         }
 
         $resident = Residents::find($residentId);
 
-        if (!$resident) {
+        if (! $resident) {
             return back()->with('fail', 'Resident not found.');
         }
 
         if (empty($resident->phone_otp) || empty($resident->phone_otp_expires_at)) {
-            if ($otpPurpose === 'register') {
-                return $this->cancelPendingRegistration($request, $resident, 'OTP verification failed.');
-            }
-
             return back()->with('fail', 'No active OTP found. Please request a new one.');
         }
 
+        if (! hash_equals((string) $resident->phone_otp, $challengeHash)) {
+            $request->session()->forget(['resident_id', 'resident_otp_hash', 'otp_purpose', 'otp_account_type']);
+
+            return redirect()->route('login')->with('fail', 'OTP challenge expired. Please login again.');
+        }
+
         if (Carbon::now()->gt($resident->phone_otp_expires_at)) {
-            if ($otpPurpose === 'register') {
-                return $this->cancelPendingRegistration($request, $resident, 'OTP expired.');
-            }
+            $resident->update(['phone_otp' => null, 'phone_otp_expires_at' => null]);
 
-            $resident->update([
-                'phone_otp' => null,
-                'phone_otp_expires_at' => null,
-            ]);
-
-            return back()->with('fail', 'OTP expired.');
+            return back()->with('fail', 'OTP expired. Please request a new code.');
         }
 
         $otpInput = preg_replace('/\D+/', '', (string) $request->input('otp'));
 
-        if (!Hash::check($otpInput, $resident->phone_otp)) {
-            if ($otpPurpose === 'register') {
-                $attemptKey = 'register_otp_attempts_' . $resident->id;
-                $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
-                $request->session()->put($attemptKey, $attempts);
-
-                if ($attempts >= self::REGISTER_OTP_MAX_ATTEMPTS) {
-                    return $this->cancelPendingRegistration($request, $resident, 'Too many invalid OTP attempts.');
-                }
-
-                $remaining = self::REGISTER_OTP_MAX_ATTEMPTS - $attempts;
-
-                return back()->with('fail', 'Invalid OTP. ' . $remaining . ' attempt(s) remaining.');
-            }
-
-            $attemptKey = 'login_otp_attempts_' . $resident->id;
-            $attempts = (int) $request->session()->get($attemptKey, 0) + 1;
-            $request->session()->put($attemptKey, $attempts);
-
-            if ($attempts >= self::LOGIN_OTP_MAX_ATTEMPTS) {
+        $attemptKey = 'resident-otp:'.$resident->id.':'.hash('sha256', $challengeHash);
+        $limit = $otpPurpose === 'register' ? self::REGISTER_OTP_MAX_ATTEMPTS : self::LOGIN_OTP_MAX_ATTEMPTS;
+        if (! Hash::check($otpInput, $resident->phone_otp)) {
+            $attempts = RateLimiter::hit($attemptKey, 300);
+            if ($attempts >= $limit) {
                 $resident->update(['phone_otp' => null, 'phone_otp_expires_at' => null]);
-                $request->session()->forget($attemptKey);
+                if ($otpPurpose === 'register') {
+                    return redirect()->route('otp.form')->with('fail', 'Too many invalid attempts. Please request a new code.');
+                }
+                $request->session()->forget(['resident_id', 'resident_otp_hash', 'otp_purpose', 'otp_account_type']);
+
                 return redirect()->route('login')->with('fail', 'Too many invalid OTP attempts. Please login again.');
             }
 
-            return back()->with('fail', 'Invalid OTP. ' . (self::LOGIN_OTP_MAX_ATTEMPTS - $attempts) . ' attempt(s) remaining.');
+            return back()->with('fail', 'Invalid OTP. '.($limit - $attempts).' attempt(s) remaining.');
         }
+        RateLimiter::clear($attemptKey);
 
-        $request->session()->forget('login_otp_attempts_' . $resident->id);
-
-        $resident->update([
+        $consumed = Residents::whereKey($resident->id)->where('phone_otp', $challengeHash)->update([
             'phone_verified' => DB::raw('TRUE'),
             'phone_otp' => null,
             'phone_otp_expires_at' => null,
         ]);
+        if (! $consumed) {
+            return redirect()->route('login')->with('fail', 'OTP already used. Please login again.');
+        }
+        $resident->refresh();
 
-        $request->session()->forget('register_otp_attempts_' . $resident->id);
+        $request->session()->forget('register_otp_attempts_'.$resident->id);
 
         $otpPurpose = (string) $request->session()->pull('otp_purpose', 'login');
 
         $request->session()->forget([
             'resident_id',
+            'resident_otp_hash',
             'otp_account_type',
         ]);
 
@@ -905,28 +897,13 @@ class ResidentsController extends Controller
                 default => 'OTP sent.',
             },
             'error_message' => $errorMessage,
-            'reference_type' => 'otp_' . $purpose,
+            'reference_type' => 'otp_'.$purpose,
             'reference_id' => $resident->id,
             'sent_by' => null,
             'sent_at' => $status === 'sent' ? now('Asia/Manila') : null,
             'created_at' => now('Asia/Manila'),
             'updated_at' => now('Asia/Manila'),
         ]);
-    }
-
-    private function cancelPendingRegistration(Request $request, Residents $resident, string $reason)
-    {
-        $this->deleteResidentValidIdFiles($resident);
-
-        $resident->delete();
-        $request->session()->forget([
-            'resident_id',
-            'otp_purpose',
-            'register_otp_attempts_' . $resident->id,
-        ]);
-
-        return redirect()->route('register')
-            ->with('fail', $reason . ' Registration has been cancelled. Please register again.');
     }
 
     private function validIdLoginBlockMessage(Residents $resident): ?string
@@ -951,23 +928,22 @@ class ResidentsController extends Controller
         $reason = trim((string) $resident->valid_id_rejection_reason);
 
         return $reason !== ''
-            ? 'Your valid ID was rejected. Reason: ' . $reason . ' Please submit a new front and back copy.'
+            ? 'Your valid ID was rejected. Reason: '.$reason.' Please submit a new front and back copy.'
             : 'Your valid ID was rejected. Please submit a clearer front and back copy.';
     }
-
 
     private function storeResidentValidIdFile(Request $request, string $field): string
     {
         $file = $request->file($field);
 
-        if (!$file || !$file->isValid()) {
-            throw new \RuntimeException('The uploaded file for ' . $field . ' is invalid.');
+        if (! $file || ! $file->isValid()) {
+            throw new \RuntimeException('The uploaded file for '.$field.' is invalid.');
         }
 
         $uploadDirectory = 'private/valid_id/residents';
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+        $filename = $field.'_'.now('Asia/Manila')->format('Ymd_His').'_'.uniqid('', true).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -980,12 +956,12 @@ class ResidentsController extends Controller
     {
         $file = $request->file($field);
 
-        if (!$file || !$file->isValid()) {
-            throw new \RuntimeException('The uploaded classification proof for ' . $field . ' is invalid.');
+        if (! $file || ! $file->isValid()) {
+            throw new \RuntimeException('The uploaded classification proof for '.$field.' is invalid.');
         }
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = $classification . '_' . $field . '_' . now('Asia/Manila')->format('Ymd_His') . '_' . uniqid('', true) . '.' . $extension;
+        $filename = $classification.'_'.$field.'_'.now('Asia/Manila')->format('Ymd_His').'_'.uniqid('', true).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -1065,12 +1041,12 @@ class ResidentsController extends Controller
         $contact = preg_replace('/\D+/', '', (string) $admin->contact_number);
 
         if (str_starts_with($contact, '09')) {
-            $contact = '63' . substr($contact, 1);
+            $contact = '63'.substr($contact, 1);
         } elseif (str_starts_with($contact, '9')) {
-            $contact = '63' . $contact;
+            $contact = '63'.$contact;
         }
 
-        if (!preg_match('/^639\d{9}$/', $contact)) {
+        if (! preg_match('/^639\d{9}$/', $contact)) {
             throw new \RuntimeException('Admin contact number is invalid or missing.');
         }
 
@@ -1085,8 +1061,8 @@ class ResidentsController extends Controller
                 'sendername' => env('SMS_SENDER_NAME', 'HULONGDUHAT'),
             ]);
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Failed to send admin OTP SMS: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Failed to send admin OTP SMS: '.$response->body());
         }
     }
 }

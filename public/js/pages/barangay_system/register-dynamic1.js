@@ -41,7 +41,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             };
 
             let currentStep = 1;
-            const totalSteps = 2;
+            const totalSteps = 3;
 
             function getFieldValue(id) {
                 const field = document.getElementById(id);
@@ -610,7 +610,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                     }
                 });
 
-                if (stepNumber === 2) {
+                if (stepNumber === 3) {
                     if (!validatePasswordStrength()) isValid = false;
                     if (!updatePasswordMatchUI()) {
                         isValid = false;
@@ -2284,8 +2284,8 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
                         window.setTimeout(() => {
                             if (scannerModal) scannerModal.hide();
 
-                            if (scannerState.scanMode === 'both' && currentStep === 1 && hasValidScannerCaptures() && validateStep(1)) {
-                                goToStep('step2');
+                            if (scannerState.scanMode === 'both' && currentStep === 2 && hasValidScannerCaptures() && validateStep(2)) {
+                                goToStep('step3');
                             }
                         }, 750);
                     } catch (error) {
@@ -2474,6 +2474,7 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             }
 
             async function startScannerCamera() {
+                window.loadOpenCv?.();
                 if (!scannerVideo || !navigator.mediaDevices?.getUserMedia) {
                     setScannerStatus(__cfg_barangay_system_register_1.v98, 'error');
                     return;
@@ -2755,7 +2756,9 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
 
                     buildResidentAddress();
 
-                    if (!validateStep(currentStep)) {
+                    const invalidStep = [1, 2, 3].find(step => !validateStep(step));
+                    if (invalidStep) {
+                        goToStep(`step${invalidStep}`);
                         document.querySelectorAll('.is-invalid').forEach(field => {
                             const group = field.closest('.form-group') || field.closest('.file-upload-wrapper');
                             if (group) {
@@ -2823,7 +2826,9 @@ const __cfg_barangay_system_register_1 = JSON.parse(document.getElementById('js-
             updatePasswordMatchUI();
 
             const hasStep2Errors = String(__cfg_barangay_system_register_1.v112).toLowerCase() === 'true';
-            if (hasStep2Errors) {
-                goToStep('step2');
+            const documentErrorStep = document.getElementById('registrationErrors')?.dataset.errorStep;
+            if (documentErrorStep === '2') { goToStep('step2'); }
+            else if (hasStep2Errors) {
+                goToStep('step3');
             }
         });

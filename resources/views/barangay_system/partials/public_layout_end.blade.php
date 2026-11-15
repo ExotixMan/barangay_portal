@@ -4,7 +4,7 @@
 
 @include('barangay_system.partials.fab')
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/floating-actions.js') }}"></script>
 <script src="{{ asset('js/dark-mode.js') }}"></script>
 

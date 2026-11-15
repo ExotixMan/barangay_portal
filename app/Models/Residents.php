@@ -2,22 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Services\EmailDeliveryService;
+use Carbon\Carbon;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
-use App\Services\EmailDeliveryService;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
 class Residents extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, MustVerifyEmailTrait, SoftDeletes;
+    use \Illuminate\Database\Eloquent\Factories\HasFactory, MustVerifyEmailTrait, Notifiable, SoftDeletes;
 
     protected $table = 'residents';
+
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -67,10 +68,10 @@ class Residents extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $casts = [
-        'phone_verified' => 'boolean',
-        'valid_id_verified' => 'boolean',
-        'is_pwd' => 'boolean',
-        'is_student' => 'boolean',
+        'phone_verified' => \App\Casts\DatabaseBoolean::class,
+        'valid_id_verified' => \App\Casts\DatabaseBoolean::class,
+        'is_pwd' => \App\Casts\DatabaseBoolean::class,
+        'is_student' => \App\Casts\DatabaseBoolean::class,
         'birthdate' => 'date',
         'phone_otp_expires_at' => 'datetime',
         'email_verified_at' => 'datetime',
@@ -161,7 +162,6 @@ class Residents extends Authenticatable implements MustVerifyEmail
         return Carbon::parse($this->birthdate)->age;
     }
 
-
     public function getIsSeniorAttribute(): bool
     {
         return $this->age !== null && $this->age >= 60;
@@ -200,6 +200,7 @@ class Residents extends Authenticatable implements MustVerifyEmail
             'id'
         )->latest();
     }
+
     /**
      * Backward-compatible residency verification flag.
      * The current workflow verifies residency through the resident's Valid ID.
@@ -208,5 +209,4 @@ class Residents extends Authenticatable implements MustVerifyEmail
     {
         return (bool) ($this->attributes['residency_verified'] ?? $this->valid_id_verified ?? false);
     }
-
 }

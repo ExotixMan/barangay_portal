@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\IncidentReportController;
 use App\Http\Controllers\Admin\IndigencyController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\RequestHubController;
 use App\Http\Controllers\Admin\ResidencyController;
 use App\Http\Controllers\Admin\ResidentController;
 use App\Http\Controllers\Admin\SystemSettingsController;
@@ -26,37 +27,31 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\EventProjectController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\IndigencyApplicationController;
+use App\Http\Controllers\Internal\MaintenanceController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestsController;
-use App\Http\Controllers\Admin\RequestHubController;
-use App\Http\Controllers\SecureFileController;
-use App\Http\Controllers\Internal\MaintenanceController;
 use App\Http\Controllers\ResidencyApplicationController;
 use App\Http\Controllers\ResidentsController;
+use App\Http\Controllers\SecureFileController;
 use App\Http\Controllers\TrackRequestController;
 use App\Models\AdminUser;
 use App\Models\Residents;
-
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-
 
 Route::post('/internal/maintenance/run', [MaintenanceController::class, 'run'])
     ->middleware('throttle:6,1')
     ->name('internal.maintenance.run');
 
 Route::prefix('chatbot')->name('chatbot.')->group(function () {
-    Route::get('/',          [ChatbotController::class, 'index'])->name('index');
-    Route::post('/start',    [ChatbotController::class, 'startConversation'])->name('start');
-    Route::post('/message',  [ChatbotController::class, 'sendMessage'])->name('message');
-    Route::get('/ai-status', [ChatbotController::class, 'aiStatus'])->name('ai.status');
-    Route::post('/test-ai',  [ChatbotController::class, 'testAI'])->name('test.ai');
+    Route::get('/', [ChatbotController::class, 'index'])->name('index');
+    Route::post('/start', [ChatbotController::class, 'startConversation'])->middleware('throttle:10,1,chat-start')->name('start');
+    Route::post('/message', [ChatbotController::class, 'sendMessage'])->middleware('throttle:30,1,chat-message')->name('message');
 });
 
 Route::get('/switch-language', function (Request $request) {
@@ -64,6 +59,7 @@ Route::get('/switch-language', function (Request $request) {
     if (in_array($lang, ['en', 'tl'])) {
         Session::put('locale', $lang);
     }
+
     return redirect()->back();
 })->name('switch.language');
 
@@ -71,16 +67,19 @@ Route::get('/', [IndexController::class, 'index'])->name('barangay_system.index'
 
 Route::get('/history', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
+
     return view('barangay_system.history');
 })->name('history');
 
 Route::get('/mission&vision', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
+
     return view('barangay_system.mission_vision');
 })->name('mission_vision');
 
 Route::get('/barangay-map', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
+
     return view('barangay_system.map');
 })->name('map');
 
@@ -141,6 +140,7 @@ Route::get('/events-project', [EventProjectController::class, 'index'])->name('e
 
 Route::get('/contacts', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
+
     return view('barangay_system.contacts');
 })->name('contacts');
 
@@ -156,6 +156,7 @@ Route::post('/valid-id/resubmit', [ResidentsController::class, 'resubmitValidId'
 
 Route::get('/register', function () {
     App::setLocale(Session::get('locale', config('app.locale')));
+
     return view('barangay_system.register');
 })->name('register');
 
@@ -175,14 +176,14 @@ Route::get('/verify-otp', function (Request $request) {
     $maskedContact = null;
 
     if ($accountType === 'admin') {
-        if (!$request->session()->has('admin_otp_user_id')) {
+        if (! $request->session()->has('admin_otp_user_id')) {
             return redirect()->route('login')
                 ->with('fail', 'OTP session expired. Please login again.');
         }
 
         $admin = AdminUser::find($request->session()->get('admin_otp_user_id'));
 
-        if (!$admin) {
+        if (! $admin) {
             return redirect()->route('login')
                 ->with('fail', 'Admin account not found. Please login again.');
         }
@@ -200,8 +201,8 @@ Route::get('/verify-otp', function (Request $request) {
         [$name, $domain] = array_pad(explode('@', $email, 2), 2, '');
 
         $maskedContact = strlen($name) > 2
-            ? substr($name, 0, 2) . '****@' . $domain
-            : '****@' . $domain;
+            ? substr($name, 0, 2).'****@'.$domain
+            : '****@'.$domain;
 
         return view('barangay_system.verify_otp', [
             'otpCooldownSeconds' => (int) $cooldownSeconds,
@@ -209,7 +210,7 @@ Route::get('/verify-otp', function (Request $request) {
         ]);
     }
 
-    if (!$request->session()->has('resident_id')) {
+    if (! $request->session()->has('resident_id')) {
         return redirect()->route('login')
             ->with('fail', 'OTP session expired. Please login again.');
     }
@@ -217,14 +218,14 @@ Route::get('/verify-otp', function (Request $request) {
     $resident = Residents::find($request->session()->get('resident_id'));
 
     if ($resident) {
-        if (!empty($resident->phone_otp_expires_at) && now()->lt($resident->phone_otp_expires_at)) {
+        if (! empty($resident->phone_otp_expires_at) && now()->lt($resident->phone_otp_expires_at)) {
             $cooldownSeconds = max(0, now()->diffInSeconds($resident->phone_otp_expires_at, false));
         }
 
         $contactDigits = preg_replace('/\D+/', '', (string) $resident->contact);
 
         if (strlen($contactDigits) >= 4) {
-            $maskedContact = '******' . substr($contactDigits, -4);
+            $maskedContact = '******'.substr($contactDigits, -4);
         }
     }
 
@@ -248,11 +249,13 @@ Route::get('/email/verify', function (Request $request) {
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
+
     return redirect('/login')->with('success', 'Email verified successfully!');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
+
     return back()->with('success', 'Verification link resent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
@@ -273,73 +276,68 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/report-incorrect-profile', [ProfileController::class, 'reportIncorrectProfile'])->middleware(['auth', 'verified', 'throttle:3,60'])->name('profile.reportIncorrectProfile');
 
     Route::middleware(['verified', 'prevent-back-history'])->group(function () {
-        
+
         Route::get('/services', [RequestsController::class, 'service'])->name('services');
 
         Route::get('/indigency', function () {
             session()->forget([
                 'submitted_application',
-                'reference_number'
+                'reference_number',
             ]);
 
             return view('barangay_system.certificate_indigency');
         })->name('indigency');
 
-        Route::get('/indigency/form', [IndigencyApplicationController::class, 'index']) ->middleware('no-pending-correction') ->name('indigency.form');
+        Route::get('/indigency/form', [IndigencyApplicationController::class, 'index'])->middleware('no-pending-correction')->name('indigency.form');
 
-        Route::post('/indigency/store', [IndigencyApplicationController::class, 'store']) ->middleware('no-pending-correction') ->name('indigency.store');
+        Route::post('/indigency/store', [IndigencyApplicationController::class, 'store'])->middleware('no-pending-correction')->name('indigency.store');
 
-        
         Route::get('/residency', function () {
             session()->forget([
                 'submitted_application',
-                'reference_number'
+                'reference_number',
             ]);
 
             return view('barangay_system.certificate_residency');
         })->name('residency');
 
-        Route::get('/residency/form', [ResidencyApplicationController::class, 'index']) ->middleware('no-pending-correction') ->name('residency.form');
+        Route::get('/residency/form', [ResidencyApplicationController::class, 'index'])->middleware('no-pending-correction')->name('residency.form');
 
-        Route::post('/residency/store', [ResidencyApplicationController::class, 'store']) ->middleware('no-pending-correction') ->name('residency.store');
+        Route::post('/residency/store', [ResidencyApplicationController::class, 'store'])->middleware('no-pending-correction')->name('residency.store');
 
-        
         Route::get('/clearance', function () {
             session()->forget([
                 'submitted_application',
-                'reference_number'
+                'reference_number',
             ]);
 
             return view('barangay_system.clearance');
         })->name('clearance');
 
-        Route::get('/clearance/form', [BarangayClearanceController::class, 'index']) ->middleware('no-pending-correction') ->name('clearance.form');
+        Route::get('/clearance/form', [BarangayClearanceController::class, 'index'])->middleware('no-pending-correction')->name('clearance.form');
 
-        Route::post('/clearance/store', [BarangayClearanceController::class, 'store']) ->middleware('no-pending-correction') ->name('clearance.store');
+        Route::post('/clearance/store', [BarangayClearanceController::class, 'store'])->middleware('no-pending-correction')->name('clearance.store');
 
-        
-        Route::post('/indigency/report-incorrect-profile', [IndigencyApplicationController::class, 'reportIncorrectProfile']) ->middleware(['auth', 'verified', 'throttle:3,60']) ->name('indigency.reportIncorrectProfile');
+        Route::post('/indigency/report-incorrect-profile', [IndigencyApplicationController::class, 'reportIncorrectProfile'])->middleware(['auth', 'verified', 'throttle:3,60'])->name('indigency.reportIncorrectProfile');
 
-        Route::post('/residency/report-incorrect-profile', [ResidencyApplicationController::class, 'reportIncorrectProfile']) ->middleware(['auth', 'verified', 'throttle:3,60']) ->name('residency.reportIncorrectProfile');
+        Route::post('/residency/report-incorrect-profile', [ResidencyApplicationController::class, 'reportIncorrectProfile'])->middleware(['auth', 'verified', 'throttle:3,60'])->name('residency.reportIncorrectProfile');
 
-        Route::post('/clearance/report-incorrect-profile', [BarangayClearanceController::class, 'reportIncorrectProfile']) ->middleware(['auth', 'verified', 'throttle:3,60']) ->name('clearance.reportIncorrectProfile');
+        Route::post('/clearance/report-incorrect-profile', [BarangayClearanceController::class, 'reportIncorrectProfile'])->middleware(['auth', 'verified', 'throttle:3,60'])->name('clearance.reportIncorrectProfile');
 
-        
         Route::get('/incident', function () {
             session()->forget([
                 'submitted_application',
-                'reference_number'
+                'reference_number',
             ]);
 
             return view('barangay_system.incident');
         })->name('incident');
 
-        
-        Route::get('/incident/form', [BlotterController::class, 'index']) ->name('incident.form');
+        Route::get('/incident/form', [BlotterController::class, 'index'])->name('incident.form');
 
-        Route::post('/incident/store', [BlotterController::class, 'store']) ->name('incident.store');
+        Route::post('/incident/store', [BlotterController::class, 'store'])->name('incident.store');
 
-        Route::get('/incidentreport/{reference}', [BlotterController::class, 'success']) ->name('incident_success');
+        Route::get('/incidentreport/{reference}', [BlotterController::class, 'success'])->name('incident_success');
 
         Route::get('/receipt/{service}/{reference}', function ($service, $reference_number) {
             $route = session('route');
@@ -361,52 +359,57 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::prefix(env('ADMIN_PATH')) ->name('admin.') ->group(function () {
-        Route::get('/', function () {
-            if (Auth::guard('admin')->check()) {
-                return redirect()->route('admin.dashboard.index');
-            }
+Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
+    Route::get('/', function () {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard.index');
+        }
 
-            if (Auth::guard('web')->check()) {
-                return redirect()->route('barangay_system.index');
-            }
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('barangay_system.index');
+        }
 
-            return redirect()->route('login');
-        })->name('index');
+        return redirect()->route('login');
+    })->name('index');
 
-        Route::post('/logout', [AdminLoginController::class, 'logout']) ->name('logout');
-    });
+    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
+});
 
 Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
 
-    Route::prefix('notifications') ->name('notifications.') ->group(function () {
-        Route::get( '/feed', [AdminNotificationController::class, 'feed'] )->name('feed');
+    Route::get('/chatbot/ai-status', [ChatbotController::class, 'aiStatus'])
+        ->middleware(['permission:system_settings', 'throttle:30,1,ai-status'])->name('chatbot.ai.status');
+    Route::post('/chatbot/test-ai', [ChatbotController::class, 'testAI'])
+        ->middleware(['permission:system_settings', 'throttle:5,1,ai-test'])->name('chatbot.test.ai');
 
-        Route::get( '/{notification}/open', [AdminNotificationController::class, 'open'] )->name('open');
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/feed', [AdminNotificationController::class, 'feed'])->name('feed');
 
-        Route::post( '/read-all', [AdminNotificationController::class, 'markAllAsRead'] )->name('read-all');
+        Route::get('/{notification}/open', [AdminNotificationController::class, 'open'])->name('open');
 
-        Route::post( '/{notification}/read', [AdminNotificationController::class, 'markAsRead'] )->name('read');
+        Route::post('/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('read-all');
+
+        Route::post('/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('read');
     });
 
     Route::get('/secure-file', [SecureFileController::class, 'admin'])->name('secure.file');
 
     Route::get('/requests', [RequestHubController::class, 'index'])->middleware('permission:view_requests')->name('request.index');
 
-    Route::get('/dashboard', [DashboardController::class, 'index']) ->middleware('permission:view_dashboard|view_forecast') ->name('dashboard.index');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard|view_forecast')->name('dashboard.index');
 
-    Route::get('/forecast', [DashboardController::class, 'forecastRequests']) ->middleware('permission:view_forecast|view_dashboard') ->name('dashboard.forecast');
+    Route::get('/forecast', [DashboardController::class, 'forecastRequests'])->middleware('permission:view_forecast|view_dashboard')->name('dashboard.forecast');
 
-    Route::get('/dashboard/live-stats', [DashboardController::class, 'liveStats']) ->middleware('permission:view_dashboard|view_forecast') ->name('dashboard.live_stats');
+    Route::get('/dashboard/live-stats', [DashboardController::class, 'liveStats'])->middleware('permission:view_dashboard|view_forecast')->name('dashboard.live_stats');
 
-    Route::post('/dashboard/refresh-forecast', [DashboardController::class, 'refreshForecast']) ->middleware('permission:view_forecast') ->name('dashboard.refresh_forecast');
+    Route::post('/dashboard/refresh-forecast', [DashboardController::class, 'refreshForecast'])->middleware('permission:view_forecast')->name('dashboard.refresh_forecast');
 
     Route::prefix('/chatbot')->name('chatbot.')->middleware('permission:manage_chatbot')->group(function () {
-        Route::get('/',                         [ChatbotController::class, 'adminIndex'])->name('index');
-        Route::get('/stats',                    [ChatbotController::class, 'getStats'])->name('stats');
-        Route::post('/knowledge',               [ChatbotController::class, 'storeKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.store');
-        Route::put('/knowledge/{id}',           [ChatbotController::class, 'updateKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.update');
-        Route::delete('/knowledge/{id}',        [ChatbotController::class, 'deleteKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.delete');
+        Route::get('/', [ChatbotController::class, 'adminIndex'])->name('index');
+        Route::get('/stats', [ChatbotController::class, 'getStats'])->name('stats');
+        Route::post('/knowledge', [ChatbotController::class, 'storeKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.store');
+        Route::put('/knowledge/{id}', [ChatbotController::class, 'updateKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.update');
+        Route::delete('/knowledge/{id}', [ChatbotController::class, 'deleteKnowledge'])->middleware('permission:edit_chatbot')->name('knowledge.delete');
         Route::patch('/unmatched/{id}/resolve', [ChatbotController::class, 'resolveUnmatched'])->middleware('permission:edit_chatbot')->name('unmatched.resolve');
     });
 
@@ -441,7 +444,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-restore', [ResidencyController::class, 'bulkRestore'])->middleware('permission:delete_residency')->name('bulkRestore');
     });
 
-    Route::get('/documents/preview-file/{file}', [DocumentController::class, 'previewGeneratedPdf']) ->middleware('permission:generate_indigency_document|generate_clearance_document|generate_residency_document') ->where('file', '[A-Za-z0-9._-]+') ->name('documents.preview_file');
+    Route::get('/documents/preview-file/{file}', [DocumentController::class, 'previewGeneratedPdf'])->middleware('permission:generate_indigency_document|generate_clearance_document|generate_residency_document')->where('file', '[A-Za-z0-9._-]+')->name('documents.preview_file');
 
     Route::prefix('indigency')->name('indigency.')->group(function () {
         Route::get('/', [IndigencyController::class, 'index'])->middleware('permission:view_indigency')->name('index');
@@ -485,9 +488,9 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::post('/bulk-restore', [IncidentReportController::class, 'bulkRestore'])->middleware('permission:restore_blotter')->name('bulkRestore');
     });
 
-    Route::post('/blotter/{id}/witness', [WitnessController::class, 'store']) ->middleware('permission:add_witness') ->name('witness.store');
+    Route::post('/blotter/{id}/witness', [WitnessController::class, 'store'])->middleware('permission:add_witness')->name('witness.store');
 
-    Route::delete('/witness/{id}', [WitnessController::class, 'destroy']) ->middleware('permission:delete_witness') ->name('witness.destroy');
+    Route::delete('/witness/{id}', [WitnessController::class, 'destroy'])->middleware('permission:delete_witness')->name('witness.destroy');
 
     Route::prefix('announcements')->name('announcements.')->group(function () {
         Route::get('/', [AdminAnnouncement::class, 'index'])->middleware('permission:view_announcements')->name('index');
@@ -534,7 +537,7 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
         Route::put('/{id}', [AdminUserController::class, 'update'])->middleware('permission:update_users')->name('update');
         Route::delete('/{id}', [AdminUserController::class, 'destroy'])->middleware('permission:delete_users')->name('destroy');
         Route::post('/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('permission:reset_user_password')->name('reset-password');
-        
+
         Route::post('/{id}/permissions', [AdminUserController::class, 'updatePermissions'])->middleware('permission:manage_user_permissions')->name('permissions');
         Route::post('/bulk-actions', [AdminUserController::class, 'bulkAction'])->middleware('permission:bulk_delete_users')->name('bulk-action');
         Route::get('/audit-logs/export-csv', [AdminUserController::class, 'exportAuditLogsCsv'])->middleware('permission:view_users')->name('audit-logs.export-csv');
@@ -569,9 +572,9 @@ Route::middleware(['admin.auth'])->prefix(env('ADMIN_PATH'))->name('admin.')->gr
     Route::get('/settings', [SystemSettingsController::class, 'index'])->middleware('permission:system_settings')->name('settings.index');
     Route::put('/settings', [SystemSettingsController::class, 'update'])->middleware('permission:system_settings')->name('settings.update');
     Route::prefix('settings/document-templates')->name('settings.templates.')->middleware('permission:system_settings')->group(function () {
-        Route::get('/{type}/download', [SystemSettingsController::class, 'downloadDocumentTemplate']) ->name('download');
+        Route::get('/{type}/download', [SystemSettingsController::class, 'downloadDocumentTemplate'])->name('download');
 
-        Route::post('/{type}/upload', [SystemSettingsController::class, 'uploadDocumentTemplate']) ->name('upload');
+        Route::post('/{type}/upload', [SystemSettingsController::class, 'uploadDocumentTemplate'])->name('upload');
     });
     Route::post('/settings/semaphore/refresh', [SystemSettingsController::class, 'refreshSemaphoreStats'])->middleware('permission:system_settings')->name('settings.semaphore.refresh');
 });

@@ -6,12 +6,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-
 class DatabaseLookupService
 {
     private const LIMIT = 3;
 
-    
     private array $trackingTables = [
         [
             'table' => 'barangay_clearances',
@@ -84,7 +82,6 @@ class DatabaseLookupService
                 ->where('u.status', 'active')
                 ->whereNull('u.deleted_at')
 
-                
                 ->whereRaw("
                     LOWER(COALESCE(r.name, '')) NOT IN (?, ?, ?)
                     AND LOWER(COALESCE(r.display_name, '')) NOT IN (?, ?, ?)
@@ -141,16 +138,16 @@ class DatabaseLookupService
 
         foreach ($items as $item) {
             $middle = ! empty($item->middle_initial)
-                ? ' ' . strtoupper((string) $item->middle_initial) . ''
+                ? ' '.strtoupper((string) $item->middle_initial).''
                 : '';
 
-            $name = trim((string) $item->first_name . $middle . ' ' . (string) $item->last_name);
+            $name = trim((string) $item->first_name.$middle.' '.(string) $item->last_name);
 
             $role = $item->role_display_name
                 ?: $item->role_name
                 ?: 'Barangay Official';
 
-            $answer .= '• <strong>' . e($name) . '</strong> — ' . e(Str::headline((string) $role)) . '<br>';
+            $answer .= '• <strong>'.e($name).'</strong> — '.e(Str::headline((string) $role)).'<br>';
         }
 
         return $this->databaseResult($answer, 'officials', [
@@ -215,7 +212,7 @@ class DatabaseLookupService
         }
 
         return [
-            'answer' => 'I could not find a request with Reference Number <strong>' . e($reference) . '</strong>. Please check the number and try again.',
+            'answer' => 'I could not find a request with Reference Number <strong>'.e($reference).'</strong>. Please check the number and try again.',
             'source' => 'database',
             'confidence' => 90,
             'matched' => true,
@@ -234,17 +231,21 @@ class DatabaseLookupService
         $reference = e((string) ($record->reference_number ?? ''));
         $status = $this->formatStatus((string) ($record->status ?? 'processing'));
 
-        $answer = 'Your <strong>' . e($source['label']) . '</strong> request with Reference Number '
-            . '<strong>' . $reference . '</strong> is currently <strong>' . e($status) . '</strong>.';
+        $answer = 'Your <strong>'.e($source['label']).'</strong> request with Reference Number '
+            .'<strong>'.$reference.'</strong> is currently <strong>'.e($status).'</strong>.';
 
         $updatedAt = $record->status_updated_at ?? $record->updated_at ?? $record->created_at ?? null;
         if (! empty($updatedAt)) {
-            $answer .= '<br><br>Last update: <strong>' . e($this->formatDateTime((string) $updatedAt)) . '</strong>.';
+            $answer .= '<br><br>Last update: <strong>'.e($this->formatDateTime((string) $updatedAt)).'</strong>.';
         }
 
-        $latestRemark = $this->latestStatusRemark((string) ($record->reference_number ?? ''));
+        $ownerId = $record->user_id ?? null;
+        $resident = \Illuminate\Support\Facades\Auth::guard('web')->user();
+        $latestRemark = $resident && $ownerId && (int) $resident->id === (int) $ownerId
+            ? $this->latestStatusRemark((string) ($record->reference_number ?? ''))
+            : null;
         if ($latestRemark !== null && ! empty($latestRemark->remarks)) {
-            $answer .= '<br><br>Latest remark: <em>' . e((string) $latestRemark->remarks) . '</em>';
+            $answer .= '<br><br>Latest remark: <em>'.e((string) $latestRemark->remarks).'</em>';
         }
 
         return [
@@ -275,6 +276,7 @@ class DatabaseLookupService
                 ->first();
         } catch (\Throwable $e) {
             Log::warning('[DatabaseLookupService] Remark lookup failed', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -291,6 +293,7 @@ class DatabaseLookupService
                 ->get();
         } catch (\Throwable $e) {
             Log::error('[DatabaseLookupService] Announcement lookup failed', ['error' => $e->getMessage()]);
+
             return $this->safeError('I could not load announcements right now. Please try again later.', 'announcements');
         }
 
@@ -302,10 +305,10 @@ class DatabaseLookupService
 
         foreach ($items as $item) {
             $date = ! empty($item->published_at)
-                ? ' — ' . $this->formatDate((string) $item->published_at)
+                ? ' — '.$this->formatDate((string) $item->published_at)
                 : '';
 
-            $answer .= '• <strong>' . e((string) $item->title) . '</strong>' . e($date) . '<br>';
+            $answer .= '• <strong>'.e((string) $item->title).'</strong>'.e($date).'<br>';
         }
 
         return $this->databaseResult($answer, 'announcements', ['Events', 'Projects', 'Barangay services']);
@@ -323,6 +326,7 @@ class DatabaseLookupService
                 ->get();
         } catch (\Throwable $e) {
             Log::error('[DatabaseLookupService] Event lookup failed', ['error' => $e->getMessage()]);
+
             return $this->safeError('I could not load events right now. Please try again later.', 'events');
         }
 
@@ -334,10 +338,10 @@ class DatabaseLookupService
 
         foreach ($items as $item) {
             $date = $this->formatDate((string) $item->event_date);
-            $time = ! empty($item->start_time) ? ' at ' . $this->formatTime((string) $item->start_time) : '';
-            $location = ! empty($item->location) ? ' — ' . e((string) $item->location) : '';
+            $time = ! empty($item->start_time) ? ' at '.$this->formatTime((string) $item->start_time) : '';
+            $location = ! empty($item->location) ? ' — '.e((string) $item->location) : '';
 
-            $answer .= '• <strong>' . e((string) $item->title) . '</strong> — ' . e($date . $time) . $location . '<br>';
+            $answer .= '• <strong>'.e((string) $item->title).'</strong> — '.e($date.$time).$location.'<br>';
         }
 
         return $this->databaseResult($answer, 'events', ['Announcements', 'Projects', 'Barangay services']);
@@ -353,6 +357,7 @@ class DatabaseLookupService
                 ->get();
         } catch (\Throwable $e) {
             Log::error('[DatabaseLookupService] Project lookup failed', ['error' => $e->getMessage()]);
+
             return $this->safeError('I could not load projects right now. Please try again later.', 'projects');
         }
 
@@ -364,8 +369,8 @@ class DatabaseLookupService
 
         foreach ($items as $item) {
             $status = $this->formatStatus((string) ($item->status ?? 'posted'));
-            $progress = isset($item->progress) ? ' — ' . (int) $item->progress . '% progress' : '';
-            $answer .= '• <strong>' . e((string) $item->title) . '</strong> — ' . e($status . $progress) . '<br>';
+            $progress = isset($item->progress) ? ' — '.(int) $item->progress.'% progress' : '';
+            $answer .= '• <strong>'.e((string) $item->title).'</strong> — '.e($status.$progress).'<br>';
         }
 
         return $this->databaseResult($answer, 'projects', ['Announcements', 'Events', 'Barangay services']);
@@ -375,12 +380,10 @@ class DatabaseLookupService
     {
         $upper = strtoupper(trim($message));
 
-        
         if (preg_match('/\b(?:RES|IND|BL|BC)[-_][0-9]{4,20}[-_][A-Z0-9]{3,50}\b/', $upper, $matches)) {
             return str_replace('_', '-', $matches[0]);
         }
 
-        
         if (preg_match('/\b[A-Z]{2,10}[-_][0-9]{4,20}[-_][A-Z0-9]{3,50}\b/', $upper, $matches)) {
             return str_replace('_', '-', $matches[0]);
         }
@@ -402,6 +405,7 @@ class DatabaseLookupService
     private function normalize(string $message): string
     {
         $message = Str::lower(trim($message));
+
         return preg_replace('/\s+/u', ' ', $message) ?? $message;
     }
 
