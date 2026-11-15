@@ -962,3 +962,28 @@ body,
 .dashboard-shell .card-head h4 { font-size: 1rem !important; }
 .dashboard-shell .card-head p, .dashboard-shell .dashboard-summary-line { font-size: .85rem !important; line-height: 1.55; }
 .dashboard-shell .section-heading h3 { font-size: 1.3rem; }
+
+/* Keep validation feedback readable until the administrator corrects it. */
+.admin-feedback {
+    margin: 0 0 1.25rem;
+    padding: .875rem 1rem;
+    border: 1px solid #e9b8b8;
+    border-left: 4px solid #b4232d;
+    border-radius: .75rem;
+    background: #fff1f2;
+    color: #89232b;
+    font-size: .9375rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.admin-feedback:focus { outline: 3px solid #b4232d55; outline-offset: 3px; }
+[data-theme="dark"] .admin-feedback { background: #371f27; border-color: #a95b67; color: #ffd6dc; }
+.swal2-popup { max-width: calc(100vw - 2rem); border-radius: 1rem; }
+.swal2-actions { gap: .5rem; }
+.swal2-textarea { max-width: calc(100% - 3rem); }
+
+/* All account sections stay discoverable on narrow screens. */
+@media (max-width: 575.98px) {
+    .users-page .tab-navigation { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .375rem; overflow: visible !important; }
+    .users-page .tab-navigation .tab-link { min-width: 0 !important; min-height: 44px; padding: .625rem .5rem; font-size: .875rem; }
+}

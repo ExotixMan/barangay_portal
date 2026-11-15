@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             updateSelectedCount();
 
-            document.querySelectorAll('.events-alert').forEach(alert => {
+            document.querySelectorAll('.events-alert.alert-success').forEach(alert => {
                 setTimeout(() => {
                     alert.classList.remove('show');
                     setTimeout(() => alert.remove(), 250);

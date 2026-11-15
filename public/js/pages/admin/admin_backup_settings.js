@@ -11,7 +11,7 @@ var pendingActionForm = null;
             var modalEl = document.getElementById('confirmActionModal');
 
             if (!modalEl || !confirmBtn) {
-                return window.confirm(message || 'Are you sure you want to continue?');
+                return AdminUI.unavailableConfirm(message || 'Are you sure you want to continue?');
             }
 
             if (titleEl) titleEl.textContent = title || 'Confirm action';
@@ -189,7 +189,7 @@ var pendingActionForm = null;
             }
 
             setTimeout(function () {
-                document.querySelectorAll('.backup-alert.alert-dismissible').forEach(function (alertEl) {
+                document.querySelectorAll('.backup-alert.alert-dismissible.alert-success').forEach(function (alertEl) {
                     var bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
                     bsAlert.close();
                 });

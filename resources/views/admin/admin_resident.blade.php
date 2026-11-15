@@ -928,12 +928,12 @@
                                                 <div class="document-preview-body">
                                                     @if($path)
                                                         @if($isImage)
-                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                            <img src="{{ route('admin.secure.file', ['path' => $path]) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
                                                             <div id="editResidentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                                <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                                <img src="{{ route('admin.secure.file', ['path' => $path]) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                             </div>
                                                         @else
-                                                            <a href="{{ asset($path) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                            <a href="{{ route('admin.secure.file', ['path' => $path]) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                                                 <i class="fas fa-file-pdf me-1"></i>View File
                                                             </a>
                                                         @endif
@@ -1137,12 +1137,12 @@
                                                                 <div class="document-preview-body">
                                                                     @if($path)
                                                                         @if($isImage)
-                                                                            <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                                            <img src="{{ route('admin.secure.file', ['path' => $path]) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
                                                                             <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                                                <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                                                <img src="{{ route('admin.secure.file', ['path' => $path]) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                                             </div>
                                                                         @else
-                                                                            <a href="{{ asset($path) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf me-1"></i>View File</a>
+                                                                            <a href="{{ route('admin.secure.file', ['path' => $path]) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf me-1"></i>View File</a>
                                                                         @endif
                                                                     @else
                                                                         <div class="document-empty"><span><i class="fas fa-circle-info me-1"></i>Not uploaded</span></div>
@@ -1548,12 +1548,12 @@
                                                         <div class="document-preview-body">
                                                             @if($path)
                                                                 @if($isImage)
-                                                                    <img src="{{ asset($path) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
+                                                                    <img src="{{ route('admin.secure.file', ['path' => $path]) }}" alt="{{ $doc['label'] }}" class="document-thumb" data-show-target="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-error-action="document-empty">
                                                                     <div id="residentDocFull{{ $resident->id }}_{{ $doc['field'] }}" data-hide-self style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-                                                                        <img src="{{ asset($path) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+                                                                        <img src="{{ route('admin.secure.file', ['path' => $path]) }}" style="max-width:90vw;max-height:90vh;border-radius:12px;">
                                                                     </div>
                                                                 @else
-                                                                    <a href="{{ asset($path) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf me-1"></i>View File</a>
+                                                                    <a href="{{ route('admin.secure.file', ['path' => $path]) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf me-1"></i>View File</a>
                                                                 @endif
                                                             @else
                                                                 <div class="document-empty"><span><i class="fas fa-circle-info me-1"></i>Not uploaded</span></div>

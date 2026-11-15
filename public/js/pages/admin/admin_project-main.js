@@ -6,7 +6,7 @@ const __cfg_admin_projects = JSON.parse(document.getElementById('js-config-admin
             const idsContainer = document.getElementById('bulkIdsContainer');
 
             if (!bulkForm || !idsContainer) {
-                alert('Bulk Archive form is unavailable. Please refresh the page.');
+                AdminUI.notify('Bulk Archive form is unavailable. Please refresh the page.');
                 return;
             }
 
@@ -19,7 +19,7 @@ const __cfg_admin_projects = JSON.parse(document.getElementById('js-config-admin
                         confirmButtonColor: '#d33'
                     });
                 } else {
-                    alert('Please select at least one project to archive.');
+                    AdminUI.notify('Please select at least one project to archive.');
                 }
                 return;
             }
@@ -48,7 +48,7 @@ const __cfg_admin_projects = JSON.parse(document.getElementById('js-config-admin
                     }
                 });
             } else {
-                if (confirm(`Are you sure you want to archive ${checkboxes.length} project(s)?`)) {
+                if (AdminUI.unavailableConfirm(`Are you sure you want to archive ${checkboxes.length} project(s)?`)) {
                     bulkForm.submit();
                 }
             }
@@ -86,7 +86,7 @@ const __cfg_admin_projects = JSON.parse(document.getElementById('js-config-admin
                     }
                 });
             } else {
-                if (confirm(message || 'Are you sure?')) {
+                if (AdminUI.unavailableConfirm(message || 'Are you sure?')) {
                     form.submit();
                 }
             }
@@ -134,7 +134,7 @@ const __cfg_admin_projects = JSON.parse(document.getElementById('js-config-admin
             }
 
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
+                document.querySelectorAll('.alert-success').forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

@@ -50,7 +50,12 @@
             event.stopPropagation();
         }
 
-        if (element.dataset.confirm && !window.confirm(element.dataset.confirm)) {
+        if (element.tagName !== 'FORM' && element.dataset.confirm && window.AdminUI) {
+            AdminUI.confirmSubmission(event, element.closest('form'), element.dataset.confirm);
+            return;
+        }
+
+        if (element.tagName !== 'FORM' && element.dataset.confirm && !window.confirm(element.dataset.confirm)) {
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -78,6 +83,11 @@
     document.addEventListener('submit', function (event) {
         const form = event.target.closest('form');
         if (!form) return;
+
+        if (form.dataset.confirm && window.AdminUI) {
+            AdminUI.confirmSubmission(event, form, form.dataset.confirm);
+            return;
+        }
 
         if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) {
             event.preventDefault();

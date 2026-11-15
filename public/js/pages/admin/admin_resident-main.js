@@ -62,7 +62,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             event.preventDefault();
             const form = event.target.closest('form');
             if (typeof Swal === 'undefined') {
-                const ok = confirm(message || 'Are you sure?');
+                const ok = AdminUI.unavailableConfirm(message || 'Are you sure?');
                 if (ok) form.submit();
                 return false;
             }
@@ -77,7 +77,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             event.preventDefault();
             const form = event.target.closest('form');
             if (typeof Swal === 'undefined') {
-                if (confirm('Approve and verify the valid ID for ' + residentName + '?')) form.submit();
+                if (AdminUI.unavailableConfirm('Approve and verify the valid ID for ' + residentName + '?')) form.submit();
                 return false;
             }
             Swal.fire({
@@ -102,7 +102,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             const parentModal = form.closest('.modal.show') || form.closest('.modal');
 
             if (typeof Swal === 'undefined') {
-                const reason = prompt('Enter rejection remarks for ' + residentName + ':');
+                const reason = AdminUI.unavailablePrompt('Enter rejection remarks for ' + residentName + ':');
                 if (reason && reason.trim().length > 0) {
                     reasonInput.value = reason.trim();
                     form.submit();
@@ -146,7 +146,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             const parentModal = form.closest('.modal.show') || form.closest('.modal');
 
             if (typeof Swal === 'undefined') {
-                const confirmed = confirm(
+                const confirmed = AdminUI.unavailableConfirm(
                     `Approve and verify the ${label} classification for ${residentName}?`
                 );
 
@@ -202,12 +202,12 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             const parentModal = form.closest('.modal.show') || form.closest('.modal');
 
             if (!reasonInput) {
-                alert('Rejection remarks field is missing. Please refresh the page and try again.');
+                AdminUI.notify('Rejection remarks field is missing. Please refresh the page and try again.');
                 return false;
             }
 
             if (typeof Swal === 'undefined') {
-                const reason = prompt(
+                const reason = AdminUI.unavailablePrompt(
                     `Enter rejection remarks for ${residentName}'s ${label} evidence:`
                 );
 
@@ -218,12 +218,12 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
                 const remarks = reason.trim();
 
                 if (!remarks) {
-                    alert('Rejection remarks are required.');
+                    AdminUI.notify('Rejection remarks are required.');
                     return false;
                 }
 
                 if (remarks.length > 500) {
-                    alert('Rejection remarks must not exceed 500 characters.');
+                    AdminUI.notify('Rejection remarks must not exceed 500 characters.');
                     return false;
                 }
 
@@ -346,7 +346,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             }
 
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
+                document.querySelectorAll('.alert-success').forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

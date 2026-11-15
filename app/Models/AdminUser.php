@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
 use App\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class AdminUser extends Authenticatable
 {
-    use HasApiTokens, 
-        HasFactory, 
-        Notifiable, 
-        SoftDeletes, 
-        HasPermissions;
+    use HasApiTokens,
+        HasFactory,
+        HasPermissions,
+        Notifiable,
+        SoftDeletes;
 
     protected $table = 'admin_users';
 
@@ -61,7 +61,7 @@ class AdminUser extends Authenticatable
     {
         $prefix = 'USR';
         $year = date('Y');
-        $lastUser = static::whereYear('created_at', $year)
+        $lastUser = static::withTrashed()->whereYear('created_at', $year)
             ->orderBy('id', 'desc')
             ->first();
 
@@ -72,12 +72,12 @@ class AdminUser extends Authenticatable
             $newNumber = '0001';
         }
 
-        return $prefix . '-' . $year . '-' . $newNumber;
+        return $prefix.'-'.$year.'-'.$newNumber;
     }
 
     public function receivesBroadcastNotificationsOn(): string
     {
-        return 'admins.' . $this->getKey();
+        return 'admins.'.$this->getKey();
     }
 
     public function role()
@@ -102,14 +102,15 @@ class AdminUser extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return trim($this->first_name . ' ' . ($this->middle_initial ? $this->middle_initial . ' ' : '') . $this->last_name);
+        return trim($this->first_name.' '.($this->middle_initial ? $this->middle_initial.' ' : '').$this->last_name);
     }
 
     public function getInitialsAttribute()
     {
         $first = $this->first_name ? substr($this->first_name, 0, 1) : '';
         $last = $this->last_name ? substr($this->last_name, 0, 1) : '';
-        return strtoupper($first . $last);
+
+        return strtoupper($first.$last);
     }
 
     public function scopeActive(Builder $query): Builder
@@ -129,13 +130,13 @@ class AdminUser extends Authenticatable
 
     public function scopeSearch(Builder $query, string $search): Builder
     {
-        return $query->where(function($q) use ($search) {
+        return $query->where(function ($q) use ($search) {
             $q->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('middle_initial', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('username', 'like', "%{$search}%")
-              ->orWhere('user_id', 'like', "%{$search}%");
+                ->orWhere('middle_initial', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('username', 'like', "%{$search}%")
+                ->orWhere('user_id', 'like', "%{$search}%");
         });
     }
 }

@@ -432,7 +432,7 @@ const __cfg_admin_admin_chatbot_1 = JSON.parse(document.getElementById('js-confi
 
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.addEventListener('click', async function () {
-                    if (!confirm('Delete this knowledge item? This cannot be undone.')) {
+                    if (!await AdminUI.confirm('Delete this knowledge item? This cannot be undone.')) {
                         return;
                     }
                     const id = this.dataset.id;
@@ -462,7 +462,7 @@ const __cfg_admin_admin_chatbot_1 = JSON.parse(document.getElementById('js-confi
                     const id = this.dataset.id;
                     const query = this.dataset.query || 'this query';
 
-                    if (!confirm(`Dismiss “${query}”? It will be removed from the pending training queue without adding a chatbot answer.`)) {
+                    if (!await AdminUI.confirm(`Dismiss “${query}”? It will be removed from the pending training queue without adding a chatbot answer.`)) {
                         return;
                     }
 

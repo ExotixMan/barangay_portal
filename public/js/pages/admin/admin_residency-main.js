@@ -123,11 +123,11 @@ const __cfg_admin_residency = JSON.parse(document.getElementById('js-config-admi
                 : null;
 
             if (typeof Swal === 'undefined') {
-                return window.confirm(text);
+                return AdminUI.unavailableConfirm(text);
             }
 
             if (!form) {
-                return window.confirm(text);
+                return AdminUI.unavailableConfirm(text);
             }
 
             Swal.fire({
@@ -523,7 +523,7 @@ const __cfg_admin_residency = JSON.parse(document.getElementById('js-config-admi
             if (typeof Swal === 'undefined') {
                 console.log('SweetAlert2 not loaded, using default confirm');
                 window.confirmDelete = function(event, message) {
-                    return confirm(message || 'Are you sure?');
+                    return AdminUI.unavailableConfirm(message || 'Are you sure?');
                 };
             }
 
@@ -554,7 +554,7 @@ const __cfg_admin_residency = JSON.parse(document.getElementById('js-config-admi
             }
 
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
+                document.querySelectorAll('.alert-success').forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Builder;
 
 class AdminActivityLog extends Model
 {
@@ -21,7 +21,7 @@ class AdminActivityLog extends Model
         'module',
         'details',
         'ip_address',
-        'user_agent'
+        'user_agent',
     ];
 
     protected $casts = [
@@ -36,7 +36,7 @@ class AdminActivityLog extends Model
             }
 
             $fingerprint = self::buildDuplicateFingerprint($log);
-            $cacheKey = 'admin_activity_log:dedupe:' . sha1($fingerprint);
+            $cacheKey = 'admin_activity_log:dedupe:'.sha1($fingerprint);
 
             return Cache::add($cacheKey, true, now()->addSeconds(self::DUPLICATE_GUARD_SECONDS));
         });
@@ -44,12 +44,12 @@ class AdminActivityLog extends Model
 
     private static function shouldSuppressBackgroundViewLog(self $log): bool
     {
-        if (!app()->bound('request')) {
+        if (! app()->bound('request')) {
             return false;
         }
 
         $request = request();
-        if (!$request || !$request->isMethod('get')) {
+        if (! $request || ! $request->isMethod('get')) {
             return false;
         }
 
@@ -58,6 +58,7 @@ class AdminActivityLog extends Model
         }
 
         $action = strtolower((string) $log->action);
+
         return str_contains($action, 'view') || str_contains($action, 'read');
     }
 
@@ -75,21 +76,33 @@ class AdminActivityLog extends Model
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    private static function normalizeDetails(array $details): array
+    private static function normalizeDetails(mixed $details): array
     {
-        if (is_string($details)) {
-            $decoded = json_decode($details, true);
-            $details = is_array($decoded) ? $decoded : [];
-        }
-
-        if (!is_array($details)) {
-            return [];
-        }
+        $details = self::decodeDetails($details);
 
         self::removeVolatileKeys($details);
         ksort($details);
 
         return $details;
+    }
+
+    private static function decodeDetails(mixed $value): array
+    {
+        for ($depth = 0; is_string($value) && $depth < 3; $depth++) {
+            $value = json_decode($value, true);
+        }
+
+        return is_array($value) ? $value : [];
+    }
+
+    public function setDetailsAttribute(mixed $value): void
+    {
+        $this->attributes['details'] = json_encode(self::decodeDetails($value), JSON_THROW_ON_ERROR);
+    }
+
+    public function getDetailsAttribute(mixed $value): array
+    {
+        return self::decodeDetails($value);
     }
 
     private static function removeVolatileKeys(array &$data): void
@@ -131,12 +144,13 @@ class AdminActivityLog extends Model
         if (is_array($this->details)) {
             return json_encode($this->details, JSON_PRETTY_PRINT);
         }
+
         return $this->details;
     }
 
     public function getActionBadgeClassAttribute()
     {
-        return match($this->action) {
+        return match ($this->action) {
             'LOGIN', 'LOGOUT' => 'bg-info',
             'CREATE' => 'bg-success',
             'UPDATE' => 'bg-warning',

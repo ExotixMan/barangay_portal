@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const password  = form.querySelector('[name="password"]');
             const roleId    = form.querySelector('[name="role_id"]');
 
-            const namePattern = /^[a-zA-Z\s\-\.]+$/;
-            const middleInitialPattern = /^[A-Za-z]\.?$/;
+            const namePattern = /^[\p{L}\p{M}\s.'-]+$/u;
+            const middleInitialPattern = /^\p{L}\p{M}*\.?$/u;
 
             if (firstName) {
                 firstName.addEventListener('input', function() { cf(this); }, {once: true});
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const v = this.value.trim();
                     if (!v) sf(this, 'First name is required.');
                     else if (v.length < 2) sf(this, 'First name must be at least 2 characters.');
-                    else if (!namePattern.test(v)) sf(this, 'First name can only contain letters, spaces, hyphens, or periods.');
+                    else if (!namePattern.test(v)) sf(this, 'First name can only contain letters, spaces, apostrophes, hyphens, or periods.');
                     else cf(this);
                 });
             }
@@ -58,13 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const v = this.value.trim();
                     if (!v) sf(this, 'Last name is required.');
                     else if (v.length < 2) sf(this, 'Last name must be at least 2 characters.');
-                    else if (!namePattern.test(v)) sf(this, 'Last name can only contain letters, spaces, hyphens, or periods.');
+                    else if (!namePattern.test(v)) sf(this, 'Last name can only contain letters, spaces, apostrophes, hyphens, or periods.');
                     else cf(this);
                 });
             }
             if (middleInitial) {
                 middleInitial.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^A-Za-z\.]/g, '').slice(0, 3).toUpperCase();
+                    this.value = this.value.replace(/[^\p{L}\p{M}.]/gu, '').slice(0, 3).toUpperCase();
                     const v = this.value.trim();
                     if (!v) cf(this);
                     else if (!middleInitialPattern.test(v)) sf(this, 'Middle initial must be one letter, optional period (e.g. A or A.).');
@@ -118,13 +118,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const v = firstName.value.trim();
                     if (!v) { sf(firstName, 'First name is required.'); valid = false; }
                     else if (v.length < 2) { sf(firstName, 'First name must be at least 2 characters.'); valid = false; }
-                    else if (!namePattern.test(v)) { sf(firstName, 'First name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
+                    else if (!namePattern.test(v)) { sf(firstName, 'First name can only contain letters, spaces, apostrophes, hyphens, or periods.'); valid = false; }
                 }
                 if (lastName) {
                     const v = lastName.value.trim();
                     if (!v) { sf(lastName, 'Last name is required.'); valid = false; }
                     else if (v.length < 2) { sf(lastName, 'Last name must be at least 2 characters.'); valid = false; }
-                    else if (!namePattern.test(v)) { sf(lastName, 'Last name can only contain letters, spaces, hyphens, or periods.'); valid = false; }
+                    else if (!namePattern.test(v)) { sf(lastName, 'Last name can only contain letters, spaces, apostrophes, hyphens, or periods.'); valid = false; }
                 }
                 if (middleInitial) {
                     const v = middleInitial.value.trim();

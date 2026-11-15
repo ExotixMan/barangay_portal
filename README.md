@@ -59,3 +59,5 @@ Forecast history uses non-archived records and completed Manila calendar days, e
 Daily forecasts become stale at Manila midnight. A failed or overlapping refresh keeps the last persisted result; the dashboard labels stale/unavailable data and displays refresh errors inline. Old public forecast snapshots are no longer used as fallback data. Use the scheduler or the explicit refresh command to regenerate private forecast storage after upgrading. Forecast access is filtered by the administrator's module permissions.
 
 The production Docker image pins PHP 8.4 on Debian Trixie so its Python version meets the pinned forecasting packages' minimum (3.12). CI also runs the analytics tests on Python 3.12 and 3.13.
+
+Admin fixes and verification are described in [docs/admin-review.md](docs/admin-review.md). After pulling these changes, run `php artisan optimize:clear` and rebuild local assets with `npm ci` followed by `npm run build` (use `npm.cmd` in Windows PowerShell if script execution is disabled). Run `php artisan test` against your isolated test database before checking account management, request validation, document previews, and prediction in the browser.

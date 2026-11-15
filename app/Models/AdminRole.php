@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 
 class AdminRole extends Model
 {
@@ -13,11 +14,11 @@ class AdminRole extends Model
         'name',
         'display_name',
         'description',
-        'is_system_role'
+        'is_system_role',
     ];
 
     protected $casts = [
-        'is_system_role' => 'boolean',
+        'is_system_role' => \App\Casts\DatabaseBoolean::class,
     ];
 
     public function users()
@@ -29,10 +30,10 @@ class AdminRole extends Model
     {
         return $this->belongsToMany(
             AdminPermission::class,
-            'admin_role_permissions',  
-            'role_id',                 
-            'permission_id'            
-        )->withTimestamps();           
+            'admin_role_permissions',
+            'role_id',
+            'permission_id'
+        )->withTimestamps();
     }
 
     public function getUsersCountAttribute()
@@ -40,7 +41,7 @@ class AdminRole extends Model
         return $this->users()->count();
     }
 
-    public function getDisplayNameAttribute(string $value)
+    public function getDisplayNameAttribute(?string $value)
     {
         return $value ?? ucfirst($this->name);
     }

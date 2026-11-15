@@ -442,7 +442,7 @@
                             @if($selectedRole)
                                 <input type="hidden" name="role_id" value="{{ $selectedRole->id }}">
                             @endif
-                            <button type="submit" class="btn btn-outline-secondary" data-click-call="confirmReset">
+                            <button type="submit" class="btn btn-outline-secondary" data-click-call="confirmReset" data-click-pass="event,self">
                                 <i class="fas fa-undo me-2"></i>Reset Defaults
                             </button>
                         </form>

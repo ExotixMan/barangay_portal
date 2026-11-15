@@ -288,6 +288,12 @@ $vipBack = $request->file('valid_id_back_path');
             'status' => 'required|in:' . implode(',', $allowedStatuses),
             'remarks' => 'nullable|required_if:status,rejected|string|max:40',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,5})(?:\.\d{1,2})?$/'],
+        ], [
+            'status.required' => 'Choose the new request status before saving.',
+            'status.in' => 'Choose a status from the available options.',
+            'remarks.required_if' => 'Enter a reason before rejecting this request.',
+            'remarks.max' => 'Keep notification remarks to 40 characters or fewer.',
+            'fee.regex' => 'Enter a fee from 0 to 999999.99 with up to two decimal places.',
         ]);
 
         $newStatus = $request->status;

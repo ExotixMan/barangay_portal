@@ -3,20 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdminUser;
-use App\Models\AdminRole;
-use App\Models\AdminPermission;
 use App\Models\AdminActivityLog;
+use App\Models\AdminPermission;
+use App\Models\AdminRole;
+use App\Models\AdminUser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class AdminUserController extends Controller
 {
@@ -29,7 +28,7 @@ class AdminUserController extends Controller
             ->orderByDesc('created_at');
     }
 
-    private function applyAuditFilters(Builder $query, Request $request) : Builder
+    private function applyAuditFilters(Builder $query, Request $request): Builder
     {
         if ($request->filled('log_action')) {
             $query->where('action', $request->input('log_action'));
@@ -90,7 +89,7 @@ class AdminUserController extends Controller
                 'EXPORT',
                 'DOWNLOAD',
                 'BULK_DELETE',
-                'APPROVAL_STATUS_CHANGE'
+                'APPROVAL_STATUS_CHANGE',
             ];
 
             $dbActions = AdminActivityLog::select('action')
@@ -135,25 +134,25 @@ class AdminUserController extends Controller
                 'status_filter' => $request->input('status'),
             ],
             'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent()
+            'user_agent' => $request->userAgent(),
         ]);
 
         $query = AdminUser::with(['role.permissions', 'permissions']);
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                                    ->orWhere('middle_initial', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('user_id', 'like', "%{$search}%");
+                    ->orWhere('middle_initial', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%")
+                    ->orWhere('user_id', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('role')) {
-            $query->whereHas('role', function($q) use ($request) {
+            $query->whereHas('role', function ($q) use ($request) {
                 $q->where('name', $request->role);
             });
         }
@@ -171,8 +170,8 @@ class AdminUserController extends Controller
             ?? $request->input('selected_role')
             ?? ($roles->first()->id ?? null);
         $selectedRole = $selectedRoleId ? $roles->firstWhere('id', (int) $selectedRoleId) : null;
-        
-        if (!$selectedRole && $selectedRoleId) {
+
+        if (! $selectedRole && $selectedRoleId) {
             $selectedRole = AdminRole::with('permissions')->find($selectedRoleId);
         }
 
@@ -202,7 +201,7 @@ class AdminUserController extends Controller
 
         $total_users = (int) ($userStats->total_users ?? 0);
         $active_users = (int) ($userStats->active_users ?? 0);
-        $super_admins = AdminUser::whereHas('role', function($q) {
+        $super_admins = AdminUser::whereHas('role', function ($q) {
             $q->where('name', 'super_admin');
         })->count();
         $total_roles = $roles->count();
@@ -232,7 +231,7 @@ class AdminUserController extends Controller
 
     public function exportAuditLogsCsv(Request $request): StreamedResponse
     {
-        $fileName = 'admin_user_role_audit_logs_' . now()->format('Ymd_His') . '.csv';
+        $fileName = 'admin_user_role_audit_logs_'.now()->format('Ymd_His').'.csv';
 
         $logsQuery = $this->applyAuditFilters($this->getAuditLogsBaseQuery(), $request);
 
@@ -270,9 +269,9 @@ class AdminUserController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'first_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
-            'middle_initial' => ['nullable', 'string', 'max:3', 'regex:/^[A-Za-z]\\.?$/'],
-            'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
+            'first_name' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\p{L}\p{M}\s.'-]+$/u"],
+            'middle_initial' => ['nullable', 'string', 'max:3', "regex:/^\p{L}\p{M}*\\.?$/u"],
+            'last_name' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\p{L}\p{M}\s.'-]+$/u"],
             'email' => 'required|email|unique:admin_users,email',
             'username' => ['required', 'string', 'unique:admin_users,username', 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'],
             'password' => ['required', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
@@ -281,9 +280,9 @@ class AdminUserController extends Controller
             'department' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive,suspended',
         ], [
-            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex' => 'First name can only contain letters, spaces, apostrophes, hyphens, and periods.',
             'middle_initial.regex' => 'Middle initial must be a single letter, with an optional period (e.g. A or A.).',
-            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and periods.',
+            'last_name.regex' => 'Last name can only contain letters, spaces, apostrophes, hyphens, and periods.',
             'username.regex' => 'Username can only contain letters, numbers, underscores, dots, and hyphens.',
             'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
             'password.regex' => 'Password cannot contain spaces.',
@@ -293,17 +292,17 @@ class AdminUserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput()
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']))
                 ->with('form_type', 'add_user');
         }
 
+        app(\App\Services\AdminAccountProtection::class)->authorize(roleId: (int) $request->role_id);
         DB::beginTransaction();
 
         try {
             $user = AdminUser::create([
-                'user_id' => 'USR-' . date('Y') . str_pad(AdminUser::count() + 1, 5, '0', STR_PAD_LEFT), 
                 'first_name' => $request->first_name,
-                'middle_initial' => $request->middle_initial ? strtoupper($request->middle_initial) : null,
+                'middle_initial' => $request->middle_initial ? mb_strtoupper($request->middle_initial) : null,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'username' => $request->username,
@@ -315,54 +314,56 @@ class AdminUserController extends Controller
             ]);
 
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), 
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'CREATE',
                 'module' => 'Users',
-                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name . ' ' . $user->last_name]),
+                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name.' '.$user->last_name]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             if ($request->has('send_welcome_email')) {
-                
+
             }
 
             DB::commit();
             $this->clearUserRoleLookupCache();
 
-            return redirect()->route('admin.users.index') 
+            return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+
             return redirect()->back()
                 ->with('error', 'Failed to create user.')
-                ->withInput();
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']));
         }
     }
 
     public function update(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
+        app(\App\Services\AdminAccountProtection::class)->authorize($user);
 
         $request->merge([
             'contact_number' => preg_replace('/\D+/', '', (string) $request->input('contact_number')),
         ]);
 
         $validator = Validator::make($request->all(), [
-            'first_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
-            'middle_initial' => ['nullable', 'string', 'max:3', 'regex:/^[A-Za-z]\\.?$/'],
-            'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s\-\.]+$/'],
-            'email' => 'required|email|unique:admin_users,email,' . $id, 
-            'username' => ['required', 'string', 'unique:admin_users,username,' . $id, 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'], 
+            'first_name' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\p{L}\p{M}\s.'-]+$/u"],
+            'middle_initial' => ['nullable', 'string', 'max:3', "regex:/^\p{L}\p{M}*\\.?$/u"],
+            'last_name' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\p{L}\p{M}\s.'-]+$/u"],
+            'email' => 'required|email|unique:admin_users,email,'.$id,
+            'username' => ['required', 'string', 'unique:admin_users,username,'.$id, 'min:3', 'max:255', 'regex:/^[a-zA-Z0-9_.\-]+$/'],
             'contact_number' => ['nullable', 'regex:/^09\d{9}$/'],
-            'role_id' => 'required|exists:admin_roles,id', 
+            'role_id' => 'required|exists:admin_roles,id',
             'department' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,suspended',
         ], [
-            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex' => 'First name can only contain letters, spaces, apostrophes, hyphens, and periods.',
             'middle_initial.regex' => 'Middle initial must be a single letter, with an optional period (e.g. A or A.).',
-            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and periods.',
+            'last_name.regex' => 'Last name can only contain letters, spaces, apostrophes, hyphens, and periods.',
             'username.regex' => 'Username can only contain letters, numbers, underscores, dots, and hyphens.',
             'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
         ]);
@@ -370,18 +371,19 @@ class AdminUserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput()
-                ->with('form_type', 'edit_user_' . $id);
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']))
+                ->with('form_type', 'edit_user_'.$id);
         }
 
+        app(\App\Services\AdminAccountProtection::class)->authorize($user, (int) $request->role_id);
         DB::beginTransaction();
 
         try {
-            $oldData = $user->toArray();
-            
+            app(\App\Services\AdminAccountProtection::class)->ensureOwnerRemains($user, (int) $request->role_id, $request->status);
+
             $user->update([
                 'first_name' => $request->first_name,
-                'middle_initial' => $request->middle_initial ? strtoupper($request->middle_initial) : null,
+                'middle_initial' => $request->middle_initial ? mb_strtoupper($request->middle_initial) : null,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'username' => $request->username,
@@ -392,56 +394,61 @@ class AdminUserController extends Controller
             ]);
 
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), 
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'UPDATE',
                 'module' => 'Users',
                 'details' => json_encode([
                     'user_id' => $user->id,
-                    'changes' => array_diff_assoc($user->toArray(), $oldData)
+                    'changes' => $user->getChanges(),
                 ]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             DB::commit();
             $this->clearUserRoleLookupCache();
 
-            return redirect()->route('admin.users.index') 
+            return redirect()->route('admin.users.index')
                 ->with('success', 'User updated successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
             return redirect()->back()
                 ->with('error', 'Failed to update user.')
-                ->withInput();
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']));
         }
     }
 
     public function destroy(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
+        app(\App\Services\AdminAccountProtection::class)->authorize($user);
 
         if ($user->role && $user->role->name === 'super_admin') {
-            return redirect()->route('admin.users.index') 
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Cannot delete super admin user.');
         }
 
-        if ($user->id === Auth::guard('admin')->id()) { 
-            return redirect()->route('admin.users.index') 
+        if ($user->id === Auth::guard('admin')->id()) {
+            return redirect()->route('admin.users.index')
                 ->with('error', 'You cannot delete your own account.');
         }
 
         DB::beginTransaction();
 
         try {
-            
+
             AdminActivityLog::create([
-                'user_id' => Auth::guard('admin')->id(), 
+                'user_id' => Auth::guard('admin')->id(),
                 'action' => 'DELETE',
                 'module' => 'Users',
-                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name . ' ' . $user->last_name]),
+                'details' => json_encode(['user_id' => $user->id, 'user_name' => $user->first_name.' '.$user->last_name]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             $user->delete();
@@ -449,21 +456,23 @@ class AdminUserController extends Controller
             DB::commit();
             $this->clearUserRoleLookupCache();
 
-            return redirect()->route('admin.users.index') 
+            return redirect()->route('admin.users.index')
                 ->with('success', 'User deleted successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
-            return redirect()->route('admin.users.index') 
+
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Failed to delete user.');
         }
     }
-    
+
     public function resetPassword(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
+        app(\App\Services\AdminAccountProtection::class)->authorize($user);
 
-        if (!$request->filled('new_password') && $request->filled('password')) {
+        if (! $request->filled('new_password') && $request->filled('password')) {
             $request->merge([
                 'new_password' => $request->input('password'),
             ]);
@@ -479,8 +488,8 @@ class AdminUserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput()
-                ->with('form_type', 'edit_user_' . $id);
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']))
+                ->with('form_type', 'edit_user_'.$id);
         }
 
         DB::beginTransaction();
@@ -489,7 +498,7 @@ class AdminUserController extends Controller
             $newPassword = (string) $request->new_password;
 
             $user->update([
-                'password' => Hash::make($newPassword)
+                'password' => Hash::make($newPassword),
             ]);
 
             AdminActivityLog::create([
@@ -498,7 +507,7 @@ class AdminUserController extends Controller
                 'module' => 'Users',
                 'details' => json_encode(['user_id' => $user->id]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             DB::commit();
@@ -507,8 +516,9 @@ class AdminUserController extends Controller
             return redirect()->route('admin.users.index')
                 ->with('success', 'Password reset successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+
             return redirect()->route('admin.users.index')
                 ->with('error', 'Failed to reset password.');
         }
@@ -517,10 +527,11 @@ class AdminUserController extends Controller
     public function updatePermissions(Request $request, int $id)
     {
         $user = AdminUser::findOrFail($id);
+        app(\App\Services\AdminAccountProtection::class)->authorize($user);
 
         if ($user->role && $user->role->name === 'super_admin') {
             return redirect()->route('admin.users.index', ['tab' => 'users'])
-                ->with('form_type', 'user_permissions_' . $id)
+                ->with('form_type', 'user_permissions_'.$id)
                 ->with('error', 'Super admin permissions cannot be modified.');
         }
 
@@ -532,8 +543,8 @@ class AdminUserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput()
-                ->with('form_type', 'user_permissions_' . $id);
+                ->withInput($request->except(['password', 'password_confirmation', 'new_password']))
+                ->with('form_type', 'user_permissions_'.$id);
         }
 
         DB::beginTransaction();
@@ -563,7 +574,7 @@ class AdminUserController extends Controller
                     'direct_permissions' => $directPermissionIds,
                 ]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             DB::commit();
@@ -572,10 +583,11 @@ class AdminUserController extends Controller
             return redirect()->route('admin.users.index', ['tab' => 'users'])
                 ->with('success', 'User permissions updated successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+
             return redirect()->route('admin.users.index', ['tab' => 'users'])
-                ->with('form_type', 'user_permissions_' . $id)
+                ->with('form_type', 'user_permissions_'.$id)
                 ->with('error', 'Failed to update permissions.');
         }
     }
@@ -592,6 +604,16 @@ class AdminUserController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
+        if ($request->action !== 'delete' && ! Auth::guard('admin')->user()->hasPermission('update_users')) {
+            abort(403, 'You do not have permission to change account status.');
+        }
+        $protected = AdminUser::whereIn('id', $request->user_ids)->where(function ($query) {
+            $query->where('id', Auth::guard('admin')->id())->orWhereHas('role', fn ($role) => $role->where('name', 'super_admin'));
+        })->exists();
+        if ($protected) {
+            return response()->json(['message' => 'Your own account and super-administrator accounts cannot be changed in bulk. Select other accounts.'], 422);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -599,20 +621,20 @@ class AdminUserController extends Controller
 
             switch ($request->action) {
                 case 'delete':
-                    
-                    $users->whereDoesntHave('role', function($q) {
+
+                    $users->whereDoesntHave('role', function ($q) {
                         $q->where('name', 'super_admin');
                     })->where('id', '!=', Auth::guard('admin')->id())->delete();
                     break;
-                    
+
                 case 'activate':
                     $users->update(['status' => 'active']);
                     break;
-                    
+
                 case 'deactivate':
                     $users->update(['status' => 'inactive']);
                     break;
-                    
+
                 case 'suspend':
                     $users->update(['status' => 'suspended']);
                     break;
@@ -620,11 +642,11 @@ class AdminUserController extends Controller
 
             AdminActivityLog::create([
                 'user_id' => Auth::guard('admin')->id(),
-                'action' => 'BULK_' . strtoupper($request->action),
+                'action' => 'BULK_'.strtoupper($request->action),
                 'module' => 'Users',
                 'details' => json_encode(['user_ids' => $request->user_ids, 'action' => $request->action]),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             DB::commit();
@@ -632,8 +654,9 @@ class AdminUserController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Bulk action completed successfully.']);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json(['error' => 'Failed to complete bulk action.'], 500);
         }
     }

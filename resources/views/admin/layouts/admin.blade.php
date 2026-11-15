@@ -55,6 +55,7 @@
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/admin/admin-theme.js') }}"></script>
 
+    <script src="{{ asset('js/admin/admin-feedback.js') }}"></script>
     @stack('scripts')
 
     <script src="{{ asset('js/admin/admin-accessibility.js') }}" defer></script>

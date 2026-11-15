@@ -20,7 +20,7 @@ const __cfg_admin_admin_clearance_2 = JSON.parse(document.getElementById('js-con
                 const history = Array.isArray(payload.history) ? payload.history : [];
 
                 if (history.length === 0) {
-                    alert('No saved remarks found for this request yet.');
+                    AdminUI.notify('No saved remarks found for this request yet.');
                     return;
                 }
 
@@ -32,43 +32,14 @@ const __cfg_admin_admin_clearance_2 = JSON.parse(document.getElementById('js-con
                     })
                     .join('\n\n');
 
-                alert('Remarks History - ' + referenceNumber + '\n\n' + details);
+                AdminUI.notify('Remarks History - ' + referenceNumber + '\n\n' + details);
             } catch (error) {
-                alert(error.message || 'Unable to load remarks history right now.');
+                AdminUI.notify(error.message || 'Unable to load remarks history right now.');
             }
         }
 
         function prepareRemarksAndConfirm(event, form, confirmMessage) {
-            const statusInput = form.querySelector('input[name="status"]');
-            const remarksInput = form.querySelector('input[name="remarks"]');
-            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
-
-            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
-                const remarks = prompt('Please enter remarks before sending this notification:');
-                if (remarks === null) {
-                    event.preventDefault();
-                    return false;
-                }
-                const trimmedRemarks = remarks.trim();
-                if (trimmedRemarks === '') {
-                    event.preventDefault();
-                    alert('Remarks are required for rejected or dropped notifications.');
-                    return false;
-                }
-                if (trimmedRemarks.length > 40) {
-                    event.preventDefault();
-                    alert('Remarks must not exceed 40 characters.');
-                    return false;
-                }
-                remarksInput.value = trimmedRemarks;
-            }
-
-            if (!confirm(confirmMessage)) {
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
+            return AdminUI.confirmSubmission(event, form, confirmMessage, {requestRemarks: true});
         }
 
         function setViewFooter(appId, tab) {
@@ -94,9 +65,9 @@ const __cfg_admin_admin_clearance_2 = JSON.parse(document.getElementById('js-con
                 return;
             }
             container.innerHTML = timeline.map(function(item) {
-                const title = (item.title || item.label || 'Activity').toString();
-                const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : (item.description ? '<div class="text-muted mt-1">' + item.description + '</div>' : '');
-                const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' - ' + (item.created_at || item.date || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || item.date || '') + '</div>';
+                const title = AdminUI.escape(item.title || item.label || 'Activity');
+                const details = item.details ? '<div class="text-muted mt-1">' + AdminUI.escape(item.details) + '</div>' : (item.description ? '<div class="text-muted mt-1">' + AdminUI.escape(item.description) + '</div>' : '');
+                const actor = item.actor ? '<div class="small text-muted">' + AdminUI.escape(item.actor) + ' - ' + AdminUI.escape(item.created_at || item.date || '') + '</div>' : '<div class="small text-muted">' + AdminUI.escape(item.created_at || item.date || '') + '</div>';
                 return '<div class="activity-item py-2 border-bottom">' +
                     '<div class="fw-semibold">' + title + '</div>' +
                     actor +
@@ -123,7 +94,7 @@ const __cfg_admin_admin_clearance_2 = JSON.parse(document.getElementById('js-con
                 const payload = await response.json();
                 renderHistoryList(container, payload || {});
             } catch (error) {
-                container.innerHTML = '<div class="text-danger">' + (error.message || 'Unable to load history.') + '</div>';
+                container.innerHTML = '<div class="text-danger">' + AdminUI.escape(error.message || 'Unable to load history.') + '</div>';
             }
         }
 
@@ -135,13 +106,13 @@ const __cfg_admin_admin_clearance_2 = JSON.parse(document.getElementById('js-con
 
             if (remarks.length > 40) {
                 event.preventDefault();
-                alert('Remarks must not exceed 40 characters.');
+                AdminUI.notify('Remarks must not exceed 40 characters.');
                 return false;
             }
 
             if (status === 'rejected' && remarks.length === 0) {
                 event.preventDefault();
-                alert('Remarks are required when status is Rejected.');
+                AdminUI.notify('Remarks are required when status is Rejected.');
                 return false;
             }
             return true;

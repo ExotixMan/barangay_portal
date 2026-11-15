@@ -1467,7 +1467,11 @@
                                                 <div class="doc-head"><span><i class="fas fa-house me-1"></i>Proof of Residency</span></div>
                                                 <div class="doc-body">
                                                     @if($app->primary_proof)
-                                                        <img src="{{ route('admin.secure.file', ['path' => $app->primary_proof]) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->primary_proof])]) }}">
+                                                        @if(in_array(strtolower(pathinfo($app->primary_proof, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
+                                                            <img src="{{ route('admin.secure.file', ['path' => $app->primary_proof]) }}" alt="Proof of residency" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->primary_proof])]) }}">
+                                                        @else
+                                                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.secure.file', ['path' => $app->primary_proof]) }}" target="_blank" rel="noopener"><i class="fas fa-file-pdf me-1"></i>View document</a>
+                                                        @endif
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-file-circle-xmark"></i><span>No proof uploaded</span></div>
                                                     @endif
@@ -1477,7 +1481,11 @@
                                                 <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Front</span></div>
                                                 <div class="doc-body">
                                                     @if($app->government_id)
-                                                        <img src="{{ asset($app->government_id) }}" alt="Valid ID front" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->government_id)]) }}">
+                                                        @if(in_array(strtolower(pathinfo($app->government_id, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
+                                                            <img src="{{ route('admin.secure.file', ['path' => $app->government_id]) }}" alt="Valid ID front" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->government_id])]) }}">
+                                                        @else
+                                                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.secure.file', ['path' => $app->government_id]) }}" target="_blank" rel="noopener"><i class="fas fa-file-pdf me-1"></i>View document</a>
+                                                        @endif
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No valid ID uploaded</span></div>
                                                     @endif
@@ -1487,7 +1495,11 @@
                                                 <div class="doc-head"><span><i class="fas fa-id-card me-1"></i>Valid ID - Back</span></div>
                                                 <div class="doc-body">
                                                     @if($app->government_id_back)
-                                                        <img src="{{ asset($app->government_id_back) }}" alt="Valid ID back" data-click-call="openZoomModal" data-click-args="{{ json_encode([asset($app->government_id_back)]) }}">
+                                                        @if(in_array(strtolower(pathinfo($app->government_id_back, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
+                                                            <img src="{{ route('admin.secure.file', ['path' => $app->government_id_back]) }}" alt="Valid ID back" data-click-call="openZoomModal" data-click-args="{{ json_encode([route('admin.secure.file', ['path' => $app->government_id_back])]) }}">
+                                                        @else
+                                                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.secure.file', ['path' => $app->government_id_back]) }}" target="_blank" rel="noopener"><i class="fas fa-file-pdf me-1"></i>View document</a>
+                                                        @endif
                                                     @else
                                                         <div class="empty-doc-note"><i class="fas fa-id-card-clip"></i><span>No back ID uploaded</span></div>
                                                     @endif

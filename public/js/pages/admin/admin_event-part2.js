@@ -4,7 +4,7 @@ function bulkDelete() {
             const idsContainer = document.getElementById('bulkIdsContainer');
 
             if (!bulkForm || !idsContainer) {
-                alert('Bulk Archive form is unavailable. Please refresh the page.');
+                AdminUI.notify('Bulk Archive form is unavailable. Please refresh the page.');
                 return;
             }
 
@@ -17,7 +17,7 @@ function bulkDelete() {
                         confirmButtonColor: '#d33'
                     });
                 } else {
-                    alert('Please select at least one event to archive.');
+                    AdminUI.notify('Please select at least one event to archive.');
                 }
                 return;
             }
@@ -47,7 +47,7 @@ function bulkDelete() {
                     }
                 });
             } else {
-                if (confirm(`Are you sure you want to archive ${checkboxes.length} event(s)?`)) {
+                if (AdminUI.unavailableConfirm(`Are you sure you want to archive ${checkboxes.length} event(s)?`)) {
                     bulkForm.submit();
                 }
             }
@@ -81,7 +81,7 @@ function bulkDelete() {
                     }
                 });
             } else {
-                if (confirm(message || 'Are you sure?')) {
+                if (AdminUI.unavailableConfirm(message || 'Are you sure?')) {
                     form.submit();
                 }
             }
@@ -130,7 +130,7 @@ function bulkDelete() {
             }
 
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
+                document.querySelectorAll('.alert-success').forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

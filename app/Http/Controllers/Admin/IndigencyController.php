@@ -327,6 +327,11 @@ $vipBack = $request->file('valid_id_back_path');
         $request->validate([
             'status' => 'required|in:' . implode(',', $allowedStatuses),
             'remarks' => 'nullable|required_if:status,rejected|string|max:40',
+        ], [
+            'status.required' => 'Choose the new request status before saving.',
+            'status.in' => 'Choose a status from the available options.',
+            'remarks.required_if' => 'Enter a reason before rejecting this request.',
+            'remarks.max' => 'Keep notification remarks to 40 characters or fewer.',
         ]);
 
         $newStatus = $request->status;

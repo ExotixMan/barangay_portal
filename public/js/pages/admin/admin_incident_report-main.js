@@ -153,7 +153,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
                 const history = Array.isArray(payload.history) ? payload.history : [];
 
                 if (history.length === 0) {
-                    alert('No saved remarks found for this request yet.');
+                    AdminUI.notify('No saved remarks found for this request yet.');
                     return;
                 }
 
@@ -165,43 +165,14 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
                     })
                     .join('\n\n');
 
-                alert('Remarks History - ' + referenceNumber + '\n\n' + details);
+                AdminUI.notify('Remarks History - ' + referenceNumber + '\n\n' + details);
             } catch (error) {
-                alert(error.message || 'Unable to load remarks history right now.');
+                AdminUI.notify(error.message || 'Unable to load remarks history right now.');
             }
         }
 
         function prepareRemarksAndConfirm(event, form, confirmMessage) {
-            const statusInput = form.querySelector('input[name="status"]');
-            const remarksInput = form.querySelector('input[name="remarks"]');
-            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
-
-            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
-                const remarks = prompt('Please enter remarks before sending this notification:');
-                if (remarks === null) {
-                    event.preventDefault();
-                    return false;
-                }
-                const trimmedRemarks = remarks.trim();
-                if (trimmedRemarks === '') {
-                    event.preventDefault();
-                    alert('Remarks are required for rejected or dropped notifications.');
-                    return false;
-                }
-                if (trimmedRemarks.length > 40) {
-                    event.preventDefault();
-                    alert('Remarks must not exceed 40 characters.');
-                    return false;
-                }
-                remarksInput.value = trimmedRemarks;
-            }
-
-            if (!confirm(confirmMessage)) {
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
+            return AdminUI.confirmSubmission(event, form, confirmMessage, {requestRemarks: true});
         }
 
         async function loadApplicationHistory(appId) {
@@ -237,10 +208,10 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
                 }
 
                 list.innerHTML = timeline.map(function(item) {
-                    const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : '';
-                    const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' - ' + (item.created_at || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || '') + '</div>';
+                    const details = item.details ? '<div class="text-muted mt-1">' + AdminUI.escape(item.details) + '</div>' : '';
+                    const actor = item.actor ? '<div class="small text-muted">' + AdminUI.escape(item.actor) + ' - ' + AdminUI.escape(item.created_at || '') + '</div>' : '<div class="small text-muted">' + AdminUI.escape(item.created_at || '') + '</div>';
                     return '<div class="activity-item py-2 border-bottom">' +
-                        '<div class="fw-semibold">' + (item.title || 'Activity') + '</div>' +
+                        '<div class="fw-semibold">' + AdminUI.escape(item.title || 'Activity') + '</div>' +
                         actor +
                         details +
                         '</div>';
@@ -285,19 +256,19 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
 
             if (!status) {
                 event.preventDefault();
-                alert('Please select a status.');
+                AdminUI.notify('Please select a status.');
                 return false;
             }
 
             if (remarks.length > 40) {
                 event.preventDefault();
-                alert('Remarks must not exceed 40 characters.');
+                AdminUI.notify('Remarks must not exceed 40 characters.');
                 return false;
             }
 
             if (status === 'dropped' && remarks === '') {
                 event.preventDefault();
-                alert('Remarks are required when status is Dropped.');
+                AdminUI.notify('Remarks are required when status is Dropped.');
                 return false;
             }
 
@@ -312,7 +283,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
                 form.action = approveUrl;
             }
 
-            return confirm('Confirm status update to ' + status.charAt(0).toUpperCase() + status.slice(1) + '?');
+            return AdminUI.confirmSubmission(event, form, 'Confirm status update to ' + status.charAt(0).toUpperCase() + status.slice(1) + '?');
         }
 
         function switchViewTab(appId, tabName) {
@@ -379,7 +350,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
             if (typeof Swal === 'undefined') {
                 console.log('SweetAlert2 not loaded, using default confirm');
                 window.confirmDelete = function(event, message) {
-                    return confirm(message || 'Are you sure?');
+                    return AdminUI.unavailableConfirm(message || 'Are you sure?');
                 };
             }
 
@@ -693,7 +664,7 @@ const __cfg_admin_incidents = JSON.parse(document.getElementById('js-config-admi
             }
 
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
+                document.querySelectorAll('.alert-success').forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

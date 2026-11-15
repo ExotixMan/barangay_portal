@@ -86,48 +86,19 @@ const __cfg_admin_admin_indigency_2 = JSON.parse(document.getElementById('js-con
             const remarks = String(remarksInput?.value || '').trim();
             if (remarks.length > 40) {
                 event.preventDefault();
-                alert('Remarks must not exceed 40 characters.');
+                AdminUI.notify('Remarks must not exceed 40 characters.');
                 return false;
             }
             if (status === 'rejected' && remarks === '') {
                 event.preventDefault();
-                alert('Remarks are required when status is Rejected.');
+                AdminUI.notify('Remarks are required when status is Rejected.');
                 return false;
             }
             return confirmDelete(event, 'Confirm status update?');
         }
 
         function prepareRemarksAndConfirm(event, form, confirmMessage) {
-            const statusInput = form.querySelector('input[name="status"]');
-            const remarksInput = form.querySelector('input[name="remarks"]');
-            const status = statusInput ? String(statusInput.value || '').toLowerCase() : '';
-
-            if ((status === 'rejected' || status === 'dropped') && remarksInput) {
-                const remarks = prompt('Please enter remarks before sending this notification:');
-                if (remarks === null) {
-                    event.preventDefault();
-                    return false;
-                }
-                const trimmedRemarks = remarks.trim();
-                if (trimmedRemarks === '') {
-                    event.preventDefault();
-                    alert('Remarks are required for rejected or dropped notifications.');
-                    return false;
-                }
-                if (trimmedRemarks.length > 40) {
-                    event.preventDefault();
-                    alert('Remarks must not exceed 40 characters.');
-                    return false;
-                }
-                remarksInput.value = trimmedRemarks;
-            }
-
-            if (!confirm(confirmMessage)) {
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
+            return AdminUI.confirmSubmission(event, form, confirmMessage, {requestRemarks: true});
         }
 
         document.addEventListener('DOMContentLoaded', function() {

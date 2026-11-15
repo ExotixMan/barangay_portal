@@ -1,7 +1,7 @@
 const __cfg_admin_users_roles = JSON.parse(document.getElementById('js-config-admin-users-roles')?.dataset.jsConfig || '{}');
 
-        function confirmReset() {
-            return confirm('Are you sure you want to reset all permissions to default values? This action cannot be undone.');
+        function confirmReset(event, button) {
+            return AdminUI.confirmSubmission(event, button.form, 'Reset role permissions to their defaults? Existing customizations will be replaced.');
         }
 
         function togglePasswordVisibility(inputId) {
@@ -18,7 +18,7 @@ const __cfg_admin_users_roles = JSON.parse(document.getElementById('js-config-ad
 
         function switchTab(tabName, event) {
             const panel = document.getElementById(tabName + 'Tab');
-            const clicked = event?.currentTarget || Array.from(document.querySelectorAll('.tab-link')).find(function (link) {
+            const clicked = event?.target?.closest('.tab-link') || Array.from(document.querySelectorAll('.tab-link')).find(function (link) {
                 const args = link.getAttribute('data-click-args') || '';
                 return args.includes('"' + tabName + '"');
             });
@@ -217,7 +217,7 @@ const __cfg_admin_users_roles = JSON.parse(document.getElementById('js-config-ad
         }
 
         setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alert => {
+            document.querySelectorAll('.alert-success').forEach(alert => {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             });

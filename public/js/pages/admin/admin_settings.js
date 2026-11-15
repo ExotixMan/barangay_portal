@@ -1,6 +1,6 @@
 (function () {
             function autoDismissSettingsAlerts() {
-                document.querySelectorAll('.settings-alert.alert-dismissible').forEach(function (alertEl) {
+                document.querySelectorAll('.settings-alert.alert-dismissible.alert-success').forEach(function (alertEl) {
                     const isDanger = alertEl.classList.contains('alert-danger');
                     const delay = isDanger ? 8000 : 4500;
 

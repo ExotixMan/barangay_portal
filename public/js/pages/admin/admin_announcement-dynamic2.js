@@ -199,22 +199,22 @@ function confirmBulkResidentNotification(event) {
     const estimatedRecipients = Number(document.getElementById('smsEstimatedRecipients')?.textContent.replaceAll(',', '') || 0);
 
     if (!message) {
-        alert('Please write a message before sending.');
+        AdminUI.notify('Please write a message before sending.');
         return false;
     }
 
     if (audienceValue === 'selected' && selectedResidents === 0) {
-        alert('Please select at least one resident.');
+        AdminUI.notify('Please select at least one resident.');
         return false;
     }
 
     if ((channel === 'sms' || channel === 'both') && estimatedRecipients > 1000) {
-        alert('SMS bulk notification is limited to 1,000 mobile numbers only.');
+        AdminUI.notify('SMS bulk notification is limited to 1,000 mobile numbers only.');
         return false;
     }
 
     if ((channel === 'sms' || channel === 'both') && neededCredits > availableCredits) {
-        alert(`Not enough SMS credits. Needed: ${neededCredits}, Available: ${availableCredits}`);
+        AdminUI.notify(`Not enough SMS credits. Needed: ${neededCredits}, Available: ${availableCredits}`);
         return false;
     }
 
@@ -242,7 +242,7 @@ function confirmBulkResidentNotification(event) {
         return false;
     }
 
-    if (confirm(confirmText)) {
+    if (AdminUI.unavailableConfirm(confirmText)) {
         form.submit();
     }
 

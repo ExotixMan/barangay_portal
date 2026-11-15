@@ -33,10 +33,10 @@ const __cfg_admin_admin_residency_2 = JSON.parse(document.getElementById('js-con
                 }
 
                 list.innerHTML = timeline.map(function(item) {
-                    const details = item.details ? '<div class="text-muted mt-1">' + item.details + '</div>' : '';
-                    const actor = item.actor ? '<div class="small text-muted">' + item.actor + ' � ' + (item.created_at || '') + '</div>' : '<div class="small text-muted">' + (item.created_at || '') + '</div>';
+                    const details = item.details ? '<div class="text-muted mt-1">' + AdminUI.escape(item.details) + '</div>' : '';
+                    const actor = item.actor ? '<div class="small text-muted">' + AdminUI.escape(item.actor) + ' &middot; ' + AdminUI.escape(item.created_at || '') + '</div>' : '<div class="small text-muted">' + AdminUI.escape(item.created_at || '') + '</div>';
                     return '<div class="activity-item py-2 border-bottom">' +
-                        '<div class="fw-semibold">' + (item.title || 'Activity') + '</div>' +
+                        '<div class="fw-semibold">' + AdminUI.escape(item.title || 'Activity') + '</div>' +
                         actor +
                         details +
                         '</div>';
@@ -421,11 +421,7 @@ const __cfg_admin_admin_residency_2 = JSON.parse(document.getElementById('js-con
         });
 
         function prepareRemarksAndConfirm(event, form, confirmMessage) {
-            if (!confirm(confirmMessage)) {
-                event.preventDefault();
-                return false;
-            }
-            return true;
+            return AdminUI.confirmSubmission(event, form, confirmMessage, {requestRemarks: true});
         }
 
         function handleUpdateStatusSubmit(event, form) {
@@ -436,13 +432,13 @@ const __cfg_admin_admin_residency_2 = JSON.parse(document.getElementById('js-con
 
             if (remarks.length > 40) {
                 event.preventDefault();
-                alert('Remarks must not exceed 40 characters.');
+                AdminUI.notify('Remarks must not exceed 40 characters.');
                 return false;
             }
 
             if (status === 'rejected' && remarks === '') {
                 event.preventDefault();
-                alert('Remarks are required when status is Rejected.');
+                AdminUI.notify('Remarks are required when status is Rejected.');
                 return false;
             }
 

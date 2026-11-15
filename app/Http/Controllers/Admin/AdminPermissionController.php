@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\AdminPermission;
 use App\Models\AdminRole;
-use App\Models\AdminActivityLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class AdminPermissionController extends Controller
 {
@@ -47,7 +48,7 @@ class AdminPermissionController extends Controller
         return redirect()->route('admin.users.index', ['tab' => 'permissions']);
     }
 
-    public function updateRolePermissions(Request $request,int $roleId)
+    public function updateRolePermissions(Request $request, int $roleId)
     {
         $role = AdminRole::findOrFail($roleId);
         $adminId = Auth::guard('admin')->id();
@@ -71,7 +72,7 @@ class AdminPermissionController extends Controller
         DB::beginTransaction();
 
         try {
-            
+
             $role->permissions()->sync($request->permissions ?? []);
 
             if ($adminId) {
@@ -82,10 +83,10 @@ class AdminPermissionController extends Controller
                     'details' => [
                         'role_id' => $role->id,
                         'role_name' => $role->name,
-                        'permissions' => $request->permissions
+                        'permissions' => $request->permissions,
                     ],
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
+                    'user_agent' => $request->userAgent(),
                 ]);
             }
 
@@ -97,6 +98,7 @@ class AdminPermissionController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return redirect()->back()
                 ->with('error', 'Failed to update permissions.');
         }
@@ -104,6 +106,11 @@ class AdminPermissionController extends Controller
 
     public function resetToDefault(Request $request)
     {
+        $request->validate(['role_id' => 'required|integer|exists:admin_roles,id'], [
+            'role_id.required' => 'Choose a role before resetting its permissions.',
+            'role_id.exists' => 'Choose an existing role and try again.',
+        ]);
+        app(\App\Services\AdminAccountProtection::class)->authorize(roleId: (int) $request->role_id);
         $adminId = Auth::guard('admin')->id();
         DB::beginTransaction();
 
@@ -117,7 +124,6 @@ class AdminPermissionController extends Controller
                     ->all();
             };
 
-            
             $defaultPermissions = [
                 'super_admin' => $permissionsByName->values()->all(),
                 'barangay_captain' => $permissionIdsFor([
@@ -130,7 +136,7 @@ class AdminPermissionController extends Controller
                     'view_announcements', 'create_announcements',
                     'view_events', 'create_events',
                     'view_projects', 'create_projects',
-                    'view_requests', 'update_requests'
+                    'view_requests', 'update_requests',
                 ]),
 
                 'barangay_secretary' => $permissionIdsFor([
@@ -141,7 +147,7 @@ class AdminPermissionController extends Controller
                     'view_clearance', 'approve_clearance', 'generate_clearance_document',
                     'view_blotter', 'create_blotter',
                     'view_announcements', 'create_announcements',
-                    'view_events', 'create_events'
+                    'view_events', 'create_events',
                 ]),
 
                 'barangay_treasurer' => $permissionIdsFor([
@@ -152,7 +158,7 @@ class AdminPermissionController extends Controller
                     'view_clearance',
                     'view_requests',
                     'send_request_email', 'send_request_sms',
-                    'send_email', 'send_sms'
+                    'send_email', 'send_sms',
                 ]),
 
                 'barangay_kagawad' => $permissionIdsFor([
@@ -168,31 +174,31 @@ class AdminPermissionController extends Controller
                     'view_requests',
                     'view_users',
                     'view_roles',
-                    'view_permissions'
+                    'view_permissions',
                 ]),
 
                 'staff' => $permissionIdsFor([
                     'view_residents', 'create_residents', 'update_residents',
                     'view_residency', 'view_indigency', 'view_clearance',
                     'view_blotter', 'create_blotter',
-                    'view_announcements', 'view_events', 'view_projects'
+                    'view_announcements', 'view_events', 'view_projects',
                 ]),
 
                 'records_officer' => $permissionIdsFor([
                     'view_residents', 'create_residents', 'update_residents', 'delete_residents',
                     'view_residency', 'view_indigency', 'view_clearance',
-                    'view_blotter', 'view_announcements', 'view_events', 'view_projects'
+                    'view_blotter', 'view_announcements', 'view_events', 'view_projects',
                 ]),
 
                 'certificate_encoder' => $permissionIdsFor([
                     'view_residency', 'approve_residency', 'reject_residency', 'generate_residency_document',
                     'view_indigency', 'approve_indigency', 'reject_indigency', 'generate_indigency_document',
-                    'view_clearance', 'approve_clearance', 'reject_clearance', 'generate_clearance_document'
+                    'view_clearance', 'approve_clearance', 'reject_clearance', 'generate_clearance_document',
                 ]),
 
                 'complaints_officer' => $permissionIdsFor([
                     'view_blotter', 'create_blotter', 'update_blotter', 'delete_blotter',
-                    'add_witness', 'delete_witness'
+                    'add_witness', 'delete_witness',
                 ]),
 
                 'viewer' => $permissionIdsFor([
@@ -208,29 +214,26 @@ class AdminPermissionController extends Controller
                     'view_requests',
                     'view_users',
                     'view_roles',
-                    'view_permissions'
+                    'view_permissions',
                 ]),
             ];
 
-            $rolesByName = AdminRole::whereIn('name', array_keys($defaultPermissions))
-                ->get()
-                ->keyBy('name');
-
-            foreach ($defaultPermissions as $roleName => $permissionIds) {
-                $role = $rolesByName->get($roleName);
-                if ($role) {
-                    $role->permissions()->sync($permissionIds);
-                }
+            $role = AdminRole::findOrFail($request->integer('role_id'));
+            if (! array_key_exists($role->name, $defaultPermissions)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'role_id' => 'This custom role has no default permissions. Edit its permissions directly.',
+                ]);
             }
+            $role->permissions()->sync($defaultPermissions[$role->name]);
 
             if ($adminId) {
                 AdminActivityLog::create([
                     'user_id' => $adminId,
                     'action' => 'reset_permissions',
                     'module' => 'permissions',
-                    'details' => ['reset_to_default' => 'true'],
+                    'details' => ['reset_to_default' => true, 'role_id' => $role->id, 'role_name' => $role->name],
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
+                    'user_agent' => $request->userAgent(),
                 ]);
             }
 
@@ -245,16 +248,20 @@ class AdminPermissionController extends Controller
             ]))
                 ->with('success', 'Permissions reset to default successfully.');
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
             return redirect()->back()
                 ->with('error', 'Failed to reset permissions.');
         }
     }
-    
+
     private function seedDefaultPermissions()
     {
-        
+
         $permissionsByName = AdminPermission::pluck('id', 'name');
         $permissionIdsFor = function (array $names) use ($permissionsByName) {
             return collect($names)
@@ -270,15 +277,15 @@ class AdminPermissionController extends Controller
                 'view_residents', 'add_residents', 'edit_residents',
                 'view_requests', 'create_requests', 'approve_requests',
                 'view_reports', 'create_reports',
-                'manage_content'
+                'manage_content',
             ]),
             'staff' => $permissionIdsFor([
                 'view_residents', 'view_requests', 'create_requests',
-                'view_reports'
+                'view_reports',
             ]),
             'secretary' => $permissionIdsFor([
                 'view_residents', 'view_requests', 'create_requests',
-                'manage_content'
+                'manage_content',
             ]),
         ];
 

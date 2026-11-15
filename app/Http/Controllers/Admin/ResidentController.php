@@ -24,6 +24,9 @@ class ResidentController extends Controller
     public function index(Request $request)
     {
         $query = Residents::withTrashed();
+        $today = Carbon::today(config('app.timezone'));
+        $adultCutoff = $today->copy()->subYearsNoOverflow(18)->toDateString();
+        $seniorCutoff = $today->copy()->subYearsNoOverflow(60)->toDateString();
 
         $search = preg_replace('/[^a-zA-Z0-9\s\-@.]/', '', $request->search ?? ''); 
 
@@ -47,13 +50,13 @@ class ResidentController extends Controller
         if ($request->age_range) {
             switch ($request->age_range) {
                 case 'minor':
-                    $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) < 18");
+                    $query->whereDate('birthdate', '>', $adultCutoff);
                     break;
                 case 'adult':
-                    $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) BETWEEN 18 AND 59");
+                    $query->whereDate('birthdate', '<=', $adultCutoff)->whereDate('birthdate', '>', $seniorCutoff);
                     break;
                 case 'senior':
-                    $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60");
+                    $query->whereDate('birthdate', '<=', $seniorCutoff);
                     break;
             }
         }
@@ -73,7 +76,7 @@ class ResidentController extends Controller
                     $query->where('pwd_status', 'pending');
                     break;
                 case 'senior':
-                    $query->whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60");
+                    $query->whereDate('birthdate', '<=', $seniorCutoff);
                     break;
             }
         }
@@ -104,9 +107,7 @@ class ResidentController extends Controller
         ");
 
         if ($sort === 'age') {
-            $query->orderByRaw(
-                "EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) $direction"
-            );
+            $query->orderBy('birthdate', strtolower($direction) === 'asc' ? 'desc' : 'asc');
         } else {
             $query->orderBy($sort, $direction);
         }
@@ -150,7 +151,7 @@ class ResidentController extends Controller
 
         $yesterdayCount = Residents::whereDate('created_at', Carbon::yesterday())->count();
 
-        $seniorResidents = Residents::whereRaw("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate)) >= 60")->count();
+        $seniorResidents = Residents::whereDate('birthdate', '<=', $seniorCutoff)->count();
 
         $seniorPercentage = $totalResidents > 0 ? ($seniorResidents / $totalResidents) * 100 : 0;
 
