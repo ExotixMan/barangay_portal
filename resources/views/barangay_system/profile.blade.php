@@ -219,8 +219,11 @@
                                 <i class="fas fa-arrow-right"></i>
                             </div>
                             <div class="bhd-correction-compare-box">
-                                <span>{{ __('messages.blade_profile_blade_correct_value') }}</span>
-                                <strong>{{ $latestProfileCorrection->correct_value ?: __('messages.blade_announcement_blade_n_a') }}</strong>
+                                <span>{{ $latestProfileCorrection->resolved_value !== null ? 'Saved correction' : __('messages.blade_profile_blade_correct_value') }}</span>
+                                <strong>{{ ($latestProfileCorrection->resolved_value ?? $latestProfileCorrection->correct_value) ?: __('messages.blade_announcement_blade_n_a') }}</strong>
+                                @if($latestProfileCorrection->resolved_value !== null && $latestProfileCorrection->resolved_value !== $latestProfileCorrection->correct_value)
+                                    <small>Originally requested: {{ $latestProfileCorrection->correct_value }}</small>
+                                @endif
                             </div>
                         </div>
 
@@ -281,7 +284,10 @@
                                                 <strong>{{ __('messages.blade_profile_blade_current_value') }}:</strong>
                                                 {{ $concern->current_value ?: __('messages.blade_announcement_blade_n_a') }}
                                                 <strong>{{ __('messages.blade_profile_blade_correct_value') }}:</strong>
-                                                {{ $concern->correct_value ?: __('messages.blade_announcement_blade_n_a') }}
+                                                {{ ($concern->resolved_value ?? $concern->correct_value) ?: __('messages.blade_announcement_blade_n_a') }}
+                                                @if($concern->resolved_value !== null && $concern->resolved_value !== $concern->correct_value)
+                                                    <span>Originally requested: {{ $concern->correct_value }}</span>
+                                                @endif
                                             </div>
                                             <div class="remarks">
                                                 <strong>Admin remarks:</strong>
@@ -1417,7 +1423,7 @@
         'v9' => __('messages.profile_password_strength_label'),
     ],
 ])
-<script src="{{ asset('js/pages/barangay_system/profile-tabs.js') }}"></script>
+<script src="{{ asset('js/pages/barangay_system/profile-tabs.js') }}?v={{ filemtime(public_path('js/pages/barangay_system/profile-tabs.js')) }}"></script>
 
 <script src="{{ asset('js/pages/barangay_system/profile.js') }}"></script>
 <script src="{{ asset('js/opencv-loader.js') }}"></script>

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdminActivityLog;
 use App\Models\AdminRole;
 use App\Models\AdminUser;
 use App\Models\ResidentProfileCorrectionConcern;
@@ -88,16 +89,33 @@ class ProfileCorrectionTest extends TestCase
         $this->get(route('admin.residents.index'))->assertOk()->assertSee('Please check this correction decision.')->assertSee('errorCorrectionId');
     }
 
-    public function test_mismatched_name_parts_cannot_resolve_a_request(): void
+    public function test_verified_name_can_include_a_middle_name_omitted_from_the_request(): void
     {
         $resident = Residents::factory()->create();
-        $original = $resident->full_name;
-        $concern = $this->concern($resident);
+        $requestedName = 'María Ana De la Cruz';
+        $savedName = 'María Ana Peña De la Cruz Jr.';
+        $concern = $this->concern($resident, 'Full name', $requestedName);
         $payload = $this->decision($concern);
-        $payload['name_lastname'] = 'Different Family';
-        $this->actingAs($this->admin(), 'admin')->put(route('admin.residents.update', $resident->id), $payload)->assertSessionHasErrors('name_firstname');
-        $this->assertSame($original, $resident->fresh()->full_name);
-        $this->assertSame('pending', $concern->fresh()->status);
+        $payload['notify_email'] = true;
+        $this->mock(EmailDeliveryService::class, function ($mock) use ($savedName, $resident) {
+            $mock->shouldReceive('sendText')->once()->withArgs(function ($to, $subject, $message) use ($savedName, $resident) {
+                return $to === $resident->email && $subject === 'Profile Correction Approved'
+                    && str_contains($message, "Updated value: {$savedName}\n");
+            });
+        });
+        $this->actingAs($this->admin(), 'admin')->put(route('admin.residents.update', $resident->id), $payload)
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
+        $this->assertSame($savedName, $resident->fresh()->full_name);
+        $this->assertSame('resolved', $concern->fresh()->status);
+        $this->assertSame($savedName, $concern->fresh()->resolved_value);
+        $this->assertSame($requestedName, $concern->fresh()->correct_value);
+        $activity = AdminActivityLog::where('module', 'Residents')->get()
+            ->first(fn ($row) => ($row->details['correction_id'] ?? null) === $concern->id);
+        $this->assertSame($savedName, $activity->details['new_value']);
+        $this->assertSame($requestedName, $activity->details['requested_value']);
+        $this->get(route('admin.residents.index'))->assertOk()->assertSee('Saved correction')->assertSee($savedName);
+        Auth::guard('admin')->logout();
+        $this->actingAs($resident->fresh(), 'web')->get(route('profile'))->assertOk()->assertSee($savedName)->assertSee('Originally requested: '.$requestedName);
     }
 
     public function test_invalid_name_characters_leave_the_request_and_resident_unchanged(): void
@@ -166,6 +184,7 @@ class ProfileCorrectionTest extends TestCase
             $this->putJson(route('admin.residents.update', $resident->id), $this->decision($concern))->assertStatus(500);
             $this->assertSame($original, $resident->fresh()->full_name);
             $this->assertSame('pending', $concern->fresh()->status);
+            $this->assertNull($concern->fresh()->resolved_value);
         } finally {
             ResidentProfileCorrectionConcern::flushEventListeners();
         }

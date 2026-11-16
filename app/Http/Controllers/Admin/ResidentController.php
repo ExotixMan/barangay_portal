@@ -346,7 +346,7 @@ class ResidentController extends Controller
             $residentChanges = [];
 
             if ($decision === 'resolved' && ResidentName::isFullNameField($correction->field_name)) {
-                $residentChanges = ResidentName::confirmedParts($request->all(), $correction->correct_value);
+                $residentChanges = ResidentName::confirmedParts($request->all());
             } elseif ($decision === 'resolved') {
                 $field = strtolower(trim((string) $correction->field_name));
 
@@ -538,7 +538,13 @@ class ResidentController extends Controller
                 ];
             }
 
-            DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks) {
+            $resolvedValue = $decision === 'resolved'
+                ? (ResidentName::isFullNameField($correction->field_name)
+                    ? implode(' ', array_filter($residentChanges))
+                    : (string) reset($residentChanges))
+                : null;
+
+            DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks, $resolvedValue) {
                 $lockedConcern = ResidentProfileCorrectionConcern::whereKey($correction->id)->lockForUpdate()->firstOrFail();
                 if (! in_array(strtolower((string) $lockedConcern->status), ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''], true)) {
                     throw \Illuminate\Validation\ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
@@ -551,8 +557,11 @@ class ResidentController extends Controller
                     'reviewed_by' => auth('admin')->id(),
                     'reviewed_at' => now('Asia/Manila'),
                     'remarks' => $remarks,
+                    'resolved_value' => $resolvedValue,
                 ]);
             });
+            $correction->refresh();
+            $appliedValue = $correction->resolved_value ?? $correction->correct_value;
 
             $this->log(
                 $resident,
@@ -574,7 +583,8 @@ class ResidentController extends Controller
                         'correction_id' => $correction->id,
                         'field' => $correction->field_name,
                         'old_value' => $correction->current_value,
-                        'new_value' => $correction->correct_value,
+                        'new_value' => $appliedValue,
+                        'requested_value' => $correction->correct_value,
                         'decision' => $decision,
                         'remarks' => $remarks,
                         'reviewed_by' => auth('admin')->user()?->full_name ?? 'Admin',
@@ -610,7 +620,7 @@ class ResidentController extends Controller
                         "Hello {$residentName},\n\n".
                         "Your profile correction request for {$fieldLabel} has been approved and corrected.\n\n".
                         "Previous value: {$correction->current_value}\n".
-                        "Updated value: {$correction->correct_value}\n\n".
+                        "Updated value: {$appliedValue}\n\n".
                         "Remarks from Barangay Staff:\n{$remarks}\n\n".
                         "Your resident profile has been updated successfully.\n\n".
                         'Barangay Hulong Duhat';

@@ -1793,6 +1793,9 @@
                                             <div class="resident-correction-detail-grid">
                                                 <div class="resident-correction-detail"><div class="resident-correction-detail-label">Current value</div><div class="resident-correction-detail-value">{{ $concern->current_value ?: 'Not provided' }}</div></div>
                                                 <div class="resident-correction-detail"><div class="resident-correction-detail-label">Requested correction</div><div class="resident-correction-detail-value">{{ $concern->correct_value }}</div></div>
+                                                @if($concern->resolved_value !== null)
+                                                    <div class="resident-correction-detail is-wide"><div class="resident-correction-detail-label">Saved correction</div><div class="resident-correction-detail-value">{{ $concern->resolved_value ?: 'None' }}</div></div>
+                                                @endif
                                                 <div class="resident-correction-detail is-wide"><div class="resident-correction-detail-label">Resident message</div><div class="resident-correction-detail-value">{{ $concern->message ?: 'No additional message.' }}</div></div>
                                                 <div class="resident-correction-detail is-wide"><div class="resident-correction-detail-label">Review remarks</div><div class="resident-correction-detail-value">{{ $concern->remarks ?: ($concern->reviewed_at ? 'No remarks added.' : 'Not reviewed yet.') }}</div></div>
                                             </div>
@@ -1823,9 +1826,9 @@
                                                             <textarea name="remarks" class="form-control" rows="2" maxlength="500" required placeholder="Explain the approval or rejection.">{{ $isCorrectionRetry ? old('remarks') : '' }}</textarea>
                                                         </div>
                                                         @if(\App\Support\ResidentName::isFullNameField($concern->field_name))
-                                                            <fieldset data-correction-name-fields hidden disabled class="col-12 mb-3">
+                                                            <fieldset data-correction-name-fields data-requested-name="{{ $concern->correct_value }}" hidden disabled class="col-12 mb-3">
                                                                 <legend class="fs-6 fw-semibold">Confirm the corrected name</legend>
-                                                                <p class="small text-muted">Enter the requested full name in its correct parts. Keep compound first or last names together. Leave the middle name or suffix empty if none applies.</p>
+                                                                <p class="small text-muted">These fields start with the current profile. Verify each part against the resident's documents. Keep compound names together, and clear any middle name or suffix that should be removed.</p>
                                                                 <div class="row g-2">
                                                                     @foreach(['firstname' => 'First name', 'middlename' => 'Middle name', 'lastname' => 'Last name', 'suffix' => 'Suffix'] as $part => $label)
                                                                         <div class="col-12 col-md-6">
@@ -1833,6 +1836,10 @@
                                                                             <input type="text" id="correction-name-{{ $part }}-{{ $concern->id }}" name="name_{{ $part }}" class="form-control" maxlength="{{ $part === 'suffix' ? 10 : 255 }}" data-name-required="{{ in_array($part, ['firstname', 'lastname']) ? 'true' : 'false' }}" value="{{ $isCorrectionRetry ? old('name_'.$part) : $resident->{$part} }}">
                                                                         </div>
                                                                     @endforeach
+                                                                </div>
+                                                                <div class="alert alert-info mt-3 mb-0" aria-live="polite" data-name-preview>
+                                                                    <strong>Name that will be saved:</strong> <span data-confirmed-name></span>
+                                                                    <p class="small mb-0 mt-1" data-name-difference hidden>This differs from the requested name. Verify the name parts and explain the correction in your remarks before saving.</p>
                                                                 </div>
                                                             </fieldset>
                                                         @endif

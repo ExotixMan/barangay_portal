@@ -12,6 +12,7 @@ class ResidentProfileCorrectionConcern extends Model
         'field_name',
         'current_value',
         'correct_value',
+        'resolved_value',
         'message',
         'status',
         'reviewed_by',

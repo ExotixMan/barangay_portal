@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (profileCorrectionCard && profileCorrectionToggle && profileCorrectionBody) {
         profileCorrectionToggle.addEventListener('click', function () {
             const collapsed = profileCorrectionCard.classList.toggle('is-collapsed');
+            profileCorrectionBody.hidden = collapsed;
             profileCorrectionToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         });
     }

@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ResidentName
 {
@@ -20,7 +19,7 @@ class ResidentName
     }
 
     /** Confirm explicit parts rather than guessing where compound names split. */
-    public static function confirmedParts(array $input, string $requestedName): array
+    public static function confirmedParts(array $input): array
     {
         $rules = [];
         $labels = [];
@@ -37,12 +36,6 @@ class ResidentName
         foreach (array_keys($labels) as $field) {
             $value = self::normalize((string) ($validated[$field] ?? ''));
             $parts[substr($field, strlen('name_'))] = $value !== '' ? $value : null;
-        }
-        $confirmed = implode(' ', array_filter($parts));
-        if (mb_strtolower($confirmed) !== mb_strtolower(self::normalize($requestedName))) {
-            throw ValidationException::withMessages([
-                'name_firstname' => 'The confirmed name parts must match the requested full name. Please check each part before approving.',
-            ]);
         }
 
         return $parts;

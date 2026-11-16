@@ -381,12 +381,23 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             document.querySelectorAll('.correction-resolve-form').forEach(function(form) {
                 const select = form.querySelector('select[name="resolution_status"]');
                 const remarks = form.querySelector('textarea[name="remarks"]');
+                const names = form.querySelector('[data-correction-name-fields]');
+                const updateNamePreview = function() {
+                    if (!names) return;
+                    const normalizeName = value => value.trim().replace(/\s+/gu, ' ');
+                    const savedName = ['firstname', 'middlename', 'lastname', 'suffix']
+                        .map(part => normalizeName(names.querySelector(`[name="name_${part}"]`)?.value || ''))
+                        .filter(Boolean).join(' ');
+                    names.querySelector('[data-confirmed-name]').textContent = savedName || 'Enter the corrected name above.';
+                    names.querySelector('[data-name-difference]').hidden = savedName === '' ||
+                        savedName.toLocaleLowerCase() === normalizeName(names.dataset.requestedName || '').toLocaleLowerCase();
+                };
+                names?.addEventListener('input', updateNamePreview);
                 if (select && remarks) {
                     const syncDecision = function() {
                         remarks.placeholder = select.value === 'rejected'
                             ? 'Explain why this correction request was not approved.'
                             : 'Explain what was corrected on the resident profile.';
-                        const names = form.querySelector('[data-correction-name-fields]');
                         if (names) {
                             const approving = select.value === 'resolved';
                             names.hidden = !approving;
@@ -394,6 +405,7 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
                             names.querySelectorAll('[data-name-required]').forEach(input => {
                                 input.required = approving && input.dataset.nameRequired === 'true';
                             });
+                            updateNamePreview();
                         }
                     };
                     select.addEventListener('change', syncDecision);
