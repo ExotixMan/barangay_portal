@@ -65,7 +65,7 @@ class ResidentsController extends Controller
             'middlename' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'lastname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:10|in:None,Jr.,Sr.,II,III,IV,V',
-            'email' => 'required|email|unique:residents,email',
+            'email' => ['required', 'email', new \App\Rules\CaseInsensitiveUnique('residents', 'email')],
             'address' => 'required|string|max:500',
             'birthdate' => 'required|date|before:18 years ago',
             'gender' => 'required|string|in:Male,Female,Prefer not to say',
@@ -83,7 +83,7 @@ class ResidentsController extends Controller
             'declare_student' => ['nullable', 'boolean'],
             'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
 
-            'username' => 'required|string|unique:residents,username|min:4|max:50|regex:/^[a-zA-Z0-9_.-]+$/',
+            'username' => ['required', 'string', new \App\Rules\CaseInsensitiveUnique('residents', 'username'), 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/'],
             'password' => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'terms' => 'accepted',
         ];
@@ -293,6 +293,7 @@ class ResidentsController extends Controller
 
     public function checkUsernameAvailability(Request $request)
     {
+        $request->validate(['username' => ['nullable', 'string', 'max:50']]);
         $username = strtolower(trim((string) $request->query('username', '')));
 
         if ($username === '') {
@@ -316,7 +317,7 @@ class ResidentsController extends Controller
             ], 422);
         }
 
-        $exists = Residents::where('username', $username)->exists();
+        $exists = Residents::withTrashed()->whereRaw('LOWER(username) = ?', [$username])->exists();
 
         return response()->json([
             'available' => ! $exists,
@@ -326,6 +327,7 @@ class ResidentsController extends Controller
 
     public function checkAccountAvailability(Request $request)
     {
+        $request->validate(['field' => ['nullable', 'string', 'in:username,email,contact'], 'value' => ['nullable', 'string', 'max:255']]);
         $field = (string) $request->query('field', 'username');
         $value = trim((string) $request->query('value', ''));
 
@@ -393,7 +395,11 @@ class ResidentsController extends Controller
             ]);
         }
 
-        $exists = Residents::where($rule['column'], $normalized)->exists();
+        if ($field !== 'username') {
+            return response()->json(['available' => true, 'message' => $rule['label'] . ' format looks correct. We will check it when you submit.']);
+        }
+
+        $exists = Residents::withTrashed()->whereRaw('LOWER(username) = ?', [$normalized])->exists();
 
         return response()->json([
             'available' => ! $exists,
@@ -416,7 +422,7 @@ class ResidentsController extends Controller
 
         $adminLoginField = filter_var($rawLoginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        $admin = AdminUser::where($adminLoginField, $rawLoginInput)->first();
+        $admin = AdminUser::whereRaw('LOWER(' . $adminLoginField . ') = ?', [mb_strtolower($rawLoginInput)])->first();
 
         if ($admin && Hash::check($password, (string) $admin->password)) {
             if ($admin->status !== 'active') {
@@ -468,7 +474,7 @@ class ResidentsController extends Controller
             $loginInput = strtolower($loginInput);
         }
 
-        $resident = Residents::where($loginType, $loginInput)->first();
+        $resident = Residents::whereRaw('LOWER(' . $loginType . ') = ?', [mb_strtolower($loginInput)])->first();
 
         if (! $resident || ! Hash::check($password, (string) $resident->password)) {
             return back()

@@ -90,14 +90,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ];
 
         if (!allowedTypes.includes(file.type)) {
-            alert("Please select a JPG, JPEG, PNG or PDF file.");
+            PortalFeedback.error("Please select a JPG, JPEG, PNG or PDF file.");
             return false;
         }
 
         const maxSize = 5 * 1024 * 1024;
 
         if (file.size > maxSize) {
-            alert("The selected file must not exceed 5MB.");
+            PortalFeedback.error("The selected file must not exceed 5MB.");
             return false;
         }
 
@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             captureButton.disabled = true;
 
-            alert(
+            PortalFeedback.error(
                 "We could not access your camera. Please allow camera permission or upload your ID manually."
             );
         }
@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!video.videoWidth || !video.videoHeight) {
 
-            alert("Camera is not ready yet.");
+            PortalFeedback.error("Camera is not ready yet.");
 
             return;
         }
@@ -567,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!blob) {
 
-                    alert(
+                    PortalFeedback.error(
                         "Unable to capture the ID. Please try again."
                     );
 
@@ -794,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             event.preventDefault();
 
-            alert(
+            PortalFeedback.error(
                 "Please provide both the front and back sides of your valid ID."
             );
 

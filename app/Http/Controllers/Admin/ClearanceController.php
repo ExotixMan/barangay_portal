@@ -127,7 +127,7 @@ class ClearanceController extends Controller
             'primary_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'purpose' => 'required',
+            'purpose' => 'required|in:employment,business,scholarship,travel,bank,government,school,other',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);
@@ -223,7 +223,7 @@ class ClearanceController extends Controller
             'primary_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'valid_id_back_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'purpose' => 'required',
+            'purpose' => 'required|in:employment,business,scholarship,travel,bank,government,school,other',
             'purpose_other' => 'required_if:purpose,other|nullable|string|max:255',
             'fee' => ['nullable', 'regex:/^(?:0|[1-9]\d{0,4})(?:\.\d{1,2})?$/'],
         ]);

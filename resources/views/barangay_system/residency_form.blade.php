@@ -69,8 +69,6 @@
 
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/residency_form.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
-    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
     @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
@@ -423,7 +421,7 @@
                         </select>
                         <textarea id="purposeOther" name="purpose_other"
                             placeholder="{{ __('messages.form_purpose_other_placeholder') }}" rows="2"
-                            style="display: none; margin-top: 10px;" class="form-control"></textarea>
+                            style="{{ old('purpose') === 'other' ? '' : 'display: none;' }} margin-top: 10px;" class="form-control">{{ old('purpose_other') }}</textarea>
                     </div>
 
                     <div class="form-actions row g-2">

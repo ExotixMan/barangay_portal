@@ -384,11 +384,11 @@
                         </div>
                     </div>
 
-                    @if($errors->hasAny(['contact']))
+                    @if($errors->hasAny(['contact', 'contact_otp']))
                         <div class="bhd-alert danger">
                             <i class="fas fa-exclamation-triangle"></i>
                             <div>
-                                @foreach($errors->get('contact') as $e)
+                                @foreach(array_merge($errors->get('contact'), $errors->get('contact_otp')) as $e)
                                     <div>{{ $e }}</div>
                                 @endforeach
                             </div>
@@ -482,7 +482,7 @@
 
                     <div class="bhd-contact-card">
                         <h3><i class="fas fa-phone me-2"></i>{{ __('messages.register_contact_label') }}</h3>
-                        <p>{{ __('messages.blade_profile_blade_you_can_update_your_contact_number_directly_because_thi') }}</p>
+                        <p>We will send an SMS code to verify your new number before saving it.</p>
 
                         <form method="POST" action="{{ route('profile.info') }}" id="infoForm">
                             @csrf
@@ -495,7 +495,7 @@
                                         <input type="text"
                                                name="contact"
                                                id="contactInput"
-                                               value="{{ old('contact', preg_replace('/^0/', '', (string) $resident->contact)) }}"
+                                               value="{{ preg_replace('/^0/', '', (string) old('contact', $resident->contact)) }}"
                                                class="bhd-profile-control bhd-phone-field"
                                                inputmode="numeric"
                                                pattern="[0-9]{10}"
@@ -515,6 +515,16 @@
                                 <button type="reset" class="bhd-btn bhd-btn-line">{{ __('messages.profile_reset_btn') }}</button>
                             </div>
                         </form>
+                        @if(session('contact_change.resident_id') === $resident->id)
+                            <form method="POST" action="{{ route('profile.contact.verify') }}" class="bhd-contact-verification">
+                                @csrf
+                                <p>A code was sent to the number ending in {{ substr(session('contact_change.contact'), -4) }}. It expires after 5 minutes.</p>
+                                <label for="contactOtp">Verification code</label>
+                                <input id="contactOtp" name="contact_otp" class="bhd-profile-control" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+                                @error('contact_otp')<p class="portal-field-feedback" role="alert">{{ $message }}</p>@enderror
+                                <button type="submit" class="bhd-btn bhd-btn-primary">Verify and save number</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
 
@@ -1386,7 +1396,7 @@
     'data' => [
         'initialTab' => $errors->hasAny(['username','email','current_password','new_password'])
             ? 'account'
-            : ($errors->hasAny(['contact','field_name','correct_value','message'])
+            : ($errors->hasAny(['contact','contact_otp','field_name','correct_value','message'])
                 ? 'info'
                 : ($errors->hasAny(['classification','student_proof','pwd_id_front','pwd_id_back'])
                     ? 'classification'

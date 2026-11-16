@@ -71,8 +71,12 @@ class ProfileController extends Controller
 
         $resident = $this->currentResident();
 
+        if (is_string($request->input('contact')) && preg_match('/^9\d{9}$/', $request->input('contact'))) {
+            $request->merge(['contact' => '0' . $request->input('contact')]);
+        }
+
         $validated = $request->validate([
-            'contact' => ['required', 'string', 'regex:/^(09\d{9}|9\d{9})$/'],
+            'contact' => ['required', 'string', 'regex:/^09\d{9}$/', Rule::unique('residents', 'contact')->ignore($resident->id)],
         ], [
             'contact.regex' => 'Please enter a valid Philippine mobile number. Example: 9123456789.',
         ]);
@@ -83,14 +87,48 @@ class ProfileController extends Controller
             $contact = '0' . $contact;
         }
 
-        $resident->update([
-            'contact' => $contact,
+        if ($contact === $resident->contact && $resident->phone_verified) {
+            return back()->with('open_tab', 'info')->with('success_info', 'This contact number is already verified.');
+        }
+
+        $otp = random_int(100000, 999999);
+        $recipient = clone $resident;
+        $recipient->contact = $contact;
+        if (! app(\App\Services\OtpSmsService::class)->sendOtp($recipient, $otp, 'profile_contact')) {
+            return back()->withErrors(['contact' => 'We could not send the verification code. Your contact number has not changed. Please try again later.'])->with('open_tab', 'info');
+        }
+        $request->session()->put('contact_change', [
+            'resident_id' => $resident->id, 'contact' => $contact, 'hash' => Hash::make((string) $otp),
+            'expires_at' => now()->addMinutes(5)->timestamp, 'attempts' => 0,
         ]);
 
         return redirect()
             ->route('profile')
             ->with('open_tab', 'info')
-            ->with('success_info', 'Contact number updated successfully.');
+            ->with('success_info', 'Enter the code sent to your new number. Your current number stays active until verification.');
+    }
+
+    public function verifyContact(Request $request)
+    {
+        $resident = $this->currentResident();
+        $request->validate(['contact_otp' => ['required', 'digits:6']]);
+        $challenge = $request->session()->get('contact_change');
+        if (! $challenge || $challenge['resident_id'] !== $resident->id || $challenge['expires_at'] < now()->timestamp || $challenge['attempts'] >= 5) {
+            $request->session()->forget('contact_change');
+            return back()->withErrors(['contact_otp' => 'This code has expired. Request a new code using the contact form.'])->with('open_tab', 'info');
+        }
+        $request->session()->put('contact_change.attempts', $challenge['attempts'] + 1);
+        if (! Hash::check((string) $request->input('contact_otp'), $challenge['hash'])) {
+            return back()->withErrors(['contact_otp' => 'That code does not match. Please check the SMS and try again.'])->with('open_tab', 'info');
+        }
+        validator(['contact' => $challenge['contact']], ['contact' => [Rule::unique('residents', 'contact')->ignore($resident->id)]])->validate();
+        $resident->update([
+            'contact' => $challenge['contact'], 'phone_verified' => true,
+            'phone_otp' => null, 'phone_otp_expires_at' => null,
+        ]);
+        $request->session()->forget('contact_change');
+
+        return redirect()->route('profile')->with('open_tab', 'info')->with('success_info', 'Your new contact number is verified and saved.');
     }
 
     public function reportIncorrectProfile(Request $request)
@@ -223,11 +261,11 @@ class ProfileController extends Controller
             'username' => [
                 'required', 'string', 'min:4', 'max:50',
                 'regex:/^[a-zA-Z0-9_.-]+$/',
-                Rule::unique('residents', 'username')->ignore($resident->id),
+                new \App\Rules\CaseInsensitiveUnique('residents', 'username', $resident->id),
             ],
             'email' => [
                 'required', 'email', 'max:255',
-                Rule::unique('residents', 'email')->ignore($resident->id),
+                new \App\Rules\CaseInsensitiveUnique('residents', 'email', $resident->id),
             ],
         ], [
             'username.regex'  => 'Username may only contain letters, numbers, underscores, dots, and hyphens.',
@@ -236,7 +274,7 @@ class ProfileController extends Controller
             'email.unique'    => 'This email is already registered to another account.',
         ]);
 
-        $emailChanged = $validated['email'] !== $resident->email;
+        $emailChanged = mb_strtolower(trim($validated['email'])) !== mb_strtolower($resident->email);
 
         $resident->username = $validated['username'];
         $resident->email = $validated['email'];
@@ -251,7 +289,12 @@ class ProfileController extends Controller
             $emailThrottleKey = 'verify-email-sent:' . $resident->id . ':' . $resident->email;
 
             if (!Cache::has($emailThrottleKey)) {
-                $resident->sendEmailVerificationNotification();
+                try {
+                    $resident->sendEmailVerificationNotification();
+                } catch (\Throwable $e) {
+                    report($e);
+                    return redirect()->route('verification.notice')->with('error', 'Your email was updated, but we could not send the verification link. Use Resend verification link to try again.');
+                }
                 Cache::put($emailThrottleKey, true, now()->addMinutes(2));
             }
 

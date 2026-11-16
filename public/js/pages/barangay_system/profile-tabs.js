@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!quickInput.files.length) return;
 
             if (quickInput.files[0].size > 5 * 1024 * 1024) {
-                alert(__cfg_profile_tabs.v1);
+                PortalFeedback.error(__cfg_profile_tabs.v1);
                 quickInput.value = '';
                 return;
             }

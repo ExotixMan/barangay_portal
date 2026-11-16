@@ -1,5 +1,6 @@
 (function () {
     'use strict';
+    const confirmed = new WeakSet();
 
     function parseArgs(element, prefix) {
         const raw = element.dataset[prefix + 'Args'];
@@ -55,9 +56,12 @@
             return;
         }
 
-        if (element.tagName !== 'FORM' && element.dataset.confirm && !window.confirm(element.dataset.confirm)) {
+        if (element.tagName !== 'FORM' && element.dataset.confirm && !confirmed.delete(element)) {
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
+            window.PortalFeedback?.confirm(element.dataset.confirm).then(accepted => {
+                if (accepted) { confirmed.add(element); element.click(); confirmed.delete(element); }
+            });
             return;
         }
 
@@ -89,8 +93,13 @@
             return;
         }
 
-        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) {
+        if (form.dataset.confirm && !confirmed.delete(form)) {
             event.preventDefault();
+            event.stopImmediatePropagation();
+            const submitter = event.submitter;
+            window.PortalFeedback?.confirm(form.dataset.confirm).then(accepted => {
+                if (accepted) { confirmed.add(form); if (submitter) form.requestSubmit(submitter); else form.requestSubmit(); confirmed.delete(form); }
+            });
             return;
         }
 

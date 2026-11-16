@@ -1,5 +1,35 @@
 (function () {
     'use strict';
+    if (window.PortalFeedback) return;
+    function dialog(message, confirmation = false) {
+        return new Promise(resolve => {
+            const previous = document.activeElement;
+            const box = document.createElement('dialog');
+            box.className = 'portal-feedback-dialog';
+            const title = document.createElement('h2');
+            title.id = `portal-dialog-title-${++sequence}`;
+            title.textContent = confirmation ? 'Please confirm' : 'Please check';
+            box.setAttribute('aria-labelledby', title.id);
+            const text = document.createElement('p');
+            text.textContent = String(message);
+            const actions = document.createElement('div');
+            actions.className = 'portal-feedback-actions';
+            function close(value) { box.close(); box.remove(); previous?.focus(); resolve(value); }
+            if (confirmation) {
+                const cancel = document.createElement('button');
+                cancel.type = 'button'; cancel.textContent = 'Cancel';
+                cancel.addEventListener('click', () => close(false)); actions.append(cancel);
+            }
+            const ok = document.createElement('button');
+            ok.type = 'button'; ok.className = 'portal-feedback-primary';
+            ok.textContent = confirmation ? 'Continue' : 'Got it';
+            ok.addEventListener('click', () => close(true)); actions.append(ok);
+            box.append(title, text, actions);
+            box.addEventListener('cancel', event => { event.preventDefault(); close(false); });
+            document.body.append(box); box.showModal();
+        });
+    }
+    window.PortalFeedback = { error: message => dialog(message), confirm: message => dialog(message, true) };
     let sequence = 0;
     function clear(field) {
         const id = field.dataset.portalFeedbackId;

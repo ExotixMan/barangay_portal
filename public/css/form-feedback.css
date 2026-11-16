@@ -1,3 +1,16 @@
 .portal-field-feedback { color: #a51f29; font-size: .875rem; font-weight: 500; line-height: 1.5; margin: .4rem 0 0; }
 [aria-invalid="true"] { border-color: #bb2532 !important; }
-[data-theme="dark"] .portal-field-feedback { color: #ffb4bd; }
+:is(body.dark-mode, [data-theme="dark"]) .portal-field-feedback { color: #ffb4bd; }
+.portal-feedback-dialog { box-sizing: border-box; width: min(92vw, 30rem); border: 1px solid #d6dce7; border-radius: 18px; padding: 1.5rem; background: #fff; color: #172033; box-shadow: 0 24px 64px #0004; }
+.portal-feedback-dialog::backdrop { background: #0008; }
+.portal-feedback-dialog h2 { font-size: 1.25rem; margin: 0 0 .75rem; color: inherit; }
+.portal-feedback-dialog p { white-space: pre-line; line-height: 1.6; color: inherit; }
+.portal-feedback-actions { display: flex; gap: .75rem; justify-content: flex-end; }
+.portal-feedback-actions button { border: 1px solid #b6c0d0; border-radius: 10px; padding: .65rem 1rem; background: transparent; color: inherit; cursor: pointer; }
+.portal-feedback-actions .portal-feedback-primary { background: #b72e39; color: #fff; border-color: #b72e39; }
+:is(body.dark-mode, [data-theme="dark"]) .portal-feedback-dialog { background: #141d2d; color: #edf2fa; border-color: #43516a; }
+.portal-error-summary { border: 1px solid #c73542; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; background: #fff1f2; color: #8f1d29; }
+.portal-error-summary a { color: inherit; text-decoration: underline; }
+:is(body.dark-mode, [data-theme="dark"]) .portal-error-summary { background: #36202a; color: #ffc0c8; border-color: #9f5261; }
+.bhd-contact-verification { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--dm-border-color, #d6dce7); }
+.bhd-contact-verification .bhd-btn { margin-top: 1rem; }

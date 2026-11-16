@@ -78,8 +78,6 @@
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/indigency_form.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
-    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
     @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
@@ -97,6 +95,19 @@
 
     <section class="application-form-section container-fluid px-3 px-md-4" id="apply-form">
         <div class="container form-container px-0">
+            @if($errors->any())
+                <div class="portal-error-summary" role="alert" tabindex="-1" id="submissionErrors">
+                    <strong>Please check your application before submitting again.</strong>
+                    <ul>
+                        @foreach($errors->messages() as $field => $messages)
+                            @foreach($messages as $message)
+                                <li data-error-field="{{ $field }}">{{ $message }}</li>
+                            @endforeach
+                        @endforeach
+                    </ul>
+                    <p>Your entered details have been kept. Please reselect any required upload files.</p>
+                </div>
+            @endif
             <form id="requirementForm" method="POST" action="{{ route('indigency.store') }}" enctype="multipart/form-data" class="requirement-form" novalidate>
                 @csrf
                 <div class="form-progress">
@@ -343,13 +354,13 @@
                         <label for="purpose"><i class="fas fa-bullseye"></i> {{ __('messages.indigency_form_purpose_label') }}</label>
                         <select id="purpose" name="purpose" required class="form-control">
                             <option value="">{{ __('messages.blade_clearance_form_blade_select_purpose') }}</option>
-                            <option value="medical">{{ __('messages.indigency_purpose_medical') }}</option>
-                            <option value="scholarship">{{ __('messages.indigency_purpose_scholarship') }}</option>
-                            <option value="government">{{ __('messages.indigency_purpose_government') }}</option>
-                            <option value="legal">{{ __('messages.indigency_purpose_legal') }}</option>
-                            <option value="employment">{{ __('messages.indigency_purpose_employment') }}</option>
-                            <option value="burial">{{ __('messages.indigency_purpose_burial') }}</option>
-                            <option value="other">{{ __('messages.clearance_purpose_other') }}</option>
+                            <option value="medical" @selected(old('purpose') === 'medical')>{{ __('messages.indigency_purpose_medical') }}</option>
+                            <option value="scholarship" @selected(old('purpose') === 'scholarship')>{{ __('messages.indigency_purpose_scholarship') }}</option>
+                            <option value="government" @selected(old('purpose') === 'government')>{{ __('messages.indigency_purpose_government') }}</option>
+                            <option value="legal" @selected(old('purpose') === 'legal')>{{ __('messages.indigency_purpose_legal') }}</option>
+                            <option value="employment" @selected(old('purpose') === 'employment')>{{ __('messages.indigency_purpose_employment') }}</option>
+                            <option value="burial" @selected(old('purpose') === 'burial')>{{ __('messages.indigency_purpose_burial') }}</option>
+                            <option value="other" @selected(old('purpose') === 'other')>{{ __('messages.clearance_purpose_other') }}</option>
                         </select>
                         <textarea id="purposeOther" name="purpose_other" placeholder="{{ __('messages.form_purpose_other_placeholder') }}" rows="2" style="{{ old('purpose') === 'other' ? '' : 'display: none;' }} margin-top: 10px;" class="form-control">{{ old('purpose_other') }}</textarea>
                     </div>

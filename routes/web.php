@@ -161,13 +161,13 @@ Route::get('/register', function () {
 })->name('register');
 
 Route::post('/register', [ResidentsController::class, 'register_res'])->middleware('throttle:5,10')->name('register.res');
-Route::get('/register/check-username', [ResidentsController::class, 'checkUsernameAvailability'])->name('register.check-username');
-Route::get('/register/check-availability', [ResidentsController::class, 'checkAccountAvailability'])->name('register.check-availability');
+Route::get('/register/check-username', [ResidentsController::class, 'checkUsernameAvailability'])->middleware('throttle:20,1')->name('register.check-username');
+Route::get('/register/check-availability', [ResidentsController::class, 'checkAccountAvailability'])->middleware('throttle:20,1')->name('register.check-availability');
 
 Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('resident.password.request');
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->middleware('throttle:5,1')->name('resident.password.email');
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('resident.password.reset');
-Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('resident.password.update');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:10,1')->name('resident.password.update');
 
 Route::get('/verify-otp', function (Request $request) {
     $accountType = $request->session()->get('otp_account_type', 'resident');
@@ -254,7 +254,12 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
+    try {
+        $request->user()->sendEmailVerificationNotification();
+    } catch (\Throwable $e) {
+        report($e);
+        return back()->with('error', 'We could not send the verification link. Please try again later.');
+    }
 
     return back()->with('success', 'Verification link resent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
@@ -266,7 +271,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/secure/profile-photo', [SecureFileController::class, 'residentProfilePhoto'])->name('secure.profile-photo');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info');
+    Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->middleware('throttle:3,5')->block(30, 10)->name('profile.info');
+    Route::post('/profile/contact/verify', [ProfileController::class, 'verifyContact'])->middleware('throttle:8,1')->block(30, 10)->name('profile.contact.verify');
     Route::post('/profile/account', [ProfileController::class, 'updateAccount'])->name('profile.account');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');

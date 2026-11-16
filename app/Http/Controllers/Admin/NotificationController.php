@@ -36,6 +36,8 @@ class NotificationController extends Controller
             'request_id' => 'required|integer|min:1',
         ]);
 
+        app(\App\Services\PrivateRecordAccess::class)->authorizeRequest($validated['request_type'], (int) $validated['request_id']);
+
         $history = StatusRemarkHistory::query()
             ->with('adminUser:id,first_name,middle_initial,last_name')
             ->where('request_type', $validated['request_type'])
@@ -176,16 +178,16 @@ class NotificationController extends Controller
         $module = null;
 
         if ($requestType === 'residency') {
-            $record = Residency::find($requestId);
+            $record = Residency::withTrashed()->find($requestId);
             $module = 'Residency';
         } elseif ($requestType === 'indigency') {
-            $record = IndigencyApplication::find($requestId);
+            $record = IndigencyApplication::withTrashed()->find($requestId);
             $module = 'Indigency';
         } elseif ($requestType === 'clearance') {
-            $record = BarangayClearance::find($requestId);
+            $record = BarangayClearance::withTrashed()->find($requestId);
             $module = 'Clearance';
         } elseif ($requestType === 'incident') {
-            $record = BlotterReport::find($requestId);
+            $record = BlotterReport::withTrashed()->find($requestId);
             $module = 'Blotter';
         }
 
@@ -194,6 +196,16 @@ class NotificationController extends Controller
             'module' => $module,
             'reference_number' => $record?->reference_number,
         ];
+    }
+
+    private function authorizeLinkedRequest(array $validated): array
+    {
+        if (! empty($validated['request_type']) && ! empty($validated['request_id'])) {
+            $record = app(\App\Services\PrivateRecordAccess::class)->authorizeRequest($validated['request_type'], (int) $validated['request_id']);
+            $validated['reference_number'] = $record->reference_number;
+        }
+
+        return $validated;
     }
 
     private function parseTimestamp(?string $createdAt): int
@@ -224,11 +236,12 @@ class NotificationController extends Controller
             'message' => 'required|string',
             'status'  => 'nullable|string',
             'remarks' => 'nullable|string|max:40',
-            'request_type' => 'nullable|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
-            'request_id' => 'nullable|integer|min:1',
+            'request_type' => 'nullable|required_with:request_id|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
+            'request_id' => 'nullable|required_with:request_type|integer|min:1',
             'reference_number' => 'nullable|string|max:100',
         ]);
 
+        $validated = $this->authorizeLinkedRequest($validated);
         $requiresRemarks = in_array($validated['status'] ?? '', self::REMARKED_STATUSES, true);
         if ($requiresRemarks && ($validated['remarks'] ?? '') === '') {
             return back()->with('error', 'Remarks are required before sending notifications for rejected or dropped cases.');
@@ -292,11 +305,12 @@ class NotificationController extends Controller
             'message' => 'required|string',
             'status' => 'nullable|string',
             'remarks' => 'nullable|string|max:40',
-            'request_type' => 'nullable|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
-            'request_id' => 'nullable|integer|min:1',
+            'request_type' => 'nullable|required_with:request_id|string|in:' . implode(',', self::ALLOWED_REQUEST_TYPES),
+            'request_id' => 'nullable|required_with:request_type|integer|min:1',
             'reference_number' => 'nullable|string|max:100',
         ]);
 
+        $validated = $this->authorizeLinkedRequest($validated);
         $requiresRemarks = in_array($validated['status'] ?? '', self::REMARKED_STATUSES, true);
         if ($requiresRemarks && ($validated['remarks'] ?? '') === '') {
             return back()->with('error', 'Remarks are required before sending notifications for rejected or dropped cases.');

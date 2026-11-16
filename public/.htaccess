@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Legacy identity documents must only be read through authorized PHP routes.
+    RewriteRule ^uploads/(valid_ids?|evidences|proof_of_residency|profile_photos)(/|$) - [F,L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

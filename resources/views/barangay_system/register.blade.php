@@ -21,8 +21,6 @@
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/register.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-common.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
-    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
     @include('shared.public-theme')
 </head>
 @include('chatbot.embed')

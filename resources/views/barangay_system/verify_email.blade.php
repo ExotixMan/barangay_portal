@@ -11,8 +11,6 @@
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/verify_email.css') }}">
 
-    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
-    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
     @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
@@ -29,6 +27,12 @@
         {{ __('messages.blade_verify_email_blade_please_check_your_inbox_and_click_the_link_to_activate_') }}
         </p>
 
+        @if(session('error'))
+            <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+        @endif
+        @if(session('success'))
+            <div class="alert alert-success" role="status">{{ session('success') }}</div>
+        @endif
         @if (session('status') == 'verification-link-sent')
         <div class="alert alert-success">
         {{ __('messages.verify_email_resent') }}

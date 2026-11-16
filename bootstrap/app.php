@@ -25,11 +25,11 @@ return Application::configure(basePath: dirname(__DIR__))
             at: '*',
             headers:
                 Request::HEADER_X_FORWARDED_FOR |
-                Request::HEADER_X_FORWARDED_HOST |
                 Request::HEADER_X_FORWARDED_PORT |
                 Request::HEADER_X_FORWARDED_PROTO
         );
 
+        $middleware->prepend(\App\Http\Middleware\CanonicalHost::class);
         $middleware->append(SecurityHeaders::class);
         $middleware->append(MaintenanceCatchUp::class);
 
@@ -50,5 +50,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        
+        $exceptions->dontFlash(['new_password', 'new_password_confirmation', 'otp', 'phone_otp', 'contact_otp']);
     })->create();

@@ -259,7 +259,7 @@ const __cfg_barangay_system_incident_form_1 = JSON.parse(document.getElementById
                 return true;
             }
             function validatePersonName(field, required = false, requiredMessage = __cfg_barangay_system_incident_form_1.v41, invalidMessage = __cfg_barangay_system_incident_form_1.v42) {
-                const value = field.value.trim(), nameRegex = /^[\p{L}\s'.,-]+$/u;
+                const value = field.value.trim(), nameRegex = /^[\p{L}\p{M}\s'’.,-]+$/u;
                 if (!value) { if (required) showFieldError(field, requiredMessage); return !required; }
                 if (value.length < 2) { showFieldError(field, __cfg_barangay_system_incident_form_1.v43); return false; }
                 if (value.length > 120) { showFieldError(field, __cfg_barangay_system_incident_form_1.v44); return false; }

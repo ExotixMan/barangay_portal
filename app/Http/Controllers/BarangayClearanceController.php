@@ -66,7 +66,7 @@ class BarangayClearanceController extends Controller
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            'purpose' => ['required', 'string', 'max:255'],
+            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],

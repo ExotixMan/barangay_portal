@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateScanStatus();
         }
 
-        alert(message);
+        PortalFeedback.error(message);
         return true;
     }
 
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const file = input.files?.[0] || null;
 
             if (file && file.size > 5 * 1024 * 1024) {
-                alert(__cfg_barangay_system_profile_1.v15);
+                PortalFeedback.error(__cfg_barangay_system_profile_1.v15);
                 input.value = '';
                 updateSelectedFilePreview(input, null);
                 document.querySelector(`[data-remove-file="${input.id}"]`)?.classList.remove('is-visible');
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (file && !file.type.startsWith('image/')) {
-                alert(__cfg_barangay_system_profile_1.v16);
+                PortalFeedback.error(__cfg_barangay_system_profile_1.v16);
                 input.value = '';
                 updateSelectedFilePreview(input, null);
                 document.querySelector(`[data-remove-file="${input.id}"]`)?.classList.remove('is-visible');
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!front?.files?.length || !back?.files?.length) {
                 event.preventDefault();
-                alert(__cfg_barangay_system_profile_1.v17);
+                PortalFeedback.error(__cfg_barangay_system_profile_1.v17);
                 return;
             }
 
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 frontFile.type === backFile.type
             ) {
                 event.preventDefault();
-                alert('The valid ID front and back cannot be the same picture.');
+                PortalFeedback.error('The valid ID front and back cannot be the same picture.');
             }
         });
     }
@@ -287,14 +287,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!file) return;
 
             if (file.size > 5 * 1024 * 1024) {
-                alert('PWD ID images must not exceed 5 MB each.');
+                PortalFeedback.error('PWD ID images must not exceed 5 MB each.');
                 input.value = '';
                 return;
             }
 
             const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
             if (!allowed.includes(file.type)) {
-                alert('PWD ID proof must be JPG, JPEG, PNG, or PDF.');
+                PortalFeedback.error('PWD ID proof must be JPG, JPEG, PNG, or PDF.');
                 input.value = '';
                 return;
             }
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!frontFile || !backFile) {
                 event.preventDefault();
-                alert('Please attach both the front and back of your PWD ID card.');
+                PortalFeedback.error('Please attach both the front and back of your PWD ID card.');
                 return;
             }
 
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 frontFile.type === backFile.type
             ) {
                 event.preventDefault();
-                alert('The PWD ID front and back cannot be the same picture.');
+                PortalFeedback.error('The PWD ID front and back cannot be the same picture.');
             }
         });
     }

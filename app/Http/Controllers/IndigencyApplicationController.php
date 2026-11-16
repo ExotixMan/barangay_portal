@@ -67,9 +67,9 @@ class IndigencyApplicationController extends Controller
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            'monthly_income' => ['required', 'string', 'max:255'],
+            'monthly_income' => ['required', 'string', \Illuminate\Validation\Rule::in(['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
-            'purpose' => ['required', 'string', 'max:255'],
+            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['medical', 'scholarship', 'government', 'legal', 'employment', 'burial', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],

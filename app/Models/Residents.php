@@ -85,6 +85,16 @@ class Residents extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    public function setUsernameAttribute($value): void
+    {
+        $this->attributes['username'] = mb_strtolower(trim((string) $value));
+    }
+
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = mb_strtolower(trim((string) $value));
+    }
+
     public function getFullNameAttribute()
     {
         $parts = array_filter([
@@ -114,7 +124,7 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $verificationUrl = URL::temporarySignedRoute(
+        $verificationUrl = \App\Support\CanonicalUrl::generator()->temporarySignedRoute(
             'verification.verify',
             SupportCarbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
             [
@@ -137,10 +147,10 @@ class Residents extends Authenticatable implements MustVerifyEmail
 
     public function sendPasswordResetNotification($token)
     {
-        $url = url(route('resident.password.reset', [
+        $url = \App\Support\CanonicalUrl::generator()->route('resident.password.reset', [
             'token' => $token,
             'email' => $this->email,
-        ], false));
+        ]);
 
         app(EmailDeliveryService::class)->sendView(
             $this->email,

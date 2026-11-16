@@ -55,7 +55,7 @@ class IndigencyController extends Controller
         $rejected_count = IndigencyApplication::where('status', 'rejected')->count();
 
         $sort = $request->get('sort', 'created_at');
-        $direction = $request->get('direction', 'desc');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
         $allowedSorts = ['first_name', 'monthly_income', 'household_members', 'created_at'];
 
         if (! in_array($sort, $allowedSorts)) {

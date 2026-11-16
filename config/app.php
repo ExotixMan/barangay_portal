@@ -10,6 +10,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'allowed_hosts' => array_filter(array_map('trim', explode(',', env('ALLOWED_HOSTS', '')))),
+
     'timezone' => 'Asia/Manila',
 
     'locale' => env('APP_LOCALE', 'en'),

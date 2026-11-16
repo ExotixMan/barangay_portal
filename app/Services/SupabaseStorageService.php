@@ -23,6 +23,8 @@ class SupabaseStorageService
 
     private bool $required;
 
+    private array $checkedBuckets = [];
+
     public function __construct()
     {
         $this->url = rtrim((string) config('supabase_storage.url', ''), '/');
@@ -434,9 +436,8 @@ class SupabaseStorageService
 
     private function ensureBucket(string $bucket, bool $public): void
     {
-        static $checked = [];
         $cacheKey = $bucket.':'.($public ? '1' : '0');
-        if (isset($checked[$cacheKey])) {
+        if (isset($this->checkedBuckets[$cacheKey])) {
             return;
         }
 
@@ -458,9 +459,11 @@ class SupabaseStorageService
             }
         } elseif (! $get->successful()) {
             throw new RuntimeException('Supabase Storage bucket check failed with HTTP '.$get->status().'.');
+        } elseif (! $public && $get->json('public') !== false) {
+            throw new RuntimeException('Private document storage must use a private Supabase bucket.');
         }
 
-        $checked[$cacheKey] = true;
+        $this->checkedBuckets[$cacheKey] = true;
     }
 
     private function authHeaders(): array

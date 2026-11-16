@@ -74,8 +74,8 @@ const __cfg_chatbot_widget_1 = JSON.parse(document.getElementById('js-config-cha
             let msg = 'Something went wrong. Please try again.';
             const e = err.message || '';
             if (e.includes('419'))          msg = 'Session expired — please refresh the page.';
-            else if (e.includes('404'))     msg = 'Route not found (404). Check routes.';
-            else if (e.includes('500'))     msg = 'Server error. Check storage/logs/laravel.log.';
+            else if (e.includes('404'))     msg = 'The assistant is temporarily unavailable. Please try again later.';
+            else if (e.includes('500'))     msg = 'We could not complete your message. Please try again in a moment.';
             else if (e.includes('NETWORK')) msg = 'Cannot reach the server.';
             bot(msg, null, [], 'fallback', null);
         }

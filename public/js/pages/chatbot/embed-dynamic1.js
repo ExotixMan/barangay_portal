@@ -180,7 +180,7 @@ const __cfg_chatbot_embed_1 = JSON.parse(document.getElementById('js-config-chat
                 bot(data.answer || 'No answer returned.', data.confidence, data.suggestions || [], data.source, data);
             } else {
                 console.error('[InfoHuloAssistant] API returned error:', response);
-                bot('Error: ' + (response.message || 'Server returned an error. Check storage/logs/laravel.log'), null, [], 'fallback', null);
+                bot('We could not complete your message. Please try again in a moment.', null, [], 'fallback', null);
             }
         } catch (error) {
             typing(false);
@@ -384,14 +384,15 @@ const __cfg_chatbot_embed_1 = JSON.parse(document.getElementById('js-config-chat
     }
 
     function formatError(error) {
-        let message = 'Error: ' + (error || 'Unknown error');
+        error = String(error || '');
+        let message = 'The assistant is temporarily unavailable. Please try again in a moment.';
 
         if (error.includes('419')) {
             message = 'Session expired. Please refresh the page and try again.';
         } else if (error.includes('404')) {
-            message = 'Route not found. Make sure chatbot routes are registered in web.php and run: php artisan route:clear';
+            message = 'The assistant is temporarily unavailable. Please try again later or contact the barangay office.';
         } else if (error.includes('500')) {
-            message = 'Server error. Check storage/logs/laravel.log for details.';
+            message = 'We could not complete your message. Please try again in a moment.';
         } else if (error.includes('Failed to fetch') || error.includes('NetworkError') || error.includes('NETWORK')) {
             message = 'Cannot reach the server. Check your internet connection.';
         }

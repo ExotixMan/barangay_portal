@@ -41,6 +41,16 @@ class AdminUser extends Authenticatable
         'remember_token',
     ];
 
+    public function setUsernameAttribute($value): void
+    {
+        $this->attributes['username'] = mb_strtolower(trim((string) $value));
+    }
+
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = mb_strtolower(trim((string) $value));
+    }
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',

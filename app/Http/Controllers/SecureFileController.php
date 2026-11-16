@@ -33,15 +33,19 @@ class SecureFileController extends Controller
 
     public function admin(Request $request)
     {
-        $path = trim((string) $request->query('path', ''));
-        abort_if($path === '' || str_contains($path, '..'), 404);
+        $path = $request->query('path', '');
+        abort_unless(is_string($path), 404);
+        $path = trim($path);
+        abort_if($path === '' || str_contains($path, '..') || preg_match('/[\x00-\x1f]/', $path), 404);
 
         $allowedPrefixes = [
             'uploads/valid_id/',
+            'uploads/valid_ids/',
             'uploads/evidences/',
             'uploads/proof_of_residency/',
             'uploads/profile_photos/',
             'private/valid_id/',
+            'private/valid_ids/',
             'private/evidences/',
             'private/proof_of_residency/',
             'private/profile_photos/',
@@ -49,15 +53,17 @@ class SecureFileController extends Controller
 
         abort_unless(collect($allowedPrefixes)->contains(fn ($prefix) => str_starts_with($path, $prefix)), 403);
 
+        app(\App\Services\PrivateRecordAccess::class)->authorizeFile($path);
+
         return $this->serve($path);
     }
 
-    private function serve(string $path)
+    private function serve(string $path, ?\Illuminate\Http\Client\Response $remote = null)
     {
         abort_if($path === '' || str_contains($path, '..'), 404);
 
         if (str_starts_with($path, 'private/')) {
-            $remote = $this->storage->fetchPrivate($path);
+            $remote ??= $this->storage->fetchPrivate($path);
 
             if ($remote) {
                 $contentType = $remote->header('Content-Type') ?: 'application/octet-stream';
@@ -80,12 +86,22 @@ class SecureFileController extends Controller
             ]);
         }
 
+        // Restored legacy objects retain their exact suffix; never guess by basename.
+        if (str_starts_with($path, 'uploads/')) {
+            $privatePath = 'private/' . substr($path, strlen('uploads/'));
+            $remote = $this->storage->fetchPrivate($privatePath);
+            if ($remote || $this->storage->localPrivatePath($privatePath)) {
+                return $this->serve($privatePath, $remote);
+            }
+        }
+
         $fullPath = public_path(ltrim($path, '/'));
         $real = realpath($fullPath);
         abort_unless($real && is_file($real), 404);
 
         $allowedRoots = [
             realpath(public_path('uploads/valid_id')),
+            realpath(public_path('uploads/valid_ids')),
             realpath(public_path('uploads/evidences')),
             realpath(public_path('uploads/proof_of_residency')),
             realpath(public_path('uploads/profile_photos')),

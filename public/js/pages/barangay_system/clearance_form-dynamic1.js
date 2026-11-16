@@ -425,13 +425,13 @@ const __cfg_barangay_system_clearance_form_1 = JSON.parse(document.getElementByI
                     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
 
                     if (file.size > maxSize) {
-                        alert(__cfg_barangay_system_clearance_form_1.v7);
+                        PortalFeedback.error(__cfg_barangay_system_clearance_form_1.v7);
                         fileInput.value = '';
                         return;
                     }
 
                     if (!validTypes.includes(fileType) && !validExtensions.includes(fileExtension)) {
-                        alert(__cfg_barangay_system_clearance_form_1.v12);
+                        PortalFeedback.error(__cfg_barangay_system_clearance_form_1.v12);
                         fileInput.value = '';
                         return;
                     }

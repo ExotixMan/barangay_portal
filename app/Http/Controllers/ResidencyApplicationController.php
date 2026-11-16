@@ -69,7 +69,7 @@ class ResidencyApplicationController extends Controller
             'years_residing' => ['required', Rule::in(['less1', '1-3', '3-5', '5-10', '10-20', '20+'])],
             'residency_type' => ['required', Rule::in(['owner', 'renter', 'family', 'relative', 'boarder'])],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
-            'purpose' => ['required', 'string', 'max:255'],
+            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['government', 'school', 'employment', 'legal', 'bank', 'scholarship', 'pwd', 'senior', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],

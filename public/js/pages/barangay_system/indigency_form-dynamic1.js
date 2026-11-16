@@ -517,4 +517,22 @@ const __cfg_barangay_system_indigency_form_1 = JSON.parse(document.getElementByI
             }
 
             updateProgress();
+            const summary = document.getElementById('submissionErrors');
+            if (summary) {
+                let firstField;
+                summary.querySelectorAll('[data-error-field]').forEach(item => {
+                    const field = form?.elements.namedItem(item.dataset.errorField);
+                    if (!(field instanceof HTMLElement)) return;
+                    field.classList.add('is-invalid'); field.setAttribute('aria-invalid', 'true');
+                    const error = document.createElement('p');
+                    error.className = 'portal-field-feedback'; error.textContent = item.textContent;
+                    error.id = `server-error-${item.dataset.errorField}`;
+                    field.setAttribute('aria-describedby', error.id);
+                    field.closest('.form-group, .upload-group, .terms-section')?.append(error);
+                    firstField ||= field;
+                });
+                const step = firstField?.closest('.form-step');
+                if (step) showStep(step.id);
+                summary.focus();
+            }
         });

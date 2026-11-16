@@ -70,11 +70,11 @@ body{font-family:Arial,sans-serif;margin:28px;color:#1e1c1b;background:#fff;line
                 printWindow.focus();
                 setTimeout(function(){ printWindow.print(); }, 300);
             } else {
-                alert(__cfg_barangay_system_success_form_successform_1.v39);
+                PortalFeedback.error(__cfg_barangay_system_success_form_successform_1.v39);
             }
         }).catch(function(error){
             console.error(__cfg_barangay_system_success_form_successform_1.v40, error);
-            alert(__cfg_barangay_system_success_form_successform_1.v41);
+            PortalFeedback.error(__cfg_barangay_system_success_form_successform_1.v41);
         });
     });
 });

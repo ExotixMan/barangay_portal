@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (!emailInput.value.trim()) {
                         e.preventDefault();
-                        alert('Please enter your email address.');
+                        PortalFeedback.error('Please enter your email address.');
                         return false;
                     }
 
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            const alerts = document.querySelectorAll('.alert');
+            const alerts = document.querySelectorAll('.alert-success');
             alerts.forEach(alert => {
                 setTimeout(() => {
                     alert.style.transition = 'opacity 0.5s ease';

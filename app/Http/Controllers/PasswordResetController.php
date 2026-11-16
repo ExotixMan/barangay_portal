@@ -19,16 +19,20 @@ class PasswordResetController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:residents,email',
+            'email' => 'required|email',
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $email = \App\Models\Residents::whereRaw('LOWER(email) = ?', [mb_strtolower(trim($request->email))])->value('email');
+        try {
+            if ($email) {
+                Password::sendResetLink(['email' => $email]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            // Use the same acknowledgement for every address to prevent enumeration.
+        }
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withErrors(['email' => __($status)]);
+        return back()->with('status', 'If this email belongs to an account, a reset link will be sent. If no email arrives, please try again later or contact the barangay office.');
     }
 
     public function showResetForm(Request $request, $token = null)
@@ -39,15 +43,17 @@ class PasswordResetController extends Controller
     public function reset(Request $request)
     {
         $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email|exists:residents,email',
-            'password' => ['required', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'token'    => 'required|string|max:255',
+            'email'    => 'required|email',
+            'password' => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'password.confirmed' => 'The passwords do not match.',
             'password.regex'     => 'Password cannot contain spaces.',
             'password.*'         => 'Password must be at least 8 characters and contain uppercase, lowercase, a number, and a special character.',
         ]);
 
+        $email = \App\Models\Residents::whereRaw('LOWER(email) = ?', [mb_strtolower(trim($request->email))])->value('email');
+        $request->merge(['email' => $email ?: mb_strtolower(trim($request->email))]);
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
@@ -63,6 +69,6 @@ class PasswordResetController extends Controller
 
         return $status == Password::PASSWORD_RESET
                     ? redirect()->route('login')->with('status', __($status))
-                    : back()->withErrors(['email' => [__($status)]]);
+                    : back()->withErrors(['email' => 'This reset link is invalid or has expired. Please request a new link.']);
     }
 }

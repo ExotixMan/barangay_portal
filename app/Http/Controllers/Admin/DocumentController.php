@@ -343,6 +343,8 @@ class DocumentController extends Controller
             abort(404);
         }
 
+        app(\App\Services\PrivateRecordAccess::class)->authorizeGeneratedPdf($safeFile);
+
         $pdfPath = storage_path('app/generated/' . $safeFile);
 
         if (!file_exists($pdfPath)) {
@@ -351,7 +353,9 @@ class DocumentController extends Controller
 
         return response()->file($pdfPath, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="Print Document.pdf"'
+            'Content-Disposition' => 'inline; filename="Print Document.pdf"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
@@ -370,7 +374,7 @@ class DocumentController extends Controller
 
             return redirect()->back()->with(
                 'error',
-                'The document was created, but PDF printing is unavailable. ' . $e->getMessage()
+                'The document was created, but PDF printing is temporarily unavailable. Please download the Word document or try again later.'
             );
         }
 

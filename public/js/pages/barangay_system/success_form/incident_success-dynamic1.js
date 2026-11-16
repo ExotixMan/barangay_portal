@@ -99,11 +99,11 @@ body{font-family:Arial,sans-serif;margin:28px;color:#1e1c1b;background:#fff;line
                 printWindow.focus();
                 setTimeout(function(){ printWindow.print(); }, 300);
             } else {
-                alert(__cfg_barangay_system_success_form_incident_success_1.v31);
+                PortalFeedback.error(__cfg_barangay_system_success_form_incident_success_1.v31);
             }
         }).catch(function(error){
             console.error(__cfg_barangay_system_success_form_incident_success_1.v32, error);
-            alert(__cfg_barangay_system_success_form_incident_success_1.v33);
+            PortalFeedback.error(__cfg_barangay_system_success_form_incident_success_1.v33);
         });
     });
 });
