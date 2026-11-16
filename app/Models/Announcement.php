@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Casts\DatabaseBoolean;
+use App\Services\SupabaseStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use App\Services\SupabaseStorageService;
 
 class Announcement extends Model
 {
@@ -24,9 +25,9 @@ class Announcement extends Model
     ];
 
     protected $casts = [
-        'is_featured' => 'boolean',
+        'is_featured' => DatabaseBoolean::class,
         'published_at' => 'datetime',
-        'views' => 'integer'
+        'views' => 'integer',
     ];
 
     protected static function boot()
@@ -55,7 +56,7 @@ class Announcement extends Model
             ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
             ->where('slug', $slug)
             ->exists()) {
-            $slug = $base . '-' . $counter;
+            $slug = $base.'-'.$counter;
             $counter++;
         }
 
@@ -78,5 +79,4 @@ class Announcement extends Model
 
         return app(SupabaseStorageService::class)->publicUrl($normalized) ?? asset('Images/logo.png');
     }
-
 }

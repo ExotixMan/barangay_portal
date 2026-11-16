@@ -1,0 +1,1 @@
+@include('errors.portal', ['code' => "429", 'title' => "Please wait a moment", 'description' => "Too many attempts were made. Wait a few minutes before trying again.", 'recoveryPath' => "/contacts", 'recoveryLabel' => "Contact the barangay"])

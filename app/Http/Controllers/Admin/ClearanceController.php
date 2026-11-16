@@ -7,7 +7,10 @@ use App\Models\AdminActivityLog;
 use App\Models\BarangayClearance;
 use App\Models\Residents;
 use App\Models\StatusRemarkHistory;
+use App\Services\AdminRecordExport;
+use App\Services\DocumentPdfService;
 use App\Services\DocumentTemplateStorageService;
+use App\Services\EmailDeliveryService;
 use App\Support\HandlesPrivateUploads;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -117,7 +120,7 @@ class ClearanceController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
-            'birthdate' => 'required|date',
+            'birthdate' => 'required|date|before_or_equal:today',
             'gender' => 'required|in:male,female,other,prefer not to say',
             'civil_status' => 'required|in:single,married,widowed,separated,divorced',
             'birth_place' => 'required|string|max:255',
@@ -320,7 +323,7 @@ class ClearanceController extends Controller
         $deliveryResults = $this->sendStatusNotifications($request, $application, $newStatus, $remarks);
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPROVAL_STATUS_CHANGE',
                 'module' => 'Clearance',
@@ -366,7 +369,7 @@ class ClearanceController extends Controller
             } else {
                 try {
                     $message = "Your barangay clearance application (Ref: {$application->reference_number}) status is now {$statusLabel}. Fee: {$feeText}.{$remarksText}";
-                    app(\App\Services\EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name.' '.$application->last_name), $message);
+                    app(EmailDeliveryService::class)->sendNotification($application->email, trim($application->first_name.' '.$application->last_name), $message);
 
                     $this->storeNotificationHistory(
                         'clearance',
@@ -504,7 +507,7 @@ class ClearanceController extends Controller
 
     public function export(Request $request)
     {
-        return app(\App\Services\AdminRecordExport::class)->download($request, 'clearance');
+        return app(AdminRecordExport::class)->download($request, 'clearance');
     }
 
     public function destroy(int $id)
@@ -551,7 +554,7 @@ class ClearanceController extends Controller
 
         if (auth('admin')->check()) {
             $request = request();
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPLICATION_RESTORED',
                 'module' => 'Clearance',
@@ -646,7 +649,7 @@ class ClearanceController extends Controller
         $templateProcessor->saveAs($docxPath);
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'DOWNLOAD',
                 'module' => 'Clearance',
@@ -667,9 +670,9 @@ class ClearanceController extends Controller
             $pdfFileName = 'clearance_'.($record->reference_number ?? $record->id).'.pdf';
             $pdfPath = $outputDir.'/'.$pdfFileName;
             try {
-                app(\App\Services\DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
+                app(DocumentPdfService::class)->convertDocxToPdf($docxPath, $pdfPath);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('PDF printing failed', [
+                Log::error('PDF printing failed', [
                     'module' => class_basename(static::class),
                     'record_id' => $record->id,
                     'error' => $e->getMessage(),

@@ -37,12 +37,21 @@ use App\Http\Controllers\SecureFileController;
 use App\Http\Controllers\TrackRequestController;
 use App\Models\AdminUser;
 use App\Models\Residents;
+use App\Support\AdminLandingPage;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+
+// Record keys are positive database integers; malformed keys must be 404s,
+// not PHP type errors or PostgreSQL integer-conversion failures.
+foreach (['id', 'user', 'resident', 'application', 'role', 'roleId'] as $recordParameter) {
+    Route::pattern($recordParameter, '[1-9][0-9]{0,17}');
+}
+Route::pattern('notification', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}');
 
 Route::post('/internal/maintenance/run', [MaintenanceController::class, 'run'])
     ->middleware('throttle:6,1')
@@ -190,10 +199,10 @@ Route::get('/verify-otp', function (Request $request) {
 
         $expiresAt = $request->session()->get('admin_otp_expires_at');
 
-        if ($expiresAt && now('Asia/Manila')->lt(\Carbon\Carbon::parse($expiresAt))) {
+        if ($expiresAt && now('Asia/Manila')->lt(Carbon::parse($expiresAt))) {
             $cooldownSeconds = max(
                 0,
-                now('Asia/Manila')->diffInSeconds(\Carbon\Carbon::parse($expiresAt), false)
+                now('Asia/Manila')->diffInSeconds(Carbon::parse($expiresAt), false)
             );
         }
 
@@ -256,8 +265,9 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::post('/email/verification-notification', function (Request $request) {
     try {
         $request->user()->sendEmailVerificationNotification();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
+
         return back()->with('error', 'We could not send the verification link. Please try again later.');
     }
 
@@ -368,7 +378,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix(env('ADMIN_PATH'))->name('admin.')->group(function () {
     Route::get('/', function () {
         if (Auth::guard('admin')->check()) {
-            return redirect()->route('admin.dashboard.index');
+            return redirect()->route(AdminLandingPage::routeFor(Auth::guard('admin')->user()));
         }
 
         if (Auth::guard('web')->check()) {

@@ -82,7 +82,7 @@ class ReviewRemediationTest extends TestCase
         $this->indigency();
         $this->actingAs($this->admin(['view_indigency']), 'admin');
         DB::enableQueryLog();
-        $this->get(route('admin.indigency.index', ['sort' => 'monthly_income', 'direction' => 'ASC, (SELECT 1) /* review_marker */']))->assertOk();
+        $this->getJson(route('admin.indigency.index', ['sort' => 'monthly_income', 'direction' => 'ASC, (SELECT 1) /* review_marker */']))->assertUnprocessable();
         $sql = implode("\n", array_column(DB::getQueryLog(), 'query'));
         DB::disableQueryLog();
         $this->assertStringNotContainsString('review_marker', $sql);

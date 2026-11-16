@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\BarangayClearance;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
-use App\Support\NotifiesAdmins;
+use App\Rules\ProfileCorrectionValue;
+use App\Services\EmailDeliveryService;
 use App\Support\HandlesPrivateUploads;
+use App\Support\NotifiesAdmins;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -18,7 +20,7 @@ use Throwable;
 
 class BarangayClearanceController extends Controller
 {
-    use NotifiesAdmins, HandlesPrivateUploads;
+    use HandlesPrivateUploads, NotifiesAdmins;
 
     public function index()
     {
@@ -53,7 +55,7 @@ class BarangayClearanceController extends Controller
         if (! empty($missingProfileFields)) {
             return back()
                 ->withErrors([
-                    'profile' => 'Your resident profile is incomplete: ' . implode(', ', $missingProfileFields) . '. Please contact the barangay office to correct your information.',
+                    'profile' => 'Your resident profile is incomplete: '.implode(', ', $missingProfileFields).'. Please contact the barangay office to correct your information.',
                 ])
                 ->withInput();
         }
@@ -66,7 +68,7 @@ class BarangayClearanceController extends Controller
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])],
+            'purpose' => ['required', 'string', Rule::in(['employment', 'business', 'scholarship', 'travel', 'bank', 'government', 'school', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],
@@ -155,7 +157,7 @@ class BarangayClearanceController extends Controller
             $this->notifyAdminsOfSubmission(
                 category: 'request',
                 title: 'New barangay clearance request',
-                message: $fullName . ' submitted ' . $referenceNumber . '.',
+                message: $fullName.' submitted '.$referenceNumber.'.',
                 url: route('admin.clearance.index', ['highlight' => $application->id]),
                 icon: 'fas fa-file-shield',
             );
@@ -167,7 +169,7 @@ class BarangayClearanceController extends Controller
                 'status' => 'Submitted for Processing',
                 'amount' => $fee,
                 'fee_label' => $fee !== null && $fee > 0
-                    ? '₱' . number_format($fee, 2)
+                    ? '₱'.number_format($fee, 2)
                     : 'To be assessed at Barangay Hall',
                 'reference_number' => $referenceNumber,
                 'submitted_application' => true,
@@ -212,7 +214,7 @@ class BarangayClearanceController extends Controller
                     'Email address',
                 ]),
             ],
-            'correct_value' => ['required', 'string', 'min:2', 'max:1000'],
+            'correct_value' => ['bail', 'required', 'string', 'min:2', 'max:1000', new ProfileCorrectionValue((string) $request->input('field_name'))],
             'message' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -223,7 +225,7 @@ class BarangayClearanceController extends Controller
 
             $existingPending = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
-                ->whereIn('status', ['pending', 'reviewed'])
+                ->whereIn('status', ResidentProfileCorrectionConcern::OPEN_STATUSES)
                 ->latest()
                 ->first();
 
@@ -292,15 +294,15 @@ class BarangayClearanceController extends Controller
             ]);
         });
 
-        if ($concern instanceof \Illuminate\Http\RedirectResponse) {
+        if ($concern instanceof RedirectResponse) {
             return $concern;
         }
 
         $this->notifyAdminsOfSubmission(
             category: 'profile_correction',
             title: 'New profile correction concern',
-            message: $this->formatFullName($resident) . ' requested a correction for ' .
-                $concern->field_name . '.',
+            message: $this->formatFullName($resident).' requested a correction for '.
+                $concern->field_name.'.',
             url: route('admin.residents.index', ['profile_correction' => $concern->id]),
             icon: 'fas fa-user-pen',
         );
@@ -310,25 +312,25 @@ class BarangayClearanceController extends Controller
             env('BISIG_CONTACT_EMAIL', 'barangayhulongduhat@gmail.com')
         );
 
-        $subject = 'Resident Profile Correction Request - ' . $this->formatFullName($resident);
+        $subject = 'Resident Profile Correction Request - '.$this->formatFullName($resident);
 
         $body = "A resident reported incorrect profile information.\n\n"
-            . "Service: Profile Correction\n"
-            . "Concern ID: PCC-" . now()->format('Y') . '-' . str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT) . "\n"
-            . "Resident ID: {$resident->id}\n"
-            . "Current Name: {$this->formatFullName($resident)}\n"
-            . "Current Email: {$resident->email}\n"
-            . "Current Contact: {$resident->contact}\n\n"
-            . "Field to Correct: {$concern->field_name}\n"
-            . "Current Value: {$concern->current_value}\n"
-            . "Requested Correct Value: {$concern->correct_value}\n\n"
-            . "Message:\n"
-            . ($concern->message ?: 'No additional message provided.')
-            . "\n\n"
-            . "Please verify this request before changing any locked identity or residency information.";
+            ."Service: Profile Correction\n"
+            .'Concern ID: PCC-'.now()->format('Y').'-'.str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT)."\n"
+            ."Resident ID: {$resident->id}\n"
+            ."Current Name: {$this->formatFullName($resident)}\n"
+            ."Current Email: {$resident->email}\n"
+            ."Current Contact: {$resident->contact}\n\n"
+            ."Field to Correct: {$concern->field_name}\n"
+            ."Current Value: {$concern->current_value}\n"
+            ."Requested Correct Value: {$concern->correct_value}\n\n"
+            ."Message:\n"
+            .($concern->message ?: 'No additional message provided.')
+            ."\n\n"
+            .'Please verify this request before changing any locked identity or residency information.';
 
         try {
-            app(\App\Services\EmailDeliveryService::class)->sendText(
+            app(EmailDeliveryService::class)->sendText(
                 $barangayEmail,
                 $subject,
                 $body
@@ -413,7 +415,7 @@ class BarangayClearanceController extends Controller
     private function generateReferenceNumber(): string
     {
         do {
-            $referenceNumber = 'BC-' . now()->format('Y') . '-' . strtoupper(Str::random(6));
+            $referenceNumber = 'BC-'.now()->format('Y').'-'.strtoupper(Str::random(6));
         } while (BarangayClearance::where('reference_number', $referenceNumber)->exists());
 
         return $referenceNumber;

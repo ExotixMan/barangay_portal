@@ -1,0 +1,1 @@
+@include('errors.portal', ['code' => "404", 'title' => "Page not found", 'description' => "This page or record is unavailable. Check the address or return to home.", 'recoveryPath' => "/contacts", 'recoveryLabel' => "Contact the barangay"])

@@ -1,0 +1,1 @@
+@include('errors.portal', ['code' => "503", 'title' => "The portal is temporarily unavailable", 'description' => "Please try again shortly. You can contact the barangay if you need assistance.", 'recoveryPath' => "/contacts", 'recoveryLabel' => "Contact the barangay"])

@@ -1492,3 +1492,27 @@ html[data-theme="dark"] body .admin-page .correction-resolve-form fieldset .text
 html[data-theme="dark"] body .admin-page .correction-resolve-form [data-name-preview] [data-name-difference] {
     background: transparent !important;
 }
+
+/* Populated dialogs and sparse forecast states share the surrounding surface. */
+html[data-theme="dark"] body .admin-page :is(.chart-empty-content, .event-view-hero, .module-permissions) {
+    background: var(--surface-2) !important;
+    color: var(--text) !important;
+    border-color: var(--line) !important;
+}
+
+html[data-theme="dark"] body .admin-page .table-responsive + .p-3.border-top {
+    background: var(--surface-2) !important;
+    color: var(--text) !important;
+    border-color: var(--line) !important;
+}
+@media (max-width: 767.98px) {
+    html[data-theme="dark"] body .events-page #eventsTable tbody tr > td {
+        background: var(--table-bg) !important;
+    }
+}
+
+html[data-theme="dark"] body .admin-page :is(.action-view-btn, .action-more-toggle) {
+    background: var(--surface-3) !important;
+    color: var(--text) !important;
+    border-color: var(--line-strong) !important;
+}

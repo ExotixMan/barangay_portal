@@ -158,7 +158,7 @@ class ChatbotController extends Controller
     public function adminIndex()
     {
         $knowledge = ChatbotKnowledge::orderByDesc('usage_count')->get();
-        $unmatched = ChatbotUnmatched::where('resolved', 'false')
+        $unmatched = ChatbotUnmatched::whereRaw('resolved IS FALSE')
             ->latest('created_at')
             ->limit(100)
             ->get();
@@ -208,7 +208,7 @@ class ChatbotController extends Controller
 
     public function resolveUnmatched(int $id): JsonResponse
     {
-        ChatbotUnmatched::findOrFail($id)->update(['resolved' => 'true']);
+        ChatbotUnmatched::findOrFail($id)->update(['resolved' => true]);
 
         return response()->json(['success' => true]);
     }
@@ -219,7 +219,7 @@ class ChatbotController extends Controller
             'knowledge_count' => ChatbotKnowledge::count(),
             'conversation_count' => ChatbotConversation::count(),
             'message_count' => ChatbotMessage::count(),
-            'unmatched_count' => ChatbotUnmatched::where('resolved', 'false')->count(),
+            'unmatched_count' => ChatbotUnmatched::whereRaw('resolved IS FALSE')->count(),
             'ai_enabled' => app(ClaudeAIEngine::class)->isAvailable(),
         ];
     }

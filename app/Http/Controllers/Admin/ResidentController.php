@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
+use App\Models\NotificationLog;
 use App\Models\ResidentActivity;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
+use App\Rules\CaseInsensitiveUnique;
+use App\Services\AdminRecordExport;
+use App\Services\EmailDeliveryService;
 use App\Services\SupabaseStorageService;
-use App\Support\UploadedImageComparator;
 use App\Support\ResidentName;
+use App\Support\UploadedImageComparator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules\Password as PasswordRules;
+use Illuminate\Validation\ValidationException;
 
 class ResidentController extends Controller
 {
@@ -171,15 +177,15 @@ class ResidentController extends Controller
             'middlename' => ['nullable', 'string', 'min:2', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
             'lastname' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
             'suffix' => ['nullable', 'string', 'max:10', 'in:Jr.,Sr.,II,III,IV,V'],
-            'username' => ['required', 'string', 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/', new \App\Rules\CaseInsensitiveUnique('residents', 'username')],
-            'email' => ['required', 'email', 'max:255', new \App\Rules\CaseInsensitiveUnique('residents', 'email')],
+            'username' => ['required', 'string', 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/', new CaseInsensitiveUnique('residents', 'username')],
+            'email' => ['required', 'email', 'max:255', new CaseInsensitiveUnique('residents', 'email')],
             'birthdate' => ['required', 'date', 'before:today', 'before_or_equal:'.now()->subYears(18)->toDateString()],
             'gender' => ['required', 'string', 'in:Male,Female,Prefer not to say'],
             'civil_status' => ['required', 'string', 'in:Single,Married,Widowed,Separated'],
             'place_of_birth' => ['required', 'string', 'max:255', "regex:/^[\pL\s\'\.,-]+$/u"],
             'password' => ['required', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'contact' => ['required', 'string', 'regex:/^09[0-9]{9}$/', 'unique:residents,contact'],
-            'address' => 'required|string|max:500',
+            'address' => 'required|string|max:255',
             'valid_id' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'valid_id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
             'declare_pwd' => ['nullable', 'boolean'],
@@ -328,14 +334,7 @@ class ResidentController extends Controller
                 'remarks.max' => 'Remarks must not exceed 500 characters.',
             ]);
 
-            if (! in_array(strtolower((string) $correction->status), [
-                'pending',
-                'reviewed',
-                'under_review',
-                'in_review',
-                'reviewing',
-                '',
-            ], true)) {
+            if (! in_array(strtolower((string) $correction->status), ResidentProfileCorrectionConcern::OPEN_STATUSES, true)) {
                 return back()->with(
                     'error',
                     'This correction has already been reviewed.'
@@ -373,6 +372,7 @@ class ResidentController extends Controller
                     'username' => 'username',
 
                     'email' => 'email',
+                    'email address' => 'email',
 
                     'birthdate' => 'birthdate',
                     'birth date' => 'birthdate',
@@ -381,6 +381,7 @@ class ResidentController extends Controller
                     'contact number' => 'contact',
 
                     'address' => 'address',
+                    'complete address' => 'address',
                     'gender' => 'gender',
                     'civil status' => 'civil_status',
                     'civil_status' => 'civil_status',
@@ -400,6 +401,10 @@ class ResidentController extends Controller
                 }
 
                 $correctValue = trim((string) $correction->correct_value);
+                $maximumLength = $residentField === 'suffix' ? 10 : ($residentField === 'username' ? 50 : 255);
+                if (mb_strlen($correctValue) > $maximumLength) {
+                    return back()->with('error', 'The requested correction is too long. Please submit a value of at most '.$maximumLength.' characters.');
+                }
 
                 if (in_array($residentField, ['firstname', 'middlename', 'lastname'], true)) {
                     if ($residentField === 'middlename' && $correctValue === '') {
@@ -431,17 +436,17 @@ class ResidentController extends Controller
 
                 if ($residentField === 'username') {
                     if (
-                        ! preg_match('/^[a-zA-Z0-9_]+$/', $correctValue) ||
-                        strlen($correctValue) < 3
+                        ! preg_match('/^[a-zA-Z0-9_.-]+$/', $correctValue) ||
+                        strlen($correctValue) < 4
                     ) {
                         return back()->with(
                             'error',
-                            'The requested username must contain at least 3 letters, numbers, or underscores.'
+                            'The requested username must contain 4 to 50 letters, numbers, dots, hyphens, or underscores.'
                         );
                     }
 
                     $usernameExists = Residents::withTrashed()
-                        ->where('username', $correctValue)
+                        ->whereRaw('LOWER(username) = ?', [mb_strtolower($correctValue)])
                         ->where('id', '!=', $resident->id)
                         ->exists();
 
@@ -462,7 +467,7 @@ class ResidentController extends Controller
                     }
 
                     $emailExists = Residents::withTrashed()
-                        ->where('email', $correctValue)
+                        ->whereRaw('LOWER(email) = ?', [mb_strtolower($correctValue)])
                         ->where('id', '!=', $resident->id)
                         ->exists();
 
@@ -476,6 +481,9 @@ class ResidentController extends Controller
 
                 if ($residentField === 'birthdate') {
                     try {
+                        if (! validator(['birthdate' => $correctValue], ['birthdate' => 'required|date_format:Y-m-d'])->passes()) {
+                            return back()->with('error', 'Please use YYYY-MM-DD for the requested birthdate.');
+                        }
                         $birthdate = Carbon::parse($correctValue);
 
                         if ($birthdate->isToday() || $birthdate->isFuture()) {
@@ -485,7 +493,7 @@ class ResidentController extends Controller
                             );
                         }
 
-                        if ($birthdate->gt(now()->subYears(18))) {
+                        if ($birthdate->gt(now()->subYearsNoOverflow(18)->startOfDay())) {
                             return back()->with(
                                 'error',
                                 'The resident must be at least 18 years old.'
@@ -512,8 +520,12 @@ class ResidentController extends Controller
                     }
                 }
 
+                if ($residentField === 'contact' && Residents::withTrashed()->where('contact', $correctValue)->whereKeyNot($resident->id)->exists()) {
+                    return back()->with('error', 'The requested contact number is already being used by another resident.');
+                }
+
                 if ($residentField === 'address') {
-                    if ($correctValue === '' || strlen($correctValue) > 500) {
+                    if ($correctValue === '' || mb_strlen($correctValue) > 255) {
                         return back()->with(
                             'error',
                             'The requested address is invalid.'
@@ -544,6 +556,12 @@ class ResidentController extends Controller
                 $residentChanges = [
                     $residentField => $correctValue,
                 ];
+                if ($residentField === 'email' && mb_strtolower($correctValue) !== mb_strtolower((string) $resident->email)) {
+                    $residentChanges['email_verified_at'] = null;
+                }
+                if ($residentField === 'contact' && $correctValue !== $resident->contact) {
+                    $residentChanges += ['phone_verified' => false, 'phone_otp' => null, 'phone_otp_expires_at' => null];
+                }
             }
 
             $resolvedValue = $decision === 'resolved'
@@ -557,8 +575,8 @@ class ResidentController extends Controller
                 $hasSnapshotColumn = Schema::hasColumn('resident_profile_correction_concerns', 'resolved_value');
                 DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks, $resolvedValue, $hasSnapshotColumn, $appliedValue, $request) {
                     $lockedConcern = ResidentProfileCorrectionConcern::whereKey($correction->id)->lockForUpdate()->firstOrFail();
-                    if (! in_array(strtolower((string) $lockedConcern->status), ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''], true)) {
-                        throw \Illuminate\Validation\ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
+                    if (! in_array(strtolower((string) $lockedConcern->status), ResidentProfileCorrectionConcern::OPEN_STATUSES, true)) {
+                        throw ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
                     }
                     if ($residentChanges) {
                         $resident->update($residentChanges);
@@ -581,7 +599,7 @@ class ResidentController extends Controller
                     );
 
                     if (auth('admin')->check()) {
-                        $audit = \App\Models\AdminActivityLog::create([
+                        $audit = AdminActivityLog::create([
                             'user_id' => auth('admin')->id(),
                             'action' => $decision === 'resolved'
                                 ? 'UPDATE'
@@ -607,10 +625,11 @@ class ResidentController extends Controller
                         }
                     }
                 });
-            } catch (\Illuminate\Validation\ValidationException $e) {
+            } catch (ValidationException $e) {
                 throw $e;
             } catch (\Throwable $e) {
                 Log::error('Profile correction review failed', ['correction_id' => $correction->id, 'resident_id' => $resident->id, 'exception' => $e]);
+
                 return back()->withInput()->withErrors(['correction_id' => 'We could not save this decision. Reload the resident record and try again, or contact the system administrator.']);
             }
 
@@ -659,7 +678,7 @@ class ResidentController extends Controller
                 }
 
                 try {
-                    app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, $subject, $message);
+                    app(EmailDeliveryService::class)->sendText($resident->email, $subject, $message);
 
                     $notificationResult['email'] = 'sent';
 
@@ -779,7 +798,7 @@ class ResidentController extends Controller
                 'string',
                 'regex:/^09[0-9]{9}$/',
             ],
-            'address' => 'required|string|max:500',
+            'address' => 'required|string|max:255',
 
             'valid_id' => [
                 'nullable',
@@ -1083,7 +1102,7 @@ class ResidentController extends Controller
         $this->log($resident, 'Valid ID Approved');
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPROVE',
                 'module' => 'Residents',
@@ -1136,7 +1155,7 @@ class ResidentController extends Controller
         $this->log($resident, 'Valid ID Rejected');
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'REJECT',
                 'module' => 'Residents',
@@ -1177,7 +1196,7 @@ class ResidentController extends Controller
 
         if (! empty($resident->email)) {
             try {
-                app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verification Rejected', $message);
+                app(EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verification Rejected', $message);
 
                 $result['email'] = 'sent';
                 $this->logNotification('email', (string) $resident->email, 'sent', $message, $resident->id, null);
@@ -1208,7 +1227,7 @@ class ResidentController extends Controller
         $message = "Hello {$residentName}, your valid ID has been verified and approved. Your resident account is now fully verified. - Barangay Hulong Duhat";
 
         try {
-            app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verified', $message);
+            app(EmailDeliveryService::class)->sendText($resident->email, 'Valid ID Verified', $message);
 
             $result['email'] = 'sent';
             $this->logNotification('email', (string) $resident->email, 'sent', $message, $resident->id, null);
@@ -1278,12 +1297,12 @@ class ResidentController extends Controller
 
     private function logNotification(string $channel, string $recipient, string $status, string $message, int $residentId, ?string $error = null): void
     {
-        if (! class_exists(\App\Models\NotificationLog::class)) {
+        if (! class_exists(NotificationLog::class)) {
             return;
         }
 
         try {
-            \App\Models\NotificationLog::create([
+            NotificationLog::create([
                 'channel' => $channel,
                 'recipient' => $recipient,
                 'status' => $status,
@@ -1365,7 +1384,7 @@ class ResidentController extends Controller
         }
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'BULK_ARCHIVE',
                 'module' => 'Residents',
@@ -1384,7 +1403,7 @@ class ResidentController extends Controller
 
     public function export(Request $request)
     {
-        return app(\App\Services\AdminRecordExport::class)->download($request, 'residents');
+        return app(AdminRecordExport::class)->download($request, 'residents');
     }
 
     private function log(Residents $resident, string $action): void

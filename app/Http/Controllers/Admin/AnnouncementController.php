@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseStorageService;
 use App\Models\Announcement;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use App\Models\Residents;
 use App\Models\NotificationLog;
+use App\Models\Residents;
+use App\Services\EmailDeliveryService;
+use App\Services\SupabaseStorageService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Throwable;
 
 class AnnouncementController extends Controller
@@ -28,13 +29,13 @@ class AnnouncementController extends Controller
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $search = preg_replace('/[^a-zA-Z0-9\s\-\.@,]/', '', $search);
-            $searchLike = '%' . strtolower($search) . '%';
+            $searchLike = '%'.strtolower($search).'%';
 
             $query->where(function ($q) use ($searchLike) {
                 $q->whereRaw('LOWER(title) LIKE ?', [$searchLike])
-                  ->orWhereRaw('LOWER(content) LIKE ?', [$searchLike])
-                  ->orWhereRaw('LOWER(category) LIKE ?', [$searchLike])
-                  ->orWhereRaw('CAST(status AS TEXT) ILIKE ?', [$searchLike]);
+                    ->orWhereRaw('LOWER(content) LIKE ?', [$searchLike])
+                    ->orWhereRaw('LOWER(category) LIKE ?', [$searchLike])
+                    ->orWhereRaw('LOWER(CAST(status AS TEXT)) LIKE ?', [$searchLike]);
             });
         }
 
@@ -54,7 +55,7 @@ class AnnouncementController extends Controller
 
         if ($request->has('featured') && $request->featured !== '') {
             $isFeaturedFilter = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if (!is_null($isFeaturedFilter)) {
+            if (! is_null($isFeaturedFilter)) {
                 $query->whereRaw($isFeaturedFilter ? 'is_featured IS TRUE' : 'is_featured IS FALSE');
             }
         }
@@ -68,8 +69,8 @@ class AnnouncementController extends Controller
         $direction = strtolower((string) $request->get('direction', 'desc'));
         $direction = $direction === 'asc' ? 'asc' : 'desc';
         $allowedSorts = ['title', 'category', 'is_featured', 'views', 'published_at', 'created_at', 'status'];
-        
-        if (!in_array($sort, $allowedSorts)) {
+
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
 
@@ -78,7 +79,7 @@ class AnnouncementController extends Controller
         } elseif ($sort === 'is_featured') {
             $query->orderBy('is_featured', $direction);
         } elseif ($sort === 'published_at') {
-            
+
             $query->orderByRaw('published_at IS NULL ASC')
                 ->orderBy('published_at', $direction);
         } else {
@@ -97,22 +98,22 @@ class AnnouncementController extends Controller
         $smsAudienceCounts = $this->buildSmsAudienceCounts();
 
         $residentsForNotification = $this->residentBaseQuery()
-        ->select([
-            'id',
-            'firstname',
-            'middlename',
-            'lastname',
-            'suffix',
-            'email',
-            'contact',
-            'birthdate',
-            'is_pwd',
-            'is_student',
-            'gender',
-        ])
-        ->orderBy('lastname')
-        ->orderBy('firstname')
-        ->get();
+            ->select([
+                'id',
+                'firstname',
+                'middlename',
+                'lastname',
+                'suffix',
+                'email',
+                'contact',
+                'birthdate',
+                'is_pwd',
+                'is_student',
+                'gender',
+            ])
+            ->orderBy('lastname')
+            ->orderBy('firstname')
+            ->get();
 
         return view('admin.admin_announcement', compact(
             'announcements',
@@ -129,7 +130,7 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
-        
+
         session()->flash('form_type', 'add');
 
         $data = $request->validate([
@@ -145,7 +146,7 @@ class AnnouncementController extends Controller
         $newImagePath = null;
 
         try {
-            
+
             if ($request->hasFile('image')) {
                 $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
                     $request->file('image'),
@@ -156,7 +157,7 @@ class AnnouncementController extends Controller
                 $newImagePath = $data['image'];
             }
 
-            if ($request->status == 'published' && !$request->published_at) {
+            if ($request->status == 'published' && ! $request->published_at) {
                 $data['published_at'] = now();
             }
 
@@ -166,10 +167,10 @@ class AnnouncementController extends Controller
 
             Announcement::where('id', $announcement->id)
                 ->update([
-                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
+                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE'),
                 ]);
 
-            return redirect()->route('admin.announcements.index') 
+            return redirect()->route('admin.announcements.index')
                 ->with('success', 'Announcement created successfully.');
 
         } catch (\Exception $e) {
@@ -184,8 +185,8 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, int $id)
     {
-        
-        session()->flash('form_type', 'edit_' . $id);
+
+        session()->flash('form_type', 'edit_'.$id);
 
         $announcement = Announcement::findOrFail($id);
 
@@ -202,7 +203,7 @@ class AnnouncementController extends Controller
         $newImagePath = null;
 
         try {
-            
+
             $oldImage = $announcement->image;
             if ($request->hasFile('image')) {
                 $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
@@ -214,7 +215,7 @@ class AnnouncementController extends Controller
                 $newImagePath = $data['image'];
             }
 
-            if ($request->status == 'published' && !$request->published_at && $announcement->status != 'published') {
+            if ($request->status == 'published' && ! $request->published_at && $announcement->status != 'published') {
                 $data['published_at'] = now();
             }
 
@@ -224,14 +225,14 @@ class AnnouncementController extends Controller
 
             Announcement::where('id', $announcement->id)
                 ->update([
-                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE')
+                    'is_featured' => DB::raw($request->boolean('is_featured') ? 'TRUE' : 'FALSE'),
                 ]);
 
             if ($request->hasFile('image') && $oldImage && $oldImage !== $announcement->image) {
                 app(SupabaseStorageService::class)->delete($oldImage);
             }
 
-            return redirect()->route('admin.announcements.index') 
+            return redirect()->route('admin.announcements.index')
                 ->with('success', 'Announcement updated successfully.');
 
         } catch (\Exception $e) {
@@ -251,19 +252,19 @@ class AnnouncementController extends Controller
         $title = $announcement->title;
         $announcement->delete();
 
-        return back()->with('success', 'Announcement "' . $title . '" archived successfully.');
+        return back()->with('success', 'Announcement "'.$title.'" archived successfully.');
     }
 
     public function bulkDelete(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:announcements,id'
+            'ids.*' => 'exists:announcements,id',
         ]);
 
         Announcement::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', count($request->ids) . ' selected announcement(s) archived successfully.');
+        return back()->with('success', count($request->ids).' selected announcement(s) archived successfully.');
     }
 
     public function restore(int $id)
@@ -272,10 +273,10 @@ class AnnouncementController extends Controller
         $title = $announcement->title;
         $announcement->restore();
 
-        return back()->with('success', 'Announcement "' . $title . '" restored successfully.');
+        return back()->with('success', 'Announcement "'.$title.'" restored successfully.');
     }
 
-    public function toggleFeature(int$id)
+    public function toggleFeature(int $id)
     {
         $announcement = Announcement::findOrFail($id);
 
@@ -286,7 +287,7 @@ class AnnouncementController extends Controller
 
         $status = $announcement->is_featured ? 'featured' : 'unfeatured';
 
-        return back()->with('success', 'Announcement ' . $status . ' successfully.');
+        return back()->with('success', 'Announcement '.$status.' successfully.');
     }
 
     public function trackView(string $slug)
@@ -326,7 +327,7 @@ class AnnouncementController extends Controller
             'channel' => ['required', 'in:sms,email,both'],
             'audience' => [
                 'required',
-                'in:all,selected,verified,unverified,senior,pwd,student,male,female,email_ready,sms_ready,with_valid_id'
+                'in:all,selected,verified,unverified,senior,pwd,student,male,female,email_ready,sms_ready,with_valid_id',
             ],
             'resident_ids' => ['nullable', 'array', 'required_if:audience,selected'],
             'resident_ids.*' => ['integer', 'distinct', 'exists:residents,id'],
@@ -414,7 +415,7 @@ class AnnouncementController extends Controller
                 return back()
                     ->withInput()
                     ->with('form_type', 'bulk_notify')
-                    ->with('error', 'SMS bulk notification is limited to 1,000 valid mobile numbers only. Selected valid mobile numbers: ' . $smsPayloads->count() . '.');
+                    ->with('error', 'SMS bulk notification is limited to 1,000 valid mobile numbers only. Selected valid mobile numbers: '.$smsPayloads->count().'.');
             }
 
             $creditsNeeded = $this->calculateSmsCreditsNeeded($smsPayloads);
@@ -447,7 +448,7 @@ class AnnouncementController extends Controller
 
             if (in_array($channel, ['email', 'both'], true) && filled($resident->email)) {
                 try {
-                    app(\App\Services\EmailDeliveryService::class)->sendText($resident->email, $subject, $personalizedMessage);
+                    app(EmailDeliveryService::class)->sendText($resident->email, $subject, $personalizedMessage);
 
                     $emailSent++;
 
@@ -598,17 +599,20 @@ class AnnouncementController extends Controller
     private function applyVerifiedResidentFilter(Builder $query, bool $verified = true): ?string
     {
         if (Schema::hasColumn('residents', 'admin_verified')) {
-            $query->whereRaw('"admin_verified" IS ' . ($verified ? 'TRUE' : 'FALSE'));
+            $query->whereRaw('"admin_verified" IS '.($verified ? 'TRUE' : 'FALSE'));
+
             return null;
         }
 
         if (Schema::hasColumn('residents', 'residency_verified')) {
-            $query->whereRaw('"residency_verified" IS ' . ($verified ? 'TRUE' : 'FALSE'));
+            $query->whereRaw('"residency_verified" IS '.($verified ? 'TRUE' : 'FALSE'));
+
             return null;
         }
 
         if (Schema::hasColumn('residents', 'valid_id_verified')) {
-            $query->whereRaw('"valid_id_verified" IS ' . ($verified ? 'TRUE' : 'FALSE'));
+            $query->whereRaw('"valid_id_verified" IS '.($verified ? 'TRUE' : 'FALSE'));
+
             return null;
         }
 
@@ -639,7 +643,7 @@ class AnnouncementController extends Controller
             }
 
             $query->whereRaw(
-                'LOWER(CAST("' . $column . '" AS TEXT)) IN (?, ?, ?, ?, ?)',
+                'LOWER(CAST("'.$column.'" AS TEXT)) IN (?, ?, ?, ?, ?)',
                 ['yes', 'true', '1', 'pwd', 'student']
             );
 
@@ -722,11 +726,11 @@ class AnnouncementController extends Controller
         $number = preg_replace('/[\s\-\(\)]/', '', trim($number));
 
         if (str_starts_with($number, '+639')) {
-            $number = '639' . substr($number, 4);
+            $number = '639'.substr($number, 4);
         } elseif (str_starts_with($number, '09')) {
-            $number = '639' . substr($number, 1);
+            $number = '639'.substr($number, 1);
         } elseif (str_starts_with($number, '9')) {
-            $number = '63' . $number;
+            $number = '63'.$number;
         }
 
         return preg_match('/^639\d{9}$/', $number) ? $number : null;
@@ -759,7 +763,7 @@ class AnnouncementController extends Controller
             throw new \InvalidArgumentException('Invalid boolean column name.');
         }
 
-        $query->whereRaw('"' . $column . '" IS ' . ($value ? 'TRUE' : 'FALSE'));
+        $query->whereRaw('"'.$column.'" IS '.($value ? 'TRUE' : 'FALSE'));
     }
 
     private function getSemaphoreAccountSummary(bool $useCache = true): array
@@ -787,7 +791,7 @@ class AnnouncementController extends Controller
                 if (! $response->successful()) {
                     return [
                         'success' => false,
-                        'message' => 'Unable to retrieve Semaphore balance. Status: ' . $response->status(),
+                        'message' => 'Unable to retrieve Semaphore balance. Status: '.$response->status(),
                         'credit_balance' => 0,
                         'account_name' => null,
                         'status' => null,
@@ -806,7 +810,7 @@ class AnnouncementController extends Controller
             } catch (Throwable $e) {
                 return [
                     'success' => false,
-                    'message' => 'Semaphore balance check failed: ' . $e->getMessage(),
+                    'message' => 'Semaphore balance check failed: '.$e->getMessage(),
                     'credit_balance' => 0,
                     'account_name' => null,
                     'status' => null,
@@ -819,7 +823,7 @@ class AnnouncementController extends Controller
         }
 
         return Cache::remember(
-            'semaphore_account_summary_' . md5($apiKey),
+            'semaphore_account_summary_'.md5($apiKey),
             now()->addSeconds(60),
             $resolver
         );
@@ -871,6 +875,7 @@ class AnnouncementController extends Controller
 
                 if ($error !== null) {
                     $counts[$audience] = 0;
+
                     continue;
                 }
             }
@@ -904,7 +909,7 @@ class AnnouncementController extends Controller
 
         if (! $response->successful()) {
             throw new \RuntimeException(
-                'Semaphore SMS failed. Status: ' . $response->status() . '. Response: ' . $response->body()
+                'Semaphore SMS failed. Status: '.$response->status().'. Response: '.$response->body()
             );
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\DatabaseBoolean;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,7 +22,7 @@ class ChatbotMessage extends Model
     ];
 
     protected $casts = [
-        'matched'    => 'boolean',
+        'matched' => DatabaseBoolean::class,
         'created_at' => 'datetime',
     ];
 

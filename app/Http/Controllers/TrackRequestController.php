@@ -22,7 +22,7 @@ class TrackRequestController extends Controller
         $trackedRequest = null;
 
         $reference = $this->normalizeReference(
-            $request->input('reference_number', $request->query('view', ''))
+            $request->input('reference_number', $request->query('view', '')) ?: ''
         );
 
         if ($reference !== '') {

@@ -1,0 +1,1 @@
+@include('errors.portal', ['code' => "419", 'title' => "Your session has expired", 'description' => "Please sign in again, reopen the form, and try submitting it once more.", 'recoveryPath' => "/login", 'recoveryLabel' => "Sign in again"])

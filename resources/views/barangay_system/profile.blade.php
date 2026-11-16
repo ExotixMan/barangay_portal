@@ -13,13 +13,7 @@
     }
 
     $pendingProfileCorrection = $profileCorrectionConcerns->first(
-        fn ($concern) => in_array(strtolower(trim((string) $concern->status)), [
-            'pending',
-            'reviewed',
-            'under_review',
-            'in_review',
-            'reviewing',
-        ], true)
+        fn ($concern) => in_array(strtolower(trim((string) $concern->status)), \App\Models\ResidentProfileCorrectionConcern::OPEN_STATUSES, true)
     );
 
     $latestProfileCorrection = $profileCorrectionConcerns->first();
@@ -32,7 +26,7 @@
         $normalizedStatus = strtolower(trim((string) $status));
 
         return match ($normalizedStatus) {
-            'pending' => [
+            'pending', '' => [
                 'class'   => 'warning',
                 'icon'    => 'fa-clock',
                 'label'   => 'Pending Review',

@@ -2380,3 +2380,42 @@ body.dark-mode .privacy-check-row label strong {
         border-color: var(--dm-link) !important;
     }
 }
+
+@media screen {
+    body.dark-mode :is(.strength-label, .req-list li:not(.met)) {
+        color: var(--dm-text-secondary, #cbd5e1) !important;
+    }
+    body.dark-mode.request-print-page :is(.detail-label, .detail-value, .detail-value strong) {
+        color: var(--dm-text-primary, #f1f5f9) !important;
+    }
+    body.dark-mode.request-print-page .instructions {
+        background: var(--dm-bg-secondary, #1e293b) !important;
+        color: var(--dm-text-primary, #f1f5f9) !important;
+        border-color: var(--dm-border, #475569) !important;
+    }
+    body.dark-mode.request-print-page .status-badge {
+        background: #1e3a55 !important;
+        color: #c5e3ff !important;
+        border-color: #4d7193 !important;
+    }
+}
+
+@media screen {
+    body.dark-mode.request-print-page :is(.header h1, .details h3, .instructions h3) {
+        color: var(--dm-link, #ff9b9b) !important;
+    }
+}
+
+@media screen {
+    body.dark-mode.request-print-page :is(.location-info strong, .qr-code p, .footer, .footer p) {
+        color: var(--dm-text-secondary, #cbd5e1) !important;
+    }
+    body.dark-mode.request-print-page .important-note {
+        background: #3b310e !important;
+        color: #ffe4a3 !important;
+        border-color: #d6b04e !important;
+    }
+    body.dark-mode.request-print-page .important-note i {
+        color: inherit !important;
+    }
+}

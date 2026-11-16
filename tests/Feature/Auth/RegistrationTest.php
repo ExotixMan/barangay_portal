@@ -72,6 +72,31 @@ class RegistrationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_registration_accepts_the_eighteenth_birthday(): void
+    {
+        $this->travelTo(now()->setDate(2026, 11, 16)->startOfDay());
+        Storage::fake('local');
+        config(['supabase_storage.url' => '', 'supabase_storage.secret_key' => '', 'supabase_storage.required' => false]);
+        $this->captchaSettings(false);
+        $this->mock(OtpSmsService::class, fn ($m) => $m->shouldReceive('sendOtp')->once()->andReturn(true));
+        $data = $this->registrationData();
+        $data['birthdate'] = '2008-11-16';
+        $this->post('/register', $data)->assertSessionHasNoErrors()->assertRedirect(route('otp.form'));
+        $this->assertDatabaseHas('residents', ['email' => 'new@example.test']);
+    }
+
+    public function test_registration_rejects_underage_or_overlong_profile_data_before_saving(): void
+    {
+        $this->travelTo(now()->setDate(2026, 11, 16)->startOfDay());
+        $this->captchaSettings(false);
+        $this->mock(OtpSmsService::class, fn ($m) => $m->shouldNotReceive('sendOtp'));
+        $data = $this->registrationData();
+        $data['birthdate'] = '2008-11-17';
+        $data['address'] = str_repeat('a', 256);
+        $this->post('/register', $data)->assertSessionHasErrors(['birthdate', 'address']);
+        $this->assertDatabaseCount('residents', 0);
+    }
+
     public function test_incomplete_registration_does_not_create_an_account(): void
     {
         $this->post('/register', ['firstname' => 'Test', 'email' => 'new@example.test'])->assertSessionHasErrors(['valid_id', 'password']);

@@ -18,7 +18,7 @@ class NoPendingProfileCorrection
 
         $pendingConcern = ResidentProfileCorrectionConcern::query()
             ->where('resident_id', Auth::id())
-            ->whereIn('status', ['pending', 'reviewed'])
+            ->whereIn('status', ResidentProfileCorrectionConcern::OPEN_STATUSES)
             ->latest()
             ->first();
 

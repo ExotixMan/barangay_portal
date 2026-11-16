@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ResidentProfileCorrectionConcern extends Model
 {
+    public const OPEN_STATUSES = ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''];
+
     private bool $resolutionSnapshotLoaded = false;
 
     private ?string $resolutionSnapshot = null;

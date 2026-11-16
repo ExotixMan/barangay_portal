@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\AdminLandingPage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -108,7 +109,7 @@ class AdminNotificationController extends Controller
 
     private function safeDestination(Request $request, mixed $destination): string
     {
-        $fallback = route('admin.dashboard.index');
+        $fallback = route(AdminLandingPage::routeFor(Auth::guard('admin')->user()));
 
         if (! is_string($destination) || trim($destination) === '') {
             return $fallback;
@@ -121,11 +122,10 @@ class AdminNotificationController extends Controller
             return $fallback;
         }
 
-        $path = '/' . ltrim((string) parse_url($destination, PHP_URL_PATH), '/');
+        $path = '/'.ltrim((string) parse_url($destination, PHP_URL_PATH), '/');
         $queryString = (string) parse_url($destination, PHP_URL_QUERY);
         parse_str($queryString, $query);
 
-        
         $legacyRouteMap = [
             '/incident-reports' => 'admin.blotter.index',
             '/blotter' => 'admin.blotter.index',

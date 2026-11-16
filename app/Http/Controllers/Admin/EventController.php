@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseStorageService;
 use App\Models\Event;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Services\SupabaseStorageService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
@@ -19,8 +18,8 @@ class EventController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
@@ -50,8 +49,8 @@ class EventController extends Controller
         $sort = $request->get('sort', 'event_date');
         $direction = $request->get('direction', 'desc');
         $allowedSorts = ['title', 'event_date', 'location', 'attendees', 'type', 'created_at'];
-        
-        if (!in_array($sort, $allowedSorts)) {
+
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'event_date';
         }
 
@@ -60,17 +59,17 @@ class EventController extends Controller
         $events = $query->paginate(10)->withQueryString();
 
         return view('admin.admin_event', compact(
-            'events', 
-            'total_count', 
-            'upcoming_count', 
-            'past_count', 
+            'events',
+            'total_count',
+            'upcoming_count',
+            'past_count',
             'total_attendees'
         ));
     }
 
     public function store(Request $request)
     {
-        
+
         session()->flash('form_type', 'add');
 
         $data = $request->validate([
@@ -88,7 +87,7 @@ class EventController extends Controller
         $newImagePath = null;
 
         try {
-            
+
             if ($request->hasFile('image')) {
                 $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
                     $request->file('image'),
@@ -99,7 +98,7 @@ class EventController extends Controller
                 $newImagePath = $data['image'];
             }
 
-            if (!isset($data['attendees'])) {
+            if (! isset($data['attendees'])) {
                 $data['attendees'] = 0;
             }
 
@@ -121,8 +120,8 @@ class EventController extends Controller
 
     public function update(Request $request, int $id)
     {
-        
-        session()->flash('form_type', 'edit_' . $id);
+
+        session()->flash('form_type', 'edit_'.$id);
 
         $event = Event::findOrFail($id);
 
@@ -141,7 +140,7 @@ class EventController extends Controller
         $newImagePath = null;
 
         try {
-            
+
             $oldImage = $event->image;
             if ($request->hasFile('image')) {
                 $data['image'] = app(SupabaseStorageService::class)->storePublicUpload(
@@ -160,7 +159,7 @@ class EventController extends Controller
                 app(SupabaseStorageService::class)->delete($oldImage);
             }
 
-            return redirect()->route('admin.events.index') 
+            return redirect()->route('admin.events.index')
                 ->with('success', 'Event updated successfully.');
 
         } catch (\Exception $e) {
@@ -180,19 +179,19 @@ class EventController extends Controller
         $title = $event->title;
         $event->delete();
 
-        return back()->with('success', 'Event "' . $title . '" archived successfully.');
+        return back()->with('success', 'Event "'.$title.'" archived successfully.');
     }
 
     public function bulkDelete(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:events,id'
+            'ids.*' => 'exists:events,id',
         ]);
 
         Event::whereIn('id', $request->ids)->delete();
 
-        return back()->with('success', count($request->ids) . ' selected event(s) archived successfully.');
+        return back()->with('success', count($request->ids).' selected event(s) archived successfully.');
     }
 
     public function restore(int $id)
@@ -201,21 +200,22 @@ class EventController extends Controller
         $title = $event->title;
         $event->restore();
 
-        return back()->with('success', 'Event "' . $title . '" restored successfully.');
+        return back()->with('success', 'Event "'.$title.'" restored successfully.');
     }
 
     public function show(int $id)
     {
         $event = Event::findOrFail($id);
+
         return response()->json($event);
     }
 
     public function duplicate(int $id)
     {
         $event = Event::findOrFail($id);
-        
+
         $newEvent = $event->replicate();
-        $newEvent->title = $event->title . ' (Copy)';
+        $newEvent->title = mb_substr($event->title, 0, 248).' (Copy)';
         $newEvent->save();
 
         return back()->with('success', 'Event duplicated successfully.');

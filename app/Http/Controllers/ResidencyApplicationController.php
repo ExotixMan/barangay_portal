@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\ResidencyApplication;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
+use App\Rules\ProfileCorrectionValue;
+use App\Services\EmailDeliveryService;
+use App\Services\SupabaseStorageService;
 use App\Support\HandlesPrivateUploads;
 use App\Support\NotifiesAdmins;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -69,7 +73,7 @@ class ResidencyApplicationController extends Controller
             'years_residing' => ['required', Rule::in(['less1', '1-3', '3-5', '5-10', '10-20', '20+'])],
             'residency_type' => ['required', Rule::in(['owner', 'renter', 'family', 'relative', 'boarder'])],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
-            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['government', 'school', 'employment', 'legal', 'bank', 'scholarship', 'pwd', 'senior', 'other'])],
+            'purpose' => ['required', 'string', Rule::in(['government', 'school', 'employment', 'legal', 'bank', 'scholarship', 'pwd', 'senior', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],
@@ -204,7 +208,7 @@ class ResidencyApplicationController extends Controller
         } catch (Throwable $e) {
             if (! isset($application)) {
                 foreach ($uploadedPaths as $path) {
-                    app(\App\Services\SupabaseStorageService::class)->delete($path);
+                    app(SupabaseStorageService::class)->delete($path);
                 }
             }
             report($e);
@@ -242,7 +246,7 @@ class ResidencyApplicationController extends Controller
                     'Email address',
                 ]),
             ],
-            'correct_value' => ['required', 'string', 'min:2', 'max:1000'],
+            'correct_value' => ['bail', 'required', 'string', 'min:2', 'max:1000', new ProfileCorrectionValue((string) $request->input('field_name'))],
             'message' => ['nullable', 'string', 'max:2000'],
         ], [
             'field_name.required' => 'Please choose which profile field needs correction.',
@@ -258,7 +262,7 @@ class ResidencyApplicationController extends Controller
 
             $existingPending = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
-                ->whereIn('status', ['pending', 'reviewed'])
+                ->whereIn('status', ResidentProfileCorrectionConcern::OPEN_STATUSES)
                 ->latest()
                 ->first();
 
@@ -323,7 +327,7 @@ class ResidencyApplicationController extends Controller
             ]);
         });
 
-        if ($concern instanceof \Illuminate\Http\RedirectResponse) {
+        if ($concern instanceof RedirectResponse) {
             return $concern;
         }
 
@@ -361,7 +365,7 @@ class ResidencyApplicationController extends Controller
             .'Please verify this request before changing any locked identity or residency information.';
 
         try {
-            app(\App\Services\EmailDeliveryService::class)->sendText(
+            app(EmailDeliveryService::class)->sendText(
                 $barangayEmail,
                 $subject,
                 $body

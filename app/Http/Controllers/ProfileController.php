@@ -2,30 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\Password as PasswordRules;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Validation\Rule;
-use App\Models\Residents;
-use App\Models\ResidencyApplication;
-use App\Models\IndigencyApplication;
 use App\Models\BarangayClearance;
 use App\Models\BlotterReport;
+use App\Models\IndigencyApplication;
+use App\Models\ResidencyApplication;
 use App\Models\ResidentProfileCorrectionConcern;
+use App\Models\Residents;
+use App\Rules\CaseInsensitiveUnique;
+use App\Rules\ProfileCorrectionValue;
+use App\Services\OtpSmsService;
 use App\Services\SupabaseStorageService;
 use App\Support\UploadedImageComparator;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class ProfileController extends Controller
 {
     public function show()
     {
-        
+
         $resident = $this->currentResident();
         $userId = $resident->id;
 
@@ -37,7 +39,7 @@ class ProfileController extends Controller
 
         $blotterCount = BlotterReport::where('user_id', $userId)->count();
 
-        $totalRequests  = $residencyCount + $indigencyCount + $clearanceCount + $blotterCount;
+        $totalRequests = $residencyCount + $indigencyCount + $clearanceCount + $blotterCount;
 
         $residencyRecords = ResidencyApplication::where('user_id', $userId)
             ->select('reference_number', 'status', 'created_at', DB::raw("'Certificate of Residency' as type"));
@@ -72,7 +74,7 @@ class ProfileController extends Controller
         $resident = $this->currentResident();
 
         if (is_string($request->input('contact')) && preg_match('/^9\d{9}$/', $request->input('contact'))) {
-            $request->merge(['contact' => '0' . $request->input('contact')]);
+            $request->merge(['contact' => '0'.$request->input('contact')]);
         }
 
         $validated = $request->validate([
@@ -84,7 +86,7 @@ class ProfileController extends Controller
         $contact = $validated['contact'];
 
         if (strlen($contact) === 10 && ! str_starts_with($contact, '0')) {
-            $contact = '0' . $contact;
+            $contact = '0'.$contact;
         }
 
         if ($contact === $resident->contact && $resident->phone_verified) {
@@ -94,7 +96,7 @@ class ProfileController extends Controller
         $otp = random_int(100000, 999999);
         $recipient = clone $resident;
         $recipient->contact = $contact;
-        if (! app(\App\Services\OtpSmsService::class)->sendOtp($recipient, $otp, 'profile_contact')) {
+        if (! app(OtpSmsService::class)->sendOtp($recipient, $otp, 'profile_contact')) {
             return back()->withErrors(['contact' => 'We could not send the verification code. Your contact number has not changed. Please try again later.'])->with('open_tab', 'info');
         }
         $request->session()->put('contact_change', [
@@ -115,6 +117,7 @@ class ProfileController extends Controller
         $challenge = $request->session()->get('contact_change');
         if (! $challenge || $challenge['resident_id'] !== $resident->id || $challenge['expires_at'] < now()->timestamp || $challenge['attempts'] >= 5) {
             $request->session()->forget('contact_change');
+
             return back()->withErrors(['contact_otp' => 'This code has expired. Request a new code using the contact form.'])->with('open_tab', 'info');
         }
         $request->session()->put('contact_change.attempts', $challenge['attempts'] + 1);
@@ -133,18 +136,18 @@ class ProfileController extends Controller
 
     public function reportIncorrectProfile(Request $request)
     {
-        
+
         $resident = $this->currentResident();
 
         return DB::transaction(function () use ($request, $resident) {
-            
+
             $resident = Residents::whereKey($resident->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
             $existingPending = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
-                ->whereIn('status', ['pending', 'reviewed'])
+                ->whereIn('status', ResidentProfileCorrectionConcern::OPEN_STATUSES)
                 ->latest()
                 ->first();
 
@@ -200,7 +203,7 @@ class ProfileController extends Controller
                     ]),
                 ],
                 'current_value' => ['nullable', 'string', 'max:2000'],
-                'correct_value' => ['required', 'string', 'min:2', 'max:2000'],
+                'correct_value' => ['bail', 'required', 'string', 'min:2', 'max:2000', new ProfileCorrectionValue((string) $request->input('field_name'))],
                 'message' => ['nullable', 'string', 'max:3000'],
             ], [
                 'field_name.required' => 'Please choose which profile field needs correction.',
@@ -258,24 +261,24 @@ class ProfileController extends Controller
 
     public function updateAccount(Request $request)
     {
-        
+
         $resident = $this->currentResident();
 
         $validated = $request->validate([
             'username' => [
                 'required', 'string', 'min:4', 'max:50',
                 'regex:/^[a-zA-Z0-9_.-]+$/',
-                new \App\Rules\CaseInsensitiveUnique('residents', 'username', $resident->id),
+                new CaseInsensitiveUnique('residents', 'username', $resident->id),
             ],
             'email' => [
                 'required', 'email', 'max:255',
-                new \App\Rules\CaseInsensitiveUnique('residents', 'email', $resident->id),
+                new CaseInsensitiveUnique('residents', 'email', $resident->id),
             ],
         ], [
-            'username.regex'  => 'Username may only contain letters, numbers, underscores, dots, and hyphens.',
-            'username.min'    => 'Username must be at least 4 characters.',
+            'username.regex' => 'Username may only contain letters, numbers, underscores, dots, and hyphens.',
+            'username.min' => 'Username must be at least 4 characters.',
             'username.unique' => 'This username is already taken.',
-            'email.unique'    => 'This email is already registered to another account.',
+            'email.unique' => 'This email is already registered to another account.',
         ]);
 
         $emailChanged = mb_strtolower(trim($validated['email'])) !== mb_strtolower($resident->email);
@@ -290,13 +293,14 @@ class ProfileController extends Controller
         $resident->save();
 
         if ($emailChanged) {
-            $emailThrottleKey = 'verify-email-sent:' . $resident->id . ':' . $resident->email;
+            $emailThrottleKey = 'verify-email-sent:'.$resident->id.':'.$resident->email;
 
-            if (!Cache::has($emailThrottleKey)) {
+            if (! Cache::has($emailThrottleKey)) {
                 try {
                     $resident->sendEmailVerificationNotification();
                 } catch (\Throwable $e) {
                     report($e);
+
                     return redirect()->route('verification.notice')->with('error', 'Your email was updated, but we could not send the verification link. Use Resend verification link to try again.');
                 }
                 Cache::put($emailThrottleKey, true, now()->addMinutes(2));
@@ -311,21 +315,21 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        
+
         $resident = $this->currentResident();
 
         $request->validate([
             'current_password' => ['required', 'string'],
-            'new_password'     => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
+            'new_password' => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'new_password.confirmed' => 'The new password confirmation does not match.',
-            'new_password.regex'     => 'New password cannot contain spaces.',
-            'new_password.*'         => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+            'new_password.regex' => 'New password cannot contain spaces.',
+            'new_password.*' => 'New password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
         ]);
 
-        if (!Hash::check($request->current_password, $resident->password)) {
+        if (! Hash::check($request->current_password, $resident->password)) {
             return back()->withErrors(['current_password' => 'Current password is incorrect.'])
-                         ->with('open_tab', 'account');
+                ->with('open_tab', 'account');
         }
 
         $resident->update(['password' => Hash::make($request->new_password)]);
@@ -335,7 +339,7 @@ class ProfileController extends Controller
 
     public function updatePhoto(Request $request)
     {
-        if (!$request->hasFile('profile_photo')) {
+        if (! $request->hasFile('profile_photo')) {
             return redirect()->route('profile')
                 ->withErrors(['profile_photo' => 'Please choose an image file to upload.'])
                 ->with('open_tab', 'info');
@@ -346,7 +350,7 @@ class ProfileController extends Controller
         ], [
             'profile_photo.image' => 'The file must be an image.',
             'profile_photo.mimes' => 'Only JPG, PNG, and WebP images are allowed.',
-            'profile_photo.max'   => 'Photo must not exceed 5MB.',
+            'profile_photo.max' => 'Photo must not exceed 5MB.',
         ]);
 
         $resident = $this->currentResident();
@@ -358,7 +362,7 @@ class ProfileController extends Controller
             $newProfilePhoto = app(SupabaseStorageService::class)->storePrivateUpload(
                 $file,
                 'profile_photos',
-                'profile_' . $resident->id
+                'profile_'.$resident->id
             );
 
             $resident->update(['profile_photo' => $newProfilePhoto]);
@@ -374,7 +378,7 @@ class ProfileController extends Controller
 
     public function removePhoto()
     {
-        
+
         $resident = $this->currentResident();
 
         $oldProfilePhoto = $resident->profile_photo;
@@ -403,7 +407,7 @@ class ProfileController extends Controller
         $frontFile = $request->file('valid_id');
         $backFile = $request->file('valid_id_back');
 
-        if (!$frontFile instanceof UploadedFile || !$backFile instanceof UploadedFile) {
+        if (! $frontFile instanceof UploadedFile || ! $backFile instanceof UploadedFile) {
             return redirect()->route('profile')
                 ->withErrors(['valid_id' => 'Please scan both the front and back side of your valid ID.'])
                 ->with('open_tab', 'valid-id');
@@ -631,7 +635,7 @@ class ProfileController extends Controller
         }
 
         $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
-        $filename = $type . '_' . now()->format('Ymd_His') . '_' . $resident->id . '_' . Str::random(10) . '.' . $extension;
+        $filename = $type.'_'.now()->format('Ymd_His').'_'.$resident->id.'_'.Str::random(10).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -645,7 +649,7 @@ class ProfileController extends Controller
         $uploadDir = 'private/valid_id/residents';
 
         $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
-        $filename = 'valid_id_' . $side . '_' . now()->format('Ymd_His') . '_' . $resident->id . '_' . Str::random(10) . '.' . $extension;
+        $filename = 'valid_id_'.$side.'_'.now()->format('Ymd_His').'_'.$resident->id.'_'.Str::random(10).'.'.$extension;
 
         return app(SupabaseStorageService::class)->storePrivateFileWithName(
             $file,
@@ -656,7 +660,7 @@ class ProfileController extends Controller
 
     private function deletePublicFile(?string $path): void
     {
-        if (!$path) {
+        if (! $path) {
             return;
         }
 
@@ -666,5 +670,4 @@ class ProfileController extends Controller
 
         app(SupabaseStorageService::class)->delete($path);
     }
-
 }

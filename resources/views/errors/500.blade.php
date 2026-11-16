@@ -1,0 +1,1 @@
+@include('errors.portal', ['code' => "500", 'title' => "We could not complete that action", 'description' => "Please try again shortly. If you submitted a service request, check its status before sending it again.", 'recoveryPath' => "/track-request", 'recoveryLabel' => "Track a request"])

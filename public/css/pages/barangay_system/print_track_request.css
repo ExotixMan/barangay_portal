@@ -196,3 +196,11 @@ body {
                 page-break-inside: avoid !important;
             }
         }
+
+.status-pending { color: #765400; }
+.status-processing { color: #115a9a; }
+.status-approved, .status-claimed { color: #216437; }
+.status-rejected { color: #9b202a; }
+@media print {
+    body.request-print-page { color-scheme: light; background: white !important; color: #17243b !important; }
+}

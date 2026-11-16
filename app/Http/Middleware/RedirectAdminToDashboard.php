@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AdminLandingPage;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class RedirectAdminToDashboard
             Auth::guard('admin')->check()
             && ! $request->routeIs('admin.*')
         ) {
-            return redirect()->route('admin.dashboard.index');
+            return redirect()->route(AdminLandingPage::routeFor(Auth::guard('admin')->user()));
         }
 
         return $next($request);

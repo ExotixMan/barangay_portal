@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\DatabaseBoolean;
 use Illuminate\Database\Eloquent\Model;
 
 class ChatbotUnmatched extends Model
@@ -18,7 +19,7 @@ class ChatbotUnmatched extends Model
     ];
 
     protected $casts = [
-        'resolved'   => 'boolean',
+        'resolved' => DatabaseBoolean::class,
         'created_at' => 'datetime',
     ];
 }

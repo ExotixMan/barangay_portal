@@ -12,14 +12,11 @@
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/print_track_request.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
-    <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
-@include('chatbot.embed')
-<body>
+<body class="request-print-page">
     <div class="header">
         <h1><i class="fas fa-file-signature"></i> {{ $trackedRequest['type'] }}</h1>
         <p class="subtitle">{{ __('messages.blade_print_track_request_blade_barangay_hulong_duhat_malabon_city') }}</p>
@@ -147,22 +144,22 @@
     </div>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
+    <script src="{{ asset('vendor/qrcode/qrcode.js') }}"></script>
+    <script src="{{ asset('vendor/qrcode/qrcode_UTF8.js') }}"></script>
 
     @include('shared.js-config', [
     'id' => 'js-config-barangay-system-print-track-request-1',
     'data' => [
-        'v1' => e($trackedRequest['reference']),
-        'v2' => e($trackedRequest['name'] ?? 'Resident'),
-        'v3' => e($trackedRequest['date']),
+        'v1' => $trackedRequest['reference'],
+        'v2' => $trackedRequest['name'] ?? 'Resident',
+        'v3' => $trackedRequest['date'],
         'v4' => __('messages.blade_print_qr_ref_name_date'),
         'v5' => __('messages.blade_jsdyn_qr_code_for_reference'),
         'v6' => __('messages.blade_js_error_generating_qr_code'),
-        'v7' => e(__('messages.blade_js_qr_code_failed')),
+        'v7' => __('messages.blade_js_qr_code_failed'),
     ],
 ])
-<script src="{{ asset('js/pages/barangay_system/print_track_request-dynamic1.js') }}"></script>
+<script src="{{ asset('js/pages/barangay_system/print_track_request-dynamic1.js') }}?v={{ filemtime(public_path('js/pages/barangay_system/print_track_request-dynamic1.js')) }}"></script>
 <script src="{{ asset('js/action-bindings.js') }}"></script>
 </body>
 </html>

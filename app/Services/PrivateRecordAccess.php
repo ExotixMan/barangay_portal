@@ -95,6 +95,7 @@ class PrivateRecordAccess
         abort_unless(preg_match('/^(residency|indigency|clearance|certificate)_(.+)\.pdf$/D', $filename, $matches), 404);
         [, $type, $reference] = $matches;
         if ($type === 'certificate') {
+            abort_unless(ctype_digit($reference) && strlen($reference) <= 10 && (int) $reference <= 2147483647, 404);
             $record = RequestRecord::findOrFail($reference);
             $type = $record->request_type;
             abort_unless(isset(self::MODULES[$type]), 403);

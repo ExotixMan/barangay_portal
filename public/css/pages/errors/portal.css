@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.25rem; background: #f4f6fb; color: #17243b; font-family: system-ui, sans-serif; }
+.error-container { width: min(100%, 38rem); padding: clamp(1.5rem, 5vw, 3rem); text-align: center; border: 1px solid #dbe1eb; border-radius: 1.5rem; background: #fff; box-shadow: 0 1rem 3rem #17243b12; }
+.error-brand { color: #627087; font-size: .85rem; font-weight: 700; }
+.error-code { margin: 1rem 0 .25rem; color: #c73740; font-size: clamp(4rem, 15vw, 7rem); line-height: 1; font-weight: 800; }
+.error-title { font-size: clamp(1.4rem, 5vw, 2rem); }
+.error-message { color: #4d5d75; line-height: 1.7; }
+.error-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 1.75rem; }
+.error-actions a { padding: .85rem 1.25rem; border-radius: .75rem; text-decoration: none; font-weight: 650; }
+.btn-home { background: #bd2e39; color: #fff; }
+.btn-back { background: #edf1f7; color: #233754; }
+.error-actions a:focus-visible { outline: 3px solid #326bd5; outline-offset: 3px; }
+body.dark-mode { background: #0b1120; color: #edf2fa; }
+body.dark-mode .error-container { background: #131c2d; border-color: #344158; }
+body.dark-mode .error-brand, body.dark-mode .error-message { color: #b7c5da; }
+body.dark-mode .error-code { color: #ff8a91; }
+body.dark-mode .btn-back { background: #25324a; color: #edf2fa; }

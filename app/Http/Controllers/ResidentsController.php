@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\AdminUser;
 use App\Models\Announcement;
 use App\Models\Residents;
+use App\Rules\CaseInsensitiveUnique;
 use App\Services\AdminSettingsService;
 use App\Services\OtpSmsService;
 use App\Services\SupabaseStorageService;
+use App\Support\AdminLandingPage;
 use App\Support\UploadedImageComparator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -65,9 +67,9 @@ class ResidentsController extends Controller
             'middlename' => 'nullable|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'lastname' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
             'suffix' => 'nullable|string|max:10|in:None,Jr.,Sr.,II,III,IV,V',
-            'email' => ['required', 'email', new \App\Rules\CaseInsensitiveUnique('residents', 'email')],
-            'address' => 'required|string|max:500',
-            'birthdate' => 'required|date|before:18 years ago',
+            'email' => ['required', 'email', new CaseInsensitiveUnique('residents', 'email')],
+            'address' => 'required|string|max:255',
+            'birthdate' => 'required|date|before_or_equal:'.now()->subYearsNoOverflow(18)->toDateString(),
             'gender' => 'required|string|in:Male,Female,Prefer not to say',
             'civil_status' => 'required|string|in:Single,Married,Widowed,Separated',
             'place_of_birth' => 'required|string|max:255|regex:/^[\pL\s\'\.,-]+$/u',
@@ -83,7 +85,7 @@ class ResidentsController extends Controller
             'declare_student' => ['nullable', 'boolean'],
             'student_proof' => ['required_if:declare_student,1', 'nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
 
-            'username' => ['required', 'string', new \App\Rules\CaseInsensitiveUnique('residents', 'username'), 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/'],
+            'username' => ['required', 'string', new CaseInsensitiveUnique('residents', 'username'), 'min:4', 'max:50', 'regex:/^[a-zA-Z0-9_.-]+$/'],
             'password' => ['required', 'string', 'confirmed', 'regex:/^\S+$/', PasswordRules::min(8)->mixedCase()->numbers()->symbols()],
             'terms' => 'accepted',
         ];
@@ -396,7 +398,7 @@ class ResidentsController extends Controller
         }
 
         if ($field !== 'username') {
-            return response()->json(['available' => true, 'message' => $rule['label'] . ' format looks correct. We will check it when you submit.']);
+            return response()->json(['available' => true, 'message' => $rule['label'].' format looks correct. We will check it when you submit.']);
         }
 
         $exists = Residents::withTrashed()->whereRaw('LOWER(username) = ?', [$normalized])->exists();
@@ -422,7 +424,7 @@ class ResidentsController extends Controller
 
         $adminLoginField = filter_var($rawLoginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        $admin = AdminUser::whereRaw('LOWER(' . $adminLoginField . ') = ?', [mb_strtolower($rawLoginInput)])->first();
+        $admin = AdminUser::whereRaw('LOWER('.$adminLoginField.') = ?', [mb_strtolower($rawLoginInput)])->first();
 
         if ($admin && Hash::check($password, (string) $admin->password)) {
             if ($admin->status !== 'active') {
@@ -474,7 +476,7 @@ class ResidentsController extends Controller
             $loginInput = strtolower($loginInput);
         }
 
-        $resident = Residents::whereRaw('LOWER(' . $loginType . ') = ?', [mb_strtolower($loginInput)])->first();
+        $resident = Residents::whereRaw('LOWER('.$loginType.') = ?', [mb_strtolower($loginInput)])->first();
 
         if (! $resident || ! Hash::check($password, (string) $resident->password)) {
             return back()
@@ -997,49 +999,7 @@ class ResidentsController extends Controller
 
     private function redirectAdminBasedOnRole(AdminUser $user)
     {
-        if (method_exists($user, 'load')) {
-            $user->load('role');
-        }
-
-        $permissionRoutes = [
-            'view_forecast' => 'admin.dashboard.index',
-            'view_dashboard' => 'admin.dashboard.index',
-            'view_residents' => 'admin.residents.index',
-            'view_residency' => 'admin.residency.index',
-            'view_indigency' => 'admin.indigency.index',
-            'view_clearance' => 'admin.clearance.index',
-            'view_blotter' => 'admin.blotter.index',
-            'view_announcements' => 'admin.announcements.index',
-            'view_events' => 'admin.events.index',
-            'view_projects' => 'admin.projects.index',
-            'view_requests' => 'admin.request.index',
-            'view_users' => 'admin.users.index',
-            'view_roles' => 'admin.roles.index',
-            'view_permissions' => 'admin.permissions.index',
-        ];
-
-        foreach ($permissionRoutes as $permission => $route) {
-            if ($this->adminHasPermission($user, $permission)) {
-                return redirect()->intended(route($route));
-            }
-        }
-
-        return redirect()->intended(route('admin.dashboard.index'));
-    }
-
-    private function adminHasPermission(AdminUser $user, string $permissionName): bool
-    {
-        if ($user->role && $user->role->name === 'super_admin') {
-            return true;
-        }
-
-        if ($user->role && method_exists($user->role, 'permissions')) {
-            return $user->role->permissions()
-                ->where('name', $permissionName)
-                ->exists();
-        }
-
-        return false;
+        return redirect()->intended(route(AdminLandingPage::routeFor($user)));
     }
 
     private function sendAdminOtpSms(AdminUser $admin, int $otp): void

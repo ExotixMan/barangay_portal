@@ -4,6 +4,8 @@ import path from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const copies = [
+    ['qrcode-generator/dist/qrcode.js', 'qrcode/qrcode.js'],
+    ['qrcode-generator/dist/qrcode_UTF8.js', 'qrcode/qrcode_UTF8.js'],
     ['chart.js/dist/chart.umd.js', 'charts/chart.umd.js'],
     ['hammerjs/hammer.min.js', 'charts/hammer.min.js'],
     ['chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js', 'charts/zoom.min.js'],

@@ -5,20 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\IndigencyApplication;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
-use App\Support\NotifiesAdmins;
+use App\Rules\ProfileCorrectionValue;
+use App\Services\EmailDeliveryService;
 use App\Support\HandlesPrivateUploads;
+use App\Support\NotifiesAdmins;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 class IndigencyApplicationController extends Controller
 {
-    use NotifiesAdmins, HandlesPrivateUploads;
+    use HandlesPrivateUploads, NotifiesAdmins;
 
     public function index()
     {
@@ -53,7 +55,7 @@ class IndigencyApplicationController extends Controller
         if (! empty($missingProfileFields)) {
             return back()
                 ->withErrors([
-                    'profile' => 'Your resident profile is incomplete: ' . implode(', ', $missingProfileFields) . '. Please contact the barangay office to correct your information.',
+                    'profile' => 'Your resident profile is incomplete: '.implode(', ', $missingProfileFields).'. Please contact the barangay office to correct your information.',
                 ])
                 ->withInput();
         }
@@ -67,9 +69,9 @@ class IndigencyApplicationController extends Controller
         $rules = [
             'profile_confirmed' => ['accepted'],
 
-            'monthly_income' => ['required', 'string', \Illuminate\Validation\Rule::in(['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])],
+            'monthly_income' => ['required', 'string', Rule::in(['below 5k', '5k-8k', '8k-10k', '10k-15k', 'no income'])],
             'household_members' => ['required', 'integer', 'min:1', 'max:20'],
-            'purpose' => ['required', 'string', \Illuminate\Validation\Rule::in(['medical', 'scholarship', 'government', 'legal', 'employment', 'burial', 'other'])],
+            'purpose' => ['required', 'string', Rule::in(['medical', 'scholarship', 'government', 'legal', 'employment', 'burial', 'other'])],
             'purpose_other' => ['nullable', 'required_if:purpose,other', 'string', 'max:500'],
 
             'terms' => ['accepted'],
@@ -158,7 +160,7 @@ class IndigencyApplicationController extends Controller
             $this->notifyAdminsOfSubmission(
                 category: 'request',
                 title: 'New indigency request',
-                message: $fullName . ' submitted ' . $referenceNumber . '.',
+                message: $fullName.' submitted '.$referenceNumber.'.',
                 url: route('admin.indigency.index', ['highlight' => $application->id]),
                 icon: 'fas fa-hand-holding-heart',
             );
@@ -214,7 +216,7 @@ class IndigencyApplicationController extends Controller
                     'Email address',
                 ]),
             ],
-            'correct_value' => ['required', 'string', 'min:2', 'max:1000'],
+            'correct_value' => ['bail', 'required', 'string', 'min:2', 'max:1000', new ProfileCorrectionValue((string) $request->input('field_name'))],
             'message' => ['nullable', 'string', 'max:2000'],
         ], [
             'field_name.required' => 'Please choose which profile field needs correction.',
@@ -230,7 +232,7 @@ class IndigencyApplicationController extends Controller
 
             $existingPending = ResidentProfileCorrectionConcern::query()
                 ->where('resident_id', $resident->id)
-                ->whereIn('status', ['pending', 'reviewed'])
+                ->whereIn('status', ResidentProfileCorrectionConcern::OPEN_STATUSES)
                 ->latest()
                 ->first();
 
@@ -295,15 +297,15 @@ class IndigencyApplicationController extends Controller
             ]);
         });
 
-        if ($concern instanceof \Illuminate\Http\RedirectResponse) {
+        if ($concern instanceof RedirectResponse) {
             return $concern;
         }
 
         $this->notifyAdminsOfSubmission(
             category: 'profile_correction',
             title: 'New profile correction concern',
-            message: $this->formatFullName($resident) . ' requested a correction for ' .
-                $concern->field_name . '.',
+            message: $this->formatFullName($resident).' requested a correction for '.
+                $concern->field_name.'.',
             url: route('admin.residents.index', ['profile_correction' => $concern->id]),
             icon: 'fas fa-user-pen',
         );
@@ -313,27 +315,27 @@ class IndigencyApplicationController extends Controller
             env('BISIG_CONTACT_EMAIL', 'barangayhulongduhat@gmail.com')
         );
 
-        $concernReference = 'PCC-' . now()->format('Y') . '-' . str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT);
+        $concernReference = 'PCC-'.now()->format('Y').'-'.str_pad((string) $concern->id, 6, '0', STR_PAD_LEFT);
 
-        $subject = 'Resident Profile Correction Request - ' . $this->formatFullName($resident);
+        $subject = 'Resident Profile Correction Request - '.$this->formatFullName($resident);
 
         $body = "A resident reported incorrect profile information.\n\n"
-            . "Service: Certificate of Indigency\n"
-            . "Concern ID: {$concernReference}\n"
-            . "Resident ID: {$resident->id}\n"
-            . "Current Name: {$this->formatFullName($resident)}\n"
-            . "Current Email: {$resident->email}\n"
-            . "Current Contact: {$resident->contact}\n\n"
-            . "Field to Correct: {$concern->field_name}\n"
-            . "Current Value: {$concern->current_value}\n"
-            . "Requested Correct Value: {$concern->correct_value}\n\n"
-            . "Message:\n"
-            . ($concern->message ?: 'No additional message provided.')
-            . "\n\n"
-            . "Please verify this request before changing any locked identity or residency information.";
+            ."Service: Certificate of Indigency\n"
+            ."Concern ID: {$concernReference}\n"
+            ."Resident ID: {$resident->id}\n"
+            ."Current Name: {$this->formatFullName($resident)}\n"
+            ."Current Email: {$resident->email}\n"
+            ."Current Contact: {$resident->contact}\n\n"
+            ."Field to Correct: {$concern->field_name}\n"
+            ."Current Value: {$concern->current_value}\n"
+            ."Requested Correct Value: {$concern->correct_value}\n\n"
+            ."Message:\n"
+            .($concern->message ?: 'No additional message provided.')
+            ."\n\n"
+            .'Please verify this request before changing any locked identity or residency information.';
 
         try {
-            app(\App\Services\EmailDeliveryService::class)->sendText(
+            app(EmailDeliveryService::class)->sendText(
                 $barangayEmail,
                 $subject,
                 $body
@@ -416,7 +418,7 @@ class IndigencyApplicationController extends Controller
     private function generateReferenceNumber(): string
     {
         do {
-            $referenceNumber = 'IND-' . now()->format('Y') . '-' . strtoupper(Str::random(6));
+            $referenceNumber = 'IND-'.now()->format('Y').'-'.strtoupper(Str::random(6));
         } while (IndigencyApplication::where('reference_number', $referenceNumber)->exists());
 
         return $referenceNumber;

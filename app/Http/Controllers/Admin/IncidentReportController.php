@@ -8,11 +8,14 @@ use App\Models\BlotterReport;
 use App\Models\ReportFile;
 use App\Models\StatusRemarkHistory;
 use App\Models\Witness;
+use App\Services\AdminRecordExport;
+use App\Services\EmailDeliveryService;
 use App\Services\SupabaseStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class IncidentReportController extends Controller
@@ -220,7 +223,7 @@ class IncidentReportController extends Controller
 
             foreach ($request->file($field) as $file) {
                 $extension = strtolower((string) $file->getClientOriginalExtension());
-                $name = $config['type'].'_'.\Illuminate\Support\Str::uuid().'.'.$extension;
+                $name = $config['type'].'_'.Str::uuid().'.'.$extension;
                 $storedPath = app(SupabaseStorageService::class)->storePrivateFileWithName(
                     $file,
                     str_replace('private/', '', $config['folder']),
@@ -325,10 +328,14 @@ class IncidentReportController extends Controller
         }
     }
 
-    private function normalizeContactNumber(string $value): ?string
+    private function normalizeContactNumber(mixed $value): mixed
     {
         if ($value === null) {
             return null;
+        }
+
+        if (! is_string($value) && ! is_numeric($value)) {
+            return $value; // Let field validation reject arrays or invalid types.
         }
 
         $digits = preg_replace('/\D+/', '', (string) $value);
@@ -368,7 +375,7 @@ class IncidentReportController extends Controller
         $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'resolved', $remarks);
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPROVAL_INCIDENT_REPORT',
                 'module' => 'Blotter',
@@ -413,7 +420,7 @@ class IncidentReportController extends Controller
         ]);
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'PROCESS_INCIDENT_REPORT',
                 'module' => 'Blotter',
@@ -457,7 +464,7 @@ class IncidentReportController extends Controller
         $deliveryResults = $this->sendIncidentStatusNotifications($request, $blotter, 'dropped', $remarks);
 
         if (auth('admin')->check()) {
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'REJECT_INCIDENT_REPORT',
                 'module' => 'Blotter',
@@ -491,7 +498,7 @@ class IncidentReportController extends Controller
             } else {
                 try {
                     $message = "Your incident report (Ref: {$blotter->reference_number}) status is now {$statusLabel}.{$remarksText}";
-                    app(\App\Services\EmailDeliveryService::class)->sendNotification($blotter->complainant_email, $blotter->complainant_name ?? 'Complainant', $message);
+                    app(EmailDeliveryService::class)->sendNotification($blotter->complainant_email, $blotter->complainant_name ?? 'Complainant', $message);
 
                     $this->storeIncidentNotificationHistory($blotter, $status, $remarks !== '' ? $remarks : 'Email status update sent.', 'email', $blotter->complainant_email);
                     $results['email'] = 'sent';
@@ -604,7 +611,7 @@ class IncidentReportController extends Controller
 
         if (auth('admin')->check()) {
             $request = request();
-            \App\Models\AdminActivityLog::create([
+            AdminActivityLog::create([
                 'user_id' => auth('admin')->id(),
                 'action' => 'APPLICATION_RESTORED',
                 'module' => 'Blotter',
@@ -731,6 +738,6 @@ class IncidentReportController extends Controller
 
     public function export(Request $request)
     {
-        return app(\App\Services\AdminRecordExport::class)->download($request, 'blotter');
+        return app(AdminRecordExport::class)->download($request, 'blotter');
     }
 }
