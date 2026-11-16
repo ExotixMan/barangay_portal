@@ -68,11 +68,11 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/clearance_form.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
     <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
 
 @include('chatbot.embed')
@@ -564,7 +564,6 @@
     @include('barangay_system.partials.policy_modals')
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     @include('shared.js-config', [
     'id' => 'js-config-barangay-system-clearance-form-1',

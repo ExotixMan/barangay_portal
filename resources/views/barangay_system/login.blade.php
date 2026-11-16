@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
 
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/login.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-common.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
     <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
 <body>
@@ -145,7 +145,6 @@
     </div>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     @include('shared.js-config', [
     'id' => 'js-config-barangay-system-login-1',

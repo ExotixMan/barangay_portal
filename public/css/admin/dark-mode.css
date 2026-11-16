@@ -1404,3 +1404,74 @@ html[data-theme="dark"] body .admin-page .doc-template-meta svg {
     color: var(--primary-dark) !important;
     fill: currentColor !important;
 }
+
+/* Secondary controls and utility panels share the surrounding dark surfaces. */
+html[data-theme="dark"] body .admin-page :is(.btn-light-soft, .keyword-chip,
+    .restore-dropzone, .dashboard-feedback, .chart-focus-canvas-wrap) {
+    color: var(--text) !important;
+    background: var(--surface-2) !important;
+    border-color: var(--line) !important;
+}
+
+html[data-theme="dark"] body .admin-page :is(.btn-light-soft:hover,
+    .restore-dropzone:hover, .restore-dropzone.is-dragover) {
+    background: var(--surface-3) !important;
+    border-color: var(--line-strong) !important;
+}
+
+html[data-theme="dark"] body .admin-page .modal .row {
+    background: var(--card) !important;
+    border-color: var(--line) !important;
+}
+
+html[data-theme="dark"] body .admin-page .modal .knowledge-tip {
+    background: var(--warning-soft) !important;
+    color: #ffedaa !important;
+    border-color: rgba(251, 191, 36, .34) !important;
+}
+
+/* Mobile card tables must not expose the light gutters between their rows. */
+html[data-theme="dark"] body .admin-page .table-responsive,
+html[data-theme="dark"] body .admin-page :is(#announcementsTable, #projectsTable,
+    #residentsTable, #knowledge-table, #unmatched-table) tbody {
+    background: var(--table-bg) !important;
+}
+
+html[data-theme="dark"] body .admin-page .users-table-panel .btn[class*="btn-outline-"] {
+    background: var(--surface-2) !important;
+    color: var(--text) !important;
+    border-color: var(--line-strong) !important;
+}
+
+html[data-theme="dark"] body .admin-page .users-table-panel .btn[class*="btn-outline-"]:hover {
+    background: var(--surface-3) !important;
+}
+
+html[data-theme="dark"] body .admin-page .sms-credit-details > span {
+    background: var(--surface-2) !important;
+    border-color: var(--line) !important;
+    color: var(--text) !important;
+}
+
+html[data-theme="dark"] body .admin-page #resetPasswordModal .alert-warning,
+html[data-theme="dark"] body .admin-page .modal .alert-warning {
+    background: var(--warning-soft) !important;
+    color: #ffedaa !important;
+    border-color: rgba(251, 191, 36, .34) !important;
+}
+
+html[data-theme="dark"] body .admin-page .sms-credit-status.is-danger {
+    background: var(--danger-soft) !important;
+    color: #ffc2cb !important;
+}
+
+html[data-theme="dark"] body .admin-page .sms-credit-status.is-ok {
+    background: var(--success-soft) !important;
+    color: #b7f7cc !important;
+}
+
+html[data-theme="dark"] body .admin-page #indigencyTable .income-badge {
+    background: var(--info-soft) !important;
+    color: #b9e8ff !important;
+    border-color: rgba(56, 189, 248, .34) !important;
+}

@@ -18,12 +18,12 @@
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/register.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-common.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
     <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
 
@@ -817,7 +817,6 @@
     </div>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
     <script src="{{ asset('js/pages/barangay_system/register.js') }}"></script>
     <script src="{{ asset('js/opencv-loader.js') }}"></script>
 

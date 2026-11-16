@@ -23,11 +23,11 @@
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
         <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/incident_form.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
     <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
 <body>
@@ -511,7 +511,6 @@
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
     @include('shared.js-config', [
     'id' => 'js-config-barangay-system-incident-form-1',

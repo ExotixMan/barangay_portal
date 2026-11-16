@@ -7,6 +7,7 @@
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/pages/errors/403.css') }}">
+    @include('shared.public-theme', ['themeContext' => $themeContext ?? (request()->routeIs('admin.*') ? 'admin' : 'public')])
 </head>
 <body>
     <div class="error-container">

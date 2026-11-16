@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('css/pages/chatbot/widget.css') }}">
+    @include('shared.public-theme')
 </head>
 <body>
 

@@ -1,10 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Service Requests</title>
-<style>body{font-family:Arial,sans-serif;background:#f6f7fb;margin:0;padding:40px}.wrap{max-width:900px;margin:auto}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;box-shadow:0 4px 14px rgba(0,0,0,.05)}a{display:inline-block;margin-top:12px;text-decoration:none;font-weight:700}h1{margin-bottom:8px}.muted{color:#667085}</style></head>
-<body><main class="wrap"><h1>Service Requests</h1><p class="muted">Choose a request module you are permitted to access.</p><div class="cards">
-@if($canClearance)<section class="card"><h2>Barangay Clearance</h2><a href="{{ route('admin.clearance.index') }}">Open requests →</a></section>@endif
-@if($canResidency)<section class="card"><h2>Residency</h2><a href="{{ route('admin.residency.index') }}">Open requests →</a></section>@endif
-@if($canIndigency)<section class="card"><h2>Indigency</h2><a href="{{ route('admin.indigency.index') }}">Open requests →</a></section>@endif
-@if(!$canClearance && !$canResidency && !$canIndigency)<section class="card"><h2>No module permission</h2><p class="muted">Your account has View Requests but no specific document-module permission. Ask a Super Admin to update your permissions.</p></section>@endif
-</div></main></body></html>
+@extends('admin.layouts.admin')
+
+@section('title', 'Service Requests')
+@section('page_title', 'Service Requests')
+@section('page_icon', 'fas fa-file-lines')
+
+@section('content')
+<h1 class="h4">Service Requests</h1>
+<p class="text-muted">Choose a request module you are permitted to access.</p>
+<div class="row g-3">
+    @foreach([
+        ['allowed' => $canClearance, 'title' => 'Barangay Clearance', 'route' => 'admin.clearance.index'],
+        ['allowed' => $canResidency, 'title' => 'Residency', 'route' => 'admin.residency.index'],
+        ['allowed' => $canIndigency, 'title' => 'Indigency', 'route' => 'admin.indigency.index'],
+    ] as $module)
+        @if($module['allowed'])
+            <div class="col-md-6 col-xl-4">
+                <section class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5">{{ $module['title'] }}</h2>
+                        <a class="btn btn-primary mt-2" href="{{ route($module['route']) }}">Open requests &rarr;</a>
+                    </div>
+                </section>
+            </div>
+        @endif
+    @endforeach
+    @if(!$canClearance && !$canResidency && !$canIndigency)
+        <div class="col-12">
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5">No module permission</h2>
+                    <p class="text-muted mb-0">Your account has View Requests but no specific document-module permission. Ask a Super Admin to update your permissions.</p>
+                </div>
+            </section>
+        </div>
+    @endif
+</div>
+@endsection

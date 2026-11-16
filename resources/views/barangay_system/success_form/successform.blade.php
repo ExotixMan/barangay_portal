@@ -9,9 +9,9 @@
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/success_form/successform.css') }}">
+    @include('shared.public-theme')
 </head>
 <body>
 @php
@@ -116,7 +116,6 @@
 
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-<script src="{{ asset('js/dark-mode.js') }}"></script>
 @include('shared.js-config', [
     'id' => 'js-config-barangay-system-success-form-successform-1',
     'data' => [

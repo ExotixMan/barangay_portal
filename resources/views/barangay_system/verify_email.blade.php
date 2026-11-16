@@ -8,12 +8,12 @@
 
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('Images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/pages/barangay_system/verify_email.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
     <script src="{{ asset('js/form-feedback.js') }}" defer></script>
+    @include('shared.public-theme')
 </head>
 @include('chatbot.embed')
 <body>
@@ -61,7 +61,6 @@
     ],
 ])
 <script src="{{ asset('js/pages/barangay_system/verify_email-dynamic1.js') }}"></script>
-    <script src="{{ asset('js/dark-mode.js') }}"></script>
 
 </body>
 </html>

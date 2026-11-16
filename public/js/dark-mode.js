@@ -1,7 +1,19 @@
 (function() {
+    const adminContext = document.currentScript?.dataset.themeContext === 'admin';
+    const storageKey = adminContext ? 'bisig-admin-theme' : 'darkMode';
+
+    function saveTheme(value) {
+        try {
+            localStorage.setItem(storageKey, adminContext ? (value === 'true' ? 'dark' : 'light') : value);
+        } catch (error) {
+            // Theme switching still works when browser storage is unavailable.
+        }
+    }
+
     function enableDarkMode() {
         document.body.classList.add('dark-mode');
-        localStorage.setItem('darkMode', 'true');
+        document.documentElement.style.colorScheme = 'dark';
+        saveTheme('true');
 
         updateDarkModeButton(true);
 
@@ -10,7 +22,8 @@
 
     function disableDarkMode() {
         document.body.classList.remove('dark-mode');
-        localStorage.setItem('darkMode', 'false');
+        document.documentElement.style.colorScheme = 'light';
+        saveTheme('false');
 
         updateDarkModeButton(false);
 
@@ -29,7 +42,12 @@
     window.disableDarkMode = disableDarkMode;
     window.toggleDarkMode = toggleDarkMode;
 
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    let savedDarkMode = false;
+    try {
+        savedDarkMode = localStorage.getItem(storageKey) === (adminContext ? 'dark' : 'true');
+    } catch (error) {
+        // Use the default light theme without persistent browser storage.
+    }
 
     if (savedDarkMode) {
         enableDarkMode();

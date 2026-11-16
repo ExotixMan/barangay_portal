@@ -2167,3 +2167,216 @@ body.dark-mode .privacy-check-row label {
 body.dark-mode .privacy-check-row label strong {
     color: var(--dm-accent) !important;
 }
+
+/* Shared surfaces for the current registration, request and recovery screens.
+   Keep these screen-only: certificates and printable requests remain paper. */
+@media screen {
+    body.dark-mode {
+        color-scheme: dark;
+        background-image: none !important;
+        --dm-link: #ff9b93;
+        --cf-ink: var(--dm-text-primary);
+        --cf-ink-soft: var(--dm-text-secondary);
+        --cf-muted: var(--dm-text-secondary);
+        --cf-line: var(--dm-border-color);
+        --cf-line-strong: #505050;
+        --cf-surface: var(--dm-card-bg);
+        --cf-surface-soft: var(--dm-bg-secondary);
+        --cf-page: var(--dm-bg-primary);
+        --cf-brand-soft: #382020;
+        --cf-success: #86efac;
+        --cf-success-soft: #163024;
+        --cf-warning: #fcd34d;
+        --cf-warning-soft: #352b16;
+        --cf-danger: #fda4af;
+        --cf-danger-soft: #381c23;
+        --hulo-bg: var(--dm-bg-secondary);
+        --hulo-card: var(--dm-card-bg);
+        --hulo-text: var(--dm-text-primary);
+        --hulo-muted: var(--dm-text-secondary);
+        --hulo-line: var(--dm-border-color);
+        --hulo-primary-soft: #382020;
+    }
+
+    body.dark-mode:has(#registerForm, .verification-page) {
+        --text: var(--dm-text-primary);
+        --text-2: var(--dm-text-secondary);
+        --muted: var(--dm-text-secondary);
+        --card: var(--dm-card-bg);
+        --surface: var(--dm-card-bg);
+        --surface-soft: var(--dm-bg-secondary);
+        --soft: var(--dm-bg-secondary);
+        --field: var(--dm-input-bg);
+        --field-soft: var(--dm-bg-secondary);
+        --line: var(--dm-border-color);
+        --line-strong: #505050;
+        --border: var(--dm-border-color);
+        --border-color: var(--dm-border-color);
+        --soft-border: var(--dm-border-light);
+        --primary-soft: #382020;
+        --primary-50: #291c1c;
+        --success-soft: #163024;
+        --warning-soft: #352b16;
+    }
+
+    body.dark-mode :is(.forgot-card, .reset-card, .verification-card,
+        .form-section-card, .locked-profile-card, .locked-profile-item,
+        .locked-correction-card, .form-page-header, .form-step > h3,
+        .verification-header, .rejection-card, .upload-card,
+        .success-card, .summary-card, .tracking-card, .error-container,
+        .scanner-section, .scanner-action-card, .id-side-card, .id-preview,
+        .scan-both-panel, .desktop-valid-id-upload-card, .id-auto-scan-wrapper,
+        .scanner-sidebar, .scanner-instruction, .scanner-tip,
+        .scanner-modal .modal-body, .scanner-help, .scan-check-item,
+        .scanner-button.secondary, .scanner-button.cancel,
+        .btn-scanner-secondary, .btn-scanner-danger) {
+        background: var(--dm-card-bg) !important;
+        border-color: var(--dm-border-color) !important;
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode :is(.step, .step-circle, .address-preview, .section-badge,
+        .locked-pill, .req-box, .requirements-box, .review-content,
+        .recommended-badge, .side-status.waiting, .ready-status, .otp-badge,
+        .upload-file-button, .verified-file-name,
+        .review-section, .review-item, .upload-placeholder, .btn-report-info) {
+        background: var(--dm-bg-secondary) !important;
+        border-color: var(--dm-border-color) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode :is(.step.active, .step.completed) {
+        background: #382020 !important;
+        color: var(--dm-link) !important;
+    }
+
+    body.dark-mode .step:is(.active, .completed) .step-circle {
+        background: #b71c1c !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .step:is(.active, .completed) span {
+        color: var(--dm-link) !important;
+    }
+
+    body.dark-mode .form-progress .progress-bar {
+        background: var(--dm-border-color) !important;
+    }
+
+    body.dark-mode :is(.forgot-title, .verification-header h1, .verification-header h2,
+        .form-section-card h4, .type-card h4, .locked-correction-card strong,
+        .terms-checkbox, .form-check-label, .review-content h4, .review-content strong,
+        .side-card-header strong, .ready-status strong, .otp-label, .error-title,
+        .scan-both-panel strong, .desktop-valid-id-upload-label, .id-auto-scan-wrapper strong,
+        .id-preview strong, .scan-check-item strong, .scanner-help strong) {
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode :is(.forgot-subtitle, .barangay-name, .form-section-card p,
+        .form-group > label, .form-section-card label, .req-item, .intro-text, .req-box p,
+        .secure-label, .verification-header p, .upload-help, .upload-hint,
+        .section-heading p, .scanner-action-info span, .side-card-header div span,
+        .ready-status span, .scan-both-panel span, .desktop-valid-id-upload-file,
+        .id-auto-scan-wrapper span, .file-name, .requirements-grid > div,
+        .scan-check-item small, .scanner-help span) {
+        color: var(--dm-text-secondary) !important;
+    }
+
+    body.dark-mode :is(.auth-home-link, .back-login, .back-link, .back-button, #createAccountLink) {
+        color: var(--dm-link) !important;
+    }
+
+    body.dark-mode .auth-home-link:hover {
+        background: #382020;
+    }
+
+    body.dark-mode :is(.verification-badge, .section-eyebrow, #countdown,
+        .add-party-btn, .modal-eyebrow) {
+        color: var(--dm-link) !important;
+    }
+
+    body.dark-mode #resendBtn:not(.resend-btn),
+    body.dark-mode .process-step.active span {
+        color: var(--dm-link) !important;
+    }
+
+    body.dark-mode .verified-requirement-card {
+        background: #163024 !important;
+        border-color: #315b42 !important;
+    }
+
+    body.dark-mode .verified-requirement-card :is(strong, p, .verified-file-name) {
+        color: #bbf7d0 !important;
+    }
+
+    body.dark-mode :is(.start-scan-button, .btn-scan-both, .action-btn.action-primary) {
+        background: #b71c1c !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .submit-button:disabled {
+        background: var(--dm-input-bg) !important;
+        color: var(--dm-text-secondary) !important;
+    }
+
+    body.dark-mode #registerForm .classification-card .border {
+        background: var(--dm-bg-secondary) !important;
+        border-color: var(--dm-border-color) !important;
+    }
+
+    body.dark-mode #registerForm .classification-card .border:has(:checked) {
+        background: #382020 !important;
+        border-color: var(--dm-link) !important;
+    }
+
+    body.dark-mode #registerForm :is(.form-label, .form-check-label) {
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode #registerForm :is(.text-muted, input[type="file"]) {
+        color: var(--dm-text-secondary) !important;
+        background-color: var(--dm-input-bg);
+    }
+
+    body.dark-mode #registerForm .alert-light {
+        background: var(--dm-bg-secondary) !important;
+        color: var(--dm-text-secondary) !important;
+        border-color: var(--dm-border-color) !important;
+    }
+
+    body.dark-mode input[type="file"]::file-selector-button {
+        background: #382020 !important;
+        color: var(--dm-text-primary) !important;
+        border-color: var(--dm-border-color) !important;
+    }
+
+    /* Both the embedded assistant and its full-page view share the saved theme. */
+    body.dark-mode :is(.hb-widget, .hb-messages, .hb-suggestions, .hb-input-bar,
+        .hb-footer, .hb-chip, .hb-row.bot .hb-bubble, .hb-conf,
+        .hbm-welcome, .hbm-quick, .hbm-date, .hbm-input-wrap, .hbm-composer,
+        .hbm-chips, .hbm-chip, .hbm-src, .hbm-cf, .hbm-row.bot .hbm-bbl, .hbm-footer) {
+        background: var(--dm-card-bg) !important;
+        color: var(--dm-text-primary) !important;
+        border-color: var(--dm-border-color) !important;
+    }
+
+    body.dark-mode :is(#hb-input, #hbm-input) {
+        background: var(--dm-input-bg) !important;
+        color: var(--dm-text-primary) !important;
+        border-color: var(--dm-border-color) !important;
+    }
+
+    body.dark-mode :is(.hb-page-title, .hbm-welcome-title, .hbm-quick span) {
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode :is(.hb-page-label, .hb-meta, .hb-handoff, .hbm-welcome-text,
+        .hbm-meta, .hbm-footer, .hb-footer) {
+        color: var(--dm-text-secondary) !important;
+    }
+
+    body.dark-mode :is(.hb-chip, .hbm-quick):hover {
+        background: #382020 !important;
+        border-color: var(--dm-link) !important;
+    }
+}
