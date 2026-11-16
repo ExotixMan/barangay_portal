@@ -378,7 +378,6 @@ html[data-theme="dark"] :where(
     .preview-header-v2,
     .modal-section,
     .section-header,
-    .filter-title-block,
     .dashboard-toolbar-panel,
     .events-filter-toolbar,
     .projects-filter-toolbar,
@@ -967,12 +966,14 @@ html[data-theme="dark"] body .admin-page .card-header,
 html[data-theme="dark"] body .admin-page .card-footer,
 html[data-theme="dark"] body .admin-page .modal-header,
 html[data-theme="dark"] body .admin-page .modal-footer,
+html[data-theme="dark"] body .admin-page .classification-review-title,
 html[data-theme="dark"] body .admin-page [class$="-header"],
 html[data-theme="dark"] body .admin-page [class*="-header "],
 html[data-theme="dark"] body .admin-page [class$="-head"],
 html[data-theme="dark"] body .admin-page [class*="-head "] {
     color: var(--text) !important;
-    background-color: var(--surface-2) !important;
+    /* Reset light gradients as well as their fallback color. */
+    background: var(--surface-2) !important;
     border-color: var(--line) !important;
 }
 
@@ -1101,6 +1102,19 @@ html[data-theme="dark"] body .admin-page .table > tbody > tr > * {
     background-image: none !important;
     border-color: var(--line) !important;
     box-shadow: none !important;
+}
+
+/* Match the ID-scoped mobile sticky columns in the application stylesheets. */
+html[data-theme="dark"] body .admin-page :is(#clearanceTable, #indigencyTable, #residencyTable) .actions-heading {
+    background: var(--surface-2) !important;
+}
+
+html[data-theme="dark"] body .admin-page :is(#clearanceTable, #indigencyTable, #residencyTable) .actions-cell {
+    background: var(--table-bg) !important;
+}
+
+html[data-theme="dark"] body .admin-page :is(#clearanceTable, #indigencyTable, #residencyTable) tr:hover .actions-cell {
+    background: var(--table-hover) !important;
 }
 
 html[data-theme="dark"] body .admin-page .table-striped > tbody > tr:nth-of-type(odd) > * {

@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin/admin-notifications.css') }}">
 
     @stack('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin/dark-mode.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/dark-mode.css') }}?v={{ filemtime(public_path('css/admin/dark-mode.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-ux-refresh.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin-modal-system.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-feedback.css') }}">
