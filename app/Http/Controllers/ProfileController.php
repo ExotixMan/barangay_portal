@@ -186,6 +186,8 @@ class ProfileController extends Controller
                     'required',
                     'string',
                     Rule::in([
+                        'full_name',
+                        'Full name',
                         'firstname',
                         'middlename',
                         'lastname',
@@ -210,6 +212,8 @@ class ProfileController extends Controller
             ]);
 
             $allowedCurrentValues = [
+                'full_name' => $resident->full_name,
+                'Full name' => $resident->full_name,
                 'firstname' => $resident->firstname,
                 'middlename' => $resident->middlename,
                 'lastname' => $resident->lastname,

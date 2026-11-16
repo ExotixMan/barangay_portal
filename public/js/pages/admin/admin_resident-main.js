@@ -382,11 +382,33 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
                 const select = form.querySelector('select[name="resolution_status"]');
                 const remarks = form.querySelector('textarea[name="remarks"]');
                 if (select && remarks) {
-                    select.addEventListener('change', function() {
-                        remarks.placeholder = this.value === 'rejected'
+                    const syncDecision = function() {
+                        remarks.placeholder = select.value === 'rejected'
                             ? 'Explain why this correction request was not approved.'
                             : 'Explain what was corrected on the resident profile.';
-                    });
+                        const names = form.querySelector('[data-correction-name-fields]');
+                        if (names) {
+                            const approving = select.value === 'resolved';
+                            names.hidden = !approving;
+                            names.disabled = !approving;
+                            names.querySelectorAll('[data-name-required]').forEach(input => {
+                                input.required = approving && input.dataset.nameRequired === 'true';
+                            });
+                        }
+                    };
+                    select.addEventListener('change', syncDecision);
+                    syncDecision();
+                }
+                if (String(__cfg_admin_residents.errorCorrectionId || '') === form.querySelector('[name="correction_id"]')?.value) {
+                    const modal = form.closest('[id^="viewResidentModal"]');
+                    if (!modal) return;
+                    const residentId = modal.id.replace('viewResidentModal', '');
+                    bootstrap.Modal.getOrCreateInstance(modal).show();
+                    switchResidentViewTab(residentId, 'corrections');
+                    toggleResidentViewFooter(residentId, 'corrections');
+                    const details = form.closest('.resident-correction-details');
+                    details?.classList.add('is-open');
+                    modal.querySelector(`[data-correction-target="${details?.id}"]`)?.setAttribute('aria-expanded', 'true');
                 }
             });
 

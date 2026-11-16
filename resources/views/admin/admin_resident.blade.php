@@ -1798,26 +1798,47 @@
                                             </div>
 
                                             @if(auth('admin')->user()->hasPermission('update_residents') && $isConcernOpen)
-                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Save this decision and notify the resident by email?']) }}">
+                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Save this correction decision?']) }}">
                                                     @csrf
                                                     @method('PUT')
                                                     <input type="hidden" name="correction_id" value="{{ $concern->id }}">
+                                                    @php($isCorrectionRetry = (string) old('correction_id') === (string) $concern->id)
+                                                    @if($isCorrectionRetry && $errors->any())
+                                                        <div class="alert alert-danger" role="alert">
+                                                            <strong>Please check this correction decision.</strong>
+                                                            <ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                                                        </div>
+                                                    @endif
                                                     <div class="row g-2 align-items-end">
                                                         <div class="col-12 col-md-4">
                                                             <label class="form-label small text-uppercase fw-semibold">Decision</label>
                                                             <select name="resolution_status" class="form-select" required>
                                                                 <option value="">Select decision</option>
-                                                                <option value="resolved">Mark corrected / approved</option>
-                                                                <option value="rejected">Reject request</option>
+                                                                <option value="resolved" @selected($isCorrectionRetry && old('resolution_status') === 'resolved')>Mark corrected / approved</option>
+                                                                <option value="rejected" @selected($isCorrectionRetry && old('resolution_status') === 'rejected')>Reject request</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-12 col-md-8">
                                                             <label class="form-label small text-uppercase fw-semibold">Remarks <span class="text-danger">*</span></label>
-                                                            <textarea name="remarks" class="form-control" rows="2" maxlength="500" required placeholder="Explain the approval or rejection."></textarea>
+                                                            <textarea name="remarks" class="form-control" rows="2" maxlength="500" required placeholder="Explain the approval or rejection.">{{ $isCorrectionRetry ? old('remarks') : '' }}</textarea>
                                                         </div>
+                                                        @if(\App\Support\ResidentName::isFullNameField($concern->field_name))
+                                                            <fieldset data-correction-name-fields hidden disabled class="col-12 mb-3">
+                                                                <legend class="fs-6 fw-semibold">Confirm the corrected name</legend>
+                                                                <p class="small text-muted">Enter the requested full name in its correct parts. Keep compound first or last names together. Leave the middle name or suffix empty if none applies.</p>
+                                                                <div class="row g-2">
+                                                                    @foreach(['firstname' => 'First name', 'middlename' => 'Middle name', 'lastname' => 'Last name', 'suffix' => 'Suffix'] as $part => $label)
+                                                                        <div class="col-12 col-md-6">
+                                                                            <label class="form-label" for="correction-name-{{ $part }}-{{ $concern->id }}">{{ $label }}{{ in_array($part, ['firstname', 'lastname']) ? ' *' : ' (optional)' }}</label>
+                                                                            <input type="text" id="correction-name-{{ $part }}-{{ $concern->id }}" name="name_{{ $part }}" class="form-control" maxlength="{{ $part === 'suffix' ? 10 : 255 }}" data-name-required="{{ in_array($part, ['firstname', 'lastname']) ? 'true' : 'false' }}" value="{{ $isCorrectionRetry ? old('name_'.$part) : $resident->{$part} }}">
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </fieldset>
+                                                        @endif
                                                         <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2">
                                                             <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" name="notify_email" value="1" id="notify_email_{{ $concern->id }}" checked {{ !$resident->email ? 'disabled' : '' }}>
+                                                                <input class="form-check-input" type="checkbox" name="notify_email" value="1" id="notify_email_{{ $concern->id }}" @checked($isCorrectionRetry ? old('notify_email') : true) {{ !$resident->email ? 'disabled' : '' }}>
                                                                 <label class="form-check-label small" for="notify_email_{{ $concern->id }}">Notify resident by email</label>
                                                             </div>
                                                             <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>Save decision</button>
@@ -1918,9 +1939,10 @@
     'id' => 'js-config-admin-residents-main',
     'data' => [
         'errorFormType' => $errors->any() ? session('form_type') : null,
+        'errorCorrectionId' => $errors->any() ? old('correction_id') : null,
         'canUpdate' => auth('admin')->user()->hasPermission('update_residents'),
         'residentIds' => $residents->pluck('id')->values(),
     ],
 ])
-<script src="{{ asset('js/pages/admin/admin_resident-main.js') }}"></script>
+<script src="{{ asset('js/pages/admin/admin_resident-main.js') }}?v={{ filemtime(public_path('js/pages/admin/admin_resident-main.js')) }}"></script>
 @endpush

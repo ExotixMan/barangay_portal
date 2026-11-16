@@ -1475,3 +1475,18 @@ html[data-theme="dark"] body .admin-page #indigencyTable .income-badge {
     color: #b9e8ff !important;
     border-color: rgba(56, 189, 248, .34) !important;
 }
+
+html[data-theme="dark"] body .admin-page .resident-correction-item {
+    --surface-soft: var(--surface-2);
+    --ink: var(--text);
+    --ink-soft: var(--text);
+}
+
+html[data-theme="dark"] body .admin-page .correction-resolve-form .alert-danger,
+html[data-theme="dark"] body .admin-page .correction-resolve-form .alert-danger li {
+    color: #ffc2cb !important;
+}
+
+html[data-theme="dark"] body .admin-page .correction-resolve-form fieldset .text-muted {
+    background: transparent !important;
+}

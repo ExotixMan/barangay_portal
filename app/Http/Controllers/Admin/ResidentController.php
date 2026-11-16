@@ -8,6 +8,7 @@ use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
 use App\Services\SupabaseStorageService;
 use App\Support\UploadedImageComparator;
+use App\Support\ResidentName;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -328,6 +329,7 @@ class ResidentController extends Controller
 
             if (! in_array(strtolower((string) $correction->status), [
                 'pending',
+                'reviewed',
                 'under_review',
                 'in_review',
                 'reviewing',
@@ -341,8 +343,11 @@ class ResidentController extends Controller
 
             $decision = $validated['resolution_status'];
             $remarks = trim($validated['remarks']);
+            $residentChanges = [];
 
-            if ($decision === 'resolved') {
+            if ($decision === 'resolved' && ResidentName::isFullNameField($correction->field_name)) {
+                $residentChanges = ResidentName::confirmedParts($request->all(), $correction->correct_value);
+            } elseif ($decision === 'resolved') {
                 $field = strtolower(trim((string) $correction->field_name));
 
                 $fieldAliases = [
@@ -393,7 +398,7 @@ class ResidentController extends Controller
                         $correctValue = null;
                     } elseif (
                         $correctValue !== null &&
-                        ! preg_match('/^[a-zA-Z\s\-\.]+$/', $correctValue)
+                        ! preg_match(ResidentName::PATTERN, $correctValue)
                     ) {
                         return back()->with(
                             'error',
@@ -528,17 +533,26 @@ class ResidentController extends Controller
                     }
                 }
 
-                $resident->update([
+                $residentChanges = [
                     $residentField => $correctValue,
-                ]);
+                ];
             }
 
-            $correction->update([
-                'status' => $decision === 'resolved' ? 'resolved' : 'rejected',
-                'reviewed_by' => auth('admin')->id(),
-                'reviewed_at' => now('Asia/Manila'),
-                'remarks' => $remarks,
-            ]);
+            DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks) {
+                $lockedConcern = ResidentProfileCorrectionConcern::whereKey($correction->id)->lockForUpdate()->firstOrFail();
+                if (! in_array(strtolower((string) $lockedConcern->status), ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''], true)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
+                }
+                if ($residentChanges) {
+                    $resident->update($residentChanges);
+                }
+                $lockedConcern->update([
+                    'status' => $decision === 'resolved' ? 'resolved' : 'rejected',
+                    'reviewed_by' => auth('admin')->id(),
+                    'reviewed_at' => now('Asia/Manila'),
+                    'remarks' => $remarks,
+                ]);
+            });
 
             $this->log(
                 $resident,

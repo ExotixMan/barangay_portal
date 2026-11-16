@@ -1286,6 +1286,7 @@
         : null;
 
     $profileCorrectionFields = [
+        ['value' => 'full_name', 'label' => 'Full Name', 'current' => $resident->full_name],
         ['value' => 'firstname', 'label' => 'First Name', 'current' => $resident->firstname ?? ''],
         ['value' => 'middlename', 'label' => 'Middle Name', 'current' => $resident->middlename ?? ''],
         ['value' => 'lastname', 'label' => 'Last Name', 'current' => $resident->lastname ?? ''],
