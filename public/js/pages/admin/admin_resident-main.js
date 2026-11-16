@@ -52,6 +52,86 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             return false;
         }
 
+        const pendingCorrectionReviews = new WeakSet();
+        async function reviewProfileCorrection(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            if (!form || pendingCorrectionReviews.has(form)) return false;
+            if (typeof Swal === 'undefined') { AdminUI.unavailableConfirm(); return false; }
+            const template = form.querySelector('[data-correction-review-template]');
+            if (!template) return false;
+            const content = template.content.firstElementChild.cloneNode(true);
+            pendingCorrectionReviews.add(form);
+            const normalize = value => value.trim().replace(/\s+/gu, ' ');
+            const readDecision = approving => {
+                const popup = Swal.getPopup();
+                const remarksInput = popup.querySelector('[data-review-remarks]');
+                const remarks = remarksInput.value.trim();
+                if (!remarks || remarks.length > 500) {
+                    Swal.showValidationMessage('Enter review remarks (up to 500 characters) before saving.');
+                    remarksInput.focus();
+                    return false;
+                }
+                const parts = {};
+                if (approving) {
+                    for (const input of popup.querySelectorAll('[data-review-part]')) {
+                        const part = input.dataset.reviewPart;
+                        const value = normalize(input.value);
+                        if ((['firstname', 'lastname'].includes(part) && !value) ||
+                            (value && !/^[\p{L}\p{M}\s'’.,-]+$/u.test(value)) || value.length > (part === 'suffix' ? 10 : 255)) {
+                            popup.querySelector('[data-review-name-parts]').open = true;
+                            Swal.showValidationMessage('Check the name parts against the ID. First and last names are required; use letters and name punctuation.');
+                            input.focus();
+                            return false;
+                        }
+                        parts[part] = value;
+                    }
+                }
+                return {remarks, parts, notify: popup.querySelector('[data-review-notify]').checked};
+            };
+            try {
+                const result = await Swal.fire({
+                    title: 'Review profile correction', html: content, width: '64rem',
+                    target: form.closest('.modal.show') || document.body,
+                    customClass: {popup: 'profile-correction-review-popup'},
+                    showCancelButton: true, showDenyButton: true,
+                    confirmButtonText: 'Approve correction', denyButtonText: 'Reject request', cancelButtonText: 'Cancel',
+                    focusConfirm: false, focusCancel: true,
+                    preConfirm: () => readDecision(true), preDeny: () => readDecision(false),
+                    didOpen: () => {
+                        const popup = Swal.getPopup();
+                        const updatePreview = () => {
+                            const preview = popup.querySelector('[data-reviewed-name]');
+                            if (preview) preview.textContent = [...popup.querySelectorAll('[data-review-part]')]
+                                .map(input => normalize(input.value)).filter(Boolean).join(' ');
+                        };
+                        popup.querySelectorAll('[data-review-part]').forEach(input => input.addEventListener('input', updatePreview));
+                        popup.querySelectorAll('[data-review-id-image]').forEach(img => {
+                            const unavailable = () => { img.hidden = true; img.closest('.correction-review-id-card').querySelector('[data-id-unavailable]').hidden = false; };
+                            img.addEventListener('error', unavailable);
+                            if (img.complete && !img.naturalWidth) unavailable();
+                        });
+                        updatePreview();
+                    }
+                });
+                if (!result.isConfirmed && !result.isDenied) return false;
+                const values = result.value;
+                const set = (name, value) => {
+                    let input = form.querySelector(`input[name="${name}"]`);
+                    if (!input) { input = document.createElement('input'); input.type = 'hidden'; input.name = name; form.append(input); }
+                    input.value = value;
+                };
+                set('resolution_status', result.isConfirmed ? 'resolved' : 'rejected');
+                set('remarks', values.remarks); set('notify_email', values.notify ? '1' : '0');
+                if (result.isConfirmed) Object.entries(values.parts).forEach(([part, value]) => set('name_' + part, value));
+                HTMLFormElement.prototype.submit.call(form);
+            } catch (error) {
+                console.error('Profile correction review failed', error);
+                AdminUI.notify('We could not open or submit this review. Please reload the page and try again.');
+            } finally { pendingCorrectionReviews.delete(form); }
+            return false;
+        }
+
         function confirmApproveId(event, residentName) {
             event.preventDefault();
             const form = event.target.closest('form');
@@ -379,38 +459,6 @@ const __cfg_admin_residents = JSON.parse(document.getElementById('js-config-admi
             });
 
             document.querySelectorAll('.correction-resolve-form').forEach(function(form) {
-                const select = form.querySelector('select[name="resolution_status"]');
-                const remarks = form.querySelector('textarea[name="remarks"]');
-                const names = form.querySelector('[data-correction-name-fields]');
-                const updateNamePreview = function() {
-                    if (!names) return;
-                    const normalizeName = value => value.trim().replace(/\s+/gu, ' ');
-                    const savedName = ['firstname', 'middlename', 'lastname', 'suffix']
-                        .map(part => normalizeName(names.querySelector(`[name="name_${part}"]`)?.value || ''))
-                        .filter(Boolean).join(' ');
-                    names.querySelector('[data-confirmed-name]').textContent = savedName || 'Enter the corrected name above.';
-                    names.querySelector('[data-name-difference]').hidden = savedName === '' ||
-                        savedName.toLocaleLowerCase() === normalizeName(names.dataset.requestedName || '').toLocaleLowerCase();
-                };
-                names?.addEventListener('input', updateNamePreview);
-                if (select && remarks) {
-                    const syncDecision = function() {
-                        remarks.placeholder = select.value === 'rejected'
-                            ? 'Explain why this correction request was not approved.'
-                            : 'Explain what was corrected on the resident profile.';
-                        if (names) {
-                            const approving = select.value === 'resolved';
-                            names.hidden = !approving;
-                            names.disabled = !approving;
-                            names.querySelectorAll('[data-name-required]').forEach(input => {
-                                input.required = approving && input.dataset.nameRequired === 'true';
-                            });
-                            updateNamePreview();
-                        }
-                    };
-                    select.addEventListener('change', syncDecision);
-                    syncDecision();
-                }
                 if (String(__cfg_admin_residents.errorCorrectionId || '') === form.querySelector('[name="correction_id"]')?.value) {
                     const modal = form.closest('[id^="viewResidentModal"]');
                     if (!modal) return;

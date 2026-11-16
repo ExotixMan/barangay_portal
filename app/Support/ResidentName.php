@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Residents;
 use Illuminate\Support\Facades\Validator;
 
 class ResidentName
@@ -16,6 +17,44 @@ class ResidentName
     public static function normalize(string $value): string
     {
         return trim(preg_replace('/\s+/u', ' ', $value) ?? $value);
+    }
+
+    /** Editable suggestions for legacy requests that contain a single full name. */
+    public static function suggestedParts(string $requested, Residents $resident): array
+    {
+        $name = self::normalize($requested);
+        $parts = ['firstname' => '', 'middlename' => null, 'lastname' => '', 'suffix' => null];
+        $tokens = explode(' ', $name);
+        if (count($tokens) > 2 && preg_match('/^(jr\.?|sr\.?|ii|iii|iv|v|vi|vii|viii|ix|x)$/iu', end($tokens))) {
+            $parts['suffix'] = array_pop($tokens);
+        }
+        $name = implode(' ', $tokens);
+        $lastName = self::normalize((string) $resident->lastname);
+        if ($lastName !== '' && preg_match('/^(.+)\s('.preg_quote($lastName, '/').')$/iu', $name, $match)) {
+            $parts['lastname'] = $match[2];
+            $given = $match[1];
+        } else {
+            $last = array_pop($tokens) ?? '';
+            $particles = ['de', 'del', 'dela', 'delos', 'delas', 'de la', 'de los', 'de las', 'da', 'dos', 'das', 'di', 'du', 'van', 'van de', 'van der', 'von', 'san', 'santa', 'santo'];
+            for ($length = min(2, count($tokens) - 1); $length > 0; $length--) {
+                $prefix = implode(' ', array_slice($tokens, -$length));
+                if (in_array(mb_strtolower($prefix), $particles, true)) {
+                    $last = $prefix.' '.$last;
+                    $tokens = array_slice($tokens, 0, -$length);
+                    break;
+                }
+            }
+            $parts['lastname'] = $last;
+            $given = implode(' ', $tokens);
+        }
+        $middle = self::normalize((string) $resident->middlename);
+        if ($middle !== '' && preg_match('/^(.+)\s('.preg_quote($middle, '/').')$/iu', $given, $match)) {
+            $given = $match[1];
+            $parts['middlename'] = $match[2];
+        }
+        $parts['firstname'] = $given;
+
+        return $parts;
     }
 
     /** Confirm explicit parts rather than guessing where compound names split. */

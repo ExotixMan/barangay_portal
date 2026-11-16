@@ -8,9 +8,11 @@ use App\Models\AdminUser;
 use App\Models\ResidentProfileCorrectionConcern;
 use App\Models\Residents;
 use App\Services\EmailDeliveryService;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -66,7 +68,7 @@ class ProfileCorrectionTest extends TestCase
         $this->get(route('residency.form'))->assertRedirect(route('profile'));
 
         $admin = $this->admin();
-        $this->actingAs($admin, 'admin')->get(route('admin.residents.index'))->assertOk()->assertSee('name_firstname')->assertSee('Confirm the corrected name');
+        $this->actingAs($admin, 'admin')->get(route('admin.residents.index'))->assertOk()->assertSee('Review correction and ID')->assertSee("Resident's saved valid ID", false);
         $this->put(route('admin.residents.update', $resident->id), $this->decision($concern))->assertSessionHasNoErrors()->assertSessionHas('success');
         $resident->refresh();
         $concern->refresh();
@@ -77,12 +79,12 @@ class ProfileCorrectionTest extends TestCase
         $this->actingAs($resident, 'web')->get(route('residency.form'))->assertOk()->assertSee('María Ana');
     }
 
-    public function test_full_name_approval_requires_parts_without_guessing(): void
+    public function test_explicitly_blank_name_parts_are_rejected(): void
     {
         $resident = Residents::factory()->create();
         $original = $resident->full_name;
         $concern = $this->concern($resident);
-        $payload = ['correction_id' => $concern->id, 'resolution_status' => 'resolved', 'remarks' => 'Review name parts first.'];
+        $payload = ['correction_id' => $concern->id, 'resolution_status' => 'resolved', 'remarks' => 'Review name parts first.', 'name_firstname' => '', 'name_lastname' => ''];
         $this->actingAs($this->admin(), 'admin')->from(route('admin.residents.index'))->put(route('admin.residents.update', $resident->id), $payload)->assertSessionHasErrors(['name_firstname', 'name_lastname']);
         $this->assertSame($original, $resident->fresh()->full_name);
         $this->assertSame('pending', $concern->fresh()->status);
@@ -181,12 +183,65 @@ class ProfileCorrectionTest extends TestCase
             throw new \RuntimeException('Synthetic decision persistence failure.');
         });
         try {
-            $this->putJson(route('admin.residents.update', $resident->id), $this->decision($concern))->assertStatus(500);
+            $this->from(route('admin.residents.index'))->put(route('admin.residents.update', $resident->id), $this->decision($concern))->assertRedirect(route('admin.residents.index'))->assertSessionHasErrors('correction_id');
             $this->assertSame($original, $resident->fresh()->full_name);
             $this->assertSame('pending', $concern->fresh()->status);
             $this->assertNull($concern->fresh()->resolved_value);
         } finally {
             ResidentProfileCorrectionConcern::flushEventListeners();
         }
+    }
+
+    public function test_approval_uses_the_requested_name_without_admin_retyping(): void
+    {
+        $resident = Residents::factory()->create(['firstname' => 'Ana', 'middlename' => 'Old', 'lastname' => 'Santos']);
+        $concern = $this->concern($resident, 'Full name', 'María Ana López');
+        $this->actingAs($this->admin(), 'admin')->put(route('admin.residents.update', $resident->id), [
+            'correction_id' => $concern->id, 'resolution_status' => 'resolved', 'remarks' => 'Verified against saved ID.',
+        ])->assertSessionHasNoErrors()->assertSessionHas('success');
+        $this->assertSame('María Ana', $resident->fresh()->firstname);
+        $this->assertNull($resident->fresh()->middlename);
+        $this->assertSame('López', $resident->fresh()->lastname);
+        $this->assertSame('María Ana López', $concern->fresh()->resolved_value);
+    }
+
+    public function test_approval_with_an_older_schema_does_not_return_500(): void
+    {
+        $resident = Residents::factory()->create();
+        $concern = $this->concern($resident);
+        Schema::table('resident_profile_correction_concerns', fn (Blueprint $table) => $table->dropColumn('resolved_value'));
+        $this->assertFalse(Schema::hasColumn('resident_profile_correction_concerns', 'resolved_value'));
+        $this->actingAs($this->admin(), 'admin')->put(route('admin.residents.update', $resident->id), $this->decision($concern))
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
+        $this->assertSame('resolved', $concern->fresh()->status);
+        $this->assertSame('María Ana Peña De la Cruz Jr.', $resident->fresh()->full_name);
+        $this->assertSame($resident->fresh()->full_name, $concern->fresh()->resolved_value);
+        $this->get(route('admin.residents.index'))->assertOk()->assertSee('Saved correction');
+    }
+
+    public function test_audit_save_failure_rolls_back_the_profile_and_returns_a_friendly_error(): void
+    {
+        $resident = Residents::factory()->create();
+        $original = $resident->full_name;
+        $concern = $this->concern($resident);
+        $this->actingAs($this->admin(), 'admin');
+        Schema::drop('admin_activity_logs');
+        $this->from(route('admin.residents.index'))->put(route('admin.residents.update', $resident->id), $this->decision($concern))
+            ->assertRedirect(route('admin.residents.index'))->assertSessionHasErrors('correction_id');
+        $this->assertSame($original, $resident->fresh()->full_name);
+        $this->assertSame('pending', $concern->fresh()->status);
+        $this->assertDatabaseCount('resident_activities', 0);
+    }
+
+    public function test_review_popup_contains_front_back_and_pdf_links_from_private_storage(): void
+    {
+        $resident = Residents::factory()->create(['valid_id' => 'private/valid_id/review-front.png', 'valid_id_back' => 'private/valid_id/review-back.pdf']);
+        $this->concern($resident, 'Full name', 'María Ana López');
+        $this->actingAs($this->admin(), 'admin')->get(route('admin.residents.index'))->assertOk()
+            ->assertSee('Review correction and ID')->assertSee('data-correction-review-template', false)
+            ->assertSee(route('admin.secure.file', ['path' => $resident->valid_id]), false)
+            ->assertSee(route('admin.secure.file', ['path' => $resident->valid_id_back]), false)
+            ->assertSee('Open front ID in full size')->assertSee('Open back ID in full size')
+            ->assertDontSee('src="'.asset($resident->valid_id).'"', false);
     }
 }

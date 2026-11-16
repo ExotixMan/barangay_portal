@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 
 class ResidentController extends Controller
@@ -346,7 +347,14 @@ class ResidentController extends Controller
             $residentChanges = [];
 
             if ($decision === 'resolved' && ResidentName::isFullNameField($correction->field_name)) {
-                $residentChanges = ResidentName::confirmedParts($request->all());
+                // A cached/older review form can approve the resident's request without retyping it.
+                $nameInput = $request->all();
+                if (! $request->exists('name_firstname') && ! $request->exists('name_lastname')) {
+                    foreach (ResidentName::suggestedParts($correction->correct_value, $resident) as $part => $value) {
+                        $nameInput['name_'.$part] = $value;
+                    }
+                }
+                $residentChanges = ResidentName::confirmedParts($nameInput);
             } elseif ($decision === 'resolved') {
                 $field = strtolower(trim((string) $correction->field_name));
 
@@ -544,54 +552,66 @@ class ResidentController extends Controller
                     : (string) reset($residentChanges))
                 : null;
 
-            DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks, $resolvedValue) {
-                $lockedConcern = ResidentProfileCorrectionConcern::whereKey($correction->id)->lockForUpdate()->firstOrFail();
-                if (! in_array(strtolower((string) $lockedConcern->status), ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''], true)) {
-                    throw \Illuminate\Validation\ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
-                }
-                if ($residentChanges) {
-                    $resident->update($residentChanges);
-                }
-                $lockedConcern->update([
-                    'status' => $decision === 'resolved' ? 'resolved' : 'rejected',
-                    'reviewed_by' => auth('admin')->id(),
-                    'reviewed_at' => now('Asia/Manila'),
-                    'remarks' => $remarks,
-                    'resolved_value' => $resolvedValue,
-                ]);
-            });
-            $correction->refresh();
-            $appliedValue = $correction->resolved_value ?? $correction->correct_value;
-
-            $this->log(
-                $resident,
-                $decision === 'resolved'
-                    ? 'Profile Correction Resolved'
-                    : 'Profile Correction Rejected'
-            );
-
-            if (auth('admin')->check()) {
-                \App\Models\AdminActivityLog::create([
-                    'user_id' => auth('admin')->id(),
-                    'action' => $decision === 'resolved'
-                        ? 'UPDATE'
-                        : 'REJECT',
-                    'module' => 'Residents',
-                    'details' => [
-                        'resident_id' => $resident->id,
-                        'resident_name' => $resident->full_name,
-                        'correction_id' => $correction->id,
-                        'field' => $correction->field_name,
-                        'old_value' => $correction->current_value,
-                        'new_value' => $appliedValue,
-                        'requested_value' => $correction->correct_value,
-                        'decision' => $decision,
+            $appliedValue = $resolvedValue ?? $correction->correct_value;
+            try {
+                $hasSnapshotColumn = Schema::hasColumn('resident_profile_correction_concerns', 'resolved_value');
+                DB::transaction(function () use ($resident, $correction, $residentChanges, $decision, $remarks, $resolvedValue, $hasSnapshotColumn, $appliedValue, $request) {
+                    $lockedConcern = ResidentProfileCorrectionConcern::whereKey($correction->id)->lockForUpdate()->firstOrFail();
+                    if (! in_array(strtolower((string) $lockedConcern->status), ['pending', 'reviewed', 'under_review', 'in_review', 'reviewing', ''], true)) {
+                        throw \Illuminate\Validation\ValidationException::withMessages(['correction_id' => 'This correction has already been reviewed. Please reload the resident record.']);
+                    }
+                    if ($residentChanges) {
+                        $resident->update($residentChanges);
+                    }
+                    $review = [
+                        'status' => $decision === 'resolved' ? 'resolved' : 'rejected',
+                        'reviewed_by' => auth('admin')->id(),
+                        'reviewed_at' => now('Asia/Manila'),
                         'remarks' => $remarks,
-                        'reviewed_by' => auth('admin')->user()?->full_name ?? 'Admin',
-                    ],
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                ]);
+                    ];
+                    if ($hasSnapshotColumn) {
+                        $review['resolved_value'] = $resolvedValue;
+                    }
+                    $lockedConcern->update($review);
+                    $this->log(
+                        $resident,
+                        $decision === 'resolved'
+                            ? 'Profile Correction Resolved'
+                            : 'Profile Correction Rejected'
+                    );
+
+                    if (auth('admin')->check()) {
+                        $audit = \App\Models\AdminActivityLog::create([
+                            'user_id' => auth('admin')->id(),
+                            'action' => $decision === 'resolved'
+                                ? 'UPDATE'
+                                : 'REJECT',
+                            'module' => 'Residents',
+                            'details' => [
+                                'resident_id' => $resident->id,
+                                'resident_name' => $resident->full_name,
+                                'correction_id' => $correction->id,
+                                'field' => $correction->field_name,
+                                'old_value' => $correction->current_value,
+                                'new_value' => $appliedValue,
+                                'requested_value' => $correction->correct_value,
+                                'decision' => $decision,
+                                'remarks' => $remarks,
+                                'reviewed_by' => auth('admin')->user()?->full_name ?? 'Admin',
+                            ],
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent(),
+                        ]);
+                        if (! $audit->exists) {
+                            throw new \RuntimeException('The correction audit could not be saved.');
+                        }
+                    }
+                });
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+                Log::error('Profile correction review failed', ['correction_id' => $correction->id, 'resident_id' => $resident->id, 'exception' => $e]);
+                return back()->withInput()->withErrors(['correction_id' => 'We could not save this decision. Reload the resident record and try again, or contact the system administrator.']);
             }
 
             $notificationResult = [

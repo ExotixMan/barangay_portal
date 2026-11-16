@@ -2110,3 +2110,37 @@ opacity: .38 !important;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #d32f2f) 14%, transparent) !important;
     outline: 0 !important;
 }
+
+/* Review the resident's request and private ID in one confirmation popup. */
+.profile-correction-review-popup .swal2-html-container { text-align: left; max-height: 68vh; overflow: auto; margin: .75rem 1.25rem; }
+.profile-correction-review-popup .correction-review-content { font-size: .9rem; color: var(--text, #172033); }
+.profile-correction-review-popup .correction-review-values,
+.profile-correction-review-popup .correction-review-id-grid,
+.profile-correction-review-popup .correction-review-name-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.profile-correction-review-popup .correction-review-values > div,
+.profile-correction-review-popup .correction-review-name { padding: .8rem; border: 1px solid var(--line, #dce2ec); border-radius: 10px; background: var(--surface-2, #f6f8fc); overflow-wrap: anywhere; }
+.profile-correction-review-popup .correction-review-values span,
+.profile-correction-review-popup .correction-review-name > span { display: block; font-size: .75rem; color: var(--muted, #56647a); margin-bottom: .3rem; }
+.profile-correction-review-popup .correction-review-values strong,
+.profile-correction-review-popup [data-reviewed-name] { display: block; color: var(--text, #172033); }
+.profile-correction-review-popup .correction-review-ids { margin: 1rem 0; }
+.profile-correction-review-popup .correction-review-ids h3 { font-size: 1rem; margin: 0 0 .4rem; }
+.profile-correction-review-popup .correction-review-id-card { padding: .7rem; border: 1px solid var(--line, #dce2ec); border-radius: 10px; min-width: 0; }
+.profile-correction-review-popup .correction-review-id-card h4 { font-size: .9rem; margin: 0 0 .5rem; }
+.profile-correction-review-popup [data-review-id-image] { display: block; width: 100%; height: 190px; object-fit: contain; border-radius: 8px; background: var(--surface-2, #f6f8fc); margin-bottom: .5rem; }
+.profile-correction-review-popup [data-review-id-image][hidden] { display: none; }
+.profile-correction-review-popup .correction-review-id-card a { color: var(--text, #172033); text-decoration: underline; }
+.profile-correction-review-popup .correction-review-file { min-height: 100px; display: grid; align-content: center; text-align: center; }
+.profile-correction-review-popup [data-review-name-parts] { margin: .8rem 0; }
+.profile-correction-review-popup [data-review-name-parts] summary { cursor: pointer; font-weight: 700; }
+.profile-correction-review-popup .correction-review-name-grid label,
+.profile-correction-review-popup .correction-review-remarks { display: block; font-size: .8rem; font-weight: 600; }
+.profile-correction-review-popup .correction-review-remarks { margin: 1rem 0 .7rem; }
+.profile-correction-review-popup .form-control { margin-top: .3rem; }
+.profile-correction-review-popup .correction-review-notify { display: flex; align-items: center; gap: .5rem; font-size: .8rem; }
+@media (max-width: 575.98px) {
+    .profile-correction-review-popup .correction-review-values,
+    .profile-correction-review-popup .correction-review-id-grid,
+    .profile-correction-review-popup .correction-review-name-grid { grid-template-columns: minmax(0, 1fr); }
+    .profile-correction-review-popup .swal2-html-container { margin: .5rem .75rem; }
+}

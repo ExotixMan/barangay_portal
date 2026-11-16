@@ -6,7 +6,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/residency-applications.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin/residents.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/residents.css') }}?v={{ filemtime(public_path('css/admin/residents.css')) }}">
 
 @endpush
 
@@ -1801,56 +1801,19 @@
                                             </div>
 
                                             @if(auth('admin')->user()->hasPermission('update_residents') && $isConcernOpen)
-                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" data-submit-call="confirmDelete" data-submit-pass="event,args" data-submit-args="{{ json_encode(['Save this correction decision?']) }}">
+                                                <form method="POST" action="{{ route('admin.residents.update', $resident->id) }}" class="correction-resolve-form resident-correction-decision" data-submit-call="reviewProfileCorrection" data-submit-pass="event">
                                                     @csrf
                                                     @method('PUT')
                                                     <input type="hidden" name="correction_id" value="{{ $concern->id }}">
                                                     @php($isCorrectionRetry = (string) old('correction_id') === (string) $concern->id)
                                                     @if($isCorrectionRetry && $errors->any())
-                                                        <div class="alert alert-danger" role="alert">
-                                                            <strong>Please check this correction decision.</strong>
-                                                            <ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-                                                        </div>
+                                                        <div class="alert alert-danger" role="alert"><strong>Please check this correction decision.</strong><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
                                                     @endif
-                                                    <div class="row g-2 align-items-end">
-                                                        <div class="col-12 col-md-4">
-                                                            <label class="form-label small text-uppercase fw-semibold">Decision</label>
-                                                            <select name="resolution_status" class="form-select" required>
-                                                                <option value="">Select decision</option>
-                                                                <option value="resolved" @selected($isCorrectionRetry && old('resolution_status') === 'resolved')>Mark corrected / approved</option>
-                                                                <option value="rejected" @selected($isCorrectionRetry && old('resolution_status') === 'rejected')>Reject request</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-12 col-md-8">
-                                                            <label class="form-label small text-uppercase fw-semibold">Remarks <span class="text-danger">*</span></label>
-                                                            <textarea name="remarks" class="form-control" rows="2" maxlength="500" required placeholder="Explain the approval or rejection.">{{ $isCorrectionRetry ? old('remarks') : '' }}</textarea>
-                                                        </div>
-                                                        @if(\App\Support\ResidentName::isFullNameField($concern->field_name))
-                                                            <fieldset data-correction-name-fields data-requested-name="{{ $concern->correct_value }}" hidden disabled class="col-12 mb-3">
-                                                                <legend class="fs-6 fw-semibold">Confirm the corrected name</legend>
-                                                                <p class="small text-muted">These fields start with the current profile. Verify each part against the resident's documents. Keep compound names together, and clear any middle name or suffix that should be removed.</p>
-                                                                <div class="row g-2">
-                                                                    @foreach(['firstname' => 'First name', 'middlename' => 'Middle name', 'lastname' => 'Last name', 'suffix' => 'Suffix'] as $part => $label)
-                                                                        <div class="col-12 col-md-6">
-                                                                            <label class="form-label" for="correction-name-{{ $part }}-{{ $concern->id }}">{{ $label }}{{ in_array($part, ['firstname', 'lastname']) ? ' *' : ' (optional)' }}</label>
-                                                                            <input type="text" id="correction-name-{{ $part }}-{{ $concern->id }}" name="name_{{ $part }}" class="form-control" maxlength="{{ $part === 'suffix' ? 10 : 255 }}" data-name-required="{{ in_array($part, ['firstname', 'lastname']) ? 'true' : 'false' }}" value="{{ $isCorrectionRetry ? old('name_'.$part) : $resident->{$part} }}">
-                                                                        </div>
-                                                                    @endforeach
-                                                                </div>
-                                                                <div class="alert alert-info mt-3 mb-0" aria-live="polite" data-name-preview>
-                                                                    <strong>Name that will be saved:</strong> <span data-confirmed-name></span>
-                                                                    <p class="small mb-0 mt-1" data-name-difference hidden>This differs from the requested name. Verify the name parts and explain the correction in your remarks before saving.</p>
-                                                                </div>
-                                                            </fieldset>
-                                                        @endif
-                                                        <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" name="notify_email" value="1" id="notify_email_{{ $concern->id }}" @checked($isCorrectionRetry ? old('notify_email') : true) {{ !$resident->email ? 'disabled' : '' }}>
-                                                                <label class="form-check-label small" for="notify_email_{{ $concern->id }}">Notify resident by email</label>
-                                                            </div>
-                                                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>Save decision</button>
-                                                        </div>
-                                                    </div>
+                                                    <p class="small text-muted">Review the resident's requested correction alongside their saved ID, then approve or reject it.</p>
+                                                    <template data-correction-review-template>
+                                                        @include('admin.partials.profile-correction-review')
+                                                    </template>
+                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-id-card me-1"></i>Review correction and ID</button>
                                                 </form>
                                             @endif
                                         </div>

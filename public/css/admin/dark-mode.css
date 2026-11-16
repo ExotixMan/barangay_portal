@@ -1487,6 +1487,7 @@ html[data-theme="dark"] body .admin-page .correction-resolve-form .alert-danger 
     color: #ffc2cb !important;
 }
 
+html[data-theme="dark"] body .admin-page .correction-resolve-form > .text-muted,
 html[data-theme="dark"] body .admin-page .correction-resolve-form fieldset .text-muted,
 html[data-theme="dark"] body .admin-page .correction-resolve-form [data-name-preview] [data-name-difference] {
     background: transparent !important;
